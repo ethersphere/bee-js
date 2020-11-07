@@ -1,0 +1,13 @@
+diff --git a/node_modules/tasegir/src/config/.npmpackagejsonlintrc.json b/node_modules/tasegir/src/config/.npmpackagejsonlintrc.json
+index bd28771..44b1f48 100644
+--- a/node_modules/tasegir/src/config/.npmpackagejsonlintrc.json
++++ b/node_modules/tasegir/src/config/.npmpackagejsonlintrc.json
+@@ -40,7 +40,7 @@
+         }
+       ]],
+       "valid-values-license": ["error", [
+-        "MIT"
++        "BSD-3-Clause"
+       ]],
+       "prefer-alphabetical-dependencies": "error",
+       "prefer-alphabetical-devDependencies": "error",

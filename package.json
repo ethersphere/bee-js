@@ -1,0 +1,66 @@
+{
+  "name": "@ethersphere/bee-js",
+  "version": "0.1.0",
+  "description": "Storage library for Bee",
+  "keywords": [
+    "Bee",
+    "Swarm",
+    "Decentralised Storage"
+  ],
+  "homepage": "https://github.com/ethersphere/bee-js",
+  "bugs": {
+    "url": "https://github.com/ethersphere/bee-js/issues/"
+  },
+  "license": "BSD-3-Clause",
+  "files": [
+    "types",
+    "lib",
+    "dist"
+  ],
+  "main": "lib/index.js",
+  "browser": {
+    "stream": "readable-stream",
+    "./lib/utils/data.js": "./lib/utils/data.browser.js",
+    "./src/utils/data.ts": "./src/utils/data.browser.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ethersphere/bee-js.git"
+  },
+  "scripts": {
+    "postinstall": "patch-package",
+    "compile": "tasegir compile",
+    "compile:watch": "tasegir compile -- --watch",
+    "docs": "typedoc --mode modules --excludeNotExported --readme none --out docs src",
+    "types-check": "tasegir types-check",
+    "exec": "tasegir run",
+    "lint": "tasegir lint",
+    "release": "tasegir release",
+    "build": "tasegir build",
+    "test": "tasegir test",
+    "test:node": "tasegir test --target node",
+    "test:browser": "tasegir test --target browser --target webworker",
+    "tasegir:link": "ln -s ./node_modules/tasegir/src/config/tsconfig.json ./tsconfig.json && ln -s ./node_modules/tasegir/src/config/eslintrc.js ./.eslintrc.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "^4.2.14",
+    "@types/debug": "^4.1.5",
+    "@types/mocha": "^8.0.3",
+    "@types/node": "^14.14.6",
+    "chai": "^4.2.0",
+    "debug": "^4.2.0",
+    "patch-package": "^6.2.2",
+    "tasegir": "^1.8.0",
+    "typedoc": "^0.19.2",
+    "typedoc-plugin-markdown": "^3.0.11"
+  },
+  "engines": {
+    "node": ">=10.0.0",
+    "npm": ">=6.0.0"
+  },
+  "types": "types/index.d.ts",
+  "contributors": [
+    "Vojtěch Šimetka <vojtech@simetka.cz>"
+  ]
+}
