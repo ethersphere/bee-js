@@ -42,7 +42,9 @@
     "test:browser": "tasegir test --target browser --target webworker",
     "tasegir:link": "ln -s ./node_modules/tasegir/src/config/tsconfig.json ./tsconfig.json && ln -s ./node_modules/tasegir/src/config/eslintrc.js ./.eslintrc.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "axios": "^0.21.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.2.14",
     "@types/debug": "^4.1.5",

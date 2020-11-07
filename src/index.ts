@@ -1,3 +1,5 @@
+import * as Tag from './modules/tag'
+
 /**
  * The Bee class wraps the indivitual
  *
@@ -10,3 +12,5 @@ export default class Bee {
     this.url = url
   }
 }
+
+export { Tag }
