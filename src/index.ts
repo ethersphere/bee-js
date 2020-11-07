@@ -1,3 +1,4 @@
+import * as File from './modules/file'
 import * as Tag from './modules/tag'
 
 /**
@@ -13,4 +14,4 @@ export default class Bee {
   }
 }
 
-export { Tag }
+export { File, Tag }
