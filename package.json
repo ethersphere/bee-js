@@ -38,9 +38,10 @@
     "release": "tasegir release",
     "build": "tasegir build",
     "test": "tasegir test",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" && eslint --fix \"src/**/*.ts\" \"test/**/*.ts\"",
     "test:node": "tasegir test --target node",
     "test:browser": "tasegir test --target browser --target webworker",
-    "tasegir:link": "ln -s ./node_modules/tasegir/src/config/tsconfig.json ./tsconfig.json && ln -s ./node_modules/tasegir/src/config/eslintrc.js ./.eslintrc.js"
+    "tasegir:lint": "cp ./node_modules/tasegir/src/config/tsconfig.json ./tsconfig.json && cp ./node_modules/tasegir/src/config/eslintrc.js ./.eslintrc.js"
   },
   "dependencies": {
     "axios": "^0.21.0",
@@ -54,7 +55,11 @@
     "@types/readable-stream": "^2.3.9",
     "chai": "^4.2.0",
     "debug": "^4.2.0",
+    "eslint": "^7.13.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "patch-package": "^6.2.2",
+    "prettier": "^2.1.2",
     "tasegir": "^1.8.0",
     "typedoc": "^0.19.2",
     "typedoc-plugin-markdown": "^3.0.11"
@@ -62,9 +67,5 @@
   "engines": {
     "node": ">=10.0.0",
     "npm": ">=6.0.0"
-  },
-  "types": "types/index.d.ts",
-  "contributors": [
-    "Vojtěch Šimetka <vojtech@simetka.cz>"
-  ]
+  }
 }
