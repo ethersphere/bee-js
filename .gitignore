@@ -1,0 +1,6 @@
+node_modules/
+dist/
+
+#tasegir
+.nyc_output/
+coverage/
