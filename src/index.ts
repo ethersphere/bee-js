@@ -1,5 +1,5 @@
-import * as File from './modules/file';
-import * as Tag from './modules/tag';
+import * as File from './modules/file'
+import * as Tag from './modules/tag'
 
 /**
  * The Bee class wraps the indivitual
@@ -10,8 +10,8 @@ export default class Bee {
   public readonly url: string;
 
   constructor(url: string) {
-    this.url = url;
+    this.url = url
   }
 }
 
-export { File, Tag };
+export { File, Tag }

@@ -1,20 +1,20 @@
-import { Readable } from 'stream';
-import { OptionsUpload, Dictionary } from '../types';
-import { prepareData } from '../utils/data';
-import axios from 'axios';
+import { Readable } from 'stream'
+import { OptionsUpload, Dictionary } from '../types'
+import { prepareData } from '../utils/data'
+import axios from 'axios'
 
 function extractHeaders(options?: OptionsUpload): Dictionary<boolean | number> {
-  const headers: Dictionary<boolean | number> = {};
+  const headers: Dictionary<boolean | number> = {}
 
-  if (options?.pin) headers['swarm-pin'] = options.pin;
+  if (options?.pin) headers['swarm-pin'] = options.pin
 
-  if (options?.encrypt) headers['swarm-encrypt'] = options.encrypt;
+  if (options?.encrypt) headers['swarm-encrypt'] = options.encrypt
 
-  if (options?.tag) headers['swarm-tag-uid'] = options.tag;
+  if (options?.tag) headers['swarm-tag-uid'] = options.tag
 
-  if (options?.size) headers['content-length'] = options.size;
+  if (options?.size) headers['content-length'] = options.size
 
-  return headers;
+  return headers
 }
 
 /**
@@ -36,7 +36,7 @@ export async function upload(url: string, data: string | Buffer | Readable, opti
       },
       params: options?.name ? { name: options.name } : {}
     })
-  ).data.reference;
+  ).data.reference
 }
 
 /**
@@ -53,7 +53,7 @@ export async function download(url: string, hash: string): Promise<Buffer> {
         url: `${url}/${hash}`
       })
     ).data
-  );
+  )
 }
 
 /**
@@ -68,5 +68,5 @@ export async function downloadReadable(url: string, hash: string): Promise<Reada
       responseType: 'stream',
       url: `${url}/${hash}`
     })
-  ).data;
+  ).data
 }

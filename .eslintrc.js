@@ -43,7 +43,6 @@ module.exports = {
     'max-nested-callbacks': ['error', 4],
     'max-depth': ['error', 4],
     'require-await': 'error',
-    semi: ['error', 'always'],
     'space-before-function-paren': [
       'error', {
         anonymous: 'never',
@@ -85,4 +84,4 @@ module.exports = {
       }
     }
   ]
-};
+}

@@ -1,4 +1,4 @@
-import { Readable } from 'stream';
+import { Readable } from 'stream'
 
 /**
  * Sleep for N miliseconds and return any args past
@@ -7,17 +7,17 @@ import { Readable } from 'stream';
  * @param args Values to be returned
  */
 export function sleep<T>(ms: number, ...args: T[]): Promise<T> {
-  return new Promise(resolve => setTimeout(() => resolve(...args), ms));
+  return new Promise(resolve => setTimeout(() => resolve(...args), ms))
 }
 
 export function createReadable(input: string): Readable {
-  const stream = new Readable();
+  const stream = new Readable()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  stream._read = (): void => {};
-  stream.push(Buffer.from(input));
-  stream.push(null);
+  stream._read = (): void => {}
+  stream.push(Buffer.from(input))
+  stream.push(null)
 
-  return stream;
+  return stream
 }
 
 /**
@@ -28,11 +28,11 @@ export function createReadable(input: string): Readable {
  * @param length
  */
 export function randomBuffer(length: number): Buffer {
-  const buf = Buffer.alloc(length);
+  const buf = Buffer.alloc(length)
 
   for (let i = 0; i < length; ++i) {
-    buf[i] = (Math.random() * 0xff) << 0;
+    buf[i] = (Math.random() * 0xff) << 0
   }
 
-  return buf;
+  return buf
 }
