@@ -42,6 +42,6 @@ export interface CollectionEntry<T> {
 }
 
 /**
- * Alternative data structure for representing directories. Used mainly together with streaming.
+ * Represents Collections
  */
-export type Collection<T> = Array<CollectionEntry<T>>
+export type CollectionContainer<T> = Array<CollectionEntry<T>>

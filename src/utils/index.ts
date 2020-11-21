@@ -1,7 +1,6 @@
-import { Dictionary, OptionsUpload } from '../types'
+import { CollectionContainer, Dictionary, OptionsUpload } from '../types'
 import { Request } from 'superagent'
-import { Readable } from "stream"
-
+import { Readable } from 'stream'
 
 export function extractHeaders (options?: OptionsUpload): Dictionary<string | boolean | number> {
   const headers: Dictionary<string | boolean | number> = {}
@@ -40,4 +39,21 @@ export function isReadable (entry: unknown): entry is Readable {
     typeof (entry as Readable).pipe === 'function' &&
     (entry as Readable).readable !== false &&
     typeof (entry as Readable)._read === 'function'
+}
+
+export function isCollection<T> (data: object, genericTest: (entry: T) => boolean): data is CollectionContainer<T> {
+  if (!Array.isArray(data)) {
+    return false
+  }
+
+  return !data.some(
+    entry => typeof entry !== 'object' ||
+      !entry.data ||
+      !entry.path ||
+      !genericTest(entry.data)
+  )
+}
+
+export function isReadableOrBuffer (entry: unknown): entry is Readable | Buffer {
+  return Buffer.isBuffer(entry) || isReadable(entry)
 }

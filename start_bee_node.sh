@@ -14,4 +14,5 @@ docker run $@ \
     --data-dir /bee/data \
     --password-file /bee/password \
     --standalone=true \
-    --swap-enable=false
+    --swap-enable=false \
+    --verbosity=5

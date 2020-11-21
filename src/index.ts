@@ -1,5 +1,6 @@
 import * as File from './modules/file'
 import * as Tag from './modules/tag'
+import * as Collection from './modules/collection'
 
 /**
  * The Bee class wraps the indivitual
@@ -14,4 +15,5 @@ export default class Bee {
   }
 }
 
-export { File, Tag }
+export { File, Tag, Collection }
+export * from './types'

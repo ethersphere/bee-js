@@ -28,7 +28,8 @@
     "url": "https://github.com/ethersphere/bee-js.git"
   },
   "scripts": {
-    "postinstall": "patch-package",
+    "prepare": "patch-package",
+    "prepack": "npm install tasegir && tasegir compile --declarations",
     "compile": "tasegir compile",
     "compile:watch": "tasegir compile -- --watch",
     "docs": "typedoc --mode modules --excludeNotExported --readme none --out docs src",
