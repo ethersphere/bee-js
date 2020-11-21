@@ -1,20 +1,10 @@
 import { Readable } from 'stream'
-import { OptionsUpload, Dictionary } from '../types'
+import request from 'superagent'
+
+import type { OptionsUpload } from '../types'
+import { extractHeaders, isReadable, returnReference } from '../utils'
 import { prepareData } from '../utils/data'
-import axios from 'axios'
 
-function extractHeaders (options?: OptionsUpload): Dictionary<boolean | number> {
-  const headers: Dictionary<boolean | number> = {}
-
-  if (options?.pin) headers['swarm-pin'] = options.pin
-
-  if (options?.encrypt) headers['swarm-encrypt'] = options.encrypt
-
-  if (options?.tag) headers['swarm-tag-uid'] = options.tag
-
-  if (options?.size) headers['content-length'] = options.size
-  return headers
-}
 
 /**
  * Upload single file to a Bee node
@@ -28,18 +18,27 @@ export async function upload (
   data: string | Buffer | Readable,
   options?: OptionsUpload
 ): Promise<string> {
-  return (
-    await axios({
-      method: 'post',
-      url,
-      data: await prepareData(data),
-      headers: {
-        'content-type': 'application/octet-stream',
-        ...extractHeaders(options)
-      },
-      params: options?.name ? { name: options.name } : {}
-    })
-  ).data.reference
+  if (!url || !data) {
+    throw new Error('url and data parameters are required!')
+  }
+
+  const req = request.post(url)
+    .type('application/octet-stream')
+    .set(extractHeaders(options))
+
+  if (isReadable(data)) {
+    // According superagent documentation this should be supported
+    // will have to investigate the types later on.
+    // @ts-ignore
+    data.pipe(req)
+  } else if (Buffer.isBuffer(data) || typeof data === 'string') {
+    req.send(prepareData(data))
+    req.end()
+  } else {
+    throw new TypeError('Unknown type of input data!')
+  }
+
+  return returnReference(req)
 }
 
 /**
@@ -49,13 +48,12 @@ export async function upload (
  * @param hash Bee file hash
  */
 export async function download (url: string, hash: string): Promise<Buffer> {
+  if (!url || !hash) {
+    throw new Error('url and hash parameters are required!')
+  }
+
   return Buffer.from(
-    (
-      await axios({
-        responseType: 'arraybuffer',
-        url: `${url}/${hash}`
-      })
-    ).data
+    (await request.get(`${url}/${hash}`).responseType('arraybuffer')).body
   )
 }
 
@@ -69,10 +67,12 @@ export async function downloadReadable (
   url: string,
   hash: string
 ): Promise<Readable> {
-  return (
-    await axios({
-      responseType: 'stream',
-      url: `${url}/${hash}`
-    })
-  ).data
+  if (!url || !hash) {
+    throw new Error('url and hash parameters are required!')
+  }
+
+  // It seems that superagent only implements "pipable" interface and that is the reason why TS complains.
+  // Have to investiage more.
+  // @ts-ignore
+  return request.get(`${url}/${hash}`)
 }
