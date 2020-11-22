@@ -1,7 +1,5 @@
-import request from 'superagent'
-
-import type { Tag } from '../types'
-
+import axios from 'axios'
+import { Tag } from '../types'
 
 /**
  * Create new tag on the Bee node
@@ -9,7 +7,12 @@ import type { Tag } from '../types'
  * @param url Bee tag URL
  */
 export async function createTag (url: string): Promise<Tag> {
-  return (await request.post(url)).body
+  return (
+    await axios({
+      method: 'post',
+      url: url
+    })
+  ).data
 }
 
 /**
@@ -23,5 +26,9 @@ export async function retrieveTag (
   tag: Tag | number
 ): Promise<Tag> {
   const uid = typeof tag === 'number' ? tag : tag?.uid
-  return (await request.get(`${url}/${uid}`)).body
+  return (
+    await axios({
+      url: `${url}/${uid}`
+    })
+  ).data
 }
