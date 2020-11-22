@@ -96,6 +96,13 @@ To run the test, you need to have a Bee cluster running locally. To create a clu
 
 By defaul tests are run against local bee node 0 - `http://bee-0.localhost`. You can change it by setting environment variable `BEE_URL`.
 
+In order to run browser tests, you must set the `CHROME_BIN` environment variable (if it is not already).
+On linux, execute the following command
+
+```sh
+export CHROME_BIN=/usr/bin/chromium-browser
+```
+
 ### Generate types
 
 You can generate the types with `NODE_ENV=production npx tasegir compile`.
