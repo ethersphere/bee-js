@@ -1,20 +1,8 @@
-import { Readable } from 'stream'
-import { OptionsUpload, Dictionary } from '../types'
-import { prepareData } from '../utils/data'
 import axios from 'axios'
-
-function extractHeaders (options?: OptionsUpload): Dictionary<boolean | number> {
-  const headers: Dictionary<boolean | number> = {}
-
-  if (options?.pin) headers['swarm-pin'] = options.pin
-
-  if (options?.encrypt) headers['swarm-encrypt'] = options.encrypt
-
-  if (options?.tag) headers['swarm-tag-uid'] = options.tag
-
-  if (options?.size) headers['content-length'] = options.size
-  return headers
-}
+import { Readable } from 'stream'
+import { OptionsUpload } from '../types'
+import { prepareData } from '../utils/data'
+import { extractHeaders } from '../utils'
 
 /**
  * Upload single file to a Bee node
@@ -33,6 +21,8 @@ export async function upload (
       method: 'post',
       url,
       data: await prepareData(data),
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
       headers: {
         'content-type': 'application/octet-stream',
         ...extractHeaders(options)

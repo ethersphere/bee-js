@@ -1,5 +1,4 @@
 import { CollectionContainer, Dictionary, OptionsUpload } from '../types'
-import { Request } from 'superagent'
 import { Readable } from 'stream'
 
 export function extractHeaders (options?: OptionsUpload): Dictionary<string | boolean | number> {
@@ -15,22 +14,6 @@ export function extractHeaders (options?: OptionsUpload): Dictionary<string | bo
 
   if (options?.size) headers['content-length'] = options.size
   return headers
-}
-
-export function returnReference (req: Request): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    req.on('response', response => {
-      if (response.error) {
-        return reject(response.error)
-      }
-
-      if (!response.body.reference) {
-        return reject(new Error('Response did not contain Reference!'))
-      }
-
-      resolve(response.body.reference)
-    })
-  })
 }
 
 export function isReadable (entry: unknown): entry is Readable {

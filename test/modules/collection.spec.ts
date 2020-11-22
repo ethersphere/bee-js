@@ -84,4 +84,19 @@ describe('modules/collection', () => {
       expect(e.message).to.include('Size has to be specified for Readable data')
     }
   })
+
+  it('should allow empty files', async () => {
+    const dir: CollectionContainer<Readable> = [
+      {
+        path: 'file1.txt',
+        size: 0,
+        data: createReadable('')
+      }
+    ]
+
+    const hash = await Collection.upload(BEE_URL, dir)
+
+    const file1 = await Collection.download(BEE_URL, hash, 'file1.txt')
+    expect(file1.toString()).to.equal('')
+  })
 })

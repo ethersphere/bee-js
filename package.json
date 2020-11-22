@@ -45,7 +45,8 @@
   },
   "dependencies": {
     "axios": "^0.21.0",
-    "readable-stream": "^3.6.0"
+    "readable-stream": "^3.6.0",
+    "tar-stream": "^2.1.4"
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
@@ -53,6 +54,7 @@
     "@types/mocha": "^8.0.3",
     "@types/node": "^14.14.6",
     "@types/readable-stream": "^2.3.9",
+    "@types/tar-stream": "^2.1.0",
     "chai": "^4.2.0",
     "debug": "^4.2.0",
     "patch-package": "^6.2.2",

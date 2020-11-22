@@ -1,8 +1,8 @@
-import { Readable } from 'stream'
-import request from 'superagent'
+import { PassThrough, Readable } from 'stream'
+import axios from 'axios'
 
 import type { OptionsUpload, CollectionContainer } from '../types'
-import { extractHeaders, isCollection, isReadable, isReadableOrBuffer, returnReference } from '../utils'
+import { extractHeaders, isCollection, isReadable, isReadableOrBuffer } from '../utils'
 import { TarArchive } from '../utils/tar'
 
 function packData<T> (data: CollectionContainer<T>): TarArchive {
@@ -12,7 +12,7 @@ function packData<T> (data: CollectionContainer<T>): TarArchive {
     if (Buffer.isBuffer(entry.data)) {
       tar.addBuffer(entry.path, entry.data)
     } else if (isReadable(entry.data)) {
-      if (!entry.size) {
+      if (entry.size === undefined) {
         throw new Error(`Size has to be specified for Readable data! [${entry.path}]`)
       }
 
@@ -44,17 +44,23 @@ export async function upload (
   }
 
   const tar = packData(data)
-  const req = request.post(`${url}/dirs`)
-    .type('application/x-tar')
-    .set(extractHeaders(options))
+  const passThrough = new PassThrough()
+  tar.write(pack => pack.pipe(passThrough))
 
-  const referencePromise = returnReference(req)
-
-  // superagent typing issue for streams
-  // @ts-ignore
-  await tar.write(pack => pack.pipe(req))
-
-  return referencePromise
+  return (
+    await axios({
+      method: 'post',
+      url: `${url}/dirs`,
+      data: passThrough,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+      headers: {
+        'content-type': 'application/x-tar',
+        ...extractHeaders(options)
+      },
+      params: options?.name ? { name: options.name } : {}
+    })
+  ).data.reference
 }
 
 /**
@@ -66,7 +72,12 @@ export async function upload (
  */
 export async function download (url: string, hash: string, path: string): Promise<Buffer> {
   return Buffer.from(
-    (await request.get(`${url}/bzz/${hash}/${path}`).responseType('arraybuffer')).body
+    (
+      await axios({
+        responseType: 'arraybuffer',
+        url: `${url}/bzz/${hash}/${path}`
+      })
+    ).data
   )
 }
 
@@ -77,13 +88,15 @@ export async function download (url: string, hash: string, path: string): Promis
  * @param hash Bee Collection hash
  * @param path Path of the requested file in the Collection
  */
-export function downloadReadable (
+export async function downloadReadable (
   url: string,
   hash: string,
   path: string
 ): Promise<Readable> {
-  // It seems that superagent only implements "pipable" interface and that is the reason why TS complains.
-  // Have to investigate more.
-  // @ts-ignore
-  return request.get(`${url}/bzz/${hash}/${path}`)
+  return (
+    await axios({
+      responseType: 'stream',
+      url: `${url}/bzz/${hash}/${path}`
+    })
+  ).data
 }
