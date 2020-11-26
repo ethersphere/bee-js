@@ -4,7 +4,7 @@
   "useTabs": false,
   "bracketSpacing": true,
   "quoteProps": "consistent",
-  "semi": true,
+  "semi": false,
   "singleQuote": true,
   "trailingComma": "none",
   "endOfLine": "lf",

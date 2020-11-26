@@ -30,7 +30,8 @@
     "types-check": "tsc --noEmit",
     "release": "tasegir release",
     "test": "jest --config=jest.config.ts",
-    "lint": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" && eslint --fix \"src/**/*.ts\" \"test/**/*.ts\""
+    "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "dependencies": {
     "axios": "^0.21.0",

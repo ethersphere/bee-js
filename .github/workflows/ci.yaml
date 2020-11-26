@@ -63,4 +63,4 @@ jobs:
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm ci
       - name: Run node tests
-        run: npx tasegir test --target node --reporter lcovonly -- --bail
+        run: npm run test
