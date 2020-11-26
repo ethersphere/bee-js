@@ -2,9 +2,10 @@ import { Readable } from 'stream'
 import { OptionsUpload, Dictionary } from '../types'
 import { prepareData } from '../utils/data'
 import axios from 'axios'
+axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackoverflow.com/a/57320262
 
-function extractHeaders(options?: OptionsUpload): Dictionary<boolean | number> {
-  const headers: Dictionary<boolean | number> = {}
+function extractHeaders(options?: OptionsUpload): Dictionary<boolean | number | string> {
+  const headers: Dictionary<boolean | number | string> = {}
 
   if (options?.pin) headers['swarm-pin'] = options.pin
 
