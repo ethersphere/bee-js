@@ -21,17 +21,28 @@ export function createReadable(input: string): Readable {
 }
 
 /**
+ * Lehmer random number generator with seed (minstd_rand in C++11)
+ * !!! Very fast but not well distributed pseudo-random function!!!
+ *
+ * @param seed Seed for the pseudo-random generator
+ */
+function lrng (seed: number): () => number {
+  return (): number => (2 ** 31 - 1 & (seed = Math.imul(48271, seed))) / 2 ** 31
+}
+
+/**
  * Utility function for generating random Buffer
  * !!! IT IS NOT CRYPTO SAFE !!!
  * For that use `crypto.randomBytes()`
  *
  * @param length
  */
-export function randomBuffer(length: number): Buffer {
+export function randomBuffer (length: number): Buffer {
+  const rand = lrng(500)
   const buf = Buffer.alloc(length)
 
   for (let i = 0; i < length; ++i) {
-    buf[i] = (Math.random() * 0xff) << 0
+    buf[i] = (rand() * 0xff) << 0
   }
 
   return buf
