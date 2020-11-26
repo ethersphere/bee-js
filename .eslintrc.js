@@ -1,17 +1,16 @@
-
 module.exports = {
   extends: [
     'standard',
     'plugin:@typescript-eslint/recommended'
   ],
-  env: {
-    mocha: true
-  },
   parserOptions: {
     sourceType: 'module',
     ecmaVersion: 2018
   },
-  plugins: ['no-only-tests'],
+  env: {
+    'jest/globals': true
+  },
+  plugins: ['jest'],
   rules: {
     'array-bracket-newline': ['error', { multiline: true }],
     strict: ['error', 'safe'],
@@ -35,7 +34,6 @@ module.exports = {
     'no-labels': 'error',
     'no-loop-func': 'error',
     'no-nested-ternary': 'warn',
-    'no-only-tests/no-only-tests': 'error',
     'no-script-url': 'error',
     'no-warning-comments': 'warn',
     'quote-props': ['error', 'as-needed'],
@@ -79,7 +77,7 @@ module.exports = {
     {
       files: ['*.spec.ts'],
       rules: {
-        '@typescript-eslint/ban-ts-ignore': 'off',
+        // '@typescript-eslint/ban-ts-ignore': 'off',
         'max-nested-callbacks': ['error', 10] // allow describe/it nesting
       }
     }

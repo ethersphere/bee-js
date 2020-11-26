@@ -23,7 +23,6 @@ const base = (env?: Partial<WebpackEnvParams>): Configuration => {
     .join('')
   const entry = Path.resolve(__dirname, 'src')
   const path = Path.resolve(__dirname, 'dist')
-  const targets = '>1% or node >=10 and not ie 11 and not dead'
   const target = env?.target || 'web' // 'node' or 'web'
   const plugins: WebpackPluginInstance[] = [
     new DefinePlugin({
@@ -61,38 +60,7 @@ const base = (env?: Partial<WebpackEnvParams>): Configuration => {
               test: /\.(ts|js)$/,
               include: entry,
               use: {
-                loader: require.resolve('babel-loader'),
-                options: {
-                  presets: [
-                    require('@babel/preset-typescript').default,
-                    [
-                      require('@babel/preset-env').default,
-                      {
-                        corejs: 3,
-                        useBuiltIns: 'entry',
-                        modules: 'commonjs',
-                        bugfixes: true,
-                        targets
-                      }
-                    ]
-                  ],
-                  babelrc: false,
-                  cacheDirectory: true
-                }
-              }
-            },
-            {
-              test: /\.(ts|js)$/,
-              exclude: /@babel(?:\/|\\{1,2})runtime/,
-              use: {
-                loader: require.resolve('babel-loader'),
-                options: {
-                  presets: [
-                    require('@babel/preset-typescript').default,
-                    require('@babel/preset-env').default
-                  ],
-                  babelrc: false
-                }
+                loader: 'babel-loader'
               }
             }
           ]
@@ -103,8 +71,7 @@ const base = (env?: Partial<WebpackEnvParams>): Configuration => {
       extensions: ['.ts', '.js']
     },
     optimization: {
-      // minimize: isProduction,
-      minimize: false,
+      minimize: isProduction,
       minimizer: [
         // This is only used in production mode
         new TerserPlugin({
