@@ -1,8 +1,5 @@
 module.exports = {
-  extends: [
-    'standard',
-    'plugin:@typescript-eslint/recommended'
-  ],
+  extends: ['plugin:@typescript-eslint/recommended'],
   parserOptions: {
     sourceType: 'module',
     ecmaVersion: 2018
@@ -57,7 +54,7 @@ module.exports = {
     'no-useless-constructor': 'off',
     'no-dupe-class-members': 'off',
     'no-unused-expressions': 'off',
-    '@typescript-eslint/ban-ts-ignore': 'warn',
+    curly: ['error', 'multi-line'],
     '@typescript-eslint/no-useless-constructor': 'error',
     '@typescript-eslint/no-unused-expressions': 'error',
     '@typescript-eslint/member-delimiter-style': [

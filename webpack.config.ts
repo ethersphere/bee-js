@@ -1,4 +1,3 @@
-
 import Path from 'path'
 import { DefinePlugin, NormalModuleReplacementPlugin, Configuration, WebpackPluginInstance } from 'webpack'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
