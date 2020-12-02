@@ -10,7 +10,7 @@ export function sleep<T>(ms: number, ...args: T[]): Promise<T> {
   return new Promise(resolve => setTimeout(() => resolve(...args), ms))
 }
 
-export function createReadable(input: string): Readable {
+export function createReadable(input: string | Uint8Array): Readable {
   const stream = new Readable()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   stream._read = (): void => {}
@@ -38,13 +38,17 @@ function lrng(seed: number): () => number {
  * @param length Number of bytes to generate
  * @param seed Seed for the pseudo-random generator
  */
-export function randomBuffer(length: number, seed = 500): Buffer {
+export function randomBuffer(length: number, seed = 500): Uint8Array {
   const rand = lrng(seed)
-  const buf = Buffer.alloc(length)
+  const buf = new Uint8Array(length)
 
   for (let i = 0; i < length; ++i) {
     buf[i] = (rand() * 0xff) << 0
   }
 
   return buf
+}
+
+export function beeUrl (): string {
+  return process.env.BEE_URL || 'http://bee-0.localhost'
 }

@@ -3,7 +3,6 @@ export interface Dictionary<T> {
 }
 
 export interface OptionsUpload {
-  name?: string
   pin?: boolean
   encrypt?: boolean
   tag?: number
