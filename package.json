@@ -28,6 +28,8 @@
     "docs": "typedoc --mode modules --excludeNotExported --readme none --out docs src",
     "types-check": "tsc --noEmit",
     "test": "jest --config=jest.config.ts",
+    "test:browser": "jest --config=jest.config.ts --selectProjects=dom",
+    "test:node": "jest --config=jest.config.ts --selectProjects=node",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""
   },
