@@ -21,10 +21,7 @@ export async function createTag(url: string): Promise<Tag> {
  * @param url Bee tag URL
  * @param tag UID or tag object to be retrieved
  */
-export async function retrieveTag(
-  url: string,
-  tag: Tag | number
-): Promise<Tag> {
+export async function retrieveTag(url: string, tag: Tag | number): Promise<Tag> {
   const uid = typeof tag === 'number' ? tag : tag?.uid
 
   return (
