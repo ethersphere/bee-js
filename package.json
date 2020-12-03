@@ -22,11 +22,9 @@
   },
   "scripts": {
     "postinstall": "patch-package",
-    "compile": "npm run compile:node",
     "compile:node": "webpack --progress --mode development --env.target=node",
     "compile:browser": "webpack --progress --mode development --env.target=web",
     "docs": "typedoc --mode modules --excludeNotExported --readme none --out docs src",
-    "types-check": "tsc --noEmit",
     "test": "jest --config=jest.config.ts",
     "test:browser": "jest --config=jest.config.ts --selectProjects=dom",
     "test:node": "jest --config=jest.config.ts --selectProjects=node",
