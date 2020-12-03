@@ -9,7 +9,7 @@ import * as Tag from './modules/tag'
 export default class Bee {
   public readonly url: string
 
-  constructor (url: string) {
+  constructor(url: string) {
     this.url = url
   }
 }

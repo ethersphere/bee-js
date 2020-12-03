@@ -41,9 +41,7 @@ jobs:
 
       - name: Commit linting
         uses: wagoid/commitlint-github-action@v2
-      - name: Dependency check
-        run: npx tasegir dep-check
       - name: Code linting
-        run: npx tasegir lint
+        run: npm run lint:check
         env:
           CI: true

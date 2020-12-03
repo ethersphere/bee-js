@@ -2,9 +2,10 @@ import { Readable } from 'stream'
 import { OptionsUpload, Dictionary } from '../types'
 import { prepareData } from '../utils/data'
 import axios from 'axios'
+axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackoverflow.com/a/57320262
 
-function extractHeaders (options?: OptionsUpload): Dictionary<boolean | number> {
-  const headers: Dictionary<boolean | number> = {}
+function extractHeaders(options?: OptionsUpload): Dictionary<boolean | number | string> {
+  const headers: Dictionary<boolean | number | string> = {}
 
   if (options?.pin) headers['swarm-pin'] = options.pin
 
@@ -13,6 +14,7 @@ function extractHeaders (options?: OptionsUpload): Dictionary<boolean | number> 
   if (options?.tag) headers['swarm-tag-uid'] = options.tag
 
   if (options?.size) headers['content-length'] = options.size
+
   return headers
 }
 
@@ -23,11 +25,7 @@ function extractHeaders (options?: OptionsUpload): Dictionary<boolean | number> 
  * @param data    Data to be uploaded
  * @param options Aditional options like tag, encryption, pinning
  */
-export async function upload (
-  url: string,
-  data: string | Buffer | Readable,
-  options?: OptionsUpload
-): Promise<string> {
+export async function upload(url: string, data: string | Buffer | Readable, options?: OptionsUpload): Promise<string> {
   return (
     await axios({
       method: 'post',
@@ -48,7 +46,7 @@ export async function upload (
  * @param url  Bee file URL
  * @param hash Bee file hash
  */
-export async function download (url: string, hash: string): Promise<Buffer> {
+export async function download(url: string, hash: string): Promise<Buffer> {
   return Buffer.from(
     (
       await axios({
@@ -65,10 +63,7 @@ export async function download (url: string, hash: string): Promise<Buffer> {
  * @param url  Bee file URL
  * @param hash Bee file hash
  */
-export async function downloadReadable (
-  url: string,
-  hash: string
-): Promise<Readable> {
+export async function downloadReadable(url: string, hash: string): Promise<Readable> {
   return (
     await axios({
       responseType: 'stream',

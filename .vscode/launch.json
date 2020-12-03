@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+        "name": "Run Jest tests",
+        "command": "npm run test",
+        "type": "node-terminal",
+        "request": "launch",
+          "env": {
+              "NODE_ENV": "development",
+              "BEE_URL": "http://localhost:1633"
+          }
+      },
+
+      {
+        "name": "vscode-jest-tests",
+        "program": "${workspaceFolder}/node_modules/.bin/jest",
+        "type": "node",
+        "request": "launch",
+        "env": {
+            "NODE_ENV": "development",
+            "BEE_URL": "http://localhost:1633"
+        },
+        "args": [
+          "--runInBand",
+          "--config",
+          "jest.config.ts"
+        ],
+        "console": "integratedTerminal",
+        "disableOptimisticBPs": true,
+        "windows": {
+            "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+        }
+      }
+  ]
+}
