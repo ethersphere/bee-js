@@ -25,7 +25,11 @@ function extractHeaders(options?: OptionsUpload): Dictionary<boolean | number | 
  * @param data    Data to be uploaded
  * @param options Aditional options like tag, encryption, pinning
  */
-export async function upload(url: string, data: string | Buffer | Readable, options?: OptionsUpload): Promise<string> {
+export async function upload(
+  url: string,
+  data: string | Buffer | Readable,
+  options?: OptionsUpload
+): Promise<string> {
   return (
     await axios({
       method: 'post',
@@ -63,7 +67,10 @@ export async function download(url: string, hash: string): Promise<Buffer> {
  * @param url  Bee file URL
  * @param hash Bee file hash
  */
-export async function downloadReadable(url: string, hash: string): Promise<Readable> {
+export async function downloadReadable(
+  url: string,
+  hash: string
+): Promise<Readable> {
   return (
     await axios({
       responseType: 'stream',
