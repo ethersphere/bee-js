@@ -23,12 +23,10 @@
   "scripts": {
     "postinstall": "patch-package",
     "compile": "npm run compile:node",
-    "compile:watch": "tasegir compile -- --watch",
     "compile:node": "webpack --progress --mode development --env.target=node",
     "compile:browser": "webpack --progress --mode development --env.target=web",
     "docs": "typedoc --mode modules --excludeNotExported --readme none --out docs src",
     "types-check": "tsc --noEmit",
-    "release": "tasegir release",
     "test": "jest --config=jest.config.ts",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""
