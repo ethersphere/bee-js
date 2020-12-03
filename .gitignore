@@ -1,7 +1,4 @@
 lib
-types
-
-.eslintrc
 
 # Logs
 logs
@@ -27,7 +24,3 @@ dist
 
 # Dependency directory
 node_modules
-
-# Tasegir files
-tsconfig.json
-.eslintrc.js

@@ -7,7 +7,7 @@ import * as Tag from './modules/tag'
  * @param url URL of a running Bee node
  */
 export default class Bee {
-  constructor (readonly url: string) {}
+  constructor(readonly url: string) {}
 }
 
 export { File, Tag }

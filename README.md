@@ -5,7 +5,6 @@
 [![](https://img.shields.io/badge/made%20by-Swarm-blue.svg?style=flat-square)](https://swarm.ethereum.org/)
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
-[![Managed by tAsEgir](https://img.shields.io/badge/%20managed%20by-tasegir-brightgreen?style=flat-square)](https://github.com/auhau/tasegir)
 ![](https://img.shields.io/badge/npm-%3E%3D6.0.0-orange.svg?style=flat-square)
 ![](https://img.shields.io/badge/Node.js-%3E%3D10.0.0-orange.svg?style=flat-square)
 ![](https://img.shields.io/badge/runs%20in-browser%20%7C%20node%20%7C%20webworker%20%7C%20electron-orange)
@@ -84,21 +83,39 @@ There are some ways you can make this module better:
 
 ### Setup
 
-The project uses `tasegir` to run, build, test and lint. The configuration (`tsconfig.json` & `.eslintrc.js`) is in the tasegir package, you can create symlink to the root directory by running:
+Install project dependencies with
 
 ```sh
-npm run tasegir:link
+npm i
 ```
 
 ### Test
+
+The tests run in both context: node and jsdom with Jest.
 
 To run the test, you need to have a Bee cluster running locally. To create a cluster, please consult the readme of [@ethersphere/bee-local](https://github.com/ethersphere/bee-local).
 
 By defaul tests are run against local bee node 0 - `http://bee-0.localhost`. You can change it by setting environment variable `BEE_URL`.
 
-### Generate types
+In order to run browser tests, you must set the `CHROME_BIN` environment variable (if it is not already).
+On linux, execute the following command
 
-You can generate the types with `NODE_ENV=production npx tasegir compile`.
+```sh
+export CHROME_BIN=/usr/bin/chromium-browser
+```
+
+In Visual Studio environment, the tests have been set up to run against your local bee node on `http://localhost:1633`
+To run Jest tests, choose the `vscode-jest-tests` CI job under the Run tab.
+
+### Compile code
+
+In order to compile NodeJS code run
+
+`npm run compile:node`
+
+or for Browsers
+
+`npm run compile:browser`
 
 ## License
 
