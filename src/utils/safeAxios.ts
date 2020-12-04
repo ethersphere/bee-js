@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { BeeError, BeeHTTPError } from './error'
+import { BeeError, BeeRequestError, BeeResponseError } from './error'
 
 axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackoverflow.com/a/57320262
 
@@ -8,9 +8,12 @@ export async function safeAxios<T> (config: AxiosRequestConfig): Promise<AxiosRe
     const response = await axios(config)
     return response
   } catch (e) {
-    if (e.response == null) {
+    if (e.response) {
+      throw new BeeResponseError(e.response.status, e.response.statusText)
+    } else if (e.request) {
+      throw new BeeRequestError(e.message)
+    } else {
       throw new BeeError(e.message)
     }
-    throw new BeeHTTPError(e.response.status, e.response.statusText)
   }
 }
