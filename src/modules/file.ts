@@ -37,7 +37,7 @@ function readContentDispositionFilename(header?: string): string {
     }
     const disposition = contentDisposition.parse(header)
 
-    if (disposition?.parameters?.filename != null) {
+    if (disposition?.parameters?.filename) {
       return disposition.parameters.filename
     }
     throw new BeeError('invalid content-disposition header')
