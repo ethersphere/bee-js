@@ -53,7 +53,7 @@ describe('modules/file', () => {
   }, 5000)
 
   it('should catch error', async () => {
-    const invalidReference = '0x0000000000000000000000000000000000000000000000000000000000000000'
+    const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
 
     await expect(File.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
   })
