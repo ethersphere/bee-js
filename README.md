@@ -78,7 +78,7 @@ console.log(retrievedData.toString()); // prints 'Bee is awesome!'
 
 There are some ways you can make this module better:
 
-- Consult our [open issues](https://github.com/rsksmart/rif-storage-js/issues) and take on one of them
+- Consult our [open issues](https://github.com/ethersphere/bee-js/issues) and take on one of them
 - Help our tests reach 100% coverage!
 
 ### Setup
