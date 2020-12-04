@@ -14,9 +14,7 @@ describe('modules/file', () => {
 
     expect(Buffer.from(file.data).toString()).toEqual(data)
     expect(file.name).toEqual(filename)
-    expect(hash).toEqual(
-      'daad0975b3ee733c25d256391ab3def668eac57f8b91f0975725f16c7cce098f'
-    )
+    expect(hash).toEqual('daad0975b3ee733c25d256391ab3def668eac57f8b91f0975725f16c7cce098f')
   })
 
   it('should store readable file', async () => {

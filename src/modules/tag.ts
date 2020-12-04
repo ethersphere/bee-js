@@ -14,6 +14,7 @@ export async function createTag(url: string): Promise<Tag> {
     url: url + endpoint,
     responseType: 'json'
   })
+
   return response.data
 }
 
@@ -28,5 +29,6 @@ export async function retrieveTag(url: string, tag: Tag | number): Promise<Tag> 
   const response = await safeAxios<Tag>({
     url: `${url}${endpoint}/${uid}`
   })
+
   return response.data
 }

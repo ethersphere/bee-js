@@ -50,12 +50,14 @@ function readTagUid(header?: string): number | undefined {
   if (header == null) {
     return undefined
   }
+
   return parseInt(header, 10)
 }
 
 function readFileHeaders(headers: Dictionary<string>): FileHeaders {
   const name = readContentDispositionFilename(headers['content-disposition'])
   const tagUid = readTagUid(headers['swarm-tag-uid'])
+
   return {
     name,
     tagUid
@@ -75,7 +77,7 @@ export async function upload(
   data: string | Uint8Array | Readable,
   options?: OptionsUpload
 ): Promise<string> {
-  const response = await safeAxios<{reference: string}>({
+  const response = await safeAxios<{ reference: string }>({
     method: 'post',
     url: url + endpoint,
     data: await prepareData(data),
@@ -86,6 +88,7 @@ export async function upload(
     responseType: 'json',
     params: { name }
   })
+
   return response.data.reference
 }
 
@@ -104,6 +107,7 @@ export async function download(url: string, hash: string): Promise<File<Uint8Arr
     ...readFileHeaders(response.headers),
     data: new Uint8Array(response.data)
   }
+
   return file
 }
 
@@ -113,10 +117,7 @@ export async function download(url: string, hash: string): Promise<File<Uint8Arr
  * @param url  Bee file URL
  * @param hash Bee file hash
  */
-export async function downloadReadable(
-  url: string,
-  hash: string
-): Promise<File<Readable>> {
+export async function downloadReadable(url: string, hash: string): Promise<File<Readable>> {
   const response = await safeAxios<Readable>({
     responseType: 'stream',
     url: `${url}${endpoint}/${hash}`
@@ -125,5 +126,6 @@ export async function downloadReadable(
     ...readFileHeaders(response.headers),
     data: response.data
   }
+
   return file
 }
