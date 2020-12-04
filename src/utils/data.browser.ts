@@ -1,9 +1,7 @@
 import { Readable } from 'stream'
 
 // eslint-disable-next-line require-await
-export async function prepareData (
-  data: string | Uint8Array | Readable
-): Promise<Uint8Array> {
+export async function prepareData(data: string | Uint8Array | Readable): Promise<Uint8Array> {
   // string
   if (typeof data === 'string') return Buffer.from(data)
 
@@ -13,11 +11,7 @@ export async function prepareData (
   // readable
   return new Promise(resolve => {
     const buffers: Array<Uint8Array> = []
-    data.on('data', function (d) {
-      buffers.push(d)
-    })
-    data.on('end', function () {
-      resolve(Buffer.concat(buffers))
-    })
+    data.on('data', d => buffers.push(d))
+    data.on('end', () => resolve(Buffer.concat(buffers)))
   })
 }

@@ -49,6 +49,6 @@ export function randomBuffer(length: number, seed = 500): Uint8Array {
   return buf
 }
 
-export function beeUrl (): string {
+export function beeUrl(): string {
   return process.env.BEE_URL || 'http://bee-0.localhost'
 }
