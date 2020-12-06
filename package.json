@@ -13,17 +13,14 @@
   },
   "license": "BSD-3-Clause",
   "main": "dist/index.js",
-  "browser": {
-    "stream": "readable-stream"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ethersphere/bee-js.git"
   },
   "scripts": {
     "postinstall": "patch-package",
-    "compile:node": "webpack --progress --mode development --env.target=node",
-    "compile:browser": "webpack --progress --mode development --env.target=web",
+    "compile:node": "webpack --progress --mode development --env target=node",
+    "compile:browser": "webpack --progress --mode development --env target=web",
     "docs": "typedoc --mode modules --excludeNotExported --readme none --out docs src",
     "test": "jest --config=jest.config.ts",
     "test:browser": "jest --config=jest.config.ts --selectProjects=dom",
@@ -43,6 +40,7 @@
     "@babel/preset-typescript": "^7.12.1",
     "@types/chai": "^4.2.14",
     "@types/debug": "^4.1.5",
+    "@types/glob": "^7.1.3",
     "@types/jest": "^26.0.15",
     "@types/karma": "^5.0.1",
     "@types/node": "^14.14.6",
