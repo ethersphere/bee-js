@@ -1,8 +1,9 @@
 import Path from 'path'
-import { DefinePlugin, NormalModuleReplacementPlugin, Configuration, WebpackPluginInstance } from 'webpack'
+import { DefinePlugin, Configuration, WebpackPluginInstance, NormalModuleReplacementPlugin } from 'webpack'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import TerserPlugin from 'terser-webpack-plugin'
 import PackageJson from './package.json'
+import { getBrowserPathMapping } from './jest.config'
 
 interface WebpackEnvParams {
   target: 'web' | 'node'
@@ -11,7 +12,7 @@ interface WebpackEnvParams {
   fileName: string
 }
 
-const base = (env?: Partial<WebpackEnvParams>): Configuration => {
+const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
   const isProduction = env?.mode === 'production'
   const filename = env?.fileName || [
     'index',
@@ -30,12 +31,16 @@ const base = (env?: Partial<WebpackEnvParams>): Configuration => {
     })
   ]
 
+
   if (target === 'web') {
-    plugins.push(
-      new NormalModuleReplacementPlugin(/stream/, (resource) => {
-        resource.request = resource.request.replace(/stream/, 'readable-stream')
-      })
-    )
+    const browserPathMapping = await getBrowserPathMapping();
+    // eslint-disable-next-line guard-for-in
+    for (const nodeReference in browserPathMapping) {
+      plugins.push(
+        new NormalModuleReplacementPlugin(new RegExp(`\\${nodeReference}`), browserPathMapping[nodeReference])
+      )
+    }
+
   }
 
   return {
@@ -113,10 +118,13 @@ const base = (env?: Partial<WebpackEnvParams>): Configuration => {
   }
 }
 
-export default (env?: Partial<WebpackEnvParams>): Configuration => {
+export default async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
+  // eslint-disable-next-line no-console
+  console.log('env', env)
+
   if (env?.debug) {
     const config = {
-      ...base(env),
+      ... await base(env),
       plugins: [new BundleAnalyzerPlugin()],
       profile: true
     }
