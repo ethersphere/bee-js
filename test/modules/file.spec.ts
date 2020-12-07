@@ -29,14 +29,14 @@ describe('modules/file', () => {
     expect(file.data).toEqual(data)
   })
 
-  // TODO: figure out how to retrieve the filename
-  xit('should store file with filename', async () => {
+  it('should store file with filename', async () => {
     const data = randomBuffer(5000)
     const name = 'file.txt'
-    const hash = await File.upload(`${BEE_URL}/files`, data, name)
-    const file = await File.download(`${BEE_URL}/files`, hash)
+    const hash = await File.upload(BEE_URL, data, name)
+    const file = await File.download(BEE_URL, hash)
 
     expect(file.data).toEqual(data)
+    expect(file.name).toEqual(name)
   })
 
   it('should store file with a tag', async () => {
