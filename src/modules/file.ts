@@ -61,6 +61,7 @@ function readFileHeaders(headers: Dictionary<string>): FileHeaders {
   const name = readContentDispositionFilename(headers['content-disposition'])
   const tagUid = readTagUid(headers['swarm-tag-uid'])
   const contentType = headers['content-type']
+
   return {
     name,
     tagUid,
