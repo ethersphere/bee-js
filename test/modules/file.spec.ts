@@ -30,7 +30,7 @@ describe('modules/file', () => {
     const filename = 'hello.txt'
 
     const hash = await File.upload(BEE_URL, createReadable(data), filename, {
-      size: data.length
+      size: data.length,
     })
     const file = await File.download(BEE_URL, hash)
 

@@ -54,7 +54,9 @@ module.exports = {
     'no-useless-constructor': 'off',
     'no-dupe-class-members': 'off',
     'no-unused-expressions': 'off',
+    'object-curly-spacing': ['error', 'always'],
     curly: ['error', 'multi-line'],
+    'comma-dangle': ['error', 'always-multiline'],
     '@typescript-eslint/no-useless-constructor': 'error',
     '@typescript-eslint/no-unused-expressions': 'error',
     '@typescript-eslint/member-delimiter-style': [
