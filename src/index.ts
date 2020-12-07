@@ -13,8 +13,8 @@ type Reference = string
 export default class Bee {
   constructor(readonly url: string) {}
 
-  uploadFile(name: string, data: string | Uint8Array | Readable, options?: OptionsUpload): Promise<Reference> {
-    return file.upload(this.url, name, data, options)
+  uploadFile(data: string | Uint8Array | Readable, name?: string, options?: OptionsUpload): Promise<Reference> {
+    return file.upload(this.url, data, name, options)
   }
 
   downloadFile(reference: Reference): Promise<file.File<Uint8Array>> {

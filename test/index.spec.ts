@@ -8,12 +8,14 @@ describe('Bee class', () => {
   it('should work with files', async () => {
     const content = new Uint8Array([1, 2, 3])
     const name = 'hello.txt'
+    const contentType = 'text/html'
 
-    const hash = await bee.uploadFile(name, content)
+    const hash = await bee.uploadFile(content, name, { contentType })
     const file = await bee.downloadFile(hash)
 
     expect(file.name).toEqual(name)
     expect(file.data).toEqual(content)
+    expect(file.contentType).toEqual(contentType)
   })
 
   it('should retrieve previously created empty tag', async () => {

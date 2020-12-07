@@ -7,6 +7,7 @@ export interface OptionsUpload {
   encrypt?: boolean
   tag?: number
   size?: number // Content length, required if the uploaded data is readable stream
+  contentType?: string;
 }
 
 export interface Tag {
