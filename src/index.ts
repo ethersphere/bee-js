@@ -1,7 +1,7 @@
 import { Readable } from 'stream'
 import * as file from './modules/file'
 import * as tag from './modules/tag'
-import { OptionsUpload, Tag } from './types'
+import { UploadOptions, Tag } from './types'
 
 type Reference = string
 
@@ -13,7 +13,7 @@ type Reference = string
 export default class Bee {
   constructor(readonly url: string) {}
 
-  uploadFile(data: string | Uint8Array | Readable, name?: string, options?: OptionsUpload): Promise<Reference> {
+  uploadFile(data: string | Uint8Array | Readable, name?: string, options?: UploadOptions): Promise<Reference> {
     return file.upload(this.url, data, name, options)
   }
 

@@ -15,7 +15,6 @@ describe('Bee class', () => {
 
     expect(file.name).toEqual(name)
     expect(file.data).toEqual(content)
-    expect(file.contentType).toEqual(contentType)
   })
 
   it('should retrieve previously created empty tag', async () => {
