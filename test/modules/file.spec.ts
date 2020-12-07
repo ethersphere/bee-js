@@ -8,7 +8,7 @@ describe('modules/file', () => {
   it('should store and retrieve file', async () => {
     const data = 'hello world'
     const filename = 'hello.txt'
-    const hash = await File.upload(BEE_URL, filename, data)
+    const hash = await File.upload(BEE_URL, data, filename)
 
     const file = await File.download(BEE_URL, hash)
 
@@ -20,7 +20,7 @@ describe('modules/file', () => {
   it('should store readable file', async () => {
     const data = randomBuffer(5000)
     const filename = 'hello.txt'
-    const hash = await File.upload(BEE_URL, filename, createReadable(data), {
+    const hash = await File.upload(BEE_URL, createReadable(data), filename, {
       size: data.length
     })
 
@@ -33,7 +33,7 @@ describe('modules/file', () => {
   xit('should store file with filename', async () => {
     const data = randomBuffer(5000)
     const name = 'file.txt'
-    const hash = await File.upload(`${BEE_URL}/files`, name, data)
+    const hash = await File.upload(`${BEE_URL}/files`, data, name)
     const file = await File.download(`${BEE_URL}/files`, hash)
 
     expect(file.data).toEqual(data)
@@ -43,7 +43,7 @@ describe('modules/file', () => {
     const data = randomBuffer(5000)
     const filename = 'hello.txt'
     const tag = await Tag.createTag(BEE_URL)
-    await File.upload(BEE_URL, filename, data, { tag: tag.uid })
+    await File.upload(BEE_URL, data, filename, { tag: tag.uid })
     const tag2 = await Tag.retrieveTag(BEE_URL, tag)
 
     expect(tag2.split).toEqual(5)

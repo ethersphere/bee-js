@@ -8,8 +8,9 @@ import { BeeError } from '../utils/error'
 const endpoint = '/files'
 
 interface FileHeaders {
-  name: string
+  name?: string
   tagUid?: number
+  contentType?: string
 }
 
 export interface File<T> extends FileHeaders {
@@ -26,6 +27,8 @@ function extractHeaders(options?: OptionsUpload): Dictionary<boolean | number | 
   if (options?.tag) headers['swarm-tag-uid'] = options.tag
 
   if (options?.size) headers['content-length'] = options.size
+
+  if (options?.contentType) headers['content-type'] = options.contentType
 
   return headers
 }
@@ -57,10 +60,11 @@ function readTagUid(header?: string): number | undefined {
 function readFileHeaders(headers: Dictionary<string>): FileHeaders {
   const name = readContentDispositionFilename(headers['content-disposition'])
   const tagUid = readTagUid(headers['swarm-tag-uid'])
-
+  const contentType = headers['content-type']
   return {
     name,
-    tagUid
+    tagUid,
+    contentType
   }
 }
 
@@ -73,8 +77,8 @@ function readFileHeaders(headers: Dictionary<string>): FileHeaders {
  */
 export async function upload(
   url: string,
-  name: string,
   data: string | Uint8Array | Readable,
+  name?: string,
   options?: OptionsUpload
 ): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
