@@ -2,7 +2,7 @@ export interface Dictionary<T> {
   [Key: string]: T
 }
 
-export interface OptionsUpload {
+export interface UploadOptions {
   pin?: boolean
   encrypt?: boolean
   tag?: number

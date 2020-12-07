@@ -8,40 +8,39 @@ describe('modules/file', () => {
   it('should store and retrieve file', async () => {
     const data = 'hello world'
     const filename = 'hello.txt'
-    const hash = await File.upload(BEE_URL, data, filename)
 
+    const hash = await File.upload(BEE_URL, data, filename)
     const file = await File.download(BEE_URL, hash)
 
     expect(Buffer.from(file.data).toString()).toEqual(data)
     expect(file.name).toEqual(filename)
-    expect(hash).toEqual('daad0975b3ee733c25d256391ab3def668eac57f8b91f0975725f16c7cce098f')
+  })
+
+  it('should store file without filename', async () => {
+    const data = 'hello world'
+
+    const hash = await File.upload(BEE_URL, data)
+    const file = await File.download(BEE_URL, hash)
+
+    expect(Buffer.from(file.data).toString()).toEqual(data)
   })
 
   it('should store readable file', async () => {
     const data = randomBuffer(5000)
     const filename = 'hello.txt'
+
     const hash = await File.upload(BEE_URL, createReadable(data), filename, {
       size: data.length
     })
-
     const file = await File.download(BEE_URL, hash)
 
     expect(file.data).toEqual(data)
-  })
-
-  it('should store file with filename', async () => {
-    const data = randomBuffer(5000)
-    const name = 'file.txt'
-    const hash = await File.upload(BEE_URL, data, name)
-    const file = await File.download(BEE_URL, hash)
-
-    expect(file.data).toEqual(data)
-    expect(file.name).toEqual(name)
   })
 
   it('should store file with a tag', async () => {
     const data = randomBuffer(5000)
     const filename = 'hello.txt'
+
     const tag = await Tag.createTag(BEE_URL)
     await File.upload(BEE_URL, data, filename, { tag: tag.uid })
     const tag2 = await Tag.retrieveTag(BEE_URL, tag)

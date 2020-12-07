@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import { OptionsUpload, Dictionary } from '../types'
+import { UploadOptions, Dictionary } from '../types'
 import { prepareData } from '../utils/data'
 import { safeAxios } from '../utils/safeAxios'
 import contentDisposition from 'content-disposition'
@@ -17,7 +17,7 @@ export interface File<T> extends FileHeaders {
   data: T
 }
 
-function extractHeaders(options?: OptionsUpload): Dictionary<boolean | number | string> {
+function extractHeaders(options?: UploadOptions): Dictionary<boolean | number | string> {
   const headers: Dictionary<boolean | number | string> = {}
 
   if (options?.pin) headers['swarm-pin'] = options.pin
@@ -80,7 +80,7 @@ export async function upload(
   url: string,
   data: string | Uint8Array | Readable,
   name?: string,
-  options?: OptionsUpload
+  options?: UploadOptions
 ): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
     method: 'post',
