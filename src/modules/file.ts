@@ -65,7 +65,7 @@ function readFileHeaders(headers: Dictionary<string>): FileHeaders {
   return {
     name,
     tagUid,
-    contentType
+    contentType,
   }
 }
 
@@ -80,7 +80,7 @@ export async function upload(
   url: string,
   data: string | Uint8Array | Readable,
   name?: string,
-  options?: UploadOptions
+  options?: UploadOptions,
 ): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
     method: 'post',
@@ -88,10 +88,10 @@ export async function upload(
     data: await prepareData(data),
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractHeaders(options)
+      ...extractHeaders(options),
     },
     responseType: 'json',
-    params: { name }
+    params: { name },
   })
 
   return response.data.reference
@@ -106,11 +106,11 @@ export async function upload(
 export async function download(url: string, hash: string): Promise<File<Uint8Array>> {
   const response = await safeAxios<ArrayBuffer>({
     responseType: 'arraybuffer',
-    url: `${url}${endpoint}/${hash}`
+    url: `${url}${endpoint}/${hash}`,
   })
   const file = {
     ...readFileHeaders(response.headers),
-    data: new Uint8Array(response.data)
+    data: new Uint8Array(response.data),
   }
 
   return file
@@ -125,11 +125,11 @@ export async function download(url: string, hash: string): Promise<File<Uint8Arr
 export async function downloadReadable(url: string, hash: string): Promise<File<Readable>> {
   const response = await safeAxios<Readable>({
     responseType: 'stream',
-    url: `${url}${endpoint}/${hash}`
+    url: `${url}${endpoint}/${hash}`,
   })
   const file = {
     ...readFileHeaders(response.headers),
-    data: response.data
+    data: response.data,
   }
 
   return file
