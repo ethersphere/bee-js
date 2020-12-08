@@ -6,7 +6,7 @@ import type { UploadOptions, Collection, File, UploadHeaders } from '../types'
 import { TarArchive } from '../utils/tar'
 import { safeAxios } from '../utils/safeAxios'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
-import { isReadable } from '../utils/is'
+import { isReadable } from '../utils/readable'
 import { BeeError } from '../utils/error'
 
 const dirsEndpoint = '/dirs'
@@ -41,7 +41,6 @@ function isCollection(data: unknown): data is Collection<Uint8Array | Readable> 
     return false
   }
 
-  /* eslint-disable comma-dangle */
   return !data.some(
     entry =>
       typeof entry !== 'object' || !entry.data || !entry.path || !(isUint8Array(entry.data) || isReadable(entry.data)),
