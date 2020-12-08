@@ -1,5 +1,7 @@
-import axios from 'axios'
 import { Tag } from '../types'
+import { safeAxios } from '../utils/safeAxios'
+
+const endpoint = '/tags'
 
 /**
  * Create new tag on the Bee node
@@ -7,12 +9,13 @@ import { Tag } from '../types'
  * @param url Bee tag URL
  */
 export async function createTag(url: string): Promise<Tag> {
-  return (
-    await axios({
-      method: 'post',
-      url: url
-    })
-  ).data
+  const response = await safeAxios<Tag>({
+    method: 'post',
+    url: url + endpoint,
+    responseType: 'json'
+  })
+
+  return response.data
 }
 
 /**
@@ -23,10 +26,9 @@ export async function createTag(url: string): Promise<Tag> {
  */
 export async function retrieveTag(url: string, tag: Tag | number): Promise<Tag> {
   const uid = typeof tag === 'number' ? tag : tag?.uid
+  const response = await safeAxios<Tag>({
+    url: `${url}${endpoint}/${uid}`
+  })
 
-  return (
-    await axios({
-      url: `${url}/${uid}`
-    })
-  ).data
+  return response.data
 }

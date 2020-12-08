@@ -2,12 +2,12 @@ export interface Dictionary<T> {
   [Key: string]: T
 }
 
-export interface OptionsUpload {
-  name?: string
+export interface UploadOptions {
   pin?: boolean
   encrypt?: boolean
   tag?: number
   size?: number // Content length, required if the uploaded data is readable stream
+  contentType?: string
 }
 
 export interface Tag {

@@ -1,10 +1,11 @@
 import * as Tag from '../../src/modules/tag'
+import { beeUrl } from '../utils'
 
-const BEE_URL = process.env.BEE_URL || 'http://bee-0.localhost'
+const BEE_URL = beeUrl()
 
 describe('modules/tag', () => {
   it('should create empty tag', async () => {
-    const tag = await Tag.createTag(`${BEE_URL}/tags`)
+    const tag = await Tag.createTag(BEE_URL)
 
     expect(tag.total).toBe(0)
     expect(tag.split).toBe(0)
@@ -19,8 +20,8 @@ describe('modules/tag', () => {
   })
 
   it('should retrieve previously created empty tag', async () => {
-    const tag = await Tag.createTag(`${BEE_URL}/tags`)
-    const tag2 = await Tag.retrieveTag(`${BEE_URL}/tags`, tag)
+    const tag = await Tag.createTag(BEE_URL)
+    const tag2 = await Tag.retrieveTag(BEE_URL, tag)
 
     expect(tag).toEqual(expect.objectContaining(tag2))
   })
