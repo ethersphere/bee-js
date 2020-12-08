@@ -2,7 +2,11 @@ import { Readable, Writable } from 'stream'
 import * as tar from 'tar-stream'
 import type { Pack } from 'tar-stream'
 
-type FileInfo = { name: string; size: number; stream: Readable }
+type FileInfo = {
+  name: string
+  size: number
+  stream: Readable
+}
 
 /**
  * Credit to https://github.com/dominicbartl
