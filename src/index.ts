@@ -1,9 +1,7 @@
 import { Readable } from 'stream'
 import * as file from './modules/file'
 import * as tag from './modules/tag'
-import { UploadOptions, Tag } from './types'
-
-type Reference = string
+import { Tag, File, Reference } from './types'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -13,15 +11,15 @@ type Reference = string
 export default class Bee {
   constructor(readonly url: string) {}
 
-  uploadFile(data: string | Uint8Array | Readable, name?: string, options?: UploadOptions): Promise<Reference> {
+  uploadFile(data: string | Uint8Array | Readable, name?: string, options?: file.FileUploadOptions): Promise<Reference> {
     return file.upload(this.url, data, name, options)
   }
 
-  downloadFile(reference: Reference): Promise<file.File<Uint8Array>> {
+  downloadFile(reference: Reference): Promise<File<Uint8Array>> {
     return file.download(this.url, reference)
   }
 
-  downloadFileReadable(reference: Reference): Promise<file.File<Readable>> {
+  downloadFileReadable(reference: Reference): Promise<File<Readable>> {
     return file.downloadReadable(this.url, reference)
   }
 

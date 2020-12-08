@@ -29,9 +29,11 @@
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "dependencies": {
+    "@types/tar-stream": "^2.1.0",
     "axios": "^0.21.0",
     "content-disposition": "^0.5.3",
-    "readable-stream": "^3.6.0"
+    "readable-stream": "^3.6.0",
+    "tar-stream": "^2.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
