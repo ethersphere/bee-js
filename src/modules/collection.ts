@@ -42,11 +42,9 @@ function isCollection(data: unknown): data is Collection<Uint8Array | Readable> 
   }
 
   /* eslint-disable comma-dangle */
-  return !data.some(entry =>
-      typeof entry !== 'object' ||
-      !entry.data ||
-      !entry.path ||
-      !(isUint8Array(entry.data) || isReadable(entry.data))
+  return !data.some(
+    entry =>
+      typeof entry !== 'object' || !entry.data || !entry.path || !(isUint8Array(entry.data) || isReadable(entry.data)),
   )
 }
 
@@ -89,7 +87,7 @@ export async function buildCollection(dir: string, recursive = true): Promise<Co
         data: fs.createReadStream(fullPath),
       })
     } else if (entry.isDirectory() && recursive) {
-      collection = [...await buildCollection(fullPath, recursive), ...collection]
+      collection = [...(await buildCollection(fullPath, recursive)), ...collection]
     }
   }
 
@@ -158,7 +156,6 @@ export async function download(url: string, hash: string, path = ''): Promise<Fi
   }
 
   return file
-
 }
 
 /**
@@ -168,11 +165,7 @@ export async function download(url: string, hash: string, path = ''): Promise<Fi
  * @param hash Bee Collection hash
  * @param path Path of the requested file in the Collection
  */
-export async function downloadReadable(
-  url: string,
-  hash: string,
-  path = '',
-): Promise<File<Readable>> {
+export async function downloadReadable(url: string, hash: string, path = ''): Promise<File<Readable>> {
   if (!url || url === '') {
     throw new BeeError('url parameter is required and cannot be empty')
   }

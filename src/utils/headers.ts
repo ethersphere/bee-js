@@ -1,7 +1,7 @@
 import contentDisposition from 'content-disposition'
 
-import { Dictionary, FileHeaders, UploadHeaders, UploadOptions } from "../types"
-import { BeeError } from "./error"
+import { Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
+import { BeeError } from './error'
 
 function readContentDispositionFilename(header?: string): string {
   try {

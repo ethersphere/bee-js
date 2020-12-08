@@ -11,7 +11,11 @@ import { Tag, File, Reference } from './types'
 export default class Bee {
   constructor(readonly url: string) {}
 
-  uploadFile(data: string | Uint8Array | Readable, name?: string, options?: file.FileUploadOptions): Promise<Reference> {
+  uploadFile(
+    data: string | Uint8Array | Readable,
+    name?: string,
+    options?: file.FileUploadOptions,
+  ): Promise<Reference> {
     return file.upload(this.url, data, name, options)
   }
 

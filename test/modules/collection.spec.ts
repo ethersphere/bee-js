@@ -69,12 +69,14 @@ describe('modules/collection', () => {
   })
 
   it('should throw error when the upload url is not set', async () => {
-    await expect(collection.upload(undefined as unknown as string, undefined as unknown as [])).rejects.toThrowError()
+    await expect(
+      collection.upload((undefined as unknown) as string, (undefined as unknown) as []),
+    ).rejects.toThrowError()
   })
 
   it('should throw error when the upload url is not empty', async () => {
     const url = ''
-    await expect(collection.upload(url, undefined as unknown as [])).rejects.toThrowError()
+    await expect(collection.upload(url, (undefined as unknown) as [])).rejects.toThrowError()
   })
 
   it('should throw error when the collection is empty', async () => {

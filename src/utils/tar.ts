@@ -2,7 +2,7 @@ import { Readable, Writable } from 'stream'
 import * as tar from 'tar-stream'
 import type { Pack } from 'tar-stream'
 
-type FileInfo = { name: string, size: number, stream: Readable }
+type FileInfo = { name: string; size: number; stream: Readable }
 
 /**
  * Credit to https://github.com/dominicbartl
@@ -30,7 +30,7 @@ export class TarArchive {
 
   write(streamCallback: (pack: Pack) => Writable): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.nextEntry((err) => {
+      this.nextEntry(err => {
         if (err) {
           reject(err)
         } else {
@@ -38,11 +38,10 @@ export class TarArchive {
         }
       })
 
-      streamCallback(this.pack)
-        .on('error', (err) => {
-          this.pack.destroy(err)
-          reject(err)
-        })
+      streamCallback(this.pack).on('error', err => {
+        this.pack.destroy(err)
+        reject(err)
+      })
     })
   }
 
@@ -56,16 +55,19 @@ export class TarArchive {
       return
     }
 
-    const writeEntryStream = this.pack.entry({
-      name: file.name,
-      size: file.size,
-    }, (err) => {
-      if (err) {
-        callback(err)
-      } else {
-        this.nextEntry(callback)
-      }
-    })
+    const writeEntryStream = this.pack.entry(
+      {
+        name: file.name,
+        size: file.size,
+      },
+      err => {
+        if (err) {
+          callback(err)
+        } else {
+          this.nextEntry(callback)
+        }
+      },
+    )
     file.stream.pipe(writeEntryStream)
   }
 }
