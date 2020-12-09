@@ -4,6 +4,12 @@ export class BeeError extends Error {
   }
 }
 
+export class BeeArgumentError extends BeeError {
+  public constructor(message: string, readonly value: unknown) {
+    super(message)
+  }
+}
+
 export class BeeRequestError extends BeeError {
   public constructor(message: string) {
     super(message)

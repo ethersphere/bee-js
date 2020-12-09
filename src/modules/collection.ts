@@ -1,4 +1,5 @@
-import { PassThrough, Readable } from 'stream'
+import type { Readable } from 'stream'
+import { PassThrough } from 'stream'
 import * as fs from 'fs'
 import path from 'path'
 
@@ -7,7 +8,7 @@ import { TarArchive } from '../utils/tar'
 import { safeAxios } from '../utils/safeAxios'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { isReadable } from '../utils/readable'
-import { BeeError } from '../utils/error'
+import { BeeArgumentError, BeeError } from '../utils/error'
 
 const dirsEndpoint = '/dirs'
 const bzzEndpoint = '/bzz'
@@ -17,7 +18,7 @@ interface CollectionUploadHeaders extends UploadHeaders {
   'swarm-error-document'?: string
 }
 
-interface CollectionUploadOptions extends UploadOptions {
+export interface CollectionUploadOptions extends UploadOptions {
   indexDocument?: string
   errorDocument?: string
 }
@@ -51,7 +52,7 @@ function packData(data: Collection<Uint8Array | Readable>): TarArchive {
   const tar = new TarArchive()
 
   for (const entry of data) {
-    if (entry.data instanceof Uint8Array) {
+    if (isUint8Array(entry.data)) {
       tar.addUint8Array(entry.path, entry.data)
     } else if (isReadable(entry.data)) {
       if (entry.size === undefined) {
@@ -93,6 +94,23 @@ export async function buildCollection(dir: string, recursive = true): Promise<Co
   return collection
 }
 
+export async function buildFileListCollection(fileList: FileList): Promise<Collection<Uint8Array>> {
+  const collection: Collection<Uint8Array> = []
+
+  for (let i = 0; i < fileList.length; i++) {
+    const file = fileList.item(i)
+
+    if (file != null) {
+      collection.push({
+        path: file.name,
+        data: new Uint8Array(await file.arrayBuffer()),
+      })
+    }
+  }
+
+  return collection
+}
+
 /**
  * Upload collection of files to a Bee node
  *
@@ -106,11 +124,11 @@ export async function upload(
   options?: CollectionUploadOptions,
 ): Promise<string> {
   if (!url || url === '') {
-    throw new BeeError('url parameter is required and cannot be empty')
+    throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
 
   if (!isCollection(data)) {
-    throw new BeeError('invalid collection')
+    throw new BeeArgumentError('invalid collection', data)
   }
 
   const tar = packData(data)
@@ -142,7 +160,7 @@ export async function upload(
  */
 export async function download(url: string, hash: string, path = ''): Promise<File<Uint8Array>> {
   if (!url || url === '') {
-    throw new BeeError('url parameter is required and cannot be empty')
+    throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
 
   const response = await safeAxios<ArrayBuffer>({
@@ -166,7 +184,7 @@ export async function download(url: string, hash: string, path = ''): Promise<Fi
  */
 export async function downloadReadable(url: string, hash: string, path = ''): Promise<File<Readable>> {
   if (!url || url === '') {
-    throw new BeeError('url parameter is required and cannot be empty')
+    throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
 
   const response = await safeAxios<Readable>({

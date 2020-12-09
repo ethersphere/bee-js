@@ -1,4 +1,4 @@
-import { Readable, Writable } from 'stream'
+import type { Readable, Writable } from 'stream'
 import * as tar from 'tar-stream'
 import type { Pack } from 'tar-stream'
 

@@ -1,4 +1,4 @@
-import { Readable } from 'stream'
+import type { Readable } from 'stream'
 
 export function isReadable(entry: unknown): entry is Readable {
   return (

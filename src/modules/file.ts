@@ -1,4 +1,4 @@
-import { Readable } from 'stream'
+import type { Readable } from 'stream'
 import { UploadOptions, File, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'

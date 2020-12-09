@@ -5,7 +5,7 @@ import { BeeError } from './error'
 
 function readContentDispositionFilename(header?: string): string {
   try {
-    if (header == null) {
+    if (!header) {
       throw new BeeError('missing content-disposition header')
     }
     const disposition = contentDisposition.parse(header)
@@ -20,7 +20,7 @@ function readContentDispositionFilename(header?: string): string {
 }
 
 function readTagUid(header?: string): number | undefined {
-  if (header == null) {
+  if (!header) {
     return undefined
   }
 
