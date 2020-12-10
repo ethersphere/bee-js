@@ -14,8 +14,10 @@ interface WebpackEnvParams {
 
 const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
   const isProduction = env?.mode === 'production'
+  const isBrowser = env?.target === 'web'
   const filename = env?.fileName || [
     'index',
+    isBrowser ? '.browser' : null,
     isProduction ? '.min' : null,
     '.js'
   ]
@@ -72,7 +74,14 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       ]
     },
     resolve: {
-      extensions: ['.ts', '.js']
+      extensions: ['.ts', '.js'],
+      fallback: {
+        'path': false,
+        'constants': false,
+        'util': false,
+        'fs': false,
+        'stream': false,
+      },
     },
     optimization: {
       minimize: isProduction,
@@ -108,9 +117,9 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
     plugins,
     target,
     node: {
-      global: false,
+      global: true,
       __filename: 'mock',
-      __dirname: 'mock'
+      __dirname: 'mock',
     },
     performance: {
       hints: false

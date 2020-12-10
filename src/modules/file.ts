@@ -1,78 +1,35 @@
-import { Readable } from 'stream'
-import { UploadOptions, Dictionary } from '../types'
+import type { Readable } from 'stream'
+import { UploadOptions, File, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
+import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
-import contentDisposition from 'content-disposition'
-import { BeeError } from '../utils/error'
 
 const endpoint = '/files'
 
-interface FileHeaders {
-  name?: string
-  tagUid?: number
+export interface FileUploadOptions extends UploadOptions {
+  size?: number
   contentType?: string
 }
 
-export interface File<T> extends FileHeaders {
-  data: T
+interface FileUploadHeaders extends UploadHeaders {
+  'content-length'?: string
+  'content-type'?: string
 }
 
-function extractHeaders(options?: UploadOptions): Dictionary<boolean | number | string> {
-  const headers: Dictionary<boolean | number | string> = {}
+function extractFileUploadHeaders(options?: FileUploadOptions): FileUploadHeaders {
+  const headers: FileUploadHeaders = extractUploadHeaders(options)
 
-  if (options?.pin) headers['swarm-pin'] = options.pin
-
-  if (options?.encrypt) headers['swarm-encrypt'] = options.encrypt
-
-  if (options?.tag) headers['swarm-tag-uid'] = options.tag
-
-  if (options?.size) headers['content-length'] = options.size
+  if (options?.size) headers['content-length'] = String(options.size)
 
   if (options?.contentType) headers['content-type'] = options.contentType
 
   return headers
 }
 
-function readContentDispositionFilename(header?: string): string {
-  try {
-    if (header == null) {
-      throw new BeeError('missing content-disposition header')
-    }
-    const disposition = contentDisposition.parse(header)
-
-    if (disposition?.parameters?.filename) {
-      return disposition.parameters.filename
-    }
-    throw new BeeError('invalid content-disposition header')
-  } catch (e) {
-    throw new BeeError(e.message)
-  }
-}
-
-function readTagUid(header?: string): number | undefined {
-  if (header == null) {
-    return undefined
-  }
-
-  return parseInt(header, 10)
-}
-
-function readFileHeaders(headers: Dictionary<string>): FileHeaders {
-  const name = readContentDispositionFilename(headers['content-disposition'])
-  const tagUid = readTagUid(headers['swarm-tag-uid'])
-  const contentType = headers['content-type']
-
-  return {
-    name,
-    tagUid,
-    contentType,
-  }
-}
-
 /**
  * Upload single file to a Bee node
  *
- * @param url     Bee file URL
+ * @param url     Bee URL
  * @param data    Data to be uploaded
  * @param options Aditional options like tag, encryption, pinning
  */
@@ -80,7 +37,7 @@ export async function upload(
   url: string,
   data: string | Uint8Array | Readable,
   name?: string,
-  options?: UploadOptions,
+  options?: FileUploadOptions,
 ): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
     method: 'post',
@@ -88,7 +45,7 @@ export async function upload(
     data: await prepareData(data),
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractHeaders(options),
+      ...extractFileUploadHeaders(options),
     },
     responseType: 'json',
     params: { name },
@@ -100,7 +57,7 @@ export async function upload(
 /**
  * Download single file as a buffer
  *
- * @param url  Bee file URL
+ * @param url  Bee URL
  * @param hash Bee file hash
  */
 export async function download(url: string, hash: string): Promise<File<Uint8Array>> {
@@ -119,7 +76,7 @@ export async function download(url: string, hash: string): Promise<File<Uint8Arr
 /**
  * Download single file as a readable stream
  *
- * @param url  Bee file URL
+ * @param url  Bee URL
  * @param hash Bee file hash
  */
 export async function downloadReadable(url: string, hash: string): Promise<File<Readable>> {
