@@ -100,7 +100,7 @@ export async function buildFileListCollection(fileList: FileList): Promise<Colle
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList.item(i)
 
-    if (file != null) {
+    if (file) {
       collection.push({
         path: file.name,
         data: new Uint8Array(await file.arrayBuffer()),

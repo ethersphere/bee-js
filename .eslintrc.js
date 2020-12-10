@@ -2,10 +2,10 @@ module.exports = {
   extends: ['plugin:@typescript-eslint/recommended'],
   parserOptions: {
     sourceType: 'module',
-    ecmaVersion: 2018
+    ecmaVersion: 2018,
   },
   env: {
-    'jest/globals': true
+    'jest/globals': true,
   },
   plugins: ['jest'],
   rules: {
@@ -16,6 +16,7 @@ module.exports = {
     complexity: 'warn',
     'default-case': 'error',
     'dot-notation': 'warn',
+    eqeqeq: 'error',
     'guard-for-in': 'warn',
     'linebreak-style': ['warn', 'unix'],
     'no-alert': 'error',
@@ -42,14 +43,14 @@ module.exports = {
       'error', {
         anonymous: 'never',
         named: 'never',
-        asyncArrow: 'always'
-      }
+        asyncArrow: 'always',
+      },
     ],
     'padding-line-between-statements': [
       'error',
       { blankLine: 'always', prev: '*', next: 'if' },
       { blankLine: 'always', prev: '*', next: 'function' },
-      { blankLine: 'always', prev: '*', next: 'return' }
+      { blankLine: 'always', prev: '*', next: 'return' },
     ],
     'no-useless-constructor': 'off',
     'no-dupe-class-members': 'off',
@@ -63,22 +64,22 @@ module.exports = {
       'error', {
         multiline: {
           delimiter: 'none',
-          requireLast: true
+          requireLast: true,
         },
         singleline: {
           delimiter: 'comma',
-          requireLast: false
-        }
-      }
-    ]
+          requireLast: false,
+        },
+      },
+    ],
   },
   overrides: [
     {
       files: ['*.spec.ts'],
       rules: {
         // '@typescript-eslint/ban-ts-ignore': 'off',
-        'max-nested-callbacks': ['error', 10] // allow describe/it nesting
-      }
-    }
-  ]
+        'max-nested-callbacks': ['error', 10], // allow describe/it nesting
+      },
+    },
+  ],
 }
