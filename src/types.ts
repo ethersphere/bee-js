@@ -38,7 +38,7 @@ export interface FileHeaders {
   contentType?: string
 }
 
-export interface File<T> extends FileHeaders {
+export interface FileData<T> extends FileHeaders {
   data: T
 }
 

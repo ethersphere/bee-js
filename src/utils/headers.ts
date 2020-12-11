@@ -1,5 +1,3 @@
-import contentDisposition from 'content-disposition'
-
 import { Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
 import { BeeError } from './error'
 
@@ -8,10 +6,10 @@ function readContentDispositionFilename(header?: string): string {
     if (!header) {
       throw new BeeError('missing content-disposition header')
     }
-    const disposition = contentDisposition.parse(header)
+    const dispositionMatch = header.match(/filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?;?/i)
 
-    if (disposition?.parameters?.filename) {
-      return disposition.parameters.filename
+    if (dispositionMatch && dispositionMatch.length > 0) {
+      return dispositionMatch[1]
     }
     throw new BeeError('invalid content-disposition header')
   } catch (e) {
