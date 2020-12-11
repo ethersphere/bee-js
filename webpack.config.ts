@@ -77,10 +77,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       extensions: ['.ts', '.js'],
       fallback: {
         'path': false,
-        'constants': false,
-        'util': false,
         'fs': false,
-        'stream': false,
       },
     },
     optimization: {

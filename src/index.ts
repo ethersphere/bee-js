@@ -2,7 +2,7 @@ import type { Readable } from 'stream'
 import * as file from './modules/file'
 import * as tag from './modules/tag'
 import * as collection from './modules/collection'
-import { Tag, File, Reference } from './types'
+import { Tag, FileData, Reference } from './types'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -33,7 +33,7 @@ export default class Bee {
    *
    * @param reference Bee file reference
    */
-  downloadFile(reference: Reference): Promise<File<Uint8Array>> {
+  downloadFile(reference: Reference): Promise<FileData<Uint8Array>> {
     return file.download(this.url, reference)
   }
 
@@ -42,7 +42,7 @@ export default class Bee {
    *
    * @param reference Bee file reference
    */
-  downloadReadableFile(reference: Reference): Promise<File<Readable>> {
+  downloadReadableFile(reference: Reference): Promise<FileData<Readable>> {
     return file.downloadReadable(this.url, reference)
   }
 
@@ -56,7 +56,7 @@ export default class Bee {
    *
    * @returns reference of the collection of files
    */
-  async uploadFiles(fileList: FileList, options?: collection.CollectionUploadOptions): Promise<Reference> {
+  async uploadFiles(fileList: FileList | File[], options?: collection.CollectionUploadOptions): Promise<Reference> {
     const data = await collection.buildFileListCollection(fileList)
 
     return collection.upload(this.url, data, options)
@@ -73,15 +73,15 @@ export default class Bee {
    *
    * @returns reference of the collection of files
    */
-  async uploadFilesFromDirectory(
-    dir: string,
-    recursive = true,
-    options?: collection.CollectionUploadOptions,
-  ): Promise<Reference> {
-    const data = await collection.buildCollection(dir, recursive)
+  // async uploadFilesFromDirectory(
+  //   dir: string,
+  //   recursive = true,
+  //   options?: collection.CollectionUploadOptions,
+  // ): Promise<Reference> {
+  //   const data = await collection.buildCollection(dir, recursive)
 
-    return collection.upload(this.url, data, options)
-  }
+  //   return collection.upload(this.url, data, options)
+  // }
 
   /**
    * Download single file as a byte array from collection given using the path
@@ -91,7 +91,7 @@ export default class Bee {
    *
    * @returns file in byte array with metadata
    */
-  downloadFileFromCollection(reference: Reference, path = ''): Promise<File<Uint8Array>> {
+  downloadFileFromCollection(reference: Reference, path = ''): Promise<FileData<Uint8Array>> {
     return collection.download(this.url, reference, path)
   }
 
@@ -103,7 +103,7 @@ export default class Bee {
    *
    * @returns file in readable stream with metadata
    */
-  downloadReadableFileFromCollection(reference: Reference, path = ''): Promise<File<Readable>> {
+  downloadReadableFileFromCollection(reference: Reference, path = ''): Promise<FileData<Readable>> {
     return collection.downloadReadable(this.url, reference, path)
   }
 
