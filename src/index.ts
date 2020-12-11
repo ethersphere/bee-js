@@ -73,15 +73,15 @@ export default class Bee {
    *
    * @returns reference of the collection of files
    */
-  // async uploadFilesFromDirectory(
-  //   dir: string,
-  //   recursive = true,
-  //   options?: collection.CollectionUploadOptions,
-  // ): Promise<Reference> {
-  //   const data = await collection.buildCollection(dir, recursive)
+  async uploadFilesFromDirectory(
+    dir: string,
+    recursive = true,
+    options?: collection.CollectionUploadOptions,
+  ): Promise<Reference> {
+    const data = await collection.buildCollection(dir, recursive)
 
-  //   return collection.upload(this.url, data, options)
-  // }
+    return collection.upload(this.url, data, options)
+  }
 
   /**
    * Download single file as a byte array from collection given using the path

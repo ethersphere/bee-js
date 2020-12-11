@@ -53,10 +53,10 @@ function isCollection(data: unknown): data is Collection<Uint8Array | Readable> 
  * @param dir absolute path to the directory
  * @param recursive flag that specifies if the directory should be recursively walked and get files in those directories.
  */
-export async function buildCollection(dir: string, recursive = true): Promise<Collection<Readable>> {
+export async function buildCollection(dir: string, recursive = true): Promise<Collection<Uint8Array>> {
   // Handles case when the dir is not existing or it is a file ==> throws an error
   const entries = await fs.promises.opendir(dir)
-  let collection: Collection<Readable> = []
+  let collection: Collection<Uint8Array> = []
 
   for await (const entry of entries) {
     const fullPath = path.join(dir, entry.name)
@@ -64,8 +64,7 @@ export async function buildCollection(dir: string, recursive = true): Promise<Co
     if (entry.isFile()) {
       collection.push({
         path: fullPath,
-        size: (await fs.promises.stat(fullPath)).size,
-        data: fs.createReadStream(fullPath),
+        data: new Uint8Array(await fs.promises.readFile(fullPath)),
       })
     } else if (entry.isDirectory() && recursive) {
       collection = [...(await buildCollection(fullPath, recursive)), ...collection]
@@ -75,14 +74,15 @@ export async function buildCollection(dir: string, recursive = true): Promise<Co
   return collection
 }
 
-function fileArrayBuffer(file: any) {
+function fileArrayBuffer(file: File): Promise<ArrayBuffer> {
   if (file.arrayBuffer) {
     return file.arrayBuffer()
   }
+
   // workaround for Safari where arrayBuffer is not supported on Files
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const fr = new FileReader()
-    fr.onload = () => resolve(fr.result)
+    fr.onload = () => resolve(fr.result as ArrayBuffer)
     fr.readAsArrayBuffer(file)
   })
 }
@@ -91,10 +91,11 @@ interface WebkitFile extends File {
   webkitRelativePath?: string
 }
 
-function filePath(file: WebkitFile)  {
+function filePath(file: WebkitFile) {
   if (file.webkitRelativePath && file.webkitRelativePath !== '') {
     return file.webkitRelativePath.replace(/.*?\//i, '')
   }
+
   return file.name
 }
 
@@ -112,7 +113,6 @@ export async function buildFileListCollection(fileList: FileList | File[]): Prom
     }
   }
 
-  console.debug('buildFileListCollection', {collection})
   return collection
 }
 
