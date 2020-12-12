@@ -20,6 +20,7 @@ module.exports = {
     complexity: 'warn',
     'default-case': 'error',
     'dot-notation': 'warn',
+    eqeqeq: 'error',
     'guard-for-in': 'warn',
     'linebreak-style': ['warn', 'unix'],
     'no-alert': 'error',
