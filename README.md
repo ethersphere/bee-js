@@ -106,6 +106,8 @@ export CHROME_BIN=/usr/bin/chromium-browser
 
 In Visual Studio environment, the tests have been set up to run against your local bee node on `http://localhost:1633`
 To run Jest tests, choose the `vscode-jest-tests` CI job under the Run tab.
+You can run your own local Bee client for test purposes with the help of [test/bee.sh](test/bee.sh).
+If you pass `--ephemeral` flag, the container automatically will be removed at the end of the run.
 
 ### Compile code
 
