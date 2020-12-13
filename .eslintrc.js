@@ -5,7 +5,11 @@ module.exports = {
     ecmaVersion: 2018,
   },
   env: {
-    'jest/globals': true,
+    jest: true,
+  },
+  globals: {
+    browser: true,
+    page: true,
   },
   plugins: ['jest'],
   rules: {
