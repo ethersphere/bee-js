@@ -52,11 +52,6 @@ export interface CollectionEntry<T> {
    *
    */
   path: string
-
-  /**
-   * Required when `data` is Readable.
-   */
-  size?: number
 }
 
 /**
