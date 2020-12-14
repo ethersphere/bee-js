@@ -83,8 +83,15 @@ function fileArrayBuffer(file: File): Promise<ArrayBuffer> {
   })
 }
 
+/*
+ * This is a workaround for fixing the type definitions
+ * regarding the missing `webkitRelativePath` property which is
+ * provided on files if you specify the `webkitdirectory`
+ * property on the HTML input element. This is a non-standard
+ * functionality supported in all major browsers.
+ */
 interface WebkitFile extends File {
-  webkitRelativePath?: string
+  readonly webkitRelativePath?: string
 }
 
 function filePath(file: WebkitFile) {
