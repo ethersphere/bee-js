@@ -40,10 +40,7 @@ function isCollection(data: unknown): data is Collection<Uint8Array> {
     return false
   }
 
-  return !data.some(
-    entry =>
-      typeof entry !== 'object' || !entry.data || !entry.path || !(isUint8Array(entry.data)),
-  )
+  return !data.some(entry => typeof entry !== 'object' || !entry.data || !entry.path || !isUint8Array(entry.data))
 }
 
 /**
