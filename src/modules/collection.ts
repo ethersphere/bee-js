@@ -6,7 +6,6 @@ import type { UploadOptions, Collection, FileData, UploadHeaders } from '../type
 import { makeTar } from '../utils/tar'
 import { safeAxios } from '../utils/safeAxios'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
-import { isReadable } from '../utils/readable'
 import { BeeArgumentError } from '../utils/error'
 
 const dirsEndpoint = '/dirs'
@@ -32,18 +31,14 @@ function extractCollectionUploadHeaders(options?: CollectionUploadOptions): Coll
   return headers
 }
 
-function isUint8Array(obj: unknown): obj is Uint8Array {
-  return obj instanceof Uint8Array
-}
-
-function isCollection(data: unknown): data is Collection<Uint8Array | Readable> {
+function isCollection(data: unknown): data is Collection<Promise<ArrayBuffer | Buffer>> {
   if (!Array.isArray(data)) {
     return false
   }
 
   return !data.some(
     entry =>
-      typeof entry !== 'object' || !entry.data || !entry.path || !(isUint8Array(entry.data) || isReadable(entry.data)),
+      typeof entry !== 'object' || !entry.data || !entry.path,
   )
 }
 
@@ -53,10 +48,10 @@ function isCollection(data: unknown): data is Collection<Uint8Array | Readable> 
  * @param dir absolute path to the directory
  * @param recursive flag that specifies if the directory should be recursively walked and get files in those directories.
  */
-export async function buildCollection(dir: string, recursive = true): Promise<Collection<Uint8Array>> {
+export async function buildCollection(dir: string, recursive = true): Promise<Collection<Promise<Buffer>>> {
   // Handles case when the dir is not existing or it is a file ==> throws an error
   const entries = await fs.promises.opendir(dir)
-  let collection: Collection<Uint8Array> = []
+  let collection: Collection<Promise<Buffer>> = []
 
   for await (const entry of entries) {
     const fullPath = path.join(dir, entry.name)
@@ -64,7 +59,7 @@ export async function buildCollection(dir: string, recursive = true): Promise<Co
     if (entry.isFile()) {
       collection.push({
         path: fullPath,
-        data: new Uint8Array(await fs.promises.readFile(fullPath)),
+        data: fs.promises.readFile(fullPath),
       })
     } else if (entry.isDirectory() && recursive) {
       collection = [...(await buildCollection(fullPath, recursive)), ...collection]
@@ -99,8 +94,8 @@ function filePath(file: WebkitFile) {
   return file.name
 }
 
-export async function buildFileListCollection(fileList: FileList | File[]): Promise<Collection<Uint8Array>> {
-  const collection: Collection<Uint8Array> = []
+export async function buildFileListCollection(fileList: FileList | File[]): Promise<Collection<Promise<ArrayBuffer>>> {
+  const collection: Collection<Promise<ArrayBuffer>> = []
 
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList[i] as WebkitFile
@@ -108,7 +103,7 @@ export async function buildFileListCollection(fileList: FileList | File[]): Prom
     if (file) {
       collection.push({
         path: filePath(file),
-        data: new Uint8Array(await fileArrayBuffer(file)),
+        data: fileArrayBuffer(file),
       })
     }
   }
@@ -125,7 +120,7 @@ export async function buildFileListCollection(fileList: FileList | File[]): Prom
  */
 export async function upload(
   url: string,
-  data: Collection<Uint8Array>,
+  data: Collection<Promise<ArrayBuffer | Buffer> | Uint8Array>,
   options?: CollectionUploadOptions,
 ): Promise<string> {
   if (!url || url === '') {
