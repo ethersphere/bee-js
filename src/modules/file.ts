@@ -1,5 +1,5 @@
 import type { Readable } from 'stream'
-import { UploadOptions, File, UploadHeaders } from '../types'
+import { UploadOptions, FileData, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
@@ -60,7 +60,7 @@ export async function upload(
  * @param url  Bee URL
  * @param hash Bee file hash
  */
-export async function download(url: string, hash: string): Promise<File<Uint8Array>> {
+export async function download(url: string, hash: string): Promise<FileData<Uint8Array>> {
   const response = await safeAxios<ArrayBuffer>({
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`,
@@ -79,7 +79,7 @@ export async function download(url: string, hash: string): Promise<File<Uint8Arr
  * @param url  Bee URL
  * @param hash Bee file hash
  */
-export async function downloadReadable(url: string, hash: string): Promise<File<Readable>> {
+export async function downloadReadable(url: string, hash: string): Promise<FileData<Readable>> {
   const response = await safeAxios<Readable>({
     responseType: 'stream',
     url: `${url}${endpoint}/${hash}`,

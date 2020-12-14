@@ -38,7 +38,7 @@ export interface FileHeaders {
   contentType?: string
 }
 
-export interface File<T> extends FileHeaders {
+export interface FileData<T> extends FileHeaders {
   data: T
 }
 
@@ -52,11 +52,6 @@ export interface CollectionEntry<T> {
    *
    */
   path: string
-
-  /**
-   * Required when `data` is Readable.
-   */
-  size?: number
 }
 
 /**
