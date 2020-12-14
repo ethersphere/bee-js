@@ -6,7 +6,6 @@ import type { UploadOptions, Collection, FileData, UploadHeaders } from '../type
 import { makeTar } from '../utils/tar'
 import { safeAxios } from '../utils/safeAxios'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
-import { isReadable } from '../utils/readable'
 import { BeeArgumentError } from '../utils/error'
 
 const dirsEndpoint = '/dirs'
@@ -36,14 +35,14 @@ function isUint8Array(obj: unknown): obj is Uint8Array {
   return obj instanceof Uint8Array
 }
 
-function isCollection(data: unknown): data is Collection<Uint8Array | Readable> {
+function isCollection(data: unknown): data is Collection<Uint8Array> {
   if (!Array.isArray(data)) {
     return false
   }
 
   return !data.some(
     entry =>
-      typeof entry !== 'object' || !entry.data || !entry.path || !(isUint8Array(entry.data) || isReadable(entry.data)),
+      typeof entry !== 'object' || !entry.data || !entry.path || !(isUint8Array(entry.data)),
   )
 }
 
