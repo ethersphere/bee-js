@@ -3,6 +3,7 @@ export interface Dictionary<T> {
 }
 
 export type Reference = string
+export type PublicKey = string
 
 export const REFERENCE_LENGTH = 64
 export const ENCRYPTED_REFERENCE_LENGTH = 2 * REFERENCE_LENGTH

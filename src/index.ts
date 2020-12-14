@@ -4,7 +4,8 @@ import * as collection from './modules/collection'
 import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
-import { Tag, FileData, Reference, UploadOptions } from './types'
+import * as pss from './modules/pss'
+import { Tag, FileData, Reference, UploadOptions, PublicKey } from './types'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -208,6 +209,19 @@ export class Bee {
    */
   unpinData(reference: Reference): Promise<pinning.Response> {
     return pinning.unpinData(this.url, reference)
+  }
+
+  /**
+   * Send to recipient or target with Postal Service for Swarm
+   *
+   * @param topic Topic name
+   * @param target Target message address prefix
+   * @param data Message to be sent
+   * @param recipient Recipient public key
+   *
+   */
+  pssSend(topic: string, target: string, data: string | Uint8Array, recipient?: PublicKey): Promise<pss.Response> {
+    return pss.send(this.url, topic, target, data, recipient)
   }
 }
 
