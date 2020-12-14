@@ -14,8 +14,16 @@ function readContentDispositionFilename(header?: string): string {
     if (!header) {
       throw new BeeError('missing content-disposition header')
     }
+<<<<<<< HEAD
+<<<<<<< HEAD
     // Regex was found here
     // https://stackoverflow.com/questions/23054475/javascript-regex-for-extracting-filename-from-content-disposition-header
+=======
+>>>>>>> edca6d6 (feat: tar upload in the browser)
+=======
+    // Regex was found here
+    // https://stackoverflow.com/questions/23054475/javascript-regex-for-extracting-filename-from-content-disposition-header
+>>>>>>> 2fe3f2c (chore: add comments)
     const dispositionMatch = header.match(/filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?;?/i)
 
     if (dispositionMatch && dispositionMatch.length > 0) {

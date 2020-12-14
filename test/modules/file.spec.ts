@@ -1,6 +1,6 @@
 import * as File from '../../src/modules/file'
 import * as Tag from '../../src/modules/tag'
-import { beeUrl, createReadable, randomBuffer } from '../utils'
+import { beeUrl, createReadable, randomByteArray } from '../utils'
 
 const BEE_URL = beeUrl()
 
@@ -26,7 +26,7 @@ describe('modules/file', () => {
   })
 
   it('should store readable file', async () => {
-    const data = randomBuffer(5000)
+    const data = randomByteArray(5000)
     const filename = 'hello.txt'
 
     const hash = await File.upload(BEE_URL, createReadable(data), filename, {
@@ -38,7 +38,7 @@ describe('modules/file', () => {
   })
 
   it('should store file with a tag', async () => {
-    const data = randomBuffer(5000)
+    const data = randomByteArray(5000)
     const filename = 'hello.txt'
 
     const tag = await Tag.createTag(BEE_URL)
