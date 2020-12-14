@@ -1,11 +1,21 @@
 import { Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
 import { BeeError } from './error'
 
+/**
+ * Read the filename from the content-disposition header
+ * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+ *
+ * @param header the content-disposition header value
+ *
+ * @returns the filename
+ */
 function readContentDispositionFilename(header?: string): string {
   try {
     if (!header) {
       throw new BeeError('missing content-disposition header')
     }
+    // Regex was found here
+    // https://stackoverflow.com/questions/23054475/javascript-regex-for-extracting-filename-from-content-disposition-header
     const dispositionMatch = header.match(/filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?;?/i)
 
     if (dispositionMatch && dispositionMatch.length > 0) {
