@@ -38,7 +38,7 @@ function lrng(seed: number): () => number {
  * @param length Number of bytes to generate
  * @param seed Seed for the pseudo-random generator
  */
-export function randomBuffer(length: number, seed = 500): Uint8Array {
+export function randomByteArray(length: number, seed = 500): Uint8Array {
   const rand = lrng(seed)
   const buf = new Uint8Array(length)
 

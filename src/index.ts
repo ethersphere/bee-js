@@ -1,7 +1,8 @@
 import type { Readable } from 'stream'
 import * as file from './modules/file'
-import * as tag from './modules/tag'
 import * as collection from './modules/collection'
+import * as tag from './modules/tag'
+import * as pinning from './modules/pinning'
 import { Tag, FileData, Reference } from './types'
 
 /**
@@ -121,5 +122,41 @@ export default class Bee {
    */
   retrieveTag(tagUid: number | Tag): Promise<Tag> {
     return tag.retrieveTag(this.url, tagUid)
+  }
+
+  /**
+   * Pin file with given reference
+   *
+   * @param reference Bee file reference
+   */
+  pinFile(reference: Reference): Promise<pinning.Response> {
+    return pinning.pinFile(this.url, reference)
+  }
+
+  /**
+   * Unpin file with given reference
+   *
+   * @param reference Bee file reference
+   */
+  unpinFile(reference: Reference): Promise<pinning.Response> {
+    return pinning.unpinFile(this.url, reference)
+  }
+
+  /**
+   * Pin collection with given reference
+   *
+   * @param reference Bee collection reference
+   */
+  pinCollection(reference: Reference): Promise<pinning.Response> {
+    return pinning.pinCollection(this.url, reference)
+  }
+
+  /**
+   * Unpin collection with given reference
+   *
+   * @param reference Bee collection reference
+   */
+  unpinCollection(reference: Reference): Promise<pinning.Response> {
+    return pinning.unpinCollection(this.url, reference)
   }
 }

@@ -23,4 +23,19 @@ describe('Bee class', () => {
 
     expect(tag).toEqual(tag2)
   })
+
+  it('should pin and unping files', async () => {
+    const content = new Uint8Array([1, 2, 3])
+
+    const hash = await bee.uploadFile(content)
+    await bee.pinFile(hash)
+    await bee.unpinFile(hash)
+  })
+
+  it('should pin and unping collection', async () => {
+    const path = './test/data/'
+    const hash = await bee.uploadFilesFromDirectory(path)
+    await bee.pinCollection(hash)
+    await bee.unpinCollection(hash)
+  })
 })
