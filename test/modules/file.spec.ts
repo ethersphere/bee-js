@@ -1,5 +1,5 @@
-import * as File from '../../src/modules/file'
-import * as Tag from '../../src/modules/tag'
+import * as file from '../../src/modules/file'
+import * as tag from '../../src/modules/tag'
 import { beeUrl, createReadable, randomByteArray } from '../utils'
 
 const BEE_URL = beeUrl()
@@ -9,41 +9,41 @@ describe('modules/file', () => {
     const data = 'hello world'
     const filename = 'hello.txt'
 
-    const hash = await File.upload(BEE_URL, data, filename)
-    const file = await File.download(BEE_URL, hash)
+    const hash = await file.upload(BEE_URL, data, filename)
+    const fileData = await file.download(BEE_URL, hash)
 
-    expect(Buffer.from(file.data).toString()).toEqual(data)
-    expect(file.name).toEqual(filename)
+    expect(Buffer.from(fileData.data).toString()).toEqual(data)
+    expect(fileData.name).toEqual(filename)
   })
 
   it('should store file without filename', async () => {
     const data = 'hello world'
 
-    const hash = await File.upload(BEE_URL, data)
-    const file = await File.download(BEE_URL, hash)
+    const hash = await file.upload(BEE_URL, data)
+    const fileData = await file.download(BEE_URL, hash)
 
-    expect(Buffer.from(file.data).toString()).toEqual(data)
+    expect(Buffer.from(fileData.data).toString()).toEqual(data)
   })
 
   it('should store readable file', async () => {
     const data = randomByteArray(5000)
     const filename = 'hello.txt'
 
-    const hash = await File.upload(BEE_URL, createReadable(data), filename, {
+    const hash = await file.upload(BEE_URL, createReadable(data), filename, {
       size: data.length,
     })
-    const file = await File.download(BEE_URL, hash)
+    const fileData = await file.download(BEE_URL, hash)
 
-    expect(file.data).toEqual(data)
+    expect(fileData.data).toEqual(data)
   })
 
   it('should store file with a tag', async () => {
     const data = randomByteArray(5000)
     const filename = 'hello.txt'
 
-    const tag = await Tag.createTag(BEE_URL)
-    await File.upload(BEE_URL, data, filename, { tag: tag.uid })
-    const tag2 = await Tag.retrieveTag(BEE_URL, tag)
+    const tag1 = await tag.createTag(BEE_URL)
+    await file.upload(BEE_URL, data, filename, { tag: tag1.uid })
+    const tag2 = await tag.retrieveTag(BEE_URL, tag1)
 
     expect(tag2.split).toEqual(5)
     expect(tag2.stored).toEqual(5)
@@ -52,6 +52,6 @@ describe('modules/file', () => {
   it('should catch error', async () => {
     const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
 
-    await expect(File.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+    await expect(file.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
   })
 })
