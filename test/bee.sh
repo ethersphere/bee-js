@@ -1,8 +1,8 @@
 #!/bin/sh
 # --ephemeral -> create ephemeral container for bee-client. Data won't be persisted
-BEE_CONTAINER=`docker container ls -qaf name=bee-test`
-if [ -z $BEE_CONTAINER ] || [ "$1" = "--ephemeral" ] ; then
-  BEE_IMAGE="ethersphere/bee:0.4.0"
+BEE_CONTAINER=$(docker container ls -qaf name=bee-test)
+if [ -z "$BEE_CONTAINER" ] || [ "$1" = "--ephemeral" ] ; then
+  BEE_IMAGE="ethersphere/bee:0.4.1"
   BEE_PASSWORD="password"
   CONTAINER_NAME="bee-test"
   EXTRA_PARAMS=" --name $CONTAINER_NAME"
@@ -24,5 +24,5 @@ if [ -z $BEE_CONTAINER ] || [ "$1" = "--ephemeral" ] ; then
       --debug-api-enable \
       --cors-allowed-origins="*"
 else
-  docker start -ai $BEE_CONTAINER
+  docker start -ai "$BEE_CONTAINER"
 fi
