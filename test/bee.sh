@@ -15,7 +15,7 @@ if [ -z "$BEE_CONTAINER" ] || [ "$1" = "--ephemeral" ] ; then
     -p 127.0.0.1:1633:1633 \
     --interactive \
     --tty \
-    "$EXTRA_PARAMS" \
+    $EXTRA_PARAMS \
     $BEE_IMAGE \
       start \
       --password $BEE_PASSWORD \
