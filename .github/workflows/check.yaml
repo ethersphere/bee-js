@@ -41,7 +41,15 @@ jobs:
 
       - name: Commit linting
         uses: wagoid/commitlint-github-action@v2
+
       - name: Code linting
         run: npm run lint:check
         env:
           CI: true
+
+      - name: Build nodejs
+        run: npm run compile:node
+
+      - name: Build browser
+        run: npm run compile:browser
+
