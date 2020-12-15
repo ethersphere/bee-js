@@ -8,6 +8,10 @@ const BEE_URL = beeUrl()
 
 describe('modules/pin', () => {
   const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
+  const okResponse = {
+    code: 200,
+    message: 'OK',
+  }
 
   describe('should work with files', () => {
     const randomData = randomByteArray(5000)
@@ -16,14 +20,14 @@ describe('modules/pin', () => {
       const hash = await file.upload(BEE_URL, randomData)
       const response = await pinning.pinFile(BEE_URL, hash)
 
-      expect(response.code).toBe(200)
+      expect(response).toEqual(okResponse)
     })
 
     it('should unpin an existing file', async () => {
       const hash = await file.upload(BEE_URL, randomData)
       const response = await pinning.unpinFile(BEE_URL, hash)
 
-      expect(response.code).toBe(200)
+      expect(response).toEqual(okResponse)
     })
 
     it('should not pin a non-existing file', async () => {
@@ -51,14 +55,14 @@ describe('modules/pin', () => {
       const hash = await collection.upload(BEE_URL, testCollection)
       const response = await pinning.pinCollection(BEE_URL, hash)
 
-      expect(response.code).toBe(200)
+      expect(response).toEqual(okResponse)
     })
 
     it('should unpin an existing file', async () => {
       const hash = await collection.upload(BEE_URL, testCollection)
       const response = await pinning.unpinCollection(BEE_URL, hash)
 
-      expect(response.code).toBe(200)
+      expect(response).toEqual(okResponse)
     })
 
     it('should not pin a non-existing file', async () => {
