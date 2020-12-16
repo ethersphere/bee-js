@@ -1,5 +1,5 @@
 import * as bytes from '../../src/modules/bytes'
-import { beeUrl } from '../utils'
+import { beeUrl, invalidReference } from '../utils'
 
 const BEE_URL = beeUrl()
 
@@ -14,8 +14,6 @@ describe('modules/bytes', () => {
   })
 
   it('should catch error', async () => {
-    const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
-
     await expect(bytes.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
   })
 })

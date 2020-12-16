@@ -1,6 +1,6 @@
 import * as file from '../../src/modules/file'
 import * as tag from '../../src/modules/tag'
-import { beeUrl, createReadable, randomByteArray } from '../utils'
+import { beeUrl, createReadable, invalidReference, randomByteArray } from '../utils'
 
 const BEE_URL = beeUrl()
 
@@ -50,8 +50,6 @@ describe('modules/file', () => {
   }, 5000)
 
   it('should catch error', async () => {
-    const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
-
     await expect(file.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
   })
 })
