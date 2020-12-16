@@ -17,14 +17,13 @@ async function pinRequest(url: string, method: 'post' | 'delete'): Promise<Respo
   })
 
   return response.data
-
 }
 
-async function pin(url: string, endpoint: string, hash: string): Promise<Response> {
+function pin(url: string, endpoint: string, hash: string): Promise<Response> {
   return pinRequest(`${url}${endpoint}/${hash}`, 'post')
 }
 
-async function unpin(url: string, endpoint: string, hash: string): Promise<Response> {
+function unpin(url: string, endpoint: string, hash: string): Promise<Response> {
   return pinRequest(`${url}${endpoint}/${hash}`, 'delete')
 }
 
@@ -34,7 +33,7 @@ async function unpin(url: string, endpoint: string, hash: string): Promise<Respo
  * @param url  Bee URL
  * @param hash Bee file reference
  */
-export async function pinFile(url: string, hash: string): Promise<Response> {
+export function pinFile(url: string, hash: string): Promise<Response> {
   return pin(url, fileEndpoint, hash)
 }
 
@@ -44,7 +43,7 @@ export async function pinFile(url: string, hash: string): Promise<Response> {
  * @param url  Bee URL
  * @param hash Bee file reference
  */
-export async function unpinFile(url: string, hash: string): Promise<Response> {
+export function unpinFile(url: string, hash: string): Promise<Response> {
   return unpin(url, fileEndpoint, hash)
 }
 
@@ -54,7 +53,7 @@ export async function unpinFile(url: string, hash: string): Promise<Response> {
  * @param url  Bee URL
  * @param hash Bee collection reference
  */
-export async function pinCollection(url: string, hash: string): Promise<Response> {
+export function pinCollection(url: string, hash: string): Promise<Response> {
   return pin(url, collectionEndpoint, hash)
 }
 
@@ -64,7 +63,7 @@ export async function pinCollection(url: string, hash: string): Promise<Response
  * @param url  Bee URL
  * @param hash Bee collection reference
  */
-export async function unpinCollection(url: string, hash: string): Promise<Response> {
+export function unpinCollection(url: string, hash: string): Promise<Response> {
   return unpin(url, collectionEndpoint, hash)
 }
 
@@ -74,7 +73,7 @@ export async function unpinCollection(url: string, hash: string): Promise<Respon
  * @param url  Bee URL
  * @param hash Bee data reference
  */
-export async function pinData(url: string, hash: string): Promise<Response> {
+export function pinData(url: string, hash: string): Promise<Response> {
   return pin(url, bytesEndpoint, hash)
 }
 
@@ -84,6 +83,6 @@ export async function pinData(url: string, hash: string): Promise<Response> {
  * @param url  Bee URL
  * @param hash Bee data reference
  */
-export async function unpinData(url: string, hash: string): Promise<Response> {
+export function unpinData(url: string, hash: string): Promise<Response> {
   return unpin(url, bytesEndpoint, hash)
 }
