@@ -100,5 +100,4 @@ describe('modules/pin', () => {
       await expect(pinning.unpinData(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
     })
   })
-
 })
