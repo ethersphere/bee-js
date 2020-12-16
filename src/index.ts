@@ -191,4 +191,22 @@ export default class Bee {
   unpinCollection(reference: Reference): Promise<pinning.Response> {
     return pinning.unpinCollection(this.url, reference)
   }
+
+  /**
+   * Pin data with given reference
+   *
+   * @param reference Bee data reference
+   */
+  pinData(reference: Reference): Promise<pinning.Response> {
+    return pinning.pinData(this.url, reference)
+  }
+
+  /**
+   * Unpin data with given reference
+   *
+   * @param reference Bee data reference
+   */
+  unpinData(reference: Reference): Promise<pinning.Response> {
+    return pinning.unpinData(this.url, reference)
+  }
 }
