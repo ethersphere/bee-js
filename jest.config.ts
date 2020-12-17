@@ -69,6 +69,6 @@ export default async (): Promise<Config.InitialOptions> => {
     testPathIgnorePatterns: ["/node_modules/"],
 
     // Default timeout of a test in milliseconds
-    testTimeout: 15000,
+    testTimeout: 60000,
   }
 }
