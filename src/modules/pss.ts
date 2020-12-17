@@ -1,12 +1,11 @@
-import { PublicKey } from "../types"
-import { prepareData } from "../utils/data"
-import { safeAxios } from "../utils/safeAxios"
+import { PublicKey } from '../types'
+import { prepareData } from '../utils/data'
+import { safeAxios } from '../utils/safeAxios'
 
 const endpoint = '/pss'
 
-export interface Response {
-
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Response {}
 
 /**
  * Send to recipient or target with Postal Service for Swarm
@@ -22,7 +21,7 @@ export async function send(
   topic: string,
   target: string,
   data: string | Uint8Array,
-  recipient?: PublicKey
+  recipient?: PublicKey,
 ): Promise<Response> {
   const response = await safeAxios<Response>({
     method: 'post',

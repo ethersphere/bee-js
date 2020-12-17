@@ -4,10 +4,10 @@ import { beeUrl } from '../utils'
 const BEE_URL = beeUrl()
 
 describe('modules/pss', () => {
-  it('should send PSS message', async (done) => {
+  it('should send PSS message', async () => {
     const topic = 'pss topic'
     const target = '0f9c'
     const message = 'hello'
-    const response = await pss.send(BEE_URL, topic, target, message)
+    await pss.send(BEE_URL, topic, target, message)
   })
 })
