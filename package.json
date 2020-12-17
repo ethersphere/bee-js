@@ -26,7 +26,7 @@
     "compile:browser": "webpack --progress --mode development --env target=web",
     "compile:window": "webpack --progress --mode development --env target=web --env globalWindow=true",
     "docs": "typedoc --mode modules --excludeNotExported --readme none --out docs src",
-    "test": "jest --config=jest.config.ts",
+    "test": "npm run test:node && npm run test:browser",
     "test:browser": "npm run compile:window && jest --config=jest.config.ts --selectProjects=dom",
     "test:node": "jest --config=jest.config.ts --selectProjects=node",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
