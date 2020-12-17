@@ -7,6 +7,11 @@ import { Collection } from '../../src/types'
 
 const BEE_URL = beeUrl()
 
+function debug(...args: unknown[]) {
+  // eslint-disable-next-line no-console
+  console.debug(new Date().toISOString(), ...args)
+}
+
 describe('modules/pin', () => {
   const okResponse = {
     code: 200,
@@ -51,18 +56,16 @@ describe('modules/pin', () => {
       },
     ]
 
-    xit('should pin an existing collection', async () => {
+    it('should pin an existing collection', async () => {
+      debug('start')
       const hash = await collection.upload(BEE_URL, testCollection)
-      // eslint-disable-next-line no-console
-      console.debug({ hash })
+      debug({ hash })
       const response = await pinning.pinCollection(BEE_URL, hash)
-      // eslint-disable-next-line no-console
-      console.debug({ response })
+      debug({ response })
 
       expect(response).toEqual(okResponse)
 
-      // eslint-disable-next-line no-console
-      console.debug('done')
+      debug('done')
     })
 
     xit('should unpin an existing collection', async () => {
