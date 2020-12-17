@@ -40,6 +40,8 @@ describe('modules/pin', () => {
   })
 
   describe('should work with collections', () => {
+    beforeAll(() => jest.setTimeout(60000))
+
     const testCollection: Collection<Uint8Array> = [
       {
         path: '0',
@@ -60,6 +62,9 @@ describe('modules/pin', () => {
       console.debug({ response })
 
       expect(response).toEqual(okResponse)
+
+      // eslint-disable-next-line no-console
+      console.debug('done')
     })
 
     it('should unpin an existing collection', async () => {
@@ -69,11 +74,11 @@ describe('modules/pin', () => {
       expect(response).toEqual(okResponse)
     })
 
-    it('should not pin a non-existing file', async () => {
+    it('should not pin a non-existing collection', async () => {
       await expect(pinning.pinCollection(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
     })
 
-    it('should not unpin a non-existing file', async () => {
+    it('should not unpin a non-existing collection', async () => {
       await expect(pinning.unpinCollection(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
     })
   })
@@ -95,11 +100,11 @@ describe('modules/pin', () => {
       expect(response).toEqual(okResponse)
     })
 
-    it('should not pin a non-existing file', async () => {
+    it('should not pin non-existing data', async () => {
       await expect(pinning.pinData(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
     })
 
-    it('should not unpin a non-existing file', async () => {
+    it('should not unpin non-existing data', async () => {
       await expect(pinning.unpinData(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
     })
   })
