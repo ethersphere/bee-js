@@ -1,4 +1,5 @@
 import { join } from 'path'
+import Bee from '../src'
 import { beeUrl } from './utils'
 
 describe('Bee class - in browser', () => {
@@ -15,6 +16,15 @@ describe('Bee class - in browser', () => {
     })
 
     expect(browserBeeUrl).toBe(beeUrl())
+  })
+
+  it('should create a new Bee instance in browser', async () => {
+    const testUrl = 'http://test.url.param'
+    const testBeeInstance = await page.evaluate(testUrl => {
+      return window.beeFactory(testUrl)
+    }, testUrl)
+
+    expect(testBeeInstance.url).toBe(testUrl)
   })
 
   it('should pin and unping collection', async () => {
