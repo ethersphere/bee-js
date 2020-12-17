@@ -53,12 +53,16 @@ describe('modules/pin', () => {
 
     it('should pin an existing collection', async () => {
       const hash = await collection.upload(BEE_URL, testCollection)
+      // eslint-disable-next-line no-console
+      console.debug({ hash })
       const response = await pinning.pinCollection(BEE_URL, hash)
+      // eslint-disable-next-line no-console
+      console.debug({ response })
 
       expect(response).toEqual(okResponse)
     })
 
-    it('should unpin an existing file', async () => {
+    it('should unpin an existing collection', async () => {
       const hash = await collection.upload(BEE_URL, testCollection)
       const response = await pinning.unpinCollection(BEE_URL, hash)
 

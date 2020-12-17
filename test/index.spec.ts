@@ -34,7 +34,7 @@ describe('Bee class', () => {
       message: 'OK',
     }
 
-    it('should pin and unping files', async () => {
+    it('should pin and unpin files', async () => {
       const content = new Uint8Array([1, 2, 3])
 
       const hash = await bee.uploadFile(content)
@@ -46,7 +46,7 @@ describe('Bee class', () => {
       expect(unpinResponse).toEqual(okResponse)
     })
 
-    it('should pin and unping collection', async () => {
+    it('should pin and unpin collection', async () => {
       const path = './test/data/'
       const hash = await bee.uploadFilesFromDirectory(path)
 
@@ -57,7 +57,7 @@ describe('Bee class', () => {
       expect(unpinResponse).toEqual(okResponse)
     })
 
-    it('should pin and unping data', async () => {
+    it('should pin and unpin data', async () => {
       const content = new Uint8Array([1, 2, 3])
 
       const hash = await bee.uploadData(content)
