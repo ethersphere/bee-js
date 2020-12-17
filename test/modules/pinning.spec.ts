@@ -67,7 +67,7 @@ describe('modules/pin', () => {
       console.debug('done')
     })
 
-    it('should unpin an existing collection', async () => {
+    xit('should unpin an existing collection', async () => {
       const hash = await collection.upload(BEE_URL, testCollection)
       const response = await pinning.unpinCollection(BEE_URL, hash)
 
