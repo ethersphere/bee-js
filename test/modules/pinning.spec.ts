@@ -40,8 +40,6 @@ describe('modules/pin', () => {
   })
 
   describe('should work with collections', () => {
-    beforeAll(() => jest.setTimeout(60000))
-
     const testCollection: Collection<Uint8Array> = [
       {
         path: '0',

@@ -29,8 +29,6 @@ describe('Bee class', () => {
   })
 
   describe('pinning', () => {
-    beforeAll(() => jest.setTimeout(60000))
-
     const okResponse = {
       code: 200,
       message: 'OK',
