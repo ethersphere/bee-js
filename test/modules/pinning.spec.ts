@@ -53,7 +53,7 @@ describe('modules/pin', () => {
       },
     ]
 
-    it('should pin an existing collection', async () => {
+    xit('should pin an existing collection', async () => {
       const hash = await collection.upload(BEE_URL, testCollection)
       // eslint-disable-next-line no-console
       console.debug({ hash })
