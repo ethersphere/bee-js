@@ -24,9 +24,10 @@
     "postinstall": "patch-package",
     "compile:node": "webpack --progress --mode development --env target=node",
     "compile:browser": "webpack --progress --mode development --env target=web",
+    "compile:window": "webpack --progress --mode development --env target=web --env globalWindow=true",
     "docs": "typedoc --mode modules --excludeNotExported --readme none --out docs src",
     "test": "jest --config=jest.config.ts",
-    "test:browser": "jest --config=jest.config.ts --selectProjects=dom",
+    "test:browser": "npm run compile:window && jest --config=jest.config.ts --selectProjects=dom",
     "test:node": "jest --config=jest.config.ts --selectProjects=node",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""

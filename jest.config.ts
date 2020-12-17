@@ -51,7 +51,7 @@ export default async (): Promise<Config.InitialOptions> => {
     projects: [
       {
         displayName: 'dom',
-        testRegex: 'test/((?!\\.node).)*\\.spec\\.ts',
+        testRegex: 'test/.*\\.browser\\.spec\\.ts',
         moduleNameMapper: await getBrowserPathMapping(),
         preset: 'jest-puppeteer',
       },
