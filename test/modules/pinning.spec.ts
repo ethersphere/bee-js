@@ -64,7 +64,7 @@ describe('modules/pin', () => {
       const response = await pinning.unpinCollection(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
-    })
+    }, 60000)
 
     it('should not pin a non-existing collection', async () => {
       await expect(pinning.pinCollection(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
