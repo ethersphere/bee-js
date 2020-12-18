@@ -55,7 +55,7 @@ describe('Bee class', () => {
 
       const unpinResponse = await bee.unpinCollection(hash)
       expect(unpinResponse).toEqual(okResponse)
-    }, 60000)
+    }, 120000)
 
     it('should pin and unpin data', async () => {
       const content = new Uint8Array([1, 2, 3])
