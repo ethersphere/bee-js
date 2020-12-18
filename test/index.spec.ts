@@ -46,7 +46,7 @@ describe('Bee class', () => {
       expect(unpinResponse).toEqual(okResponse)
     })
 
-    xit('should pin and unpin collection', async () => {
+    it('should pin and unpin collection', async () => {
       const path = './test/data/'
       const hash = await bee.uploadFilesFromDirectory(path)
 
