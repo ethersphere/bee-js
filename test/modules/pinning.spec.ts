@@ -2,7 +2,7 @@ import * as pinning from '../../src/modules/pinning'
 import * as file from '../../src/modules/file'
 import * as collection from '../../src/modules/collection'
 import * as bytes from '../../src/modules/bytes'
-import { beeUrl, invalidReference, randomByteArray } from '../utils'
+import { beeUrl, invalidReference, randomByteArray, sleep } from '../utils'
 import { Collection } from '../../src/types'
 
 const BEE_URL = beeUrl()
@@ -53,17 +53,18 @@ describe('modules/pin', () => {
 
     it('should pin an existing collection', async () => {
       const hash = await collection.upload(BEE_URL, testCollection)
+      sleep(3000)
       const response = await pinning.pinCollection(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
-    }, 60000)
+    })
 
     it('should unpin an existing collection', async () => {
       const hash = await collection.upload(BEE_URL, testCollection)
       const response = await pinning.unpinCollection(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
-    }, 60000)
+    })
 
     it('should not pin a non-existing collection', async () => {
       await expect(pinning.pinCollection(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
