@@ -1,6 +1,11 @@
 import Bee from '../src'
 import { beeUrl } from './utils'
 
+function debug(...args: unknown[]) {
+  // eslint-disable-next-line no-console
+  console.debug(new Date().toISOString(), ...args)
+}
+
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
   const bee = new Bee(BEE_URL)
@@ -47,14 +52,18 @@ describe('Bee class', () => {
     })
 
     it('should pin and unpin collection', async () => {
+      debug('start')
       const path = './test/data/'
       const hash = await bee.uploadFilesFromDirectory(path)
+      debug({ hash })
 
       const pinResponse = await bee.pinCollection(hash)
       expect(pinResponse).toEqual(okResponse)
+      debug({ pinResponse })
 
       const unpinResponse = await bee.unpinCollection(hash)
       expect(unpinResponse).toEqual(okResponse)
+      debug({ unpinResponse })
     }, 120000)
 
     it('should pin and unpin data', async () => {

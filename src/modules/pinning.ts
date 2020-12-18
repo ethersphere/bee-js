@@ -49,11 +49,6 @@ export function unpinFile(url: string, hash: string): Promise<Response> {
   return unpin(url, Endpoint.FILE, hash)
 }
 
-function debug(...args: unknown[]) {
-  // eslint-disable-next-line no-console
-  console.debug(new Date().toISOString(), ...args)
-}
-
 /**
  * Pin collection with given reference
  *
@@ -61,13 +56,7 @@ function debug(...args: unknown[]) {
  * @param hash Bee collection reference
  */
 export function pinCollection(url: string, hash: string): Promise<Response> {
-  try {
-    debug('before pinCollection')
-
-    return pin(url, Endpoint.COLLECTION, hash)
-  } finally {
-    debug('after pinCollection')
-  }
+  return pin(url, Endpoint.COLLECTION, hash)
 }
 
 /**
