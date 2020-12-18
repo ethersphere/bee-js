@@ -1,13 +1,13 @@
 import * as pinning from '../../src/modules/pinning'
 import * as file from '../../src/modules/file'
 import * as collection from '../../src/modules/collection'
-import { beeUrl, randomByteArray } from '../utils'
+import * as bytes from '../../src/modules/bytes'
+import { beeUrl, invalidReference, randomByteArray } from '../utils'
 import { Collection } from '../../src/types'
 
 const BEE_URL = beeUrl()
 
 describe('modules/pin', () => {
-  const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
   const okResponse = {
     code: 200,
     message: 'OK',
@@ -71,6 +71,32 @@ describe('modules/pin', () => {
 
     it('should not unpin a non-existing file', async () => {
       await expect(pinning.unpinCollection(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+    })
+  })
+
+  describe('should work with data', () => {
+    const randomData = randomByteArray(5000)
+
+    it('should pin existing data', async () => {
+      const hash = await bytes.upload(BEE_URL, randomData)
+      const response = await pinning.pinData(BEE_URL, hash)
+
+      expect(response).toEqual(okResponse)
+    })
+
+    it('should unpin existing data', async () => {
+      const hash = await bytes.upload(BEE_URL, randomData)
+      const response = await pinning.unpinData(BEE_URL, hash)
+
+      expect(response).toEqual(okResponse)
+    })
+
+    it('should not pin a non-existing file', async () => {
+      await expect(pinning.pinData(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+    })
+
+    it('should not unpin a non-existing file', async () => {
+      await expect(pinning.unpinData(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
     })
   })
 })

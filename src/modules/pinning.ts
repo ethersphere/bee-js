@@ -1,11 +1,32 @@
 import { safeAxios } from '../utils/safeAxios'
 
-const fileEndpoint = '/pin/files'
-const collectionEndpoint = '/pin/bzz'
+enum Endpoint {
+  FILE = '/pin/files',
+  COLLECTION = '/pin/bzz',
+  BYTES = '/pin/bytes',
+}
 
 export interface Response {
   message: string
   code: number
+}
+
+async function pinRequest(url: string, method: 'post' | 'delete'): Promise<Response> {
+  const response = await safeAxios<Response>({
+    method,
+    responseType: 'json',
+    url,
+  })
+
+  return response.data
+}
+
+function pin(url: string, endpoint: Endpoint, hash: string): Promise<Response> {
+  return pinRequest(`${url}${endpoint}/${hash}`, 'post')
+}
+
+function unpin(url: string, endpoint: Endpoint, hash: string): Promise<Response> {
+  return pinRequest(`${url}${endpoint}/${hash}`, 'delete')
 }
 
 /**
@@ -14,14 +35,8 @@ export interface Response {
  * @param url  Bee URL
  * @param hash Bee file reference
  */
-export async function pinFile(url: string, hash: string): Promise<Response> {
-  const response = await safeAxios<Response>({
-    method: 'post',
-    responseType: 'json',
-    url: `${url}${fileEndpoint}/${hash}`,
-  })
-
-  return response.data
+export function pinFile(url: string, hash: string): Promise<Response> {
+  return pin(url, Endpoint.FILE, hash)
 }
 
 /**
@@ -30,14 +45,8 @@ export async function pinFile(url: string, hash: string): Promise<Response> {
  * @param url  Bee URL
  * @param hash Bee file reference
  */
-export async function unpinFile(url: string, hash: string): Promise<Response> {
-  const response = await safeAxios<Response>({
-    method: 'delete',
-    responseType: 'json',
-    url: `${url}${fileEndpoint}/${hash}`,
-  })
-
-  return response.data
+export function unpinFile(url: string, hash: string): Promise<Response> {
+  return unpin(url, Endpoint.FILE, hash)
 }
 
 /**
@@ -46,14 +55,8 @@ export async function unpinFile(url: string, hash: string): Promise<Response> {
  * @param url  Bee URL
  * @param hash Bee collection reference
  */
-export async function pinCollection(url: string, hash: string): Promise<Response> {
-  const response = await safeAxios<Response>({
-    method: 'post',
-    responseType: 'json',
-    url: `${url}${collectionEndpoint}/${hash}`,
-  })
-
-  return response.data
+export function pinCollection(url: string, hash: string): Promise<Response> {
+  return pin(url, Endpoint.COLLECTION, hash)
 }
 
 /**
@@ -62,12 +65,26 @@ export async function pinCollection(url: string, hash: string): Promise<Response
  * @param url  Bee URL
  * @param hash Bee collection reference
  */
-export async function unpinCollection(url: string, hash: string): Promise<Response> {
-  const response = await safeAxios<Response>({
-    method: 'delete',
-    responseType: 'json',
-    url: `${url}${collectionEndpoint}/${hash}`,
-  })
+export function unpinCollection(url: string, hash: string): Promise<Response> {
+  return unpin(url, Endpoint.COLLECTION, hash)
+}
 
-  return response.data
+/**
+ * Pin data with given reference
+ *
+ * @param url  Bee URL
+ * @param hash Bee data reference
+ */
+export function pinData(url: string, hash: string): Promise<Response> {
+  return pin(url, Endpoint.BYTES, hash)
+}
+
+/**
+ * Unpin data with given reference
+ *
+ * @param url  Bee URL
+ * @param hash Bee data reference
+ */
+export function unpinData(url: string, hash: string): Promise<Response> {
+  return unpin(url, Endpoint.BYTES, hash)
 }

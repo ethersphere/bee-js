@@ -3,7 +3,8 @@ import * as file from './modules/file'
 import * as collection from './modules/collection'
 import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
-import { Tag, FileData, Reference } from './types'
+import * as bytes from './modules/bytes'
+import { Tag, FileData, Reference, UploadOptions } from './types'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -14,9 +15,40 @@ export default class Bee {
   constructor(readonly url: string) {}
 
   /**
+   * Upload data to a Bee node
+   *
+   * @param data    Data to be uploaded
+   * @param options Aditional options like tag, encryption, pinning, content-type
+   *
+   * @returns reference is a content hash of the data
+   */
+  uploadData(data: string | Uint8Array, options?: UploadOptions): Promise<Reference> {
+    return bytes.upload(this.url, data, options)
+  }
+
+  /**
+   * Download data as a byte array
+   *
+   * @param reference Bee data reference
+   */
+  downloadData(reference: Reference): Promise<Uint8Array> {
+    return bytes.download(this.url, reference)
+  }
+
+  /**
+   * Download data as a readable stream
+   *
+   * @param reference Bee data reference
+   */
+  downloadReadableData(reference: Reference): Promise<Readable> {
+    return bytes.downloadReadable(this.url, reference)
+  }
+
+  /**
    * Upload single file to a Bee node
    *
    * @param data    Data to be uploaded
+   * @param name    Name of the uploaded file
    * @param options Aditional options like tag, encryption, pinning, content-type
    *
    * @returns reference is a content hash of the file
@@ -158,5 +190,23 @@ export default class Bee {
    */
   unpinCollection(reference: Reference): Promise<pinning.Response> {
     return pinning.unpinCollection(this.url, reference)
+  }
+
+  /**
+   * Pin data with given reference
+   *
+   * @param reference Bee data reference
+   */
+  pinData(reference: Reference): Promise<pinning.Response> {
+    return pinning.pinData(this.url, reference)
+  }
+
+  /**
+   * Unpin data with given reference
+   *
+   * @param reference Bee data reference
+   */
+  unpinData(reference: Reference): Promise<pinning.Response> {
+    return pinning.unpinData(this.url, reference)
   }
 }

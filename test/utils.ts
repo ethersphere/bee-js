@@ -52,3 +52,5 @@ export function randomByteArray(length: number, seed = 500): Uint8Array {
 export function beeUrl(): string {
   return process.env.BEE_URL || 'http://bee-0.localhost'
 }
+
+export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
