@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Path from 'path'
 import { DefinePlugin, Configuration, WebpackPluginInstance, NormalModuleReplacementPlugin } from 'webpack'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
@@ -7,6 +8,7 @@ import { getBrowserPathMapping } from './jest.config'
 
 interface WebpackEnvParams {
   target: 'web' | 'node'
+  globalWindow: boolean
   debug: boolean
   mode: 'production' | 'development'
   fileName: string
@@ -14,23 +16,25 @@ interface WebpackEnvParams {
 
 const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
   const isProduction = env?.mode === 'production'
+  const isWindow = env?.globalWindow
   const isBrowser = env?.target === 'web'
   const filename = env?.fileName || [
     'index',
     isBrowser ? '.browser' : null,
+    isWindow ? '.global' : null,
     isProduction ? '.min' : null,
-    '.js'
+    '.js',
   ]
     .filter(Boolean)
     .join('')
-  const entry = Path.resolve(__dirname, 'src')
-  const path = Path.resolve(__dirname, 'dist')
+  const entry = isWindow ? Path.resolve(__dirname, 'test', 'testpage', 'testpage') : Path.resolve(__dirname, 'src')
+  const path = isWindow ? Path.resolve(__dirname, 'test', 'testpage') : Path.resolve(__dirname, 'dist')
   const target = env?.target || 'web' // 'node' or 'web'
   const plugins: WebpackPluginInstance[] = [
     new DefinePlugin({
       'process.env.ENV': env?.mode || 'development',
-      'process.env.IS_WEBPACK_BUILD': 'true'
-    })
+      'process.env.IS_WEBPACK_BUILD': 'true',
+    }),
   ]
 
 
@@ -39,10 +43,25 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
     // eslint-disable-next-line guard-for-in
     for (const nodeReference in browserPathMapping) {
       plugins.push(
-        new NormalModuleReplacementPlugin(new RegExp(`\\${nodeReference}`), browserPathMapping[nodeReference])
+        new NormalModuleReplacementPlugin(new RegExp(`\\${nodeReference}`), browserPathMapping[nodeReference]),
       )
     }
+    // change node modules to browser modules according to packageJson.browser mapping
+    // eslint-disable-next-line guard-for-in
+    const browserModuleMapping = PackageJson.browser as { [key: string]: string}
+    // eslint-disable-next-line guard-for-in
+    for (const nodeReference in browserModuleMapping) {
+      const browserReference: string = browserModuleMapping[nodeReference]
+      plugins.push(
+        new NormalModuleReplacementPlugin(new RegExp(`^${nodeReference}$`), browserReference),
+      )
+    }
+  }
 
+  if(isWindow) {
+    plugins.push(new DefinePlugin({
+      __BEE_URL__: JSON.stringify(process.env.BEE_URL || 'http://localhost:1633'),
+    }))
   }
 
   return {
@@ -56,28 +75,24 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       sourceMapFilename: filename + '.map',
       library: PackageJson.name,
       libraryTarget: 'umd',
-      globalObject: 'this'
+      globalObject: 'this',
     },
     module: {
       rules: [
         {
-          oneOf: [
-            {
-              test: /\.(ts|js)$/,
-              include: entry,
-              use: {
-                loader: 'babel-loader'
-              }
-            }
-          ]
-        }
-      ]
+          test: /\.(ts|js)$/,
+          // include: entry,
+          use: {
+            loader: 'babel-loader',
+          },
+        },
+      ],
     },
     resolve: {
       extensions: ['.ts', '.js'],
       fallback: {
-        'path': false,
-        'fs': false,
+        path: false,
+        fs: false,
       },
     },
     optimization: {
@@ -92,24 +107,24 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
               // into invalid ecma 5 code. This is why the 'compress' and 'output'
               // sections only apply transformations that are ecma 5 safe
               // https://github.com/facebook/create-react-app/pull/4234
-              ecma: 2018
+              ecma: 2018,
             },
             compress: {
-              ecma: 5
+              ecma: 5,
             },
             mangle: {
-              safari10: true
+              safari10: true,
             },
             output: {
               ecma: 5,
-              comments: false
-            }
+              comments: false,
+            },
           },
           // Use multi-process parallel running to improve the build speed
           // Default number of concurrent runs: os.cpus().length - 1
-          parallel: true
-        })
-      ]
+          parallel: true,
+        }),
+      ],
     },
     plugins,
     target,
@@ -119,8 +134,8 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       __dirname: 'mock',
     },
     performance: {
-      hints: false
-    }
+      hints: false,
+    },
   }
 }
 
@@ -132,7 +147,7 @@ export default async (env?: Partial<WebpackEnvParams>): Promise<Configuration> =
     const config = {
       ... await base(env),
       plugins: [new BundleAnalyzerPlugin()],
-      profile: true
+      profile: true,
     }
 
     return config

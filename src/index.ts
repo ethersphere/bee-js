@@ -11,7 +11,7 @@ import { Tag, FileData, Reference, UploadOptions } from './types'
  *
  * @param url URL of a running Bee node
  */
-export default class Bee {
+export class Bee {
   constructor(readonly url: string) {}
 
   /**
@@ -210,3 +210,5 @@ export default class Bee {
     return pinning.unpinData(this.url, reference)
   }
 }
+
+export default Bee

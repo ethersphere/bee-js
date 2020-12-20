@@ -97,17 +97,18 @@ To run the test, you need to have a Bee cluster running locally. To create a clu
 
 By defaul tests are run against local bee node 0 - `http://bee-0.localhost`. You can change it by setting environment variable `BEE_URL`.
 
-In order to run browser tests, you must set the `CHROME_BIN` environment variable (if it is not already).
-On linux, execute the following command
-
-```sh
-export CHROME_BIN=/usr/bin/chromium-browser
-```
-
 In Visual Studio environment, the tests have been set up to run against your local bee node on `http://localhost:1633`
 To run Jest tests, choose the `vscode-jest-tests` CI job under the Run tab.
 You can run your own local Bee client for test purposes with the help of [test/bee.sh](test/bee.sh).
 If you pass `--ephemeral` flag, the container automatically will be removed at the end of the run.
+
+There are also browser tests by Puppeteer, which also provide integrity testing.
+```sh
+npm run test:browser
+```
+The test HTML file which Puppeteer uses is the [test/testpage/testpage.html](test/testpage/testpage.html).
+In order to open this file and manually test BeeJS via developer console, it's necessary to build the test JS file that it imports with `npm run compile:window`.
+This test JS file is identical with the Bee library itself, except it binds BeeJS functionalities to the browser's `window` object.
 
 ### Compile code
 

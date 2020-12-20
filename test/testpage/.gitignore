@@ -1,0 +1,3 @@
+# bee client which is built into the browser's window object for browser tests
+index.browser.global.js
+index.browser.global.js.map
