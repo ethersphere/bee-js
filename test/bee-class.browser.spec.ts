@@ -1,5 +1,4 @@
 import { join } from 'path'
-import Bee from '../src'
 import { beeUrl } from './utils'
 
 describe('Bee class - in browser', () => {
