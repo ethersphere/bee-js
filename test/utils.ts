@@ -58,6 +58,10 @@ export function beePeerUrl(): string {
 }
 
 export function beeDebugUrl(url: string = beeUrl()): string {
+  const regexp = /http:\/\/bee-(\d).localhost/
+  if (url.match(regexp)) {
+    return url.replace(regexp, 'http://bee-$1-debug.localhost')
+  }
   const urlObj = new URL(url)
   const port = urlObj.port ? parseInt(urlObj.port, 10) + 2 : 1635
 
