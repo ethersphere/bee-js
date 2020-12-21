@@ -3,16 +3,16 @@ name: Node.js tests
 on:
   push:
     branches:
-      - "master"
+      - 'master'
   pull_request:
     branches:
-      - "**"
+      - '**'
 
 jobs:
   node-tests:
     env:
       REPLICA: 5
-      BEE_URL: "http://bee-0.localhost"
+      BEE_URL: 'http://bee-0.localhost'
 
     runs-on: ubuntu-latest
 
@@ -33,7 +33,6 @@ jobs:
           export URL=$(curl -s https://api.github.com/repos/ethersphere/bee-local/releases/latest | jq -r .tarball_url)
           curl -Ls ${URL} -o bee-local.tar.gz
           tar --strip-components=1 --wildcards -xzf bee-local.tar.gz ethersphere-bee-local-*/{beeinfra.sh,helm-values,hack}
-          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG="0.4.1"/' beeinfra.sh
       - name: Install latest beekeeper
         run: |
           export TAG=$(curl -s https://api.github.com/repos/ethersphere/beekeeper/releases/latest | jq -r .tag_name)
