@@ -1,11 +1,15 @@
+import WebSocket from 'isomorphic-ws'
+
 import { PublicKey } from '../types'
 import { prepareData } from '../utils/data'
 import { safeAxios } from '../utils/safeAxios'
 
 const endpoint = '/pss'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Response {}
+export interface Response {
+  message: string
+  code: number
+}
 
 /**
  * Send to recipient or target with Postal Service for Swarm
@@ -40,5 +44,7 @@ export async function send(
  * @param topic Topic name
  */
 export function subscribe(url: string, topic: string): WebSocket {
-  return new WebSocket(`${url}${endpoint}/subscribe/${topic}`)
+  const wsUrl = url.replace(/^http/i, 'ws')
+
+  return new WebSocket(`${wsUrl}${endpoint}/subscribe/${topic}`)
 }

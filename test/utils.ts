@@ -53,4 +53,20 @@ export function beeUrl(): string {
   return process.env.BEE_URL || 'http://bee-0.localhost'
 }
 
+export function beePeerUrl(): string {
+  return process.env.BEE_PEER_URL || 'http://bee-1.localhost'
+}
+
+export function beeDebugUrl(url: string = beeUrl()): string {
+  const urlObj = new URL(url)
+  const port = urlObj.port ? parseInt(urlObj.port, 10) + 2 : 1635
+
+  return urlObj.protocol + '//' + urlObj.hostname + ':' + port
+}
+
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
+
+export const okResponse = {
+  code: 200,
+  message: 'OK',
+}

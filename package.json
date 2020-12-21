@@ -34,7 +34,9 @@
   },
   "dependencies": {
     "axios": "^0.21.0",
-    "tar-js": "^0.3.0"
+    "isomorphic-ws": "^4.0.1",
+    "tar-js": "^0.3.0",
+    "ws": "^7.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
@@ -58,6 +60,7 @@
     "@types/terser-webpack-plugin": "^5.0.2",
     "@types/webpack": "^4.41.25",
     "@types/webpack-bundle-analyzer": "^3.9.0",
+    "@types/ws": "^7.4.0",
     "@types/yargs-parser": "^15.0.0",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "@typescript-eslint/parser": "^4.8.2",

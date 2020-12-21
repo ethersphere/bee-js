@@ -2,17 +2,12 @@ import * as pinning from '../../src/modules/pinning'
 import * as file from '../../src/modules/file'
 import * as collection from '../../src/modules/collection'
 import * as bytes from '../../src/modules/bytes'
-import { beeUrl, invalidReference, randomByteArray } from '../utils'
+import { beeUrl, invalidReference, okResponse, randomByteArray } from '../utils'
 import { Collection } from '../../src/types'
 
 const BEE_URL = beeUrl()
 
 describe('modules/pin', () => {
-  const okResponse = {
-    code: 200,
-    message: 'OK',
-  }
-
   describe('should work with files', () => {
     const randomData = randomByteArray(5000)
 
