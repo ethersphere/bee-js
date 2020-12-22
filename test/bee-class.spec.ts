@@ -79,7 +79,7 @@ describe('Bee class', () => {
         done()
       })
 
-      beePeer.pssSend(topic, address, message)
+      await beePeer.pssSend(topic, address, message)
     }, 60000)
 
     it('should send and receive data with public key', async done => {
@@ -96,7 +96,7 @@ describe('Bee class', () => {
         done()
       })
 
-      beePeer.pssSend(topic, address, message, pssPublicKey)
+      await beePeer.pssSend(topic, address, message, pssPublicKey)
     }, 60000)
 
     it('receive should time out', async () => {
@@ -123,7 +123,7 @@ describe('Bee class', () => {
         },
       })
 
-      beePeer.pssSend(topic, address, message)
+      await beePeer.pssSend(topic, address, message)
     }, 60000)
   })
 })
