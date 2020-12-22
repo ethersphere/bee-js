@@ -5,7 +5,19 @@ import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
-import { Tag, FileData, Reference, UploadOptions, PublicKey } from './types'
+import * as connectivity from './modules/debug/connectivity'
+import {
+  Tag,
+  FileData,
+  Reference,
+  UploadOptions,
+  PublicKey,
+  AddressPrefix,
+  Address,
+  PssMessageHandler,
+  PssSubscription,
+} from './types'
+import { BeeError } from './utils/error'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -220,9 +232,97 @@ export class Bee {
    * @param recipient Recipient public key
    *
    */
-  pssSend(topic: string, target: string, data: string | Uint8Array, recipient?: PublicKey): Promise<pss.Response> {
+  pssSend(
+    topic: string,
+    target: AddressPrefix,
+    data: string | Uint8Array,
+    recipient?: PublicKey,
+  ): Promise<pss.Response> {
     return pss.send(this.url, topic, target, data, recipient)
+  }
+
+  /**
+   * Receive message with Postal Service for Swarm
+   *
+   * @param topic Topic name
+   * @param timeoutMsec Timeout in milliseconds
+   *
+   * @returns Message in byte array
+   */
+  pssReceive(topic: string, timeoutMsec = 60000): Promise<Uint8Array> {
+    const ws = pss.subscribe(this.url, topic)
+
+    return new Promise((resolve, reject) => {
+      const terminate = () => {
+        if (ws.readyState === ws.OPEN) {
+          ws.terminate()
+        }
+      }
+      ws.onmessage = ev => {
+        const data = new Uint8Array(Buffer.from(ev.data))
+        terminate()
+        resolve(data)
+      }
+      ws.onerror = ev => {
+        terminate()
+        reject(new BeeError(ev.message))
+      }
+      setTimeout(() => {
+        terminate()
+        reject(new BeeError('pssReceive timeout'))
+      }, timeoutMsec)
+    })
+  }
+
+  /**
+   * Subscribe to messages with Postal Service for Swarm
+   *
+   * @param topic Topic name
+   * @param handler Message handler interface
+   *
+   * @returns Subscription to a given topic
+   */
+  pssSubscribe(topic: string, handler: PssMessageHandler): PssSubscription {
+    const ws = pss.subscribe(this.url, topic)
+    const terminate = () => {
+      if (ws.readyState === ws.OPEN) {
+        ws.terminate()
+      }
+    }
+    ws.onmessage = ev => {
+      const data = new Uint8Array(Buffer.from(ev.data))
+      handler.onMessage(data)
+    }
+    ws.onerror = ev => {
+      terminate()
+      handler.onError(new BeeError(ev.message))
+    }
+
+    return {
+      topic,
+      cancel: () => terminate(),
+    }
   }
 }
 
+/**
+ * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
+ *
+ * @param url URL of a running Bee node
+ */
+export class BeeDebug {
+  constructor(readonly url: string) {}
+
+  async getOverlayAddress(): Promise<Address> {
+    const nodeAddresses = await connectivity.getNodeAddresses(this.url)
+
+    return nodeAddresses.overlay
+  }
+
+  async getPssPublicKey(): Promise<PublicKey> {
+    const nodeAddresses = await connectivity.getNodeAddresses(this.url)
+
+    return nodeAddresses.pss_public_key
+  }
+}
 export default Bee

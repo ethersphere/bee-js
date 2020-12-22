@@ -1,9 +1,14 @@
+import { BeeError } from '../utils/error'
+
 export interface Dictionary<T> {
   [Key: string]: T
 }
 
 export type Reference = string
 export type PublicKey = string
+
+export type Address = string
+export type AddressPrefix = Address
 
 export const REFERENCE_LENGTH = 64
 export const ENCRYPTED_REFERENCE_LENGTH = 2 * REFERENCE_LENGTH
@@ -59,3 +64,13 @@ export interface CollectionEntry<T> {
  * Represents Collections
  */
 export type Collection<T> = Array<CollectionEntry<T>>
+
+export interface PssSubscription {
+  readonly topic: string
+  cancel: () => void
+}
+
+export interface PssMessageHandler {
+  onMessage: (message: Uint8Array) => void
+  onError: (error: BeeError) => void
+}
