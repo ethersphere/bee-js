@@ -12,6 +12,11 @@ COMMANDS:
 PARAMETERS:
     --ephemeral                 create ephemeral container for bee-client. Data won't be persisted.
     --workers=number            all Bee nodes in the test environment. Default is 2.
+    --port-maps=number          map ports of the cluster nodes to the hosting machine in the following manner:
+                                1. 1663:1665
+                                2. 11663:11665
+                                3. 21663:21665 (...)
+                                number represents the nodes number to map from. Default is 2.
     --password=string           password for Bee client(s).
     --version=x.y.z             used version of Bee client.
 USAGE
@@ -59,6 +64,7 @@ BEE_VERSION="0.4.1"
 BEE_IMAGE="ethersphere/bee:$BEE_VERSION"
 BEE_PASSWORD="password"
 QUEEN_BOOTNODE=""
+PORT_MAPS=2
 
 # Decide script action
 case "$1" in
@@ -94,6 +100,10 @@ do
         BEE_VERSION="${1#*=}"
         shift 1
         ;;
+        --port-maps=*)
+        PORT_MAPS="${1#*=}"
+        shift 1
+        ;;
         --help)
         usage
         ;;
@@ -103,20 +113,24 @@ do
         ;;
     esac
 done
+
 if $EPHEMERAL ; then
     EXTRA_DOCKER_PARAMS=" --rm"
 fi
 
 # Start Bee Queen
 if [ -z "$QUEEN_CONTAINER_IN_DOCKER" ] || $EPHEMERAL ; then
+    EXTRA_QUEEN_PARAMS=""
+    if [ $PORT_MAPS -ge 1 ] ; then
+        EXTRA_QUEEN_PARAMS=" -p 127.0.0.1:1633-1635:1633-1635"
+    fi
+
     echo "start Bee Queen process"
     docker run \
-      -p 127.0.0.1:1635:1635 \
-      -p 127.0.0.1:1634:1634 \
-      -p 127.0.0.1:1633:1633 \
       -d \
       --name $QUEEN_CONTAINER_NAME \
       $EXTRA_DOCKER_PARAMS \
+      $EXTRA_QUEEN_PARAMS \
       $BEE_IMAGE \
         start \
         --password $BEE_PASSWORD \
@@ -129,11 +143,6 @@ else
     docker start "$QUEEN_CONTAINER_IN_DOCKER"
 fi
 
-# exit if only the Bee queen was needed
-if [ $WORKERS -lt 0 ] ; then
-    echoerr "Given node number cannot be lesser than 0. Got $WORKERS"
-fi
-
 # Start Bee workers
 for i in $(seq 1 1 $WORKERS); do
     WORKER_NAME="$WORKER_CONTAINER_NAME-$i"
@@ -142,12 +151,21 @@ for i in $(seq 1 1 $WORKERS); do
         # fetch queen underlay address
         fetch_queen_underlay_addr
 
+        # construct additional params
+        EXTRA_WORKER_PARAMS=""
+        if [ $PORT_MAPS -gt $i ] ; then
+            PORT_START=$((1633+(10000*$i)))
+            PORT_END=$(($PORT_START + 2))
+            EXTRA_WORKER_PARAMS=" -p 127.0.0.1:$PORT_START-$PORT_END:1633-1635"
+        fi
+
         # run docker container
         echo "start Bee worker $i process"
         docker run \
         -d \
         --name $WORKER_NAME \
         $EXTRA_DOCKER_PARAMS \
+        $EXTRA_WORKER_PARAMS \
         $BEE_IMAGE \
           start \
           --password $BEE_PASSWORD \
