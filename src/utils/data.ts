@@ -1,4 +1,4 @@
-import { Readable } from 'stream'
+import type { Readable } from 'stream'
 
 // eslint-disable-next-line require-await
 export async function prepareData(data: string | Uint8Array | Readable): Promise<Uint8Array | Readable> {

@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "strictNullChecks": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDirs": ["src"],
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}
