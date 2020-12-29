@@ -4,7 +4,7 @@
     "strictNullChecks": false,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "dts",
+    "outDir": "dist",
     "rootDirs": ["src"],
     "skipLibCheck": true
   },

@@ -20,7 +20,7 @@
   "browser": {
     "stream": "readable-stream"
   },
-  "types": "dts/index.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "postinstall": "patch-package",
     "compile:node": "webpack --progress --mode development --env target=node",
