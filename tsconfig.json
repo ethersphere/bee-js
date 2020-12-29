@@ -13,7 +13,6 @@
   },
   "exclude": [
       "dist",
-      "dts",
       "node_modules"
   ]
 }
