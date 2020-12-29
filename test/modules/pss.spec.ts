@@ -12,7 +12,7 @@ describe('modules/pss', () => {
   it(
     'should send PSS message',
     async () => {
-      const topic = 'topic'
+      const topic = 'send-pss-message'
       const message = 'hello'
 
       const debugUrl = beeDebugUrl()
@@ -29,8 +29,8 @@ describe('modules/pss', () => {
 
   it(
     'should send and receive PSS message',
-    async done => {
-      const topic = 'topic'
+    done => {
+      const topic = 'send-receive-pss-message'
       const message = 'hello'
 
       const ws = pss.subscribe(BEE_URL, topic)
@@ -41,18 +41,20 @@ describe('modules/pss', () => {
       }
 
       const debugUrl = beeDebugUrl()
-      const addresses = await connectivity.getNodeAddresses(debugUrl)
-      const target = addresses.overlay
 
-      await pss.send(BEE_PEER_URL, topic, target, message)
+      return connectivity.getNodeAddresses(debugUrl).then(addresses => {
+        const target = addresses.overlay
+
+        return pss.send(BEE_PEER_URL, topic, target, message)
+      })
     },
     PSS_TIMEOUT,
   )
 
   it(
     'should send and receive PSS message with public key',
-    async done => {
-      const topic = 'topic'
+    done => {
+      const topic = 'send-receive-pss-public-key'
       const message = 'hello'
 
       const ws = pss.subscribe(BEE_URL, topic)
@@ -63,11 +65,13 @@ describe('modules/pss', () => {
       }
 
       const debugUrl = beeDebugUrl()
-      const addresses = await connectivity.getNodeAddresses(debugUrl)
-      const target = addresses.overlay
-      const recipient = addresses.pss_public_key
 
-      await pss.send(BEE_PEER_URL, topic, target, message, recipient)
+      return connectivity.getNodeAddresses(debugUrl).then(addresses => {
+        const target = addresses.overlay
+        const recipient = addresses.pss_public_key
+
+        return pss.send(BEE_PEER_URL, topic, target, message, recipient)
+      })
     },
     PSS_TIMEOUT,
   )

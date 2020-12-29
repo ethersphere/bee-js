@@ -66,37 +66,40 @@ describe('Bee class', () => {
   })
 
   describe('pss', () => {
-    it('should send and receive data', async done => {
+    it('should send and receive data', done => {
       const topic = 'bee-class-topic'
       const message = new Uint8Array([1, 2, 3])
-
       const beeDebug = new BeeDebug(beeDebugUrl())
-      const address = await beeDebug.getOverlayAddress()
-      const beePeer = new Bee(beePeerUrl())
 
       bee.pssReceive(topic).then(receivedMessage => {
         expect(receivedMessage).toEqual(message)
         done()
       })
 
-      await beePeer.pssSend(topic, address, message)
+      return beeDebug.getOverlayAddress().then(address => {
+        const beePeer = new Bee(beePeerUrl())
+
+        return beePeer.pssSend(topic, address, message)
+      })
     }, 60000)
 
-    it('should send and receive data with public key', async done => {
-      const topic = 'bee-class-topic'
+    it('should send and receive data with public key', done => {
+      const topic = 'bee-class-topic-publickey'
       const message = new Uint8Array([1, 2, 3])
-
       const beeDebug = new BeeDebug(beeDebugUrl())
-      const address = await beeDebug.getOverlayAddress()
-      const pssPublicKey = await beeDebug.getPssPublicKey()
-      const beePeer = new Bee(beePeerUrl())
 
       bee.pssReceive(topic).then(receivedMessage => {
         expect(receivedMessage).toEqual(message)
         done()
       })
 
-      await beePeer.pssSend(topic, address, message, pssPublicKey)
+      return beeDebug.getOverlayAddress().then(address => {
+        return beeDebug.getPssPublicKey().then(pssPublicKey => {
+          const beePeer = new Bee(beePeerUrl())
+
+          return beePeer.pssSend(topic, address, message, pssPublicKey)
+        })
+      })
     }, 60000)
 
     it('receive should time out', async () => {
@@ -105,13 +108,10 @@ describe('Bee class', () => {
       await expect(bee.pssReceive(topic, 1)).rejects.toThrow('pssReceive timeout')
     })
 
-    it('should subscribe to topic', async done => {
+    it('should subscribe to topic', done => {
       const topic = 'bee-class-subscribe-topic'
       const message = new Uint8Array([1, 2, 3])
-
       const beeDebug = new BeeDebug(beeDebugUrl())
-      const address = await beeDebug.getOverlayAddress()
-      const beePeer = new Bee(beePeerUrl())
 
       bee.pssSubscribe(topic, {
         onMessage: receivedMessage => {
@@ -123,7 +123,11 @@ describe('Bee class', () => {
         },
       })
 
-      await beePeer.pssSend(topic, address, message)
+      return beeDebug.getOverlayAddress().then(address => {
+        const beePeer = new Bee(beePeerUrl())
+
+        return beePeer.pssSend(topic, address, message)
+      })
     }, 60000)
   })
 })

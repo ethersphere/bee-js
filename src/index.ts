@@ -282,8 +282,8 @@ export class Bee {
   pssReceive(topic: string, timeoutMsec = 60000): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
       const subscription = this.pssSubscribe(topic, {
-        onError: (error) => reject(error.message),
-        onMessage: (message) => {
+        onError: error => reject(error.message),
+        onMessage: message => {
           subscription.cancel()
           resolve(message)
         },
