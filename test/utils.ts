@@ -1,13 +1,13 @@
 import { Readable } from 'stream'
 
 /**
- * Sleep for N miliseconds and return any args past
+ * Sleep for N miliseconds
  *
  * @param ms Number of miliseconds to sleep
  * @param args Values to be returned
  */
-export function sleep<T>(ms: number, ...args: T[]): Promise<T> {
-  return new Promise(resolve => setTimeout(() => resolve(...args), ms))
+export function sleep(ms: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 }
 
 export function createReadable(input: string | Uint8Array): Readable {
