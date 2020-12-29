@@ -242,39 +242,6 @@ export class Bee {
   }
 
   /**
-   * Receive message with Postal Service for Swarm
-   *
-   * @param topic Topic name
-   * @param timeoutMsec Timeout in milliseconds
-   *
-   * @returns Message in byte array
-   */
-  pssReceive(topic: string, timeoutMsec = 60000): Promise<Uint8Array> {
-    const ws = pss.subscribe(this.url, topic)
-
-    return new Promise((resolve, reject) => {
-      const terminate = () => {
-        if (ws.readyState === ws.OPEN) {
-          ws.terminate()
-        }
-      }
-      ws.onmessage = ev => {
-        const data = new Uint8Array(Buffer.from(ev.data))
-        terminate()
-        resolve(data)
-      }
-      ws.onerror = ev => {
-        terminate()
-        reject(new BeeError(ev.message))
-      }
-      setTimeout(() => {
-        terminate()
-        reject(new BeeError('pssReceive timeout'))
-      }, timeoutMsec)
-    })
-  }
-
-  /**
    * Subscribe to messages with Postal Service for Swarm
    *
    * @param topic Topic name
@@ -284,7 +251,7 @@ export class Bee {
    */
   pssSubscribe(topic: string, handler: PssMessageHandler): PssSubscription {
     const ws = pss.subscribe(this.url, topic)
-    const terminate = () => {
+    const cancel = () => {
       if (ws.readyState === ws.OPEN) {
         ws.terminate()
       }
@@ -294,14 +261,38 @@ export class Bee {
       handler.onMessage(data)
     }
     ws.onerror = ev => {
-      terminate()
+      cancel()
       handler.onError(new BeeError(ev.message))
     }
 
     return {
       topic,
-      cancel: () => terminate(),
+      cancel,
     }
+  }
+
+  /**
+   * Receive message with Postal Service for Swarm
+   *
+   * @param topic Topic name
+   * @param timeoutMsec Timeout in milliseconds
+   *
+   * @returns Message in byte array
+   */
+  pssReceive(topic: string, timeoutMsec = 60000): Promise<Uint8Array> {
+    return new Promise((resolve, reject) => {
+      const subscription = this.pssSubscribe(topic, {
+        onError: (error) => reject(error.message),
+        onMessage: (message) => {
+          subscription.cancel()
+          resolve(message)
+        },
+      })
+      setTimeout(() => {
+        subscription.cancel()
+        reject(new BeeError('pssReceive timeout'))
+      }, timeoutMsec)
+    })
   }
 }
 
