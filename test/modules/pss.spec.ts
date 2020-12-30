@@ -33,8 +33,8 @@ describe('modules/pss', () => {
 
       const ws = pss.subscribe(BEE_URL, topic)
       ws.onmessage = ev => {
-        expect(Buffer.from(ev.data).toString()).toEqual(message)
         ws.terminate()
+        expect(Buffer.from(ev.data).toString()).toEqual(message)
         done()
       }
 
@@ -55,8 +55,8 @@ describe('modules/pss', () => {
 
       const ws = pss.subscribe(BEE_URL, topic)
       ws.onmessage = ev => {
-        expect(Buffer.from(ev.data).toString()).toEqual(message)
         ws.terminate()
+        expect(Buffer.from(ev.data).toString()).toEqual(message)
         done()
       }
 

@@ -114,9 +114,10 @@ describe('Bee class', () => {
 
         const subscription = bee.pssSubscribe(topic, {
           onMessage: receivedMessage => {
-            expect(receivedMessage).toEqual(message)
-            // without cancel jest complains for leaking handles
+            // without cancel jest complains for leaking handles and may hang
             subscription.cancel()
+
+            expect(receivedMessage).toEqual(message)
             done()
           },
           onError: e => {
