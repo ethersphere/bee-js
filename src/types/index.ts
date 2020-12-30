@@ -71,6 +71,6 @@ export interface PssSubscription {
 }
 
 export interface PssMessageHandler {
-  onMessage: (message: Uint8Array) => void
-  onError: (error: BeeError) => void
+  onMessage: (message: Uint8Array, subscription: PssSubscription) => void
+  onError: (error: BeeError, subscription: PssSubscription) => void
 }

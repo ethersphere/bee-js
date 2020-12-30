@@ -251,24 +251,35 @@ export class Bee {
    */
   pssSubscribe(topic: string, handler: PssMessageHandler): PssSubscription {
     const ws = pss.subscribe(this.url, topic)
+
+    let cancelled = false
     const cancel = () => {
-      if (ws.readyState === ws.OPEN) {
+      if (cancelled === false) {
+        cancelled = true
+        // although the WebSocket API offers a `close` function, it seems that
+        // with the library that we are using (isomorphic-ws) it doesn't close
+        // the websocket properly, whereas `terminate` does
         ws.terminate()
       }
     }
-    ws.onmessage = ev => {
-      const data = new Uint8Array(Buffer.from(ev.data))
-      handler.onMessage(data)
-    }
-    ws.onerror = ev => {
-      cancel()
-      handler.onError(new BeeError(ev.message))
-    }
 
-    return {
+    const subscription = {
       topic,
       cancel,
     }
+
+    ws.onmessage = ev => {
+      const data = new Uint8Array(Buffer.from(ev.data))
+      handler.onMessage(data, subscription)
+    }
+    ws.onerror = ev => {
+      // ignore errors after subscription was cancelled
+      if (!cancelled) {
+        handler.onError(new BeeError(ev.message), subscription)
+      }
+    }
+
+    return subscription
   }
 
   /**
@@ -279,19 +290,30 @@ export class Bee {
    *
    * @returns Message in byte array
    */
-  pssReceive(topic: string, timeoutMsec = 60000): Promise<Uint8Array> {
+  pssReceive(topic: string, timeoutMsec = 0): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
+      let timeout: number | undefined
       const subscription = this.pssSubscribe(topic, {
-        onError: error => reject(error.message),
+        onError: error => {
+          clearTimeout(timeout)
+          subscription.cancel()
+          reject(error.message)
+        },
         onMessage: message => {
+          clearTimeout(timeout)
           subscription.cancel()
           resolve(message)
         },
       })
-      setTimeout(() => {
-        subscription.cancel()
-        reject(new BeeError('pssReceive timeout'))
-      }, timeoutMsec)
+
+      if (timeoutMsec > 0) {
+        // we need to cast the type because Typescript is getting confused with Node.js'
+        // alternative type definitions
+        timeout = (setTimeout(() => {
+          subscription.cancel()
+          reject(new BeeError('pssReceive timeout'))
+        }, timeoutMsec) as unknown) as number
+      }
     })
   }
 }
