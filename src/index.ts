@@ -270,7 +270,11 @@ export class Bee {
 
     ws.onmessage = ev => {
       const data = new Uint8Array(Buffer.from(ev.data))
-      handler.onMessage(data, subscription)
+
+      // ignore empty messages
+      if (data.length > 0) {
+        handler.onMessage(data, subscription)
+      }
     }
     ws.onerror = ev => {
       // ignore errors after subscription was cancelled

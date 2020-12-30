@@ -33,8 +33,14 @@ describe('modules/pss', () => {
 
       const ws = pss.subscribe(BEE_URL, topic)
       ws.onmessage = ev => {
+        const receivedMessage = Buffer.from(ev.data).toString()
+
+        // ignore empty messages
+        if (receivedMessage.length === 0) {
+          return
+        }
         ws.terminate()
-        expect(Buffer.from(ev.data).toString()).toEqual(message)
+        expect(receivedMessage).toEqual(message)
         done()
       }
 
@@ -55,8 +61,14 @@ describe('modules/pss', () => {
 
       const ws = pss.subscribe(BEE_URL, topic)
       ws.onmessage = ev => {
+        const receivedMessage = Buffer.from(ev.data).toString()
+
+        // ignore empty messages
+        if (receivedMessage.length === 0) {
+          return
+        }
         ws.terminate()
-        expect(Buffer.from(ev.data).toString()).toEqual(message)
+        expect(receivedMessage).toEqual(message)
         done()
       }
 
