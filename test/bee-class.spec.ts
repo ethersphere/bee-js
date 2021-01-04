@@ -1,5 +1,5 @@
-import Bee from '../src'
-import { beeUrl } from './utils'
+import Bee, { BeeDebug } from '../src'
+import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT } from './utils'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
@@ -29,11 +29,6 @@ describe('Bee class', () => {
   })
 
   describe('pinning', () => {
-    const okResponse = {
-      code: 200,
-      message: 'OK',
-    }
-
     it('should pin and unping files', async () => {
       const content = new Uint8Array([1, 2, 3])
 
@@ -67,6 +62,80 @@ describe('Bee class', () => {
 
       const unpinResponse = await bee.unpinData(hash)
       expect(unpinResponse).toEqual(okResponse)
+    })
+  })
+
+  describe('pss', () => {
+    it(
+      'should send and receive data',
+      async done => {
+        const topic = 'bee-class-topic'
+        const message = new Uint8Array([1, 2, 3])
+        const beeDebug = new BeeDebug(beeDebugUrl())
+
+        bee.pssReceive(topic).then(receivedMessage => {
+          expect(receivedMessage).toEqual(message)
+          done()
+        })
+
+        const address = await beeDebug.getOverlayAddress()
+        const beePeer = new Bee(beePeerUrl())
+        await beePeer.pssSend(topic, address, message)
+      },
+      PSS_TIMEOUT,
+    )
+
+    it(
+      'should send and receive data with public key',
+      async done => {
+        const topic = 'bee-class-topic-publickey'
+        const message = new Uint8Array([1, 2, 3])
+        const beeDebug = new BeeDebug(beeDebugUrl())
+
+        bee.pssReceive(topic).then(receivedMessage => {
+          expect(receivedMessage).toEqual(message)
+          done()
+        })
+
+        const address = await beeDebug.getOverlayAddress()
+        const pssPublicKey = await beeDebug.getPssPublicKey()
+        const beePeer = new Bee(beePeerUrl())
+        await beePeer.pssSend(topic, address, message, pssPublicKey)
+      },
+      PSS_TIMEOUT,
+    )
+
+    it(
+      'should subscribe to topic',
+      async done => {
+        const topic = 'bee-class-subscribe-topic'
+        const message = new Uint8Array([1, 2, 3])
+        const beeDebug = new BeeDebug(beeDebugUrl())
+
+        const subscription = bee.pssSubscribe(topic, {
+          onMessage: receivedMessage => {
+            // without cancel jest complains for leaking handles and may hang
+            subscription.cancel()
+
+            expect(receivedMessage).toEqual(message)
+            done()
+          },
+          onError: e => {
+            throw e
+          },
+        })
+
+        const address = await beeDebug.getOverlayAddress()
+        const beePeer = new Bee(beePeerUrl())
+        await beePeer.pssSend(topic, address, message)
+      },
+      PSS_TIMEOUT,
+    )
+
+    it('should time out', async () => {
+      const topic = 'bee-class-receive-timeout'
+
+      await expect(bee.pssReceive(topic, 1)).rejects.toThrow('pssReceive timeout')
     })
   })
 })

@@ -1,13 +1,12 @@
 import { Readable } from 'stream'
 
 /**
- * Sleep for N miliseconds and return any args past
+ * Sleep for N miliseconds
  *
  * @param ms Number of miliseconds to sleep
- * @param args Values to be returned
  */
-export function sleep<T>(ms: number, ...args: T[]): Promise<T> {
-  return new Promise(resolve => setTimeout(() => resolve(...args), ms))
+export function sleep(ms: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 }
 
 export function createReadable(input: string | Uint8Array): Readable {
@@ -49,8 +48,39 @@ export function randomByteArray(length: number, seed = 500): Uint8Array {
   return buf
 }
 
+/**
+ * Returns a url for testing the Bee public API
+ */
 export function beeUrl(): string {
   return process.env.BEE_URL || 'http://bee-0.localhost'
 }
 
+/**
+ * Returns a url of another peer for testing the Bee public API
+ */
+export function beePeerUrl(): string {
+  return process.env.BEE_PEER_URL || 'http://bee-1.localhost'
+}
+
+/**
+ * Returns a url for testing the Bee Debug API
+ */
+export function beeDebugUrl(url: string = beeUrl()): string {
+  const regexp = /http:\/\/bee-(\d).localhost/
+
+  if (url.match(regexp)) {
+    return url.replace(regexp, 'http://bee-$1-debug.localhost')
+  }
+  const urlObj = new URL(url)
+  const port = urlObj.port ? parseInt(urlObj.port, 10) + 2 : 1635
+
+  return urlObj.protocol + '//' + urlObj.hostname + ':' + port
+}
+
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
+
+export const okResponse = {
+  code: 200,
+  message: 'OK',
+}
+export const PSS_TIMEOUT = 60000

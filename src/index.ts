@@ -4,7 +4,20 @@ import * as collection from './modules/collection'
 import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
-import { Tag, FileData, Reference, UploadOptions } from './types'
+import * as pss from './modules/pss'
+import * as connectivity from './modules/debug/connectivity'
+import {
+  Tag,
+  FileData,
+  Reference,
+  UploadOptions,
+  PublicKey,
+  AddressPrefix,
+  Address,
+  PssMessageHandler,
+  PssSubscription,
+} from './types'
+import { BeeError } from './utils/error'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -209,6 +222,134 @@ export class Bee {
   unpinData(reference: Reference): Promise<pinning.Response> {
     return pinning.unpinData(this.url, reference)
   }
+
+  /**
+   * Send to recipient or target with Postal Service for Swarm
+   *
+   * @param topic Topic name
+   * @param target Target message address prefix
+   * @param data Message to be sent
+   * @param recipient Recipient public key
+   *
+   */
+  pssSend(
+    topic: string,
+    target: AddressPrefix,
+    data: string | Uint8Array,
+    recipient?: PublicKey,
+  ): Promise<pss.Response> {
+    return pss.send(this.url, topic, target, data, recipient)
+  }
+
+  /**
+   * Subscribe to messages with Postal Service for Swarm
+   *
+   * @param topic Topic name
+   * @param handler Message handler interface
+   *
+   * @returns Subscription to a given topic
+   */
+  pssSubscribe(topic: string, handler: PssMessageHandler): PssSubscription {
+    const ws = pss.subscribe(this.url, topic)
+
+    let cancelled = false
+    const cancel = () => {
+      if (cancelled === false) {
+        cancelled = true
+        // although the WebSocket API offers a `close` function, it seems that
+        // with the library that we are using (isomorphic-ws) it doesn't close
+        // the websocket properly, whereas `terminate` does
+        ws.terminate()
+      }
+    }
+
+    const subscription = {
+      topic,
+      cancel,
+    }
+
+    ws.onmessage = ev => {
+      const data = new Uint8Array(Buffer.from(ev.data))
+
+      // ignore empty messages
+      if (data.length > 0) {
+        handler.onMessage(data, subscription)
+      }
+    }
+    ws.onerror = ev => {
+      // ignore errors after subscription was cancelled
+      if (!cancelled) {
+        handler.onError(new BeeError(ev.message), subscription)
+      }
+    }
+
+    return subscription
+  }
+
+  /**
+   * Receive message with Postal Service for Swarm
+   *
+   * Because sending a PSS message is slow and CPU intensive,
+   * it is not supposed to be used for general messaging but
+   * most likely for setting up an encrypted communication
+   * channel by sending a one-off message.
+   *
+   * This is a helper function to wait for exactly one message to
+   * arrive and then cancel the subscription. Additionally a
+   * timeout can be provided for the message to arrive or else
+   * an error will be thrown.
+   *
+   * @param topic Topic name
+   * @param timeoutMsec Timeout in milliseconds
+   *
+   * @returns Message in byte array
+   */
+  pssReceive(topic: string, timeoutMsec = 0): Promise<Uint8Array> {
+    return new Promise((resolve, reject) => {
+      let timeout: number | undefined
+      const subscription = this.pssSubscribe(topic, {
+        onError: error => {
+          clearTimeout(timeout)
+          subscription.cancel()
+          reject(error.message)
+        },
+        onMessage: message => {
+          clearTimeout(timeout)
+          subscription.cancel()
+          resolve(message)
+        },
+      })
+
+      if (timeoutMsec > 0) {
+        // we need to cast the type because Typescript is getting confused with Node.js'
+        // alternative type definitions
+        timeout = (setTimeout(() => {
+          subscription.cancel()
+          reject(new BeeError('pssReceive timeout'))
+        }, timeoutMsec) as unknown) as number
+      }
+    })
+  }
 }
 
+/**
+ * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
+ *
+ * @param url URL of a running Bee node
+ */
+export class BeeDebug {
+  constructor(readonly url: string) {}
+
+  async getOverlayAddress(): Promise<Address> {
+    const nodeAddresses = await connectivity.getNodeAddresses(this.url)
+
+    return nodeAddresses.overlay
+  }
+
+  async getPssPublicKey(): Promise<PublicKey> {
+    const nodeAddresses = await connectivity.getNodeAddresses(this.url)
+
+    return nodeAddresses.pss_public_key
+  }
+}
 export default Bee
