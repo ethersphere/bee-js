@@ -1,6 +1,6 @@
 import { safeAxios } from '../../utils/safeAxios'
 
-interface NodeAddresses {
+export interface NodeAddresses {
   overlay: string
   underlay: string[]
   ethereum: string
@@ -17,10 +17,10 @@ export async function getNodeAddresses(url: string): Promise<NodeAddresses> {
   return response.data
 }
 
-interface Peer {
+export interface Peer {
   address: string
 }
-interface Peers {
+export interface Peers {
   peers: Peer[]
 }
 
