@@ -289,6 +289,16 @@ export class Bee {
   /**
    * Receive message with Postal Service for Swarm
    *
+   * Because sending a PSS message is slow and CPU intensive,
+   * it is not supposed to be used for general messaging but
+   * most likely for setting up an encrypted communication
+   * channel by sending a one-off message.
+   *
+   * This is a helper function to wait for exactly one message to
+   * arrive and then cancel the subscription. Additionally a
+   * timeout can be provided for the message to arrive or else
+   * an error will be thrown.
+   *
    * @param topic Topic name
    * @param timeoutMsec Timeout in milliseconds
    *
