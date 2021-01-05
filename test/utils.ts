@@ -1,4 +1,5 @@
 import { Readable } from 'stream'
+import type { BeeResponse } from '../src/types'
 
 /**
  * Sleep for N miliseconds
@@ -79,7 +80,7 @@ export function beeDebugUrl(url: string = beeUrl()): string {
 
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
 
-export const okResponse = {
+export const okResponse: BeeResponse = {
   code: 200,
   message: 'OK',
 }
