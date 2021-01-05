@@ -132,31 +132,53 @@ export async function getChunkPinningStatus(url: string, hash: string): Promise<
 }
 
 /**
- * Update pinning status of chunk with given reference
+ * Update pin counter of chunk with given reference
  *
- * @param url  Bee URL
- * @param hash Bee data reference
+ * @param url         Bee URL
+ * @param hash        Bee data reference
+ * @param pinCounter  New value of the pin counter
  */
-export async function updateChunkPinningStatus(url: string, hash: string): Promise<PinningStatus> {
+export async function updateChunkPinCounter(url: string, hash: string, pinCounter: number): Promise<PinningStatus> {
   const response = await safeAxios<PinningStatus>({
     method: 'put',
     responseType: 'json',
     url: `${url}${Endpoint.CHUNKS}/${hash}`,
+    data: {
+      pinCounter,
+    },
   })
 
   return response.data
 }
 
 /**
+ * Optional parameters to change listing
+ */
+export interface PinnedChunksOptions {
+  /**
+   * Offset of the items returned.
+   * Maximum value is 2147483647
+   */
+  offset?: number
+  /**
+   * Limits the number of item returned. By default Bee returns 100 items.
+   * Maximum value is 2147483647
+   */
+  limit?: number
+}
+
+/**
  * Get list of pinned chunks
  *
- * @param url Bee URL
+ * @param url     Bee URL
+ * @param options Optional offset and limit of listing
  */
-export async function getPinnedChunks(url: string): Promise<PinnedChunks> {
+export async function getPinnedChunks(url: string, options?: PinnedChunksOptions): Promise<PinnedChunks> {
   const response = await safeAxios<PinnedChunks>({
     method: 'get',
     responseType: 'json',
     url: `${url}${Endpoint.CHUNKS}`,
+    params: options,
   })
 
   return response.data
