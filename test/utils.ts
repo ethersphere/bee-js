@@ -92,3 +92,19 @@ export const testChunkSpan = new Uint8Array([testChunkPayload.length, 0, 0, 0, 0
 export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPayload])
 // the hash is hardcoded because we would need the bmt hasher otherwise
 export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
+
+/**
+ * Convert byte array to hex string
+ *
+ * cheekily borrowed from https://stackoverflow.com/questions/34309988/byte-array-to-hex-string-conversion-in-javascript
+ */
+export const byteArrayToHex = (byteArray: number[] | Uint8Array, withPrefix = false): string => {
+  const prefix = withPrefix ? '0x' : ''
+
+  return (
+    prefix +
+    Array.from(byteArray, byte => {
+      return ('0' + (byte & 0xff).toString(16)).slice(-2)
+    }).join('')
+  )
+}
