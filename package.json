@@ -35,7 +35,7 @@
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "dependencies": {
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "isomorphic-ws": "^4.0.1",
     "tar-js": "^0.3.0",
     "ws": "^7.4.1"
