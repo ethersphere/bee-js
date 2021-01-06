@@ -13,9 +13,9 @@ PARAMETERS:
     --ephemeral                 create ephemeral container for bee-client. Data won't be persisted.
     --workers=number            all Bee nodes in the test environment. Default is 2.
     --port-maps=number          map ports of the cluster nodes to the hosting machine in the following manner:
-                                1. 1663:1665
-                                2. 11663:11665
-                                3. 21663:21665 (...)
+                                1. 1633:1635
+                                2. 11633:11635
+                                3. 21633:21635 (...)
                                 number represents the nodes number to map from. Default is 2.
     --password=string           password for Bee client(s).
     --version=x.y.z             used version of Bee client.
