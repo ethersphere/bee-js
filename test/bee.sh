@@ -138,7 +138,8 @@ if [ -z "$QUEEN_CONTAINER_IN_DOCKER" ] || $EPHEMERAL ; then
         --swap-enable=false \
         --debug-api-enable \
         --welcome-message="You have found the queen of the beehive..." \
-        --cors-allowed-origins="*"
+        --cors-allowed-origins="*" \
+        --payment-tolerance=2147483647
 else
     docker start "$QUEEN_CONTAINER_IN_DOCKER"
 fi
@@ -173,7 +174,8 @@ for i in $(seq 1 1 $WORKERS); do
           --swap-enable=false \
           --debug-api-enable \
           --welcome-message="I'm just Bee worker ${i} in the beehive." \
-          --cors-allowed-origins="*"
+          --cors-allowed-origins="*" \
+          --payment-tolerance=2147483647
   else
         docker start "$WORKER_CONTAINER_IN_DOCKER"
   fi
