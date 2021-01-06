@@ -6,7 +6,7 @@ import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
 import * as connectivity from './modules/debug/connectivity'
-import {
+import type {
   Tag,
   FileData,
   Reference,
@@ -16,6 +16,7 @@ import {
   Address,
   PssMessageHandler,
   PssSubscription,
+  BeeResponse,
 } from './types'
 import { BeeError } from './utils/error'
 
@@ -174,7 +175,7 @@ export class Bee {
    *
    * @param reference Bee file reference
    */
-  pinFile(reference: Reference): Promise<pinning.Response> {
+  pinFile(reference: Reference): Promise<BeeResponse> {
     return pinning.pinFile(this.url, reference)
   }
 
@@ -183,7 +184,7 @@ export class Bee {
    *
    * @param reference Bee file reference
    */
-  unpinFile(reference: Reference): Promise<pinning.Response> {
+  unpinFile(reference: Reference): Promise<BeeResponse> {
     return pinning.unpinFile(this.url, reference)
   }
 
@@ -192,7 +193,7 @@ export class Bee {
    *
    * @param reference Bee collection reference
    */
-  pinCollection(reference: Reference): Promise<pinning.Response> {
+  pinCollection(reference: Reference): Promise<BeeResponse> {
     return pinning.pinCollection(this.url, reference)
   }
 
@@ -201,7 +202,7 @@ export class Bee {
    *
    * @param reference Bee collection reference
    */
-  unpinCollection(reference: Reference): Promise<pinning.Response> {
+  unpinCollection(reference: Reference): Promise<BeeResponse> {
     return pinning.unpinCollection(this.url, reference)
   }
 
@@ -210,7 +211,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  pinData(reference: Reference): Promise<pinning.Response> {
+  pinData(reference: Reference): Promise<BeeResponse> {
     return pinning.pinData(this.url, reference)
   }
 
@@ -219,7 +220,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  unpinData(reference: Reference): Promise<pinning.Response> {
+  unpinData(reference: Reference): Promise<BeeResponse> {
     return pinning.unpinData(this.url, reference)
   }
 
@@ -237,7 +238,7 @@ export class Bee {
     target: AddressPrefix,
     data: string | Uint8Array,
     recipient?: PublicKey,
-  ): Promise<pss.Response> {
+  ): Promise<BeeResponse> {
     return pss.send(this.url, topic, target, data, recipient)
   }
 

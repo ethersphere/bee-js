@@ -74,3 +74,8 @@ export interface PssMessageHandler {
   onMessage: (message: Uint8Array, subscription: PssSubscription) => void
   onError: (error: BeeError, subscription: PssSubscription) => void
 }
+
+export interface BeeResponse {
+  message: string
+  code: number
+}

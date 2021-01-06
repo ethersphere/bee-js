@@ -1,4 +1,5 @@
 import { Readable } from 'stream'
+import type { BeeResponse } from '../src/types'
 
 /**
  * Sleep for N miliseconds
@@ -79,8 +80,15 @@ export function beeDebugUrl(url: string = beeUrl()): string {
 
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
 
-export const okResponse = {
+export const okResponse: BeeResponse = {
   code: 200,
   message: 'OK',
 }
 export const PSS_TIMEOUT = 60000
+
+export const testChunkPayload = new Uint8Array([1, 2, 3])
+// span is the payload length encoded as uint64 little endian
+export const testChunkSpan = new Uint8Array([testChunkPayload.length, 0, 0, 0, 0, 0, 0, 0])
+export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPayload])
+// the hash is hardcoded because we would need the bmt hasher otherwise
+export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'

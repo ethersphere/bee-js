@@ -1,15 +1,10 @@
 import WebSocket from 'isomorphic-ws'
 
-import { PublicKey } from '../types'
+import type { BeeResponse, PublicKey } from '../types'
 import { prepareData } from '../utils/data'
 import { safeAxios } from '../utils/safeAxios'
 
 const endpoint = '/pss'
-
-export interface Response {
-  message: string
-  code: number
-}
 
 /**
  * Send to recipient or target with Postal Service for Swarm
@@ -26,8 +21,8 @@ export async function send(
   target: string,
   data: string | Uint8Array,
   recipient?: PublicKey,
-): Promise<Response> {
-  const response = await safeAxios<Response>({
+): Promise<BeeResponse> {
+  const response = await safeAxios<BeeResponse>({
     method: 'post',
     url: `${url}${endpoint}/send/${topic}/${target.slice(0, 4)}`,
     data: await prepareData(data),
