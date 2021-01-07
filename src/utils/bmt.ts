@@ -15,13 +15,13 @@ export function bmtHash(chunkContent: Uint8Array): Uint8Array {
   return Uint8Array.from(chunkHash)
 }
 
-function bmtRootHash(data: Uint8Array): Uint8Array {
-  if (data.length > MAX_CHUNK_PAYLOAD_SIZE) {
-    throw new BeeArgumentError('invalid data length', data)
+function bmtRootHash(payload: Uint8Array): Uint8Array {
+  if (payload.length > MAX_CHUNK_PAYLOAD_SIZE) {
+    throw new BeeArgumentError('invalid data length', payload)
   }
 
   // create an input buffer padded with zeros
-  let input = new Uint8Array([...data, ...new Uint8Array(MAX_CHUNK_PAYLOAD_SIZE - data.length)])
+  let input = new Uint8Array([...payload, ...new Uint8Array(MAX_CHUNK_PAYLOAD_SIZE - payload.length)])
   while (input.length > HASH_SIZE) {
     const output = new Uint8Array(input.length / 2)
 
