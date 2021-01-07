@@ -7,6 +7,7 @@ function makeSpan(length: number): Uint8Array {
   if (length <= 0) {
     throw new BeeArgumentError('invalid length for span', length)
   }
+
   if (length > Number.MAX_SAFE_INTEGER) {
     throw new BeeArgumentError('invalid length (> Number.MAX_SAFE_INTEGER)', length)
   }
@@ -14,14 +15,16 @@ function makeSpan(length: number): Uint8Array {
   const span = new ArrayBuffer(8)
   const dataView = new DataView(span)
   const littleEndian = true
+
   if (dataView.setBigUint64 !== undefined) {
     dataView.setBigUint64(0, BigInt(length), littleEndian)
   } else {
-    const lengthLower32 = length & 0xFFFFFFFF
+    const lengthLower32 = length & 0xffffffff
     dataView.setUint32(0, lengthLower32, littleEndian)
     const lengthUpper32 = length >> 32
     dataView.setUint32(4, lengthUpper32, littleEndian)
   }
+
   return new Uint8Array(span)
 }
 
@@ -36,7 +39,7 @@ describe('span', () => {
       [2 ** 32, new Uint8Array([0, 0, 0, 0, 0x01, 0, 0, 0])],
       [2 ** 40, new Uint8Array([0, 0, 0, 0, 0, 0x01, 0, 0])],
       [2 ** 48, new Uint8Array([0, 0, 0, 0, 0, 0, 0x01, 0])],
-      [Number.MAX_SAFE_INTEGER, new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0])],
+      [Number.MAX_SAFE_INTEGER, new Uint8Array([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x1f, 0])],
     ]
 
     expected.forEach(elem => {
@@ -65,14 +68,14 @@ describe('bmt', () => {
      * We upload chunks smaller than 4096 bytes on the /bytes
      * endpoint therefore it is stored in a single chunk.
      */
-     for (let i = 1; i <= 4096; i *= 2) {
-        const payload = new Uint8Array(i)
-        const span = makeSpan(i)
-        const data = new Uint8Array([...span, ...payload])
+    for (let i = 1; i <= 4096; i *= 2) {
+      const payload = new Uint8Array(i)
+      const span = makeSpan(i)
+      const data = new Uint8Array([...span, ...payload])
 
-        const hash = byteArrayToHex(bmtHash(data))
-        const response = await chunk.upload(beeUrl(), hash, data)
-        expect(response).toEqual(okResponse)
-     }
+      const hash = byteArrayToHex(bmtHash(data))
+      const response = await chunk.upload(beeUrl(), hash, data)
+      expect(response).toEqual(okResponse)
+    }
   })
 })
