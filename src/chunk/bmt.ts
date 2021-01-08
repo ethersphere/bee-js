@@ -1,5 +1,5 @@
 import { keccak256 } from 'js-sha3'
-import { BeeArgumentError } from './error'
+import { BeeArgumentError } from '../utils/error'
 
 const MAX_CHUNK_PAYLOAD_SIZE = 4096
 const SEGMENT_SIZE = 32
