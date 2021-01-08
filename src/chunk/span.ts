@@ -22,8 +22,9 @@ export function makeSpan(length: number): Uint8Array {
   const span = new Uint8Array(8)
   const dataView = new DataView(span.buffer)
   const littleEndian = true
-  const lengthLower32 = length & 0xffffffff
 
+
+  const lengthLower32 = length & 0xffffffff
   dataView.setUint32(0, lengthLower32, littleEndian)
 
   return span

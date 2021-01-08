@@ -20,6 +20,7 @@ const HASH_SIZE = 32
  *
  * @returns the keccak256 hash in a byte array
  */
+
 export function bmtHash(chunkContent: Uint8Array): Uint8Array {
   const span = chunkContent.slice(0, 8)
   const payload = chunkContent.slice(8)
