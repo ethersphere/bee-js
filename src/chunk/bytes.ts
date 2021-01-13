@@ -1,12 +1,12 @@
 import { BeeArgumentError } from '../utils/error'
 
 export interface Bytes<Length extends number> extends Uint8Array {
-  length: Length
+  readonly length: Length
 }
 
 export interface FlexBytes<Min extends number, Max extends number> extends Uint8Array {
-  __min__: Min
-  __max__: Max
+  readonly __min__: Min
+  readonly __max__: Max
 }
 
 export function isBytes<Length extends number>(b: Uint8Array, length: Length): b is Bytes<Length> {

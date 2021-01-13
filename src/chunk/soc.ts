@@ -2,6 +2,7 @@ import { Bytes, FlexBytes, verifyBytes, verifyFlexBytes } from './bytes'
 import { bmtHash } from './bmt'
 import { sign, Signature, Signer } from './signer'
 import { keccak256Hash } from './hash'
+import { makeSpan } from './span'
 
 export interface Chunk {
   readonly span: Bytes<8>
@@ -18,11 +19,33 @@ export interface SingleOwnerChunk extends Chunk {
   signature: Signature
 }
 
-export function makeContentAddressedChunk(spanBytes: Uint8Array, payloadBytes: Uint8Array): Chunk {
+export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
+  const span = makeSpan(payloadBytes.length)
+  return makeChunk(span, payloadBytes)
+}
+
+
+export function serializeBytes(...arrays: Uint8Array[]): Uint8Array {
+  const length = arrays.reduce((prev, curr) => prev + curr.length, 0)
+  const buffer = new Uint8Array(length)
+  let offset = 0
+  arrays.forEach(arr => {
+    buffer.set(arr, offset)
+    offset += arr.length
+  })
+  return buffer
+}
+
+type SpanReference = Bytes<32> | Bytes<64>
+export function makeIntermediateChunk(spanBytes: Uint8Array, references: SpanReference[]) {
+  return makeChunk(spanBytes, serializeBytes(...references))
+}
+
+export function makeChunk(spanBytes: Uint8Array, payloadBytes: Uint8Array): Chunk {
   const span = verifyBytes(spanBytes, 8)
   const payload = verifyFlexBytes(payloadBytes, 1, 4096)
-  const address = () => bmtHash(new Uint8Array([...span, ...payload])) as Bytes<32>
-  const serialize = () => new Uint8Array([...span, ...payload])
+  const serialize = () => serializeBytes(span, payload)
+  const address = () => bmtHash(serialize())
 
   return {
     span,
