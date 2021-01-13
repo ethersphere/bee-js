@@ -21,9 +21,9 @@ export interface SingleOwnerChunk extends Chunk {
 
 export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
   const span = makeSpan(payloadBytes.length)
+
   return makeChunk(span, payloadBytes)
 }
-
 
 export function serializeBytes(...arrays: Uint8Array[]): Uint8Array {
   const length = arrays.reduce((prev, curr) => prev + curr.length, 0)
@@ -33,6 +33,7 @@ export function serializeBytes(...arrays: Uint8Array[]): Uint8Array {
     buffer.set(arr, offset)
     offset += arr.length
   })
+
   return buffer
 }
 

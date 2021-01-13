@@ -32,7 +32,6 @@ describe('serializeBytes', () => {
 
     expect(result).toEqual(expectedResult)
   })
-
 })
 
 describe('soc', () => {
