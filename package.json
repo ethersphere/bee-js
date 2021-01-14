@@ -35,7 +35,6 @@
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "dependencies": {
-    "@enumatech/secp256k1-js": "^1.0.0",
     "axios": "^0.21.1",
     "elliptic": "^6.5.3",
     "isomorphic-ws": "^4.0.1",
