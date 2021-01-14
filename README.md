@@ -32,19 +32,19 @@
 ### npm
 
 ```sh
-> npm install @ethersphere/bee-js
+> npm install @ethswarm/bee-js
 ```
 
 ### Use in Node.js
 
 ```js
-var Bee = require("@ethersphere/bee-js");
+var Bee = require("@ethswarm/bee-js");
 ```
 
 ### Use in a browser with browserify, webpack or any other bundler
 
 ```js
-var Bee = require("@ethersphere/bee-js");
+var Bee = require("@ethswarm/bee-js");
 ```
 
 ### Use in a browser Using a script tag
@@ -52,15 +52,13 @@ var Bee = require("@ethersphere/bee-js");
 Loading this module through a script tag will make the `Bee` object available in the global namespace.
 
 ```html
-<script src="https://unpkg.com/@ethersphere/bee-js/dist/index.min.js"></script>
-<!-- OR -->
-<script src="https://unpkg.com/@ethersphere/bee-js/dist/index.js"></script>
+<script src="https://unpkg.com/@ethswarm/bee-js/dist/index.js"></script>
 ```
 
 ## Usage
 
 ```js
-import Bee from "@ethersphere/bee-js"; // Connect to a node const
+import Bee from "@ethswarm/bee-js"; // Connect to a node const
 
 bee = new Bee("http://localhost:8080");
 
@@ -72,7 +70,13 @@ console.log(retrievedData.toString()); // prints 'Bee is awesome!'
 
 ## Api
 
-[See full API documentation here](./docs/README.md)
+The API documentation is not yet hosted anywhere, but you can generate JSdocs with:
+
+```sh
+npm run docs
+```
+
+The generated docs can be viewed in browser by opening `./docs/index.html`
 
 ## Contribute
 
