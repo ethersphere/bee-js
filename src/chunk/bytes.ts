@@ -11,7 +11,7 @@ export function isBytes<Length extends number>(b: Uint8Array, length: Length): b
   return b.length === length
 }
 
-export function verifyBytes<Length extends number>(b: Uint8Array, length: Length): Bytes<Length> | never {
+export function verifyBytes<Length extends number>(length: Length, b: Uint8Array): Bytes<Length> | never {
   if (isBytes(b, length)) {
     return b
   }
@@ -19,9 +19,9 @@ export function verifyBytes<Length extends number>(b: Uint8Array, length: Length
 }
 
 export function verifyFlexBytes<Min extends number, Max extends number = Min>(
-  b: Uint8Array,
   min: Min,
   max: Max,
+  b: Uint8Array,
 ): FlexBytes<Min, Max> | never {
   if (b.length >= min && b.length <= max) {
     return b as FlexBytes<Min, Max>

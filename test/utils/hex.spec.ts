@@ -1,4 +1,4 @@
-import { isHexString, stripHexPrefix } from "../../src/utils/hex"
+import { isHexString, stripHexPrefix } from '../../src/utils/hex'
 
 describe('hex', () => {
   describe('stripHexPrefix', () => {
