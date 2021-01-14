@@ -4,16 +4,17 @@ import type { Bytes } from './bytes'
 import { keccak256Hash } from './hash'
 
 export type Signature = Bytes<65>
+export type PrivateKey = Bytes<32>
+export type PublicKey = Bytes<32> | Bytes<64>
+export type Address = Bytes<20>
 
 type SyncSigner = (digest: Uint8Array) => Signature
 type AsyncSigner = (digest: Uint8Array) => Promise<Signature>
 
 export type Signer = {
   sign: SyncSigner | AsyncSigner
-  address: Bytes<20>
+  address: Address
 }
-
-export type PrivateKey = Bytes<32>
 
 function hashWithEthereumPrefix(data: Uint8Array): Bytes<32> {
   const ethereumSignedMessagePrefix = `\x19Ethereum Signed Message:\n${data.length}`
@@ -45,12 +46,12 @@ export function signCompact(digest: Uint8Array, privateKey: PrivateKey): Signatu
   return signature as Signature
 }
 
-type PublicKey = curve.base.BasePoint
+type EllipticPublicKey = curve.base.BasePoint
 
-function publicKeyToAddress(pubKey: PublicKey): Bytes<20> {
+function publicKeyToAddress(pubKey: EllipticPublicKey): Address {
   const pubBytes = pubKey.encode('array', false)
 
-  return keccak256Hash(pubBytes.slice(1)).slice(12) as Bytes<20>
+  return keccak256Hash(pubBytes.slice(1)).slice(12) as Address
 }
 
 export function makeDefaultSigner(privateKey: PrivateKey): Signer {
