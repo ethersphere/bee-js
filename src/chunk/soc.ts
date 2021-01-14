@@ -38,7 +38,7 @@ export function serializeBytes(...arrays: Uint8Array[]): Uint8Array {
 }
 
 type SpanReference = Bytes<32> | Bytes<64>
-export function makeIntermediateChunk(spanBytes: Uint8Array, references: SpanReference[]) {
+export function makeIntermediateChunk(spanBytes: Uint8Array, references: SpanReference[]): Chunk {
   return makeChunk(spanBytes, serializeBytes(...references))
 }
 
