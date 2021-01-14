@@ -1,7 +1,6 @@
-import { Bytes } from '../../src/chunk/bytes'
+import { Bytes, verifyBytes } from '../../src/chunk/bytes'
 import { makeContentAddressedChunk, makeSingleOwnerChunk, serializeBytes } from '../../src/chunk/soc'
-import { HexString, hexToUint8Array } from '../../src/utils/hex'
-import { beeUrl, okResponse } from '../utils'
+import { beeUrl, fromHex, okResponse } from '../utils'
 import { makeDefaultSigner } from '../../src/chunk/signer'
 import { uploadChunk } from '../../src/chunk/upload'
 
@@ -35,7 +34,7 @@ describe('serializeBytes', () => {
 })
 
 describe('soc', () => {
-  const privateKey = hexToUint8Array(testIdentity.privateKey as HexString)
+  const privateKey = verifyBytes(fromHex(testIdentity.privateKey), 32)
   const signer = makeDefaultSigner(privateKey)
 
   it('upload content address chunk', async () => {

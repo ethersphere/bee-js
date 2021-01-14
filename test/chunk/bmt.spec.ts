@@ -1,7 +1,8 @@
 import { bmtHash } from '../../src/chunk/bmt'
-import { beeUrl, byteArrayToHex, okResponse, randomByteArray } from '../utils'
+import { beeUrl, okResponse, randomByteArray } from '../utils'
 import * as chunk from '../../src/modules/chunk'
 import { makeSpan } from '../../src/chunk/span'
+import { byteArrayToHex } from '../../src/utils/hex'
 
 describe('bmt', () => {
   it('should produce correct BMT hash', () => {

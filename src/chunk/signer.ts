@@ -13,6 +13,8 @@ export type Signer = {
   address: Bytes<20>
 }
 
+export type PrivateKey = Bytes<32>
+
 function hashWithEthereumPrefix(data: Uint8Array): Bytes<32> {
   const ethereumSignedMessagePrefix = `\x19Ethereum Signed Message:\n${data.length}`
   const prefixBytes = new TextEncoder().encode(ethereumSignedMessagePrefix)
@@ -26,7 +28,7 @@ export function sign(data: Uint8Array, signer: Signer): Signature | Promise<Sign
   return signer.sign(hash)
 }
 
-export function signCompact(digest: Uint8Array, privateKey: Uint8Array): Signature {
+export function signCompact(digest: Uint8Array, privateKey: PrivateKey): Signature {
   const curve = new ec('secp256k1')
   const keyPair = curve.keyFromPrivate(privateKey)
   const sigRaw = curve.sign(digest, keyPair, { canonical: true, pers: undefined })
@@ -50,7 +52,8 @@ function publicKeyToAddress(pubKey: PublicKey): Bytes<20> {
 
   return keccak256Hash(pubBytes.slice(1)).slice(12) as Bytes<20>
 }
-export function makeDefaultSigner(privateKey: Uint8Array): Signer {
+
+export function makeDefaultSigner(privateKey: PrivateKey): Signer {
   const curve = new ec('secp256k1')
   const keyPair = curve.keyFromPrivate(privateKey)
   const address = publicKeyToAddress(keyPair.getPublic())

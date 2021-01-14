@@ -5,8 +5,8 @@ export type FlavoredType<T, N> = T & { __tag__?: N }
 
 export type HexString = BrandedString<'HexString'>
 
-export function stripHexPrefix(hex: HexString): HexString {
-  return hex.startsWith('0x') ? (hex.slice(2) as HexString) : hex
+export function stripHexPrefix<T extends string>(hex: T): T {
+  return hex.startsWith('0x') ? (hex.slice(2) as T) : hex
 }
 
 export function hexToByteArray(hex: HexString): number[] {
@@ -30,4 +30,15 @@ export function byteArrayToHex(byteArray: number[] | Uint8Array, withPrefix = fa
     Array.from(byteArray, byte => {
       return ('0' + (byte & 0xff).toString(16)).slice(-2)
     }).join('')) as HexString
+}
+
+export function isHexString(s: string): s is HexString {
+  return /^(0x)?[0-9a-fA-F]+$/i.test(s)
+}
+
+export function verifyHex(s: string): HexString | never {
+  if (isHexString(s)) {
+    return s
+  }
+  throw new Error(`verifyHex: not valid hex string: ${s}`)
 }
