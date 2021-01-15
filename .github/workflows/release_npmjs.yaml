@@ -1,0 +1,19 @@
+# After new release is published on github, publish it to npmjs
+name: Release npmjs
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release-npmjs:
+    runs-on: ubuntu-latest
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
