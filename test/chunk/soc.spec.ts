@@ -1,12 +1,16 @@
 import { Bytes, verifyBytes } from '../../src/chunk/bytes'
-import { makeContentAddressedChunk, makeSingleOwnerChunk, verifyChunk, verifySingleOwnerChunk } from '../../src/chunk/soc'
+import {
+  makeContentAddressedChunk,
+  makeSingleOwnerChunk,
+  verifyChunk,
+  verifySingleOwnerChunk,
+} from '../../src/chunk/soc'
 import { beeUrl, fromHex, okResponse, toHex } from '../utils'
 import { makeDefaultSigner } from '../../src/chunk/signer'
 import { uploadChunk } from '../../src/chunk/upload'
 import { serializeBytes } from '../../src/chunk/serialize'
 import { makeSpan } from '../../src/chunk/span'
 import * as chunkAPI from '../../src/modules/chunk'
-import { verify } from 'crypto'
 
 const testIdentity = {
   privateKey: '0x1fea01178e263f89c7adc313534844d3e89c6df1adb2aa5f95337260ae149741',
@@ -38,6 +42,24 @@ describe('soc', () => {
     expect(chunkAddress).toEqual(address)
   })
 
+  test('upload content address chunk', async () => {
+    const cac = makeContentAddressedChunk(payload)
+    const address = cac.address()
+    const hash = toHex(address)
+    const response = await chunkAPI.upload(beeUrl(), hash, cac.data)
+
+    expect(response).toEqual(okResponse)
+  })
+
+  test('download content address chunk', async () => {
+    const data = await chunkAPI.download(beeUrl(), contentHash)
+    const address = verifyBytes(32, fromHex(contentHash))
+    const chunk = verifyChunk(data, address)
+    const chunkAddress = chunk.address()
+
+    expect(chunkAddress).toEqual(address)
+  })
+
   test('upload single owner chunk', async () => {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
@@ -54,5 +76,4 @@ describe('soc', () => {
 
     expect(socAddress).toEqual(address)
   })
-
 })
