@@ -1,4 +1,5 @@
 import { BeeArgumentError } from '../../src/utils/error'
+import { Bytes } from './bytes'
 
 // we limit the maximum span size in 32 bits to avoid BigInt compatibility issues
 const MAX_SPAN_LENGTH = 2 ** 32 - 1
@@ -10,7 +11,7 @@ const MAX_SPAN_LENGTH = 2 ** 32 - 1
  *
  * @param length The length of the span
  */
-export function makeSpan(length: number): Uint8Array {
+export function makeSpan(length: number): Bytes<8> {
   if (length <= 0) {
     throw new BeeArgumentError('invalid length for span', length)
   }
@@ -26,5 +27,5 @@ export function makeSpan(length: number): Uint8Array {
 
   dataView.setUint32(0, lengthLower32, littleEndian)
 
-  return span
+  return span as Bytes<8>
 }

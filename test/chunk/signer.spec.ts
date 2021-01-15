@@ -2,7 +2,7 @@ import { verifyBytes } from '../../src/chunk/bytes'
 import { makeDefaultSigner, sign } from '../../src/chunk/signer'
 import { fromHex } from '../utils'
 
-describe('singer', () => {
+describe('signer', () => {
   test('default signer', async () => {
     const privateKey = verifyBytes(32, fromHex('634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd'))
     const dataToSign = fromHex('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae')

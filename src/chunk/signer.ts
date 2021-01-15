@@ -1,5 +1,6 @@
 import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
+import { byteArrayToHex } from '../utils/hex'
 import type { Bytes } from './bytes'
 import { keccak256Hash } from './hash'
 
@@ -52,6 +53,18 @@ function publicKeyToAddress(pubKey: EllipticPublicKey): Address {
   const pubBytes = pubKey.encode('array', false)
 
   return keccak256Hash(pubBytes.slice(1)).slice(12) as Address
+}
+
+export function recoverAddress(signature: Signature, digest: Uint8Array): Address {
+  const curve = new ec('secp256k1')
+  const sig = {
+    r: byteArrayToHex(signature.slice(0, 32)),
+    s: byteArrayToHex(signature.slice(32, 64)),
+  }
+  const recoveryParam = signature[64] - 27
+  const pubKey = curve.recoverPubKey(digest, sig, recoveryParam)
+
+  return publicKeyToAddress(pubKey)
 }
 
 export function makeDefaultSigner(privateKey: PrivateKey): Signer {

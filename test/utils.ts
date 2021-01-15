@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 import type { BeeResponse } from '../src/types'
-import { hexToUint8Array, verifyHex } from '../src/utils/hex'
+import { byteArrayToHex, hexToUint8Array, verifyHex } from '../src/utils/hex'
 
 /**
  * Sleep for N miliseconds
@@ -96,4 +96,8 @@ export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1d
 
 export function fromHex(h: string): Uint8Array {
   return hexToUint8Array(verifyHex(h))
+}
+
+export function toHex(b: Uint8Array | number[]): string {
+  return byteArrayToHex(b)
 }
