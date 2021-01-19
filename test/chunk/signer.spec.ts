@@ -16,7 +16,7 @@ describe('signer', () => {
     expect(signature).toEqual(expectedSignature)
   })
 
-  test('recover address from signature', async () => {
+  test('recover address from signature', () => {
     const recoveredAddress = recoverAddress(expectedSignature as Signature, dataToSign)
 
     expect(toHex(recoveredAddress, true)).toEqual(testIdentity.address)

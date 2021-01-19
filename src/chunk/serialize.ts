@@ -1,3 +1,8 @@
+/**
+ * Helper function for serialize byte arrays
+ *
+ * @param arrays Any number of byte array arguments
+ */
 export function serializeBytes(...arrays: Uint8Array[]): Uint8Array {
   const length = arrays.reduce((prev, curr) => prev + curr.length, 0)
   const buffer = new Uint8Array(length)
