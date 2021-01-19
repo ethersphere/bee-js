@@ -5,25 +5,19 @@ import {
   verifyChunk,
   verifySingleOwnerChunk,
 } from '../../src/chunk/soc'
-import { beeUrl, fromHex, okResponse, toHex } from '../utils'
+import { beeUrl, fromHex, okResponse, testIdentity, toHex } from '../utils'
 import { makeDefaultSigner } from '../../src/chunk/signer'
 import { uploadChunk } from '../../src/chunk/upload'
 import { serializeBytes } from '../../src/chunk/serialize'
 import { makeSpan } from '../../src/chunk/span'
 import * as chunkAPI from '../../src/modules/chunk'
 
-const testIdentity = {
-  privateKey: '0x1fea01178e263f89c7adc313534844d3e89c6df1adb2aa5f95337260ae149741',
-  publicKey: '0x03b565dc7bbbd3d6f0b2d4021a4e89929b3b9357cdee735fbefd1dd9ffd94960b4',
-  address: '0x18bb16b790bcb86772648423e0455343cbec79d5',
-}
-
 describe('soc', () => {
   const privateKey = verifyBytes(32, fromHex(testIdentity.privateKey))
   const signer = makeDefaultSigner(privateKey)
   const payload = new Uint8Array([1, 2, 3])
   const contentHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
-  const socHash = '6bcf091786103a3d9a921d42f03d21c7def7f79fc95485debd4719374ae8609a'
+  const socHash = '9d453ebb73b2fedaaf44ceddcf7a0aa37f3e3d6453fea5841c31f0ea6d61dc85'
   const identifier = new Uint8Array(32) as Bytes<32>
 
   test('content address chunk creation', () => {
@@ -63,6 +57,9 @@ describe('soc', () => {
   test('upload single owner chunk', async () => {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
+    const socAddress = toHex(soc.address())
+    expect(socAddress).toEqual(socHash)
+
     const response = await uploadChunk(beeUrl(), soc)
 
     expect(response).toEqual(okResponse)

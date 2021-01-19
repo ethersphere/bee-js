@@ -6,14 +6,14 @@ import { keccak256Hash } from './hash'
 export type Signature = Bytes<65>
 export type PrivateKey = Bytes<32>
 export type PublicKey = Bytes<32> | Bytes<64>
-export type Address = Bytes<20>
+export type EthAddress = Bytes<20>
 
 type SyncSigner = (digest: Uint8Array) => Signature
 type AsyncSigner = (digest: Uint8Array) => Promise<Signature>
 
 export type Signer = {
   sign: SyncSigner | AsyncSigner
-  address: Address
+  address: EthAddress
 }
 
 const UNCOMPRESSED_RECOVERY_ID = 27
@@ -50,13 +50,13 @@ export function signCompact(digest: Uint8Array, privateKey: PrivateKey): Signatu
 
 type EllipticPublicKey = curve.base.BasePoint
 
-function publicKeyToAddress(pubKey: EllipticPublicKey): Address {
+function publicKeyToAddress(pubKey: EllipticPublicKey): EthAddress {
   const pubBytes = pubKey.encode('array', false)
 
-  return keccak256Hash(pubBytes.slice(1)).slice(12) as Address
+  return keccak256Hash(pubBytes.slice(1)).slice(12) as EthAddress
 }
 
-export function recoverAddress(signature: Signature, digest: Uint8Array): Address {
+export function recoverAddress(signature: Signature, digest: Uint8Array): EthAddress {
   const curve = new ec('secp256k1')
   const sig = {
     r: signature.slice(0, 32),

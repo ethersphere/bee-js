@@ -79,6 +79,25 @@ export function beeDebugUrl(url: string = beeUrl()): string {
   return urlObj.protocol + '//' + urlObj.hostname + ':' + port
 }
 
+/**
+ * Helper function for creating byte array from hex string
+ *
+ * @param h Hex string
+ */
+export function fromHex(h: string): Uint8Array {
+  return hexToUint8Array(verifyHex(h))
+}
+
+/**
+ * Helper function for creating hex string from byte array
+ *
+ * @param b           Byte array or array of numbers
+ * @param withPrefix  If true then add '0x' prefix
+ */
+export function toHex(b: Uint8Array | number[], withPrefix?: boolean): string {
+  return byteArrayToHex(b, withPrefix)
+}
+
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
 
 export const okResponse: BeeResponse = {
@@ -94,10 +113,8 @@ export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPaylo
 // the hash is hardcoded because we would need the bmt hasher otherwise
 export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
 
-export function fromHex(h: string): Uint8Array {
-  return hexToUint8Array(verifyHex(h))
-}
-
-export function toHex(b: Uint8Array | number[]): string {
-  return byteArrayToHex(b)
+export const testIdentity = {
+  privateKey: '0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd',
+  publicKey: '0x03c32bb011339667a487b6c1c35061f15f7edc36aa9a0f8648aba07a4b8bd741b4',
+  address: '0x8d3766440f0d7b949a5e32995d09619a7f86e632',
 }

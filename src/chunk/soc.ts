@@ -1,6 +1,6 @@
 import { Bytes, FlexBytes, verifyBytes, verifyFlexBytes } from './bytes'
 import { bmtHash } from './bmt'
-import { recoverAddress, sign, Signature, Signer } from './signer'
+import { EthAddress, recoverAddress, sign, Signature, Signer } from './signer'
 import { keccak256Hash } from './hash'
 import { makeSpan } from './span'
 import { serializeBytes } from './serialize'
@@ -32,7 +32,7 @@ export interface Chunk {
   address(): ChunkAddress
 }
 
-type Identifier = Bytes<32>
+export type Identifier = Bytes<32>
 
 export interface SingleOwnerChunk extends Chunk {
   identifier: () => Identifier
@@ -156,6 +156,10 @@ function makeSingleOwnerChunkFromData(data: ValidSingleOwnerChunkData, address: 
   }
 }
 
+export function singleOwnerChunkAddress(identifier: Identifier, address: EthAddress): ChunkAddress {
+  return keccak256Hash(identifier, address)
+}
+
 export async function makeSingleOwnerChunk(
   chunk: Chunk,
   identifier: Identifier,
@@ -166,7 +170,7 @@ export async function makeSingleOwnerChunk(
 
   const digest = keccak256Hash(identifier, chunkAddress)
   const signature = await sign(digest, signer)
-  const data = serializeBytes(identifier, signature, chunk.data) as ValidSingleOwnerChunkData
+  const data = serializeBytes(identifier, signature, chunk.span(), chunk.payload()) as ValidSingleOwnerChunkData
   const address = () => keccak256Hash(identifier, signer.address)
 
   return makeSingleOwnerChunkFromData(data, address)
