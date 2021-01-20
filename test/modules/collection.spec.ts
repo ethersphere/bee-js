@@ -168,7 +168,7 @@ describe('modules/collection', () => {
     const fileName = '1.txt'
     const data = Uint8Array.from([49, 10])
     const directoryStructure = await collection.buildCollection(dir)
-    const hash = await collection.upload(BEE_URL, directoryStructure, { indexDocument: `${fileName}`})
+    const hash = await collection.upload(BEE_URL, directoryStructure, { indexDocument: `${fileName}` })
 
     const file1 = await collection.download(BEE_URL, hash)
     expect(file1.name).toEqual(fileName)
