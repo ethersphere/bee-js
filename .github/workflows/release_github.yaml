@@ -14,6 +14,6 @@ jobs:
       - uses: GoogleCloudPlatform/release-please-action@v1.3.0
         id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_GHA_PAT }}
           release-type: node
           package-name: bee-js
