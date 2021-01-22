@@ -49,21 +49,31 @@ function isCollection(data: unknown): data is Collection<Uint8Array> {
  * @param dir absolute path to the directory
  * @param recursive flag that specifies if the directory should be recursively walked and get files in those directories.
  */
-export async function buildCollection(dir: string, recursive = true): Promise<Collection<Uint8Array>> {
+export function buildCollection(dir: string, recursive = true): Promise<Collection<Uint8Array>> {
+  return buildCollectionRelative(dir, '', recursive)
+}
+
+async function buildCollectionRelative(
+  dir: string,
+  relativePath: string,
+  recursive = true,
+): Promise<Collection<Uint8Array>> {
   // Handles case when the dir is not existing or it is a file ==> throws an error
-  const entries = await fs.promises.opendir(dir)
+  const dirname = path.join(dir, relativePath)
+  const entries = await fs.promises.opendir(dirname)
   let collection: Collection<Uint8Array> = []
 
   for await (const entry of entries) {
-    const fullPath = path.join(dir, entry.name)
+    const fullPath = path.join(dir, relativePath, entry.name)
+    const entryPath = path.join(relativePath, entry.name)
 
     if (entry.isFile()) {
       collection.push({
-        path: fullPath,
+        path: entryPath,
         data: new Uint8Array(await fs.promises.readFile(fullPath)),
       })
     } else if (entry.isDirectory() && recursive) {
-      collection = [...(await buildCollection(fullPath, recursive)), ...collection]
+      collection = [...(await buildCollectionRelative(dir, entryPath, recursive)), ...collection]
     }
   }
 

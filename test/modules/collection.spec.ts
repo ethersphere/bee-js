@@ -151,13 +151,27 @@ describe('modules/collection', () => {
   it('should store and retrieve actual directory', async () => {
     const path = 'test/data/'
     const dir = `./${path}`
-    const name = '1.txt'
-    const data = Uint8Array.from([49, 10])
+    const file3Name = '3.txt'
+    const subDir = 'sub/'
+    const data = Uint8Array.from([51, 10])
     const directoryStructure = await collection.buildCollection(dir)
     const hash = await collection.upload(BEE_URL, directoryStructure)
 
-    const file1 = await collection.download(BEE_URL, hash, `${path}${name}`)
-    expect(file1.name).toEqual(name)
+    const file3 = await collection.download(BEE_URL, hash, `${subDir}${file3Name}`)
+    expect(file3.name).toEqual(file3Name)
+    expect(file3.data).toEqual(data)
+  })
+
+  it('should store and retrieve actual directory with index document', async () => {
+    const path = 'test/data/'
+    const dir = `./${path}`
+    const fileName = '1.txt'
+    const data = Uint8Array.from([49, 10])
+    const directoryStructure = await collection.buildCollection(dir)
+    const hash = await collection.upload(BEE_URL, directoryStructure, { indexDocument: `${fileName}` })
+
+    const file1 = await collection.download(BEE_URL, hash)
+    expect(file1.name).toEqual(fileName)
     expect(file1.data).toEqual(data)
   })
 })
