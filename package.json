@@ -22,7 +22,6 @@
   },
   "types": "dist/index.d.ts",
   "scripts": {
-    "postinstall": "patch-package",
     "compile:node": "webpack --progress --mode development --env target=node",
     "compile:types": "tsc --project tsconfig.d.json",
     "compile:browser": "webpack --progress --mode development --env target=web",
@@ -76,7 +75,6 @@
     "husky": "^4.3.0",
     "jest": "^26.6.3",
     "jest-puppeteer": "^4.4.0",
-    "patch-package": "^6.2.2",
     "prettier": "^2.1.2",
     "puppeteer": "^5.5.0",
     "terser-webpack-plugin": "^5.0.3",
