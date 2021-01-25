@@ -94,7 +94,7 @@ function makeSingleOwnerChunkFromData(data: ValidSingleOwnerChunkData, chunkAddr
   }
 }
 
-export function singleOwnerChunkAddress(identifier: Identifier, address: EthAddress): ChunkAddress {
+export function makeSOCAddress(identifier: Identifier, address: EthAddress): ChunkAddress {
   return keccak256Hash(identifier, address)
 }
 
