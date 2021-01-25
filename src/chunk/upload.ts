@@ -1,6 +1,6 @@
 import { BeeResponse, UploadOptions } from '../types'
 import { bytesToHex } from '../utils/hex'
-import { Chunk } from './soc'
+import { Chunk } from './cac'
 import * as chunkAPI from '../modules/chunk'
 
 /**

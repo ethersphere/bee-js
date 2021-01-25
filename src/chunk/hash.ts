@@ -1,5 +1,5 @@
 import { keccak256, Message } from 'js-sha3'
-import { Bytes } from './bytes'
+import { Bytes } from '../utils/bytes'
 
 /**
  * Helper function for calculating the keccak256 hash with

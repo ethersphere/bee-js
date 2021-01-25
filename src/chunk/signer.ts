@@ -1,6 +1,6 @@
 import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
-import type { Bytes } from './bytes'
+import type { Bytes } from '../utils/bytes'
 import { keccak256Hash } from './hash'
 
 /**

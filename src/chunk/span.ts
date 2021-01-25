@@ -1,5 +1,7 @@
 import { BeeArgumentError } from '../../src/utils/error'
-import { Bytes } from './bytes'
+import { Bytes } from '../utils/bytes'
+
+export const SPAN_SIZE = 8
 
 // we limit the maximum span size in 32 bits to avoid BigInt compatibility issues
 const MAX_SPAN_LENGTH = 2 ** 32 - 1
@@ -20,7 +22,7 @@ export function makeSpan(length: number): Bytes<8> {
     throw new BeeArgumentError('invalid length (> MAX_SPAN_LENGTH)', length)
   }
 
-  const span = new Uint8Array(8)
+  const span = new Uint8Array(SPAN_SIZE)
   const dataView = new DataView(span.buffer)
   const littleEndian = true
   const lengthLower32 = length & 0xffffffff

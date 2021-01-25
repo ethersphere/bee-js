@@ -1,4 +1,4 @@
-import { verifyBytes } from '../../src/chunk/bytes'
+import { verifyBytes } from '../../src/utils/bytes'
 import { makeDefaultSigner, recoverAddress, sign, Signature } from '../../src/chunk/signer'
 import { HexString, hexToBytes, bytesToHex } from '../../src/utils/hex'
 import { testIdentity } from '../utils'

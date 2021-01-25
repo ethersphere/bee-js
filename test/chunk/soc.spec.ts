@@ -1,10 +1,12 @@
-import { Bytes, verifyBytes } from '../../src/chunk/bytes'
+import { Bytes, verifyBytes } from '../../src/utils/bytes'
 import {
-  makeContentAddressedChunk,
   makeSingleOwnerChunk,
-  verifyChunk,
   verifySingleOwnerChunk,
 } from '../../src/chunk/soc'
+import {
+  makeContentAddressedChunk,
+  verifyChunk,
+} from '../../src/chunk/cac'
 import { beeUrl, okResponse, testIdentity } from '../utils'
 import { makeDefaultSigner } from '../../src/chunk/signer'
 import { uploadChunk } from '../../src/chunk/upload'

@@ -19,6 +19,10 @@ export interface UploadOptions {
   tag?: number
 }
 
+export interface DownloadOptions {
+  timeout?: number
+}
+
 export interface UploadHeaders {
   'swarm-pin'?: string
   'swarm-encrypt'?: string

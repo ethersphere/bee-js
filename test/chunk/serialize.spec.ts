@@ -12,7 +12,7 @@ describe('serializeBytes', () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it('serializes2', () => {
+  it('serializes chunk data with span', () => {
     const span = new Uint8Array(8)
     const payload = new Uint8Array(4096)
     const expectedResult = new Uint8Array(span.length + payload.length)

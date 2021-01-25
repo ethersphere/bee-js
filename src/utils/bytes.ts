@@ -77,3 +77,41 @@ export function verifyFlexBytes<Min extends number, Max extends number = Min>(
   }
   throw new Error(`verifyFlexBytes failed, min: ${min}, max: ${max}, length: ${b.length}`)
 }
+
+/**
+ * Return `length` bytes starting from `offset`
+ *
+ * @param offset The offset to start from
+ * @param length The length of data to be returned
+ * @param data   The original data
+ */
+export function bytesAtOffset<Length extends number>(offset: number, length: Length, data: Uint8Array): Bytes<Length> {
+  return data.slice(offset, offset + length) as Bytes<Length>
+}
+
+/**
+ * Return flex bytes starting from `offset`
+ *
+ * @param offset The offset to start from
+ * @param _min   The minimum size of the data
+ * @param _max   The maximum size of the data
+ * @param data   The original data
+ */
+export function flexBytesAtOffset<Min extends number, Max extends number>(
+  offset: number,
+  _min: Min,
+  _max: Max,
+  data: Uint8Array,
+): FlexBytes<Min, Max> {
+  return data.slice(offset) as FlexBytes<Min, Max>
+}
+
+/**
+ * Returns true if two byte arrays are equal
+ *
+ * @param a Byte array to compare
+ * @param b Byte array to compare
+ */
+export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
+  return a.length === b.length && a.every((value, index) => value === b[index])
+}
