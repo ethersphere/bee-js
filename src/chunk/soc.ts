@@ -75,32 +75,6 @@ export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
   return makeChunk(data, address)
 }
 
-/**
- * Creates intermediate chunk.
- *
- * Intermediate chunks are used to store data when the size
- * exceeds the maximum size of a single chunk.
- * @see MAX_PAYLOAD_SIZE
- * It encapsulates references to its children.
- *
- * @param spanLength  The length of the subtree below the intermediate chunk
- * @param references  The references to children chunks
- */
-export function makeIntermediateChunk(spanLength: number, references: SpanReference[]): Chunk {
-  if (spanLength < MAX_PAYLOAD_SIZE) {
-    throw new BeeError('invalid spanLength (< 4096)')
-  }
-  const span = makeSpan(spanLength)
-  const data = serializeBytes(span, ...references)
-  const address = () => bmtHash(data)
-
-  const minSize = SPAN_SIZE + MIN_PAYLOAD_SIZE
-  const maxSize = SPAN_SIZE + MAX_PAYLOAD_SIZE
-  verifyFlexBytes(minSize, maxSize, data)
-
-  return makeChunk(data as ValidChunkData, address)
-}
-
 function makeChunk(data: ValidChunkData, address: () => ChunkAddress): Chunk {
   const span = () => bytesAtOffset(CAC_SPAN_OFFSET, SPAN_SIZE, data)
   const payload = () => flexBytesAtOffset(CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, data)
