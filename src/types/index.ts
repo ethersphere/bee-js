@@ -19,6 +19,10 @@ export interface UploadOptions {
   tag?: number
 }
 
+export interface DownloadOptions {
+  timeout?: number
+}
+
 export interface UploadHeaders {
   'swarm-pin'?: string
   'swarm-encrypt'?: string
@@ -79,3 +83,14 @@ export interface BeeResponse {
   message: string
   code: number
 }
+
+/**
+ * These type are used to create new nominal types
+ *
+ * See https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
+ */
+export type BrandedType<T, N> = T & { __tag__: N }
+
+export type BrandedString<N> = BrandedType<string, N>
+
+export type FlavoredType<T, N> = T & { __tag__?: N }

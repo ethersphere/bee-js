@@ -1,5 +1,6 @@
 import { Readable } from 'stream'
 import type { BeeResponse } from '../src/types'
+import { HexString } from '../src/utils/hex'
 
 /**
  * Sleep for N miliseconds
@@ -91,20 +92,10 @@ export const testChunkPayload = new Uint8Array([1, 2, 3])
 export const testChunkSpan = new Uint8Array([testChunkPayload.length, 0, 0, 0, 0, 0, 0, 0])
 export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPayload])
 // the hash is hardcoded because we would need the bmt hasher otherwise
-export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
+export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as HexString
 
-/**
- * Convert byte array to hex string
- *
- * cheekily borrowed from https://stackoverflow.com/questions/34309988/byte-array-to-hex-string-conversion-in-javascript
- */
-export const byteArrayToHex = (byteArray: number[] | Uint8Array, withPrefix = false): string => {
-  const prefix = withPrefix ? '0x' : ''
-
-  return (
-    prefix +
-    Array.from(byteArray, byte => {
-      return ('0' + (byte & 0xff).toString(16)).slice(-2)
-    }).join('')
-  )
+export const testIdentity = {
+  privateKey: '0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' as HexString,
+  publicKey: '0x03c32bb011339667a487b6c1c35061f15f7edc36aa9a0f8648aba07a4b8bd741b4' as HexString,
+  address: '0x8d3766440f0d7b949a5e32995d09619a7f86e632' as HexString,
 }

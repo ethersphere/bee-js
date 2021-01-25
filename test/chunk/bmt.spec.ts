@@ -1,7 +1,8 @@
 import { bmtHash } from '../../src/chunk/bmt'
-import { beeUrl, byteArrayToHex, okResponse, randomByteArray } from '../utils'
+import { beeUrl, okResponse, randomByteArray } from '../utils'
 import * as chunk from '../../src/modules/chunk'
 import { makeSpan } from '../../src/chunk/span'
+import { bytesToHex } from '../../src/utils/hex'
 
 describe('bmt', () => {
   it('should produce correct BMT hash', () => {
@@ -12,7 +13,7 @@ describe('bmt', () => {
 
     const result = bmtHash(data)
 
-    expect(byteArrayToHex(result)).toEqual(hash)
+    expect(bytesToHex(result)).toEqual(hash)
   })
 
   it('should produce the same hash as Bee', async () => {
@@ -25,7 +26,7 @@ describe('bmt', () => {
       const span = makeSpan(i)
       const data = new Uint8Array([...span, ...payload])
 
-      const hash = byteArrayToHex(bmtHash(data))
+      const hash = bytesToHex(bmtHash(data))
       const response = await chunk.upload(beeUrl(), hash, data)
       expect(response).toEqual(okResponse)
     }
@@ -36,7 +37,7 @@ describe('bmt', () => {
     const span = makeSpan(payload.length)
     const data = new Uint8Array([...span, ...payload])
 
-    const hash = byteArrayToHex(bmtHash(data))
+    const hash = bytesToHex(bmtHash(data))
     const response = await chunk.upload(beeUrl(), hash, data)
     expect(response).toEqual(okResponse)
   })
