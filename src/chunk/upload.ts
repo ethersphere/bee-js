@@ -1,5 +1,5 @@
 import { BeeResponse, UploadOptions } from '../types'
-import { byteArrayToHex } from '../utils/hex'
+import { bytesToHex } from '../utils/hex'
 import { Chunk } from './soc'
 import * as chunkAPI from '../modules/chunk'
 
@@ -14,7 +14,7 @@ import * as chunkAPI from '../modules/chunk'
  */
 export function uploadChunk(url: string, chunk: Chunk, options?: UploadOptions): Promise<BeeResponse> {
   const address = chunk.address()
-  const hash = byteArrayToHex(address)
+  const hash = bytesToHex(address)
 
   return chunkAPI.upload(url, hash, chunk.data, options)
 }

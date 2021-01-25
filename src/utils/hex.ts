@@ -15,27 +15,19 @@ export function stripHexPrefix<T extends string>(hex: T): T {
 }
 
 /**
- * Converts a hex string to array of numbers
- *
- * @param hex string input
- */
-export function hexToByteArray(hex: HexString): number[] {
-  const hexWithoutPrefix = stripHexPrefix(hex)
-  const subStrings: string[] = []
-  for (let i = 0; i < hexWithoutPrefix.length; i += 2) {
-    subStrings.push(hexWithoutPrefix.substr(i, 2))
-  }
-
-  return subStrings.map(s => parseInt(s, 16))
-}
-
-/**
  * Converts a hex string to Uint8Array
  *
  * @param hex string input
  */
-export function hexToUint8Array(hex: HexString): Uint8Array {
-  return new Uint8Array(hexToByteArray(hex))
+export function hexToBytes(hex: HexString): Uint8Array {
+  const hexWithoutPrefix = stripHexPrefix(hex)
+  const bytes = new Uint8Array(hexWithoutPrefix.length / 2)
+  for (let i = 0; i < bytes.length; i++) {
+    const hexByte = hexWithoutPrefix.substr(i * 2, 2)
+    bytes[i] = parseInt(hexByte, 16)
+  }
+
+  return bytes
 }
 
 /**
@@ -43,16 +35,14 @@ export function hexToUint8Array(hex: HexString): Uint8Array {
  *
  * Optionally provides a the '0x' prefix.
  *
- * @param byteArray   The input array
+ * @param bytes       The input array
  * @param withPrefix  Provides '0x' prefix when true (default: false)
  */
-export function byteArrayToHex(byteArray: number[] | Uint8Array, withPrefix = false): HexString {
+export function bytesToHex(bytes: Uint8Array, withPrefix = false): HexString {
   const prefix = withPrefix ? '0x' : ''
-
-  return (prefix +
-    Array.from(byteArray, byte => {
-      return ('0' + (byte & 0xff).toString(16)).slice(-2)
-    }).join('')) as HexString
+  const hexByte = (n: number) => n.toString(16).padStart(2, '0')
+  const hex = Array.from(bytes, hexByte).join('')
+  return `${prefix}${hex}` as HexString
 }
 
 /**
