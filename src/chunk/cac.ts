@@ -84,4 +84,3 @@ export function verifyChunk(data: Uint8Array, chunkAddress: ChunkAddress): Chunk
   }
   throw new BeeError('verifyChunk')
 }
-

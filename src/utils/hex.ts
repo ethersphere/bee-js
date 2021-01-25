@@ -42,6 +42,7 @@ export function bytesToHex(bytes: Uint8Array, withPrefix = false): HexString {
   const prefix = withPrefix ? '0x' : ''
   const hexByte = (n: number) => n.toString(16).padStart(2, '0')
   const hex = Array.from(bytes, hexByte).join('')
+
   return `${prefix}${hex}` as HexString
 }
 
