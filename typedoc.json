@@ -1,0 +1,10 @@
+{
+  "entryPoints": ["./src/index.ts"],
+  "readme": "none",
+  "logLevel": "Verbose",
+  "externalPattern": "**node_modules**",
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "exclude": "**node_modules**",
+  "out": "docs"
+}

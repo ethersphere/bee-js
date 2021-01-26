@@ -1,4 +1,5 @@
 {
+  "include": ["src"],
   "compilerOptions": {
     "alwaysStrict": true,
     "target": "ES6",
@@ -9,10 +10,7 @@
     "strict": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  },
-  "exclude": [
-      "dist",
-      "node_modules"
-  ]
+    "emitDecoratorMetadata": true,
+    "typeRoots": ["./types"]
+  }
 }
