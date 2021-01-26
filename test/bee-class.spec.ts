@@ -1,6 +1,9 @@
 import Bee, { BeeDebug } from '../src'
+import { makeDefaultSigner } from '../src/chunk/signer'
 import { REFERENCE_LENGTH } from '../src/types'
-import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT } from './utils'
+import { verifyBytes } from '../src/utils/bytes'
+import { hexToBytes } from '../src/utils/hex'
+import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, testChunkPayload, testIdentity } from './utils'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
@@ -145,6 +148,22 @@ describe('Bee class', () => {
       const topic = 'bee-class-receive-timeout'
 
       await expect(bee.pssReceive(topic, 1)).rejects.toThrow('pssReceive timeout')
+    })
+  })
+
+  describe('soc', () => {
+    it('should read and write', async () => {
+      const privateKey = verifyBytes(32, hexToBytes(testIdentity.privateKey))
+      const signer = makeDefaultSigner(privateKey)
+      const socWriter = bee.makeSOCWriter(signer)
+      const identifier = verifyBytes(32, new Uint8Array(32))
+
+      const uploadResponse = await socWriter.upload(identifier, testChunkPayload)
+      expect(uploadResponse).toEqual(okResponse)
+
+      const soc = await socWriter.download(identifier)
+      const payload = soc.payload()
+      expect(payload).toEqual(testChunkPayload)
     })
   })
 })

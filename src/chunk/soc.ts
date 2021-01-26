@@ -5,7 +5,7 @@ import { keccak256Hash } from './hash'
 import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
 import { BeeError } from '../utils/error'
-import { BrandedType } from '../types'
+import { BeeResponse, BrandedType, UploadOptions } from '../types'
 import { Chunk, ChunkAddress, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, verifyChunk } from './cac'
 
 const IDENTIFIER_SIZE = 32
@@ -119,4 +119,12 @@ export async function makeSingleOwnerChunk(
   const address = keccak256Hash(identifier, signer.address)
 
   return makeSingleOwnerChunkFromData(data, address)
+}
+
+export interface SOCReader {
+  download: (identifier: Identifier) => Promise<SingleOwnerChunk>
+}
+
+export interface SOCWriter extends SOCReader {
+  upload: (Identifier: Identifier, data: Uint8Array, options?: UploadOptions) => Promise<BeeResponse>
 }

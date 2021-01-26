@@ -6,6 +6,7 @@ import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
 import * as connectivity from './modules/debug/connectivity'
+import * as chunk from './modules/chunk'
 import type {
   Tag,
   FileData,
@@ -19,6 +20,19 @@ import type {
   BeeResponse,
 } from './types'
 import { BeeError } from './utils/error'
+import { EthAddress } from './chunk/signer'
+import {
+  Identifier,
+  makeSingleOwnerChunk,
+  makeSOCAddress,
+  SOCReader,
+  SOCWriter,
+  verifySingleOwnerChunk,
+} from './chunk/soc'
+import { bytesToHex } from './utils/hex'
+import { Signer } from './chunk/signer'
+import { makeContentAddressedChunk } from './chunk/cac'
+import { uploadChunk } from './chunk/upload'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -126,6 +140,8 @@ export class Bee {
     options?: collection.CollectionUploadOptions,
   ): Promise<Reference> {
     const data = await collection.buildCollection(dir, recursive)
+
+    console.debug('uploadFilesFromDirectory', {data})
 
     return collection.upload(this.url, data, options)
   }
@@ -330,6 +346,33 @@ export class Bee {
         }, timeoutMsec) as unknown) as number
       }
     })
+  }
+
+  makeSOCReader(ownerAddress: EthAddress): SOCReader {
+    const download = async (identifier: Identifier) => {
+      const address = makeSOCAddress(identifier, ownerAddress)
+      const data = await chunk.download(this.url, bytesToHex(address))
+
+      return verifySingleOwnerChunk(data, address)
+    }
+
+    return {
+      download,
+    }
+  }
+
+  makeSOCWriter(signer: Signer): SOCWriter {
+    const upload = async (identifier: Identifier, data: Uint8Array, options?: UploadOptions) => {
+      const cac = makeContentAddressedChunk(data)
+      const soc = await makeSingleOwnerChunk(cac, identifier, signer)
+
+      return uploadChunk(this.url, soc, options)
+    }
+
+    return {
+      ...this.makeSOCReader(signer.address),
+      upload,
+    }
   }
 }
 
