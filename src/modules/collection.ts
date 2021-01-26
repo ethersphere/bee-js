@@ -149,7 +149,7 @@ export async function upload(
     throw new BeeArgumentError('invalid collection', data)
   }
 
-  const tarData = await makeTar(data)
+  const tarData = makeTar(data)
 
   const response = await safeAxios<{ reference: string }>({
     method: 'post',
