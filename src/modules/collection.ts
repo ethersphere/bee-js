@@ -155,8 +155,6 @@ export async function upload(
     method: 'post',
     url: `${url}${dirsEndpoint}`,
     data: tarData,
-    maxContentLength: Infinity,
-    maxBodyLength: Infinity,
     responseType: 'json',
     headers: {
       'content-type': 'application/x-tar',

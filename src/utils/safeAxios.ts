@@ -5,7 +5,11 @@ axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackover
 
 export async function safeAxios<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
   try {
-    const response = await axios(config)
+    const response = await axios({
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+      ...config,
+    })
 
     return response
   } catch (e) {

@@ -52,4 +52,11 @@ describe('modules/file', () => {
   it('should catch error', async () => {
     await expect(file.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
   })
+
+  it('should upload bigger file', async () => {
+    const data = new Uint8Array(32 * 1024 * 1024)
+    const response = await file.upload(BEE_URL, data)
+
+    expect(typeof response).toEqual('string')
+  })
 })
