@@ -68,6 +68,19 @@ describe('modules/collection', () => {
     expect(hash.length).toEqual(ENCRYPTED_REFERENCE_LENGTH)
   })
 
+  it('should upload bigger file', async () => {
+    const directoryStructure: Collection<Uint8Array> = [
+      {
+        path: '0',
+        data: new Uint8Array(32 * 1024 * 1024),
+      },
+    ]
+
+    const response = await collection.upload(BEE_URL, directoryStructure)
+
+    expect(typeof response).toEqual('string')
+  })
+
   it('should throw error when the upload url is not set', async () => {
     await expect(
       collection.upload((undefined as unknown) as string, (undefined as unknown) as []),
