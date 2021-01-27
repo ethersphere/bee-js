@@ -1,7 +1,7 @@
 {
   "name": "@ethswarm/bee-js",
   "version": "0.1.0",
-  "description": "Storage library for Bee",
+  "description": "Javascript client for Bee",
   "keywords": [
     "Bee",
     "Swarm",
