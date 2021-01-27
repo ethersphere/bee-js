@@ -60,7 +60,7 @@ Loading this module through a script tag will make the `Bee` object available in
 ```js
 import Bee from "@ethswarm/bee-js"; // Connect to a node const
 
-bee = new Bee("http://localhost:8080");
+bee = new Bee("http://localhost:1633");
 
 const fileHash = await bee.upload("Bee is awesome!");
 const retrievedData = await bee.download(fileHash);
