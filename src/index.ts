@@ -346,6 +346,11 @@ export class Bee {
     })
   }
 
+  /**
+   * Returns an object for reading single owner chunks
+   *
+   * @param ownerAddress The ethereum address of the owner
+   */
   makeSOCReader(ownerAddress: EthAddress): SOCReader {
     const download = async (identifier: Identifier) => {
       const address = makeSOCAddress(identifier, ownerAddress)
@@ -359,6 +364,11 @@ export class Bee {
     }
   }
 
+  /**
+   * Returns an object for reading and writing single owner chunks
+   *
+   * @param signer  The object for signing chunks
+   */
   makeSOCWriter(signer: Signer): SOCWriter {
     const upload = async (identifier: Identifier, data: Uint8Array, options?: UploadOptions) => {
       const cac = makeContentAddressedChunk(data)

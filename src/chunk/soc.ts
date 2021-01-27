@@ -121,10 +121,28 @@ export async function makeSingleOwnerChunk(
   return makeSingleOwnerChunkFromData(data, address)
 }
 
+/**
+ * Interface for downloading single owner chunks
+ */
 export interface SOCReader {
+  /**
+   * Downloads a single owner chunk
+   *
+   * @param identifier  The identifier of the chunk
+   */
   download: (identifier: Identifier) => Promise<SingleOwnerChunk>
 }
 
+/**
+ * Interface for downloading and uploading single owner chunks
+ */
 export interface SOCWriter extends SOCReader {
+  /**
+   * Uploads a single owner chunk
+   *
+   * @param identifier  The identifier of the chunk
+   * @param data        The chunk payload data
+   * @param options     Upload options
+   */
   upload: (Identifier: Identifier, data: Uint8Array, options?: UploadOptions) => Promise<BeeResponse>
 }
