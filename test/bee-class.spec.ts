@@ -1,4 +1,5 @@
 import Bee, { BeeDebug } from '../src'
+import { REFERENCE_LENGTH } from '../src/types'
 import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT } from './utils'
 
 describe('Bee class', () => {
@@ -16,6 +17,14 @@ describe('Bee class', () => {
 
       expect(file.name).toEqual(name)
       expect(file.data).toEqual(content)
+    })
+  })
+
+  describe('collections', () => {
+    it('should work with directory with unicode filenames', async () => {
+      const hash = await bee.uploadFilesFromDirectory('./test/data')
+
+      expect(hash.length).toEqual(REFERENCE_LENGTH)
     })
   })
 
