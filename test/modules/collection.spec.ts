@@ -79,7 +79,7 @@ describe('modules/collection', () => {
     const response = await collection.upload(BEE_URL, directoryStructure)
 
     expect(typeof response).toEqual('string')
-  })
+  }, 10000)
 
   it('should throw error when the upload url is not set', async () => {
     await expect(

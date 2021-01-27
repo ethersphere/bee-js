@@ -58,5 +58,5 @@ describe('modules/file', () => {
     const response = await file.upload(BEE_URL, data)
 
     expect(typeof response).toEqual('string')
-  })
+  }, 10000)
 })
