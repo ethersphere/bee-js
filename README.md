@@ -62,8 +62,8 @@ import Bee from "@ethersphere/bee-js"; // Connect to a node const
 
 bee = new Bee("http://localhost:1633");
 
-const fileHash = await bee.upload("Bee is awesome!");
-const retrievedData = await bee.download(fileHash);
+const fileHash = await bee.uploadData("Bee is awesome!");
+const retrievedData = await bee.downloadData(fileHash);
 
 console.log(retrievedData.toString()); // prints 'Bee is awesome!'
 ```
