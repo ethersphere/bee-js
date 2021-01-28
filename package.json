@@ -24,7 +24,7 @@
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "prepare": "rm -rf dist && npm run compile:types && npm run compile:browser && npm run compile:node",
+    "prepare": "rimraf dist && npm run compile:types && npm run compile:browser && npm run compile:node",
     "compile:node": "webpack --progress --mode development --env target=node",
     "compile:types": "tsc --project tsconfig.d.json",
     "compile:browser": "webpack --progress --mode development --env target=web",
@@ -80,6 +80,7 @@
     "jest-puppeteer": "^4.4.0",
     "prettier": "^2.1.2",
     "puppeteer": "^5.5.0",
+    "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^5.0.3",
     "ts-node": "^9.0.0",
     "typedoc": "^0.19.2",
