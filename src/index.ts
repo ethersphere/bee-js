@@ -19,6 +19,7 @@ import type {
   BeeResponse,
 } from './types'
 import { BeeError } from './utils/error'
+import { prepareWebsocketData } from './utils/data'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -270,7 +271,7 @@ export class Bee {
     }
 
     ws.onmessage = ev => {
-      const data = new Uint8Array(Buffer.from(ev.data))
+      const data = prepareWebsocketData(ev.data)
 
       // ignore empty messages
       if (data.length > 0) {
