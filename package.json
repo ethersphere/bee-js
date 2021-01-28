@@ -39,7 +39,6 @@
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
     "tar-js": "^0.3.0",
-    "utf8-encoder": "^1.0.1",
     "ws": "^7.4.1"
   },
   "devDependencies": {
