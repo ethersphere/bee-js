@@ -52,8 +52,6 @@ var Bee = require("@ethersphere/bee-js");
 Loading this module through a script tag will make the `Bee` object available in the global namespace.
 
 ```html
-<script src="https://unpkg.com/@ethersphere/bee-js/dist/index.min.js"></script>
-<!-- OR -->
 <script src="https://unpkg.com/@ethersphere/bee-js/dist/index.js"></script>
 ```
 
@@ -62,17 +60,23 @@ Loading this module through a script tag will make the `Bee` object available in
 ```js
 import Bee from "@ethersphere/bee-js"; // Connect to a node const
 
-bee = new Bee("http://localhost:8080");
+bee = new Bee("http://localhost:1633");
 
-const fileHash = await bee.upload("Bee is awesome!");
-const retrievedData = await bee.download(fileHash);
+const fileHash = await bee.uploadData("Bee is awesome!");
+const retrievedData = await bee.downloadData(fileHash);
 
 console.log(retrievedData.toString()); // prints 'Bee is awesome!'
 ```
 
 ## Api
 
-[See full API documentation here](./docs/README.md)
+The API documentation is not yet hosted anywhere, but you can generate JSdocs with:
+
+```sh
+npm run docs
+```
+
+The generated docs can be viewed in browser by opening `./docs/index.html`
 
 ## Contribute
 
