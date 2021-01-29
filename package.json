@@ -29,7 +29,7 @@
     "compile:types": "tsc --project tsconfig.d.json",
     "compile:browser": "webpack --progress --mode development --env target=web",
     "compile:window": "webpack --progress --mode development --env target=web --env globalWindow=true",
-    "docs": "rm -rf docs && typedoc",
+    "docs": "rimraf docs && typedoc",
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "npm run compile:window && jest --config=jest.config.ts --selectProjects=dom",
     "test:node": "jest --config=jest.config.ts --selectProjects=node",

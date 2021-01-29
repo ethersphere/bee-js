@@ -12,5 +12,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "typeRoots": ["./types"]
-  }
+  },
+  "exclude": ["dist", "node_modules"]
 }
