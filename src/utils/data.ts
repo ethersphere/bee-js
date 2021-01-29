@@ -17,6 +17,6 @@ export function prepareWebsocketData(data: Data): Uint8Array {
   } else if (data instanceof ArrayBuffer) {
     return new Uint8Array(data)
   } else {
-    return new Uint8Array(Buffer.from(data))
+    return new Uint8Array(Buffer.concat(data))
   }
 }
