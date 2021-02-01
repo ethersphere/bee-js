@@ -22,3 +22,6 @@ dist
 
 # Dependency directory
 node_modules
+
+# Generated files
+docs

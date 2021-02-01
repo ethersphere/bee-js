@@ -53,3 +53,9 @@ jobs:
       - name: Build browser
         run: npm run compile:browser
 
+      - name: Build typings
+        run: npm run compile:types
+
+      - name: Build docs
+        run: npm run docs
+

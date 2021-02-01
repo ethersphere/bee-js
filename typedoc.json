@@ -1,0 +1,7 @@
+{
+  "entryPoints": ["./src/index.ts"],
+  "readme": "none",
+  "logLevel": "Verbose",
+  "excludePrivate": true,
+  "out": "docs"
+}
