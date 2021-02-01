@@ -24,7 +24,7 @@ describe('Bee class', () => {
       const name = 'hello.txt'
       const type = 'text/plain'
       const file = ({
-        stream: () => content,
+        arrayBuffer: () => content,
         name,
         type,
       } as unknown) as File
@@ -41,7 +41,7 @@ describe('Bee class', () => {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
       const file = ({
-        stream: () => content,
+        arrayBuffer: () => content,
         name,
       } as unknown) as File
       const nameOverride = 'hello-override.txt'
@@ -58,7 +58,7 @@ describe('Bee class', () => {
       const name = 'hello.txt'
       const type = 'text/plain'
       const file = ({
-        stream: () => content,
+        arrayBuffer: () => content,
         name,
         type,
       } as unknown) as File

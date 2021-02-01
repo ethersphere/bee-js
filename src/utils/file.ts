@@ -20,14 +20,12 @@ export function isFile(file: unknown): file is File {
   )
 }
 
-export function fileReadableStreamOrArrayBuffer(file: File): ReadableStream | Promise<ArrayBuffer> {
-  if (file.stream) {
-    return file.stream()
-  }
-
-  return fileArrayBuffer(file)
-}
-
+/**
+ * Compatibility helper for browsers where the `arrayBuffer function is
+ * missing from `File` objects.
+ *
+ * @param file A File object
+ */
 export function fileArrayBuffer(file: File): Promise<ArrayBuffer> {
   if (file.arrayBuffer) {
     return file.arrayBuffer()

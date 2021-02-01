@@ -35,7 +35,7 @@ function extractFileUploadHeaders(options?: FileUploadOptions): FileUploadHeader
  */
 export async function upload(
   url: string,
-  data: string | Uint8Array | Readable | ArrayBuffer | ReadableStream,
+  data: string | Uint8Array | Readable | ArrayBuffer,
   name?: string,
   options?: FileUploadOptions,
 ): Promise<string> {

@@ -1,9 +1,7 @@
 import type { Readable } from 'stream'
 import type { Data } from 'ws'
 
-export function prepareData(
-  data: string | ArrayBuffer | Uint8Array | Readable | ReadableStream,
-): Uint8Array | Readable | ReadableStream {
+export function prepareData(data: string | ArrayBuffer | Uint8Array | Readable): Uint8Array | Readable {
   if (typeof data === 'string') {
     return new TextEncoder().encode(data)
   } else if (data instanceof ArrayBuffer) {

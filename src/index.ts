@@ -20,7 +20,7 @@ import type {
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
-import { fileArrayBuffer, fileReadableStreamOrArrayBuffer, isFile } from './utils/file'
+import { fileArrayBuffer, isFile } from './utils/file'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -75,7 +75,6 @@ export class Bee {
     options?: file.FileUploadOptions,
   ): Promise<Reference> {
     if (isFile(data)) {
-      // TODO why ReadableStream is not working?
       const fileData = await fileArrayBuffer(data)
       const fileName = name !== undefined ? name : data.name
       const contentType = data.type
