@@ -7,6 +7,7 @@ import { makeTar } from '../utils/tar'
 import { safeAxios } from '../utils/safeAxios'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { BeeArgumentError } from '../utils/error'
+import { fileArrayBuffer } from '../utils/file'
 
 const dirsEndpoint = '/dirs'
 const bzzEndpoint = '/bzz'
@@ -78,19 +79,6 @@ async function buildCollectionRelative(
   }
 
   return collection
-}
-
-function fileArrayBuffer(file: File): Promise<ArrayBuffer> {
-  if (file.arrayBuffer) {
-    return file.arrayBuffer()
-  }
-
-  // workaround for Safari where arrayBuffer is not supported on Files
-  return new Promise(resolve => {
-    const fr = new FileReader()
-    fr.onload = () => resolve(fr.result as ArrayBuffer)
-    fr.readAsArrayBuffer(file)
-  })
 }
 
 /*

@@ -20,6 +20,7 @@ import type {
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
+import { fileArrayBuffer, fileReadableStreamOrArrayBuffer, isFile } from './utils/file'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -62,18 +63,28 @@ export class Bee {
   /**
    * Upload single file to a Bee node
    *
-   * @param data    Data to be uploaded
-   * @param name    Name of the uploaded file
+   * @param data    Data or file to be uploaded
+   * @param name    Name of the uploaded file (optional)
    * @param options Aditional options like tag, encryption, pinning, content-type
    *
    * @returns reference is a content hash of the file
    */
-  uploadFile(
-    data: string | Uint8Array | Readable,
+  async uploadFile(
+    data: string | Uint8Array | Readable | File,
     name?: string,
     options?: file.FileUploadOptions,
   ): Promise<Reference> {
-    return file.upload(this.url, data, name, options)
+    if (isFile(data)) {
+      // TODO why ReadableStream is not working?
+      const fileData = await fileArrayBuffer(data)
+      const fileName = name !== undefined ? name : data.name
+      const contentType = data.type
+      const fileOptions = options !== undefined ? { contentType, ...options } : { contentType }
+
+      return file.upload(this.url, fileData, fileName, fileOptions)
+    } else {
+      return file.upload(this.url, data, name, options)
+    }
   }
 
   /**

@@ -18,6 +18,58 @@ describe('Bee class', () => {
       expect(file.name).toEqual(name)
       expect(file.data).toEqual(content)
     })
+
+    it('should work with file object', async () => {
+      const content = new Uint8Array([1, 2, 3])
+      const name = 'hello.txt'
+      const type = 'text/plain'
+      const file = ({
+        stream: () => content,
+        name,
+        type,
+      } as unknown) as File
+
+      const hash = await bee.uploadFile(file)
+      const downloadedFile = await bee.downloadFile(hash)
+
+      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.name).toEqual(name)
+      expect(downloadedFile.contentType).toEqual(type)
+    })
+
+    it('should work with file object and name overridden', async () => {
+      const content = new Uint8Array([1, 2, 3])
+      const name = 'hello.txt'
+      const file = ({
+        stream: () => content,
+        name,
+      } as unknown) as File
+      const nameOverride = 'hello-override.txt'
+
+      const hash = await bee.uploadFile(file, nameOverride)
+      const downloadedFile = await bee.downloadFile(hash)
+
+      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.name).toEqual(nameOverride)
+    })
+
+    it('should work with file object and content-type overridden', async () => {
+      const content = new Uint8Array([1, 2, 3])
+      const name = 'hello.txt'
+      const type = 'text/plain'
+      const file = ({
+        stream: () => content,
+        name,
+        type,
+      } as unknown) as File
+      const contentTypeOverride = 'text/plain+override'
+
+      const hash = await bee.uploadFile(file, undefined, { contentType: contentTypeOverride })
+      const downloadedFile = await bee.downloadFile(hash)
+
+      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.contentType).toEqual(contentTypeOverride)
+    })
   })
 
   describe('collections', () => {

@@ -35,14 +35,14 @@ function extractFileUploadHeaders(options?: FileUploadOptions): FileUploadHeader
  */
 export async function upload(
   url: string,
-  data: string | Uint8Array | Readable,
+  data: string | Uint8Array | Readable | ArrayBuffer | ReadableStream,
   name?: string,
   options?: FileUploadOptions,
 ): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
     method: 'post',
     url: url + endpoint,
-    data: await prepareData(data),
+    data: prepareData(data),
     headers: {
       'content-type': 'application/octet-stream',
       ...extractFileUploadHeaders(options),
