@@ -76,7 +76,7 @@ export class Bee {
   ): Promise<Reference> {
     if (isFile(data)) {
       const fileData = await fileArrayBuffer(data)
-      const fileName = name !== undefined ? name : data.name
+      const fileName = name || data.name
       const contentType = data.type
       const fileOptions = options !== undefined ? { contentType, ...options } : { contentType }
 
