@@ -1,4 +1,4 @@
-import { safeAxios } from "../../utils/safeAxios"
+import { safeAxios } from '../../utils/safeAxios'
 
 const balancesEndpoint = '/balances'
 const consumedEndpoint = '/consumed'
