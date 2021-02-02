@@ -2,7 +2,7 @@ import { safeAxios } from '../../utils/safeAxios'
 
 const chequebookEndpoint = '/chequebook'
 
-interface CheuqebookAddressResponse {
+interface ChequebookAddressResponse {
   chequebookaddress: string
 }
 
@@ -11,8 +11,8 @@ interface CheuqebookAddressResponse {
  *
  * @param url Bee debug url
  */
-export async function getChequebookAddress(url: string): Promise<CheuqebookAddressResponse> {
-  const response = await safeAxios<CheuqebookAddressResponse>({
+export async function getChequebookAddress(url: string): Promise<ChequebookAddressResponse> {
+  const response = await safeAxios<ChequebookAddressResponse>({
     url: url + chequebookEndpoint + '/address',
     responseType: 'json',
   })
