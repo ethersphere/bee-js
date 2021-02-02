@@ -6,6 +6,10 @@ describe('chequebook', () => {
   test('address', async () => {
     const response = await getChequebookAddress(beeDebugUrl())
 
+    /* eslint-disable no-console */
+    console.debug({ response })
+    /* eslint-enable no-console */
+
     expect(isHexString(response.address)).toBeTruthy()
   })
 
