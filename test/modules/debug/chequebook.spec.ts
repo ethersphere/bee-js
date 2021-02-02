@@ -10,7 +10,7 @@ describe('chequebook', () => {
     console.debug({ response })
     /* eslint-enable no-console */
 
-    expect(isHexString(response.address)).toBeTruthy()
+    expect(isHexString(response.checkbookaddress)).toBeTruthy()
   })
 
   test('balance', async () => {
