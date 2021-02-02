@@ -1,6 +1,6 @@
-import { getChequebookAddress, getChequeubookBalance } from "../../../src/modules/debug/chequebook"
-import { isHexString } from "../../../src/utils/hex"
-import { beeDebugUrl } from "../../utils"
+import { getChequebookAddress, getChequeubookBalance } from '../../../src/modules/debug/chequebook'
+import { isHexString } from '../../../src/utils/hex'
+import { beeDebugUrl } from '../../utils'
 
 describe('chequebook', () => {
   test('address', async () => {

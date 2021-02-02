@@ -1,4 +1,4 @@
-import { safeAxios } from "../../utils/safeAxios"
+import { safeAxios } from '../../utils/safeAxios'
 
 const chequebookEndpoint = '/chequebook'
 
