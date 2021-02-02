@@ -1,7 +1,6 @@
 import { Readable } from 'stream'
 import type { BeeResponse } from '../src/types'
 import { HexString } from '../src/utils/hex'
-import * as connectivity from '../src/modules/debug/connectivity'
 
 /**
  * Sleep for N miliseconds
@@ -103,10 +102,4 @@ export const testIdentity = {
   privateKey: '0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' as HexString,
   publicKey: '0x03c32bb011339667a487b6c1c35061f15f7edc36aa9a0f8648aba07a4b8bd741b4' as HexString,
   address: '0x8d3766440f0d7b949a5e32995d09619a7f86e632' as HexString,
-}
-
-export async function getPeerOverlay() {
-  const nodeAddresses = await connectivity.getNodeAddresses(beeDebugUrl(beePeerUrl()))
-
-  return nodeAddresses.overlay
 }

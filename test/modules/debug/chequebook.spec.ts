@@ -1,4 +1,10 @@
-import { depositTokens, getChequebookAddress, getChequeubookBalance, getLastCheques, withdrawTokens } from '../../../src/modules/debug/chequebook'
+import {
+  depositTokens,
+  getChequebookAddress,
+  getChequeubookBalance,
+  getLastCheques,
+  withdrawTokens,
+} from '../../../src/modules/debug/chequebook'
 import { isHexString } from '../../../src/utils/hex'
 import { beeChequebookUrl, sleep } from '../../utils'
 
@@ -21,17 +27,21 @@ if (url) {
 
     const TRANSACTION_TIMEOUT = 20 * 1000
 
-    test('withdraw and deposit', async () => {
-      const withdrawResponse = await withdrawTokens(url, 10)
-      expect(typeof withdrawResponse.transactionHash).toBe('string')
+    test(
+      'withdraw and deposit',
+      async () => {
+        const withdrawResponse = await withdrawTokens(url, 10)
+        expect(typeof withdrawResponse.transactionHash).toBe('string')
 
-      // TODO avoid sleep in tests
-      await sleep(TRANSACTION_TIMEOUT)
+        // TODO avoid sleep in tests
+        await sleep(TRANSACTION_TIMEOUT)
 
-      const depositResponse = await depositTokens(url, 10)
+        const depositResponse = await depositTokens(url, 10)
 
-      expect(typeof depositResponse.transactionHash).toBe('string')
-    }, 2 * TRANSACTION_TIMEOUT)
+        expect(typeof depositResponse.transactionHash).toBe('string')
+      },
+      2 * TRANSACTION_TIMEOUT,
+    )
 
     test('get last cheques for all peers', async () => {
       const response = await getLastCheques(url)
@@ -40,5 +50,5 @@ if (url) {
     })
   })
 } else {
-  test('swap disabled chequebook', () => {})
+  test('swap disabled chequebook')
 }
