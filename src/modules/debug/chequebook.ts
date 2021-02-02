@@ -3,7 +3,7 @@ import { safeAxios } from '../../utils/safeAxios'
 const chequebookEndpoint = '/chequebook'
 
 interface CheuqebookAddressResponse {
-  checkbookaddress: string
+  chequebookaddress: string
 }
 
 /**
