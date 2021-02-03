@@ -7,17 +7,19 @@ describe('settlements', () => {
 
     expect(typeof response.totalreceived).toBe('number')
     expect(typeof response.totalsent).toBe('number')
-    expect(response.settlements).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          peer: expect.any(String),
-          received: expect.any(Number),
-          sent: expect.any(Number),
-        }),
-      ]),
-    )
+    expect(Array.isArray(response.settlements)).toBeTruthy()
 
     if (response.settlements.length > 0) {
+      expect(response.settlements).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            peer: expect.any(String),
+            received: expect.any(Number),
+            sent: expect.any(Number),
+          }),
+        ]),
+      )
+
       const peerSettlement = response.settlements[0]
 
       const peerSettlementResponse = await settlements.getSettlements(beeDebugUrl(), peerSettlement.peer)
