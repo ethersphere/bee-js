@@ -3,6 +3,7 @@ import { safeAxios } from '../../utils/safeAxios'
 const chequebookEndpoint = '/chequebook'
 
 interface ChequebookAddressResponse {
+  // see this issue regarding the naming https://github.com/ethersphere/bee/issues/1078
   chequebookaddress: string
 }
 

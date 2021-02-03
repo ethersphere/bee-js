@@ -34,6 +34,7 @@ if (url) {
         expect(typeof withdrawResponse.transactionHash).toBe('string')
 
         // TODO avoid sleep in tests
+        // See https://github.com/ethersphere/bee/issues/1191
         await sleep(TRANSACTION_TIMEOUT)
 
         const depositResponse = await depositTokens(url, 10)
@@ -50,5 +51,12 @@ if (url) {
     })
   })
 } else {
-  test('swap disabled chequebook')
+  test('swap disabled chequebook', () => {
+    // eslint-disable-next-line no-console
+    console.log(`
+      Chequebook tests are disabled because BEE_CHEQUEBOOK_URL is not set.
+      If you want to test chequebook functionality set the environment
+      variable to point to a Bee node with swap-enable.
+    `)
+  })
 }
