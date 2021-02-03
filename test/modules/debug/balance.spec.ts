@@ -14,6 +14,16 @@ describe('balance', () => {
     test('Get the balances with all known peers including prepaid services', async () => {
       const peerOverlay = await getPeerOverlay()
       const response = await balance.getAllBalances(beeDebugUrl())
+
+      expect(response.balances).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            peer: expect.any(String),
+            balance: expect.any(Number),
+          })
+        ])
+      )
+
       const peerBalances = response.balances.map(peerBalance => peerBalance.peer)
 
       expect(peerBalances.includes(peerOverlay)).toBeTruthy()
@@ -24,6 +34,7 @@ describe('balance', () => {
       const peerBalance = await balance.getPeerBalance(beeDebugUrl(), peerOverlay)
 
       expect(peerBalance.peer).toEqual(peerOverlay)
+      expect(typeof peerBalance.balance).toBe('number')
     })
   })
 
@@ -31,6 +42,16 @@ describe('balance', () => {
     test('Get the past due consumption balances with all known peers', async () => {
       const peerOverlay = await getPeerOverlay()
       const response = await balance.getPastDueConsumptionBalances(beeDebugUrl())
+
+      expect(response.balances).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            peer: expect.any(String),
+            balance: expect.any(Number),
+          })
+        ])
+      )
+
       const peerBalances = response.balances.map(peerBalance => peerBalance.peer)
 
       expect(peerBalances.includes(peerOverlay)).toBeTruthy()
@@ -41,6 +62,7 @@ describe('balance', () => {
       const peerBalance = await balance.getPastDueConsumptionPeerBalance(beeDebugUrl(), peerOverlay)
 
       expect(peerBalance.peer).toEqual(peerOverlay)
+      expect(typeof peerBalance.balance).toBe('number')
     })
   })
 })
