@@ -64,6 +64,10 @@ export function beePeerUrl(): string {
   return process.env.BEE_PEER_URL || 'http://bee-1.localhost'
 }
 
+export function beeChequebookUrl(): string {
+  return process.env.BEE_CHEQUEBOOK_URL || ''
+}
+
 /**
  * Returns a url for testing the Bee Debug API
  */

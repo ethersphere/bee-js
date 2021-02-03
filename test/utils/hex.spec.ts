@@ -41,6 +41,12 @@ describe('hex', () => {
 
       expect(result).toBeFalsy()
     })
+    test('chequebookaddress', () => {
+      const input = '0x20d7855b548C71b69dA434D46187C336BDcef00F'
+      const result = isHexString(input)
+
+      expect(result).toBeTruthy()
+    })
   })
 
   const testBytes = new Uint8Array([
