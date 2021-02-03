@@ -40,13 +40,13 @@ export async function getChequeubookBalance(url: string): Promise<ChequebookBala
   return response.data
 }
 
-interface CashoutResult {
+export interface CashoutResult {
   recipient: string
   lastPayout: number
   bounced: boolean
 }
 
-interface LastCashoutActionResponse {
+export interface LastCashoutActionResponse {
   peer: string
   chequebook: string
   cumulativePayout: number
@@ -70,7 +70,7 @@ export async function getLastCashoutAction(url: string, peer: string): Promise<L
   return response.data
 }
 
-interface CashoutResponse {
+export interface CashoutResponse {
   transactionHash: string
 }
 
@@ -90,13 +90,13 @@ export async function cashoutLastCheque(url: string, peer: string): Promise<Cash
   return response.data
 }
 
-interface Cheque {
+export interface Cheque {
   beneficiary: string
   chequebook: string
   payout: number
 }
 
-interface LastChequesForPeerResponse {
+export interface LastChequesForPeerResponse {
   peer: string
   lastreceived: Cheque
   lastsent: Cheque
@@ -117,7 +117,7 @@ export async function getLastChequesForPeer(url: string, peer: string): Promise<
   return response.data
 }
 
-interface LastChequesResponse {
+export interface LastChequesResponse {
   lastcheques: LastChequesForPeerResponse[]
 }
 
@@ -135,7 +135,7 @@ export async function getLastCheques(url: string): Promise<LastChequesResponse> 
   return response.data
 }
 
-interface DepositTokensResponse {
+export interface DepositTokensResponse {
   transactionHash: string
 }
 
@@ -156,7 +156,7 @@ export async function depositTokens(url: string, amount: number): Promise<Deposi
   return response.data
 }
 
-interface WithdrawTokensResponse {
+export interface WithdrawTokensResponse {
   transactionHash: string
 }
 
