@@ -20,8 +20,8 @@ describe('balance', () => {
           expect.objectContaining({
             peer: expect.any(String),
             balance: expect.any(Number),
-          })
-        ])
+          }),
+        ]),
       )
 
       const peerBalances = response.balances.map(peerBalance => peerBalance.peer)
@@ -48,8 +48,8 @@ describe('balance', () => {
           expect.objectContaining({
             peer: expect.any(String),
             balance: expect.any(Number),
-          })
-        ])
+          }),
+        ]),
       )
 
       const peerBalances = response.balances.map(peerBalance => peerBalance.peer)
