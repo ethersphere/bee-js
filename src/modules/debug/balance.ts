@@ -3,12 +3,12 @@ import { safeAxios } from '../../utils/safeAxios'
 const balancesEndpoint = '/balances'
 const consumedEndpoint = '/consumed'
 
-interface PeerBalance {
+export interface PeerBalance {
   peer: string
   balance: number
 }
 
-interface BalanceResponse {
+export interface BalanceResponse {
   balances: PeerBalance[]
 }
 

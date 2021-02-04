@@ -2,7 +2,7 @@ import { safeAxios } from '../../utils/safeAxios'
 
 const chequebookEndpoint = '/chequebook'
 
-interface ChequebookAddressResponse {
+export interface ChequebookAddressResponse {
   // see this issue regarding the naming https://github.com/ethersphere/bee/issues/1078
   chequebookaddress: string
 }
@@ -21,7 +21,7 @@ export async function getChequebookAddress(url: string): Promise<ChequebookAddre
   return response.data
 }
 
-interface ChequebookBalanceResponse {
+export interface ChequebookBalanceResponse {
   totalBalance: number
   availableBalance: number
 }
