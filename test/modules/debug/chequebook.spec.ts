@@ -6,20 +6,18 @@ import {
   withdrawTokens,
 } from '../../../src/modules/debug/chequebook'
 import { isHexString } from '../../../src/utils/hex'
-import { beeChequebookUrl, sleep } from '../../utils'
+import { beeDebugUrl, sleep } from '../../utils'
 
-const url = beeChequebookUrl()
-
-if (url) {
+if (process.env.BEE_TEST_CHEQUEBOOK) {
   describe('swap enabled chequebook', () => {
     test('address', async () => {
-      const response = await getChequebookAddress(url)
+      const response = await getChequebookAddress(beeDebugUrl())
 
       expect(isHexString(response.chequebookaddress)).toBeTruthy()
     })
 
     test('balance', async () => {
-      const response = await getChequeubookBalance(url)
+      const response = await getChequeubookBalance(beeDebugUrl())
 
       expect(typeof response.availableBalance).toBe('number')
       expect(typeof response.totalBalance).toBe('number')
@@ -30,14 +28,14 @@ if (url) {
     test(
       'withdraw and deposit',
       async () => {
-        const withdrawResponse = await withdrawTokens(url, 10)
+        const withdrawResponse = await withdrawTokens(beeDebugUrl(), 10)
         expect(typeof withdrawResponse.transactionHash).toBe('string')
 
         // TODO avoid sleep in tests
         // See https://github.com/ethersphere/bee/issues/1191
         await sleep(TRANSACTION_TIMEOUT)
 
-        const depositResponse = await depositTokens(url, 10)
+        const depositResponse = await depositTokens(beeDebugUrl(), 10)
 
         expect(typeof depositResponse.transactionHash).toBe('string')
       },
@@ -45,7 +43,7 @@ if (url) {
     )
 
     test('get last cheques for all peers', async () => {
-      const response = await getLastCheques(url)
+      const response = await getLastCheques(beeDebugUrl())
 
       expect(Array.isArray(response.lastcheques)).toBeTruthy()
     })
@@ -54,9 +52,7 @@ if (url) {
   test('swap disabled chequebook', () => {
     // eslint-disable-next-line no-console
     console.log(`
-      Chequebook tests are disabled because BEE_CHEQUEBOOK_URL is not set.
-      If you want to test chequebook functionality set the environment
-      variable to point to a Bee node with swap-enable.
+      Chequebook tests are disabled because BEE_TEST_CHEQUEBOOK environment variable is not set.
     `)
   })
 }
