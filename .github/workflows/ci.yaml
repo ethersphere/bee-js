@@ -13,7 +13,7 @@ jobs:
     env:
       REPLICA: 5
       BEE_URL: 'http://bee-0.localhost'
-      BEE_TEST_CHEQUEBOOK: 'test'
+      BEE_TEST_CHEQUEBOOK: true
 
     runs-on: ubuntu-latest
 
