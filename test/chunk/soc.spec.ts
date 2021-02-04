@@ -36,10 +36,10 @@ describe('soc', () => {
   test('upload content address chunk', async () => {
     const cac = makeContentAddressedChunk(payload)
     const address = cac.address()
-    const hash = bytesToHex(address)
-    const response = await chunkAPI.upload(beeUrl(), hash, cac.data)
+    const reference = bytesToHex(address)
+    const response = await chunkAPI.upload(beeUrl(), reference, cac.data)
 
-    expect(response).toEqual(okResponse)
+    expect(response).toEqual({ reference })
   })
 
   test('download content address chunk', async () => {
@@ -59,7 +59,7 @@ describe('soc', () => {
 
     const response = await uploadChunk(beeUrl(), soc)
 
-    expect(response).toEqual(okResponse)
+    expect(response).toEqual({ reference: socAddress })
   })
 
   test('download single owner chunk', async () => {

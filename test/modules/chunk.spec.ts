@@ -10,16 +10,16 @@ describe('modules/chunk', () => {
     const span = new Uint8Array([payload.length, 0, 0, 0, 0, 0, 0, 0])
     const data = new Uint8Array([...span, ...payload])
     // the hash is hardcoded because we would need the bmt hasher otherwise
-    const hash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
+    const reference = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
 
-    const response = await chunk.upload(BEE_URL, hash, data)
-    expect(response).toEqual(okResponse)
+    const response = await chunk.upload(BEE_URL, reference, data)
+    expect(response).toEqual({ reference })
 
-    const downloadedData = await chunk.download(BEE_URL, hash)
+    const downloadedData = await chunk.download(BEE_URL, reference)
     expect(downloadedData).toEqual(data)
   })
 
   it('should catch error', async () => {
-    await expect(chunk.download(BEE_URL, invalidReference)).rejects.toThrow('Internal Server Error')
+    await expect(chunk.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
   })
 })

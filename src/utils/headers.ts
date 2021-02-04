@@ -54,7 +54,7 @@ export function extractUploadHeaders(options?: UploadOptions): UploadHeaders {
 
   if (options?.encrypt) headers['swarm-encrypt'] = String(options.encrypt)
 
-  if (options?.tag) headers['swarm-tag-uid'] = String(options.tag)
+  if (options?.tag) headers['swarm-tag'] = String(options.tag)
 
   return headers
 }
