@@ -32,7 +32,7 @@
 ### npm
 
 ```sh
-> npm install @ethersphere/bee-js
+> npm install --save @ethersphere/bee-js
 ```
 
 ### Use in Node.js
@@ -49,7 +49,7 @@ var BeeJs = require("@ethersphere/bee-js");
 
 ### Use in a browser Using a script tag
 
-Loading this module through a script tag will make the `Bee` object available in the global namespace.
+Loading this module through a script tag will make the `BeeJs` object available in the global namespace.
 
 ```html
 <script src="https://unpkg.com/@ethersphere/bee-js/dist/index.min.js"></script>
