@@ -68,9 +68,11 @@ const retrievedData = await bee.downloadData(fileHash);
 console.log(retrievedData.toString()); // prints 'Bee is awesome!'
 ```
 
-## Api
+## Documentation
 
-The API documentation is not yet hosted anywhere, but you can generate JSdocs with:
+You can find the full documentation [here](https://bee-js.ethswarm.org/docs). The API reference documentation can be found [here](https://bee-js.ethswarm.org/docs/api-reference).
+
+You can generate API docs locally with:
 
 ```sh
 npm run docs
