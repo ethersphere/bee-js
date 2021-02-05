@@ -32,7 +32,7 @@
 ### npm
 
 ```sh
-> npm install --save @ethersphere/bee-js
+> npm install @ethersphere/bee-js --save
 ```
 
 ### Use in Node.js
