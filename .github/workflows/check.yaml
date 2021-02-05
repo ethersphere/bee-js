@@ -48,14 +48,13 @@ jobs:
           CI: true
 
       - name: Build nodejs
-        run: npm run compile:node
+        run: npm run compile:node -- --env mode=production
 
       - name: Build browser
-        run: npm run compile:browser
+        run: npm run compile:browser -- --env mode=production
 
       - name: Build typings
         run: npm run compile:types
 
       - name: Build docs
         run: npm run docs
-
