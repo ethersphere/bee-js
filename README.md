@@ -70,7 +70,7 @@ console.log(retrievedData.toString()); // prints 'Bee is awesome!'
 
 ## Documentation
 
-You can find the full documentation [here](https://bee-js.ethswarm.org/). The API reference documentation can be found [here](https://bee-js.ethswarm.org/docs/api-reference).
+You can find the full documentation [here](https://bee-js.ethswarm.org/docs). The API reference documentation can be found [here](https://bee-js.ethswarm.org/docs/api-reference).
 
 You can generate API docs locally with:
 
