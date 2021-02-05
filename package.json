@@ -12,13 +12,13 @@
     "url": "https://github.com/ethersphere/bee-js/issues/"
   },
   "license": "BSD-3-Clause",
-  "main": "dist/index.js",
+  "main": "dist/index.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ethersphere/bee-js.git"
   },
   "browser": {
-    "./dist/index.js": "./dist/index.browser.js",
+    "./dist/index.min.js": "./dist/index.browser.min.js",
     "stream": "readable-stream"
   },
   "types": "dist/index.d.ts",
