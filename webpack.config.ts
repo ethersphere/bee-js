@@ -18,15 +18,11 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
   const isProduction = env?.mode === 'production'
   const isWindow = env?.globalWindow
   const isBrowser = env?.target === 'web'
-  const filename = env?.fileName || [
-    'index',
-    isBrowser ? '.browser' : null,
-    isWindow ? '.global' : null,
-    isProduction ? '.min' : null,
-    '.js',
-  ]
-    .filter(Boolean)
-    .join('')
+  const filename =
+    env?.fileName ||
+    ['index', isBrowser ? '.browser' : null, isWindow ? '.global' : null, isProduction ? '.min' : null, '.js']
+      .filter(Boolean)
+      .join('')
   const entry = isWindow ? Path.resolve(__dirname, 'test', 'testpage', 'testpage') : Path.resolve(__dirname, 'src')
   const path = isWindow ? Path.resolve(__dirname, 'test', 'testpage') : Path.resolve(__dirname, 'dist')
   const target = env?.target || 'web' // 'node' or 'web'
@@ -37,9 +33,8 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
     }),
   ]
 
-
   if (target === 'web') {
-    const browserPathMapping = await getBrowserPathMapping();
+    const browserPathMapping = await getBrowserPathMapping()
     // eslint-disable-next-line guard-for-in
     for (const nodeReference in browserPathMapping) {
       plugins.push(
@@ -48,20 +43,20 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
     }
     // change node modules to browser modules according to packageJson.browser mapping
     // eslint-disable-next-line guard-for-in
-    const browserModuleMapping = PackageJson.browser as { [key: string]: string}
+    const browserModuleMapping = PackageJson.browser as { [key: string]: string }
     // eslint-disable-next-line guard-for-in
     for (const nodeReference in browserModuleMapping) {
       const browserReference: string = browserModuleMapping[nodeReference]
-      plugins.push(
-        new NormalModuleReplacementPlugin(new RegExp(`^${nodeReference}$`), browserReference),
-      )
+      plugins.push(new NormalModuleReplacementPlugin(new RegExp(`^${nodeReference}$`), browserReference))
     }
   }
 
-  if(isWindow) {
-    plugins.push(new DefinePlugin({
-      __BEE_URL__: JSON.stringify(process.env.BEE_URL || 'http://localhost:1633'),
-    }))
+  if (isWindow) {
+    plugins.push(
+      new DefinePlugin({
+        __BEE_URL__: JSON.stringify(process.env.BEE_URL || 'http://localhost:1633'),
+      }),
+    )
   }
 
   return {
@@ -145,7 +140,7 @@ export default async (env?: Partial<WebpackEnvParams>): Promise<Configuration> =
 
   if (env?.debug) {
     const config = {
-      ... await base(env),
+      ...(await base(env)),
       plugins: [new BundleAnalyzerPlugin()],
       profile: true,
     }
