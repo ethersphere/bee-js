@@ -34,24 +34,30 @@ export interface SingleOwnerChunk extends Chunk {
 
 type ValidSingleOwnerChunkData = BrandedType<Uint8Array, 'ValidSingleOwnerChunkData'>
 
+function recoverChunkOwner(data: Uint8Array): EthAddress {
+  const cacData = data.slice(SOC_SPAN_OFFSET)
+  const chunkAddress = bmtHash(cacData)
+  const signature = verifyBytesAtOffset(SOC_SIGNATURE_OFFSET, SIGNATURE_SIZE, data)
+  const identifier = verifyBytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
+  const digest = keccak256Hash(identifier, chunkAddress)
+  const ownerAddress = recoverAddress(signature, digest)
+  return ownerAddress
+}
+
 /**
  * Type guard for valid single owner chunk data
  *
  * @param data    The chunk data
  * @param address The address of the single owner chunk
  */
-export function isValidSingleOwnerChunkData(
+function isValidSingleOwnerChunkData(
   data: Uint8Array,
   address: ChunkAddress,
 ): data is ValidSingleOwnerChunkData {
   try {
-    const cacData = data.slice(SOC_SPAN_OFFSET)
-    const chunkAddress = bmtHash(cacData)
-    const signature = verifyBytesAtOffset(SOC_SIGNATURE_OFFSET, SIGNATURE_SIZE, data)
+    const ownerAddress = recoverChunkOwner(data)
     const identifier = verifyBytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
-    const digest = keccak256Hash(identifier, chunkAddress)
-    const accountAddress = recoverAddress(signature, digest)
-    const socAddress = keccak256Hash(identifier, accountAddress)
+    const socAddress = keccak256Hash(identifier, ownerAddress)
 
     return bytesEqual(address, socAddress)
   } catch (e) {
@@ -68,23 +74,35 @@ export function isValidSingleOwnerChunkData(
  * @returns a single owner chunk or throws error
  */
 export function verifySingleOwnerChunk(data: Uint8Array, address: ChunkAddress): SingleOwnerChunk {
-  if (isValidSingleOwnerChunkData(data, address)) {
-    return makeSingleOwnerChunkFromData(data, address)
+  // if (isValidSingleOwnerChunkData(data, address)) {
+  //   return makeSingleOwnerChunkFromData(data, address)
+  // }
+  try {
+    const ownerAddress = recoverChunkOwner(data)
+    const identifier = verifyBytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
+    const socAddress = keccak256Hash(identifier, ownerAddress)
+    if (bytesEqual(address, socAddress)) {
+      return makeSingleOwnerChunkFromData(data, address, ownerAddress)
+    } else {
+      throw new BeeError('verifySingleOwnerChunk')
+    }
+  } catch (e) {
+    throw new BeeError('verifySingleOwnerChunk')
   }
-  throw new BeeError('verifySingleOwnerChunk')
+
 }
 
 function verifyBytesAtOffset<Length extends number>(offset: number, length: Length, data: Uint8Array): Bytes<Length> {
   return verifyBytes(length, bytesAtOffset(offset, length, data))
 }
 
-function makeSingleOwnerChunkFromData(data: ValidSingleOwnerChunkData, chunkAddress: ChunkAddress): SingleOwnerChunk {
+function makeSingleOwnerChunkFromData(data: Uint8Array, socAddress: ChunkAddress, ownerAddress: EthAddress): SingleOwnerChunk {
   const identifier = () => bytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
   const signature = () => bytesAtOffset(SOC_SIGNATURE_OFFSET, SIGNATURE_SIZE, data)
   const span = () => bytesAtOffset(SOC_SPAN_OFFSET, SPAN_SIZE, data)
   const payload = () => flexBytesAtOffset(SOC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, data)
-  const address = () => chunkAddress
-  const owner = () => recoverAddress(signature(), keccak256Hash(identifier(), chunkAddress))
+  const address = () => socAddress
+  const owner = () => ownerAddress
 
   return {
     data,
@@ -120,6 +138,7 @@ export async function makeSingleOwnerChunk(
   const signature = await sign(digest, signer)
   const data = serializeBytes(identifier, signature, chunk.span(), chunk.payload()) as ValidSingleOwnerChunkData
   const address = keccak256Hash(identifier, signer.address)
+  const soc = makeSingleOwnerChunkFromData(data, address, signer.address)
 
-  return makeSingleOwnerChunkFromData(data, address)
+  return soc
 }

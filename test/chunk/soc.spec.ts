@@ -56,9 +56,6 @@ describe('soc', () => {
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
     const socAddress = bytesToHex(soc.address())
     const owner = soc.owner()
-    const signerAddress = signer.address
-
-    console.debug({ signerAddress: bytesToHex(signerAddress), owner: bytesToHex(owner) })
 
     expect(socAddress).toEqual(socHash)
     expect(owner).toEqual(signer.address)

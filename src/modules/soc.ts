@@ -1,6 +1,6 @@
-import { ReferenceResponse, UploadOptions } from "../types"
-import { extractUploadHeaders } from "../utils/headers"
-import { safeAxios } from "../utils/safeAxios"
+import { ReferenceResponse, UploadOptions } from '../types'
+import { extractUploadHeaders } from '../utils/headers'
+import { safeAxios } from '../utils/safeAxios'
 
 const socEndpoint = '/soc'
 
@@ -22,7 +22,6 @@ export async function upload(
   data: Uint8Array,
   options?: UploadOptions,
 ): Promise<ReferenceResponse> {
-  console.debug({data})
   const response = await safeAxios<ReferenceResponse>({
     method: 'post',
     url: `${url}${socEndpoint}/${owner}/${identifier}`,
@@ -32,7 +31,7 @@ export async function upload(
       ...extractUploadHeaders(options),
     },
     responseType: 'json',
-    params: { sig: signature }
+    params: { sig: signature },
   })
 
   return response.data
