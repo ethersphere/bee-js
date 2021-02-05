@@ -38,13 +38,13 @@
 ### Use in Node.js
 
 ```js
-var Bee = require("@ethersphere/bee-js");
+var BeeJs = require("@ethersphere/bee-js");
 ```
 
 ### Use in a browser with browserify, webpack or any other bundler
 
 ```js
-var Bee = require("@ethersphere/bee-js");
+var BeeJs = require("@ethersphere/bee-js");
 ```
 
 ### Use in a browser Using a script tag
@@ -58,7 +58,7 @@ Loading this module through a script tag will make the `Bee` object available in
 ## Usage
 
 ```js
-import Bee from "@ethersphere/bee-js"; // Connect to a node const
+import { Bee } from "@ethersphere/bee-js"; // Connect to a node const
 
 bee = new Bee("http://localhost:1633");
 

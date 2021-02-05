@@ -68,7 +68,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       path,
       filename,
       sourceMapFilename: filename + '.map',
-      library: PackageJson.name,
+      library: 'BeeJs',
       libraryTarget: 'umd',
       globalObject: 'this',
     },
