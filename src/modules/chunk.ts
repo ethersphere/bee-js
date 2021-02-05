@@ -27,7 +27,7 @@ export async function upload(
   const response = await safeAxios<ReferenceResponse>({
     method: 'post',
     url: `${url}${endpoint}`,
-    data: await prepareData(data),
+    data,
     headers: {
       'content-type': 'application/octet-stream',
       ...extractUploadHeaders(options),

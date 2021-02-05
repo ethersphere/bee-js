@@ -29,6 +29,7 @@ export type Identifier = Bytes<32>
 export interface SingleOwnerChunk extends Chunk {
   identifier: () => Identifier
   signature: () => Signature
+  owner: () => EthAddress
 }
 
 type ValidSingleOwnerChunkData = BrandedType<Uint8Array, 'ValidSingleOwnerChunkData'>
@@ -83,6 +84,7 @@ function makeSingleOwnerChunkFromData(data: ValidSingleOwnerChunkData, chunkAddr
   const span = () => bytesAtOffset(SOC_SPAN_OFFSET, SPAN_SIZE, data)
   const payload = () => flexBytesAtOffset(SOC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, data)
   const address = () => chunkAddress
+  const owner = () => recoverAddress(signature(), keccak256Hash(identifier(), chunkAddress))
 
   return {
     data,
@@ -91,6 +93,7 @@ function makeSingleOwnerChunkFromData(data: ValidSingleOwnerChunkData, chunkAddr
     span,
     payload,
     address,
+    owner,
   }
 }
 
