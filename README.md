@@ -52,7 +52,7 @@ var BeeJs = require("@ethersphere/bee-js");
 Loading this module through a script tag will make the `BeeJs` object available in the global namespace.
 
 ```html
-<script src="https://unpkg.com/@ethersphere/bee-js/dist/index.min.js"></script>
+<script src="https://unpkg.com/@ethersphere/bee-js/dist/index.browser.min.js"></script>
 ```
 
 ## Usage
