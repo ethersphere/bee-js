@@ -12,7 +12,14 @@ import { BeeError } from './error'
 function readContentDispositionFilename(header?: string): string {
   try {
     if (!header) {
-      throw new BeeError('missing content-disposition header')
+      // FIXME: the header may not exist due to CORS even if CORS is set on Bee for a given domain
+      // this is because Bee does not set Access-Control-Expose-Headers for Content-Disposition
+      // see https://github.com/ethersphere/bee-js/issues/86
+      // eslint-disable-next-line
+      console.error('BeeError: missing content-disposition header')
+
+      return ''
+      // throw new BeeError('missing content-disposition header')
     }
     // Regex was found here
     // https://stackoverflow.com/questions/23054475/javascript-regex-for-extracting-filename-from-content-disposition-header
