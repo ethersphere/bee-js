@@ -8,7 +8,6 @@ import { getBrowserPathMapping } from './jest.config'
 
 interface WebpackEnvParams {
   target: 'web' | 'node'
-  globalWindow: boolean
   debug: boolean
   mode: 'production' | 'development'
   fileName: string
@@ -16,15 +15,12 @@ interface WebpackEnvParams {
 
 const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
   const isProduction = env?.mode === 'production'
-  const isWindow = env?.globalWindow
   const isBrowser = env?.target === 'web'
   const filename =
     env?.fileName ||
-    ['index', isBrowser ? '.browser' : null, isWindow ? '.global' : null, isProduction ? '.min' : null, '.js']
-      .filter(Boolean)
-      .join('')
-  const entry = isWindow ? Path.resolve(__dirname, 'test', 'testpage', 'testpage') : Path.resolve(__dirname, 'src')
-  const path = isWindow ? Path.resolve(__dirname, 'test', 'testpage') : Path.resolve(__dirname, 'dist')
+    ['index', isBrowser ? '.browser' : null, isProduction ? '.min' : null, '.js'].filter(Boolean).join('')
+  const entry = Path.resolve(__dirname, 'src')
+  const path = Path.resolve(__dirname, 'dist')
   const target = env?.target || 'web' // 'node' or 'web'
   const plugins: WebpackPluginInstance[] = [
     new DefinePlugin({
@@ -51,14 +47,6 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
     }
   }
 
-  if (isWindow) {
-    plugins.push(
-      new DefinePlugin({
-        __BEE_URL__: JSON.stringify(process.env.BEE_URL || 'http://localhost:1633'),
-      }),
-    )
-  }
-
   return {
     bail: Boolean(isProduction),
     mode: env?.mode || 'development',
@@ -68,7 +56,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       path,
       filename,
       sourceMapFilename: filename + '.map',
-      library: PackageJson.name,
+      library: 'BeeJs',
       libraryTarget: 'umd',
       globalObject: 'this',
     },

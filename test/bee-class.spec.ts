@@ -1,4 +1,4 @@
-import Bee, { BeeDebug } from '../src'
+import { Bee, BeeDebug } from '../src'
 import { REFERENCE_LENGTH } from '../src/types'
 import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT } from './utils'
 

@@ -30,14 +30,13 @@
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "prepare": "rimraf dist && npm run compile:types && npm run compile:browser && npm run compile:node",
+    "prepare": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production && npm run compile:node --env mode=production",
     "compile:node": "webpack --progress --env target=node",
     "compile:types": "tsc --project tsconfig.d.json",
     "compile:browser": "webpack --progress --env target=web",
-    "compile:window": "webpack --progress --env target=web --env globalWindow=true",
     "docs": "rimraf docs && typedoc",
     "test": "npm run test:node && npm run test:browser",
-    "test:browser": "npm run compile:window && jest --config=jest.config.ts --selectProjects=dom",
+    "test:browser": "npm run compile:browser && jest --config=jest.config.ts --selectProjects=dom",
     "test:node": "jest --config=jest.config.ts --selectProjects=node",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""

@@ -493,4 +493,3 @@ export class BeeDebug {
     return settlements.getAllSettlements(this.url)
   }
 }
-export default Bee
