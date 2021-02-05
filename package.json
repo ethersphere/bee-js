@@ -3,9 +3,15 @@
   "version": "0.4.2",
   "description": "Javascript client for Bee",
   "keywords": [
-    "Bee",
-    "Swarm",
-    "Decentralised Storage"
+    "bee",
+    "swarm",
+    "decentralised",
+    "storage",
+    "ethereum",
+    "typescript",
+    "p2p",
+    "browser",
+    "node"
   ],
   "homepage": "https://github.com/ethersphere/bee-js",
   "bugs": {
