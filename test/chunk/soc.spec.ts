@@ -3,10 +3,6 @@ import { makeSingleOwnerChunk, verifySingleOwnerChunk, uploadSingleOwnerChunk } 
 import { makeContentAddressedChunk, verifyChunk } from '../../src/chunk/cac'
 import { beeUrl, testIdentity } from '../utils'
 import { makeDefaultSigner } from '../../src/chunk/signer'
-<<<<<<< HEAD
-=======
-import { uploadSingleOwnerChunk } from '../../src/chunk/upload'
->>>>>>> acd9f86 (refactor: add owner to SOC interface)
 import { serializeBytes } from '../../src/chunk/serialize'
 import { makeSpan } from '../../src/chunk/span'
 import * as chunkAPI from '../../src/modules/chunk'
