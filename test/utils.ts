@@ -10,7 +10,7 @@ export function commonMatchers(): void {
     toBeHashReference(received: string) {
       const result = {
         pass: false,
-        message: () => 'The given object was not a Swarm hash reference',
+        message: () => 'Given input is not a Swarm hash reference',
       }
 
       if (typeof received === 'string' && /^[0-9a-fA-F]{64}$/.test(received)) {
