@@ -114,7 +114,7 @@ There are also browser tests by Puppeteer, which also provide integrity testing.
 npm run test:browser
 ```
 The test HTML file which Puppeteer uses is the [test/testpage/testpage.html](test/testpage/testpage.html).
-In order to open this file and manually test BeeJS via developer console, it's necessary to build the test JS file that it imports with `npm run compile:browser` (also running `npm run test:browser` creates the necessary library files).
+To open and manually test BeeJS with developer console, it is necessary to build the library first with `npm run compile:browser` (running the browser tests `npm run test:browser` also builds the library).
 
 ### Compile code
 
