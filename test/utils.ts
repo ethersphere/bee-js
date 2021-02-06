@@ -15,7 +15,7 @@ export function commonMatchers(): void {
 
       if (typeof received === 'string' && /^[0-9a-fA-F]{64}$/.test(received)) {
         result.pass = true
-        result.message = () => 'The given string has correct hash length'
+        result.message = () => 'Given string is semantically valid Swarm hash reference'
       }
 
       return result
