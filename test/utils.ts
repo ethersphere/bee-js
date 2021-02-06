@@ -13,7 +13,7 @@ export function commonMatchers(): void {
         message: () => 'The given object was not a Swarm hash reference',
       }
 
-      if (typeof received === 'string' && received.length === 64) {
+      if (typeof received === 'string' && /^[0-9a-fA-F]{64}$/.test(received)) {
         result.pass = true
         result.message = () => 'The given string has correct hash length'
       }
