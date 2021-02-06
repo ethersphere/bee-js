@@ -11,7 +11,7 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "typeRoots": ["./src/types"]
+    "typeRoots": ["./src/types", "./test/types"]
   },
   "exclude": ["dist", "node_modules"]
 }
