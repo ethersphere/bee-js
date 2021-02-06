@@ -98,11 +98,11 @@ npm i
 
 ### Test
 
-The tests run in both context: node and jsdom with Jest.
+The tests run in both context: node and dom with Jest.
 
 To run the test, you need to have a Bee cluster running locally. To create a cluster, please consult the readme of [@ethersphere/bee-local](https://github.com/ethersphere/bee-local).
 
-By defaul tests are run against local bee node 0 - `http://bee-0.localhost`. You can change it by setting environment variable `BEE_URL`.
+By default, tests are run against local bee node 0 - `http://bee-0.localhost`. You can change it by setting environment variable `BEE_URL`.
 
 In Visual Studio environment, the tests have been set up to run against your local bee node on `http://localhost:1633`
 To run Jest tests, choose the `vscode-jest-tests` CI job under the Run tab.
@@ -114,8 +114,7 @@ There are also browser tests by Puppeteer, which also provide integrity testing.
 npm run test:browser
 ```
 The test HTML file which Puppeteer uses is the [test/testpage/testpage.html](test/testpage/testpage.html).
-In order to open this file and manually test BeeJS via developer console, it's necessary to build the test JS file that it imports with `npm run compile:window`.
-This test JS file is identical with the Bee library itself, except it binds BeeJS functionalities to the browser's `window` object.
+In order to open this file and manually test BeeJS via developer console, it's necessary to build the test JS file that it imports with `npm run compile:browser` (also running `npm run test:browser` creates the necessary library files).
 
 ### Compile code
 
