@@ -1,5 +1,7 @@
 import { join } from 'path'
-import { beeUrl } from './utils'
+import { beeUrl, commonMatchers } from './utils'
+
+commonMatchers()
 
 describe('Bee class - in browser', () => {
   const BEE_URL = beeUrl()
@@ -26,7 +28,7 @@ describe('Bee class - in browser', () => {
 
       return await bee.uploadFiles(files)
     }, BEE_URL)
-    expect(typeof fileHash).toBe('string') //TODO: write own matcher to check swarm hashes
+    expect(fileHash).toBeHashReference()
     //pinning
     const pinResult = await page.evaluate(
       async (BEE_URL, fileHash) => {
@@ -37,7 +39,7 @@ describe('Bee class - in browser', () => {
       BEE_URL,
       fileHash,
     )
-    expect(pinResult.code).toBe(200) //TODO: write own matcher to handle Bee client response messages
+    expect(pinResult).toBeBeeResponse(200)
     //unpinning
     const unpinResult = await page.evaluate(
       async (BEE_URL, fileHash) => {
@@ -48,6 +50,7 @@ describe('Bee class - in browser', () => {
       BEE_URL,
       fileHash,
     )
-    expect(unpinResult.code).toBe(200)
+    expect(pinResult).toBeBeeResponse(200)
+    expect(unpinResult).toBeBeeResponse(200)
   })
 })

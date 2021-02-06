@@ -3,6 +3,41 @@ import type { BeeResponse } from '../src/types'
 import { HexString } from '../src/utils/hex'
 
 /**
+ * Load common own Jest Matchers which can be used to check particular return values.
+ */
+export function commonMatchers(): void {
+  expect.extend({
+    toBeHashReference(received: string) {
+      const result = {
+        pass: false,
+        message: () => 'The given object was not a Swarm hash reference',
+      }
+
+      if (typeof received === 'string' && received.length === 64) {
+        result.pass = true
+        result.message = () => 'The given string has correct hash length'
+      }
+
+      return result
+    },
+    toBeBeeResponse(received: BeeResponse, expectedStatusCode: number) {
+      const result = {
+        pass: false,
+        message: () =>
+          `Bee response does not have status code ${expectedStatusCode}. Got: ${received.code}\nResponse message: ${received.message}`,
+      }
+
+      if (received.code === expectedStatusCode) {
+        result.pass = true
+        result.message = () => 'Bee response meets with its requirements'
+      }
+
+      return result
+    },
+  })
+}
+
+/**
  * Sleep for N miliseconds
  *
  * @param ms Number of miliseconds to sleep
