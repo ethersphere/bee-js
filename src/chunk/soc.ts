@@ -6,6 +6,9 @@ import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
 import { BeeError } from '../utils/error'
 import { Chunk, ChunkAddress, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, verifyChunk } from './cac'
+import { ReferenceResponse, UploadOptions } from '../types'
+import { bytesToHex } from '../utils/hex'
+import * as socAPI from '../modules/soc'
 
 const IDENTIFIER_SIZE = 32
 const SIGNATURE_SIZE = 65
@@ -51,19 +54,15 @@ function recoverChunkOwner(data: Uint8Array): EthAddress {
  * @returns a single owner chunk or throws error
  */
 export function verifySingleOwnerChunk(data: Uint8Array, address: ChunkAddress): SingleOwnerChunk {
-  try {
-    const ownerAddress = recoverChunkOwner(data)
-    const identifier = verifyBytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
-    const socAddress = keccak256Hash(identifier, ownerAddress)
+  const ownerAddress = recoverChunkOwner(data)
+  const identifier = verifyBytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
+  const socAddress = keccak256Hash(identifier, ownerAddress)
 
-    if (!bytesEqual(address, socAddress)) {
-      throw new BeeError('verifySingleOwnerChunk')
-    }
-
-    return makeSingleOwnerChunkFromData(data, address, ownerAddress)
-  } catch (e) {
-    throw e
+  if (!bytesEqual(address, socAddress)) {
+    throw new BeeError('verifySingleOwnerChunk')
   }
+
+  return makeSingleOwnerChunkFromData(data, address, ownerAddress)
 }
 
 function verifyBytesAtOffset<Length extends number>(offset: number, length: Length, data: Uint8Array): Bytes<Length> {
@@ -119,4 +118,26 @@ export async function makeSingleOwnerChunk(
   const soc = makeSingleOwnerChunkFromData(data, address, signer.address)
 
   return soc
+}
+
+/**
+ * Helper function to upload a chunk.
+ *
+ * It uses the Chunk API and calculates the address before uploading.
+ *
+ * @param url       The url of the Bee service
+ * @param chunk     A chunk object
+ * @param options   Upload options
+ */
+export function uploadSingleOwnerChunk(
+  url: string,
+  chunk: SingleOwnerChunk,
+  options?: UploadOptions,
+): Promise<ReferenceResponse> {
+  const owner = bytesToHex(chunk.owner())
+  const identifier = bytesToHex(chunk.identifier())
+  const signature = bytesToHex(chunk.signature())
+  const data = serializeBytes(chunk.span(), chunk.payload())
+
+  return socAPI.upload(url, owner, identifier, signature, data, options)
 }
