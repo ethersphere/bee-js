@@ -1,5 +1,6 @@
 import { join } from 'path'
 import { beeUrl, commonMatchers } from './utils'
+import '../src'
 
 commonMatchers()
 

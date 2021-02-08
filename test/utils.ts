@@ -89,14 +89,14 @@ export function randomByteArray(length: number, seed = 500): Uint8Array {
  * Returns a url for testing the Bee public API
  */
 export function beeUrl(): string {
-  return process.env.BEE_URL || 'http://bee-0.localhost'
+  return process.env.BEE_API_URL || 'http://bee-0.localhost'
 }
 
 /**
  * Returns a url of another peer for testing the Bee public API
  */
 export function beePeerUrl(): string {
-  return process.env.BEE_PEER_URL || 'http://bee-1.localhost'
+  return process.env.BEE_PEER_API_URL || 'http://bee-1.localhost'
 }
 
 /**

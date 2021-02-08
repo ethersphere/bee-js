@@ -12,7 +12,8 @@ jobs:
   node-tests:
     env:
       REPLICA: 5
-      BEE_URL: 'http://bee-0.localhost'
+      BEE_API_URL: 'http://bee-0.localhost'
+      BEE_PEER_API_URL: 'http://bee-1.localhost'
       BEE_TEST_CHEQUEBOOK: true
 
     runs-on: ubuntu-latest

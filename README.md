@@ -102,7 +102,8 @@ The tests run in both context: node and dom with Jest.
 
 To run the test, you need to have a Bee cluster running locally. To create a cluster, please consult the readme of [@ethersphere/bee-local](https://github.com/ethersphere/bee-local).
 
-By default, tests are run against local bee node 0 - `http://bee-0.localhost`. You can change it by setting environment variable `BEE_URL`.
+By default, tests are run against local bee node 0 - `http://bee-0.localhost`. You can change it by setting environment variable `BEE_API_URL`.
+In order to run tests which require one more node, you need to define `BEE_PEER_API_URL` as well. Its default value `http://bee-1.localhost`
 
 In Visual Studio environment, the tests have been set up to run against your local bee node on `http://localhost:1633`
 To run Jest tests, choose the `vscode-jest-tests` CI job under the Run tab.
