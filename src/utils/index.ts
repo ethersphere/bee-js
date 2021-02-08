@@ -1,5 +1,3 @@
-import { safeAxios } from './safeAxios'
-
 export * as Bytes from './bytes'
 export * as Data from './data'
 export * as Error from './error'
