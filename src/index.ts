@@ -3,6 +3,7 @@ import { BeeDebug } from './bee-debug'
 
 export * as Utils from './utils/expose'
 export * from './types'
+export * from './utils/error'
 export { Bee, BeeDebug }
 
 // for requrie-like imports
