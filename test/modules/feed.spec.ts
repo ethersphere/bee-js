@@ -6,6 +6,7 @@ import { Bytes } from '../../src/utils/bytes'
 import { makeDefaultSigner, PrivateKey } from '../../src/chunk/signer'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import * as chunkAPI from '../../src/modules/chunk'
+import { keccak256Hash } from '../../src/chunk/hash'
 
 function makeChunk(index: number) {
   return makeContentAddressedChunk(new Uint8Array([index]))
@@ -31,7 +32,7 @@ describe('modules/feed', () => {
     expect(response).toEqual({ reference })
   })
 
-  test('empty feed update', async () => {
+  test.skip('empty feed update', async () => {
     const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000'
     const feedUpdate = findFeedUpdate(url, owner, emptyTopic)
 
@@ -46,6 +47,7 @@ describe('modules/feed', () => {
     uploadedChunks[0] = await uploadChunk(url, 0)
 
     const feedRef = await uploadFeedUpdate(url, identifier, signer, uploadedChunks[0])
+    console.debug({feedRef})
 
     const feedUpdate = await findFeedUpdate(url, owner, topic)
 

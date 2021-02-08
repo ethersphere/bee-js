@@ -7,11 +7,15 @@ import { uploadSingleOwnerChunk } from "../chunk/upload";
 import { FindFeedUpdateResponse } from "../modules/feed";
 import { ReferenceResponse, UploadOptions } from "../types";
 import { Bytes, makeBytes } from "../utils/bytes";
+import { bytesToHex } from "../utils/hex";
 import { writeUint64BigEndian } from "../utils/uint64";
 
 export function makeSequentialFeedIdentifier(topic: Bytes<32>, index: number): Identifier {
   const indexBytes = writeUint64BigEndian(index)
-  return keccak256Hash(topic, indexBytes)
+  const topicHash = keccak256Hash(topic)
+  const topicIndexBytes = serializeBytes(topicHash, indexBytes)
+  console.debug('makeSequentialFeedIdentifier', {topicIndexBytes})
+  return keccak256Hash(topicIndexBytes)
 }
 
 type PlainChunkReference = Bytes<32>
@@ -23,6 +27,7 @@ export async function uploadFeedUpdate(url: string, identifier: Identifier, sign
   const payloadBytes = serializeBytes(timestamp, reference)
   const cac = makeContentAddressedChunk(payloadBytes)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
+  console.debug('uploadFeedUpdate', { address: bytesToHex(soc.address()), data: soc.data })
   const response = await uploadSingleOwnerChunk(url, soc, options)
 
   return response
