@@ -79,6 +79,10 @@ export interface BeeResponse {
   code: number
 }
 
+export interface ReferenceResponse {
+  reference: string
+}
+
 /**
  * These type are used to create new nominal types
  *
