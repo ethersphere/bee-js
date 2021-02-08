@@ -1,12 +1,11 @@
 import { createInitialFeed, findFeedUpdate } from '../../src/modules/feed'
-import { bytesToHex, HexString, hexToBytes, stripHexPrefix } from '../../src/utils/hex'
+import { HexString, hexToBytes, stripHexPrefix, verifyHex } from '../../src/utils/hex'
 import { beeUrl, testIdentity } from '../utils'
-import { ChunkReference, makeSequentialFeedIdentifier, uploadFeedUpdate } from '../../src/feed'
-import { Bytes } from '../../src/utils/bytes'
+import { ChunkReference, findNextIndex, uploadFeedUpdate } from '../../src/feed'
+import { Bytes, verifyBytes } from '../../src/utils/bytes'
 import { makeDefaultSigner, PrivateKey } from '../../src/chunk/signer'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import * as chunkAPI from '../../src/modules/chunk'
-import { keccak256Hash } from '../../src/chunk/hash'
 
 function makeChunk(index: number) {
   return makeContentAddressedChunk(new Uint8Array([index]))
@@ -32,25 +31,45 @@ describe('modules/feed', () => {
     expect(response).toEqual({ reference })
   })
 
-  test.skip('empty feed update', async () => {
+  test('empty feed update', async () => {
     const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000'
     const feedUpdate = findFeedUpdate(url, owner, emptyTopic)
 
     await expect(feedUpdate).rejects.toThrow('Not Found')
   }, 15000)
 
+  test('empty feed update', async () => {
+    const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as HexString
+    const index = await findNextIndex(url, owner, emptyTopic)
+
+    expect(index).toEqual(0)
+  }, 15000)
+
   test('feed update', async () => {
     const topicBytes = hexToBytes(topic) as Bytes<32>
-    const identifier = makeSequentialFeedIdentifier(topicBytes, 0)
 
-    const uploadedChunks: ChunkReference[] = []
-    uploadedChunks[0] = await uploadChunk(url, 0)
-
-    const feedRef = await uploadFeedUpdate(url, identifier, signer, uploadedChunks[0])
-    console.debug({feedRef})
+    const uploadedChunk = await uploadChunk(url, 0)
+    await uploadFeedUpdate(url, signer, topicBytes, 0, uploadedChunk)
 
     const feedUpdate = await findFeedUpdate(url, owner, topic)
 
-    console.debug({feedRef, feedUpdate})
-  }, 15000)
+    expect(feedUpdate.feedIndex).toEqual(0)
+    expect(feedUpdate.feedIndexNext).toEqual(1)
+  })
+
+  test('multiple updates and lookup', async () => {
+    const reference = '0000000000000000000000000000000000000000000000000000000000000000' as HexString
+    const referenceBytes = verifyBytes(32, hexToBytes(verifyHex(reference)))
+    const multipleUpdateTopic = '3000000000000000000000000000000000000000000000000000000000000000' as HexString
+    const topicBytes = verifyBytes(32, hexToBytes(multipleUpdateTopic))
+
+    const numUpdates = 5
+
+    for (let i = 0; i < numUpdates; i++) {
+      const reference = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
+      await uploadFeedUpdate(url, signer, topicBytes, i, reference)
+    }
+
+    // TODO downloadFeedUpdate
+  })
 })

@@ -119,3 +119,11 @@ export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
 export function makeBytes<Length extends number>(length: Length): Bytes<Length> {
   return new Uint8Array(length) as Bytes<Length>
 }
+
+export function verifyBytesAtOffset<Length extends number>(
+  offset: number,
+  length: Length,
+  data: Uint8Array,
+): Bytes<Length> {
+  return verifyBytes(length, bytesAtOffset(offset, length, data))
+}

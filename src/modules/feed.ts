@@ -1,5 +1,8 @@
-import { Dictionary, ReferenceResponse } from "../types"
-import { safeAxios } from "../utils/safeAxios"
+import { Dictionary, ReferenceResponse } from '../types'
+import { verifyBytes } from '../utils/bytes'
+import { hexToBytes, verifyHex } from '../utils/hex'
+import { safeAxios } from '../utils/safeAxios'
+import { readUint64BigEndian } from '../utils/uint64'
 
 const feedEndpoint = '/feeds'
 
@@ -17,7 +20,12 @@ export interface CreateFeedOptions {
  * @param topic
  * @param options
  */
-export async function createInitialFeed(url: string, owner: string, topic: string, options?: CreateFeedOptions): Promise<ReferenceResponse> {
+export async function createInitialFeed(
+  url: string,
+  owner: string,
+  topic: string,
+  options?: CreateFeedOptions,
+): Promise<ReferenceResponse> {
   const response = await safeAxios<ReferenceResponse>({
     method: 'post',
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
@@ -34,21 +42,33 @@ export interface FindFeedUpdateOptions {
 }
 
 interface FeedUpdateHeaders {
-  feedIndex: string
-  feedIndexNext: string
+  feedIndex: number
+  feedIndexNext: number
 }
 
-export interface FindFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {
+export interface FindFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
+
+function hexToNumber(s: string): number {
+  const hex = verifyHex(s)
+  const bytes = hexToBytes(hex)
+  const bytes8 = verifyBytes(8, bytes)
+
+  return readUint64BigEndian(bytes8)
 }
 
 function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
   return {
-    feedIndex: headers['swarm-feed-index'],
-    feedIndexNext: headers['swarm-feed-index-next'],
+    feedIndex: hexToNumber(headers['swarm-feed-index']),
+    feedIndexNext: hexToNumber(headers['swarm-feed-index-next']),
   }
 }
 
-export async function findFeedUpdate(url: string, owner: string, topic: string, options?: FindFeedUpdateOptions): Promise<FindFeedUpdateResponse> {
+export async function findFeedUpdate(
+  url: string,
+  owner: string,
+  topic: string,
+  options?: FindFeedUpdateOptions,
+): Promise<FindFeedUpdateResponse> {
   const response = await safeAxios<ReferenceResponse>({
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
     params: options,
@@ -57,5 +77,6 @@ export async function findFeedUpdate(url: string, owner: string, topic: string, 
     ...response.data,
     ...readFeedUpdateHeaders(response.headers),
   }
+
   return findFeedUpdateResponse
 }
