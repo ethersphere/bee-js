@@ -1,7 +1,7 @@
 import { Bee } from './bee'
 import { BeeDebug } from './bee-debug'
 
-export * as Utils from './utils'
+export * as Utils from './utils/expose'
 export * from './types'
 export { Bee, BeeDebug }
 
@@ -12,7 +12,7 @@ declare global {
     BeeJs: {
       Bee: typeof import('./bee').Bee
       BeeDebug: typeof import('./bee-debug').BeeDebug
-      Utils: typeof import('./utils')
+      Utils: typeof import('./utils/expose')
     }
   }
 }
