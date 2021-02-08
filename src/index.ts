@@ -2,7 +2,7 @@ import { Bee } from './bee'
 import { BeeDebug } from './bee-debug'
 
 export * as Utils from './utils'
-export * as Types from './types/index'
+export * from './types/index'
 export { Bee, BeeDebug }
 
 // for requrie-like imports
