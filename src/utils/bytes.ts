@@ -115,3 +115,7 @@ export function flexBytesAtOffset<Min extends number, Max extends number>(
 export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index])
 }
+
+export function makeBytes<Length extends number>(length: Length): Bytes<Length> {
+  return new Uint8Array(length) as Bytes<Length>
+}
