@@ -41,6 +41,7 @@ function recoverChunkOwner(data: Uint8Array): EthAddress {
   const identifier = verifyBytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
   const digest = keccak256Hash(identifier, chunkAddress)
   const ownerAddress = recoverAddress(signature, digest)
+
   return ownerAddress
 }
 
@@ -50,10 +51,7 @@ function recoverChunkOwner(data: Uint8Array): EthAddress {
  * @param data    The chunk data
  * @param address The address of the single owner chunk
  */
-function isValidSingleOwnerChunkData(
-  data: Uint8Array,
-  address: ChunkAddress,
-): data is ValidSingleOwnerChunkData {
+function isValidSingleOwnerChunkData(data: Uint8Array, address: ChunkAddress): data is ValidSingleOwnerChunkData {
   try {
     const ownerAddress = recoverChunkOwner(data)
     const identifier = verifyBytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
@@ -81,6 +79,7 @@ export function verifySingleOwnerChunk(data: Uint8Array, address: ChunkAddress):
     const ownerAddress = recoverChunkOwner(data)
     const identifier = verifyBytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
     const socAddress = keccak256Hash(identifier, ownerAddress)
+
     if (bytesEqual(address, socAddress)) {
       return makeSingleOwnerChunkFromData(data, address, ownerAddress)
     } else {
@@ -89,14 +88,17 @@ export function verifySingleOwnerChunk(data: Uint8Array, address: ChunkAddress):
   } catch (e) {
     throw new BeeError('verifySingleOwnerChunk')
   }
-
 }
 
 function verifyBytesAtOffset<Length extends number>(offset: number, length: Length, data: Uint8Array): Bytes<Length> {
   return verifyBytes(length, bytesAtOffset(offset, length, data))
 }
 
-function makeSingleOwnerChunkFromData(data: Uint8Array, socAddress: ChunkAddress, ownerAddress: EthAddress): SingleOwnerChunk {
+function makeSingleOwnerChunkFromData(
+  data: Uint8Array,
+  socAddress: ChunkAddress,
+  ownerAddress: EthAddress,
+): SingleOwnerChunk {
   const identifier = () => bytesAtOffset(SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE, data)
   const signature = () => bytesAtOffset(SOC_SIGNATURE_OFFSET, SIGNATURE_SIZE, data)
   const span = () => bytesAtOffset(SOC_SPAN_OFFSET, SPAN_SIZE, data)
