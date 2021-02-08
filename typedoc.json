@@ -3,5 +3,6 @@
   "readme": "none",
   "logLevel": "Verbose",
   "excludePrivate": true,
-  "out": "docs"
+  "out": "docs",
+  "tsconfig": "tsconfig.typedoc.json"
 }

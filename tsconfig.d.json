@@ -1,5 +1,6 @@
 {
   "extends": "./tsconfig",
+  "include": ["src"],
   "compilerOptions": {
     "strictNullChecks": false,
     "declaration": true,
@@ -7,6 +8,6 @@
     "outDir": "dist",
     "rootDirs": ["src"],
     "skipLibCheck": true,
-    "typeRoots": ["./types"]
+    "typeRoots": ["./src/types"]
   }
 }
