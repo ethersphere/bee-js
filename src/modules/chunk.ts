@@ -1,6 +1,5 @@
 import type { Readable } from 'stream'
-import type { BeeResponse, Reference, ReferenceResponse, UploadOptions } from '../types'
-import { prepareData } from '../utils/data'
+import type { ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
 
@@ -18,12 +17,7 @@ const endpoint = '/chunks'
  * @param data    Chunk data to be uploaded
  * @param options Aditional options like tag, encryption, pinning
  */
-export async function upload(
-  url: string,
-  hash: string,
-  data: Uint8Array,
-  options?: UploadOptions,
-): Promise<ReferenceResponse> {
+export async function upload(url: string, data: Uint8Array, options?: UploadOptions): Promise<ReferenceResponse> {
   const response = await safeAxios<ReferenceResponse>({
     method: 'post',
     url: `${url}${endpoint}`,

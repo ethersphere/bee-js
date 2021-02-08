@@ -1,5 +1,5 @@
 import * as chunk from '../../src/modules/chunk'
-import { beeUrl, invalidReference, okResponse } from '../utils'
+import { beeUrl, invalidReference } from '../utils'
 
 const BEE_URL = beeUrl()
 
@@ -12,10 +12,10 @@ describe('modules/chunk', () => {
     // the hash is hardcoded because we would need the bmt hasher otherwise
     const reference = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
 
-    const response = await chunk.upload(BEE_URL, reference, data)
+    const response = await chunk.upload(BEE_URL, data)
     expect(response).toEqual({ reference })
 
-    const downloadedData = await chunk.download(BEE_URL, reference)
+    const downloadedData = await chunk.download(BEE_URL, response.reference)
     expect(downloadedData).toEqual(data)
   })
 

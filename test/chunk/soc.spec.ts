@@ -37,7 +37,7 @@ describe('soc', () => {
     const cac = makeContentAddressedChunk(payload)
     const address = cac.address()
     const reference = bytesToHex(address)
-    const response = await chunkAPI.upload(beeUrl(), reference, cac.data)
+    const response = await chunkAPI.upload(beeUrl(), cac.data)
 
     expect(response).toEqual({ reference })
   })
