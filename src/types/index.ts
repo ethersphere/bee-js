@@ -19,6 +19,16 @@ export interface UploadOptions {
   tag?: number
 }
 
+export interface FileUploadOptions extends UploadOptions {
+  size?: number
+  contentType?: string
+}
+
+export interface CollectionUploadOptions extends UploadOptions {
+  indexDocument?: string
+  errorDocument?: string
+}
+
 export interface DownloadOptions {
   timeout?: number
 }

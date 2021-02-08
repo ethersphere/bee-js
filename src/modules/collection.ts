@@ -2,7 +2,7 @@ import type { Readable } from 'stream'
 import * as fs from 'fs'
 import path from 'path'
 
-import type { UploadOptions, Collection, FileData, UploadHeaders } from '../types'
+import type { CollectionUploadOptions, Collection, FileData, UploadHeaders } from '../types'
 import { makeTar } from '../utils/tar'
 import { safeAxios } from '../utils/safeAxios'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
@@ -15,11 +15,6 @@ const bzzEndpoint = '/bzz'
 interface CollectionUploadHeaders extends UploadHeaders {
   'swarm-index-document'?: string
   'swarm-error-document'?: string
-}
-
-export interface CollectionUploadOptions extends UploadOptions {
-  indexDocument?: string
-  errorDocument?: string
 }
 
 function extractCollectionUploadHeaders(options?: CollectionUploadOptions): CollectionUploadHeaders {

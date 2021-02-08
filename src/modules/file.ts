@@ -1,15 +1,10 @@
 import type { Readable } from 'stream'
-import { UploadOptions, FileData, UploadHeaders } from '../types'
+import { FileData, FileUploadOptions, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
 
 const endpoint = '/files'
-
-export interface FileUploadOptions extends UploadOptions {
-  size?: number
-  contentType?: string
-}
 
 interface FileUploadHeaders extends UploadHeaders {
   'content-length'?: string

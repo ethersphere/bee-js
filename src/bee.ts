@@ -15,6 +15,8 @@ import type {
   PssMessageHandler,
   PssSubscription,
   BeeResponse,
+  CollectionUploadOptions,
+  FileUploadOptions,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -70,7 +72,7 @@ export class Bee {
   async uploadFile(
     data: string | Uint8Array | Readable | File,
     name?: string,
-    options?: file.FileUploadOptions,
+    options?: FileUploadOptions,
   ): Promise<Reference> {
     if (isFile(data)) {
       const fileData = await fileArrayBuffer(data)
@@ -112,7 +114,7 @@ export class Bee {
    *
    * @returns reference of the collection of files
    */
-  async uploadFiles(fileList: FileList | File[], options?: collection.CollectionUploadOptions): Promise<Reference> {
+  async uploadFiles(fileList: FileList | File[], options?: CollectionUploadOptions): Promise<Reference> {
     const data = await collection.buildFileListCollection(fileList)
 
     return collection.upload(this.url, data, options)
@@ -132,7 +134,7 @@ export class Bee {
   async uploadFilesFromDirectory(
     dir: string,
     recursive = true,
-    options?: collection.CollectionUploadOptions,
+    options?: CollectionUploadOptions,
   ): Promise<Reference> {
     const data = await collection.buildCollection(dir, recursive)
 
