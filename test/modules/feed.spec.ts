@@ -15,7 +15,7 @@ describe('modules/feed', () => {
     expect(response).toEqual({ reference })
   })
 
-  test('empty feed update', async () => {
+  test.skip('empty feed update', async () => {
     const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000'
     const feedUpdate = fetchFeedUpdate(url, owner, emptyTopic)
 
