@@ -12,6 +12,12 @@ import { bytesToHex, HexString } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
 
+const TIMESTAMP_PAYLOAD_OFFSET = 0
+const TIMESTAMP_PAYLOAD_SIZE = 8
+const REFERENCE_PAYLOAD_OFFSET = TIMESTAMP_PAYLOAD_SIZE
+const REFERENCE_PAYLOAD_MIN_SIZE = 32
+const REFERENCE_PAYLOAD_MAX_SIZE = 64
+
 export type Topic = Bytes<32>
 
 export function makeSequentialFeedIdentifier(topic: Topic, index: number): Identifier {
@@ -76,9 +82,9 @@ export interface FeedUpdate {
 
 function verifyChunkReferenceAtOffset(offset: number, data: Uint8Array): ChunkReference {
   try {
-    return verifyBytesAtOffset(offset, 64, data)
+    return verifyBytesAtOffset(offset, REFERENCE_PAYLOAD_MAX_SIZE, data)
   } catch (e) {
-    return verifyBytesAtOffset(offset, 32, data)
+    return verifyBytesAtOffset(offset, REFERENCE_PAYLOAD_MIN_SIZE, data)
   }
 }
 
@@ -94,12 +100,22 @@ export async function downloadFeedUpdate(
   const data = await chunkAPI.download(url, addressHex)
   const soc = verifySingleOwnerChunk(data, address)
   const payload = soc.payload()
-  const timestampBytes = verifyBytesAtOffset(0, 8, payload)
+  const timestampBytes = verifyBytesAtOffset(TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE, payload)
   const timestamp = readUint64BigEndian(timestampBytes)
-  const reference = verifyChunkReferenceAtOffset(8, data)
+  const reference = verifyChunkReferenceAtOffset(REFERENCE_PAYLOAD_OFFSET, payload)
 
   return {
     timestamp,
     reference,
   }
+}
+
+interface FeedReader {
+  download(owner: EthAddress, topic: Topic, index: number): Promise<FeedUpdate>
+  downloadLatest(owner: EthAddress, topic: Topic): Promise<FeedUpdate>
+}
+
+interface FeedWriter {
+  upload(signer: Signer, topic: Topic, index: number, reference: ChunkReference, timestamp?: number, options?: UploadOptions): Promise<ReferenceResponse>
+  uploadLatest(signer: Signer, topic: Topic, reference: ChunkReference, timestamp?: number, options?: UploadOptions): Promise<ReferenceResponse>
 }
