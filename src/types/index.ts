@@ -36,19 +36,14 @@ export interface DownloadOptions {
 export interface UploadHeaders {
   'swarm-pin'?: string
   'swarm-encrypt'?: string
-  'swarm-tag-uid'?: string
+  'swarm-tag'?: string
 }
 
 export interface Tag {
   total: number
-  split: number
-  seen: number
-  stored: number
-  sent: number
+  processed: number
   synced: number
   uid: number
-  name: string
-  address: string
   startedAt: string
 }
 
@@ -92,6 +87,10 @@ export interface PssMessageHandler {
 export interface BeeResponse {
   message: string
   code: number
+}
+
+export interface ReferenceResponse {
+  reference: string
 }
 
 /**

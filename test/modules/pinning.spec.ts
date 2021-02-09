@@ -98,16 +98,16 @@ describe('modules/pin', () => {
 
   describe('should work with chunks', () => {
     it('should pin existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkHash, testChunkData)
-      expect(chunkResponse).toEqual(okResponse)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.pinChunk(BEE_URL, testChunkHash)
       expect(pinningResponse).toEqual(okResponse)
     })
 
     it('should unpin existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkHash, testChunkData)
-      expect(chunkResponse).toEqual(okResponse)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.unpinChunk(BEE_URL, testChunkHash)
       expect(pinningResponse).toEqual(okResponse)
@@ -122,8 +122,8 @@ describe('modules/pin', () => {
     })
 
     it('should return pinning status of existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkHash, testChunkData)
-      expect(chunkResponse).toEqual(okResponse)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.pinChunk(BEE_URL, testChunkHash)
       expect(pinningResponse).toEqual(okResponse)
@@ -138,8 +138,8 @@ describe('modules/pin', () => {
     })
 
     it('should return pinning status of existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkHash, testChunkData)
-      expect(chunkResponse).toEqual(okResponse)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.pinChunk(BEE_URL, testChunkHash)
       expect(pinningResponse).toEqual(okResponse)
@@ -151,8 +151,8 @@ describe('modules/pin', () => {
     })
 
     it('should return list of pinned chunks', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkHash, testChunkData)
-      expect(chunkResponse).toEqual(okResponse)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.pinChunk(BEE_URL, testChunkHash)
       expect(pinningResponse).toEqual(okResponse)

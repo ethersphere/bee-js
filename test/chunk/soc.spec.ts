@@ -1,9 +1,8 @@
 import { Bytes, verifyBytes } from '../../src/utils/bytes'
-import { makeSingleOwnerChunk, verifySingleOwnerChunk } from '../../src/chunk/soc'
+import { makeSingleOwnerChunk, verifySingleOwnerChunk, uploadSingleOwnerChunk } from '../../src/chunk/soc'
 import { makeContentAddressedChunk, verifyChunk } from '../../src/chunk/cac'
-import { beeUrl, okResponse, testIdentity } from '../utils'
+import { beeUrl, testIdentity } from '../utils'
 import { makeDefaultSigner } from '../../src/chunk/signer'
-import { uploadChunk } from '../../src/chunk/upload'
 import { serializeBytes } from '../../src/chunk/serialize'
 import { makeSpan } from '../../src/chunk/span'
 import * as chunkAPI from '../../src/modules/chunk'
@@ -36,10 +35,10 @@ describe('soc', () => {
   test('upload content address chunk', async () => {
     const cac = makeContentAddressedChunk(payload)
     const address = cac.address()
-    const hash = bytesToHex(address)
-    const response = await chunkAPI.upload(beeUrl(), hash, cac.data)
+    const reference = bytesToHex(address)
+    const response = await chunkAPI.upload(beeUrl(), cac.data)
 
-    expect(response).toEqual(okResponse)
+    expect(response).toEqual({ reference })
   })
 
   test('download content address chunk', async () => {
@@ -51,15 +50,24 @@ describe('soc', () => {
     expect(chunkAddress).toEqual(address)
   })
 
+  test('single owner chunk creation', async () => {
+    const cac = makeContentAddressedChunk(payload)
+    const soc = await makeSingleOwnerChunk(cac, identifier, signer)
+    const socAddress = bytesToHex(soc.address())
+    const owner = soc.owner()
+
+    expect(socAddress).toEqual(socHash)
+    expect(owner).toEqual(signer.address)
+  })
+
   test('upload single owner chunk', async () => {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
     const socAddress = bytesToHex(soc.address())
-    expect(socAddress).toEqual(socHash)
 
-    const response = await uploadChunk(beeUrl(), soc)
+    const response = await uploadSingleOwnerChunk(beeUrl(), soc)
 
-    expect(response).toEqual(okResponse)
+    expect(response).toEqual({ reference: socAddress })
   })
 
   test('download single owner chunk', async () => {

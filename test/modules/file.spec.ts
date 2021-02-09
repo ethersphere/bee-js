@@ -26,7 +26,7 @@ describe('modules/file', () => {
   })
 
   it('should store readable file', async () => {
-    const data = randomByteArray(5000)
+    const data = randomByteArray(5000, 0)
     const filename = 'hello.txt'
 
     const hash = await file.upload(BEE_URL, createReadable(data), filename, {
@@ -38,15 +38,15 @@ describe('modules/file', () => {
   })
 
   it('should store file with a tag', async () => {
-    const data = randomByteArray(5000)
+    const data = randomByteArray(5000, 1)
     const filename = 'hello.txt'
 
     const tag1 = await tag.createTag(BEE_URL)
     await file.upload(BEE_URL, data, filename, { tag: tag1.uid })
     const tag2 = await tag.retrieveTag(BEE_URL, tag1)
 
-    expect(tag2.split).toEqual(5)
-    expect(tag2.stored).toEqual(5)
+    expect(tag2.total).toEqual(5)
+    expect(tag2.processed).toEqual(5)
   }, 5000)
 
   it('should catch error', async () => {
