@@ -32,6 +32,7 @@ export async function upload(
     },
     responseType: 'json',
     params: { sig: signature },
+    ...options?.axiosOptions,
   })
 
   return response.data

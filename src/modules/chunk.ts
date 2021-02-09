@@ -27,6 +27,7 @@ export async function upload(url: string, data: Uint8Array, options?: UploadOpti
       ...extractUploadHeaders(options),
     },
     responseType: 'json',
+    ...options?.axiosOptions,
   })
 
   return response.data

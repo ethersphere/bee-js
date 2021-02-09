@@ -143,6 +143,7 @@ export async function upload(
       'content-type': 'application/x-tar',
       ...extractCollectionUploadHeaders(options),
     },
+    ...options?.axiosOptions,
   })
 
   return response.data.reference

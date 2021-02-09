@@ -1,4 +1,5 @@
 import { BeeError } from '../utils/error'
+import type { AxiosRequestConfig } from 'axios'
 
 export interface Dictionary<T> {
   [Key: string]: T
@@ -17,6 +18,7 @@ export interface UploadOptions {
   pin?: boolean
   encrypt?: boolean
   tag?: number
+  axiosOptions?: AxiosRequestConfig
 }
 
 export interface FileUploadOptions extends UploadOptions {

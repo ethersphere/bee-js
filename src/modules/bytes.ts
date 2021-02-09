@@ -23,6 +23,7 @@ export async function upload(url: string, data: string | Uint8Array, options?: U
       ...extractUploadHeaders(options),
     },
     responseType: 'json',
+    ...options?.axiosOptions,
   })
 
   return response.data.reference
