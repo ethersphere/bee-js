@@ -1,7 +1,7 @@
 import { createInitialFeed, findFeedUpdate } from '../../src/modules/feed'
-import { HexString, hexToBytes, stripHexPrefix, verifyHex } from '../../src/utils/hex'
+import { bytesToHex, HexString, hexToBytes, stripHexPrefix, verifyHex } from '../../src/utils/hex'
 import { beeUrl, testIdentity } from '../utils'
-import { ChunkReference, findNextIndex, uploadFeedUpdate } from '../../src/feed'
+import { ChunkReference, downloadFeedUpdate, findNextIndex, uploadFeedUpdate } from '../../src/feed'
 import { Bytes, verifyBytes } from '../../src/utils/bytes'
 import { makeDefaultSigner, PrivateKey } from '../../src/chunk/signer'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
@@ -66,10 +66,14 @@ describe('modules/feed', () => {
     const numUpdates = 5
 
     for (let i = 0; i < numUpdates; i++) {
-      const reference = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
-      await uploadFeedUpdate(url, signer, topicBytes, i, reference)
+      const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
+      await uploadFeedUpdate(url, signer, topicBytes, i, referenceI)
     }
 
-    // TODO downloadFeedUpdate
+    for (let i = 0; i < numUpdates; i++) {
+      const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
+      const feedUpdateResponse = await downloadFeedUpdate(url, signer.address, topicBytes, i)
+      expect(feedUpdateResponse.reference).toEqual(referenceI)
+    }
   })
 })
