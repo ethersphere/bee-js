@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from 'axios'
+import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
 import { FileData, FileUploadOptions, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
