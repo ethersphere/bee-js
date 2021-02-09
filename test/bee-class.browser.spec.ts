@@ -1,5 +1,5 @@
 import { join } from 'path'
-import { beeUrl, commonMatchers, randomByteArray } from './utils'
+import { beeUrl, commonMatchers } from './utils'
 import '../src'
 
 commonMatchers()
@@ -60,8 +60,8 @@ describe('Bee class - in browser', () => {
       const bee = new window.BeeJs.Bee(BEE_URL)
       const filename = 'hello.txt'
       const data = new Uint8Array([1, 2, 3, 4])
-      // eslint-disable-next-line prettier/prettier
-      let uploadEvent: { loaded: number, total: number } = {
+
+      let uploadEvent: { loaded: number; total: number } = {
         loaded: 0,
         total: 4,
       }
