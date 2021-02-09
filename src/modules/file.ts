@@ -64,6 +64,7 @@ export async function download(
 ): Promise<FileData<Uint8Array>> {
   const response = await safeAxios<ArrayBuffer>({
     ...axiosOptions,
+    method: 'GET',
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`,
   })
@@ -88,6 +89,7 @@ export async function downloadReadable(
 ): Promise<FileData<Readable>> {
   const response = await safeAxios<Readable>({
     ...axiosOptions,
+    method: 'GET',
     responseType: 'stream',
     url: `${url}${endpoint}/${hash}`,
   })
