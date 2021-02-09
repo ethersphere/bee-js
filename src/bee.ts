@@ -56,6 +56,7 @@ export class Bee {
    * Download data as a readable stream
    *
    * @param reference Bee data reference
+   * @param axiosOptions optional - alter default options of axios HTTP client
    */
   downloadReadableData(reference: Reference, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
     return bytes.downloadReadable(this.url, reference, axiosOptions)
@@ -155,6 +156,7 @@ export class Bee {
    *
    * @param reference Bee collection reference
    * @param path Path of the requested file in the collection
+   * @param axiosOptions optional - alter default options of axios HTTP client
    *
    * @returns file in readable stream with metadata
    */

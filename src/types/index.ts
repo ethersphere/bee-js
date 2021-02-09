@@ -18,6 +18,7 @@ export interface UploadOptions {
   pin?: boolean
   encrypt?: boolean
   tag?: number
+  /** alter default options of axios HTTP client */
   axiosOptions?: AxiosRequestConfig
 }
 

@@ -27,7 +27,8 @@ function extractFileUploadHeaders(options?: FileUploadOptions): FileUploadHeader
  *
  * @param url     Bee URL
  * @param data    Data to be uploaded
- * @param options Aditional options like tag, encryption, pinning
+ * @param name    optional - name of the file
+ * @param options optional - Aditional options like tag, encryption, pinning
  */
 export async function upload(
   url: string,
@@ -56,6 +57,7 @@ export async function upload(
  *
  * @param url  Bee URL
  * @param hash Bee file hash
+ * @param axiosOptions optional - alter default options of axios HTTP client
  */
 export async function download(
   url: string,
@@ -81,6 +83,7 @@ export async function download(
  *
  * @param url  Bee URL
  * @param hash Bee file hash
+ * @param axiosOptions optional - alter default options of axios HTTP client
  */
 export async function downloadReadable(
   url: string,

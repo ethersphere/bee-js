@@ -50,6 +50,7 @@ export async function download(url: string, hash: string): Promise<Uint8Array> {
  *
  * @param url  Bee URL
  * @param hash Bee content reference
+ * @param axiosOptions optional - alter default options of axios HTTP client
  */
 export async function downloadReadable(
   url: string,

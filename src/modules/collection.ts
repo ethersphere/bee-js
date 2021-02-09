@@ -180,6 +180,7 @@ export async function download(url: string, hash: string, path = ''): Promise<Fi
  * @param url  Bee URL
  * @param hash Bee Collection hash
  * @param path Path of the requested file in the Collection
+ * @param axiosOptions optional - alter default options of axios HTTP client
  */
 export async function downloadReadable(
   url: string,
