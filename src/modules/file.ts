@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
 import { FileData, FileUploadOptions, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
@@ -26,7 +27,8 @@ function extractFileUploadHeaders(options?: FileUploadOptions): FileUploadHeader
  *
  * @param url     Bee URL
  * @param data    Data to be uploaded
- * @param options Aditional options like tag, encryption, pinning
+ * @param name    optional - name of the file
+ * @param options optional - Aditional options like tag, encryption, pinning
  */
 export async function upload(
   url: string,
@@ -35,6 +37,7 @@ export async function upload(
   options?: FileUploadOptions,
 ): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
+    ...options?.axiosOptions,
     method: 'post',
     url: url + endpoint,
     data: prepareData(data),
@@ -54,9 +57,16 @@ export async function upload(
  *
  * @param url  Bee URL
  * @param hash Bee file hash
+ * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function download(url: string, hash: string): Promise<FileData<Uint8Array>> {
+export async function download(
+  url: string,
+  hash: string,
+  axiosOptions?: AxiosRequestConfig,
+): Promise<FileData<Uint8Array>> {
   const response = await safeAxios<ArrayBuffer>({
+    ...axiosOptions,
+    method: 'GET',
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`,
   })
@@ -73,9 +83,16 @@ export async function download(url: string, hash: string): Promise<FileData<Uint
  *
  * @param url  Bee URL
  * @param hash Bee file hash
+ * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(url: string, hash: string): Promise<FileData<Readable>> {
+export async function downloadReadable(
+  url: string,
+  hash: string,
+  axiosOptions?: AxiosRequestConfig,
+): Promise<FileData<Readable>> {
   const response = await safeAxios<Readable>({
+    ...axiosOptions,
+    method: 'GET',
     responseType: 'stream',
     url: `${url}${endpoint}/${hash}`,
   })

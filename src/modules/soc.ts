@@ -23,6 +23,7 @@ export async function upload(
   options?: UploadOptions,
 ): Promise<ReferenceResponse> {
   const response = await safeAxios<ReferenceResponse>({
+    ...options?.axiosOptions,
     method: 'post',
     url: `${url}${socEndpoint}/${owner}/${identifier}`,
     data,

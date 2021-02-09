@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
 import { UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
@@ -15,6 +16,7 @@ const endpoint = '/bytes'
  */
 export async function upload(url: string, data: string | Uint8Array, options?: UploadOptions): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
+    ...options?.axiosOptions,
     method: 'post',
     url: url + endpoint,
     data: await prepareData(data),
@@ -48,9 +50,16 @@ export async function download(url: string, hash: string): Promise<Uint8Array> {
  *
  * @param url  Bee URL
  * @param hash Bee content reference
+ * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(url: string, hash: string): Promise<Readable> {
+export async function downloadReadable(
+  url: string,
+  hash: string,
+  axiosOptions?: AxiosRequestConfig,
+): Promise<Readable> {
   const response = await safeAxios<Readable>({
+    ...axiosOptions,
+    method: 'GET',
     responseType: 'stream',
     url: `${url}${endpoint}/${hash}`,
   })
