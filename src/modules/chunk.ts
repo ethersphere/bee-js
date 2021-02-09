@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
 import type { ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
@@ -55,8 +56,10 @@ export async function download(url: string, hash: string): Promise<Uint8Array> {
  * @param url  Bee URL
  * @param hash Bee content reference
  */
-export async function downloadReadable(url: string, hash: string): Promise<Readable> {
+export async function downloadReadable(url: string, hash: string, axiosOptions: AxiosRequestConfig): Promise<Readable> {
   const response = await safeAxios<Readable>({
+    ...axiosOptions,
+    method: 'GET',
     responseType: 'stream',
     url: `${url}${endpoint}/${hash}`,
   })

@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import path from 'path'
 
 import type { CollectionUploadOptions, Collection, FileData, UploadHeaders } from '../types'
+import type { AxiosRequestConfig } from 'axios'
 import { makeTar } from '../utils/tar'
 import { safeAxios } from '../utils/safeAxios'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
@@ -180,7 +181,12 @@ export async function download(url: string, hash: string, path = ''): Promise<Fi
  * @param hash Bee Collection hash
  * @param path Path of the requested file in the Collection
  */
-export async function downloadReadable(url: string, hash: string, path = ''): Promise<FileData<Readable>> {
+export async function downloadReadable(
+  url: string,
+  hash: string,
+  path = '',
+  axiosOptions?: AxiosRequestConfig,
+): Promise<FileData<Readable>> {
   if (!url || url === '') {
     throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
@@ -190,6 +196,8 @@ export async function downloadReadable(url: string, hash: string, path = ''): Pr
     url: `${url}${bzzEndpoint}/${hash}/${path}`,
   })
   const file = {
+    ...axiosOptions,
+    method: 'GET',
     ...readFileHeaders(response.headers),
     data: response.data,
   }

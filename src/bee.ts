@@ -21,6 +21,7 @@ import type {
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
+import { AxiosRequestConfig } from 'axios'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -56,8 +57,8 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  downloadReadableData(reference: Reference): Promise<Readable> {
-    return bytes.downloadReadable(this.url, reference)
+  downloadReadableData(reference: Reference, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
+    return bytes.downloadReadable(this.url, reference, axiosOptions)
   }
 
   /**
@@ -157,8 +158,12 @@ export class Bee {
    *
    * @returns file in readable stream with metadata
    */
-  downloadReadableFileFromCollection(reference: Reference, path = ''): Promise<FileData<Readable>> {
-    return collection.downloadReadable(this.url, reference, path)
+  downloadReadableFileFromCollection(
+    reference: Reference,
+    path = '',
+    axiosOptions?: AxiosRequestConfig,
+  ): Promise<FileData<Readable>> {
+    return collection.downloadReadable(this.url, reference, path, axiosOptions)
   }
 
   /**
