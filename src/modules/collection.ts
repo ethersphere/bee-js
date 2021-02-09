@@ -135,6 +135,7 @@ export async function upload(
   const tarData = makeTar(data)
 
   const response = await safeAxios<{ reference: string }>({
+    ...options?.axiosOptions,
     method: 'post',
     url: `${url}${dirsEndpoint}`,
     data: tarData,
@@ -143,7 +144,6 @@ export async function upload(
       'content-type': 'application/x-tar',
       ...extractCollectionUploadHeaders(options),
     },
-    ...options?.axiosOptions,
   })
 
   return response.data.reference

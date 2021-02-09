@@ -36,6 +36,7 @@ export async function upload(
   options?: FileUploadOptions,
 ): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
+    ...options?.axiosOptions,
     method: 'post',
     url: url + endpoint,
     data: prepareData(data),
@@ -45,7 +46,6 @@ export async function upload(
     },
     responseType: 'json',
     params: { name },
-    ...options?.axiosOptions,
   })
 
   return response.data.reference
@@ -63,9 +63,9 @@ export async function download(
   axiosOptions?: AxiosRequestConfig,
 ): Promise<FileData<Uint8Array>> {
   const response = await safeAxios<ArrayBuffer>({
+    ...axiosOptions,
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`,
-    ...axiosOptions,
   })
   const file = {
     ...readFileHeaders(response.headers),
@@ -87,9 +87,9 @@ export async function downloadReadable(
   axiosOptions?: AxiosRequestConfig,
 ): Promise<FileData<Readable>> {
   const response = await safeAxios<Readable>({
+    ...axiosOptions,
     responseType: 'stream',
     url: `${url}${endpoint}/${hash}`,
-    ...axiosOptions,
   })
   const file = {
     ...readFileHeaders(response.headers),

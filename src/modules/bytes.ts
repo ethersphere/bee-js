@@ -15,6 +15,7 @@ const endpoint = '/bytes'
  */
 export async function upload(url: string, data: string | Uint8Array, options?: UploadOptions): Promise<string> {
   const response = await safeAxios<{ reference: string }>({
+    ...options?.axiosOptions,
     method: 'post',
     url: url + endpoint,
     data: await prepareData(data),
@@ -23,7 +24,6 @@ export async function upload(url: string, data: string | Uint8Array, options?: U
       ...extractUploadHeaders(options),
     },
     responseType: 'json',
-    ...options?.axiosOptions,
   })
 
   return response.data.reference

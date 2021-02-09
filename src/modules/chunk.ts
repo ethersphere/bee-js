@@ -19,6 +19,7 @@ const endpoint = '/chunks'
  */
 export async function upload(url: string, data: Uint8Array, options?: UploadOptions): Promise<ReferenceResponse> {
   const response = await safeAxios<ReferenceResponse>({
+    ...options?.axiosOptions,
     method: 'post',
     url: `${url}${endpoint}`,
     data,
@@ -27,7 +28,6 @@ export async function upload(url: string, data: Uint8Array, options?: UploadOpti
       ...extractUploadHeaders(options),
     },
     responseType: 'json',
-    ...options?.axiosOptions,
   })
 
   return response.data
