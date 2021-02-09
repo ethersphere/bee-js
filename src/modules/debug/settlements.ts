@@ -4,7 +4,7 @@ const settlementsEndpoint = '/settlements'
 
 export interface Settlements {
   peer: string
-  received: number | null
+  received: number
   sent: number
 }
 
