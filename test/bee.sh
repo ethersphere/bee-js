@@ -60,7 +60,7 @@ WORKERS=2
 QUEEN_CONTAINER_NAME="bee-queen-test"
 WORKER_CONTAINER_NAME="bee-worker-test"
 QUEEN_CONTAINER_IN_DOCKER=`docker container ls -qaf name=$QUEEN_CONTAINER_NAME`
-BEE_VERSION="0.4.2"
+BEE_VERSION="0.5.0"
 BEE_IMAGE="ethersphere/bee:$BEE_VERSION"
 BEE_PASSWORD="password"
 QUEEN_BOOTNODE=""
@@ -98,6 +98,7 @@ do
         ;;
         --version=*)
         BEE_VERSION="${1#*=}"
+        BEE_IMAGE="ethersphere/bee:$BEE_VERSION"
         shift 1
         ;;
         --port-maps=*)
