@@ -131,11 +131,7 @@ export class Bee {
    *
    * @returns reference of the collection of files
    */
-  async uploadFilesFromDirectory(
-    dir: string,
-    recursive = true,
-    options?: CollectionUploadOptions,
-  ): Promise<Reference> {
+  async uploadFilesFromDirectory(dir: string, recursive = true, options?: CollectionUploadOptions): Promise<Reference> {
     const data = await collection.buildCollection(dir, recursive)
 
     return collection.upload(this.url, data, options)
