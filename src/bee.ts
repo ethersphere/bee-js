@@ -360,7 +360,11 @@ export class Bee {
    * @param topic   Topic in hex or bytes
    * @param type    The type of the feed, can be 'epoch' or 'sequence' (default)
    */
-  makeFeedReader(owner: EthAddress | Uint8Array | string, topic: Topic | Uint8Array | string, type: FeedType = 'sequence'): FeedReader {
+  makeFeedReader(
+    owner: EthAddress | Uint8Array | string,
+    topic: Topic | Uint8Array | string,
+    type: FeedType = 'sequence',
+  ): FeedReader {
     const verifiedOwner = verifyOwner(owner)
     const verifiedTopic = verifyTopic(topic)
 
@@ -374,7 +378,11 @@ export class Bee {
    * @param topic   Topic in hex or bytes
    * @param type    The type of the feed, can be 'epoch' or 'sequence' (default)
    */
-  makeFeedWriter(signer: Signer | PrivateKey | HexString, topic: Topic | Uint8Array | string, type: FeedType = 'sequence'): FeedWriter {
+  makeFeedWriter(
+    signer: Signer | PrivateKey | HexString,
+    topic: Topic | Uint8Array | string,
+    type: FeedType = 'sequence',
+  ): FeedWriter {
     const verifiedTopic = verifyTopic(topic)
     const verifiedSigner = verifySigner(signer)
 
