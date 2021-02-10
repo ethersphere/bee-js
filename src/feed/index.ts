@@ -158,11 +158,20 @@ export async function downloadFeedUpdate(
   }
 }
 
+/**
+ * FeedReader is an interface for downloading feed updates
+ */
 export interface FeedReader {
   readonly type: FeedType
   readonly owner: Owner
   readonly topic: Topic
+  /**
+   * Download the latest feed update
+   */
   download(): Promise<FindFeedUpdateResponse>
+  /**
+   * Create feed manifest chunk and return the reference
+   */
   createManifest(): Promise<ReferenceResponse>
 }
 
@@ -185,7 +194,18 @@ export interface FeedUploadOptions extends UploadOptions {
   at?: number
 }
 
+/**
+ * FeedWriter is an interface for updating feeds
+ */
 export interface FeedWriter extends FeedReader {
+  /**
+   * Upload a new feed update
+   *
+   * @param reference The reference to be stored in the new update
+   * @param options   Additional options like `at`
+   *
+   * @returns The reference of the new update
+   */
   upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
 }
 

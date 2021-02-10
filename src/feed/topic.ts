@@ -4,9 +4,7 @@ import { hexToBytes, verifyHex } from '../utils/hex'
 
 export type Topic = Bytes<32>
 
-export type TopicInput = Topic | Uint8Array | string
-
-export function verifyTopic(topic: TopicInput): Topic {
+export function verifyTopic(topic: Topic | Uint8Array | string): Topic {
   if (typeof topic === 'string') {
     const topicHex = verifyHex(topic)
     const topicBytes = hexToBytes(topicHex)

@@ -23,12 +23,12 @@ import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { FeedReader, FeedWriter, makeFeedReader, makeFeedWriter } from './feed'
-import { PrivateKey, verifySigner } from './chunk/signer'
+import { EthAddress, PrivateKey, verifySigner } from './chunk/signer'
 import { FeedType } from './modules/feed'
 import { HexString } from './utils/hex'
 import { Signer } from './chunk/signer'
-import { OwnerInput, verifyOwner } from './chunk/owner'
-import { TopicInput, verifyTopic } from './feed/topic'
+import { verifyOwner } from './chunk/owner'
+import { Topic, verifyTopic } from './feed/topic'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -353,14 +353,28 @@ export class Bee {
     })
   }
 
-  makeFeedReader(owner: OwnerInput, topic: TopicInput, type: FeedType = 'sequence'): FeedReader {
+  /**
+   * Make a new feed reader for downloading feed updates
+   *
+   * @param owner   Owner's ethereum address in hex or bytes
+   * @param topic   Topic in hex or bytes
+   * @param type    The type of the feed, can be 'epoch' or 'sequence' (default)
+   */
+  makeFeedReader(owner: EthAddress | Uint8Array | string, topic: Topic | Uint8Array | string, type: FeedType = 'sequence'): FeedReader {
     const verifiedOwner = verifyOwner(owner)
     const verifiedTopic = verifyTopic(topic)
 
     return makeFeedReader(this.url, verifiedOwner, verifiedTopic, type)
   }
 
-  makeFeedWriter(signer: Signer | PrivateKey | HexString, topic: TopicInput, type: FeedType = 'sequence'): FeedWriter {
+  /**
+   * Make a new feed write for updating feeds
+   *
+   * @param signer  The signer's private key or a Signer instance that can sign data
+   * @param topic   Topic in hex or bytes
+   * @param type    The type of the feed, can be 'epoch' or 'sequence' (default)
+   */
+  makeFeedWriter(signer: Signer | PrivateKey | HexString, topic: Topic | Uint8Array | string, type: FeedType = 'sequence'): FeedWriter {
     const verifiedTopic = verifyTopic(topic)
     const verifiedSigner = verifySigner(signer)
 
