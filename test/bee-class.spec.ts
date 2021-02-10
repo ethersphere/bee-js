@@ -1,9 +1,10 @@
 import { randomBytes } from 'crypto'
 import { Bee, BeeDebug } from '../src'
 import { EthAddress, makeDefaultSigner, PrivateKey } from '../src/chunk/signer'
-import { Topic, verifyChunkReference } from '../src/feed'
+import { ChunkReference, Topic, verifyChunkReference } from '../src/feed'
 import { REFERENCE_LENGTH } from '../src/types'
-import { HexString, hexToBytes, stripHexPrefix } from '../src/utils/hex'
+import { makeBytes } from '../src/utils/bytes'
+import { bytesToHex, HexString, hexToBytes, stripHexPrefix } from '../src/utils/hex'
 import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, testIdentity } from './utils'
 
 describe('Bee class', () => {
@@ -208,7 +209,7 @@ describe('Bee class', () => {
     const owner = hexToBytes(testIdentity.address) as EthAddress
     const signer = makeDefaultSigner(hexToBytes(testIdentity.privateKey) as PrivateKey)
     // const topic = hexToBytes('0000000000000000000000000000000000000000000000000000000000000000' as HexString) as Topic
-    const topic = randomByteArray(32) as Topic
+    const topic = randomByteArray(32, Date.now()) as Topic
 
     test.skip('create feed reader and manifest', async () => {
       const feed = bee.makeFeedReader(owner, topic)
@@ -216,19 +217,23 @@ describe('Bee class', () => {
       expect(typeof manifestResponse.reference).toBe('string')
     })
 
-    test('feed writer', async () => {
-      const content = new Uint8Array([1, 2, 3])
-      const hash = await bee.uploadData(content)
-
+    test('feed writer with two updates', async () => {
       const feed = bee.makeFeedWriter(signer, topic)
-      const reference = verifyChunkReference(hexToBytes(hash as HexString))
-      const uploadResponse = await feed.upload(reference)
+      const zeroReference = makeBytes(32) // all zeroes
 
-      const latestUpdateReferenceResponse = await feed.download()
+      await feed.upload(zeroReference)
+      const firstUpdateReferenceResponse = await feed.download()
 
-      console.debug({ hash, uploadResponse, latestUpdateReferenceResponse})
+      expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(zeroReference))
 
-      expect(latestUpdateReferenceResponse.reference).toEqual(hash)
-    }, 15000)
+      const oneReference = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
+
+      await feed.upload(oneReference)
+      const secondUpdateReferenceResponse = await feed.download()
+
+      console.debug({firstUpdateReferenceResponse, secondUpdateReferenceResponse})
+
+      expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(oneReference))
+    }, 35000)
   })
 })

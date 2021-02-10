@@ -4,7 +4,7 @@ import { serializeBytes } from '../chunk/serialize'
 import { EthAddress, Signer } from '../chunk/signer'
 import { Identifier, makeSingleOwnerChunk, verifySingleOwnerChunk } from '../chunk/soc'
 import { uploadSingleOwnerChunk } from '../chunk/upload'
-import { FeedType, findFeedUpdate } from '../modules/feed'
+import { FeedType, findFeedUpdate, FindFeedUpdateResponse } from '../modules/feed'
 import { ReferenceResponse, UploadOptions } from '../types'
 import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -72,7 +72,10 @@ export async function uploadFeedUpdate(
   options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const identifier = makeFeedIdentifier(topic, index)
-  // const timestamp = writeUint64BigEndian(options?.at ?? Date.now())
+  // TODO when timestamp is provided lookup fails
+  // const at = options?.at ?? Date.now()
+  // const timestamp = writeUint64BigEndian(at)
+  // console.debug({ timestamp, ts: bytesToHex(timestamp), at })
   const timestamp = makeBytes(8)
   const payloadBytes = serializeBytes(timestamp, reference)
   const cac = makeContentAddressedChunk(payloadBytes)
@@ -107,7 +110,7 @@ export async function updateFeed(
   const topicHex = bytesToHex(topic)
   const nextIndex = await findNexIndex(url, ownerHex, topicHex, type)
 
-  console.debug({ nextIndex })
+  console.debug({ nextIndex, ownerHex, topicHex })
 
   return uploadFeedUpdate(url, signer, topic, nextIndex, reference, options)
 }
@@ -155,7 +158,7 @@ export interface FeedReader {
   readonly type: FeedType
   readonly owner: EthAddress
   readonly topic: Topic
-  download(): Promise<ReferenceResponse>
+  download(): Promise<FindFeedUpdateResponse>
   createManifest(): Promise<ReferenceResponse>
 }
 

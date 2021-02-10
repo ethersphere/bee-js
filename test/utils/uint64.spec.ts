@@ -72,5 +72,31 @@ describe('uint64', () => {
         expect(value).toEqual(0xdeadbeef)
       })
     })
+
+    describe('read and write', () => {
+      test('zero', () => {
+        const zero = makeBytes(8)
+        const num = readUint64BigEndian(zero)
+        const value = writeUint64BigEndian(num)
+
+        expect(value).toEqual(zero)
+      })
+
+      test('one', () => {
+        const one = hexToBytes('0000000000000001' as HexString) as Bytes<8>
+        const num = readUint64BigEndian(one)
+        const value = writeUint64BigEndian(num)
+
+        expect(value).toEqual(one)
+      })
+
+      test('deadbeef', () => {
+        const deadbeef = hexToBytes('00000000deadbeef' as HexString) as Bytes<8>
+        const num = readUint64BigEndian(deadbeef)
+        const value = writeUint64BigEndian(num)
+
+        expect(value).toEqual(deadbeef)
+      })
+    })
   })
 })
