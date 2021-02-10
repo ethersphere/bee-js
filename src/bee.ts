@@ -367,7 +367,8 @@ export class Bee {
   }
 
   makeFeedWriter(signer: Signer, topic: Topic, type: FeedType = 'sequence'): FeedWriter {
-    const upload = (reference: ChunkReference, options?: FeedUploadOptions) => updateFeed(this.url, signer, topic, reference, type, options)
+    const upload = (reference: ChunkReference, options?: FeedUploadOptions) =>
+      updateFeed(this.url, signer, topic, reference, type, options)
 
     return {
       ...this.makeFeedReader(signer.address, topic, type),

@@ -61,5 +61,5 @@ describe('feed', () => {
       const feedUpdateResponse = await downloadFeedUpdate(url, signer.address, topicBytes, i)
       expect(feedUpdateResponse.reference).toEqual(referenceI)
     }
-  })
+  }, 15000)
 })

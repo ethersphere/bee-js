@@ -1,11 +1,10 @@
-import { randomBytes } from 'crypto'
 import { Bee, BeeDebug } from '../src'
 import { EthAddress, makeDefaultSigner, PrivateKey } from '../src/chunk/signer'
-import { ChunkReference, Topic, verifyChunkReference } from '../src/feed'
+import { ChunkReference, Topic } from '../src/feed'
 import { REFERENCE_LENGTH } from '../src/types'
 import { makeBytes } from '../src/utils/bytes'
-import { bytesToHex, HexString, hexToBytes, stripHexPrefix } from '../src/utils/hex'
-import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, testIdentity } from './utils'
+import { bytesToHex, hexToBytes } from '../src/utils/hex'
+import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, sleep, testIdentity } from './utils'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
@@ -219,21 +218,26 @@ describe('Bee class', () => {
 
     test('feed writer with two updates', async () => {
       const feed = bee.makeFeedWriter(signer, topic)
-      const zeroReference = makeBytes(32) // all zeroes
+      const reference0 = makeBytes(32) // all zeroes
 
-      await feed.upload(zeroReference)
+      await feed.upload(reference0)
       const firstUpdateReferenceResponse = await feed.download()
 
-      expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(zeroReference))
+      expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(reference0))
+      expect(firstUpdateReferenceResponse.feedIndex).toEqual('0000000000000000')
 
-      const oneReference = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
+      const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
 
-      await feed.upload(oneReference)
+      // TODO without this the test fails quite often
+      // with the sleep it's better but still fails sometimes
+      // there may be a race condition during lookup
+      await sleep(15 * 1000)
+
+      await feed.upload(referenceOne)
       const secondUpdateReferenceResponse = await feed.download()
 
-      console.debug({firstUpdateReferenceResponse, secondUpdateReferenceResponse})
-
-      expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(oneReference))
+      expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
+      expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
     }, 35000)
   })
 })

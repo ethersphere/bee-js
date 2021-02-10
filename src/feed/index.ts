@@ -38,12 +38,14 @@ function hashFeedIdentifier(topic: Topic, index: IndexBytes): Identifier {
 
 export function makeSequentialFeedIdentifier(topic: Topic, index: number): Identifier {
   const indexBytes = writeUint64BigEndian(index)
+
   return hashFeedIdentifier(topic, indexBytes)
 }
 
 export function makeFeedIndexBytes(s: string): IndexBytes {
   const hex = verifyHex(s)
   const bytes = hexToBytes(hex)
+
   return verifyBytes(8, bytes)
 }
 
@@ -52,16 +54,20 @@ export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
     return makeSequentialFeedIdentifier(topic, index)
   } else if (typeof index === 'string') {
     const indexBytes = makeFeedIndexBytes(index)
+
     return hashFeedIdentifier(topic, indexBytes)
   } else if (isEpoch(index)) {
     throw 'epoch is not yet implemented'
   }
+
   return hashFeedIdentifier(topic, index)
 }
 
 type PlainChunkReference = Bytes<32>
 type EncryptedChunkReference = Bytes<64>
 export type ChunkReference = PlainChunkReference | EncryptedChunkReference
+
+const number = 1
 
 export async function uploadFeedUpdate(
   url: string,
@@ -72,11 +78,8 @@ export async function uploadFeedUpdate(
   options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const identifier = makeFeedIdentifier(topic, index)
-  // TODO when timestamp is provided lookup fails
-  // const at = options?.at ?? Date.now()
-  // const timestamp = writeUint64BigEndian(at)
-  // console.debug({ timestamp, ts: bytesToHex(timestamp), at })
-  const timestamp = makeBytes(8)
+  const at = options?.at ?? Date.now() / 1000.0
+  const timestamp = writeUint64BigEndian(at)
   const payloadBytes = serializeBytes(timestamp, reference)
   const cac = makeContentAddressedChunk(payloadBytes)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
@@ -85,7 +88,12 @@ export async function uploadFeedUpdate(
   return response
 }
 
-export async function findNexIndex(url: string, owner: HexString, topic: HexString, type: FeedType = 'sequence'): Promise<string> {
+export async function findNexIndex(
+  url: string,
+  owner: HexString,
+  topic: HexString,
+  type: FeedType = 'sequence',
+): Promise<string> {
   try {
     const feedUpdate = await findFeedUpdate(url, owner, topic, { type })
 
@@ -109,8 +117,6 @@ export async function updateFeed(
   const ownerHex = bytesToHex(signer.address)
   const topicHex = bytesToHex(topic)
   const nextIndex = await findNexIndex(url, ownerHex, topicHex, type)
-
-  console.debug({ nextIndex, ownerHex, topicHex })
 
   return uploadFeedUpdate(url, signer, topic, nextIndex, reference, options)
 }
