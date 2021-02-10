@@ -11,8 +11,8 @@ export type PublicKey = string
 export type Address = string
 export type AddressPrefix = Address
 
-export const REFERENCE_LENGTH = 64
-export const ENCRYPTED_REFERENCE_LENGTH = 2 * REFERENCE_LENGTH
+export const HEX_REFERENCE_LENGTH = 64
+export const ENCRYPTED_HEX_REFERENCE_LENGTH = 2 * HEX_REFERENCE_LENGTH
 
 export interface UploadOptions {
   pin?: boolean

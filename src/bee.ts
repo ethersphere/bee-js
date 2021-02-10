@@ -22,11 +22,13 @@ import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
-import { ChunkReference, FeedReader, FeedUploadOptions, FeedWriter, Topic, updateFeed } from './feed'
-import { EthAddress } from './chunk/signer'
-import { createFeedManifest, FeedType, findFeedUpdate } from './modules/feed'
-import { bytesToHex } from './utils/hex'
+import { FeedReader, FeedWriter, makeFeedReader, makeFeedWriter } from './feed'
+import { PrivateKey, verifySigner } from './chunk/signer'
+import { FeedType } from './modules/feed'
+import { HexString } from './utils/hex'
 import { Signer } from './chunk/signer'
+import { OwnerInput, verifyOwner } from './chunk/owner'
+import { TopicInput, verifyTopic } from './feed/topic'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -351,28 +353,17 @@ export class Bee {
     })
   }
 
-  makeFeedReader(owner: EthAddress, topic: Topic, type: FeedType = 'sequence'): FeedReader {
-    const ownerHex = bytesToHex(owner)
-    const topicHex = bytesToHex(topic)
-    const download = () => findFeedUpdate(this.url, ownerHex, topicHex, { type })
-    const createManifest = () => createFeedManifest(this.url, ownerHex, topicHex, { type })
+  makeFeedReader(owner: OwnerInput, topic: TopicInput, type: FeedType = 'sequence'): FeedReader {
+    const verifiedOwner = verifyOwner(owner)
+    const verifiedTopic = verifyTopic(topic)
 
-    return {
-      type,
-      owner,
-      topic,
-      download,
-      createManifest,
-    }
+    return makeFeedReader(this.url, verifiedOwner, verifiedTopic, type)
   }
 
-  makeFeedWriter(signer: Signer, topic: Topic, type: FeedType = 'sequence'): FeedWriter {
-    const upload = (reference: ChunkReference, options?: FeedUploadOptions) =>
-      updateFeed(this.url, signer, topic, reference, type, options)
+  makeFeedWriter(signer: Signer | PrivateKey | HexString, topic: TopicInput, type: FeedType = 'sequence'): FeedWriter {
+    const verifiedTopic = verifyTopic(topic)
+    const verifiedSigner = verifySigner(signer)
 
-    return {
-      ...this.makeFeedReader(signer.address, topic, type),
-      upload,
-    }
+    return makeFeedWriter(this.url, verifiedSigner, verifiedTopic, type)
   }
 }

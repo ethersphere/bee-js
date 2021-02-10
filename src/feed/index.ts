@@ -4,21 +4,21 @@ import { serializeBytes } from '../chunk/serialize'
 import { EthAddress, Signer } from '../chunk/signer'
 import { Identifier, makeSingleOwnerChunk, verifySingleOwnerChunk } from '../chunk/soc'
 import { uploadSingleOwnerChunk } from '../chunk/upload'
-import { FeedType, findFeedUpdate, FindFeedUpdateResponse } from '../modules/feed'
-import { ReferenceResponse, UploadOptions } from '../types'
+import { createFeedManifest, FeedType, findFeedUpdate, FindFeedUpdateResponse } from '../modules/feed'
+import { Reference, ReferenceResponse, UploadOptions } from '../types'
 import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
 import { bytesToHex, HexString, hexToBytes, verifyHex } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
+import { Topic } from './topic'
+import { Owner } from '../chunk/owner'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8
 const REFERENCE_PAYLOAD_OFFSET = TIMESTAMP_PAYLOAD_SIZE
 const REFERENCE_PAYLOAD_MIN_SIZE = 32
 const REFERENCE_PAYLOAD_MAX_SIZE = 64
-
-export type Topic = Bytes<32>
 
 export interface Epoch {
   time: number
@@ -66,8 +66,6 @@ export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
 type PlainChunkReference = Bytes<32>
 type EncryptedChunkReference = Bytes<64>
 export type ChunkReference = PlainChunkReference | EncryptedChunkReference
-
-const number = 1
 
 export async function uploadFeedUpdate(
   url: string,
@@ -162,10 +160,25 @@ export async function downloadFeedUpdate(
 
 export interface FeedReader {
   readonly type: FeedType
-  readonly owner: EthAddress
+  readonly owner: Owner
   readonly topic: Topic
   download(): Promise<FindFeedUpdateResponse>
   createManifest(): Promise<ReferenceResponse>
+}
+
+export function makeFeedReader(url: string, owner: Owner, topic: Topic, type: FeedType = 'sequence'): FeedReader {
+  const ownerHex = bytesToHex(owner)
+  const topicHex = bytesToHex(topic)
+  const download = () => findFeedUpdate(url, ownerHex, topicHex, { type })
+  const createManifest = () => createFeedManifest(url, ownerHex, topicHex, { type })
+
+  return {
+    type,
+    owner,
+    topic,
+    download,
+    createManifest,
+  }
 }
 
 export interface FeedUploadOptions extends UploadOptions {
@@ -173,5 +186,29 @@ export interface FeedUploadOptions extends UploadOptions {
 }
 
 export interface FeedWriter extends FeedReader {
-  upload(reference: ChunkReference, options?: UploadOptions): Promise<ReferenceResponse>
+  upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
+}
+
+function verifyReference(reference: ChunkReference | Reference): ChunkReference {
+  if (typeof reference === 'string') {
+    const hexReference = verifyHex(reference)
+    const referenceBytes = hexToBytes(hexReference)
+
+    return verifyChunkReference(referenceBytes)
+  }
+
+  return verifyChunkReference(reference)
+}
+
+export function makeFeedWriter(url: string, signer: Signer, topic: Topic, type: FeedType = 'sequence'): FeedWriter {
+  const upload = (reference: ChunkReference | Reference, options?: FeedUploadOptions) => {
+    const verifiedReference = verifyReference(reference)
+
+    return updateFeed(url, signer, topic, verifiedReference, type, options)
+  }
+
+  return {
+    ...makeFeedReader(url, signer.address, topic, type),
+    upload,
+  }
 }

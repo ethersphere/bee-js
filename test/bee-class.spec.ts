@@ -1,9 +1,8 @@
 import { Bee, BeeDebug } from '../src'
-import { EthAddress, makeDefaultSigner, PrivateKey } from '../src/chunk/signer'
-import { ChunkReference, Topic } from '../src/feed'
-import { REFERENCE_LENGTH } from '../src/types'
+import { ChunkReference } from '../src/feed'
+import { HEX_REFERENCE_LENGTH } from '../src/types'
 import { makeBytes } from '../src/utils/bytes'
-import { bytesToHex, hexToBytes } from '../src/utils/hex'
+import { bytesToHex } from '../src/utils/hex'
 import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, sleep, testIdentity } from './utils'
 
 describe('Bee class', () => {
@@ -80,7 +79,7 @@ describe('Bee class', () => {
     it('should work with directory with unicode filenames', async () => {
       const hash = await bee.uploadFilesFromDirectory('./test/data')
 
-      expect(hash.length).toEqual(REFERENCE_LENGTH)
+      expect(hash.length).toEqual(HEX_REFERENCE_LENGTH)
     })
   })
 
@@ -205,10 +204,9 @@ describe('Bee class', () => {
   })
 
   describe('feeds', () => {
-    const owner = hexToBytes(testIdentity.address) as EthAddress
-    const signer = makeDefaultSigner(hexToBytes(testIdentity.privateKey) as PrivateKey)
-    // const topic = hexToBytes('0000000000000000000000000000000000000000000000000000000000000000' as HexString) as Topic
-    const topic = randomByteArray(32, Date.now()) as Topic
+    const owner = testIdentity.address
+    const signer = testIdentity.privateKey
+    const topic = randomByteArray(32, Date.now())
 
     test.skip('create feed reader and manifest', async () => {
       const feed = bee.makeFeedReader(owner, topic)
@@ -218,12 +216,12 @@ describe('Bee class', () => {
 
     test('feed writer with two updates', async () => {
       const feed = bee.makeFeedWriter(signer, topic)
-      const reference0 = makeBytes(32) // all zeroes
+      const referenceZero = makeBytes(32) // all zeroes
 
-      await feed.upload(reference0)
+      await feed.upload(referenceZero)
       const firstUpdateReferenceResponse = await feed.download()
 
-      expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(reference0))
+      expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceZero))
       expect(firstUpdateReferenceResponse.feedIndex).toEqual('0000000000000000')
 
       const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
@@ -231,13 +229,13 @@ describe('Bee class', () => {
       // TODO without this the test fails quite often
       // with the sleep it's better but still fails sometimes
       // there may be a race condition during lookup
-      await sleep(15 * 1000)
+      await sleep(20 * 1000)
 
       await feed.upload(referenceOne)
       const secondUpdateReferenceResponse = await feed.download()
 
       expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
       expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
-    }, 35000)
+    }, 60000)
   })
 })
