@@ -20,35 +20,43 @@ const REFERENCE_PAYLOAD_MAX_SIZE = 64
 
 export type Topic = Bytes<32>
 
+export interface Epoch {
+  time: number
+  level: number
+}
+
+export function isEpoch(epoch: unknown): epoch is Epoch {
+  return typeof epoch === 'object' && epoch !== null && 'time' in epoch && 'level' in epoch
+}
+
+export type IndexBytes = Bytes<8>
+export type Index = number | Epoch | IndexBytes | string
+
+function hashFeedIdentifier(topic: Topic, index: IndexBytes): Identifier {
+  return keccak256Hash(topic, index)
+}
+
 export function makeSequentialFeedIdentifier(topic: Topic, index: number): Identifier {
   const indexBytes = writeUint64BigEndian(index)
-
-  return keccak256Hash(topic, indexBytes)
+  return hashFeedIdentifier(topic, indexBytes)
 }
 
-interface IndexBase {
-  type: FeedType
+export function makeFeedIndexBytes(s: string): IndexBytes {
+  const hex = verifyHex(s)
+  const bytes = hexToBytes(hex)
+  return verifyBytes(8, bytes)
 }
-
-interface SequentialIndex extends IndexBase {
-  type: 'sequence'
-  value: number
-}
-
-interface EpochIndex extends IndexBase {
-  type: 'epoch'
-  value: {
-    time: number
-    level: number
-  }
-}
-type Index = SequentialIndex | EpochIndex
 
 export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
-  switch (index.type) {
-    case 'sequence': return makeSequentialFeedIdentifier(topic, index.value)
-    case 'epoch': throw 'epoch is not yet implemented'
+  if (typeof index === 'number') {
+    return makeSequentialFeedIdentifier(topic, index)
+  } else if (typeof index === 'string') {
+    const indexBytes = makeFeedIndexBytes(index)
+    return hashFeedIdentifier(topic, indexBytes)
+  } else if (isEpoch(index)) {
+    throw 'epoch is not yet implemented'
   }
+  return hashFeedIdentifier(topic, index)
 }
 
 type PlainChunkReference = Bytes<32>
@@ -59,11 +67,12 @@ export async function uploadFeedUpdate(
   url: string,
   signer: Signer,
   topic: Topic,
-  index: number,
+  index: Index,
   reference: ChunkReference,
-  options?: UploadOptions,
+  options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
-  const identifier = makeSequentialFeedIdentifier(topic, index)
+  const identifier = makeFeedIdentifier(topic, index)
+  // const timestamp = writeUint64BigEndian(options?.at ?? Date.now())
   const timestamp = makeBytes(8)
   const payloadBytes = serializeBytes(timestamp, reference)
   const cac = makeContentAddressedChunk(payloadBytes)
@@ -73,22 +82,14 @@ export async function uploadFeedUpdate(
   return response
 }
 
-function hexToNumber(s: string): number {
-  const hex = verifyHex(s)
-  const bytes = hexToBytes(hex)
-  const bytes8 = verifyBytes(8, bytes)
-
-  return readUint64BigEndian(bytes8)
-}
-
-export async function findNextIndex(url: string, owner: HexString, topic: HexString): Promise<number> {
+export async function findNexIndex(url: string, owner: HexString, topic: HexString, type: FeedType = 'sequence'): Promise<string> {
   try {
-    const feedUpdate = await findFeedUpdate(url, owner, topic)
+    const feedUpdate = await findFeedUpdate(url, owner, topic, { type })
 
-    return hexToNumber(feedUpdate.feedIndexNext)
+    return feedUpdate.feedIndexNext
   } catch (e) {
     if (e instanceof BeeResponseError && e.status === 404) {
-      return 0
+      return bytesToHex(makeBytes(8))
     }
     throw e
   }
@@ -99,11 +100,14 @@ export async function updateFeed(
   signer: Signer,
   topic: Topic,
   reference: ChunkReference,
-  options?: UploadOptions,
+  type: FeedType = 'sequence',
+  options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const ownerHex = bytesToHex(signer.address)
   const topicHex = bytesToHex(topic)
-  const nextIndex = await findNextIndex(url, ownerHex, topicHex)
+  const nextIndex = await findNexIndex(url, ownerHex, topicHex, type)
+
+  console.debug({ nextIndex })
 
   return uploadFeedUpdate(url, signer, topic, nextIndex, reference, options)
 }
@@ -121,13 +125,17 @@ function verifyChunkReferenceAtOffset(offset: number, data: Uint8Array): ChunkRe
   }
 }
 
+export function verifyChunkReference(data: Uint8Array): ChunkReference {
+  return verifyChunkReferenceAtOffset(0, data)
+}
+
 export async function downloadFeedUpdate(
   url: string,
   owner: EthAddress,
   topic: Topic,
-  index: number,
+  index: Index,
 ): Promise<FeedUpdate> {
-  const identifier = makeFeedIdentifier(topic, { type: 'sequence', value: index })
+  const identifier = makeFeedIdentifier(topic, index)
   const address = keccak256Hash(identifier, owner)
   const addressHex = bytesToHex(address)
   const data = await chunkAPI.download(url, addressHex)
@@ -143,13 +151,18 @@ export async function downloadFeedUpdate(
   }
 }
 
-interface FeedReader {
-  download(index: number): Promise<FeedUpdate>
-  downloadLatest(): Promise<FeedUpdate>
+export interface FeedReader {
+  readonly type: FeedType
+  readonly owner: EthAddress
+  readonly topic: Topic
+  download(): Promise<ReferenceResponse>
   createManifest(): Promise<ReferenceResponse>
 }
 
-interface FeedWriter {
-  upload(index: number, reference: ChunkReference, timestamp?: number, options?: UploadOptions): Promise<ReferenceResponse>
-  uploadLatest(reference: ChunkReference, timestamp?: number, options?: UploadOptions): Promise<ReferenceResponse>
+export interface FeedUploadOptions extends UploadOptions {
+  at?: number
+}
+
+export interface FeedWriter extends FeedReader {
+  upload(reference: ChunkReference, options?: UploadOptions): Promise<ReferenceResponse>
 }

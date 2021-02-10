@@ -1,7 +1,7 @@
 import { findFeedUpdate } from '../../src/modules/feed'
 import { HexString, hexToBytes, stripHexPrefix, verifyHex } from '../../src/utils/hex'
 import { beeUrl, testIdentity } from '../utils'
-import { ChunkReference, downloadFeedUpdate, findNextIndex, uploadFeedUpdate } from '../../src/feed'
+import { ChunkReference, downloadFeedUpdate, findNexIndex, uploadFeedUpdate } from '../../src/feed'
 import { Bytes, verifyBytes } from '../../src/utils/bytes'
 import { makeDefaultSigner, PrivateKey } from '../../src/chunk/signer'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
@@ -18,7 +18,7 @@ async function uploadChunk(url: string, index: number): Promise<ChunkReference> 
   return hexToBytes(referenceResponse.reference as HexString) as ChunkReference
 }
 
-describe('modules/feed', () => {
+describe('feed', () => {
   const url = beeUrl()
   const owner = stripHexPrefix(testIdentity.address)
   const signer = makeDefaultSigner(hexToBytes(testIdentity.privateKey) as PrivateKey)
@@ -26,9 +26,9 @@ describe('modules/feed', () => {
 
   test('empty feed update', async () => {
     const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as HexString
-    const index = await findNextIndex(url, owner, emptyTopic)
+    const index = await findNexIndex(url, owner, emptyTopic)
 
-    expect(index).toEqual(0)
+    expect(index).toEqual('0000000000000000')
   }, 15000)
 
   test('feed update', async () => {
@@ -41,7 +41,7 @@ describe('modules/feed', () => {
 
     expect(feedUpdate.feedIndex).toEqual('0000000000000000')
     expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
-  })
+  }, 15000)
 
   test('multiple updates and lookup', async () => {
     const reference = '0000000000000000000000000000000000000000000000000000000000000000' as HexString

@@ -22,6 +22,11 @@ import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
+import { ChunkReference, FeedReader, FeedUploadOptions, FeedWriter, Topic, updateFeed } from './feed'
+import { EthAddress } from './chunk/signer'
+import { createFeedManifest, FeedType, findFeedUpdate } from './modules/feed'
+import { bytesToHex } from './utils/hex'
+import { Signer } from './chunk/signer'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -344,5 +349,29 @@ export class Bee {
         }, timeoutMsec) as unknown) as number
       }
     })
+  }
+
+  makeFeedReader(owner: EthAddress, topic: Topic, type: FeedType = 'sequence'): FeedReader {
+    const ownerHex = bytesToHex(owner)
+    const topicHex = bytesToHex(topic)
+    const download = () => findFeedUpdate(this.url, ownerHex, topicHex, { type })
+    const createManifest = () => createFeedManifest(this.url, ownerHex, topicHex, { type })
+
+    return {
+      type,
+      owner,
+      topic,
+      download,
+      createManifest,
+    }
+  }
+
+  makeFeedWriter(signer: Signer, topic: Topic, type: FeedType = 'sequence'): FeedWriter {
+    const upload = (reference: ChunkReference, options?: FeedUploadOptions) => updateFeed(this.url, signer, topic, reference, type, options)
+
+    return {
+      ...this.makeFeedReader(signer.address, topic, type),
+      upload,
+    }
   }
 }

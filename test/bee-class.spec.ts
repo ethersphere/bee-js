@@ -1,6 +1,10 @@
+import { randomBytes } from 'crypto'
 import { Bee, BeeDebug } from '../src'
+import { EthAddress, makeDefaultSigner, PrivateKey } from '../src/chunk/signer'
+import { Topic, verifyChunkReference } from '../src/feed'
 import { REFERENCE_LENGTH } from '../src/types'
-import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT } from './utils'
+import { HexString, hexToBytes, stripHexPrefix } from '../src/utils/hex'
+import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, testIdentity } from './utils'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
@@ -198,5 +202,33 @@ describe('Bee class', () => {
 
       await expect(bee.pssReceive(topic, 1)).rejects.toThrow('pssReceive timeout')
     })
+  })
+
+  describe('feeds', () => {
+    const owner = hexToBytes(testIdentity.address) as EthAddress
+    const signer = makeDefaultSigner(hexToBytes(testIdentity.privateKey) as PrivateKey)
+    // const topic = hexToBytes('0000000000000000000000000000000000000000000000000000000000000000' as HexString) as Topic
+    const topic = randomByteArray(32) as Topic
+
+    test.skip('create feed reader and manifest', async () => {
+      const feed = bee.makeFeedReader(owner, topic)
+      const manifestResponse = await feed.createManifest()
+      expect(typeof manifestResponse.reference).toBe('string')
+    })
+
+    test('feed writer', async () => {
+      const content = new Uint8Array([1, 2, 3])
+      const hash = await bee.uploadData(content)
+
+      const feed = bee.makeFeedWriter(signer, topic)
+      const reference = verifyChunkReference(hexToBytes(hash as HexString))
+      const uploadResponse = await feed.upload(reference)
+
+      const latestUpdateReferenceResponse = await feed.download()
+
+      console.debug({ hash, uploadResponse, latestUpdateReferenceResponse})
+
+      expect(latestUpdateReferenceResponse.reference).toEqual(hash)
+    }, 15000)
   })
 })
