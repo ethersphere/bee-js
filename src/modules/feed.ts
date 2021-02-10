@@ -1,8 +1,5 @@
 import { Dictionary, ReferenceResponse } from '../types'
-import { verifyBytes } from '../utils/bytes'
-import { hexToBytes, verifyHex } from '../utils/hex'
 import { safeAxios } from '../utils/safeAxios'
-import { readUint64BigEndian } from '../utils/uint64'
 
 const feedEndpoint = '/feeds'
 
@@ -15,12 +12,12 @@ export interface CreateFeedOptions {
 /**
  * Create an initial feed root manifest
  *
- * @param url
- * @param owner
- * @param topic
- * @param options
+ * @param url         Bee URL
+ * @param owner       Owner's ethereum address in hex
+ * @param topic       Topic in hex
+ * @param options     Additional options, like type (default: 'sequence')
  */
-export async function createInitialFeed(
+export async function createFeedManifest(
   url: string,
   owner: string,
   topic: string,
@@ -42,27 +39,27 @@ export interface FindFeedUpdateOptions {
 }
 
 interface FeedUpdateHeaders {
-  feedIndex: number
-  feedIndexNext: number
+  feedIndex: string
+  feedIndexNext: string
 }
 
 export interface FindFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
 
-function hexToNumber(s: string): number {
-  const hex = verifyHex(s)
-  const bytes = hexToBytes(hex)
-  const bytes8 = verifyBytes(8, bytes)
-
-  return readUint64BigEndian(bytes8)
-}
-
 function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
   return {
-    feedIndex: hexToNumber(headers['swarm-feed-index']),
-    feedIndexNext: hexToNumber(headers['swarm-feed-index-next']),
+    feedIndex: headers['swarm-feed-index'],
+    feedIndexNext: headers['swarm-feed-index-next'],
   }
 }
 
+/**
+ * Find feed update
+ *
+ * @param url         Bee URL
+ * @param owner       Owner's ethereum address in hex
+ * @param topic       Topic in hex
+ * @param options     Additional options, like index, at, type
+ */
 export async function findFeedUpdate(
   url: string,
   owner: string,
