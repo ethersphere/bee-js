@@ -44,8 +44,8 @@ export async function createFeedManifest(
 
 function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
   return {
-    feedIndex: hexToNumber(headers['swarm-feed-index']),
-    feedIndexNext: hexToNumber(headers['swarm-feed-index-next']),
+    feedIndex: headers['swarm-feed-index'],
+    feedIndexNext: headers['swarm-feed-index-next'],
   }
 }
 
