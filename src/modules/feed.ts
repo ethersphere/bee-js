@@ -8,6 +8,16 @@ export type FeedType = 'sequence' | 'epoch'
 export interface CreateFeedOptions {
   type?: FeedType
 }
+export interface FindFeedUpdateOptions {
+  index?: number
+  at?: number
+  type?: FeedType
+}
+interface FeedUpdateHeaders {
+  feedIndex: string
+  feedIndexNext: string
+}
+export interface FindFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
 
 /**
  * Create an initial feed root manifest
@@ -31,19 +41,6 @@ export async function createFeedManifest(
 
   return response.data
 }
-
-export interface FindFeedUpdateOptions {
-  index?: number
-  at?: number
-  type?: FeedType
-}
-
-interface FeedUpdateHeaders {
-  feedIndex: string
-  feedIndexNext: string
-}
-
-export interface FindFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
 
 function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
   return {
