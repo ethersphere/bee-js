@@ -50,14 +50,19 @@ function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
 }
 
 /**
- * Find feed update
+ * Find and retrieve feed update
+ *
+ * The feed consists of updates. This endpoint looks up an
+ * update that matches the provided parameters and returns
+ * the reference it contains along with its index and the
+ * index of the subsequent update.
  *
  * @param url         Bee URL
  * @param owner       Owner's ethereum address in hex
  * @param topic       Topic in hex
  * @param options     Additional options, like index, at, type
  */
-export async function findFeedUpdate(
+export async function fetchFeedUpdate(
   url: string,
   owner: string,
   topic: string,

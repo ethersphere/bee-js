@@ -1,4 +1,4 @@
-import { createFeedManifest, findFeedUpdate } from '../../src/modules/feed'
+import { createFeedManifest, fetchFeedUpdate } from '../../src/modules/feed'
 import { HexString, hexToBytes, stripHexPrefix } from '../../src/utils/hex'
 import { beeUrl, testIdentity } from '../utils'
 import { upload as uploadSOC } from '../../src/modules/soc'
@@ -17,7 +17,7 @@ describe('modules/feed', () => {
 
   test('empty feed update', async () => {
     const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000'
-    const feedUpdate = findFeedUpdate(url, owner, emptyTopic)
+    const feedUpdate = fetchFeedUpdate(url, owner, emptyTopic)
 
     await expect(feedUpdate).rejects.toThrow('Not Found')
   }, 15000)
@@ -34,7 +34,7 @@ describe('modules/feed', () => {
     const socResponse = await uploadSOC(url, owner, identifier, signature, socData)
     expect(typeof socResponse.reference).toBe('string')
 
-    const feedUpdate = await findFeedUpdate(url, owner, oneUpdateTopic)
+    const feedUpdate = await fetchFeedUpdate(url, owner, oneUpdateTopic)
     expect(typeof feedUpdate.reference).toBe('string')
     expect(feedUpdate.feedIndex).toEqual('0000000000000000')
     expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
