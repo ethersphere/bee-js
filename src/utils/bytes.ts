@@ -116,10 +116,22 @@ export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index])
 }
 
+/**
+ * Returns a new byte array filled with zeroes with the specified length
+ *
+ * @param length The length of data to be returned
+ */
 export function makeBytes<Length extends number>(length: Length): Bytes<Length> {
   return new Uint8Array(length) as Bytes<Length>
 }
 
+/**
+ * Verifies if a byte array has a certain length starting from offset
+ *
+ * @param offset The offset to start from
+ * @param length The length of data to be returned
+ * @param data   The original data
+ */
 export function verifyBytesAtOffset<Length extends number>(
   offset: number,
   length: Length,
