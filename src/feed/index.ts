@@ -4,7 +4,7 @@ import { serializeBytes } from '../chunk/serialize'
 import { EthAddress, Signer } from '../chunk/signer'
 import { Identifier, makeSingleOwnerChunk, verifySingleOwnerChunk } from '../chunk/soc'
 import { uploadSingleOwnerChunk } from '../chunk/soc'
-import { createFeedManifest, FeedType, findFeedUpdate, FindFeedUpdateResponse } from '../modules/feed'
+import { createFeedManifest, FeedType, fetchFeedUpdate, FindFeedUpdateResponse } from '../modules/feed'
 import { Reference, ReferenceResponse, UploadOptions } from '../types'
 import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -93,7 +93,7 @@ export async function findNexIndex(
   type: FeedType = 'sequence',
 ): Promise<string> {
   try {
-    const feedUpdate = await findFeedUpdate(url, owner, topic, { type })
+    const feedUpdate = await fetchFeedUpdate(url, owner, topic, { type })
 
     return feedUpdate.feedIndexNext
   } catch (e) {
@@ -178,7 +178,7 @@ export interface FeedReader {
 export function makeFeedReader(url: string, owner: Owner, topic: Topic, type: FeedType = 'sequence'): FeedReader {
   const ownerHex = bytesToHex(owner)
   const topicHex = bytesToHex(topic)
-  const download = () => findFeedUpdate(url, ownerHex, topicHex, { type })
+  const download = () => fetchFeedUpdate(url, ownerHex, topicHex, { type })
   const createManifest = () => createFeedManifest(url, ownerHex, topicHex, { type })
 
   return {

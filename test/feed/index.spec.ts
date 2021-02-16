@@ -1,4 +1,4 @@
-import { findFeedUpdate } from '../../src/modules/feed'
+import { fetchFeedUpdate } from '../../src/modules/feed'
 import { HexString, hexToBytes, stripHexPrefix, verifyHex } from '../../src/utils/hex'
 import { beeUrl, testIdentity } from '../utils'
 import { ChunkReference, downloadFeedUpdate, findNexIndex, uploadFeedUpdate } from '../../src/feed'
@@ -37,7 +37,7 @@ describe('feed', () => {
     const uploadedChunk = await uploadChunk(url, 0)
     await uploadFeedUpdate(url, signer, topicBytes, 0, uploadedChunk)
 
-    const feedUpdate = await findFeedUpdate(url, owner, topic)
+    const feedUpdate = await fetchFeedUpdate(url, owner, topic)
 
     expect(feedUpdate.feedIndex).toEqual('0000000000000000')
     expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
