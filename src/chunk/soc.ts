@@ -1,4 +1,4 @@
-import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset, verifyBytes } from '../utils/bytes'
+import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset, verifyBytesAtOffset } from '../utils/bytes'
 import { bmtHash } from './bmt'
 import { EthAddress, recoverAddress, sign, Signature, Signer } from './signer'
 import { keccak256Hash } from './hash'
@@ -63,10 +63,6 @@ export function verifySingleOwnerChunk(data: Uint8Array, address: ChunkAddress):
   }
 
   return makeSingleOwnerChunkFromData(data, address, ownerAddress)
-}
-
-function verifyBytesAtOffset<Length extends number>(offset: number, length: Length, data: Uint8Array): Bytes<Length> {
-  return verifyBytes(length, bytesAtOffset(offset, length, data))
 }
 
 function makeSingleOwnerChunkFromData(

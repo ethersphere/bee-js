@@ -93,7 +93,7 @@ export interface BeeResponse {
 }
 
 export interface ReferenceResponse {
-  reference: string
+  reference: Reference
 }
 
 /**
