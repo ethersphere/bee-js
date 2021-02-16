@@ -4,7 +4,7 @@ import { serializeBytes } from '../chunk/serialize'
 import { EthAddress, Signer } from '../chunk/signer'
 import { Identifier, makeSingleOwnerChunk, verifySingleOwnerChunk } from '../chunk/soc'
 import { uploadSingleOwnerChunk } from '../chunk/soc'
-import { createFeedManifest, FeedType, fetchFeedUpdate, FindFeedUpdateResponse } from '../modules/feed'
+import { createFeedManifest, fetchFeedUpdate, FindFeedUpdateResponse } from '../modules/feed'
 import { Reference, ReferenceResponse, UploadOptions } from '../types'
 import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -13,6 +13,7 @@ import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
 import { Topic } from './topic'
 import { Owner } from '../chunk/owner'
+import { FeedType } from './type'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8
@@ -24,13 +25,53 @@ export interface Epoch {
   time: number
   level: number
 }
+export type IndexBytes = Bytes<8>
+export type Index = number | Epoch | IndexBytes | string
+
+
+export interface FeedUploadOptions extends UploadOptions {
+  at?: number
+}
+
+type PlainChunkReference = Bytes<32>
+type EncryptedChunkReference = Bytes<64>
+export type ChunkReference = PlainChunkReference | EncryptedChunkReference
+
+/**
+ * FeedReader is an interface for downloading feed updates
+ */
+export interface FeedReader {
+  readonly type: FeedType
+  readonly owner: Owner
+  readonly topic: Topic
+  /**
+   * Download the latest feed update
+   */
+  download(): Promise<FindFeedUpdateResponse>
+  /**
+   * Create feed manifest chunk and return the reference
+   */
+  createManifest(): Promise<ReferenceResponse>
+}
+
+/**
+ * FeedWriter is an interface for updating feeds
+ */
+export interface FeedWriter extends FeedReader {
+  /**
+   * Upload a new feed update
+   *
+   * @param reference The reference to be stored in the new update
+   * @param options   Additional options like `at`
+   *
+   * @returns The reference of the new update
+   */
+  upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
+}
 
 export function isEpoch(epoch: unknown): epoch is Epoch {
   return typeof epoch === 'object' && epoch !== null && 'time' in epoch && 'level' in epoch
 }
-
-export type IndexBytes = Bytes<8>
-export type Index = number | Epoch | IndexBytes | string
 
 function hashFeedIdentifier(topic: Topic, index: IndexBytes): Identifier {
   return keccak256Hash(topic, index)
@@ -62,10 +103,6 @@ export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
 
   return hashFeedIdentifier(topic, index)
 }
-
-type PlainChunkReference = Bytes<32>
-type EncryptedChunkReference = Bytes<64>
-export type ChunkReference = PlainChunkReference | EncryptedChunkReference
 
 export async function uploadFeedUpdate(
   url: string,
@@ -158,24 +195,7 @@ export async function downloadFeedUpdate(
   }
 }
 
-/**
- * FeedReader is an interface for downloading feed updates
- */
-export interface FeedReader {
-  readonly type: FeedType
-  readonly owner: Owner
-  readonly topic: Topic
-  /**
-   * Download the latest feed update
-   */
-  download(): Promise<FindFeedUpdateResponse>
-  /**
-   * Create feed manifest chunk and return the reference
-   */
-  createManifest(): Promise<ReferenceResponse>
-}
-
-export function makeFeedReader(url: string, owner: Owner, topic: Topic, type: FeedType = 'sequence'): FeedReader {
+export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: Owner): FeedReader {
   const ownerHex = bytesToHex(owner)
   const topicHex = bytesToHex(topic)
   const download = () => fetchFeedUpdate(url, ownerHex, topicHex, { type })
@@ -190,25 +210,6 @@ export function makeFeedReader(url: string, owner: Owner, topic: Topic, type: Fe
   }
 }
 
-export interface FeedUploadOptions extends UploadOptions {
-  at?: number
-}
-
-/**
- * FeedWriter is an interface for updating feeds
- */
-export interface FeedWriter extends FeedReader {
-  /**
-   * Upload a new feed update
-   *
-   * @param reference The reference to be stored in the new update
-   * @param options   Additional options like `at`
-   *
-   * @returns The reference of the new update
-   */
-  upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
-}
-
 function verifyReference(reference: ChunkReference | Reference): ChunkReference {
   if (typeof reference === 'string') {
     const hexReference = verifyHex(reference)
@@ -220,7 +221,7 @@ function verifyReference(reference: ChunkReference | Reference): ChunkReference 
   return verifyChunkReference(reference)
 }
 
-export function makeFeedWriter(url: string, signer: Signer, topic: Topic, type: FeedType = 'sequence'): FeedWriter {
+export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
   const upload = (reference: ChunkReference | Reference, options?: FeedUploadOptions) => {
     const verifiedReference = verifyReference(reference)
 
@@ -228,7 +229,7 @@ export function makeFeedWriter(url: string, signer: Signer, topic: Topic, type: 
   }
 
   return {
-    ...makeFeedReader(url, signer.address, topic, type),
+    ...makeFeedReader(url, type, topic, signer.address),
     upload,
   }
 }

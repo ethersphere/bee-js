@@ -209,13 +209,13 @@ describe('Bee class', () => {
     const topic = randomByteArray(32, Date.now())
 
     test.skip('create feed reader and manifest', async () => {
-      const feed = bee.makeFeedReader(owner, topic)
+      const feed = bee.makeFeedReader('sequence', topic, owner)
       const manifestResponse = await feed.createManifest()
       expect(typeof manifestResponse.reference).toBe('string')
     })
 
     test('feed writer with two updates', async () => {
-      const feed = bee.makeFeedWriter(signer, topic)
+      const feed = bee.makeFeedWriter('sequence', topic, signer)
       const referenceZero = makeBytes(32) // all zeroes
 
       await feed.upload(referenceZero)
@@ -229,13 +229,13 @@ describe('Bee class', () => {
       // TODO without this the test fails quite often
       // with the sleep it's better but still fails sometimes
       // there may be a race condition during lookup
-      await sleep(20 * 1000)
+      await sleep(1 * 1000)
 
       await feed.upload(referenceOne)
       const secondUpdateReferenceResponse = await feed.download()
 
       expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
       expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
-    }, 60000)
+    }, 20000)
   })
 })

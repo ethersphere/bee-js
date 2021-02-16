@@ -125,7 +125,7 @@ export function makeDefaultSigner(privateKey: PrivateKey): Signer {
   }
 }
 
-export function verifySigner(signer: Signer | PrivateKey | string): Signer {
+export function verifySigner(signer: Signer | Uint8Array | string): Signer {
   if (typeof signer === 'string') {
     const hexKey = verifyHex(signer)
     const keyBytes = hexToBytes(hexKey)

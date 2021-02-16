@@ -23,9 +23,8 @@ import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { FeedReader, FeedWriter, makeFeedReader, makeFeedWriter } from './feed'
-import { EthAddress, PrivateKey, verifySigner } from './chunk/signer'
-import { FeedType } from './modules/feed'
-import { HexString } from './utils/hex'
+import { EthAddress, verifySigner } from './chunk/signer'
+import { FeedType, verifyFeedType } from './feed/type'
 import { Signer } from './chunk/signer'
 import { verifyOwner } from './chunk/owner'
 import { Topic, verifyTopic } from './feed/topic'
@@ -356,36 +355,38 @@ export class Bee {
   /**
    * Make a new feed reader for downloading feed updates
    *
-   * @param owner   Owner's ethereum address in hex or bytes
+   * @param type    The type of the feed, can be 'epoch' or 'sequence'
    * @param topic   Topic in hex or bytes
-   * @param type    The type of the feed, can be 'epoch' or 'sequence' (default)
+   * @param owner   Owner's ethereum address in hex or bytes
    */
   makeFeedReader(
-    owner: EthAddress | Uint8Array | string,
+    type: FeedType,
     topic: Topic | Uint8Array | string,
-    type: FeedType = 'sequence',
+    owner: EthAddress | Uint8Array | string,
   ): FeedReader {
-    const verifiedOwner = verifyOwner(owner)
+    const verifiedType = verifyFeedType(type)
     const verifiedTopic = verifyTopic(topic)
+    const verifiedOwner = verifyOwner(owner)
 
-    return makeFeedReader(this.url, verifiedOwner, verifiedTopic, type)
+    return makeFeedReader(this.url, verifiedType, verifiedTopic, verifiedOwner)
   }
 
   /**
-   * Make a new feed write for updating feeds
+   * Make a new feed writer for updating feeds
    *
-   * @param signer  The signer's private key or a Signer instance that can sign data
-   * @param topic   Topic in hex or bytes
    * @param type    The type of the feed, can be 'epoch' or 'sequence' (default)
+   * @param topic   Topic in hex or bytes
+   * @param signer  The signer's private key or a Signer instance that can sign data
    */
   makeFeedWriter(
-    signer: Signer | PrivateKey | HexString,
+    type: FeedType,
     topic: Topic | Uint8Array | string,
-    type: FeedType = 'sequence',
+    signer: Signer | Uint8Array | string,
   ): FeedWriter {
+    const verifiedType = verifyFeedType(type)
     const verifiedTopic = verifyTopic(topic)
     const verifiedSigner = verifySigner(signer)
 
-    return makeFeedWriter(this.url, verifiedSigner, verifiedTopic, type)
+    return makeFeedWriter(this.url, verifiedType, verifiedTopic, verifiedSigner)
   }
 }

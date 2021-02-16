@@ -1,13 +1,13 @@
 import { Dictionary, ReferenceResponse } from '../types'
 import { safeAxios } from '../utils/safeAxios'
+import { FeedType } from '../feed/type'
 
 const feedEndpoint = '/feeds'
-
-export type FeedType = 'sequence' | 'epoch'
 
 export interface CreateFeedOptions {
   type?: FeedType
 }
+
 export interface FindFeedUpdateOptions {
   index?: number
   at?: number
