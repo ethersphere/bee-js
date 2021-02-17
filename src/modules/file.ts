@@ -42,7 +42,6 @@ export async function upload(
     url: url + endpoint,
     data: prepareData(data),
     headers: {
-      'content-type': 'application/octet-stream',
       ...extractFileUploadHeaders(options),
     },
     responseType: 'json',
