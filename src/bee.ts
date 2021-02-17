@@ -27,7 +27,9 @@ import { EthAddress, verifySigner } from './chunk/signer'
 import { FeedType, verifyFeedType } from './feed/type'
 import { Signer } from './chunk/signer'
 import { verifyOwner } from './chunk/owner'
-import { Topic, verifyTopic } from './feed/topic'
+import { Topic, TOPIC_LENGTH_BYTES, TOPIC_LENGTH_HEX, verifyTopic } from './feed/topic'
+import { type } from 'os'
+import { isHexString } from './utils/hex'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -360,9 +362,9 @@ export class Bee {
    * @param owner   Owner's ethereum address in hex or bytes
    */
   makeFeedReader(
-    type: FeedType,
-    topic: Topic | Uint8Array | string,
-    owner: EthAddress | Uint8Array | string,
+    type: FeedType | unknown,
+    topic: Topic | Uint8Array | string | unknown,
+    owner: EthAddress | Uint8Array | string | unknown,
   ): FeedReader {
     const verifiedType = verifyFeedType(type)
     const verifiedTopic = verifyTopic(topic)
@@ -379,9 +381,9 @@ export class Bee {
    * @param signer  The signer's private key or a Signer instance that can sign data
    */
   makeFeedWriter(
-    type: FeedType,
-    topic: Topic | Uint8Array | string,
-    signer: Signer | Uint8Array | string,
+    type: FeedType | unknown,
+    topic: Topic | Uint8Array | string | unknown,
+    signer: Signer | Uint8Array | string | unknown,
   ): FeedWriter {
     const verifiedType = verifyFeedType(type)
     const verifiedTopic = verifyTopic(topic)

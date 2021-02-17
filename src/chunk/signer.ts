@@ -125,7 +125,11 @@ export function makeDefaultSigner(privateKey: PrivateKey): Signer {
   }
 }
 
-export function verifySigner(signer: Signer | Uint8Array | string): Signer {
+export function isSigner(signer: unknown): signer is Signer {
+  return typeof signer === 'object' && signer !== null && 'sign' in signer && 'address' in signer
+}
+
+export function verifySigner(signer: Signer | Uint8Array | string | unknown): Signer {
   if (typeof signer === 'string') {
     const hexKey = verifyHex(signer)
     const keyBytes = hexToBytes(hexKey)
@@ -136,7 +140,8 @@ export function verifySigner(signer: Signer | Uint8Array | string): Signer {
     const verifiedPrivateKey = verifyBytes(32, signer)
 
     return makeDefaultSigner(verifiedPrivateKey)
+  } else if (isSigner(signer)) {
+    return signer
   }
-
-  return signer
+  throw TypeError('invalid signer')
 }
