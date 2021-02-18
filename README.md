@@ -127,6 +127,11 @@ or for Browsers
 
 `npm run compile:browser`
 
+## Maintainers
+
+- [nugaon](https://github.com/nugaon)
+- [agazso](https://github.com/agazso)
+
 ## License
 
 [BSD-3-Clause](./LICENSE)
