@@ -10,4 +10,3 @@ export function assertIsFeedType(type: unknown): asserts type is FeedType {
     throw new TypeError(`invalid feed type`)
   }
 }
-

@@ -247,5 +247,4 @@ describe('Bee class', () => {
       })
     })
   })
-
 })

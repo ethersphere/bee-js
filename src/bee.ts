@@ -379,11 +379,7 @@ export class Bee {
    * @param topic   Topic in hex or bytes
    * @param signer  The signer's private key or a Signer instance that can sign data
    */
-  makeFeedWriter(
-    type: FeedType,
-    topic: Topic | Uint8Array | string,
-    signer: Signer | Uint8Array | string,
-  ): FeedWriter {
+  makeFeedWriter(type: FeedType, topic: Topic | Uint8Array | string, signer: Signer | Uint8Array | string): FeedWriter {
     assertIsFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
