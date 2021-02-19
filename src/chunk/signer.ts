@@ -129,7 +129,7 @@ export function isSigner(signer: unknown): signer is Signer {
   return typeof signer === 'object' && signer !== null && 'sign' in signer && 'address' in signer
 }
 
-export function verifySigner(signer: Signer | Uint8Array | string | unknown): Signer {
+export function makeSigner(signer: Signer | Uint8Array | string | unknown): Signer {
   if (typeof signer === 'string') {
     const hexKey = verifyHex(signer)
     const keyBytes = hexToBytes(hexKey)

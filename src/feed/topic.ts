@@ -7,7 +7,7 @@ export const TOPIC_LENGTH_HEX = 2 * TOPIC_LENGTH_BYTES
 
 export type Topic = Bytes<32>
 
-export function verifyTopic(topic: Uint8Array | string | unknown): Topic {
+export function makeTopic(topic: Uint8Array | string | unknown): Topic {
   if (typeof topic === 'string') {
     const topicHex = verifyHex(topic)
     const topicBytes = hexToBytes(topicHex)

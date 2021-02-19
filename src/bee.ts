@@ -23,13 +23,11 @@ import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { FeedReader, FeedWriter, makeFeedReader, makeFeedWriter } from './feed'
-import { EthAddress, verifySigner } from './chunk/signer'
-import { FeedType, verifyFeedType } from './feed/type'
+import { EthAddress, makeSigner } from './chunk/signer'
+import { assertIsFeedType, FeedType } from './feed/type'
 import { Signer } from './chunk/signer'
-import { verifyOwner } from './chunk/owner'
-import { Topic, TOPIC_LENGTH_BYTES, TOPIC_LENGTH_HEX, verifyTopic } from './feed/topic'
-import { type } from 'os'
-import { isHexString } from './utils/hex'
+import { makeOwner } from './chunk/owner'
+import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -362,33 +360,47 @@ export class Bee {
    * @param owner   Owner's ethereum address in hex or bytes
    */
   makeFeedReader(
-    type: FeedType | unknown,
-    topic: Topic | Uint8Array | string | unknown,
-    owner: EthAddress | Uint8Array | string | unknown,
+    type: FeedType,
+    topic: Topic | Uint8Array | string,
+    owner: EthAddress | Uint8Array | string,
   ): FeedReader {
-    const verifiedType = verifyFeedType(type)
-    const verifiedTopic = verifyTopic(topic)
-    const verifiedOwner = verifyOwner(owner)
+    assertIsFeedType(type)
 
-    return makeFeedReader(this.url, verifiedType, verifiedTopic, verifiedOwner)
+    const canonicalTopic = makeTopic(topic)
+    const canonicalOwner = makeOwner(owner)
+
+    return makeFeedReader(this.url, type, canonicalTopic, canonicalOwner)
   }
 
   /**
    * Make a new feed writer for updating feeds
    *
-   * @param type    The type of the feed, can be 'epoch' or 'sequence' (default)
+   * @param type    The type of the feed, can be 'epoch' or 'sequence'
    * @param topic   Topic in hex or bytes
    * @param signer  The signer's private key or a Signer instance that can sign data
    */
   makeFeedWriter(
-    type: FeedType | unknown,
-    topic: Topic | Uint8Array | string | unknown,
-    signer: Signer | Uint8Array | string | unknown,
+    type: FeedType,
+    topic: Topic | Uint8Array | string,
+    signer: Signer | Uint8Array | string,
   ): FeedWriter {
-    const verifiedType = verifyFeedType(type)
-    const verifiedTopic = verifyTopic(topic)
-    const verifiedSigner = verifySigner(signer)
+    assertIsFeedType(type)
 
-    return makeFeedWriter(this.url, verifiedType, verifiedTopic, verifiedSigner)
+    const canonicalTopic = makeTopic(topic)
+    const canonicalSigner = makeSigner(signer)
+
+    return makeFeedWriter(this.url, type, canonicalTopic, canonicalSigner)
+  }
+
+  /**
+   * Make a new feed topic from a string
+   *
+   * Because the topic has to be 32 bytes long this function
+   * hashes the input string to create a topic.
+   *
+   * @param topic The input string
+   */
+  makeFeedTopic(topic: string): Topic {
+    return makeTopicFromString(topic)
   }
 }

@@ -5,7 +5,7 @@ import { EthAddress } from './signer'
 export type OwnerInput = EthAddress | Uint8Array | string | unknown
 export type Owner = EthAddress
 
-export function verifyOwner(owner: OwnerInput): Owner {
+export function makeOwner(owner: OwnerInput): Owner {
   if (typeof owner === 'string') {
     const hexOwner = verifyHex(owner)
     const ownerBytes = hexToBytes(hexOwner)

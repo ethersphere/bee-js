@@ -8,16 +8,22 @@ export interface CreateFeedOptions {
   type?: FeedType
 }
 
-export interface FindFeedUpdateOptions {
-  index?: number
+export interface FeedUpdateOptions {
+  /**
+   * Specifies the start date as unix time stamp
+   */
   at?: number
+  /**
+   * Can be 'epoch' or 'sequence' (default)
+   */
   type?: FeedType
 }
+
 interface FeedUpdateHeaders {
   feedIndex: string
   feedIndexNext: string
 }
-export interface FindFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
+export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
 
 /**
  * Create an initial feed root manifest
@@ -66,8 +72,8 @@ export async function fetchFeedUpdate(
   url: string,
   owner: string,
   topic: string,
-  options?: FindFeedUpdateOptions,
-): Promise<FindFeedUpdateResponse> {
+  options?: FeedUpdateOptions,
+): Promise<FetchFeedUpdateResponse> {
   const response = await safeAxios<ReferenceResponse>({
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
     params: options,

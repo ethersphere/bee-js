@@ -208,7 +208,7 @@ describe('Bee class', () => {
     const signer = testIdentity.privateKey
     const topic = randomByteArray(32, Date.now())
 
-    test.skip('create feed reader and manifest', async () => {
+    test('create feed reader and manifest', async () => {
       const feed = bee.makeFeedReader('sequence', topic, owner)
       const manifestResponse = await feed.createManifest()
       expect(typeof manifestResponse.reference).toBe('string')
@@ -236,6 +236,16 @@ describe('Bee class', () => {
 
       expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
       expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
-    }, 20000)
+    }, 60000)
+
+    describe('topic', () => {
+      test('create feed topic', () => {
+        const topic = bee.makeFeedTopic('swarm.eth:application:handshake')
+        const feed = bee.makeFeedReader('sequence', topic, owner)
+
+        expect(feed.topic).toEqual(topic)
+      })
+    })
   })
+
 })

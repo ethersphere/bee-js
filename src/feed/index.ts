@@ -4,7 +4,7 @@ import { serializeBytes } from '../chunk/serialize'
 import { EthAddress, Signer } from '../chunk/signer'
 import { Identifier, makeSingleOwnerChunk, verifySingleOwnerChunk } from '../chunk/soc'
 import { uploadSingleOwnerChunk } from '../chunk/soc'
-import { createFeedManifest, fetchFeedUpdate, FindFeedUpdateResponse } from '../modules/feed'
+import { createFeedManifest, FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
 import { Reference, ReferenceResponse, UploadOptions } from '../types'
 import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -28,14 +28,16 @@ export interface Epoch {
 export type IndexBytes = Bytes<8>
 export type Index = number | Epoch | IndexBytes | string
 
-
-export interface FeedUploadOptions extends UploadOptions {
-  at?: number
-}
+export interface FeedUploadOptions extends UploadOptions, FeedUpdateOptions {}
 
 type PlainChunkReference = Bytes<32>
 type EncryptedChunkReference = Bytes<64>
 export type ChunkReference = PlainChunkReference | EncryptedChunkReference
+
+export interface FeedUpdate {
+  timestamp: number
+  reference: ChunkReference
+}
 
 /**
  * FeedReader is an interface for downloading feed updates
@@ -47,7 +49,7 @@ export interface FeedReader {
   /**
    * Download the latest feed update
    */
-  download(): Promise<FindFeedUpdateResponse>
+  download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
   /**
    * Create feed manifest chunk and return the reference
    */
@@ -98,7 +100,7 @@ export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
 
     return hashFeedIdentifier(topic, indexBytes)
   } else if (isEpoch(index)) {
-    throw 'epoch is not yet implemented'
+    throw new TypeError('epoch is not yet implemented')
   }
 
   return hashFeedIdentifier(topic, index)
@@ -127,10 +129,10 @@ export async function findNexIndex(
   url: string,
   owner: HexString,
   topic: HexString,
-  type: FeedType = 'sequence',
+  options?: FeedUpdateOptions,
 ): Promise<string> {
   try {
-    const feedUpdate = await fetchFeedUpdate(url, owner, topic, { type })
+    const feedUpdate = await fetchFeedUpdate(url, owner, topic, options)
 
     return feedUpdate.feedIndexNext
   } catch (e) {
@@ -146,19 +148,13 @@ export async function updateFeed(
   signer: Signer,
   topic: Topic,
   reference: ChunkReference,
-  type: FeedType = 'sequence',
-  options?: FeedUploadOptions,
+  options: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const ownerHex = bytesToHex(signer.address)
   const topicHex = bytesToHex(topic)
-  const nextIndex = await findNexIndex(url, ownerHex, topicHex, type)
+  const nextIndex = await findNexIndex(url, ownerHex, topicHex, options)
 
   return uploadFeedUpdate(url, signer, topic, nextIndex, reference, options)
-}
-
-export interface FeedUpdate {
-  timestamp: number
-  reference: ChunkReference
 }
 
 function verifyChunkReferenceAtOffset(offset: number, data: Uint8Array): ChunkReference {
@@ -198,7 +194,7 @@ export async function downloadFeedUpdate(
 export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: Owner): FeedReader {
   const ownerHex = bytesToHex(owner)
   const topicHex = bytesToHex(topic)
-  const download = () => fetchFeedUpdate(url, ownerHex, topicHex, { type })
+  const download = (options?: FeedUpdateOptions) => fetchFeedUpdate(url, ownerHex, topicHex, { ...options, type })
   const createManifest = () => createFeedManifest(url, ownerHex, topicHex, { type })
 
   return {
@@ -210,22 +206,23 @@ export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner:
   }
 }
 
-function verifyReference(reference: ChunkReference | Reference): ChunkReference {
+function makeChunkReference(reference: ChunkReference | Reference | unknown): ChunkReference {
   if (typeof reference === 'string') {
     const hexReference = verifyHex(reference)
     const referenceBytes = hexToBytes(hexReference)
 
     return verifyChunkReference(referenceBytes)
+  } else if (reference instanceof Uint8Array) {
+    return verifyChunkReference(reference)
   }
-
-  return verifyChunkReference(reference)
+  throw new TypeError('invalid chunk reference')
 }
 
 export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
-  const upload = (reference: ChunkReference | Reference, options?: FeedUploadOptions) => {
-    const verifiedReference = verifyReference(reference)
+  const upload = (reference: ChunkReference | Reference | unknown, options?: FeedUploadOptions) => {
+    const canonicalReference = makeChunkReference(reference)
 
-    return updateFeed(url, signer, topic, verifiedReference, type, options)
+    return updateFeed(url, signer, topic, canonicalReference, { ...options, type })
   }
 
   return {
