@@ -226,11 +226,6 @@ describe('Bee class', () => {
 
       const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
 
-      // TODO without this the test fails quite often
-      // with the sleep it's better but still fails sometimes
-      // there may be a race condition during lookup
-      await sleep(1 * 1000)
-
       await feed.upload(referenceOne)
       const secondUpdateReferenceResponse = await feed.download()
 
