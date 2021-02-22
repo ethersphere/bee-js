@@ -14,7 +14,7 @@ export interface FeedUpdateOptions {
    */
   at?: number
   /**
-   * Can be 'epoch' or 'sequence' (default)
+   * Can be 'epoch' or 'sequence' (default: 'sequence')
    */
   type?: FeedType
 }
