@@ -206,7 +206,7 @@ export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner:
   }
 }
 
-function makeChunkReference(reference: ChunkReference | Reference | unknown): ChunkReference {
+function makeChunkReference(reference: ChunkReference | Reference): ChunkReference {
   if (typeof reference === 'string') {
     const hexReference = verifyHex(reference)
     const referenceBytes = hexToBytes(hexReference)
@@ -219,7 +219,7 @@ function makeChunkReference(reference: ChunkReference | Reference | unknown): Ch
 }
 
 export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
-  const upload = (reference: ChunkReference | Reference | unknown, options?: FeedUploadOptions) => {
+  const upload = (reference: ChunkReference | Reference, options?: FeedUploadOptions) => {
     const canonicalReference = makeChunkReference(reference)
 
     return updateFeed(url, signer, topic, canonicalReference, { ...options, type })
