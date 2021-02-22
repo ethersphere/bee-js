@@ -125,7 +125,7 @@ export async function uploadFeedUpdate(
   return response
 }
 
-export async function findNexIndex(
+export async function findNextIndex(
   url: string,
   owner: HexString,
   topic: HexString,
@@ -152,7 +152,7 @@ export async function updateFeed(
 ): Promise<ReferenceResponse> {
   const ownerHex = bytesToHex(signer.address)
   const topicHex = bytesToHex(topic)
-  const nextIndex = await findNexIndex(url, ownerHex, topicHex, options)
+  const nextIndex = await findNextIndex(url, ownerHex, topicHex, options)
 
   return uploadFeedUpdate(url, signer, topic, nextIndex, reference, options)
 }
