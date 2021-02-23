@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "elliptic": "^6.5.3",
+    "elliptic": "^6.5.4",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
     "tar-js": "^0.3.0",
