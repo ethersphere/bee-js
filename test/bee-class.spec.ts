@@ -3,7 +3,7 @@ import { ChunkReference } from '../src/feed'
 import { HEX_REFERENCE_LENGTH } from '../src/types'
 import { makeBytes } from '../src/utils/bytes'
 import { bytesToHex } from '../src/utils/hex'
-import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, sleep, testIdentity } from './utils'
+import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, testIdentity } from './utils'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
