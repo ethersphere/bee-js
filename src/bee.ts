@@ -28,6 +28,8 @@ import { assertIsFeedType, FeedType } from './feed/type'
 import { Signer } from './chunk/signer'
 import { makeOwner } from './chunk/owner'
 import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
+import { createFeedManifest } from './modules/feed'
+import { bytesToHex } from './utils/hex'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -350,6 +352,26 @@ export class Bee {
         }, timeoutMsec) as unknown) as number
       }
     })
+  }
+
+  /**
+   * Create feed manifest chunk and return the reference to it
+   *
+   * @param type    The type of the feed, can be 'epoch' or 'sequence'
+   * @param topic   Topic in hex or bytes
+   * @param owner   Owner's ethereum address in hex or bytes
+   */
+  createFeedManifest(
+    type: FeedType,
+    topic: Topic | Uint8Array | string,
+    owner: EthAddress | Uint8Array | string,
+  ): Promise<Reference> {
+    assertIsFeedType(type)
+
+    const canonicalTopic = makeTopic(topic)
+    const canonicalOwner = makeOwner(owner)
+
+    return createFeedManifest(this.url, bytesToHex(canonicalOwner), bytesToHex(canonicalTopic), { type })
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Dictionary, ReferenceResponse } from '../types'
+import { Dictionary, Reference, ReferenceResponse } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 import { FeedType } from '../feed/type'
 
@@ -38,14 +38,14 @@ export async function createFeedManifest(
   owner: string,
   topic: string,
   options?: CreateFeedOptions,
-): Promise<ReferenceResponse> {
+): Promise<Reference> {
   const response = await safeAxios<ReferenceResponse>({
     method: 'post',
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
     params: options,
   })
 
-  return response.data
+  return response.data.reference
 }
 
 function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {

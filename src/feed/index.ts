@@ -4,7 +4,7 @@ import { serializeBytes } from '../chunk/serialize'
 import { EthAddress, Signer } from '../chunk/signer'
 import { Identifier, makeSingleOwnerChunk, verifySingleOwnerChunk } from '../chunk/soc'
 import { uploadSingleOwnerChunk } from '../chunk/soc'
-import { createFeedManifest, FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
+import { FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
 import { Reference, ReferenceResponse, UploadOptions } from '../types'
 import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -50,10 +50,6 @@ export interface FeedReader {
    * Download the latest feed update
    */
   download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
-  /**
-   * Create feed manifest chunk and return the reference
-   */
-  createManifest(): Promise<ReferenceResponse>
 }
 
 /**
@@ -195,14 +191,12 @@ export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner:
   const ownerHex = bytesToHex(owner)
   const topicHex = bytesToHex(topic)
   const download = (options?: FeedUpdateOptions) => fetchFeedUpdate(url, ownerHex, topicHex, { ...options, type })
-  const createManifest = () => createFeedManifest(url, ownerHex, topicHex, { type })
 
   return {
     type,
     owner,
     topic,
     download,
-    createManifest,
   }
 }
 

@@ -12,7 +12,7 @@ describe('modules/feed', () => {
     const reference = '92442c3e08a308aeba8e2d231733ec57011a203354cad24129e7e0c37bac0cbe'
     const response = await createFeedManifest(url, owner, topic)
 
-    expect(response).toEqual({ reference })
+    expect(response).toEqual(reference)
   })
 
   test('empty feed update', async () => {

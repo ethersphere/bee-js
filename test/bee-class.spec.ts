@@ -209,9 +209,8 @@ describe('Bee class', () => {
     const topic = randomByteArray(32, Date.now())
 
     test('create feed reader and manifest', async () => {
-      const feed = bee.makeFeedReader('sequence', topic, owner)
-      const manifestResponse = await feed.createManifest()
-      expect(typeof manifestResponse.reference).toBe('string')
+      const manifestReference = await bee.createFeedManifest('sequence', topic, owner)
+      expect(typeof manifestReference).toBe('string')
     })
 
     test('feed writer with two updates', async () => {
