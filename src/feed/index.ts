@@ -148,7 +148,7 @@ export async function updateFeed(
   signer: Signer,
   topic: Topic,
   reference: ChunkReference,
-  options: FeedUploadOptions,
+  options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const ownerHex = bytesToHex(signer.address)
   const topicHex = bytesToHex(topic)
