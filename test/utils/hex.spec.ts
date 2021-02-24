@@ -1,4 +1,4 @@
-import { bytesToHex, HexString, hexToBytes, isHexString, stripHexPrefix } from '../../src/utils/hex'
+import { bytesToHex, HexString, hexToBytes, intToHex, isHexString, stripHexPrefix } from '../../src/utils/hex'
 
 describe('hex', () => {
   describe('stripHexPrefix', () => {
@@ -84,6 +84,34 @@ describe('hex', () => {
       const result = bytesToHex(input)
 
       expect(result).toEqual(testHex)
+    })
+  })
+
+  describe('intToHex', () => {
+    const testValues = [
+      { value: 1, result: '1' },
+      { value: 1, result: '0x1', prefix: true },
+      { value: 15, result: '0xf', prefix: true },
+      { value: 16, result: '0x10', prefix: true },
+      { value: 16, result: '10' },
+      { value: 124, result: '7c' },
+      { value: 28721856816, result: '6aff4c130' },
+      { value: Number.MAX_SAFE_INTEGER, result: '1fffffffffffff' },
+    ]
+
+    testValues.forEach(({ value, result, prefix }) => {
+      test(`should conver value ${value} to ${result}`, () => {
+        expect(intToHex(value, prefix)).toBe(result)
+      })
+    })
+
+    test('should throw for int value higher than MAX_SAFE_INTEGER', () => {
+      expect(() => intToHex(Number.MAX_SAFE_INTEGER + 1)).toThrow()
+    })
+
+    test('should throw for non-positive or non-int', () => {
+      const testValues = [124.1, 'a', '0', -1, () => {}, new Function()] // eslint-disable-line @typescript-eslint/no-empty-function
+      testValues.forEach(value => expect(() => intToHex((value as unknown) as number)).toThrow())
     })
   })
 })
