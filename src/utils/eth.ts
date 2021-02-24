@@ -1,4 +1,4 @@
-import { keccak256 } from 'js-sha3'
+import { keccak256, sha3_256 } from 'js-sha3'
 import { BrandedString } from '../types'
 import { HexString, hexToBytes, intToHex, isHexString, stripHexPrefix, verifyHex } from './hex'
 export type EthAddress = BrandedString<'EthAddress'>
@@ -51,7 +51,7 @@ export function toLittleEndian(bigEndian: number | string | HexString, pad = 2):
 
   let hexRep
 
-  if (isHexString(bigEndian)) hexRep = stripHexPrefix(bigEndian) as HexString
+  if (isHexString(bigEndian as string)) hexRep = stripHexPrefix<HexString>(bigEndian as HexString)
   else if (typeof bigEndian === 'number') hexRep = intToHex(bigEndian)
   else throw new TypeError('incorrect input type')
 
@@ -89,7 +89,7 @@ export function fromLittleEndian(littleEndian: number | string | HexString, pad 
 export function ethToSwarmAddress(ethAddress: string | HexString | EthAddress, networkId = 1): OverlayAddress {
   const hex = verifyHex(`${stripHexPrefix(ethAddress)}${toLittleEndian(networkId, 16)}`)
 
-  const overlayAddress = keccak256(hexToBytes(hex))
+  const overlayAddress = sha3_256(hexToBytes(hex))
 
   return overlayAddress as OverlayAddress
 }
