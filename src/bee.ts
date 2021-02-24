@@ -26,6 +26,7 @@ import { FeedReader, FeedWriter, makeFeedReader, makeFeedWriter } from './feed'
 import { EthAddress, makeSigner } from './chunk/signer'
 import { assertIsFeedType, FeedType } from './feed/type'
 import { Signer } from './chunk/signer'
+import { downloadSingleOwnerChunk, makeAndUploadSingleOwnerChunk, SOCReader, SOCWriter } from './chunk/soc'
 import { makeOwner } from './chunk/owner'
 import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
@@ -420,5 +421,29 @@ export class Bee {
    */
   makeFeedTopic(topic: string): Topic {
     return makeTopicFromString(topic)
+  }
+
+  /**
+   * Returns an object for reading single owner chunks
+   *
+   * @param ownerAddress The ethereum address of the owner
+   */
+  makeSOCReader(ownerAddress: EthAddress): SOCReader {
+    return {
+      download: downloadSingleOwnerChunk.bind(null, this.url, ownerAddress),
+    }
+  }
+
+  /**
+   * Returns an object for reading and writing single owner chunks
+   *
+   * @param signer  The object for signing chunks
+   */
+  makeSOCWriter(signer: Signer): SOCWriter {
+    return {
+      ...this.makeSOCReader(signer.address),
+
+      upload: makeAndUploadSingleOwnerChunk.bind(null, this.url, signer),
+    }
   }
 }
