@@ -5,27 +5,27 @@ export type HexEthAddress = BrandedString<'HexEthAddress'>
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 
 /**
- * Check if is valid ethereum address
+ * Check if this is all caps or small caps eth address (=address without checksum)
  *
- * Pretty much typed version from web3js
- * https://github.com/ChainSafe/web3.js/blob/1.x/packages/web3-utils/src/utils.js
- *
- * @param address  Ethereum address
- *
- * @return True if is valid eth address
+ * @param address Ethereum address as hex string
  */
-export function isEthAddress(address: string | HexString | HexEthAddress): address is HexEthAddress {
-  if (typeof address !== 'string' || !/^(0x)?[0-9a-f]{40}$/i.test(address)) {
-    // Check if it has the basic requirements of an address - type string, pad 40 chars, numbers and letters a-f case insensitive
-    return false
-  }
+function isEthAddrCaseIns(address: string | HexString | HexEthAddress): address is HexEthAddress {
+  // Check it's string, all small caps or all all caps hex and 40 chars long without the `0x` prefix
+  return (
+    typeof address === 'string' && (/^(0x|0X)?[0-9a-f]{40}$/.test(address) || /^(0x|0X)?[0-9A-F]{40}$/.test(address))
+  )
+}
 
-  if (/^(0x|0X)?[0-9a-f]{40}$/.test(address) || /^(0x|0X)?[0-9A-F]{40}$/.test(address)) {
-    // If it's all small caps or all all caps, return true
-    return true
-  }
+/**
+ * Check if this is checksummed ethereum address
+ *
+ * @param address Ethereum address as hex string
+ */
+function isEthAddrChecksummed(address: string | HexString | HexEthAddress): address is HexEthAddress {
+  // Does not meet basic requirements of an address - type string, 40 chars, case insensitive hex numbers
+  if (typeof address !== 'string' && !/^(0x)?[0-9a-f]{40}$/i.test(address)) return false
 
-  // Potentially a checksummed address
+  // Check the checksum
   const addr = stripHexPrefix(address)
   const addressHash = keccak256(addr.toLowerCase())
   for (let i = 0; i < 40; i += 1) {
@@ -39,6 +39,20 @@ export function isEthAddress(address: string | HexString | HexEthAddress): addre
   }
 
   return true
+}
+
+/**
+ * Check if is valid ethereum address
+ *
+ * Pretty much typed version from web3js
+ * https://github.com/ChainSafe/web3.js/blob/1.x/packages/web3-utils/src/utils.js
+ *
+ * @param address  Ethereum address as hex string
+ *
+ * @return True if is valid eth address
+ */
+export function isEthAddress(address: string | HexString | HexEthAddress): address is HexEthAddress {
+  return isEthAddrCaseIns(address) || isEthAddrChecksummed(address)
 }
 
 /**

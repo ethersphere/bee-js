@@ -72,7 +72,7 @@ export function intToHex(int: number, withPrefix = false): HexString {
  * @param s string input
  */
 export function isHexString(s: string): s is HexString {
-  return typeof s === 'string' && /^(0x)?[0-9a-fA-F]+$/i.test(s)
+  return typeof s === 'string' && /^(0x)?[0-9a-f]+$/i.test(s)
 }
 
 /**
