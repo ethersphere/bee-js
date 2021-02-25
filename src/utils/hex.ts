@@ -33,7 +33,7 @@ export function hexToBytes(hex: HexString): Uint8Array {
 /**
  * Converts array of number or Uint8Array to hex string.
  *
- * Optionally provides a the '0x' prefix.
+ * Optionally provides '0x' prefix.
  *
  * @param bytes       The input array
  * @param withPrefix  Provides '0x' prefix when true (default: false)
@@ -47,12 +47,32 @@ export function bytesToHex(bytes: Uint8Array, withPrefix = false): HexString {
 }
 
 /**
+ * Converst integer number to hex string.
+ *
+ * Optionally provides '0x' prefix or padding
+ *
+ * @param int         The positive integer to be converted
+ * @param withPrefix  Provides '0x' prefix when true (default: false)
+ */
+export function intToHex(int: number, withPrefix = false): HexString {
+  if (!Number.isInteger(int)) throw new TypeError('the value provided is not integer')
+
+  if (int > Number.MAX_SAFE_INTEGER) throw new TypeError('the value provided exceeds safe integer')
+
+  if (int < 0) throw new TypeError('the value provided is a negative integer')
+  const prefix = withPrefix ? '0x' : ''
+  const hex = int.toString(16)
+
+  return `${prefix}${hex}` as HexString
+}
+
+/**
  * Type guard for HexStrings
  *
  * @param s string input
  */
 export function isHexString(s: string): s is HexString {
-  return /^(0x)?[0-9a-fA-F]+$/i.test(s)
+  return typeof s === 'string' && /^(0x)?[0-9a-f]+$/i.test(s)
 }
 
 /**
