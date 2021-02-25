@@ -96,6 +96,12 @@ export function fromLittleEndian(littleEndian: number | string | HexString, pad 
  * @return Swarm overlay address
  */
 export function ethToSwarmAddress(ethAddress: string | HexString | EthAddress, networkId = 1): OverlayAddress {
+  if (!isEthAddress(ethAddress)) throw new TypeError('incorrect ETH address')
+
+  if (Number.isInteger(networkId && networkId > 0 && networkId < Number.MAX_SAFE_INTEGER)) {
+    throw new TypeError('swarm network id must be positive integer')
+  }
+
   const hex = verifyHex(`${stripHexPrefix(ethAddress)}${toLittleEndian(networkId, 16)}`)
 
   const overlayAddress = sha3_256(hexToBytes(hex))

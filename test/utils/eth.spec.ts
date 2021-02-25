@@ -10,7 +10,7 @@ describe('eth', () => {
       { value: '0xc6d9d2cd449a754c494264e1809c50e34d64562b', result: true },
       { value: '0xc6d9d2cd449a754c494264e1809c50e34d64562b'.toUpperCase(), result: true },
       { value: 'c6d9d2cd449a754c494264e1809c50e34d64562b', result: true },
-      { value: '0xc6d9d2cd449a754c494264e1809c50e34d64562b'.toUpperCase(), result: true },
+      { value: 'c6d9d2cd449a754c494264e1809c50e34d64562b'.toUpperCase(), result: true },
       { value: 'E247A45c287191d435A8a5D72A7C8dc030451E9F', result: true },
       { value: '0xE247A45c287191d435A8a5D72A7C8dc030451E9F', result: true },
       { value: '0xE247a45c287191d435A8a5D72A7C8dc030451E9F', result: false },
@@ -106,5 +106,35 @@ describe('eth', () => {
         expect(ethToSwarmAddress(value)).toBe(result)
       })
     })
+
+    const wrongTestValues = [
+      {
+        address: '1815cac638d1525b47f848daf02b7953e4edd15cf',
+        netId: 1
+      },
+      {
+        address: '1815cac638d1525b47f848daf02b7953e4edd15c',
+        netId: 0
+      },
+      {
+        address: '1815cac638d1525b47f848daf02b7953e4edd15c',
+        netId: Number.MAX_SAFE_INTEGER + 1
+      },
+      {
+        address: '1815cac638d1525b47f848daf02b7953e4edd15c',
+        netId: () => {}
+      },
+      {
+        address: () => {},
+        netId: 1,
+      }
+    ]
+
+    wrongTestValues.forEach((address, netId) =>
+      test(`should throw for incorrect values address ${address} netId ${netId}`, () => {
+        expect(() => ethToSwarmAddress((address as unknown) as string, (netId as unknown) as number)).toThrow()
+      }),
+    )
+
   })
 })
