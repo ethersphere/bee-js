@@ -2,6 +2,7 @@ import { Readable } from 'stream'
 import type { BeeResponse } from '../src/types'
 import { HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
+import { BeeResponseError } from '../src'
 
 /**
  * Load common own Jest Matchers which can be used to check particular return values.
@@ -124,7 +125,11 @@ export async function tryDeleteChunkFromLocalStorage(address: string): Promise<v
   try {
     await deleteChunkFromLocalStorage(beeDebugUrl(), address)
   } catch (e) {
-    // ignore errors
+    // ignore not found errors
+    if (e instanceof BeeResponseError && e.status === 404) {
+      return
+    }
+    throw e
   }
 }
 
