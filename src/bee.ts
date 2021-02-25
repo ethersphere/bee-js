@@ -437,13 +437,15 @@ export class Bee {
   /**
    * Returns an object for reading and writing single owner chunks
    *
-   * @param signer  The object for signing chunks
+   * @param signer The signer's private key or a Signer instance that can sign data
    */
-  makeSOCWriter(signer: Signer): SOCWriter {
-    return {
-      ...this.makeSOCReader(signer.address),
+  makeSOCWriter(signer: Signer | Uint8Array | string): SOCWriter {
+    const canonicalSigner = makeSigner(signer)
 
-      upload: uploadSingleOwnerChunkData.bind(null, this.url, signer),
+    return {
+      ...this.makeSOCReader(canonicalSigner.address),
+
+      upload: uploadSingleOwnerChunkData.bind(null, this.url, canonicalSigner),
     }
   }
 }
