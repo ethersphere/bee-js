@@ -27,7 +27,7 @@ import { EthAddress, makeSigner } from './chunk/signer'
 import { assertIsFeedType, FeedType } from './feed/type'
 import { Signer } from './chunk/signer'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData, SOCReader, SOCWriter } from './chunk/soc'
-import { makeOwner } from './chunk/owner'
+import { makeOwner, OwnerInput } from './chunk/owner'
 import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
 import { bytesToHex } from './utils/hex'
@@ -428,9 +428,11 @@ export class Bee {
    *
    * @param ownerAddress The ethereum address of the owner
    */
-  makeSOCReader(ownerAddress: EthAddress): SOCReader {
+  makeSOCReader(ownerAddress: OwnerInput): SOCReader {
+    const canonicalOwner = makeOwner(ownerAddress)
+
     return {
-      download: downloadSingleOwnerChunk.bind(null, this.url, ownerAddress),
+      download: downloadSingleOwnerChunk.bind(null, this.url, canonicalOwner),
     }
   }
 
