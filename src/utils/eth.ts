@@ -11,6 +11,8 @@ export type OverlayAddress = BrandedString<'OverlayAddress'>
  * https://github.com/ChainSafe/web3.js/blob/1.x/packages/web3-utils/src/utils.js
  *
  * @param address  Ethereum address
+ * 
+ * @return True if is valid eth address
  */
 export function isEthAddress(address: string | HexString): address is EthAddress {
   if (typeof address !== 'string' || !/^(0x)?[0-9a-f]{40}$/i.test(address)) {
@@ -43,6 +45,8 @@ export function isEthAddress(address: string | HexString): address is EthAddress
  *
  * @param bigEndian Big-endian hex string or number to convert
  * @param pad       Length to which the string should be padded before conversion (defaul: 2)
+ * 
+ * @return little-endian encoded hexstring
  */
 export function toLittleEndian(bigEndian: number | string | HexString, pad = 2): HexString | never {
   if (!(Number.isInteger(pad) && pad >= 2 && pad % 2 === 0)) {
@@ -74,6 +78,8 @@ export function toLittleEndian(bigEndian: number | string | HexString, pad = 2):
  *
  * @param littleEndian Little-endian hex string or number to convert
  * @param pad          Length to which the string should be padded before conversion (defaul: 2)
+ * 
+ * @return big-endian encoded hexstring
  */
 export function fromLittleEndian(littleEndian: number | string | HexString, pad = 2): HexString | never {
   // It's a reversible function
@@ -81,10 +87,13 @@ export function fromLittleEndian(littleEndian: number | string | HexString, pad 
 }
 
 /**
+ * Get swarm overlay address from public ethereum address and swarm network id
  *
  *
- * @param ethAddress
- * @param networkId
+ * @param ethAddress  Public ethereum address
+ * @param networkId   Swarm network id
+ *
+ * @return Swarm overlay address
  */
 export function ethToSwarmAddress(ethAddress: string | HexString | EthAddress, networkId = 1): OverlayAddress {
   const hex = verifyHex(`${stripHexPrefix(ethAddress)}${toLittleEndian(networkId, 16)}`)
