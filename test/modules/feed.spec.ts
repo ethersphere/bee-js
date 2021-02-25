@@ -1,6 +1,6 @@
 import { createFeedManifest, fetchFeedUpdate } from '../../src/modules/feed'
 import { HexString, hexToBytes, stripHexPrefix } from '../../src/utils/hex'
-import { beeUrl, testIdentity } from '../utils'
+import { beeUrl, testIdentity, tryDeleteChunkFromLocalStorage } from '../utils'
 import { upload as uploadSOC } from '../../src/modules/soc'
 
 describe('modules/feed', () => {
@@ -30,6 +30,11 @@ describe('modules/feed', () => {
     const socData = hexToBytes(
       '280000000000000000000000602a57df0000000000000000000000000000000000000000000000000000000000000000' as HexString,
     )
+
+    // delete the chunk from local storage if already exists
+    // this makes the test repeatable
+    const cacAddress = '03e8eef6d72dbca9dfb7d2e15a5a305a152a3807ac7fd5ea52721a16972f3813'
+    await tryDeleteChunkFromLocalStorage(cacAddress)
 
     const socResponse = await uploadSOC(url, owner, identifier, signature, socData)
     expect(typeof socResponse.reference).toBe('string')

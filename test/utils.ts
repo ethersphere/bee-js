@@ -1,6 +1,7 @@
 import { Readable } from 'stream'
 import type { BeeResponse } from '../src/types'
 import { HexString } from '../src/utils/hex'
+import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 
 /**
  * Load common own Jest Matchers which can be used to check particular return values.
@@ -112,6 +113,19 @@ export function beeDebugUrl(url: string = beeUrl()): string {
   const port = urlObj.port ? parseInt(urlObj.port, 10) + 2 : 1635
 
   return urlObj.protocol + '//' + urlObj.hostname + ':' + port
+}
+
+/**
+ * Try to delete a chunk from local storage, ignoring all errors
+ *
+ * @param address  Swarm address of chunk
+ */
+export async function tryDeleteChunkFromLocalStorage(address: string): Promise<void> {
+  try {
+    await deleteChunkFromLocalStorage(beeDebugUrl(), address)
+  } catch (e) {
+    // ignore errors
+  }
 }
 
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
