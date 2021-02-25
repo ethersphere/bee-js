@@ -174,7 +174,7 @@ export function uploadSingleOwnerChunk(
  * @param data        The chunk data
  * @param options
  */
-export async function makeAndUploadSingleOwnerChunk(
+export async function uploadSingleOwnerChunkData(
   url: string,
   signer: Signer,
   identifier: Identifier,
@@ -187,6 +187,13 @@ export async function makeAndUploadSingleOwnerChunk(
   return uploadSingleOwnerChunk(url, soc, options)
 }
 
+/**
+ * Helper function to download SOC.
+ *
+ * @param url           The url of the Bee service
+ * @param ownerAddress  The singer interface for signing the chunk
+ * @param identifier    The identifier of the chunk
+ */
 export async function downloadSingleOwnerChunk(
   url: string,
   ownerAddress: EthAddress,
