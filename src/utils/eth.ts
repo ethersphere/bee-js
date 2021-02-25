@@ -21,7 +21,7 @@ function isEthAddrCaseIns(address: string | HexString | HexEthAddress): address 
  *
  * @param address Ethereum address as hex string
  */
-function isEthAddrChecksummed(address: string | HexString | HexEthAddress): address is HexEthAddress {
+function isValidChecksummedEthAddress(address: string | HexString | HexEthAddress): address is HexEthAddress {
   // Does not meet basic requirements of an address - type string, 40 chars, case insensitive hex numbers
   if (typeof address !== 'string' && !/^(0x)?[0-9a-f]{40}$/i.test(address)) return false
 
@@ -52,7 +52,7 @@ function isEthAddrChecksummed(address: string | HexString | HexEthAddress): addr
  * @return True if is valid eth address
  */
 export function isEthAddress(address: string | HexString | HexEthAddress): address is HexEthAddress {
-  return isEthAddrCaseIns(address) || isEthAddrChecksummed(address)
+  return isEthAddrCaseIns(address) || isValidChecksummedEthAddress(address)
 }
 
 /**
