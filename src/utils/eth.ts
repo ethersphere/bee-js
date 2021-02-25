@@ -11,7 +11,7 @@ export type OverlayAddress = BrandedString<'OverlayAddress'>
  * https://github.com/ChainSafe/web3.js/blob/1.x/packages/web3-utils/src/utils.js
  *
  * @param address  Ethereum address
- * 
+ *
  * @return True if is valid eth address
  */
 export function isEthAddress(address: string | HexString): address is EthAddress {
@@ -45,7 +45,7 @@ export function isEthAddress(address: string | HexString): address is EthAddress
  *
  * @param bigEndian Big-endian hex string or number to convert
  * @param pad       Length to which the string should be padded before conversion (defaul: 2)
- * 
+ *
  * @return little-endian encoded hexstring
  */
 export function toLittleEndian(bigEndian: number | string | HexString, pad = 2): HexString | never {
@@ -78,7 +78,7 @@ export function toLittleEndian(bigEndian: number | string | HexString, pad = 2):
  *
  * @param littleEndian Little-endian hex string or number to convert
  * @param pad          Length to which the string should be padded before conversion (defaul: 2)
- * 
+ *
  * @return big-endian encoded hexstring
  */
 export function fromLittleEndian(littleEndian: number | string | HexString, pad = 2): HexString | never {

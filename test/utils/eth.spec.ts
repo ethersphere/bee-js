@@ -1,9 +1,10 @@
+/* eslint @typescript-eslint/no-empty-function: 0 */
 import { ethToSwarmAddress, fromLittleEndian, isEthAddress, toLittleEndian } from '../../src/utils/eth'
 
 describe('eth', () => {
   describe('isEthAddress', () => {
     const testValues = [
-      { value: () => {}, result: false }, // eslint-disable-line @typescript-eslint/no-empty-function
+      { value: () => {}, result: false },
       { value: new Function(), result: false },
       { value: 'function', result: false },
       { value: {}, result: false },
@@ -46,7 +47,7 @@ describe('eth', () => {
       })
     })
 
-    const wrongTestValues = [124.1, -1, () => {}, new Function(), Number.MAX_SAFE_INTEGER + 1] // eslint-disable-line @typescript-eslint/no-empty-function
+    const wrongTestValues = [124.1, -1, () => {}, new Function(), Number.MAX_SAFE_INTEGER + 1]
 
     wrongTestValues.forEach(value =>
       test(`should throw for non string or positive int values: ${value}`, () => {
@@ -110,24 +111,24 @@ describe('eth', () => {
     const wrongTestValues = [
       {
         address: '1815cac638d1525b47f848daf02b7953e4edd15cf',
-        netId: 1
+        netId: 1,
       },
       {
         address: '1815cac638d1525b47f848daf02b7953e4edd15c',
-        netId: 0
+        netId: 0,
       },
       {
         address: '1815cac638d1525b47f848daf02b7953e4edd15c',
-        netId: Number.MAX_SAFE_INTEGER + 1
+        netId: Number.MAX_SAFE_INTEGER + 1,
       },
       {
         address: '1815cac638d1525b47f848daf02b7953e4edd15c',
-        netId: () => {}
+        netId: () => {},
       },
       {
         address: () => {},
         netId: 1,
-      }
+      },
     ]
 
     wrongTestValues.forEach((address, netId) =>
@@ -135,6 +136,5 @@ describe('eth', () => {
         expect(() => ethToSwarmAddress((address as unknown) as string, (netId as unknown) as number)).toThrow()
       }),
     )
-
   })
 })
