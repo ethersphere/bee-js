@@ -1,7 +1,7 @@
 import { keccak256, sha3_256 } from 'js-sha3'
 import { BrandedString } from '../types'
 import { HexString, hexToBytes, intToHex, isHexString, stripHexPrefix, verifyHex } from './hex'
-export type EthAddress = BrandedString<'EthAddress'>
+export type HexEthAddress = BrandedString<'HexEthAddress'>
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 
 /**
@@ -14,29 +14,31 @@ export type OverlayAddress = BrandedString<'OverlayAddress'>
  *
  * @return True if is valid eth address
  */
-export function isEthAddress(address: string | HexString): address is EthAddress {
+export function isEthAddress(address: string | HexString | HexEthAddress): address is HexEthAddress {
   if (typeof address !== 'string' || !/^(0x)?[0-9a-f]{40}$/i.test(address)) {
     // Check if it has the basic requirements of an address - type string, pad 40 chars, numbers and letters a-f case insensitive
     return false
-  } else if (/^(0x|0X)?[0-9a-f]{40}$/.test(address) || /^(0x|0X)?[0-9A-F]{40}$/.test(address)) {
+  }
+
+  if (/^(0x|0X)?[0-9a-f]{40}$/.test(address) || /^(0x|0X)?[0-9A-F]{40}$/.test(address)) {
     // If it's all small caps or all all caps, return true
     return true
-  } else {
-    // Potentially a checksummed address
-    const addr = stripHexPrefix(address)
-    const addressHash = keccak256(addr.toLowerCase())
-    for (let i = 0; i < 40; i += 1) {
-      // the nth letter should be uppercase if the nth digit of casemap is 1
-      if (
-        (parseInt(addressHash[i], 16) > 7 && addr[i].toUpperCase() !== addr[i]) ||
-        (parseInt(addressHash[i], 16) <= 7 && addr[i].toLowerCase() !== addr[i])
-      ) {
-        return false
-      }
-    }
-
-    return true
   }
+
+  // Potentially a checksummed address
+  const addr = stripHexPrefix(address)
+  const addressHash = keccak256(addr.toLowerCase())
+  for (let i = 0; i < 40; i += 1) {
+    // the nth letter should be uppercase if the nth digit of casemap is 1
+    if (
+      (parseInt(addressHash[i], 16) > 7 && addr[i].toUpperCase() !== addr[i]) ||
+      (parseInt(addressHash[i], 16) <= 7 && addr[i].toLowerCase() !== addr[i])
+    ) {
+      return false
+    }
+  }
+
+  return true
 }
 
 /**
@@ -86,21 +88,27 @@ export function fromLittleEndian(littleEndian: number | string | HexString, pad 
   return toLittleEndian(littleEndian, pad)
 }
 
+function assertIsEthAddress(ethAddress: string | HexString | HexEthAddress): asserts ethAddress is HexEthAddress {
+  if (!isEthAddress(ethAddress)) throw new TypeError('invalid ETH address')
+}
+
+function assertIsSwarmNetworkId(networkId: number): asserts networkId is number {
+  if (Number.isInteger(networkId && networkId > 0 && networkId < Number.MAX_SAFE_INTEGER)) {
+    throw new TypeError('swarm network id must be positive integer')
+  }
+}
+
 /**
  * Get swarm overlay address from public ethereum address and swarm network id
- *
  *
  * @param ethAddress  Public ethereum address
  * @param networkId   Swarm network id
  *
  * @return Swarm overlay address
  */
-export function ethToSwarmAddress(ethAddress: string | HexString | EthAddress, networkId = 1): OverlayAddress {
-  if (!isEthAddress(ethAddress)) throw new TypeError('incorrect ETH address')
-
-  if (Number.isInteger(networkId && networkId > 0 && networkId < Number.MAX_SAFE_INTEGER)) {
-    throw new TypeError('swarm network id must be positive integer')
-  }
+export function ethToSwarmAddress(ethAddress: string | HexString | HexEthAddress, networkId = 1): OverlayAddress {
+  assertIsEthAddress(ethAddress)
+  assertIsSwarmNetworkId(networkId)
 
   const hex = verifyHex(`${stripHexPrefix(ethAddress)}${toLittleEndian(networkId, 16)}`)
 

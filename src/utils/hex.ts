@@ -33,7 +33,7 @@ export function hexToBytes(hex: HexString): Uint8Array {
 /**
  * Converts array of number or Uint8Array to hex string.
  *
- * Optionally provides'0x' prefix.
+ * Optionally provides '0x' prefix.
  *
  * @param bytes       The input array
  * @param withPrefix  Provides '0x' prefix when true (default: false)
@@ -49,7 +49,7 @@ export function bytesToHex(bytes: Uint8Array, withPrefix = false): HexString {
 /**
  * Converst integer number to hex string.
  *
- * Optionally provides'0x' prefix or padding
+ * Optionally provides '0x' prefix or padding
  *
  * @param int         The positive integer to be converted
  * @param withPrefix  Provides '0x' prefix when true (default: false)
