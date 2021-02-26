@@ -1,11 +1,16 @@
 import { safeAxios } from '../../utils/safeAxios'
+import {
+  ChequebookAddressResponse,
+  ChequebookBalanceResponse,
+  LastCashoutActionResponse,
+  CashoutResponse,
+  LastChequesForPeerResponse,
+  LastChequesResponse,
+  DepositTokensResponse,
+  WithdrawTokensResponse,
+} from '../../types'
 
 const chequebookEndpoint = '/chequebook'
-
-export interface ChequebookAddressResponse {
-  // see this issue regarding the naming https://github.com/ethersphere/bee/issues/1078
-  chequebookaddress: string
-}
 
 /**
  * Get the address of the chequebook contract used
@@ -19,11 +24,6 @@ export async function getChequebookAddress(url: string): Promise<ChequebookAddre
   })
 
   return response.data
-}
-
-export interface ChequebookBalanceResponse {
-  totalBalance: number
-  availableBalance: number
 }
 
 /**
@@ -40,21 +40,6 @@ export async function getChequeubookBalance(url: string): Promise<ChequebookBala
   return response.data
 }
 
-export interface CashoutResult {
-  recipient: string
-  lastPayout: number
-  bounced: boolean
-}
-
-export interface LastCashoutActionResponse {
-  peer: string
-  chequebook: string
-  cumulativePayout: number
-  beneficiary: string
-  transactionHash: string
-  result: CashoutResult
-}
-
 /**
  * Get last cashout action for the peer
  *
@@ -68,10 +53,6 @@ export async function getLastCashoutAction(url: string, peer: string): Promise<L
   })
 
   return response.data
-}
-
-export interface CashoutResponse {
-  transactionHash: string
 }
 
 /**
@@ -90,18 +71,6 @@ export async function cashoutLastCheque(url: string, peer: string): Promise<Cash
   return response.data
 }
 
-export interface Cheque {
-  beneficiary: string
-  chequebook: string
-  payout: number
-}
-
-export interface LastChequesForPeerResponse {
-  peer: string
-  lastreceived: Cheque
-  lastsent: Cheque
-}
-
 /**
  * Get last cheques for the peer
  *
@@ -117,10 +86,6 @@ export async function getLastChequesForPeer(url: string, peer: string): Promise<
   return response.data
 }
 
-export interface LastChequesResponse {
-  lastcheques: LastChequesForPeerResponse[]
-}
-
 /**
  * Get last cheques for all peers
  *
@@ -133,10 +98,6 @@ export async function getLastCheques(url: string): Promise<LastChequesResponse> 
   })
 
   return response.data
-}
-
-export interface DepositTokensResponse {
-  transactionHash: string
 }
 
 /**
@@ -154,10 +115,6 @@ export async function depositTokens(url: string, amount: number): Promise<Deposi
   })
 
   return response.data
-}
-
-export interface WithdrawTokensResponse {
-  transactionHash: string
 }
 
 /**

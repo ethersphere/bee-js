@@ -1,16 +1,8 @@
 import { safeAxios } from '../../utils/safeAxios'
+import { PeerBalance, BalanceResponse } from '../../types'
 
 const balancesEndpoint = '/balances'
 const consumedEndpoint = '/consumed'
-
-export interface PeerBalance {
-  peer: string
-  balance: number
-}
-
-export interface BalanceResponse {
-  balances: PeerBalance[]
-}
 
 /**
  * Get the balances with all known peers including prepaid services

@@ -2,7 +2,23 @@ import * as connectivity from './modules/debug/connectivity'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
 import * as settlements from './modules/debug/settlements'
-import type { PublicKey, Address } from './types'
+import type {
+  PublicKey,
+  Address,
+  Peer,
+  BalanceResponse,
+  PeerBalance,
+  ChequebookAddressResponse,
+  ChequebookBalanceResponse,
+  LastChequesResponse,
+  LastChequesForPeerResponse,
+  LastCashoutActionResponse,
+  CashoutResponse,
+  DepositTokensResponse,
+  WithdrawTokensResponse,
+  Settlements,
+  AllSettlements,
+} from './types'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -27,7 +43,7 @@ export class BeeDebug {
   /**
    * Get list of peers for this node
    */
-  getPeers(): Promise<connectivity.Peers> {
+  getPeers(): Promise<Peer[]> {
     return connectivity.getPeers(this.url)
   }
 
@@ -38,7 +54,7 @@ export class BeeDebug {
   /**
    * Get the balances with all known peers including prepaid services
    */
-  getAllBalances(): Promise<balance.BalanceResponse> {
+  getAllBalances(): Promise<BalanceResponse> {
     return balance.getAllBalances(this.url)
   }
 
@@ -47,14 +63,14 @@ export class BeeDebug {
    *
    * @param address Swarm address of peer
    */
-  getPeerBalance(address: Address): Promise<balance.PeerBalance> {
+  getPeerBalance(address: Address): Promise<PeerBalance> {
     return balance.getPeerBalance(this.url, address)
   }
 
   /**
    * Get the past due consumption balances with all known peers
    */
-  getPastDueConsumptionBalances(): Promise<balance.BalanceResponse> {
+  getPastDueConsumptionBalances(): Promise<BalanceResponse> {
     return balance.getPastDueConsumptionBalances(this.url)
   }
 
@@ -63,7 +79,7 @@ export class BeeDebug {
    *
    * @param address Swarm address of peer
    */
-  getPastDueConsumptionPeerBalance(address: Address): Promise<balance.PeerBalance> {
+  getPastDueConsumptionPeerBalance(address: Address): Promise<PeerBalance> {
     return balance.getPastDueConsumptionPeerBalance(this.url, address)
   }
 
@@ -74,21 +90,21 @@ export class BeeDebug {
   /**
    * Get the address of the chequebook contract used
    */
-  getChequebookAddress(): Promise<chequebook.ChequebookAddressResponse> {
+  getChequebookAddress(): Promise<ChequebookAddressResponse> {
     return chequebook.getChequebookAddress(this.url)
   }
 
   /**
    * Get the balance of the chequebook
    */
-  getChequeubookBalance(): Promise<chequebook.ChequebookBalanceResponse> {
+  getChequeubookBalance(): Promise<ChequebookBalanceResponse> {
     return chequebook.getChequeubookBalance(this.url)
   }
 
   /**
    * Get last cheques for all peers
    */
-  getLastCheques(): Promise<chequebook.LastChequesResponse> {
+  getLastCheques(): Promise<LastChequesResponse> {
     return chequebook.getLastCheques(this.url)
   }
 
@@ -97,7 +113,7 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  getLastChequesForPeer(address: Address): Promise<chequebook.LastChequesForPeerResponse> {
+  getLastChequesForPeer(address: Address): Promise<LastChequesForPeerResponse> {
     return chequebook.getLastChequesForPeer(this.url, address)
   }
 
@@ -106,7 +122,7 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  getLastCashoutAction(address: Address): Promise<chequebook.LastCashoutActionResponse> {
+  getLastCashoutAction(address: Address): Promise<LastCashoutActionResponse> {
     return chequebook.getLastCashoutAction(this.url, address)
   }
 
@@ -115,7 +131,7 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  cashoutLastCheque(address: string): Promise<chequebook.CashoutResponse> {
+  cashoutLastCheque(address: string): Promise<CashoutResponse> {
     return chequebook.cashoutLastCheque(this.url, address)
   }
 
@@ -124,7 +140,7 @@ export class BeeDebug {
    *
    * @param amount  Amount of tokens to deposit
    */
-  depositTokens(amount: number): Promise<chequebook.DepositTokensResponse> {
+  depositTokens(amount: number): Promise<DepositTokensResponse> {
     return chequebook.depositTokens(this.url, amount)
   }
 
@@ -133,7 +149,7 @@ export class BeeDebug {
    *
    * @param amount  Amount of tokens to withdraw
    */
-  withdrawTokens(amount: number): Promise<chequebook.WithdrawTokensResponse> {
+  withdrawTokens(amount: number): Promise<WithdrawTokensResponse> {
     return chequebook.withdrawTokens(this.url, amount)
   }
 
@@ -146,14 +162,14 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  getSettlements(address: Address): Promise<settlements.Settlements> {
+  getSettlements(address: Address): Promise<Settlements> {
     return settlements.getSettlements(this.url, address)
   }
 
   /**
    * Get settlements with all known peers and total amount sent or received
    */
-  getAllSettlements(): Promise<settlements.AllSettlements> {
+  getAllSettlements(): Promise<AllSettlements> {
     return settlements.getAllSettlements(this.url)
   }
 }

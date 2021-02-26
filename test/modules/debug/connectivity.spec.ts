@@ -3,7 +3,7 @@ import { beeDebugUrl } from '../../utils'
 
 describe('getPeers', () => {
   test('address', async () => {
-    const { peers } = await getPeers(beeDebugUrl())
+    const peers = await getPeers(beeDebugUrl())
 
     expect(Array.isArray(peers)).toBeTruthy()
     expect(peers.length).toBeGreaterThan(0)

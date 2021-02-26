@@ -1,12 +1,7 @@
 import { safeAxios } from '../../utils/safeAxios'
+import { Settlements, AllSettlements } from '../../types'
 
 const settlementsEndpoint = '/settlements'
-
-export interface Settlements {
-  peer: string
-  received: number
-  sent: number
-}
 
 /**
  * Get amount of sent and received from settlements with a peer
@@ -21,12 +16,6 @@ export async function getSettlements(url: string, peer: string): Promise<Settlem
   })
 
   return response.data
-}
-
-export interface AllSettlements {
-  totalreceived: number
-  totalsent: number
-  settlements: Settlements[]
 }
 
 /**

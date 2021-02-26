@@ -1,5 +1,6 @@
 import { BeeError } from '../utils/error'
 import type { AxiosRequestConfig } from 'axios'
+export * from './debug'
 
 export interface Dictionary<T> {
   [Key: string]: T
