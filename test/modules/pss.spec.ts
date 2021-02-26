@@ -15,9 +15,9 @@ describe('modules/pss', () => {
 
       const debugUrl = beeDebugUrl()
       const peers = await connectivity.getPeers(debugUrl)
-      expect(peers.peers.length).toBeGreaterThan(0)
+      expect(peers.length).toBeGreaterThan(0)
 
-      const target = peers.peers[0].address
+      const target = peers[0].address
       const response = await pss.send(BEE_URL, topic, target, message)
 
       expect(response).toEqual(okResponse)
