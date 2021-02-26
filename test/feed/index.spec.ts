@@ -20,8 +20,9 @@ async function uploadChunk(url: string, index: number): Promise<ChunkReference> 
   return hexToBytes(referenceResponse.reference as HexString) as ChunkReference
 }
 
-// helper function for setting up test state for testing finding feed updates
+// FIXME helper function for setting up test state for testing finding feed updates
 // it is not intended as a replacement in tests for `uploadFeedUpdate`
+// https://github.com/ethersphere/bee-js/issues/154
 async function tryUploadFeedUpdate(url: string, signer: Signer, topic: Topic, index: Index, reference: ChunkReference) {
   try {
     await uploadFeedUpdate(url, signer, topic, index, reference)
