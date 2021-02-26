@@ -1,9 +1,7 @@
-import { makeContentAddressedChunk } from '../chunk/cac'
 import { keccak256Hash } from '../chunk/hash'
 import { serializeBytes } from '../chunk/serialize'
 import { EthAddress, Signer } from '../chunk/signer'
-import { Identifier, makeSingleOwnerChunk, verifySingleOwnerChunk } from '../chunk/soc'
-import { uploadSingleOwnerChunk } from '../chunk/soc'
+import { Identifier, uploadSingleOwnerChunkData, verifySingleOwnerChunk } from '../chunk/soc'
 import { FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
 import { Reference, ReferenceResponse, UploadOptions } from '../types'
 import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
@@ -102,7 +100,7 @@ export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
   return hashFeedIdentifier(topic, index)
 }
 
-export async function uploadFeedUpdate(
+export function uploadFeedUpdate(
   url: string,
   signer: Signer,
   topic: Topic,
@@ -114,11 +112,8 @@ export async function uploadFeedUpdate(
   const at = options?.at ?? Date.now() / 1000.0
   const timestamp = writeUint64BigEndian(at)
   const payloadBytes = serializeBytes(timestamp, reference)
-  const cac = makeContentAddressedChunk(payloadBytes)
-  const soc = await makeSingleOwnerChunk(cac, identifier, signer)
-  const response = await uploadSingleOwnerChunk(url, soc, options)
 
-  return response
+  return uploadSingleOwnerChunkData(url, signer, identifier, payloadBytes, options)
 }
 
 export async function findNextIndex(

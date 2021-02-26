@@ -1,8 +1,10 @@
 import { Readable } from 'stream'
 import type { BeeResponse } from '../src/types'
-import { HexString } from '../src/utils/hex'
+import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
+import { ChunkAddress } from '../src/chunk/cac'
+import { verifyBytes } from '../src/utils/bytes'
 
 /**
  * Load common own Jest Matchers which can be used to check particular return values.
@@ -121,7 +123,12 @@ export function beeDebugUrl(url: string = beeUrl()): string {
  *
  * @param address  Swarm address of chunk
  */
-export async function tryDeleteChunkFromLocalStorage(address: string): Promise<void> {
+export async function tryDeleteChunkFromLocalStorage(address: string | ChunkAddress): Promise<void> {
+  if (typeof address !== 'string') {
+    verifyBytes(32, address)
+    address = bytesToHex(address)
+  }
+
   try {
     await deleteChunkFromLocalStorage(beeDebugUrl(), address)
   } catch (e) {

@@ -2,8 +2,21 @@ import { Bee, BeeDebug } from '../src'
 import { ChunkReference } from '../src/feed'
 import { HEX_REFERENCE_LENGTH } from '../src/types'
 import { makeBytes } from '../src/utils/bytes'
-import { bytesToHex } from '../src/utils/hex'
-import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, testIdentity } from './utils'
+import { bytesToHex, HexString } from '../src/utils/hex'
+import {
+  beeDebugUrl,
+  beePeerUrl,
+  beeUrl,
+  okResponse,
+  PSS_TIMEOUT,
+  randomByteArray,
+  testChunkPayload,
+  testIdentity,
+  tryDeleteChunkFromLocalStorage,
+} from './utils'
+import { makeSigner } from '../src/chunk/signer'
+import { makeSOCAddress, uploadSingleOwnerChunkData } from '../src/chunk/soc'
+import { makeOwner } from '../src/chunk/owner'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
@@ -241,6 +254,42 @@ describe('Bee class', () => {
         const feed = bee.makeFeedReader('sequence', topic, owner)
 
         expect(feed.topic).toEqual(topic)
+      })
+    })
+  })
+
+  describe('soc', () => {
+    const socHash = '9d453ebb73b2fedaaf44ceddcf7a0aa37f3e3d6453fea5841c31f0ea6d61dc85' as HexString
+
+    describe('writer', () => {
+      it('should read and write', async () => {
+        const identifier = makeBytes(32) // all zeroes
+        const socAddress = makeSOCAddress(identifier, makeOwner(testIdentity.address))
+        await tryDeleteChunkFromLocalStorage(socAddress)
+
+        const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
+
+        const reference = await socWriter.upload(identifier, testChunkPayload)
+        expect(reference).toEqual({ reference: socHash })
+
+        const soc = await socWriter.download(identifier)
+        const payload = soc.payload()
+        expect(payload).toEqual(testChunkPayload)
+      })
+    })
+
+    describe('reader', () => {
+      it('should read', async () => {
+        const signer = makeSigner(testIdentity.privateKey)
+        const identifier = makeBytes(32) // all zeroes
+        const socAddress = makeSOCAddress(identifier, makeOwner(testIdentity.address))
+        await tryDeleteChunkFromLocalStorage(socAddress)
+        await uploadSingleOwnerChunkData(BEE_URL, signer, identifier, testChunkPayload)
+
+        const socReader = bee.makeSOCReader(testIdentity.address)
+        const soc = await socReader.download(identifier)
+        const payload = soc.payload()
+        expect(payload).toEqual(testChunkPayload)
       })
     })
   })

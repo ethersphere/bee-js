@@ -5,10 +5,11 @@ import { keccak256Hash } from './hash'
 import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
 import { BeeError } from '../utils/error'
-import { Chunk, ChunkAddress, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, verifyChunk } from './cac'
+import { Chunk, ChunkAddress, makeContentAddressedChunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, verifyChunk } from './cac'
 import { ReferenceResponse, UploadOptions } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
+import * as chunkAPI from '../modules/chunk'
 
 const IDENTIFIER_SIZE = 32
 const SIGNATURE_SIZE = 65
@@ -32,6 +33,32 @@ export interface SingleOwnerChunk extends Chunk {
   identifier: () => Identifier
   signature: () => Signature
   owner: () => EthAddress
+}
+
+/**
+ * Interface for downloading single owner chunks
+ */
+export interface SOCReader {
+  /**
+   * Downloads a single owner chunk
+   *
+   * @param identifier  The identifier of the chunk
+   */
+  download: (identifier: Identifier) => Promise<SingleOwnerChunk>
+}
+
+/**
+ * Interface for downloading and uploading single owner chunks
+ */
+export interface SOCWriter extends SOCReader {
+  /**
+   * Uploads a single owner chunk
+   *
+   * @param identifier  The identifier of the chunk
+   * @param data        The chunk payload data
+   * @param options     Upload options
+   */
+  upload: (identifier: Identifier, data: Uint8Array, options?: UploadOptions) => Promise<ReferenceResponse>
 }
 
 function recoverChunkOwner(data: Uint8Array): EthAddress {
@@ -110,7 +137,7 @@ export async function makeSingleOwnerChunk(
   const digest = keccak256Hash(identifier, chunkAddress)
   const signature = await sign(digest, signer)
   const data = serializeBytes(identifier, signature, chunk.span(), chunk.payload())
-  const address = keccak256Hash(identifier, signer.address)
+  const address = makeSOCAddress(identifier, signer.address)
   const soc = makeSingleOwnerChunkFromData(data, address, signer.address)
 
   return soc
@@ -136,4 +163,44 @@ export function uploadSingleOwnerChunk(
   const data = serializeBytes(chunk.span(), chunk.payload())
 
   return socAPI.upload(url, owner, identifier, signature, data, options)
+}
+
+/**
+ * Helper function to create and upload SOC.
+ *
+ * @param url         The url of the Bee service
+ * @param signer      The singer interface for signing the chunk
+ * @param identifier  The identifier of the chunk
+ * @param data        The chunk data
+ * @param options
+ */
+export async function uploadSingleOwnerChunkData(
+  url: string,
+  signer: Signer,
+  identifier: Identifier,
+  data: Uint8Array,
+  options?: UploadOptions,
+): Promise<ReferenceResponse> {
+  const cac = makeContentAddressedChunk(data)
+  const soc = await makeSingleOwnerChunk(cac, identifier, signer)
+
+  return uploadSingleOwnerChunk(url, soc, options)
+}
+
+/**
+ * Helper function to download SOC.
+ *
+ * @param url           The url of the Bee service
+ * @param ownerAddress  The singer interface for signing the chunk
+ * @param identifier    The identifier of the chunk
+ */
+export async function downloadSingleOwnerChunk(
+  url: string,
+  ownerAddress: EthAddress,
+  identifier: Identifier,
+): Promise<SingleOwnerChunk> {
+  const address = makeSOCAddress(identifier, ownerAddress)
+  const data = await chunkAPI.download(url, bytesToHex(address))
+
+  return verifySingleOwnerChunk(data, address)
 }

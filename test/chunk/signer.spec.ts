@@ -1,5 +1,5 @@
 import { verifyBytes } from '../../src/utils/bytes'
-import { makeDefaultSigner, recoverAddress, sign, Signature } from '../../src/chunk/signer'
+import { makeDefaultSigner, makeSigner, recoverAddress, sign, Signature } from '../../src/chunk/signer'
 import { HexString, hexToBytes, bytesToHex } from '../../src/utils/hex'
 import { testIdentity } from '../utils'
 
@@ -21,5 +21,46 @@ describe('signer', () => {
     const recoveredAddress = recoverAddress(expectedSignature as Signature, dataToSign)
 
     expect(bytesToHex(recoveredAddress, true)).toEqual(testIdentity.address)
+  })
+
+  describe('makeSigner', () => {
+    test('converts string', async () => {
+      const signer = makeSigner(testIdentity.privateKey)
+      const signature = await sign(dataToSign, signer)
+
+      expect(bytesToHex(signer.address, true)).toEqual(testIdentity.address)
+      expect(signature).toEqual(expectedSignature)
+    })
+
+    test('converts uintarray', async () => {
+      const signer = makeSigner(hexToBytes(testIdentity.privateKey))
+      const signature = await sign(dataToSign, signer)
+
+      expect(bytesToHex(signer.address, true)).toEqual(testIdentity.address)
+      expect(signature).toEqual(expectedSignature)
+    })
+
+    test('returns already signer object', () => {
+      const signerLikeObject = {
+        address: '0x123',
+        sign: () => {
+          // noop
+        },
+      }
+
+      const signer = makeSigner(signerLikeObject)
+
+      expect(signer.address).toEqual('0x123')
+    })
+
+    test('throws for invalid data', () => {
+      const data = [null, 123, { some: 'property' }, undefined, Symbol.for('symbol')]
+
+      for (const el of data) {
+        expect(() => {
+          makeSigner(el)
+        }).toThrow(TypeError)
+      }
+    })
   })
 })
