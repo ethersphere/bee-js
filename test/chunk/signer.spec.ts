@@ -28,7 +28,7 @@ describe('signer', () => {
       const signer = makeSigner(testIdentity.privateKey)
       const signature = await sign(dataToSign, signer)
 
-      expect('0x' + bytesToHex(signer.address)).toEqual(testIdentity.address)
+      expect(bytesToHex(signer.address, true)).toEqual(testIdentity.address)
       expect(signature).toEqual(expectedSignature)
     })
 
@@ -36,7 +36,7 @@ describe('signer', () => {
       const signer = makeSigner(hexToBytes(testIdentity.privateKey))
       const signature = await sign(dataToSign, signer)
 
-      expect('0x' + bytesToHex(signer.address)).toEqual(testIdentity.address)
+      expect(bytesToHex(signer.address, true)).toEqual(testIdentity.address)
       expect(signature).toEqual(expectedSignature)
     })
 
