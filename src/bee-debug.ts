@@ -24,6 +24,13 @@ export class BeeDebug {
     return nodeAddresses.pss_public_key
   }
 
+  /**
+   * Get list of peers for this node
+   */
+  getPeers(): Promise<connectivity.Peers> {
+    return connectivity.getPeers(this.url)
+  }
+
   /*
    * Balance endpoints
    */
