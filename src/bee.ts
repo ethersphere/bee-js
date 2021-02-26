@@ -428,7 +428,7 @@ export class Bee {
    *
    * @param ownerAddress The ethereum address of the owner
    */
-  makeSOCReader(ownerAddress: OwnerInput): SOCReader {
+  makeSOCReader(ownerAddress: EthAddress | Uint8Array | string): SOCReader {
     const canonicalOwner = makeOwner(ownerAddress)
 
     return {
