@@ -230,7 +230,9 @@ describe('Bee class', () => {
 
       expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
       expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
-    }, 60000)
+      // TODO the timeout was increased because this test is flaky
+      // most likely there is an issue with the lookup
+    }, 120000)
 
     describe('topic', () => {
       test('create feed topic', () => {
