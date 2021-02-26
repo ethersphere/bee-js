@@ -1,7 +1,7 @@
 import { Bytes, verifyBytes } from '../../src/utils/bytes'
 import { makeSingleOwnerChunk, verifySingleOwnerChunk, uploadSingleOwnerChunk } from '../../src/chunk/soc'
 import { makeContentAddressedChunk, verifyChunk } from '../../src/chunk/cac'
-import { beeUrl, testIdentity } from '../utils'
+import { beeUrl, testIdentity, tryDeleteChunkFromLocalStorage } from '../utils'
 import { makeDefaultSigner } from '../../src/chunk/signer'
 import { serializeBytes } from '../../src/chunk/serialize'
 import { makeSpan } from '../../src/chunk/span'
@@ -64,6 +64,8 @@ describe('soc', () => {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
     const socAddress = bytesToHex(soc.address())
+
+    await tryDeleteChunkFromLocalStorage(socHash)
 
     const response = await uploadSingleOwnerChunk(beeUrl(), soc)
 
