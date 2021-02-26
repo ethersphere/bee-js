@@ -1,7 +1,8 @@
 import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
-import type { Bytes } from '../utils/bytes'
+import { Bytes, verifyBytes } from '../utils/bytes'
 import { keccak256Hash } from './hash'
+import { hexToBytes, verifyHex } from '../utils/hex'
 
 /**
  * Ethereum compatible signing and recovery
@@ -122,4 +123,25 @@ export function makeDefaultSigner(privateKey: PrivateKey): Signer {
     sign: (digest: Uint8Array) => defaultSign(digest, privateKey),
     address,
   }
+}
+
+export function isSigner(signer: unknown): signer is Signer {
+  return typeof signer === 'object' && signer !== null && 'sign' in signer && 'address' in signer
+}
+
+export function makeSigner(signer: Signer | Uint8Array | string | unknown): Signer {
+  if (typeof signer === 'string') {
+    const hexKey = verifyHex(signer)
+    const keyBytes = hexToBytes(hexKey)
+    const verifiedPrivateKey = verifyBytes(32, keyBytes)
+
+    return makeDefaultSigner(verifiedPrivateKey)
+  } else if (signer instanceof Uint8Array) {
+    const verifiedPrivateKey = verifyBytes(32, signer)
+
+    return makeDefaultSigner(verifiedPrivateKey)
+  } else if (isSigner(signer)) {
+    return signer
+  }
+  throw TypeError('invalid signer')
 }

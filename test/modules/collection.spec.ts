@@ -1,5 +1,5 @@
 import * as collection from '../../src/modules/collection'
-import { Collection, ENCRYPTED_REFERENCE_LENGTH } from '../../src/types'
+import { Collection, ENCRYPTED_HEX_REFERENCE_LENGTH } from '../../src/types'
 import { beeUrl } from '../utils'
 
 const BEE_URL = beeUrl()
@@ -65,7 +65,7 @@ describe('modules/collection', () => {
 
     expect(file.name).toEqual(directoryStructure[0].path)
     expect(file.data).toEqual(directoryStructure[0].data)
-    expect(hash.length).toEqual(ENCRYPTED_REFERENCE_LENGTH)
+    expect(hash.length).toEqual(ENCRYPTED_HEX_REFERENCE_LENGTH)
   })
 
   it('should upload bigger file', async () => {

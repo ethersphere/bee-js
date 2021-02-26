@@ -1,23 +1,29 @@
-import { Dictionary, ReferenceResponse } from '../types'
+import { Dictionary, Reference, ReferenceResponse } from '../types'
 import { safeAxios } from '../utils/safeAxios'
+import { FeedType } from '../feed/type'
 
 const feedEndpoint = '/feeds'
-
-export type FeedType = 'sequence' | 'epoch'
 
 export interface CreateFeedOptions {
   type?: FeedType
 }
-export interface FindFeedUpdateOptions {
-  index?: number
+
+export interface FeedUpdateOptions {
+  /**
+   * Specifies the start date as unix time stamp
+   */
   at?: number
+  /**
+   * Can be 'epoch' or 'sequence' (default: 'sequence')
+   */
   type?: FeedType
 }
+
 interface FeedUpdateHeaders {
   feedIndex: string
   feedIndexNext: string
 }
-export interface FindFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
+export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
 
 /**
  * Create an initial feed root manifest
@@ -32,14 +38,14 @@ export async function createFeedManifest(
   owner: string,
   topic: string,
   options?: CreateFeedOptions,
-): Promise<ReferenceResponse> {
+): Promise<Reference> {
   const response = await safeAxios<ReferenceResponse>({
     method: 'post',
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
     params: options,
   })
 
-  return response.data
+  return response.data.reference
 }
 
 function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
@@ -66,8 +72,8 @@ export async function fetchFeedUpdate(
   url: string,
   owner: string,
   topic: string,
-  options?: FindFeedUpdateOptions,
-): Promise<FindFeedUpdateResponse> {
+  options?: FeedUpdateOptions,
+): Promise<FetchFeedUpdateResponse> {
   const response = await safeAxios<ReferenceResponse>({
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
     params: options,

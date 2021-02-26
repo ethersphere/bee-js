@@ -1,6 +1,9 @@
 import { Bee, BeeDebug } from '../src'
-import { REFERENCE_LENGTH } from '../src/types'
-import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT } from './utils'
+import { ChunkReference } from '../src/feed'
+import { HEX_REFERENCE_LENGTH } from '../src/types'
+import { makeBytes } from '../src/utils/bytes'
+import { bytesToHex } from '../src/utils/hex'
+import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT, randomByteArray, testIdentity } from './utils'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
@@ -76,7 +79,7 @@ describe('Bee class', () => {
     it('should work with directory with unicode filenames', async () => {
       const hash = await bee.uploadFilesFromDirectory('./test/data')
 
-      expect(hash.length).toEqual(REFERENCE_LENGTH)
+      expect(hash.length).toEqual(HEX_REFERENCE_LENGTH)
     })
   })
 
@@ -197,6 +200,48 @@ describe('Bee class', () => {
       const topic = 'bee-class-receive-timeout'
 
       await expect(bee.pssReceive(topic, 1)).rejects.toThrow('pssReceive timeout')
+    })
+  })
+
+  describe('feeds', () => {
+    const owner = testIdentity.address
+    const signer = testIdentity.privateKey
+    const topic = randomByteArray(32, Date.now())
+
+    test('create feed reader and manifest', async () => {
+      const manifestReference = await bee.createFeedManifest('sequence', topic, owner)
+      expect(typeof manifestReference).toBe('string')
+    })
+
+    test('feed writer with two updates', async () => {
+      const feed = bee.makeFeedWriter('sequence', topic, signer)
+      const referenceZero = makeBytes(32) // all zeroes
+
+      await feed.upload(referenceZero)
+      const firstUpdateReferenceResponse = await feed.download()
+
+      expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceZero))
+      expect(firstUpdateReferenceResponse.feedIndex).toEqual('0000000000000000')
+
+      const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
+
+      await feed.upload(referenceOne)
+      const secondUpdateReferenceResponse = await feed.download()
+
+      expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
+      expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
+      // TODO the timeout was increased because this test is flaky
+      // most likely there is an issue with the lookup
+      // https://github.com/ethersphere/bee/issues/1248#issuecomment-786588911
+    }, 120000)
+
+    describe('topic', () => {
+      test('create feed topic', () => {
+        const topic = bee.makeFeedTopic('swarm.eth:application:handshake')
+        const feed = bee.makeFeedReader('sequence', topic, owner)
+
+        expect(feed.topic).toEqual(topic)
+      })
     })
   })
 })

@@ -22,6 +22,14 @@ import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
+import { FeedReader, FeedWriter, makeFeedReader, makeFeedWriter } from './feed'
+import { EthAddress, makeSigner } from './chunk/signer'
+import { assertIsFeedType, FeedType } from './feed/type'
+import { Signer } from './chunk/signer'
+import { makeOwner } from './chunk/owner'
+import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
+import { createFeedManifest } from './modules/feed'
+import { bytesToHex } from './utils/hex'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -344,5 +352,73 @@ export class Bee {
         }, timeoutMsec) as unknown) as number
       }
     })
+  }
+
+  /**
+   * Create feed manifest chunk and return the reference to it
+   *
+   * @param type    The type of the feed, can be 'epoch' or 'sequence'
+   * @param topic   Topic in hex or bytes
+   * @param owner   Owner's ethereum address in hex or bytes
+   */
+  createFeedManifest(
+    type: FeedType,
+    topic: Topic | Uint8Array | string,
+    owner: EthAddress | Uint8Array | string,
+  ): Promise<Reference> {
+    assertIsFeedType(type)
+
+    const canonicalTopic = makeTopic(topic)
+    const canonicalOwner = makeOwner(owner)
+
+    return createFeedManifest(this.url, bytesToHex(canonicalOwner), bytesToHex(canonicalTopic), { type })
+  }
+
+  /**
+   * Make a new feed reader for downloading feed updates
+   *
+   * @param type    The type of the feed, can be 'epoch' or 'sequence'
+   * @param topic   Topic in hex or bytes
+   * @param owner   Owner's ethereum address in hex or bytes
+   */
+  makeFeedReader(
+    type: FeedType,
+    topic: Topic | Uint8Array | string,
+    owner: EthAddress | Uint8Array | string,
+  ): FeedReader {
+    assertIsFeedType(type)
+
+    const canonicalTopic = makeTopic(topic)
+    const canonicalOwner = makeOwner(owner)
+
+    return makeFeedReader(this.url, type, canonicalTopic, canonicalOwner)
+  }
+
+  /**
+   * Make a new feed writer for updating feeds
+   *
+   * @param type    The type of the feed, can be 'epoch' or 'sequence'
+   * @param topic   Topic in hex or bytes
+   * @param signer  The signer's private key or a Signer instance that can sign data
+   */
+  makeFeedWriter(type: FeedType, topic: Topic | Uint8Array | string, signer: Signer | Uint8Array | string): FeedWriter {
+    assertIsFeedType(type)
+
+    const canonicalTopic = makeTopic(topic)
+    const canonicalSigner = makeSigner(signer)
+
+    return makeFeedWriter(this.url, type, canonicalTopic, canonicalSigner)
+  }
+
+  /**
+   * Make a new feed topic from a string
+   *
+   * Because the topic has to be 32 bytes long this function
+   * hashes the input string to create a topic.
+   *
+   * @param topic The input string
+   */
+  makeFeedTopic(topic: string): Topic {
+    return makeTopicFromString(topic)
   }
 }
