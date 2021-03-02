@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Eth Wallet Signing of Single Owner Chunk</title>
+</head>
+<body>
+<h1>Eth Wallet Signing of Single Owner Chunk</h1>
+<form id="form">
+  <input id="data" type="text" placeholder="Message (data)" maxlength="4000" required size="40"><br>
+  <input id="topic" type="text" placeholder="Topic" required size="20"><br>
+  <input id="connect" type="button" value="Connect Eth Wallet">
+  <input id="send" type="submit" value="Sign and upload!" disabled>
+</form>
+<div id="resultDiv">
+  <a href="#" id="result" target="_blank"></a>
+</div>
+<!--<script src="https://unpkg.com/@ethersphere/bee-js@0.5.1/dist/index.browser.min.js"></script>-->
+<script src="bee.js"></script>
+<script src="index.js"></script>
+</body>
+</html>
