@@ -11,7 +11,7 @@
 
 > Client library for connecting to Bee decentralised storage
 
-**Warning: This project is in alpha state. There might (and most probably will) be changes in the future to its API and working. Also, no guarantees can be made about its stability, efficiency, and security at this stage.**
+**Warning: This project is in beta state. There might (and most probably will) be changes in the future to its API and working. Also, no guarantees can be made about its stability, efficiency, and security at this stage.**
 
 ## Table of Contents
 
@@ -58,19 +58,19 @@ Loading this module through a script tag will make the `BeeJs` object available 
 ## Usage
 
 ```js
-import { Bee } from "@ethersphere/bee-js"; // Connect to a node const
+import { Bee } from "@ethersphere/bee-js"
 
-bee = new Bee("http://localhost:1633");
+bee = new Bee("http://localhost:1633")
 
-const fileHash = await bee.uploadData("Bee is awesome!");
-const retrievedData = await bee.downloadData(fileHash);
+const fileHash = await bee.uploadData("Bee is awesome!")
+const retrievedData = await bee.downloadData(fileHash)
 
-console.log(retrievedData.toString()); // prints 'Bee is awesome!'
+console.log(new TextDecoder().decode(retrievedData)) // prints 'Bee is awesome!'
 ```
 
 ## Documentation
 
-You can find the full documentation [here](https://bee-js.ethswarm.org/docs). The API reference documentation can be found [here](https://bee-js.ethswarm.org/docs/api-reference).
+You can find the full documentation [here](https://bee-js.ethswarm.org/docs). The API reference documentation can be found [here](https://bee-js.ethswarm.org/docs/api).
 
 You can generate API docs locally with:
 
