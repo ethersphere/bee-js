@@ -1,6 +1,12 @@
 /* eslint-disable no-alert,no-console */
 const BEE_URL = 'http://localhost:1633'
 
+/**
+ * Function that returns Signer instance
+ *
+ * @param address - Hex address prefixed with 0x of the account that will sign the data
+ * @returns Signer instance
+ */
 function createSigner(address) {
   return {
     address: BeeJs.Utils.Hex.hexToBytes(address),
@@ -16,13 +22,24 @@ function createSigner(address) {
         params: [address, data],
       })
 
-      console.log('Signature: ' + result)
-      console.log('Signature (bytes): ' + BeeJs.Utils.Hex.hexToBytes(result))
-
       // We need to convert the signature to bytes
       return BeeJs.Utils.Hex.hexToBytes(result)
     },
   }
+}
+
+/**
+ * The `/bzz` endpoint accepts only Manifest/Collection so we have to build one.
+ *
+ * @param message
+ * @param bee
+ * @returns {Promise<Reference>}
+ */
+function createDummyCollection(message, bee) {
+  const blob = new Blob([`<h1>${message}</h1>`], { type: 'text/html' })
+  const file = new File([blob], 'index.html', { type: 'text/html' })
+
+  return bee.uploadFiles([file])
 }
 
 function main() {
@@ -70,7 +87,7 @@ function main() {
       // Upload the data as normal content addressed chunk
       console.log('Uploading data as regular chunk')
       const data = document.getElementById('data').value
-      const dataHash = await bee.uploadData(data)
+      const dataHash = await createDummyCollection(data, bee)
 
       // Now write the chunk's hash to the feed
       const rawTopic = document.getElementById('topic').value
@@ -86,8 +103,11 @@ function main() {
       console.log('Verification result: ', feedVerification.reference === dataHash)
 
       // Lets create chunk hash for manifest that can be used with the BZZ endpoint
-      const resultUrl =
-        BEE_URL + '/bzz/' + (await bee.createFeedManifest('sequence', topic, BeeJs.Utils.Hex.hexToBytes(address)))
+      const resultUrl = `${BEE_URL}/bzz/${await bee.createFeedManifest(
+        'sequence',
+        topic,
+        BeeJs.Utils.Hex.hexToBytes(address),
+      )}/index.html`
       console.log('Feed Manifest URL: ' + resultUrl)
 
       resultLink.href = resultUrl

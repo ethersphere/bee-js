@@ -138,8 +138,6 @@ if [ -z "$QUEEN_CONTAINER_IN_DOCKER" ] || $EPHEMERAL ; then
         --bootnode=$QUEEN_BOOTNODE \
         --swap-enable=false \
         --debug-api-enable \
-        --verbosity=5 \
-        --verbosity=4
         --welcome-message="You have found the queen of the beehive..." \
         --cors-allowed-origins="*" \
         --payment-tolerance=2147483647
