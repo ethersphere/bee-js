@@ -78,7 +78,12 @@ function main() {
       console.log(`Hashed topic for ${rawTopic}: ${topic}`)
       const writer = bee.makeFeedWriter('sequence', topic, signer)
       console.log('Writing to Feed')
-      await writer.upload(dataHash)
+      const result = await writer.upload(dataHash)
+      console.log('Feed write result hash: ', result.reference)
+
+      console.log('Verifying the Feed with re-download')
+      const feedVerification = await writer.download()
+      console.log('Verification result: ', feedVerification.reference === dataHash)
 
       // Lets create chunk hash for manifest that can be used with the BZZ endpoint
       const resultUrl =
