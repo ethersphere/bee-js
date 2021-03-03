@@ -1,4 +1,4 @@
-import { Bee, BeeDebug } from '../src'
+import { Bee, BeeDebug, Collection } from '../src'
 import { ChunkReference } from '../src/feed'
 import { HEX_REFERENCE_LENGTH } from '../src/types'
 import { makeBytes } from '../src/utils/bytes'
@@ -17,6 +17,7 @@ import {
 import { makeSigner } from '../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../src/chunk/soc'
 import { makeOwner } from '../src/chunk/owner'
+import * as collection from '../src/modules/collection'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
@@ -71,12 +72,10 @@ describe('Bee class', () => {
 
     it('should work with file object and content-type overridden', async () => {
       const content = new Uint8Array([1, 2, 3])
-      const name = 'hello.txt'
-      const type = 'text/plain'
       const file = ({
         arrayBuffer: () => content,
-        name,
-        type,
+        name: 'hello.txt',
+        type: 'text/plain',
       } as unknown) as File
       const contentTypeOverride = 'text/plain+override'
 
@@ -221,11 +220,6 @@ describe('Bee class', () => {
     const signer = testIdentity.privateKey
     const topic = randomByteArray(32, Date.now())
 
-    test('create feed reader and manifest', async () => {
-      const manifestReference = await bee.createFeedManifest('sequence', topic, owner)
-      expect(typeof manifestReference).toBe('string')
-    })
-
     test('feed writer with two updates', async () => {
       const feed = bee.makeFeedWriter('sequence', topic, signer)
       const referenceZero = makeBytes(32) // all zeroes
@@ -244,9 +238,29 @@ describe('Bee class', () => {
       expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
       expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
       // TODO the timeout was increased because this test is flaky
-      // most likely there is an issue with the lookup
-      // https://github.com/ethersphere/bee/issues/1248#issuecomment-786588911
+      //  most likely there is an issue with the lookup
+      //  https://github.com/ethersphere/bee/issues/1248#issuecomment-786588911
     }, 120000)
+
+    test('create feeds manifest and retrieve the data', async () => {
+      const directoryStructure: Collection<Uint8Array> = [
+        {
+          path: 'index.html',
+          data: new TextEncoder().encode('some data'),
+        },
+      ]
+      const cacHash = await collection.upload(BEE_URL, directoryStructure)
+
+      const feed = bee.makeFeedWriter('sequence', topic, signer)
+      await feed.upload(cacHash)
+      const manifestReference = await bee.createFeedManifest('sequence', topic, owner)
+
+      expect(typeof manifestReference).toBe('string')
+
+      // this calls /bzz endpoint that should resolve the manifest and the feed returning the latest feed's content
+      const bzz = await bee.downloadFileFromCollection(manifestReference, 'index.html')
+      expect(new TextDecoder().decode(bzz.data)).toEqual('some data')
+    }, 60000)
 
     describe('topic', () => {
       test('create feed topic', () => {
