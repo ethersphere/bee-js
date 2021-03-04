@@ -11,8 +11,8 @@ export function prepareData(data: string | ArrayBuffer | Uint8Array | Readable):
   return data
 }
 
-function isBufferArray(data: unknown) {
-  return Array.isArray(data) && data.length > 0 && data.reduce((p, c) => p && c instanceof Buffer, true)
+function isBufferArray(buffer: unknown): buffer is Buffer[] {
+  return Array.isArray(buffer) && buffer.length > 0 && buffer.reduce((prev, cur) => prev && cur instanceof Buffer, true)
 }
 
 export async function prepareWebsocketData(data: Data | Blob): Promise<Uint8Array> | never {
