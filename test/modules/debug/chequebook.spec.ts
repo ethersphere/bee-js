@@ -1,7 +1,7 @@
 import {
   depositTokens,
   getChequebookAddress,
-  getChequeubookBalance,
+  getChequebookBalance,
   getLastCheques,
   withdrawTokens,
 } from '../../../src/modules/debug/chequebook'
@@ -17,7 +17,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     })
 
     test('balance', async () => {
-      const response = await getChequeubookBalance(beeDebugUrl())
+      const response = await getChequebookBalance(beeDebugUrl())
 
       expect(typeof response.availableBalance).toBe('number')
       expect(typeof response.totalBalance).toBe('number')
