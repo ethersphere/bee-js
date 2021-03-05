@@ -97,8 +97,8 @@ export class BeeDebug {
   /**
    * Get the balance of the chequebook
    */
-  getChequeubookBalance(): Promise<ChequebookBalanceResponse> {
-    return chequebook.getChequeubookBalance(this.url)
+  getChequebookBalance(): Promise<ChequebookBalanceResponse> {
+    return chequebook.getChequebookBalance(this.url)
   }
 
   /**
