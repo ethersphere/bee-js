@@ -25,6 +25,7 @@
   },
   "browser": {
     "./dist/index.min.js": "./dist/index.browser.min.js",
+    "data": "data.browser",
     "stream": "readable-stream"
   },
   "types": "dist/index.d.ts",

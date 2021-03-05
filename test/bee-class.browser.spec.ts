@@ -1,13 +1,16 @@
 import { join } from 'path'
-import { beeUrl, commonMatchers } from './utils'
+import { beeDebugUrl, beePeerUrl, beeUrl, commonMatchers, PSS_TIMEOUT } from './utils'
 import '../src'
 
 commonMatchers()
 
 describe('Bee class - in browser', () => {
   const BEE_URL = beeUrl()
+  const BEE_DEBUG_URL = beeDebugUrl()
+  const BEE_PEER_URL = beePeerUrl()
 
   beforeAll(async done => {
+    await jestPuppeteer.resetPage()
     const testPage = join(__dirname, 'testpage', 'testpage.html')
     await page.goto(`file://${testPage}`)
 
@@ -79,5 +82,77 @@ describe('Bee class - in browser', () => {
     }, BEE_URL)
 
     expect(uploadEvent).toEqual({ loaded: 4, total: 4 })
+  })
+  describe('pss', () => {
+    it(
+      'should send and receive pss message',
+      async done => {
+        const message = '1234'
+
+        const result = await page.evaluate(
+          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message) => {
+            const topic = 'bee-class-topic'
+
+            const bee = new window.BeeJs.Bee(BEE_URL)
+            const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
+
+            const address = await beeDebug.getOverlayAddress()
+            const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
+
+            const receive = bee.pssReceive(topic)
+            await beePeer.pssSend(topic, address, message)
+
+            const msg = await receive
+
+            // Need to pass it back as string
+            return new TextDecoder('utf-8').decode(new Uint8Array(msg))
+          },
+          BEE_URL,
+          BEE_DEBUG_URL,
+          BEE_PEER_URL,
+          message,
+        )
+
+        expect(result).toEqual(message)
+        done()
+      },
+      PSS_TIMEOUT,
+    )
+
+    it(
+      'should send and receive pss message',
+      async done => {
+        const message = '1234'
+
+        const result = await page.evaluate(
+          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message) => {
+            const topic = 'bee-class-topic'
+
+            const bee = new window.BeeJs.Bee(BEE_URL)
+            const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
+
+            const pssPublicKey = await beeDebug.getPssPublicKey()
+            const address = await beeDebug.getOverlayAddress()
+            const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
+
+            const receive = bee.pssReceive(topic)
+            await beePeer.pssSend(topic, address, message, pssPublicKey)
+
+            const msg = await receive
+
+            // Need to pass it back as string
+            return new TextDecoder('utf-8').decode(new Uint8Array(msg))
+          },
+          BEE_URL,
+          BEE_DEBUG_URL,
+          BEE_PEER_URL,
+          message,
+        )
+
+        expect(result).toEqual(message)
+        done()
+      },
+      PSS_TIMEOUT,
+    )
   })
 })

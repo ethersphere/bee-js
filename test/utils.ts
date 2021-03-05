@@ -146,7 +146,7 @@ export const okResponse: BeeResponse = {
   code: 200,
   message: 'OK',
 }
-export const PSS_TIMEOUT = 60000
+export const PSS_TIMEOUT = 120000
 
 export const testChunkPayload = new Uint8Array([1, 2, 3])
 // span is the payload length encoded as uint64 little endian
