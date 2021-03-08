@@ -120,7 +120,7 @@ describe('Bee class - in browser', () => {
     )
 
     it(
-      'should send and receive pss message',
+      'should send and receive pss message encrypted with PSS key',
       async done => {
         const message = '1234'
 
