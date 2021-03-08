@@ -8,14 +8,16 @@ on:
     branches:
       - '**'
 
+
+env:
+  BEE_VERSION: '0.5.2'
+  REPLICA: 5
+  BEE_API_URL: 'http://bee-0.localhost'
+  BEE_PEER_API_URL: 'http://bee-1.localhost'
+  BEE_TEST_CHEQUEBOOK: true
+
 jobs:
   nodejs:
-    env:
-      REPLICA: 5
-      BEE_API_URL: 'http://bee-0.localhost'
-      BEE_PEER_API_URL: 'http://bee-1.localhost'
-      BEE_TEST_CHEQUEBOOK: true
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -35,7 +37,7 @@ jobs:
           export URL=$(curl -s https://api.github.com/repos/ethersphere/bee-local/releases/latest | jq -r .tarball_url)
           curl -Ls ${URL} -o bee-local.tar.gz
           tar --strip-components=1 --wildcards -xzf bee-local.tar.gz ethersphere-bee-local-*/{beeinfra.sh,helm-values,hack}
-          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG="0.5.2"/' beeinfra.sh
+          sed -i "s/IMAGE_TAG='latest'/IMAGE_TAG='${BEE_VERSION}'/" beeinfra.sh
       - name: Install latest beekeeper
         run: |
           export TAG=$(curl -s https://api.github.com/repos/ethersphere/beekeeper/releases/latest | jq -r .tag_name)
@@ -80,12 +82,6 @@ jobs:
           curl -sSf https://lets.tunshell.com/init.sh | sh /dev/stdin T $(echo $KEYS | jq -r .peer1_key) ${{ secrets.TUNSHELL_SECRET }} relay.tunshell.com
 
   browser:
-    env:
-      REPLICA: 5
-      BEE_API_URL: 'http://bee-0.localhost'
-      BEE_PEER_API_URL: 'http://bee-1.localhost'
-      BEE_TEST_CHEQUEBOOK: true
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -105,7 +101,7 @@ jobs:
           export URL=$(curl -s https://api.github.com/repos/ethersphere/bee-local/releases/latest | jq -r .tarball_url)
           curl -Ls ${URL} -o bee-local.tar.gz
           tar --strip-components=1 --wildcards -xzf bee-local.tar.gz ethersphere-bee-local-*/{beeinfra.sh,helm-values,hack}
-          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG="0.5.2"/' beeinfra.sh
+          sed -i "s/IMAGE_TAG='latest'/IMAGE_TAG='${BEE_VERSION}'/" beeinfra.sh
       - name: Install latest beekeeper
         run: |
           export TAG=$(curl -s https://api.github.com/repos/ethersphere/beekeeper/releases/latest | jq -r .tag_name)
