@@ -12,7 +12,7 @@ export function prepareData(data: string | ArrayBuffer | Uint8Array | Readable):
 }
 
 function isBufferArray(buffer: unknown): buffer is Buffer[] {
-  return Array.isArray(buffer) && buffer.length > 0 && buffer.reduce((prev, cur) => prev && cur instanceof Buffer, true)
+  return Array.isArray(buffer) && buffer.length > 0 && buffer.every(data => data instanceof Buffer)
 }
 
 export async function prepareWebsocketData(data: Data | Blob): Promise<Uint8Array> | never {
