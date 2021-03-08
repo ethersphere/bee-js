@@ -1,5 +1,5 @@
 import { verifyBytes } from '../../src/utils/bytes'
-import { makeDefaultSigner, makeSigner, recoverAddress, sign, Signature } from '../../src/chunk/signer'
+import { makeDefaultSigner, makeSigner, recoverAddress, Signature } from '../../src/chunk/signer'
 import { HexString, hexToBytes, bytesToHex } from '../../src/utils/hex'
 import { testIdentity } from '../utils'
 
@@ -12,7 +12,7 @@ describe('signer', () => {
   test('default signer (same data as Bee Go client)', async () => {
     const privateKey = verifyBytes(32, hexToBytes(testIdentity.privateKey))
     const signer = makeDefaultSigner(privateKey)
-    const signature = await sign(dataToSign, signer)
+    const signature = await signer.sign(dataToSign)
 
     expect(signature).toEqual(expectedSignature)
   })
@@ -26,7 +26,7 @@ describe('signer', () => {
   describe('makeSigner', () => {
     test('converts string', async () => {
       const signer = makeSigner(testIdentity.privateKey)
-      const signature = await sign(dataToSign, signer)
+      const signature = await signer.sign(dataToSign)
 
       expect(bytesToHex(signer.address, true)).toEqual(testIdentity.address)
       expect(signature).toEqual(expectedSignature)
@@ -34,7 +34,7 @@ describe('signer', () => {
 
     test('converts uintarray', async () => {
       const signer = makeSigner(hexToBytes(testIdentity.privateKey))
-      const signature = await sign(dataToSign, signer)
+      const signature = await signer.sign(dataToSign)
 
       expect(bytesToHex(signer.address, true)).toEqual(testIdentity.address)
       expect(signature).toEqual(expectedSignature)
