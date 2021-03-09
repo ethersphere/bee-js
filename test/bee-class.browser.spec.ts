@@ -83,6 +83,7 @@ describe('Bee class - in browser', () => {
 
     expect(uploadEvent).toEqual({ loaded: 4, total: 4 })
   })
+
   describe('pss', () => {
     it(
       'should send and receive pss message',

@@ -1,11 +1,14 @@
-import type { Readable } from 'readable-stream'
-
-export function prepareData(data: string | ArrayBuffer | Uint8Array | Readable): Uint8Array | Readable {
+/**
+ * Validates input and converts to Uint8Array
+ *
+ * @param data any string, ArrayBuffer or Uint8Array
+ */
+export function prepareData(data: string | ArrayBuffer | Uint8Array): Uint8Array | never {
   if (typeof data === 'string') return new TextEncoder().encode(data)
 
   if (data instanceof ArrayBuffer) return new Uint8Array(data)
 
-  if (data instanceof Uint8Array || data instanceof Readable) return data
+  if (data instanceof Uint8Array) return data
 
   throw new TypeError('unknown data type')
 }

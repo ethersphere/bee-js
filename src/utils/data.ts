@@ -1,7 +1,12 @@
 import { Readable } from 'stream'
 import type { Data } from 'ws'
 
-export function prepareData(data: string | ArrayBuffer | Uint8Array | Readable): Uint8Array | Readable {
+/**
+ * Validates input and converts to Uint8Array or Readable
+ *
+ * @param data any string, ArrayBuffer, Uint8Array or Readable
+ */
+export function prepareData(data: string | ArrayBuffer | Uint8Array | Readable): Uint8Array | Readable | never {
   if (typeof data === 'string') return new TextEncoder().encode(data)
 
   if (data instanceof ArrayBuffer) return new Uint8Array(data)
