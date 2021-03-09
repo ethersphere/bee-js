@@ -19,8 +19,19 @@ type AsyncSigner = (digest: Uint8Array) => Promise<Signature>
 /**
  * Interface for implementing Ethereum compatible signing.
  *
- * @property sign     The sign function that can be sync or async
+ * In order to be compatible with Ethereum and its signing method `personal_sign`, the data
+ * that are passed to sign() function should be prefixed with: `\x19Ethereum Signed Message:\n${data.length}`, hashed
+ * and only then signed.
+ * If you are wrapping another signer tool/library (like Metamask or some other Ethereum wallet), you might not have
+ * to do this prefixing manually if you use the `personal_sign` method. Check documentation of the tool!
+ * If you are writing your own storage for keys, then you have to prefix the data manually otherwise the Bee node
+ * will reject the chunk!
+ *
+ * For example see the hashWithEthereumPrefix() function.
+ *
+ * @property sign     The sign function that can be sync or async. This function takes non-prefixed data. See above.
  * @property address  The ethereum address of the signer
+ * @see hashWithEthereumPrefix
  */
 export type Signer = {
   sign: SyncSigner | AsyncSigner
@@ -37,32 +48,18 @@ function hashWithEthereumPrefix(data: Uint8Array): Bytes<32> {
 }
 
 /**
- * Sign the data with a signer.
- *
- * Adds the ethereum prefix to the data before signing.
- *
- * @param data    The data to be signed
- * @param signer  The signer used for signing
- *
- * @returns the signature
- */
-export function sign(data: Uint8Array, signer: Signer): Signature | Promise<Signature> {
-  const hash = hashWithEthereumPrefix(data)
-
-  return signer.sign(hash)
-}
-
-/**
  * The default signer function that can be used for integrating with
  * other applications (e.g. wallets).
  *
- * @param digest      The data to be signed
+ * @param data      The data to be signed
  * @param privateKey  The private key used for signing the data
  */
-export function defaultSign(digest: Uint8Array, privateKey: PrivateKey): Signature {
+export function defaultSign(data: Uint8Array, privateKey: PrivateKey): Signature {
   const curve = new ec('secp256k1')
   const keyPair = curve.keyFromPrivate(privateKey)
-  const sigRaw = curve.sign(digest, keyPair, { canonical: true, pers: undefined })
+
+  const hashedDigest = hashWithEthereumPrefix(data)
+  const sigRaw = curve.sign(hashedDigest, keyPair, { canonical: true, pers: undefined })
 
   if (sigRaw.recoveryParam === null) {
     throw new BeeError('signDigest recovery param was null')
