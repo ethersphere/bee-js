@@ -29,6 +29,9 @@ a custom Signer that uses Ethereum wallet:
 ```js
 /**
  * Function that returns Signer instance
+ * The Signer.sign() function has to be compatible with the Ethereum `personal_sign` call that
+ * prefixes the signing data with `\x19Ethereum Signed Message:\n${data.length}`.
+ * If your signing method does not do that, you have to do it manually!
  *
  * @param address [string] - Hex address prefixed with 0x of the account that will sign the data
  * @returns Signer instance
@@ -38,13 +41,13 @@ function createSigner(address) {
     address: BeeJs.Utils.Hex.hexToBytes(address),
     sign: async data => {
       // Convert bytes into prefixed hex string
-      data = '0x' + BeeJs.Utils.Hex.bytesToHex(data)
+      data = BeeJs.Utils.Hex.bytesToHex(data, true)
       console.log('Signing data: ', data)
 
       // Request the Eth wallet for signature
       const result = await window.ethereum.request({
         jsonrpc: '2.0',
-        method: 'eth_sign',
+        method: 'personal_sign',
         params: [address, data],
       })
 
