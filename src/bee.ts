@@ -280,10 +280,12 @@ export class Bee {
     const cancel = () => {
       if (cancelled === false) {
         cancelled = true
+
         // although the WebSocket API offers a `close` function, it seems that
         // with the library that we are using (isomorphic-ws) it doesn't close
         // the websocket properly, whereas `terminate` does
-        ws.terminate()
+        if (ws.terminate) ws.terminate()
+        else ws.close() // standard Websocket in browser does not have terminate function
       }
     }
 
@@ -292,8 +294,8 @@ export class Bee {
       cancel,
     }
 
-    ws.onmessage = ev => {
-      const data = prepareWebsocketData(ev.data)
+    ws.onmessage = async ev => {
+      const data = await prepareWebsocketData(ev.data)
 
       // ignore empty messages
       if (data.length > 0) {
