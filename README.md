@@ -1,6 +1,6 @@
 # Bee-js
 
-![Node.js tests](https://github.com/ethersphere/bee-js/workflows/Node.js%20tests/badge.svg?branch=master)
+[![Tests](https://github.com/ethersphere/bee-js/actions/workflows/tests.yaml/badge.svg)](https://github.com/ethersphere/bee-js/actions/workflows/tests.yaml)
 [![Dependency Status](https://david-dm.org/ethersphere/bee-js.svg?style=flat-square)](https://david-dm.org/ethersphere/bee-js)
 [![](https://img.shields.io/badge/made%20by-Swarm-blue.svg?style=flat-square)](https://swarm.ethereum.org/)
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)

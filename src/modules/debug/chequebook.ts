@@ -31,7 +31,7 @@ export async function getChequebookAddress(url: string): Promise<ChequebookAddre
  *
  * @param url Bee debug url
  */
-export async function getChequeubookBalance(url: string): Promise<ChequebookBalanceResponse> {
+export async function getChequebookBalance(url: string): Promise<ChequebookBalanceResponse> {
   const response = await safeAxios<ChequebookBalanceResponse>({
     url: url + chequebookEndpoint + '/balance',
     responseType: 'json',

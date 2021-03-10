@@ -7,6 +7,7 @@ import {
   beeDebugUrl,
   beePeerUrl,
   beeUrl,
+  FEED_TIMEOUT,
   okResponse,
   PSS_TIMEOUT,
   randomByteArray,
@@ -220,47 +221,55 @@ describe('Bee class', () => {
     const signer = testIdentity.privateKey
     const topic = randomByteArray(32, Date.now())
 
-    test('feed writer with two updates', async () => {
-      const feed = bee.makeFeedWriter('sequence', topic, signer)
-      const referenceZero = makeBytes(32) // all zeroes
+    test(
+      'feed writer with two updates',
+      async () => {
+        const feed = bee.makeFeedWriter('sequence', topic, signer)
+        const referenceZero = makeBytes(32) // all zeroes
 
-      await feed.upload(referenceZero)
-      const firstUpdateReferenceResponse = await feed.download()
+        await feed.upload(referenceZero)
+        const firstUpdateReferenceResponse = await feed.download()
 
-      expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceZero))
-      expect(firstUpdateReferenceResponse.feedIndex).toEqual('0000000000000000')
+        expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceZero))
+        expect(firstUpdateReferenceResponse.feedIndex).toEqual('0000000000000000')
 
-      const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
+        const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
 
-      await feed.upload(referenceOne)
-      const secondUpdateReferenceResponse = await feed.download()
+        await feed.upload(referenceOne)
+        const secondUpdateReferenceResponse = await feed.download()
 
-      expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
-      expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
-      // TODO the timeout was increased because this test is flaky
-      //  most likely there is an issue with the lookup
-      //  https://github.com/ethersphere/bee/issues/1248#issuecomment-786588911
-    }, 120000)
+        expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
+        expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
+        // TODO the timeout was increased because this test is flaky
+        //  most likely there is an issue with the lookup
+        //  https://github.com/ethersphere/bee/issues/1248#issuecomment-786588911
+      },
+      FEED_TIMEOUT,
+    )
 
-    test('create feeds manifest and retrieve the data', async () => {
-      const directoryStructure: Collection<Uint8Array> = [
-        {
-          path: 'index.html',
-          data: new TextEncoder().encode('some data'),
-        },
-      ]
-      const cacHash = await collection.upload(BEE_URL, directoryStructure)
+    test(
+      'create feeds manifest and retrieve the data',
+      async () => {
+        const directoryStructure: Collection<Uint8Array> = [
+          {
+            path: 'index.html',
+            data: new TextEncoder().encode('some data'),
+          },
+        ]
+        const cacHash = await collection.upload(BEE_URL, directoryStructure)
 
-      const feed = bee.makeFeedWriter('sequence', topic, signer)
-      await feed.upload(cacHash)
-      const manifestReference = await bee.createFeedManifest('sequence', topic, owner)
+        const feed = bee.makeFeedWriter('sequence', topic, signer)
+        await feed.upload(cacHash)
+        const manifestReference = await bee.createFeedManifest('sequence', topic, owner)
 
-      expect(typeof manifestReference).toBe('string')
+        expect(typeof manifestReference).toBe('string')
 
-      // this calls /bzz endpoint that should resolve the manifest and the feed returning the latest feed's content
-      const bzz = await bee.downloadFileFromCollection(manifestReference, 'index.html')
-      expect(new TextDecoder().decode(bzz.data)).toEqual('some data')
-    }, 60000)
+        // this calls /bzz endpoint that should resolve the manifest and the feed returning the latest feed's content
+        const bzz = await bee.downloadFileFromCollection(manifestReference, 'index.html')
+        expect(new TextDecoder().decode(bzz.data)).toEqual('some data')
+      },
+      FEED_TIMEOUT,
+    )
 
     describe('topic', () => {
       test('create feed topic', () => {
