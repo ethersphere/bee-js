@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.0.0](https://www.github.com/ethersphere/bee-js/compare/v0.5.1...v1.0.0) (2021-03-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* correct getChequebookBalance spelling (remove extra u) (#189)
+
+### Bug Fixes
+
+* no ethereum prefix for custom signers ([#194](https://www.github.com/ethersphere/bee-js/issues/194)) ([2ee1eca](https://www.github.com/ethersphere/bee-js/commit/2ee1eca179b724a70e9d7caea6dcd677e910e3d5))
+
+
+### Code Refactoring
+
+* correct getChequebookBalance spelling (remove extra u) ([#189](https://www.github.com/ethersphere/bee-js/issues/189)) ([20efd70](https://www.github.com/ethersphere/bee-js/commit/20efd708b8cf7ddd215cc5ed972cd4fefc6917e1))
+
 ### [0.5.1](https://www.github.com/ethersphere/bee-js/compare/v0.5.0...v0.5.1) (2021-02-26)
 
 
