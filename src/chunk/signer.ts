@@ -2,7 +2,9 @@ import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
 import { Bytes, verifyBytes } from '../utils/bytes'
 import { keccak256Hash } from './hash'
-import { hexToBytes, verifyHex } from '../utils/hex'
+import { hexToBytes, assertHexString } from '../utils/hex'
+
+import type { EthAddress } from './eth'
 
 /**
  * Ethereum compatible signing and recovery
@@ -11,7 +13,6 @@ import { hexToBytes, verifyHex } from '../utils/hex'
 export type Signature = Bytes<65>
 export type PrivateKey = Bytes<32>
 export type PublicKey = Bytes<32> | Bytes<64>
-export type EthAddress = Bytes<20>
 
 type SyncSigner = (digest: Uint8Array) => Signature
 type AsyncSigner = (digest: Uint8Array) => Promise<Signature>
@@ -128,7 +129,7 @@ export function isSigner(signer: unknown): signer is Signer {
 
 export function makeSigner(signer: Signer | Uint8Array | string | unknown): Signer {
   if (typeof signer === 'string') {
-    const hexKey = verifyHex(signer)
+    const hexKey = assertHexString(signer)
     const keyBytes = hexToBytes(hexKey)
     const verifiedPrivateKey = verifyBytes(32, keyBytes)
 

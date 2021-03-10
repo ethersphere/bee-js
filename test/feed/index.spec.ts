@@ -1,5 +1,5 @@
 import { fetchFeedUpdate } from '../../src/modules/feed'
-import { HexString, hexToBytes, stripHexPrefix, verifyHex } from '../../src/utils/hex'
+import { HexString, hexToBytes, stripHexPrefix, assertHexString } from '../../src/utils/hex'
 import { beeUrl, testIdentity } from '../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../src/feed'
 import { Bytes, verifyBytes } from '../../src/utils/bytes'
@@ -62,7 +62,7 @@ describe('feed', () => {
 
   test('multiple updates and lookup', async () => {
     const reference = '0000000000000000000000000000000000000000000000000000000000000000' as HexString
-    const referenceBytes = verifyBytes(32, hexToBytes(verifyHex(reference)))
+    const referenceBytes = verifyBytes(32, hexToBytes(assertHexString(reference)))
     const multipleUpdateTopic = '3000000000000000000000000000000000000000000000000000000000000000' as HexString
     const topicBytes = verifyBytes(32, hexToBytes(multipleUpdateTopic))
 

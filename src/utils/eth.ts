@@ -1,6 +1,6 @@
 import { keccak256, sha3_256 } from 'js-sha3'
 import { BrandedString } from '../types'
-import { HexString, hexToBytes, intToHex, isHexString, stripHexPrefix, verifyHex } from './hex'
+import { HexString, hexToBytes, intToHex, isHexString, stripHexPrefix, assertHexString } from './hex'
 export type HexEthAddress = BrandedString<'HexEthAddress'>
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 
@@ -124,7 +124,7 @@ export function ethToSwarmAddress(ethAddress: string | HexString | HexEthAddress
   assertIsEthAddress(ethAddress)
   assertIsSwarmNetworkId(networkId)
 
-  const hex = verifyHex(`${stripHexPrefix(ethAddress)}${toLittleEndian(networkId, 16)}`)
+  const hex = assertHexString(`${stripHexPrefix(ethAddress)}${toLittleEndian(networkId, 16)}`)
 
   const overlayAddress = sha3_256(hexToBytes(hex))
 

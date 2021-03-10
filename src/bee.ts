@@ -23,14 +23,14 @@ import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { FeedReader, FeedWriter, makeFeedReader, makeFeedWriter } from './feed'
-import { EthAddress, makeSigner } from './chunk/signer'
+import { makeSigner } from './chunk/signer'
 import { assertIsFeedType, FeedType } from './feed/type'
 import { Signer } from './chunk/signer'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData, SOCReader, SOCWriter } from './chunk/soc'
-import { makeOwner } from './chunk/owner'
+import { EthAddress, makeEthAddress } from './chunk/eth'
 import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
-import { bytesToHex } from './utils/hex'
+import { bytesToHex, HexString, stripHexPrefix } from './utils/hex'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -364,15 +364,15 @@ export class Bee {
    */
   createFeedManifest(
     type: FeedType,
-    topic: Topic | Uint8Array | string,
-    owner: EthAddress | Uint8Array | string,
+    topic: Topic | Uint8Array | HexString,
+    owner: EthAddress | Uint8Array | HexString,
   ): Promise<Reference> {
     assertIsFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
-    const canonicalOwner = makeOwner(owner)
+    const canonicalOwner = makeEthAddress(owner)
 
-    return createFeedManifest(this.url, bytesToHex(canonicalOwner), bytesToHex(canonicalTopic), { type })
+    return createFeedManifest(this.url, bytesToHex<42>(canonicalOwner, 42), bytesToHex(canonicalTopic), { type })
   }
 
   /**
@@ -384,13 +384,13 @@ export class Bee {
    */
   makeFeedReader(
     type: FeedType,
-    topic: Topic | Uint8Array | string,
-    owner: EthAddress | Uint8Array | string,
+    topic: Topic | Uint8Array | HexString,
+    owner: EthAddress | Uint8Array | HexString,
   ): FeedReader {
     assertIsFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
-    const canonicalOwner = makeOwner(owner)
+    const canonicalOwner = makeEthAddress(owner)
 
     return makeFeedReader(this.url, type, canonicalTopic, canonicalOwner)
   }
@@ -402,7 +402,11 @@ export class Bee {
    * @param topic   Topic in hex or bytes
    * @param signer  The signer's private key or a Signer instance that can sign data
    */
-  makeFeedWriter(type: FeedType, topic: Topic | Uint8Array | string, signer: Signer | Uint8Array | string): FeedWriter {
+  makeFeedWriter(
+    type: FeedType,
+    topic: Topic | Uint8Array | HexString,
+    signer: Signer | Uint8Array | HexString,
+  ): FeedWriter {
     assertIsFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
@@ -428,8 +432,8 @@ export class Bee {
    *
    * @param ownerAddress The ethereum address of the owner
    */
-  makeSOCReader(ownerAddress: EthAddress | Uint8Array | string): SOCReader {
-    const canonicalOwner = makeOwner(ownerAddress)
+  makeSOCReader(ownerAddress: EthAddress | Uint8Array | HexString): SOCReader {
+    const canonicalOwner = makeEthAddress(ownerAddress)
 
     return {
       download: downloadSingleOwnerChunk.bind(null, this.url, canonicalOwner),

@@ -1,17 +1,18 @@
 import { keccak256Hash } from '../chunk/hash'
 import { serializeBytes } from '../chunk/serialize'
-import { EthAddress, Signer } from '../chunk/signer'
 import { Identifier, uploadSingleOwnerChunkData, verifySingleOwnerChunk } from '../chunk/soc'
 import { FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
-import { Reference, ReferenceResponse, UploadOptions } from '../types'
 import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
-import { bytesToHex, HexString, hexToBytes, verifyHex } from '../utils/hex'
+import { bytesToHex, HexString, hexToBytes, assertHexString } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
-import { Topic } from './topic'
-import { Owner } from '../chunk/owner'
-import { FeedType } from './type'
+
+import type { Signer } from '../chunk/signer'
+import type { Reference, ReferenceResponse, UploadOptions } from '../types'
+import type { Topic } from './topic'
+import type { FeedType } from './type'
+import type { EthAddress } from '../chunk/eth'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8
@@ -42,7 +43,7 @@ export interface FeedUpdate {
  */
 export interface FeedReader {
   readonly type: FeedType
-  readonly owner: Owner
+  readonly owner: EthAddress
   readonly topic: Topic
   /**
    * Download the latest feed update
@@ -80,8 +81,8 @@ export function makeSequentialFeedIdentifier(topic: Topic, index: number): Ident
 }
 
 export function makeFeedIndexBytes(s: string): IndexBytes {
-  const hex = verifyHex(s)
-  const bytes = hexToBytes(hex)
+  assertHexString(s)
+  const bytes = hexToBytes(s)
 
   return verifyBytes(8, bytes)
 }
@@ -182,7 +183,7 @@ export async function downloadFeedUpdate(
   }
 }
 
-export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: Owner): FeedReader {
+export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: EthAddress): FeedReader {
   const ownerHex = bytesToHex(owner)
   const topicHex = bytesToHex(topic)
   const download = (options?: FeedUpdateOptions) => fetchFeedUpdate(url, ownerHex, topicHex, { ...options, type })
@@ -197,8 +198,8 @@ export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner:
 
 function makeChunkReference(reference: ChunkReference | Reference): ChunkReference {
   if (typeof reference === 'string') {
-    const hexReference = verifyHex(reference)
-    const referenceBytes = hexToBytes(hexReference)
+    assertHexString(reference)
+    const referenceBytes = hexToBytes(reference)
 
     return verifyChunkReference(referenceBytes)
   } else if (reference instanceof Uint8Array) {

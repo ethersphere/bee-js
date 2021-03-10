@@ -1,6 +1,7 @@
 import { Dictionary, Reference, ReferenceResponse } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 import { FeedType } from '../feed/type'
+import { HexString, NonPrefixedHexString, stripHexPrefix } from '../utils/hex'
 
 const feedEndpoint = '/feeds'
 
@@ -35,13 +36,16 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
  */
 export async function createFeedManifest(
   url: string,
-  owner: string,
-  topic: string,
+  owner: HexString<42>,
+  topic: HexString,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
+  const strippedOwner = stripHexPrefix(owner)
+  const strippedTopic = stripHexPrefix(topic)
+
   const response = await safeAxios<ReferenceResponse>({
     method: 'post',
-    url: `${url}${feedEndpoint}/${owner}/${topic}`,
+    url: `${url}${feedEndpoint}/${strippedOwner}/${strippedTopic}`,
     params: options,
   })
 
