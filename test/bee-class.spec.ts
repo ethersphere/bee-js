@@ -1,4 +1,4 @@
-import { Bee, BeeDebug, Collection } from '../src'
+import { Bee, BeeArgumentError, BeeDebug, Collection } from '../src'
 import { ChunkReference } from '../src/feed'
 import { HEX_REFERENCE_LENGTH } from '../src/types'
 import { makeBytes } from '../src/utils/bytes'
@@ -23,6 +23,29 @@ import * as collection from '../src/modules/collection'
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
   const bee = new Bee(BEE_URL)
+
+  it('should not accept invalid url', () => {
+    function testUrl(url: unknown): void {
+      try {
+        new Bee(url as string)
+        fail('Bee constructor should have thrown error')
+      } catch (e) {
+        expect(e).toBeInstanceOf(BeeArgumentError)
+        expect(e.param).toEqual(url)
+      }
+    }
+
+    testUrl('')
+    testUrl(null)
+    testUrl(undefined)
+    testUrl(1)
+    testUrl(Symbol.for('hello'))
+    testUrl('some-invalid-url')
+    testUrl('invalid:protocol')
+    // eslint-disable-next-line no-script-url
+    testUrl('javascript:console.log()')
+    testUrl('ws://localhost:1633')
+  })
 
   describe('files', () => {
     it('should work with files', async () => {

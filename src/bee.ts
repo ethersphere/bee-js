@@ -31,6 +31,7 @@ import { makeOwner } from './chunk/owner'
 import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
 import { bytesToHex } from './utils/hex'
+import { assertBeeUrl, stripLastSlash } from './utils/url'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -38,7 +39,16 @@ import { bytesToHex } from './utils/hex'
  * @param url URL of a running Bee node
  */
 export class Bee {
-  constructor(readonly url: string) {}
+  public readonly url: string
+
+  constructor(url: string) {
+    assertBeeUrl(url)
+
+    // Remove last slash if present, as our endpoint strings starts with `/...`
+    // which could lead to double slash in URL to which Bee responds with
+    // unnecessary redirects.
+    this.url = stripLastSlash(url)
+  }
 
   /**
    * Upload data to a Bee node
