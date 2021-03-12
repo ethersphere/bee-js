@@ -25,6 +25,38 @@ describe('Bee class - in browser', () => {
     expect(testBeeInstance.url).toBe(BEE_URL)
   })
 
+  function testUrl(url: unknown): void {
+    it(`should not accept invalid url '${url}'`, async () => {
+      await page.evaluate(url => {
+        try {
+          new window.BeeJs.Bee(url as string)
+          fail('Bee constructor should have thrown error.')
+        } catch (e) {
+          if (e instanceof window.BeeJs.BeeArgumentError) {
+            // We don't have `expect()` available in browser context
+            if (e.value !== url) {
+              throw new Error('Error value does not match the URL!')
+            }
+
+            return
+          }
+
+          throw e
+        }
+      }, url as string)
+    })
+  }
+
+  testUrl('')
+  testUrl(null)
+  testUrl(undefined)
+  testUrl(1)
+  testUrl('some-invalid-url')
+  testUrl('invalid:protocol')
+  // eslint-disable-next-line no-script-url
+  testUrl('javascript:console.log()')
+  testUrl('ws://localhost:1633')
+
   it('should pin and unpin collection', async () => {
     const fileHash = await page.evaluate(async BEE_URL => {
       const bee = new window.BeeJs.Bee(BEE_URL)

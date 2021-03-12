@@ -36,8 +36,8 @@
     "compile:browser": "webpack --progress --env target=web",
     "docs": "rimraf docs && typedoc",
     "test": "npm run test:node && npm run test:browser",
-    "test:browser": "npm run compile:browser && jest --config=jest.config.ts --selectProjects=dom",
-    "test:node": "jest --config=jest.config.ts --selectProjects=node",
+    "test:browser": "npm run compile:browser && jest --verbose --config=jest.config.ts --selectProjects=dom",
+    "test:node": "jest --verbose --config=jest.config.ts --selectProjects=node",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""
   },
