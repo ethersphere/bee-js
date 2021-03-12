@@ -14,6 +14,10 @@ declare global {
       Bee: typeof import('./bee').Bee
       BeeDebug: typeof import('./bee-debug').BeeDebug
       Utils: typeof import('./utils/expose')
+      BeeError: typeof import('./utils/error').BeeError
+      BeeRequestError: typeof import('./utils/error').BeeRequestError
+      BeeResponseError: typeof import('./utils/error').BeeResponseError
+      BeeArgumentError: typeof import('./utils/error').BeeArgumentError
     }
   }
 }

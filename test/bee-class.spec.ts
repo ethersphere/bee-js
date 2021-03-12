@@ -1,4 +1,6 @@
-import { Bee, BeeArgumentError, BeeDebug, Collection } from '../src'
+import { Bee, BeeDebug, Collection } from '../src'
+import { BeeArgumentError } from '../src/utils/error'
+
 import { ChunkReference } from '../src/feed'
 import { HEX_REFERENCE_LENGTH } from '../src/types'
 import { makeBytes } from '../src/utils/bytes'
@@ -24,27 +26,36 @@ describe('Bee class', () => {
   const BEE_URL = beeUrl()
   const bee = new Bee(BEE_URL)
 
-  it('should not accept invalid url', () => {
-    function testUrl(url: unknown): void {
+  function testUrl(url: unknown): void {
+    it(`should not accept invalid url '${url}'`, () => {
       try {
         new Bee(url as string)
-        fail('Bee constructor should have thrown error')
+        fail('Bee constructor should have thrown error.')
       } catch (e) {
-        expect(e).toBeInstanceOf(BeeArgumentError)
-        expect(e.param).toEqual(url)
-      }
-    }
+        if (e instanceof BeeArgumentError) {
+          expect(e.value).toEqual(url)
 
-    testUrl('')
-    testUrl(null)
-    testUrl(undefined)
-    testUrl(1)
-    testUrl(Symbol.for('hello'))
-    testUrl('some-invalid-url')
-    testUrl('invalid:protocol')
-    // eslint-disable-next-line no-script-url
-    testUrl('javascript:console.log()')
-    testUrl('ws://localhost:1633')
+          return
+        }
+
+        throw e
+      }
+    })
+  }
+
+  testUrl('')
+  testUrl(null)
+  testUrl(undefined)
+  testUrl(1)
+  testUrl('some-invalid-url')
+  testUrl('invalid:protocol')
+  // eslint-disable-next-line no-script-url
+  testUrl('javascript:console.log()')
+  testUrl('ws://localhost:1633')
+
+  it('should strip trailing slash', () => {
+    const bee = new Bee('http://localhost:1633/')
+    expect(bee.url).toEqual('http://localhost:1633')
   })
 
   describe('files', () => {
@@ -244,7 +255,7 @@ describe('Bee class', () => {
     const signer = testIdentity.privateKey
     const topic = randomByteArray(32, Date.now())
 
-    test(
+    it(
       'feed writer with two updates',
       async () => {
         const feed = bee.makeFeedWriter('sequence', topic, signer)
@@ -270,7 +281,7 @@ describe('Bee class', () => {
       FEED_TIMEOUT,
     )
 
-    test(
+    it(
       'create feeds manifest and retrieve the data',
       async () => {
         const directoryStructure: Collection<Uint8Array> = [
@@ -295,7 +306,7 @@ describe('Bee class', () => {
     )
 
     describe('topic', () => {
-      test('create feed topic', () => {
+      it('create feed topic', () => {
         const topic = bee.makeFeedTopic('swarm.eth:application:handshake')
         const feed = bee.makeFeedReader('sequence', topic, owner)
 
