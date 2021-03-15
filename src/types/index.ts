@@ -102,8 +102,8 @@ export interface ReferenceResponse {
  *
  * See https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
  */
-export type BrandedType<T, N> = T & { __tag__: N }
+export type BrandedType<Type, Name> = Type & { __tag__: Name }
 
-export type BrandedString<N> = BrandedType<string, N>
+export type BrandedString<Name> = BrandedType<string, Name>
 
-export type FlavoredType<T, N> = T & { __tag__?: N }
+export type FlavoredType<Type, Name> = Type & { __tag__?: Name }
