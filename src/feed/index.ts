@@ -1,6 +1,6 @@
 import { keccak256Hash } from '../chunk/hash'
 import { serializeBytes } from '../chunk/serialize'
-import { EthAddress, Signer } from '../chunk/signer'
+import { Signer } from '../chunk/signer'
 import { Identifier, uploadSingleOwnerChunkData, verifySingleOwnerChunk } from '../chunk/soc'
 import { FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
 import { Reference, ReferenceResponse, UploadOptions } from '../types'
@@ -10,8 +10,8 @@ import { bytesToHex, HexString, hexToBytes, verifyHex } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
 import { Topic } from './topic'
-import { Owner } from '../chunk/owner'
 import { FeedType } from './type'
+import { EthAddress } from '../utils/eth'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8
@@ -42,7 +42,7 @@ export interface FeedUpdate {
  */
 export interface FeedReader {
   readonly type: FeedType
-  readonly owner: Owner
+  readonly owner: EthAddress
   readonly topic: Topic
   /**
    * Download the latest feed update
@@ -182,7 +182,7 @@ export async function downloadFeedUpdate(
   }
 }
 
-export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: Owner): FeedReader {
+export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: EthAddress): FeedReader {
   const ownerHex = bytesToHex(owner)
   const topicHex = bytesToHex(topic)
   const download = (options?: FeedUpdateOptions) => fetchFeedUpdate(url, ownerHex, topicHex, { ...options, type })

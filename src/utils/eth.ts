@@ -1,8 +1,23 @@
 import { keccak256, sha3_256 } from 'js-sha3'
 import { BrandedString } from '../types'
 import { HexString, hexToBytes, intToHex, isHexString, stripHexPrefix, verifyHex } from './hex'
+import { Bytes, verifyBytes } from './bytes'
+
 export type HexEthAddress = BrandedString<'HexEthAddress'>
 export type OverlayAddress = BrandedString<'OverlayAddress'>
+export type EthAddress = Bytes<20>
+
+export function makeEthAddress(address: EthAddress | Uint8Array | string): EthAddress {
+  if (typeof address === 'string') {
+    const hexOwner = verifyHex(address)
+    const ownerBytes = hexToBytes(hexOwner)
+
+    return verifyBytes(20, ownerBytes)
+  } else if (address instanceof Uint8Array) {
+    return verifyBytes(20, address)
+  }
+  throw new TypeError('invalid owner')
+}
 
 /**
  * Check if this is all caps or small caps eth address (=address without checksum)
