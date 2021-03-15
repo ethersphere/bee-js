@@ -5,6 +5,7 @@ import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
+import * as health from './modules/health'
 import type {
   Tag,
   FileData,
@@ -462,5 +463,23 @@ export class Bee {
 
       upload: uploadSingleOwnerChunkData.bind(null, this.url, canonicalSigner),
     }
+  }
+
+  /**
+   * Ping the base bee URL. If connection was not successful throw error
+   */
+  health(): Promise<void> | never {
+    return health.health(this.url)
+  }
+
+  /**
+   * Periodically ping the base bee URL
+   * emit 'check' event each time the ping happens
+   * emit 'error' with the Error as payload, if the endpoint is unreachable
+   *
+   * @param frequency  How frequently should the health endpoint be pinged
+   */
+  healthSubscribe(frequency = 1000): HealthEmitter {
+    return health.healthSubscribe(this.url, frequency)
   }
 }
