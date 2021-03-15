@@ -3,6 +3,7 @@ import { BeeError } from '../utils/error'
 import { Bytes, verifyBytes } from '../utils/bytes'
 import { keccak256Hash } from './hash'
 import { hexToBytes, verifyHex } from '../utils/hex'
+import { EthAddress } from '../utils/eth'
 
 /**
  * Ethereum compatible signing and recovery
@@ -11,7 +12,6 @@ import { hexToBytes, verifyHex } from '../utils/hex'
 export type Signature = Bytes<65>
 export type PrivateKey = Bytes<32>
 export type PublicKey = Bytes<32> | Bytes<64>
-export type EthAddress = Bytes<20>
 
 type SyncSigner = (digest: Uint8Array) => Signature
 type AsyncSigner = (digest: Uint8Array) => Promise<Signature>

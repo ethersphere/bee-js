@@ -1,6 +1,6 @@
 import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset, verifyBytesAtOffset } from '../utils/bytes'
 import { bmtHash } from './bmt'
-import { EthAddress, recoverAddress, Signature, Signer } from './signer'
+import { recoverAddress, Signature, Signer } from './signer'
 import { keccak256Hash } from './hash'
 import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
@@ -10,6 +10,7 @@ import { ReferenceResponse, UploadOptions } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
+import { EthAddress } from '../utils/eth'
 
 const IDENTIFIER_SIZE = 32
 const SIGNATURE_SIZE = 65
