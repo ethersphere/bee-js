@@ -1,5 +1,6 @@
 import { BeeError } from '../utils/error'
 import type { AxiosRequestConfig } from 'axios'
+import type Emittery from 'emittery'
 export * from './debug'
 
 export interface Dictionary<T> {
@@ -107,3 +108,10 @@ export type BrandedType<T, N> = T & { __tag__: N }
 export type BrandedString<N> = BrandedType<string, N>
 
 export type FlavoredType<T, N> = T & { __tag__?: N }
+
+export interface HealthEmitterData {
+  error: Error
+}
+
+export type HealthEmitterNonData = 'check'
+export type HealthEmitter = Emittery.Typed<HealthEmitterData, HealthEmitterNonData>
