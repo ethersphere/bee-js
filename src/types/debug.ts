@@ -82,3 +82,37 @@ export interface PeerBalance {
 export interface BalanceResponse {
   balances: PeerBalance[]
 }
+
+export interface Health {
+  status: string
+}
+
+export interface Readiness {
+  status: string
+}
+
+export interface RemovePeerResponse {
+  message: string
+  code: 0
+}
+
+export interface Bins {
+  population: number
+  connected: number
+  disconnectedPeers: Peer[]
+  connectedPeers: Peer[]
+}
+
+export interface Topology {
+  baseAddr: string
+  population: number
+  connected: number
+  timestamp: string
+  nnLowWatermark: number
+  depth: number
+  bins: Bins[]
+}
+
+export interface PingResponse {
+  rtt: string
+}

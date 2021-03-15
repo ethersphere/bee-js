@@ -5,7 +5,7 @@ import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
-import * as health from './modules/health'
+import * as status from './modules/status'
 import type {
   Tag,
   FileData,
@@ -468,18 +468,22 @@ export class Bee {
   /**
    * Ping the base bee URL. If connection was not successful throw error
    */
-  health(): Promise<void> | never {
-    return health.health(this.url)
+  checkConnection(): Promise<void> | never {
+    return status.checkConnection(this.url)
   }
 
   /**
-   * Periodically ping the base bee URL
-   * emit 'check' event each time the ping happens
-   * emit 'error' with the Error as payload, if the endpoint is unreachable
+   * Ping the base bee URL.
    *
-   * @param frequency  How frequently should the health endpoint be pinged
+   * @returns true if succesfull, false on error
    */
-  healthSubscribe(frequency = 1000): HealthEmitter {
-    return health.healthSubscribe(this.url, frequency)
+  async isConnected(): Promise<boolean> {
+    try {
+      await status.checkConnection(this.url)
+    } catch (e) {
+      return false
+    }
+
+    return true
   }
 }
