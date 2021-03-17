@@ -1,6 +1,6 @@
 import { keccak256, sha3_256 } from 'js-sha3'
 import { BrandedString } from '../types'
-import { HexString, hexToBytes, intToHex, isHexString, makeHexString, assertHexString } from './hex'
+import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
 import { Bytes, verifyBytes } from './bytes'
 
 export type OverlayAddress = BrandedString<'OverlayAddress'>
