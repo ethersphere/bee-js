@@ -1,5 +1,5 @@
 import { fetchFeedUpdate } from '../../src/modules/feed'
-import { HexString, hexToBytes, stripHexPrefix, verifyHex } from '../../src/utils/hex'
+import { HexString, hexToBytes, makeHexString, assertHexString } from '../../src/utils/hex'
 import { beeUrl, testIdentity } from '../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../src/feed'
 import { Bytes, verifyBytes } from '../../src/utils/bytes'
@@ -37,22 +37,20 @@ async function tryUploadFeedUpdate(url: string, signer: Signer, topic: Topic, in
 
 describe('feed', () => {
   const url = beeUrl()
-  const owner = stripHexPrefix(testIdentity.address)
+  const owner = makeHexString(testIdentity.address, 40)
   const signer = makeDefaultSigner(hexToBytes(testIdentity.privateKey) as PrivateKey)
-  const topic = '0000000000000000000000000000000000000000000000000000000000000000' as HexString
+  const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
 
   test('empty feed update', async () => {
-    const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as HexString
+    const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
     const index = await findNextIndex(url, owner, emptyTopic)
 
     expect(index).toEqual('0000000000000000')
   }, 15000)
 
   test('feed update', async () => {
-    const topicBytes = hexToBytes(topic) as Bytes<32>
-
     const uploadedChunk = await uploadChunk(url, 0)
-    await tryUploadFeedUpdate(url, signer, topicBytes, 0, uploadedChunk)
+    await tryUploadFeedUpdate(url, signer, topic, 0, uploadedChunk)
 
     const feedUpdate = await fetchFeedUpdate(url, owner, topic)
 
@@ -61,21 +59,20 @@ describe('feed', () => {
   }, 15000)
 
   test('multiple updates and lookup', async () => {
-    const reference = '0000000000000000000000000000000000000000000000000000000000000000' as HexString
-    const referenceBytes = verifyBytes(32, hexToBytes(verifyHex(reference)))
-    const multipleUpdateTopic = '3000000000000000000000000000000000000000000000000000000000000000' as HexString
-    const topicBytes = verifyBytes(32, hexToBytes(multipleUpdateTopic))
+    const reference = makeHexString('0000000000000000000000000000000000000000000000000000000000000000', 64)
+    const referenceBytes = verifyBytes(32, hexToBytes(reference))
+    const multipleUpdateTopic = '3000000000000000000000000000000000000000000000000000000000000000' as Topic
 
     const numUpdates = 5
 
     for (let i = 0; i < numUpdates; i++) {
       const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
-      await tryUploadFeedUpdate(url, signer, topicBytes, i, referenceI)
+      await tryUploadFeedUpdate(url, signer, multipleUpdateTopic, i, referenceI)
     }
 
     for (let i = 0; i < numUpdates; i++) {
       const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
-      const feedUpdateResponse = await downloadFeedUpdate(url, signer.address, topicBytes, i)
+      const feedUpdateResponse = await downloadFeedUpdate(url, signer.address, multipleUpdateTopic, i)
       expect(feedUpdateResponse.reference).toEqual(referenceI)
     }
   }, 15000)

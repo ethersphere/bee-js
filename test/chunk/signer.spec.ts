@@ -20,7 +20,7 @@ describe('signer', () => {
   test('recover address from signature', () => {
     const recoveredAddress = recoverAddress(expectedSignature as Signature, dataToSign)
 
-    expect(bytesToHex(recoveredAddress, true)).toEqual(testIdentity.address)
+    expect(bytesToHex(recoveredAddress)).toEqual(testIdentity.address)
   })
 
   describe('makeSigner', () => {
@@ -28,7 +28,7 @@ describe('signer', () => {
       const signer = makeSigner(testIdentity.privateKey)
       const signature = await signer.sign(dataToSign)
 
-      expect(bytesToHex(signer.address, true)).toEqual(testIdentity.address)
+      expect(bytesToHex(signer.address)).toEqual(testIdentity.address)
       expect(signature).toEqual(expectedSignature)
     })
 
@@ -36,7 +36,7 @@ describe('signer', () => {
       const signer = makeSigner(hexToBytes(testIdentity.privateKey))
       const signature = await signer.sign(dataToSign)
 
-      expect(bytesToHex(signer.address, true)).toEqual(testIdentity.address)
+      expect(bytesToHex(signer.address)).toEqual(testIdentity.address)
       expect(signature).toEqual(expectedSignature)
     })
 

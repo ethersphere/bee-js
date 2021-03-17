@@ -2,7 +2,7 @@ import { Bee, BeeDebug, Collection } from '../src'
 import { BeeArgumentError } from '../src/utils/error'
 
 import { ChunkReference } from '../src/feed'
-import { HEX_REFERENCE_LENGTH } from '../src/types'
+import { REFERENCE_HEX_LENGTH } from '../src/types'
 import { makeBytes } from '../src/utils/bytes'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import {
@@ -126,7 +126,7 @@ describe('Bee class', () => {
     it('should work with directory with unicode filenames', async () => {
       const hash = await bee.uploadFilesFromDirectory('./test/data')
 
-      expect(hash.length).toEqual(HEX_REFERENCE_LENGTH)
+      expect(hash.length).toEqual(REFERENCE_HEX_LENGTH)
     })
   })
 

@@ -9,6 +9,7 @@ import { safeAxios } from '../utils/safeAxios'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { BeeArgumentError } from '../utils/error'
 import { fileArrayBuffer } from '../utils/file'
+import { Reference } from '../types'
 
 const dirsEndpoint = '/dirs'
 const bzzEndpoint = '/bzz'
@@ -124,7 +125,7 @@ export async function upload(
   url: string,
   data: Collection<Uint8Array>,
   options?: CollectionUploadOptions,
-): Promise<string> {
+): Promise<Reference> {
   if (!url || url === '') {
     throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
@@ -135,7 +136,7 @@ export async function upload(
 
   const tarData = makeTar(data)
 
-  const response = await safeAxios<{ reference: string }>({
+  const response = await safeAxios<{ reference: Reference }>({
     ...options?.axiosOptions,
     method: 'post',
     url: `${url}${dirsEndpoint}`,

@@ -1,19 +1,22 @@
 import { BeeError } from '../utils/error'
 import type { AxiosRequestConfig } from 'axios'
+import { HexString } from '../utils/hex'
 export * from './debug'
 
 export interface Dictionary<T> {
   [Key: string]: T
 }
 
-export type Reference = string
+export const REFERENCE_HEX_LENGTH = 64
+export const ENCRYPTED_REFERENCE_HEX_LENGTH = 128
+export const REFERENCE_BYTES_LENGTH = 32
+export const ENCRYPTED_REFERENCE_BYTES_LENGTH = 64
+
+export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
 export type PublicKey = string
 
 export type Address = string
 export type AddressPrefix = Address
-
-export const HEX_REFERENCE_LENGTH = 64
-export const ENCRYPTED_HEX_REFERENCE_LENGTH = 2 * HEX_REFERENCE_LENGTH
 
 export interface UploadOptions {
   pin?: boolean

@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import { FileData, FileUploadOptions, UploadHeaders } from '../types'
+import { FileData, FileUploadOptions, Reference, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
+import { HexString } from '../utils/hex'
 
 const endpoint = '/files'
 
@@ -35,8 +36,8 @@ export async function upload(
   data: string | Uint8Array | Readable | ArrayBuffer,
   name?: string,
   options?: FileUploadOptions,
-): Promise<string> {
-  const response = await safeAxios<{ reference: string }>({
+): Promise<Reference> {
+  const response = await safeAxios<{ reference: Reference }>({
     ...options?.axiosOptions,
     method: 'post',
     url: url + endpoint,

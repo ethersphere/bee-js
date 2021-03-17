@@ -2,7 +2,7 @@ import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
 import { Bytes, verifyBytes } from '../utils/bytes'
 import { keccak256Hash } from './hash'
-import { hexToBytes, verifyHex } from '../utils/hex'
+import { hexToBytes, makeHexString } from '../utils/hex'
 import { EthAddress } from '../utils/eth'
 
 /**
@@ -128,11 +128,10 @@ export function isSigner(signer: unknown): signer is Signer {
 
 export function makeSigner(signer: Signer | Uint8Array | string | unknown): Signer {
   if (typeof signer === 'string') {
-    const hexKey = verifyHex(signer)
-    const keyBytes = hexToBytes(hexKey)
-    const verifiedPrivateKey = verifyBytes(32, keyBytes)
+    const hexKey = makeHexString(signer, 64)
+    const keyBytes = hexToBytes<32>(hexKey) // HexString is verified for 64 length => 32 is guaranteed
 
-    return makeDefaultSigner(verifiedPrivateKey)
+    return makeDefaultSigner(keyBytes)
   } else if (signer instanceof Uint8Array) {
     const verifiedPrivateKey = verifyBytes(32, signer)
 
