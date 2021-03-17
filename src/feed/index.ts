@@ -80,7 +80,7 @@ export function isEpoch(epoch: unknown): epoch is Epoch {
 }
 
 function hashFeedIdentifier(topic: Topic, index: IndexBytes): Identifier {
-  return keccak256Hash(topic, index)
+  return keccak256Hash(hexToBytes(topic), index)
 }
 
 export function makeSequentialFeedIdentifier(topic: Topic, index: number): Identifier {

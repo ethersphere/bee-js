@@ -5,7 +5,7 @@ import {
   getLastCheques,
   withdrawTokens,
 } from '../../../src/modules/debug/chequebook'
-import { isHexString } from '../../../src/utils/hex'
+import { isPrefixedHexString } from '../../../src/utils/hex'
 import { beeDebugUrl, sleep } from '../../utils'
 
 if (process.env.BEE_TEST_CHEQUEBOOK) {
@@ -13,7 +13,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     test('address', async () => {
       const response = await getChequebookAddress(beeDebugUrl())
 
-      expect(isHexString(response.chequebookaddress)).toBeTruthy()
+      expect(isPrefixedHexString(response.chequebookaddress)).toBeTruthy()
     })
 
     test('balance', async () => {
@@ -32,7 +32,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
         expect(typeof withdrawResponse.transactionHash).toBe('string')
 
         // TODO avoid sleep in tests
-        // See https://github.com/ethersphere/bee/issues/1191
+        //  See https://github.com/ethersphere/bee/issues/1191
         await sleep(TRANSACTION_TIMEOUT)
 
         const depositResponse = await depositTokens(beeDebugUrl(), 10)

@@ -18,7 +18,7 @@ export function makeEthAddress(address: EthAddress | Uint8Array | string): EthAd
   } else if (address instanceof Uint8Array) {
     return verifyBytes(ETH_ADDR_BYTES_LENGTH, address)
   }
-  throw new TypeError('invalid owner')
+  throw new TypeError('Invalid EthAddress')
 }
 
 export function makeHexEthAddress(address: EthAddress | Uint8Array | string): HexEthAddress {
@@ -26,7 +26,7 @@ export function makeHexEthAddress(address: EthAddress | Uint8Array | string): He
     return makeHexString(address, ETH_ADDR_HEX_LENGTH)
   } catch (e) {
     if (e instanceof TypeError) {
-      e.message = `Invalid Owner: ${e.message}`
+      e.message = `Invalid HexEthAddress: ${e.message}`
     }
 
     throw e

@@ -102,7 +102,7 @@ export function bytesToHex<Length extends number = number>(bytes: Uint8Array, le
 }
 
 /**
- * Converst integer number to hex string.
+ * Converts integer number to hex string.
  *
  * Optionally provides '0x' prefix or padding
  *
