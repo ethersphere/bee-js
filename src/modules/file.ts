@@ -4,7 +4,6 @@ import { FileData, FileUploadOptions, Reference, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
-import { HexString } from '../utils/hex'
 
 const endpoint = '/files'
 

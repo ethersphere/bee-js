@@ -1,4 +1,4 @@
-import { Bytes } from './bytes'
+import { Bytes, makeBytes } from './bytes'
 
 /**
  * Nominal type to represent hex strings WITHOUT '0x' prefix.
@@ -39,25 +39,21 @@ export function makeHexString<L extends number>(input: string | number | Uint8Ar
   }
 
   if (typeof input === 'string') {
-    try {
+    if (isPrefixedHexString(input)) {
+      const hex = input.slice(2) as HexString<L>
+
+      if (len && hex.length !== len) {
+        throw new TypeError(`Length mismatch for valid hex string. Expecting length ${len}: ${hex}`)
+      }
+
+      return hex
+    } else {
       // We use assertHexString() as there might be more reasons why a string is not valid hex string
       // and usage of isHexString() would not give enough information to the user on what is going
       // wrong.
       assertHexString<L>(input, len)
 
       return input
-    } catch (e) {
-      if (isPrefixedHexString(input)) {
-        const hex = input.slice(2) as HexString<L>
-
-        if (len && hex.length !== len) {
-          throw new TypeError(`Length mismatch for valid hex string. Expecting length ${len}: ${hex}`)
-        }
-
-        return hex
-      }
-
-      throw e
     }
   }
 
@@ -74,7 +70,7 @@ export function hexToBytes<Length extends number, LengthHex extends number = num
 ): Bytes<Length> {
   assertHexString(hex)
 
-  const bytes = new Uint8Array(hex.length / 2)
+  const bytes = makeBytes(hex.length / 2)
   for (let i = 0; i < bytes.length; i++) {
     const hexByte = hex.substr(i * 2, 2)
     bytes[i] = parseInt(hexByte, 16)
