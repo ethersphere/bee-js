@@ -28,11 +28,10 @@
     "data": "data.browser"
   },
   "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
   "scripts": {
     "prepare": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production && npm run compile:node --env mode=production",
     "compile:node": "webpack --progress --env target=node",
-    "compile:types": "tsc --project tsconfig.d.json",
+    "compile:types": "tsc --emitDeclarationOnly --declaration",
     "compile:browser": "webpack --progress --env target=web",
     "docs": "rimraf docs && typedoc",
     "test": "npm run test:node && npm run test:browser",
@@ -89,7 +88,7 @@
     "puppeteer": "^5.5.0",
     "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^5.0.3",
-    "ts-node": "^9.0.0",
+    "ts-node": "^9.1.1",
     "typedoc": "^0.20.27",
     "typedoc-plugin-markdown": "^3.5.0",
     "typescript": "^4.1.3",
