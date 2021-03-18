@@ -62,6 +62,10 @@ export class BeeDebug {
     return nodeAddresses.ethereum
   }
 
+  getBlocklist(): Promise<Peer[]> {
+    return connectivity.getBlocklist(this.url)
+  }
+
   /**
    * Get list of peers for this node
    */

@@ -85,6 +85,7 @@ export interface BalanceResponse {
 
 export interface Health {
   status: string
+  version: string
 }
 
 export interface Readiness {
