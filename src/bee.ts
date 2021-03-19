@@ -310,7 +310,7 @@ export class Bee {
 
       // ignore empty messages
       if (data.length > 0) {
-        handler.onMessage(data, subscription)
+        handler.onMessage(wrapBytesWithHelpers(data), subscription)
       }
     }
     ws.onerror = ev => {
@@ -353,7 +353,7 @@ export class Bee {
         onMessage: message => {
           clearTimeout(timeout)
           subscription.cancel()
-          resolve(wrapBytesWithHelpers(message))
+          resolve(message)
         },
       })
 
