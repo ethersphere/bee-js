@@ -68,11 +68,13 @@ export interface FileData<T> extends FileHeaders {
  * Helper interface that adds utility functions
  * to work more conveniently with bytes in normal
  * user scenarios.
+ *
+ * Concretely: text(), hex(), json()
  */
 export interface Data extends Uint8Array {
-  text: () => string
-  json: () => Record<string, any>
-  hex: () => HexString
+  text(): string
+  hex(): HexString
+  json(): Record<string, any>
 }
 
 /**
