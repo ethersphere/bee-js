@@ -64,6 +64,12 @@ export interface FileData<T> extends FileHeaders {
   data: T
 }
 
+export interface Data extends Uint8Array {
+  text: () => string
+  json: () => Record<string, any>
+  hex: () => HexString
+}
+
 /**
  * Object represents a file and some of its metadata in [[Directory]] object.
  */

@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import { FileData, FileUploadOptions, Reference, UploadHeaders } from '../types'
+import { Data, FileData, FileUploadOptions, Reference, UploadHeaders } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
+import { wrapBytesWithHelpers } from '../utils/bytes'
 
 const endpoint = '/files'
 
@@ -58,11 +59,7 @@ export async function upload(
  * @param hash Bee file hash
  * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function download(
-  url: string,
-  hash: string,
-  axiosOptions?: AxiosRequestConfig,
-): Promise<FileData<Uint8Array>> {
+export async function download(url: string, hash: string, axiosOptions?: AxiosRequestConfig): Promise<FileData<Data>> {
   const response = await safeAxios<ArrayBuffer>({
     ...axiosOptions,
     method: 'GET',
@@ -71,7 +68,7 @@ export async function download(
   })
   const file = {
     ...readFileHeaders(response.headers),
-    data: new Uint8Array(response.data),
+    data: wrapBytesWithHelpers(new Uint8Array(response.data)),
   }
 
   return file

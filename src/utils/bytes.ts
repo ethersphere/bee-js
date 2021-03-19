@@ -5,6 +5,9 @@
  * generic `Length` type parameter which is runtime compatible with
  * the original, because it extends from the `number` type.
  */
+import { Data } from '../types'
+import { bytesToHex } from './hex'
+
 export interface Bytes<Length extends number> extends Uint8Array {
   readonly length: Length
 }
@@ -138,4 +141,12 @@ export function verifyBytesAtOffset<Length extends number>(
   data: Uint8Array,
 ): Bytes<Length> {
   return verifyBytes(length, bytesAtOffset(offset, length, data))
+}
+
+export function wrapBytesWithHelpers(data: Uint8Array): Data {
+  return Object.assign(data, {
+    text: () => new TextDecoder('utf-8').decode(data),
+    json: () => JSON.parse(new TextDecoder().decode(data)),
+    hex: () => bytesToHex(data),
+  })
 }
