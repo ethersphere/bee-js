@@ -146,7 +146,7 @@ export function verifyBytesAtOffset<Length extends number>(
 export function wrapBytesWithHelpers(data: Uint8Array): Data {
   return Object.assign(data, {
     text: () => new TextDecoder('utf-8').decode(data),
-    json: () => JSON.parse(new TextDecoder().decode(data)),
+    json: () => JSON.parse(new TextDecoder('utf-8').decode(data)),
     hex: () => bytesToHex(data),
   })
 }
