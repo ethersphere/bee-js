@@ -7,7 +7,6 @@ import { safeAxios } from '../utils/safeAxios'
  */
 export async function checkConnection(url: string): Promise<void> | never {
   await safeAxios<string>({
-    method: 'head',
     url: url,
     responseType: 'json',
   })
