@@ -1,22 +1,36 @@
 import { keccak256, sha3_256 } from 'js-sha3'
 import { BrandedString } from '../types'
-import { HexString, hexToBytes, intToHex, isHexString, stripHexPrefix, verifyHex } from './hex'
+import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
 import { Bytes, verifyBytes } from './bytes'
 
-export type HexEthAddress = BrandedString<'HexEthAddress'>
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 export type EthAddress = Bytes<20>
+export type HexEthAddress = HexString<40>
+const ETH_ADDR_BYTES_LENGTH = 20
+const ETH_ADDR_HEX_LENGTH = 40
 
 export function makeEthAddress(address: EthAddress | Uint8Array | string): EthAddress {
   if (typeof address === 'string') {
-    const hexOwner = verifyHex(address)
-    const ownerBytes = hexToBytes(hexOwner)
+    const hexAddr = makeHexString(address, ETH_ADDR_HEX_LENGTH)
+    const ownerBytes = hexToBytes<typeof ETH_ADDR_BYTES_LENGTH>(hexAddr)
 
-    return verifyBytes(20, ownerBytes)
+    return verifyBytes(ETH_ADDR_BYTES_LENGTH, ownerBytes)
   } else if (address instanceof Uint8Array) {
-    return verifyBytes(20, address)
+    return verifyBytes(ETH_ADDR_BYTES_LENGTH, address)
   }
-  throw new TypeError('invalid owner')
+  throw new TypeError('Invalid EthAddress')
+}
+
+export function makeHexEthAddress(address: EthAddress | Uint8Array | string): HexEthAddress {
+  try {
+    return makeHexString(address, ETH_ADDR_HEX_LENGTH)
+  } catch (e) {
+    if (e instanceof TypeError) {
+      e.message = `Invalid HexEthAddress: ${e.message}`
+    }
+
+    throw e
+  }
 }
 
 /**
@@ -37,23 +51,30 @@ function isEthAddrCaseIns(address: string | HexString | HexEthAddress): address 
  * @param address Ethereum address as hex string
  */
 function isValidChecksummedEthAddress(address: string | HexString | HexEthAddress): address is HexEthAddress {
-  // Does not meet basic requirements of an address - type string, 40 chars, case insensitive hex numbers
-  if (typeof address !== 'string' && !/^(0x)?[0-9a-f]{40}$/i.test(address)) return false
+  try {
+    // Check for valid case insensitive hex type string, 40 chars
+    const addr = makeHexString(address, ETH_ADDR_HEX_LENGTH)
 
-  // Check the checksum
-  const addr = stripHexPrefix(address)
-  const addressHash = keccak256(addr.toLowerCase())
-  for (let i = 0; i < 40; i += 1) {
-    // the nth letter should be uppercase if the nth digit of casemap is 1
-    if (
-      (parseInt(addressHash[i], 16) > 7 && addr[i].toUpperCase() !== addr[i]) ||
-      (parseInt(addressHash[i], 16) <= 7 && addr[i].toLowerCase() !== addr[i])
-    ) {
+    // Check the checksum
+    const addressHash = keccak256(addr.toLowerCase())
+    for (let i = 0; i < 40; i += 1) {
+      // the nth letter should be uppercase if the nth digit of casemap is 1
+      if (
+        (parseInt(addressHash[i], 16) > 7 && addr[i].toUpperCase() !== addr[i]) ||
+        (parseInt(addressHash[i], 16) <= 7 && addr[i].toLowerCase() !== addr[i])
+      ) {
+        return false
+      }
+    }
+
+    return true
+  } catch (e) {
+    if (e instanceof TypeError) {
       return false
     }
-  }
 
-  return true
+    throw e
+  }
 }
 
 /**
@@ -86,7 +107,7 @@ export function toLittleEndian(bigEndian: number | string | HexString, pad = 2):
 
   let hexRep
 
-  if (isHexString(bigEndian as string)) hexRep = stripHexPrefix<HexString>(bigEndian as HexString)
+  if (typeof bigEndian === 'string') hexRep = makeHexString(bigEndian as HexString)
   else if (typeof bigEndian === 'number') hexRep = intToHex(bigEndian)
   else throw new TypeError('incorrect input type')
 
@@ -139,7 +160,8 @@ export function ethToSwarmAddress(ethAddress: string | HexString | HexEthAddress
   assertIsEthAddress(ethAddress)
   assertIsSwarmNetworkId(networkId)
 
-  const hex = verifyHex(`${stripHexPrefix(ethAddress)}${toLittleEndian(networkId, 16)}`)
+  const hex = `${makeHexString(ethAddress)}${toLittleEndian(networkId, 16)}`
+  assertHexString(hex)
 
   const overlayAddress = sha3_256(hexToBytes(hex))
 

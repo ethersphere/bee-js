@@ -29,9 +29,8 @@ import { Signer } from './chunk/signer'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData, SOCReader, SOCWriter } from './chunk/soc'
 import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
-import { bytesToHex } from './utils/hex'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { EthAddress, makeEthAddress } from './utils/eth'
+import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -382,9 +381,9 @@ export class Bee {
     assertIsFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
-    const canonicalOwner = makeEthAddress(owner)
+    const canonicalOwner = makeHexEthAddress(owner)
 
-    return createFeedManifest(this.url, bytesToHex(canonicalOwner), bytesToHex(canonicalTopic), { type })
+    return createFeedManifest(this.url, canonicalOwner, canonicalTopic, { type })
   }
 
   /**
@@ -402,7 +401,7 @@ export class Bee {
     assertIsFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
-    const canonicalOwner = makeEthAddress(owner)
+    const canonicalOwner = makeHexEthAddress(owner)
 
     return makeFeedReader(this.url, type, canonicalTopic, canonicalOwner)
   }

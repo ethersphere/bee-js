@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import { UploadOptions } from '../types'
+import { Reference, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
@@ -14,8 +14,8 @@ const endpoint = '/bytes'
  * @param data    Data to be uploaded
  * @param options Aditional options like tag, encryption, pinning
  */
-export async function upload(url: string, data: string | Uint8Array, options?: UploadOptions): Promise<string> {
-  const response = await safeAxios<{ reference: string }>({
+export async function upload(url: string, data: string | Uint8Array, options?: UploadOptions): Promise<Reference> {
+  const response = await safeAxios<{ reference: Reference }>({
     ...options?.axiosOptions,
     method: 'post',
     url: url + endpoint,
@@ -36,7 +36,7 @@ export async function upload(url: string, data: string | Uint8Array, options?: U
  * @param url  Bee URL
  * @param hash Bee content reference
  */
-export async function download(url: string, hash: string): Promise<Uint8Array> {
+export async function download(url: string, hash: Reference): Promise<Uint8Array> {
   const response = await safeAxios<ArrayBuffer>({
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`,
@@ -54,7 +54,7 @@ export async function download(url: string, hash: string): Promise<Uint8Array> {
  */
 export async function downloadReadable(
   url: string,
-  hash: string,
+  hash: Reference,
   axiosOptions?: AxiosRequestConfig,
 ): Promise<Readable> {
   const response = await safeAxios<Readable>({

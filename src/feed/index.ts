@@ -1,23 +1,33 @@
 import { keccak256Hash } from '../chunk/hash'
 import { serializeBytes } from '../chunk/serialize'
-import { Signer } from '../chunk/signer'
 import { Identifier, uploadSingleOwnerChunkData, verifySingleOwnerChunk } from '../chunk/soc'
 import { FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
-import { Reference, ReferenceResponse, UploadOptions } from '../types'
-import { Bytes, makeBytes, verifyBytes, verifyBytesAtOffset } from '../utils/bytes'
+import {
+  REFERENCE_HEX_LENGTH,
+  Reference,
+  ReferenceResponse,
+  UploadOptions,
+  ENCRYPTED_REFERENCE_HEX_LENGTH,
+  ENCRYPTED_REFERENCE_BYTES_LENGTH,
+  REFERENCE_BYTES_LENGTH,
+} from '../types'
+import { Bytes, makeBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
-import { bytesToHex, HexString, hexToBytes, verifyHex } from '../utils/hex'
+import { bytesToHex, HexString, hexToBytes, makeHexString } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
-import { Topic } from './topic'
-import { FeedType } from './type'
-import { EthAddress } from '../utils/eth'
+import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
+
+import type { Signer } from '../chunk/signer'
+import type { Topic } from './topic'
+import type { FeedType } from './type'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8
 const REFERENCE_PAYLOAD_OFFSET = TIMESTAMP_PAYLOAD_SIZE
 const REFERENCE_PAYLOAD_MIN_SIZE = 32
 const REFERENCE_PAYLOAD_MAX_SIZE = 64
+const INDEX_HEX_LENGTH = 16
 
 export interface Epoch {
   time: number
@@ -42,7 +52,7 @@ export interface FeedUpdate {
  */
 export interface FeedReader {
   readonly type: FeedType
-  readonly owner: EthAddress
+  readonly owner: HexEthAddress
   readonly topic: Topic
   /**
    * Download the latest feed update
@@ -70,7 +80,7 @@ export function isEpoch(epoch: unknown): epoch is Epoch {
 }
 
 function hashFeedIdentifier(topic: Topic, index: IndexBytes): Identifier {
-  return keccak256Hash(topic, index)
+  return keccak256Hash(hexToBytes(topic), index)
 }
 
 export function makeSequentialFeedIdentifier(topic: Topic, index: number): Identifier {
@@ -80,10 +90,9 @@ export function makeSequentialFeedIdentifier(topic: Topic, index: number): Ident
 }
 
 export function makeFeedIndexBytes(s: string): IndexBytes {
-  const hex = verifyHex(s)
-  const bytes = hexToBytes(hex)
+  const hex = makeHexString(s, INDEX_HEX_LENGTH)
 
-  return verifyBytes(8, bytes)
+  return hexToBytes(hex)
 }
 
 export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
@@ -118,14 +127,14 @@ export function uploadFeedUpdate(
 
 export async function findNextIndex(
   url: string,
-  owner: HexString,
-  topic: HexString,
+  owner: HexEthAddress,
+  topic: Topic,
   options?: FeedUpdateOptions,
-): Promise<string> {
+): Promise<HexString<typeof INDEX_HEX_LENGTH>> {
   try {
     const feedUpdate = await fetchFeedUpdate(url, owner, topic, options)
 
-    return feedUpdate.feedIndexNext
+    return makeHexString(feedUpdate.feedIndexNext, INDEX_HEX_LENGTH)
   } catch (e) {
     if (e instanceof BeeResponseError && e.status === 404) {
       return bytesToHex(makeBytes(8))
@@ -141,9 +150,8 @@ export async function updateFeed(
   reference: ChunkReference,
   options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
-  const ownerHex = bytesToHex(signer.address)
-  const topicHex = bytesToHex(topic)
-  const nextIndex = await findNextIndex(url, ownerHex, topicHex, options)
+  const ownerHex = makeHexEthAddress(signer.address)
+  const nextIndex = await findNextIndex(url, ownerHex, topic, options)
 
   return uploadFeedUpdate(url, signer, topic, nextIndex, reference, options)
 }
@@ -182,10 +190,8 @@ export async function downloadFeedUpdate(
   }
 }
 
-export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: EthAddress): FeedReader {
-  const ownerHex = bytesToHex(owner)
-  const topicHex = bytesToHex(topic)
-  const download = (options?: FeedUpdateOptions) => fetchFeedUpdate(url, ownerHex, topicHex, { ...options, type })
+export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: HexEthAddress): FeedReader {
+  const download = (options?: FeedUpdateOptions) => fetchFeedUpdate(url, owner, topic, { ...options, type })
 
   return {
     type,
@@ -197,10 +203,21 @@ export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner:
 
 function makeChunkReference(reference: ChunkReference | Reference): ChunkReference {
   if (typeof reference === 'string') {
-    const hexReference = verifyHex(reference)
-    const referenceBytes = hexToBytes(hexReference)
+    try {
+      // Non-encrypted chunk hex string reference
+      const hexReference = makeHexString(reference, REFERENCE_HEX_LENGTH)
 
-    return verifyChunkReference(referenceBytes)
+      return hexToBytes<typeof REFERENCE_BYTES_LENGTH>(hexReference)
+    } catch (e) {
+      if (!(e instanceof TypeError)) {
+        throw e
+      }
+
+      // Encrypted chunk hex string reference
+      const hexReference = makeHexString(reference, ENCRYPTED_REFERENCE_HEX_LENGTH)
+
+      return hexToBytes<typeof ENCRYPTED_REFERENCE_BYTES_LENGTH>(hexReference)
+    }
   } else if (reference instanceof Uint8Array) {
     return verifyChunkReference(reference)
   }
@@ -215,7 +232,7 @@ export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer
   }
 
   return {
-    ...makeFeedReader(url, type, topic, signer.address),
+    ...makeFeedReader(url, type, topic, makeHexEthAddress(signer.address)),
     upload,
   }
 }

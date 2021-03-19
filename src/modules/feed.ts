@@ -1,6 +1,8 @@
 import { Dictionary, Reference, ReferenceResponse } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 import { FeedType } from '../feed/type'
+import { HexEthAddress } from '../utils/eth'
+import { Topic } from '../feed/topic'
 
 const feedEndpoint = '/feeds'
 
@@ -35,8 +37,8 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
  */
 export async function createFeedManifest(
   url: string,
-  owner: string,
-  topic: string,
+  owner: HexEthAddress,
+  topic: Topic,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
   const response = await safeAxios<ReferenceResponse>({
@@ -70,8 +72,8 @@ function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
  */
 export async function fetchFeedUpdate(
   url: string,
-  owner: string,
-  topic: string,
+  owner: HexEthAddress,
+  topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<FetchFeedUpdateResponse> {
   const response = await safeAxios<ReferenceResponse>({

@@ -97,7 +97,10 @@ export class BeeDebug {
    */
 
   /**
-   * Get the address of the chequebook contract used
+   * Get the address of the chequebook contract used.
+   *
+   * **Warning:** The address is returned with 0x prefix unlike all other calls.
+   * https://github.com/ethersphere/bee/issues/1443
    */
   getChequebookAddress(): Promise<ChequebookAddressResponse> {
     return chequebook.getChequebookAddress(this.url)

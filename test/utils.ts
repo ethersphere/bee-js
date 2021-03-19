@@ -157,7 +157,7 @@ export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPaylo
 export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as HexString
 
 export const testIdentity = {
-  privateKey: '0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' as HexString,
-  publicKey: '0x03c32bb011339667a487b6c1c35061f15f7edc36aa9a0f8648aba07a4b8bd741b4' as HexString,
-  address: '0x8d3766440f0d7b949a5e32995d09619a7f86e632' as HexString,
+  privateKey: '634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' as HexString,
+  publicKey: '03c32bb011339667a487b6c1c35061f15f7edc36aa9a0f8648aba07a4b8bd741b4' as HexString,
+  address: '8d3766440f0d7b949a5e32995d09619a7f86e632' as HexString,
 }

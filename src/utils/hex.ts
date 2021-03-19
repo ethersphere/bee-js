@@ -1,90 +1,183 @@
-import { BrandedString } from '../types'
+import { Bytes, makeBytes } from './bytes'
+import { BrandedType, FlavoredType } from '../types'
 
 /**
- * Nominal type to represent hex strings
+ * Nominal type to represent hex strings WITHOUT '0x' prefix.
+ * For example for 32 bytes hex representation you have to use 64 length.
+ * TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
  */
-export type HexString = BrandedString<'HexString'>
+export type HexString<Length extends number = number> = FlavoredType<
+  string & {
+    readonly length: Length
+  },
+  'HexString'
+>
 
 /**
- * Strips the '0x' hex prefix from a string
-
- * @param hex string input
+ * Type for HexString with prefix.
+ * The main hex type used internally should be non-prefixed HexString
+ * and therefore this type should be used as least as possible.
+ * Because of that it does not contain the Length property as the variables
+ * should be validated and converted to HexString ASAP.
  */
-export function stripHexPrefix<T extends string>(hex: T): T {
-  return hex.startsWith('0x') ? (hex.slice(2) as T) : hex
+export type PrefixedHexString = BrandedType<string, 'PrefixedHexString'>
+
+/**
+ * Creates unprefixed hex string from wide range of data.
+ *
+ * TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
+ *
+ * @param input
+ * @param len of the resulting HexString WITHOUT prefix!
+ */
+export function makeHexString<L extends number>(input: string | number | Uint8Array, len?: L): HexString<L> {
+  if (typeof input === 'number') {
+    return intToHex<L>(input, len)
+  }
+
+  if (input instanceof Uint8Array) {
+    return bytesToHex<L>(input, len)
+  }
+
+  if (typeof input === 'string') {
+    if (isPrefixedHexString(input)) {
+      const hex = input.slice(2) as HexString<L>
+
+      if (len && hex.length !== len) {
+        throw new TypeError(`Length mismatch for valid hex string. Expecting length ${len}: ${hex}`)
+      }
+
+      return hex
+    } else {
+      // We use assertHexString() as there might be more reasons why a string is not valid hex string
+      // and usage of isHexString() would not give enough information to the user on what is going
+      // wrong.
+      assertHexString<L>(input, len)
+
+      return input
+    }
+  }
+
+  throw new TypeError('Not HexString compatible type!')
 }
 
 /**
  * Converts a hex string to Uint8Array
  *
- * @param hex string input
+ * @param hex string input without 0x prefix!
  */
-export function hexToBytes(hex: HexString): Uint8Array {
-  const hexWithoutPrefix = stripHexPrefix(hex)
-  const bytes = new Uint8Array(hexWithoutPrefix.length / 2)
+export function hexToBytes<Length extends number, LengthHex extends number = number>(
+  hex: HexString<LengthHex>,
+): Bytes<Length> {
+  assertHexString(hex)
+
+  const bytes = makeBytes(hex.length / 2)
   for (let i = 0; i < bytes.length; i++) {
-    const hexByte = hexWithoutPrefix.substr(i * 2, 2)
+    const hexByte = hex.substr(i * 2, 2)
     bytes[i] = parseInt(hexByte, 16)
   }
 
-  return bytes
+  return bytes as Bytes<Length>
 }
 
 /**
- * Converts array of number or Uint8Array to hex string.
+ * Converts array of number or Uint8Array to HexString without prefix.
  *
- * Optionally provides '0x' prefix.
- *
- * @param bytes       The input array
- * @param withPrefix  Provides '0x' prefix when true (default: false)
+ * @param bytes   The input array
+ * @param len     The length of the non prefixed HexString
  */
-export function bytesToHex(bytes: Uint8Array, withPrefix = false): HexString {
-  const prefix = withPrefix ? '0x' : ''
+export function bytesToHex<Length extends number = number>(bytes: Uint8Array, len?: Length): HexString<Length> {
   const hexByte = (n: number) => n.toString(16).padStart(2, '0')
-  const hex = Array.from(bytes, hexByte).join('')
+  const hex = Array.from(bytes, hexByte).join('') as HexString<Length>
 
-  return `${prefix}${hex}` as HexString
+  // TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
+  if (len && hex.length !== len) {
+    throw new TypeError(`Resulting HexString does not have expected length ${len}: ${hex}`)
+  }
+
+  return hex
 }
 
 /**
- * Converst integer number to hex string.
+ * Converts integer number to hex string.
  *
  * Optionally provides '0x' prefix or padding
  *
  * @param int         The positive integer to be converted
- * @param withPrefix  Provides '0x' prefix when true (default: false)
+ * @param len     The length of the non prefixed HexString
  */
-export function intToHex(int: number, withPrefix = false): HexString {
+export function intToHex<Length extends number = number>(int: number, len?: Length): HexString<Length> {
   if (!Number.isInteger(int)) throw new TypeError('the value provided is not integer')
 
   if (int > Number.MAX_SAFE_INTEGER) throw new TypeError('the value provided exceeds safe integer')
 
   if (int < 0) throw new TypeError('the value provided is a negative integer')
-  const prefix = withPrefix ? '0x' : ''
-  const hex = int.toString(16)
+  const hex = int.toString(16) as HexString<Length>
 
-  return `${prefix}${hex}` as HexString
+  // TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
+  if (len && hex.length !== len) {
+    throw new TypeError(`Resulting HexString does not have expected length ${len}: ${hex}`)
+  }
+
+  return hex
 }
 
 /**
- * Type guard for HexStrings
+ * Type guard for HexStrings.
+ * Requires no 0x prefix!
+ *
+ * TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
+ *
+ * @param s string input
+ * @param len expected length of the HexString
+ */
+export function isHexString<Length extends number = number>(s: unknown, len?: number): s is HexString<Length> {
+  return typeof s === 'string' && /^[0-9a-f]+$/i.test(s) && (!len || s.length === len)
+}
+
+/**
+ * Type guard for PrefixedHexStrings.
+ * Does enforce presence of 0x prefix!
  *
  * @param s string input
  */
-export function isHexString(s: string): s is HexString {
-  return typeof s === 'string' && /^(0x)?[0-9a-f]+$/i.test(s)
+export function isPrefixedHexString(s: unknown): s is PrefixedHexString {
+  return typeof s === 'string' && /^0x[0-9a-f]+$/i.test(s)
 }
 
 /**
  * Verifies if the provided input is a HexString.
  *
- * @param s string input
+ * TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
  *
+ * @param s string input
+ * @param len expected length of the HexString
  * @returns HexString or throws error
  */
-export function verifyHex(s: string): HexString | never {
-  if (isHexString(s)) {
-    return s
+export function assertHexString<Length extends number = number>(
+  s: string,
+  len?: number,
+): asserts s is HexString<Length> {
+  if (!isHexString(s, len)) {
+    if (isPrefixedHexString(s)) {
+      throw new TypeError(`Not valid non prefixed hex string (has 0x prefix): ${s}`)
+    }
+
+    // Don't display length error if no length specified in order not to confuse user
+    const lengthMsg = len ? ` of length ${len}` : ''
+    throw new TypeError(`Not valid hex string${lengthMsg}: ${s}`)
   }
-  throw new Error(`verifyHex: not valid hex string: ${s}`)
+}
+
+/**
+ * Verifies if the provided input is a PrefixedHexString.
+ *
+ * @param s string input
+ * @param len expected length of the HexString
+ * @returns HexString or throws error
+ */
+export function assertPrefixedHexString(s: string): asserts s is PrefixedHexString {
+  if (!isPrefixedHexString(s)) {
+    throw new TypeError(`Not valid prefixed hex string: ${s}`)
+  }
 }

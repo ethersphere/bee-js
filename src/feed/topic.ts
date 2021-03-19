@@ -1,24 +1,23 @@
 import { keccak256Hash } from '../chunk/hash'
-import { Bytes, verifyBytes } from '../utils/bytes'
-import { hexToBytes, verifyHex } from '../utils/hex'
+import { verifyBytes } from '../utils/bytes'
+import { HexString, makeHexString, bytesToHex } from '../utils/hex'
 
-export const TOPIC_LENGTH_BYTES = 32
-export const TOPIC_LENGTH_HEX = 2 * TOPIC_LENGTH_BYTES
+export const TOPIC_BYTES_LENGTH = 32
+export const TOPIC_HEX_LENGTH = 64
 
-export type Topic = Bytes<32>
+export type Topic = HexString<typeof TOPIC_HEX_LENGTH>
 
 export function makeTopic(topic: Uint8Array | string): Topic {
   if (typeof topic === 'string') {
-    const topicHex = verifyHex(topic)
-    const topicBytes = hexToBytes(topicHex)
-
-    return verifyBytes(TOPIC_LENGTH_BYTES, topicBytes)
+    return makeHexString(topic, TOPIC_HEX_LENGTH)
   } else if (topic instanceof Uint8Array) {
-    return verifyBytes(TOPIC_LENGTH_BYTES, topic)
+    verifyBytes(TOPIC_BYTES_LENGTH, topic)
+
+    return bytesToHex(topic, TOPIC_HEX_LENGTH)
   }
   throw new TypeError('invalid topic')
 }
 
 export function makeTopicFromString(s: string): Topic {
-  return keccak256Hash(s)
+  return bytesToHex(keccak256Hash(s), TOPIC_HEX_LENGTH)
 }
