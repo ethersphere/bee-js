@@ -26,6 +26,9 @@ describe('Bee class', () => {
   const BEE_URL = beeUrl()
   const bee = new Bee(BEE_URL)
 
+  // eslint-disable-next-line no-console
+  console.log('Process.versions: ', process.versions)
+
   function testUrl(url: unknown): void {
     it(`should not accept invalid url '${url}'`, () => {
       try {
