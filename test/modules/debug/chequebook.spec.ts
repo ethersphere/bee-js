@@ -28,14 +28,14 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     test(
       'withdraw and deposit',
       async () => {
-        const withdrawResponse = await withdrawTokens(beeDebugUrl(), 10)
+        const withdrawResponse = await withdrawTokens(beeDebugUrl(), BigInt(10))
         expect(typeof withdrawResponse.transactionHash).toBe('string')
 
         // TODO avoid sleep in tests
         //  See https://github.com/ethersphere/bee/issues/1191
         await sleep(TRANSACTION_TIMEOUT)
 
-        const depositResponse = await depositTokens(beeDebugUrl(), 10)
+        const depositResponse = await depositTokens(beeDebugUrl(), BigInt(10))
 
         expect(typeof depositResponse.transactionHash).toBe('string')
       },

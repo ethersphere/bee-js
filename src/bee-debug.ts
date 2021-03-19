@@ -152,7 +152,7 @@ export class BeeDebug {
    *
    * @param amount  Amount of tokens to deposit
    */
-  depositTokens(amount: number): Promise<DepositTokensResponse> {
+  depositTokens(amount: BigInt): Promise<DepositTokensResponse> {
     return chequebook.depositTokens(this.url, amount)
   }
 
@@ -161,7 +161,7 @@ export class BeeDebug {
    *
    * @param amount  Amount of tokens to withdraw
    */
-  withdrawTokens(amount: number): Promise<WithdrawTokensResponse> {
+  withdrawTokens(amount: BigInt): Promise<WithdrawTokensResponse> {
     return chequebook.withdrawTokens(this.url, amount)
   }
 
