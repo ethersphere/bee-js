@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import { Reference, UploadOptions } from '../types'
+import { Data, Reference, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
+import { wrapBytesWithHelpers } from '../utils/bytes'
 
 const endpoint = '/bytes'
 
@@ -36,13 +37,13 @@ export async function upload(url: string, data: string | Uint8Array, options?: U
  * @param url  Bee URL
  * @param hash Bee content reference
  */
-export async function download(url: string, hash: Reference): Promise<Uint8Array> {
+export async function download(url: string, hash: Reference): Promise<Data> {
   const response = await safeAxios<ArrayBuffer>({
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`,
   })
 
-  return new Uint8Array(response.data)
+  return wrapBytesWithHelpers(new Uint8Array(response.data))
 }
 
 /**

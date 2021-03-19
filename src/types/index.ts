@@ -65,6 +65,19 @@ export interface FileData<T> extends FileHeaders {
 }
 
 /**
+ * Helper interface that adds utility functions
+ * to work more conveniently with bytes in normal
+ * user scenarios.
+ *
+ * Concretely: text(), hex(), json()
+ */
+export interface Data extends Uint8Array {
+  text(): string
+  hex(): HexString
+  json(): Record<string, any>
+}
+
+/**
  * Object represents a file and some of its metadata in [[Directory]] object.
  */
 export interface CollectionEntry<T> {
@@ -87,7 +100,7 @@ export interface PssSubscription {
 }
 
 export interface PssMessageHandler {
-  onMessage: (message: Uint8Array, subscription: PssSubscription) => void
+  onMessage: (message: Data, subscription: PssSubscription) => void
   onError: (error: BeeError, subscription: PssSubscription) => void
 }
 

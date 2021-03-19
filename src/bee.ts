@@ -17,6 +17,7 @@ import type {
   BeeResponse,
   CollectionUploadOptions,
   FileUploadOptions,
+  Data,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -31,6 +32,7 @@ import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
+import { wrapBytesWithHelpers } from './utils/bytes'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -66,7 +68,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  downloadData(reference: Reference): Promise<Uint8Array> {
+  downloadData(reference: Reference): Promise<Data> {
     return bytes.download(this.url, reference)
   }
 
@@ -111,7 +113,7 @@ export class Bee {
    *
    * @param reference Bee file reference
    */
-  downloadFile(reference: Reference): Promise<FileData<Uint8Array>> {
+  downloadFile(reference: Reference): Promise<FileData<Data>> {
     return file.download(this.url, reference)
   }
 
@@ -165,7 +167,7 @@ export class Bee {
    *
    * @returns file in byte array with metadata
    */
-  downloadFileFromCollection(reference: Reference, path = ''): Promise<FileData<Uint8Array>> {
+  downloadFileFromCollection(reference: Reference, path = ''): Promise<FileData<Data>> {
     return collection.download(this.url, reference, path)
   }
 
@@ -308,7 +310,7 @@ export class Bee {
 
       // ignore empty messages
       if (data.length > 0) {
-        handler.onMessage(data, subscription)
+        handler.onMessage(wrapBytesWithHelpers(data), subscription)
       }
     }
     ws.onerror = ev => {
@@ -339,7 +341,7 @@ export class Bee {
    *
    * @returns Message in byte array
    */
-  pssReceive(topic: string, timeoutMsec = 0): Promise<Uint8Array> {
+  pssReceive(topic: string, timeoutMsec = 0): Promise<Data> {
     return new Promise((resolve, reject) => {
       let timeout: number | undefined
       const subscription = this.pssSubscribe(topic, {

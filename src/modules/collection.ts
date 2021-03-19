@@ -2,7 +2,7 @@ import type { Readable } from 'stream'
 import * as fs from 'fs'
 import path from 'path'
 
-import type { CollectionUploadOptions, Collection, FileData, UploadHeaders } from '../types'
+import type { CollectionUploadOptions, Collection, FileData, UploadHeaders, Data } from '../types'
 import type { AxiosRequestConfig } from 'axios'
 import { makeTar } from '../utils/tar'
 import { safeAxios } from '../utils/safeAxios'
@@ -10,6 +10,7 @@ import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { BeeArgumentError } from '../utils/error'
 import { fileArrayBuffer } from '../utils/file'
 import { Reference } from '../types'
+import { wrapBytesWithHelpers } from '../utils/bytes'
 
 const dirsEndpoint = '/dirs'
 const bzzEndpoint = '/bzz'
@@ -158,7 +159,7 @@ export async function upload(
  * @param hash Bee Collection hash
  * @param path Path of the requested file in the Collection
  */
-export async function download(url: string, hash: string, path = ''): Promise<FileData<Uint8Array>> {
+export async function download(url: string, hash: string, path = ''): Promise<FileData<Data>> {
   if (!url || url === '') {
     throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
@@ -169,7 +170,7 @@ export async function download(url: string, hash: string, path = ''): Promise<Fi
   })
   const file = {
     ...readFileHeaders(response.headers),
-    data: new Uint8Array(response.data),
+    data: wrapBytesWithHelpers(new Uint8Array(response.data)),
   }
 
   return file
