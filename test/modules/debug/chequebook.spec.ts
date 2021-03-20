@@ -25,22 +25,21 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
 
     const TRANSACTION_TIMEOUT = 20 * 1000
 
-    test(
-      'withdraw and deposit',
-      async () => {
-        const withdrawResponse = await withdrawTokens(beeDebugUrl(), BigInt(10))
-        expect(typeof withdrawResponse.transactionHash).toBe('string')
+    const withDrawDepositTest = (amount: number | BigInt) => async () => {
+      const withdrawResponse = await withdrawTokens(beeDebugUrl(), amount)
+      expect(typeof withdrawResponse.transactionHash).toBe('string')
 
-        // TODO avoid sleep in tests
-        //  See https://github.com/ethersphere/bee/issues/1191
-        await sleep(TRANSACTION_TIMEOUT)
+      // TODO avoid sleep in tests
+      // See https://github.com/ethersphere/bee/issues/1191
+      await sleep(TRANSACTION_TIMEOUT)
 
-        const depositResponse = await depositTokens(beeDebugUrl(), BigInt(10))
+      const depositResponse = await depositTokens(beeDebugUrl(), amount)
 
-        expect(typeof depositResponse.transactionHash).toBe('string')
-      },
-      2 * TRANSACTION_TIMEOUT,
-    )
+      expect(typeof depositResponse.transactionHash).toBe('string')
+    }
+
+    test('withdraw and deposit integer', withDrawDepositTest(10), 2 * TRANSACTION_TIMEOUT)
+    test('withdraw and deposit BigInt', withDrawDepositTest(BigInt(10)), 2 * TRANSACTION_TIMEOUT)
 
     test('get last cheques for all peers', async () => {
       const response = await getLastCheques(beeDebugUrl())

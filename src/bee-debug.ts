@@ -150,18 +150,18 @@ export class BeeDebug {
   /**
    * Deposit tokens from overlay address into chequebook
    *
-   * @param amount  Amount of tokens to deposit
+   * @param amount  Amount of tokens to deposit (must be positive integer)
    */
-  depositTokens(amount: BigInt): Promise<DepositTokensResponse> {
+  depositTokens(amount: number | BigInt): Promise<DepositTokensResponse> {
     return chequebook.depositTokens(this.url, amount)
   }
 
   /**
    * Withdraw tokens from the chequebook to the overlay address
    *
-   * @param amount  Amount of tokens to withdraw
+   * @param amount  Amount of tokens to withdraw (must be positive integer)
    */
-  withdrawTokens(amount: BigInt): Promise<WithdrawTokensResponse> {
+  withdrawTokens(amount: number | BigInt): Promise<WithdrawTokensResponse> {
     return chequebook.withdrawTokens(this.url, amount)
   }
 
