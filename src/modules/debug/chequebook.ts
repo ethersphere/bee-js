@@ -9,7 +9,7 @@ import {
   DepositTokensResponse,
   WithdrawTokensResponse,
 } from '../../types'
-import { assertInteger } from '../../feed/type'
+import { assertInteger } from '../../utils/type'
 
 const chequebookEndpoint = '/chequebook'
 
