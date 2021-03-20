@@ -20,6 +20,7 @@ import type {
   AllSettlements,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
+import { assertInteger } from './utils/type'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -153,6 +154,10 @@ export class BeeDebug {
    * @param amount  Amount of tokens to deposit (must be positive integer)
    */
   depositTokens(amount: number | BigInt): Promise<DepositTokensResponse> {
+    assertInteger(amount)
+
+    if (amount < 0) throw new TypeError('must be positive number')
+
     return chequebook.depositTokens(this.url, amount)
   }
 
@@ -162,6 +167,10 @@ export class BeeDebug {
    * @param amount  Amount of tokens to withdraw (must be positive integer)
    */
   withdrawTokens(amount: number | BigInt): Promise<WithdrawTokensResponse> {
+    assertInteger(amount)
+
+    if (amount < 0) throw new TypeError('must be positive number')
+
     return chequebook.withdrawTokens(this.url, amount)
   }
 
