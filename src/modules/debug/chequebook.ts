@@ -111,7 +111,7 @@ export async function depositTokens(url: string, amount: number | BigInt): Promi
     method: 'post',
     url: url + chequebookEndpoint + '/deposit',
     responseType: 'json',
-    params: { amount },
+    params: { amount: amount.toString(10) },
   })
 
   return response.data
@@ -128,7 +128,7 @@ export async function withdrawTokens(url: string, amount: number | BigInt): Prom
     method: 'post',
     url: url + chequebookEndpoint + '/withdraw',
     responseType: 'json',
-    params: { amount },
+    params: { amount: amount.toString(10) },
   })
 
   return response.data
