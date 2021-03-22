@@ -1,13 +1,13 @@
-export function isInteger(type: unknown): type is number | BigInt {
+export function isInteger(value: unknown): value is number | BigInt {
   return (
-    typeof type === 'bigint' ||
-    (typeof type === 'number' &&
-      type > Number.MIN_SAFE_INTEGER &&
-      type < Number.MAX_SAFE_INTEGER &&
-      Number.isInteger(type))
+    typeof value === 'bigint' ||
+    (typeof value === 'number' &&
+      value > Number.MIN_SAFE_INTEGER &&
+      value < Number.MAX_SAFE_INTEGER &&
+      Number.isInteger(value))
   )
 }
 
-export function assertInteger(type: unknown): asserts type is number | BigInt {
-  if (isInteger(type)) throw new TypeError('value is not integer')
+export function assertInteger(value: unknown): asserts value is number | BigInt {
+  if (!isInteger(value)) throw new TypeError('value is not integer')
 }

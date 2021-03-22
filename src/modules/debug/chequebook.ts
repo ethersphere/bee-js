@@ -1,5 +1,5 @@
 import { safeAxios } from '../../utils/safeAxios'
-import {
+import type {
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
   LastCashoutActionResponse,
