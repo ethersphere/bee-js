@@ -1,5 +1,5 @@
 import { safeAxios } from '../../utils/safeAxios'
-import {
+import type {
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
   LastCashoutActionResponse,
@@ -106,12 +106,12 @@ export async function getLastCheques(url: string): Promise<LastChequesResponse> 
  * @param url     Bee debug url
  * @param amount  Amount of tokens to deposit
  */
-export async function depositTokens(url: string, amount: number): Promise<DepositTokensResponse> {
+export async function depositTokens(url: string, amount: number | BigInt): Promise<DepositTokensResponse> {
   const response = await safeAxios<DepositTokensResponse>({
     method: 'post',
     url: url + chequebookEndpoint + '/deposit',
     responseType: 'json',
-    params: { amount },
+    params: { amount: amount.toString(10) },
   })
 
   return response.data
@@ -123,12 +123,12 @@ export async function depositTokens(url: string, amount: number): Promise<Deposi
  * @param url     Bee debug url
  * @param amount  Amount of tokens to withdraw
  */
-export async function withdrawTokens(url: string, amount: number): Promise<WithdrawTokensResponse> {
+export async function withdrawTokens(url: string, amount: number | BigInt): Promise<WithdrawTokensResponse> {
   const response = await safeAxios<WithdrawTokensResponse>({
     method: 'post',
     url: url + chequebookEndpoint + '/withdraw',
     responseType: 'json',
-    params: { amount },
+    params: { amount: amount.toString(10) },
   })
 
   return response.data

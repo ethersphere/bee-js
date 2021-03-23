@@ -6,6 +6,6 @@ export function isFeedType(type: unknown): type is FeedType {
 }
 export function assertIsFeedType(type: unknown): asserts type is FeedType {
   if (!isFeedType(type)) {
-    throw new TypeError(`invalid feed type`)
+    throw new TypeError('invalid feed type')
   }
 }
