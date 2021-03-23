@@ -10,7 +10,7 @@ on:
 
 
 env:
-  BEE_VERSION: '0.5.2'
+  BEE_VERSION: '0.5.3'
   REPLICA: 5
   BEE_API_URL: 'http://bee-0.localhost'
   BEE_PEER_API_URL: 'http://bee-1.localhost'
