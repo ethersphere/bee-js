@@ -23,7 +23,6 @@ import type {
   Topology,
   PingResponse,
   Health,
-  Readiness,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertInteger } from './utils/type'
@@ -224,9 +223,5 @@ export class BeeDebug {
 
   getHealth(): Promise<Health> {
     return status.getHealth(this.url)
-  }
-
-  getReadiness(): Promise<Readiness> {
-    return status.getReadiness(this.url)
   }
 }

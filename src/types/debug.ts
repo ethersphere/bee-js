@@ -84,12 +84,8 @@ export interface BalanceResponse {
 }
 
 export interface Health {
-  status: string
+  status: 'ok'
   version: string
-}
-
-export interface Readiness {
-  status: string
 }
 
 export interface RemovePeerResponse {
@@ -97,11 +93,11 @@ export interface RemovePeerResponse {
   code: 0
 }
 
-export interface Bins {
+export interface Bin {
   population: number
   connected: number
-  disconnectedPeers: Peer[]
-  connectedPeers: Peer[]
+  disconnectedPeers: Peer[] | null
+  connectedPeers: Peer[] | null
 }
 
 export interface Topology {
@@ -111,7 +107,24 @@ export interface Topology {
   timestamp: string
   nnLowWatermark: number
   depth: number
-  bins: Bins[]
+  bins: {
+    bin_0: Bin
+    bin_1: Bin
+    bin_2: Bin
+    bin_3: Bin
+    bin_4: Bin
+    bin_5: Bin
+    bin_6: Bin
+    bin_7: Bin
+    bin_8: Bin
+    bin_9: Bin
+    bin_10: Bin
+    bin_11: Bin
+    bin_12: Bin
+    bin_13: Bin
+    bin_14: Bin
+    bin_15: Bin
+  }
 }
 
 export interface PingResponse {

@@ -1,5 +1,5 @@
 import { safeAxios } from '../../utils/safeAxios'
-import { NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
+import type { NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
 
 export async function getNodeAddresses(url: string): Promise<NodeAddresses> {
   const response = await safeAxios<NodeAddresses>({
@@ -19,7 +19,7 @@ export async function getPeers(url: string): Promise<Peer[]> {
     responseType: 'json',
   })
 
-  return response.data.peers
+  return response.data.peers || []
 }
 
 export async function getBlocklist(url: string): Promise<Peer[]> {
@@ -28,7 +28,7 @@ export async function getBlocklist(url: string): Promise<Peer[]> {
     responseType: 'json',
   })
 
-  return response.data.peers
+  return response.data.peers || []
 }
 
 export async function removePeer(url: string, peer: string): Promise<RemovePeerResponse> {
