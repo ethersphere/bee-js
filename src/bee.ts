@@ -5,6 +5,7 @@ import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
+import * as status from './modules/status'
 import type {
   Tag,
   FileData,
@@ -462,5 +463,27 @@ export class Bee {
 
       upload: uploadSingleOwnerChunkData.bind(null, this.url, canonicalSigner),
     }
+  }
+
+  /**
+   * Ping the base bee URL. If connection was not successful throw error
+   */
+  checkConnection(): Promise<void> | never {
+    return status.checkConnection(this.url)
+  }
+
+  /**
+   * Ping the base bee URL.
+   *
+   * @returns true if succesfull, false on error
+   */
+  async isConnected(): Promise<boolean> {
+    try {
+      await status.checkConnection(this.url)
+    } catch (e) {
+      return false
+    }
+
+    return true
   }
 }

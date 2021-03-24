@@ -2,6 +2,7 @@ import * as connectivity from './modules/debug/connectivity'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
 import * as settlements from './modules/debug/settlements'
+import * as status from './modules/debug/status'
 import type {
   PublicKey,
   Address,
@@ -18,6 +19,10 @@ import type {
   WithdrawTokensResponse,
   Settlements,
   AllSettlements,
+  RemovePeerResponse,
+  Topology,
+  PingResponse,
+  Health,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertInteger } from './utils/type'
@@ -50,11 +55,33 @@ export class BeeDebug {
     return nodeAddresses.pss_public_key
   }
 
+  async getEthAddress(): Promise<PublicKey> {
+    const nodeAddresses = await connectivity.getNodeAddresses(this.url)
+
+    return nodeAddresses.ethereum
+  }
+
+  getBlocklist(): Promise<Peer[]> {
+    return connectivity.getBlocklist(this.url)
+  }
+
   /**
    * Get list of peers for this node
    */
   getPeers(): Promise<Peer[]> {
     return connectivity.getPeers(this.url)
+  }
+
+  removePeer(peer: string): Promise<RemovePeerResponse> {
+    return connectivity.removePeer(this.url, peer)
+  }
+
+  getTopology(): Promise<Topology> {
+    return connectivity.getTopology(this.url)
+  }
+
+  pingPeer(peer: string): Promise<PingResponse> {
+    return connectivity.pingPeer(this.url, peer)
   }
 
   /*
@@ -192,5 +219,9 @@ export class BeeDebug {
    */
   getAllSettlements(): Promise<AllSettlements> {
     return settlements.getAllSettlements(this.url)
+  }
+
+  getHealth(): Promise<Health> {
+    return status.getHealth(this.url)
   }
 }
