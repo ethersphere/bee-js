@@ -142,7 +142,7 @@ export function assertSigner(signer: unknown): asserts signer is Signer {
     throw new TypeError("Signer's address must be Uint8Array with 20 bytes!")
   }
 
-  if (typeof typedSigner.sign === 'function') {
+  if (typeof typedSigner.sign !== 'function') {
     throw new TypeError('Signer sign property needs to be function!')
   }
 }
