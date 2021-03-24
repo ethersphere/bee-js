@@ -1,7 +1,7 @@
 import { makeBytes, verifyBytes, wrapBytesWithHelpers } from '../../src/utils/bytes'
 import { Signer, sign, makeDefaultSigner, makeSigner, recoverAddress, Signature } from '../../src/chunk/signer'
 import { HexString, hexToBytes, bytesToHex } from '../../src/utils/hex'
-import { testIdentity } from '../utils'
+import { shorten, testIdentity } from '../utils'
 
 describe('signer', () => {
   const dataToSignBytes = hexToBytes('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae' as HexString)
@@ -80,7 +80,7 @@ describe('signer', () => {
   })
 
   describe('sign', () => {
-    it('should convert the resulting signature to Bytes', async () => {
+    it('should wrap the digest with helpers', async () => {
       const signer = {
         sign: digest => {
           expect(digest).toHaveProperty('hex')
@@ -95,5 +95,42 @@ describe('signer', () => {
       const result = await sign(signer, dataToSignBytes)
       expect(result).toEqual(expectedSignatureBytes)
     })
+
+    function testSignerConversion(input: string, output: Uint8Array): void {
+      it(`should convert sign result ${shorten(input)}`, async () => {
+        const signer = {
+          sign: digest => {
+            return input
+          },
+          address: makeBytes(20),
+        } as Signer
+
+        const result = await sign(signer, dataToSignBytes)
+        expect(result).toEqual(output)
+      })
+    }
+
+    testSignerConversion(expectedSignatureHex, expectedSignatureBytes)
+    testSignerConversion(`0x${expectedSignatureHex}`, expectedSignatureBytes)
+
+    function testSignerThrowing(input: unknown): void {
+      it(`should throw for invalid result ${shorten(input)}`, async () => {
+        const signer = {
+          sign: digest => {
+            return input
+          },
+          address: makeBytes(20),
+        } as Signer
+
+        await expect(sign(signer, dataToSignBytes)).rejects.toThrow(TypeError)
+      })
+    }
+
+    testSignerThrowing('0x1234')
+    testSignerThrowing('1234')
+    testSignerThrowing('asd')
+    testSignerThrowing(1)
+    testSignerThrowing([])
+    testSignerThrowing({})
   })
 })
