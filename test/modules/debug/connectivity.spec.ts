@@ -38,7 +38,7 @@ describe('modules/debug/connectivity', () => {
     expect(topology.baseAddr).toMatch(/^[0-9a-f]{64}$/i)
     expect(topology.population).toBeGreaterThanOrEqual(0)
     expect(topology.connected).toBeGreaterThanOrEqual(0)
-    expect(topology.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}\:\d{2}\.\d+[+-]\d{2}\:\d{2}$/i)
+    expect(Date.parse(topology.timestamp) !== NaN).toBeTruthy()
     expect(topology.nnLowWatermark).toBeGreaterThanOrEqual(0)
     expect(topology.depth).toBeGreaterThanOrEqual(0)
 
