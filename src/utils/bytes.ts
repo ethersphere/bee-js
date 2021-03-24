@@ -32,7 +32,7 @@ export interface FlexBytes<Min extends number, Max extends number> extends Uint8
  * @param b       The byte array
  */
 export function isBytes<Length extends number>(length: Length, b: Uint8Array): b is Bytes<Length> {
-  return b.length === length
+  return b instanceof Uint8Array && b.length === length
 }
 
 /**
