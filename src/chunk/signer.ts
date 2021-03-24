@@ -1,20 +1,31 @@
 import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
-import { Bytes, verifyBytes } from '../utils/bytes'
+import { Bytes, isBytes, verifyBytes, wrapBytesWithHelpers } from '../utils/bytes'
 import { keccak256Hash } from './hash'
-import { hexToBytes, makeHexString } from '../utils/hex'
+import { assertHexString, HexString, hexToBytes, makeHexString } from '../utils/hex'
 import { EthAddress } from '../utils/eth'
+import { Data } from '../types'
 
 /**
  * Ethereum compatible signing and recovery
  */
+const SIGNATURE_HEX_LENGTH = 130
+const SIGNATURE_BYTES_LENGTH = 65
 
-export type Signature = Bytes<65>
+export type Signature = Bytes<typeof SIGNATURE_BYTES_LENGTH>
 export type PrivateKey = Bytes<32>
 export type PublicKey = Bytes<32> | Bytes<64>
 
-type SyncSigner = (digest: Uint8Array) => Signature
-type AsyncSigner = (digest: Uint8Array) => Promise<Signature>
+/**
+ * Signing function that takes digest in Uint8Array  to be signed that has helpers to convert it
+ * conveniently into other types like hex-string (non prefix).
+ * Result of the signing can be returned either in Uint8Array or hex string form.
+ *
+ * @see Data
+ */
+type SyncSigner = (digest: Data) => Signature | HexString<typeof SIGNATURE_HEX_LENGTH>
+type AsyncSigner = (digest: Data) => Promise<Signature | HexString<typeof SIGNATURE_HEX_LENGTH>>
+type EllipticPublicKey = curve.base.BasePoint
 
 /**
  * Interface for implementing Ethereum compatible signing.
@@ -25,12 +36,12 @@ type AsyncSigner = (digest: Uint8Array) => Promise<Signature>
  * If you are wrapping another signer tool/library (like Metamask or some other Ethereum wallet), you might not have
  * to do this prefixing manually if you use the `personal_sign` method. Check documentation of the tool!
  * If you are writing your own storage for keys, then you have to prefix the data manually otherwise the Bee node
- * will reject the chunk!
+ * will reject the chunks signed by you!
  *
  * For example see the hashWithEthereumPrefix() function.
  *
  * @property sign     The sign function that can be sync or async. This function takes non-prefixed data. See above.
- * @property address  The ethereum address of the signer
+ * @property address  The ethereum address of the signer in bytes or hex string.
  * @see hashWithEthereumPrefix
  */
 export type Signer = {
@@ -72,8 +83,6 @@ export function defaultSign(data: Uint8Array, privateKey: PrivateKey): Signature
 
   return signature as Signature
 }
-
-type EllipticPublicKey = curve.base.BasePoint
 
 function publicKeyToAddress(pubKey: EllipticPublicKey): EthAddress {
   const pubBytes = pubKey.encode('array', false)
@@ -117,13 +126,25 @@ export function makeDefaultSigner(privateKey: PrivateKey): Signer {
   const address = publicKeyToAddress(keyPair.getPublic())
 
   return {
-    sign: (digest: Uint8Array) => defaultSign(digest, privateKey),
+    sign: (digest: Data) => defaultSign(digest, privateKey),
     address,
   }
 }
 
-export function isSigner(signer: unknown): signer is Signer {
-  return typeof signer === 'object' && signer !== null && 'sign' in signer && 'address' in signer
+export function assertSigner(signer: unknown): asserts signer is Signer {
+  if (typeof signer !== 'object' || signer === null) {
+    throw new TypeError('Signer must be an object or string!')
+  }
+
+  const typedSigner = signer as Signer
+
+  if (!isBytes(20, typedSigner.address)) {
+    throw new TypeError("Signer's address must be Uint8Array with 20 bytes!")
+  }
+
+  if (typeof typedSigner.sign === 'function') {
+    throw new TypeError('Signer sign property needs to be function!')
+  }
 }
 
 export function makeSigner(signer: Signer | Uint8Array | string | unknown): Signer {
@@ -136,8 +157,27 @@ export function makeSigner(signer: Signer | Uint8Array | string | unknown): Sign
     const verifiedPrivateKey = verifyBytes(32, signer)
 
     return makeDefaultSigner(verifiedPrivateKey)
-  } else if (isSigner(signer)) {
-    return signer
   }
-  throw TypeError('invalid signer')
+
+  assertSigner(signer)
+
+  return signer
+}
+
+export async function sign(signer: Signer, data: Uint8Array): Promise<Signature> {
+  const result = await signer.sign(wrapBytesWithHelpers(data))
+
+  if (typeof result === 'string') {
+    assertHexString(result, SIGNATURE_HEX_LENGTH)
+
+    return hexToBytes<65>(result)
+  }
+
+  if (result instanceof Uint8Array) {
+    verifyBytes(SIGNATURE_BYTES_LENGTH, result)
+
+    return result
+  }
+
+  throw new TypeError('Invalid output of sign function!')
 }

@@ -1,6 +1,6 @@
 import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset, verifyBytesAtOffset } from '../utils/bytes'
 import { bmtHash } from './bmt'
-import { recoverAddress, Signature, Signer } from './signer'
+import { recoverAddress, sign, Signature, Signer } from './signer'
 import { keccak256Hash } from './hash'
 import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
@@ -136,7 +136,7 @@ export async function makeSingleOwnerChunk(
   verifyChunk(chunk.data, chunkAddress)
 
   const digest = keccak256Hash(identifier, chunkAddress)
-  const signature = await signer.sign(digest)
+  const signature = await sign(signer, digest)
   const data = serializeBytes(identifier, signature, chunk.span(), chunk.payload())
   const address = makeSOCAddress(identifier, signer.address)
   const soc = makeSingleOwnerChunkFromData(data, address, signer.address)
