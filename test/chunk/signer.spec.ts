@@ -42,8 +42,9 @@ describe('signer', () => {
     })
 
     test('returns already signer object', () => {
+      const zeroAddress = makeBytes(20)
       const signerLikeObject = {
-        address: '0x123',
+        address: zeroAddress,
         sign: () => {
           // noop
         },
@@ -51,11 +52,24 @@ describe('signer', () => {
 
       const signer = makeSigner(signerLikeObject)
 
-      expect(signer.address).toEqual('0x123')
+      expect(signer.address).toEqual(zeroAddress)
     })
 
     test('throws for invalid data', () => {
-      const data = [null, 123, { some: 'property' }, undefined, Symbol.for('symbol')]
+      const data = [
+        null,
+        123,
+        { some: 'property' },
+        undefined,
+        Symbol.for('symbol'),
+        { address: makeBytes(20), sign: 'not a function' },
+        {
+          address: makeBytes(10),
+          sign: () => {
+            // noop
+          },
+        },
+      ]
 
       for (const el of data) {
         expect(() => {
