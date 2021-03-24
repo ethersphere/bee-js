@@ -168,9 +168,9 @@ export async function sign(signer: Signer, data: Uint8Array): Promise<Signature>
   const result = await signer.sign(wrapBytesWithHelpers(data))
 
   if (typeof result === 'string') {
-    makeHexString(result, SIGNATURE_HEX_LENGTH)
+    const hexString = makeHexString(result, SIGNATURE_HEX_LENGTH)
 
-    return hexToBytes<65>(result)
+    return hexToBytes<65>(hexString)
   }
 
   if (result instanceof Uint8Array) {
