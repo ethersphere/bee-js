@@ -4,7 +4,6 @@ import * as chequebook from './modules/debug/chequebook'
 import * as settlements from './modules/debug/settlements'
 import * as status from './modules/debug/status'
 import type {
-  PublicKey,
   Address,
   Peer,
   BalanceResponse,
@@ -23,6 +22,7 @@ import type {
   Topology,
   PingResponse,
   Health,
+  NodeAddresses,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertInteger } from './utils/type'
@@ -43,22 +43,9 @@ export class BeeDebug {
     // unnecessary redirects.
     this.url = stripLastSlash(url)
   }
-  async getOverlayAddress(): Promise<Address> {
-    const nodeAddresses = await connectivity.getNodeAddresses(this.url)
 
-    return nodeAddresses.overlay
-  }
-
-  async getPssPublicKey(): Promise<PublicKey> {
-    const nodeAddresses = await connectivity.getNodeAddresses(this.url)
-
-    return nodeAddresses.pss_public_key
-  }
-
-  async getEthAddress(): Promise<PublicKey> {
-    const nodeAddresses = await connectivity.getNodeAddresses(this.url)
-
-    return nodeAddresses.ethereum
+  getNodeAddresses(): Promise<NodeAddresses> {
+    return connectivity.getNodeAddresses(this.url)
   }
 
   getBlocklist(): Promise<Peer[]> {

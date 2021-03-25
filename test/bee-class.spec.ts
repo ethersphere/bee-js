@@ -189,9 +189,9 @@ describe('Bee class', () => {
           done()
         })
 
-        const address = await beeDebug.getOverlayAddress()
+        const { overlay } = await beeDebug.getNodeAddresses()
         const beePeer = new Bee(beePeerUrl())
-        await beePeer.pssSend(topic, address, message)
+        await beePeer.pssSend(topic, overlay, message)
       },
       PSS_TIMEOUT,
     )
@@ -208,10 +208,9 @@ describe('Bee class', () => {
           done()
         })
 
-        const address = await beeDebug.getOverlayAddress()
-        const pssPublicKey = await beeDebug.getPssPublicKey()
+        const { overlay, pss_public_key } = await beeDebug.getNodeAddresses()
         const beePeer = new Bee(beePeerUrl())
-        await beePeer.pssSend(topic, address, message, pssPublicKey)
+        await beePeer.pssSend(topic, overlay, message, pss_public_key)
       },
       PSS_TIMEOUT,
     )
@@ -236,9 +235,9 @@ describe('Bee class', () => {
           },
         })
 
-        const address = await beeDebug.getOverlayAddress()
+        const { overlay } = await beeDebug.getNodeAddresses()
         const beePeer = new Bee(beePeerUrl())
-        await beePeer.pssSend(topic, address, message)
+        await beePeer.pssSend(topic, overlay, message)
       },
       PSS_TIMEOUT,
     )
