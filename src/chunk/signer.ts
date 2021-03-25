@@ -2,7 +2,7 @@ import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
 import { Bytes, isBytes, verifyBytes, wrapBytesWithHelpers } from '../utils/bytes'
 import { keccak256Hash } from './hash'
-import { assertHexString, HexString, hexToBytes, makeHexString } from '../utils/hex'
+import { HexString, hexToBytes, makeHexString } from '../utils/hex'
 import { EthAddress } from '../utils/eth'
 import { Data } from '../types'
 
@@ -41,7 +41,7 @@ type EllipticPublicKey = curve.base.BasePoint
  * For example see the hashWithEthereumPrefix() function.
  *
  * @property sign     The sign function that can be sync or async. This function takes non-prefixed data. See above.
- * @property address  The ethereum address of the signer in bytes or hex string.
+ * @property address  The ethereum address of the signer in bytes.
  * @see hashWithEthereumPrefix
  */
 export type Signer = {

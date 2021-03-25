@@ -96,10 +96,10 @@ describe('signer', () => {
       expect(result).toEqual(expectedSignatureBytes)
     })
 
-    function testSignerConversion(input: string, output: Uint8Array): void {
+    function testSignerConversion(input: HexString, output: Uint8Array): void {
       it(`should convert sign result ${shorten(input)}`, async () => {
         const signer = {
-          sign: digest => {
+          sign: () => {
             return input
           },
           address: makeBytes(20),
@@ -116,7 +116,7 @@ describe('signer', () => {
     function testSignerThrowing(input: unknown): void {
       it(`should throw for invalid result ${shorten(input)}`, async () => {
         const signer = {
-          sign: digest => {
+          sign: () => {
             return input
           },
           address: makeBytes(20),
