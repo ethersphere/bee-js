@@ -1,5 +1,14 @@
 /* eslint @typescript-eslint/no-empty-function: 0 */
-import { ethToSwarmAddress, fromLittleEndian, isEthAddress, toLittleEndian } from '../../src/utils/eth'
+import {
+  createEthereumWalletSigner,
+  ethToSwarmAddress,
+  fromLittleEndian,
+  isEthAddress,
+  JsonRPC,
+  toLittleEndian,
+} from '../../src/utils/eth'
+import { HexString, hexToBytes } from '../../src/utils/hex'
+import { wrapBytesWithHelpers } from '../../src/utils/bytes'
 
 describe('eth', () => {
   describe('isEthAddress', () => {
@@ -136,5 +145,79 @@ describe('eth', () => {
         expect(() => ethToSwarmAddress((address as unknown) as string, (netId as unknown) as number)).toThrow()
       }),
     )
+  })
+
+  describe('createEthereumWalletSigner', () => {
+    const dataToSignBytes = hexToBytes('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae' as HexString)
+    const dataToSignWithHelpers = wrapBytesWithHelpers(dataToSignBytes)
+    const expectedSignatureHex = '0x336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
+
+    it('should detect valid interface', async () => {
+      await expect(createEthereumWalletSigner({})).rejects.toThrow()
+      await expect(createEthereumWalletSigner(('' as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(createEthereumWalletSigner((1 as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(createEthereumWalletSigner((null as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(createEthereumWalletSigner((undefined as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+    })
+
+    it('should request address if not specified', async () => {
+      const providerMock = jest.fn()
+      providerMock.mockReturnValue(['0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a'])
+
+      const signer = await createEthereumWalletSigner({ request: providerMock } as JsonRPC)
+
+      expect(signer.address).toEqual(hexToBytes('f1B07aC6E91A423d9c3c834cc9d938E89E19334a'))
+      expect(providerMock.mock.calls.length).toEqual(1)
+      expect(providerMock.mock.calls[0][0]).toEqual({ method: 'eth_requestAccounts' })
+    })
+
+    it('should request signature when sign() is called', async () => {
+      const providerMock = jest.fn()
+      providerMock.mockReturnValue(expectedSignatureHex)
+
+      const signer = await createEthereumWalletSigner(
+        { request: providerMock } as JsonRPC,
+        '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
+      )
+      await expect(signer.sign(dataToSignWithHelpers)).resolves.toEqual(expectedSignatureHex)
+      expect(providerMock.mock.calls.length).toEqual(1)
+      expect(providerMock.mock.calls[0][0]).toEqual({
+        jsonrpc: '2.0',
+        method: 'personal_sign',
+        params: [
+          '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
+          '0x2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
+        ],
+      })
+    })
+
+    it('should normalize hex prefix for address', async () => {
+      const providerMock = jest.fn()
+      providerMock.mockReturnValue(expectedSignatureHex)
+
+      const signer = await createEthereumWalletSigner(
+        { request: providerMock } as JsonRPC,
+        'f1B07aC6E91A423d9c3c834cc9d938E89E19334a',
+      )
+      await expect(signer.sign(dataToSignWithHelpers)).resolves.toEqual(expectedSignatureHex)
+      expect(providerMock.mock.calls.length).toEqual(1)
+      expect(providerMock.mock.calls[0][0]).toEqual({
+        jsonrpc: '2.0',
+        method: 'personal_sign',
+        params: [
+          '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
+          '0x2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
+        ],
+      })
+    })
+
+    it('should validate eth address', async () => {
+      const providerMock = jest.fn()
+      providerMock.mockReturnValue(expectedSignatureHex)
+
+      await expect(
+        createEthereumWalletSigner({ request: providerMock } as JsonRPC, '0x307aC6E91A423d9c3c834cc9d938E89E19334a'),
+      ).rejects.toThrow(TypeError)
+    })
   })
 })
