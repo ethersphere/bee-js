@@ -23,8 +23,8 @@ export type PublicKey = Bytes<32> | Bytes<64>
  *
  * @see Data
  */
-type SyncSigner = (digest: Data) => Signature | HexString<typeof SIGNATURE_HEX_LENGTH>
-type AsyncSigner = (digest: Data) => Promise<Signature | HexString<typeof SIGNATURE_HEX_LENGTH>>
+type SyncSigner = (digest: Data) => Signature | HexString<typeof SIGNATURE_HEX_LENGTH> | string
+type AsyncSigner = (digest: Data) => Promise<Signature | HexString<typeof SIGNATURE_HEX_LENGTH> | string>
 type EllipticPublicKey = curve.base.BasePoint
 
 /**
