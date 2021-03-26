@@ -172,7 +172,7 @@ export function ethToSwarmAddress(ethAddress: string | HexString | HexEthAddress
 interface RequestArguments {
   jsonrpc?: string
   method: string
-  params?: unknown[] | object
+  params?: unknown[] | Record<string, unknown>
 }
 
 export interface JsonRPC {
