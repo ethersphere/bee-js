@@ -5394,11 +5394,13 @@ BaseCurve.prototype._fixedNafMul = function _fixedNafMul(p, k) {
   I /= 3; // Translate into more windowed form
 
   var repr = [];
+  var j;
+  var nafW;
 
-  for (var j = 0; j < naf.length; j += doubles.step) {
-    var nafW = 0;
+  for (j = 0; j < naf.length; j += doubles.step) {
+    nafW = 0;
 
-    for (var k = j + doubles.step - 1; k >= j; k--) nafW = (nafW << 1) + naf[k];
+    for (var l = j + doubles.step - 1; l >= j; l--) nafW = (nafW << 1) + naf[l];
 
     repr.push(nafW);
   }
@@ -5407,8 +5409,8 @@ BaseCurve.prototype._fixedNafMul = function _fixedNafMul(p, k) {
   var b = this.jpoint(null, null, null);
 
   for (var i = I; i > 0; i--) {
-    for (var j = 0; j < repr.length; j++) {
-      var nafW = repr[j];
+    for (j = 0; j < repr.length; j++) {
+      nafW = repr[j];
       if (nafW === i) b = b.mixedAdd(doubles.points[j]);else if (nafW === -i) b = b.mixedAdd(doubles.points[j].neg());
     }
 
@@ -5432,10 +5434,10 @@ BaseCurve.prototype._wnafMul = function _wnafMul(p, k) {
 
   for (var i = naf.length - 1; i >= 0; i--) {
     // Count zeroes
-    for (var k = 0; i >= 0 && naf[i] === 0; i--) k++;
+    for (var l = 0; i >= 0 && naf[i] === 0; i--) l++;
 
-    if (i >= 0) k++;
-    acc = acc.dblp(k);
+    if (i >= 0) l++;
+    acc = acc.dblp(l);
     if (i < 0) break;
     var z = naf[i];
     assert(z !== 0);
@@ -5458,9 +5460,12 @@ BaseCurve.prototype._wnafMulAdd = function _wnafMulAdd(defW, points, coeffs, len
   var naf = this._wnafT3; // Fill all arrays
 
   var max = 0;
+  var i;
+  var j;
+  var p;
 
-  for (var i = 0; i < len; i++) {
-    var p = points[i];
+  for (i = 0; i < len; i++) {
+    p = points[i];
 
     var nafPoints = p._getNAFPoints(defW);
 
@@ -5469,7 +5474,7 @@ BaseCurve.prototype._wnafMulAdd = function _wnafMulAdd(defW, points, coeffs, len
   } // Comb small window NAFs
 
 
-  for (var i = len - 1; i >= 1; i -= 2) {
+  for (i = len - 1; i >= 1; i -= 2) {
     var a = i - 1;
     var b = i;
 
@@ -5526,7 +5531,7 @@ BaseCurve.prototype._wnafMulAdd = function _wnafMulAdd(defW, points, coeffs, len
     naf[a] = new Array(max);
     naf[b] = new Array(max);
 
-    for (var j = 0; j < max; j++) {
+    for (j = 0; j < max; j++) {
       var ja = jsf[0][j] | 0;
       var jb = jsf[1][j] | 0;
       naf[a][j] = index[(ja + 1) * 3 + (jb + 1)];
@@ -5538,13 +5543,13 @@ BaseCurve.prototype._wnafMulAdd = function _wnafMulAdd(defW, points, coeffs, len
   var acc = this.jpoint(null, null, null);
   var tmp = this._wnafT4;
 
-  for (var i = max; i >= 0; i--) {
+  for (i = max; i >= 0; i--) {
     var k = 0;
 
     while (i >= 0) {
       var zero = true;
 
-      for (var j = 0; j < len; j++) {
+      for (j = 0; j < len; j++) {
         tmp[j] = naf[j][i] | 0;
         if (tmp[j] !== 0) zero = false;
       }
@@ -5558,16 +5563,16 @@ BaseCurve.prototype._wnafMulAdd = function _wnafMulAdd(defW, points, coeffs, len
     acc = acc.dblp(k);
     if (i < 0) break;
 
-    for (var j = 0; j < len; j++) {
+    for (j = 0; j < len; j++) {
       var z = tmp[j];
-      var p;
+      p;
       if (z === 0) continue;else if (z > 0) p = wnd[j][z - 1 >> 1];else if (z < 0) p = wnd[j][-z - 1 >> 1].neg();
       if (p.type === 'affine') acc = acc.mixedAdd(p);else acc = acc.add(p);
     }
   } // Zeroify references
 
 
-  for (var i = 0; i < len; i++) wnd[i] = null;
+  for (i = 0; i < len; i++) wnd[i] = null;
 
   if (jacobianResult) return acc;else return acc.toP();
 };
@@ -5880,11 +5885,13 @@ Point.prototype._projDbl = function _projDbl() {
   var nx;
   var ny;
   var nz;
+  var e;
+  var h;
+  var j;
 
   if (this.curve.twisted) {
     // E = a * C
-    var e = this.curve._mulA(c); // F = E + D
-
+    e = this.curve._mulA(c); // F = E + D
 
     var f = e.redAdd(d);
 
@@ -5897,9 +5904,9 @@ Point.prototype._projDbl = function _projDbl() {
       nz = f.redSqr().redSub(f).redSub(f);
     } else {
       // H = Z1^2
-      var h = this.z.redSqr(); // J = F - 2 * H
+      h = this.z.redSqr(); // J = F - 2 * H
 
-      var j = f.redSub(h).redISub(h); // X3 = (B-C-D)*J
+      j = f.redSub(h).redISub(h); // X3 = (B-C-D)*J
 
       nx = b.redSub(c).redISub(d).redMul(j); // Y3 = F * (E - D)
 
@@ -5909,12 +5916,11 @@ Point.prototype._projDbl = function _projDbl() {
     }
   } else {
     // E = C + D
-    var e = c.redAdd(d); // H = (c * Z1)^2
+    e = c.redAdd(d); // H = (c * Z1)^2
 
-    var h = this.curve._mulC(this.z).redSqr(); // J = E - 2 * H
+    h = this.curve._mulC(this.z).redSqr(); // J = E - 2 * H
 
-
-    var j = e.redSub(h).redSub(h); // X3 = c * (B - E) * J
+    j = e.redSub(h).redSub(h); // X3 = c * (B - E) * J
 
     nx = this.curve._mulC(b.redISub(e)).redMul(j); // Y3 = c * E * (C - D)
 
@@ -6830,11 +6836,12 @@ JPoint.prototype.dblp = function dblp(pow) {
   if (pow === 0) return this;
   if (this.isInfinity()) return this;
   if (!pow) return this.dbl();
+  var i;
 
   if (this.curve.zeroA || this.curve.threeA) {
     var r = this;
 
-    for (var i = 0; i < pow; i++) r = r.dbl();
+    for (i = 0; i < pow; i++) r = r.dbl();
 
     return r;
   } // 1M + 2S + 1A + N * (4S + 5M + 8A)
@@ -6850,7 +6857,7 @@ JPoint.prototype.dblp = function dblp(pow) {
 
   var jyd = jy.redAdd(jy);
 
-  for (var i = 0; i < pow; i++) {
+  for (i = 0; i < pow; i++) {
     var jx2 = jx.redSqr();
     var jyd2 = jyd.redSqr();
     var jyd4 = jyd2.redSqr();
@@ -7305,7 +7312,7 @@ function EC(options) {
   if (!(this instanceof EC)) return new EC(options); // Shortcut `elliptic.ec(curve-name)`
 
   if (typeof options === 'string') {
-    assert(curves.hasOwnProperty(options), 'Unknown curve ' + options);
+    assert(Object.prototype.hasOwnProperty.call(curves, options), 'Unknown curve ' + options);
     options = curves[options];
   } // Shortcut for `elliptic.ec(elliptic.curves.curveName)`
 
@@ -7352,15 +7359,15 @@ EC.prototype.genKeyPair = function genKeyPair(options) {
   var bytes = this.n.byteLength();
   var ns2 = this.n.sub(new BN(2));
 
-  do {
+  for (;;) {
     var priv = new BN(drbg.generate(bytes));
     if (priv.cmp(ns2) > 0) continue;
     priv.iaddn(1);
     return this.keyFromPrivate(priv);
-  } while (true);
+  }
 };
 
-EC.prototype._truncateToN = function truncateToN(msg, truncOnly) {
+EC.prototype._truncateToN = function _truncateToN(msg, truncOnly) {
   var delta = msg.byteLength() * 8 - this.n.bitLength();
   if (delta > 0) msg = msg.ushrn(delta);
   if (!truncOnly && msg.cmp(this.n) >= 0) return msg.sub(this.n);else return msg;
@@ -7391,7 +7398,7 @@ EC.prototype.sign = function sign(msg, key, enc, options) {
 
   var ns1 = this.n.sub(new BN(1));
 
-  for (var iter = 0; true; iter++) {
+  for (var iter = 0;; iter++) {
     var k = options.k ? options.k(iter) : new BN(drbg.generate(this.n.byteLength()));
     k = this._truncateToN(k, true);
     if (k.cmpn(1) <= 0 || k.cmp(ns1) >= 0) continue;
@@ -7431,16 +7438,17 @@ EC.prototype.verify = function verify(msg, signature, key, enc) {
   var sinv = s.invm(this.n);
   var u1 = sinv.mul(msg).umod(this.n);
   var u2 = sinv.mul(r).umod(this.n);
+  var p;
 
   if (!this.curve._maxwellTrick) {
-    var p = this.g.mulAdd(u1, key.getPublic(), u2);
+    p = this.g.mulAdd(u1, key.getPublic(), u2);
     if (p.isInfinity()) return false;
     return p.getX().umod(this.n).cmp(r) === 0;
   } // NOTE: Greg Maxwell's trick, inspired by:
   // https://git.io/vad3K
 
 
-  var p = this.g.jmulAdd(u1, key.getPublic(), u2);
+  p = this.g.jmulAdd(u1, key.getPublic(), u2);
   if (p.isInfinity()) return false; // Compare `p.x` of Jacobian point with `r`,
   // this will do `p.x == r * p.z^2` instead of multiplying `p.x` by the
   // inverse of `p.z^2`
@@ -7595,6 +7603,10 @@ KeyPair.prototype._importPublic = function _importPublic(key, enc) {
 
 
 KeyPair.prototype.derive = function derive(pub) {
+  if (!pub.validate()) {
+    assert(pub.validate(), 'public point not validated');
+  }
+
   return pub.mul(this.priv).getX();
 }; // ECDSA
 
@@ -7828,7 +7840,7 @@ var Signature = __webpack_require__(/*! ./signature */ "./node_modules/elliptic/
 function EDDSA(curve) {
   assert(curve === 'ed25519', 'only tested with ed25519 so far');
   if (!(this instanceof EDDSA)) return new EDDSA(curve);
-  var curve = curves[curve].curve;
+  curve = curves[curve].curve;
   this.curve = curve;
   this.g = curve.g;
   this.g.precompute(curve.n.bitLength() + 1);
@@ -8174,6 +8186,7 @@ function getJSF(k1, k2) {
   k2 = k2.clone();
   var d1 = 0;
   var d2 = 0;
+  var m8;
 
   while (k1.cmpn(-d1) > 0 || k2.cmpn(-d2) > 0) {
     // First phase
@@ -8186,7 +8199,7 @@ function getJSF(k1, k2) {
     if ((m14 & 1) === 0) {
       u1 = 0;
     } else {
-      var m8 = k1.andln(7) + d1 & 7;
+      m8 = k1.andln(7) + d1 & 7;
       if ((m8 === 3 || m8 === 5) && m24 === 2) u1 = -m14;else u1 = m14;
     }
 
@@ -8196,7 +8209,7 @@ function getJSF(k1, k2) {
     if ((m24 & 1) === 0) {
       u2 = 0;
     } else {
-      var m8 = k2.andln(7) + d2 & 7;
+      m8 = k2.andln(7) + d2 & 7;
       if ((m8 === 3 || m8 === 5) && m14 === 2) u2 = -m24;else u2 = m24;
     }
 
@@ -10746,9 +10759,17 @@ var chequebook = _interopRequireWildcard(__webpack_require__(/*! ./modules/debug
 
 var settlements = _interopRequireWildcard(__webpack_require__(/*! ./modules/debug/settlements */ "./src/modules/debug/settlements.ts"));
 
+var status = _interopRequireWildcard(__webpack_require__(/*! ./modules/debug/status */ "./src/modules/debug/status.ts"));
+
+var _url = __webpack_require__(/*! ./utils/url */ "./src/utils/url.ts");
+
+var _type = __webpack_require__(/*! ./utils/type */ "./src/utils/type.ts");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -10757,7 +10778,13 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
  */
 class BeeDebug {
   constructor(url) {
-    this.url = url;
+    _defineProperty(this, "url", void 0);
+
+    (0, _url.assertBeeUrl)(url); // Remove last slash if present, as our endpoint strings starts with `/...`
+    // which could lead to double slash in URL to which Bee responds with
+    // unnecessary redirects.
+
+    this.url = (0, _url.stripLastSlash)(url);
   }
 
   async getOverlayAddress() {
@@ -10769,6 +10796,15 @@ class BeeDebug {
     const nodeAddresses = await connectivity.getNodeAddresses(this.url);
     return nodeAddresses.pss_public_key;
   }
+
+  async getEthAddress() {
+    const nodeAddresses = await connectivity.getNodeAddresses(this.url);
+    return nodeAddresses.ethereum;
+  }
+
+  getBlocklist() {
+    return connectivity.getBlocklist(this.url);
+  }
   /**
    * Get list of peers for this node
    */
@@ -10776,6 +10812,18 @@ class BeeDebug {
 
   getPeers() {
     return connectivity.getPeers(this.url);
+  }
+
+  removePeer(peer) {
+    return connectivity.removePeer(this.url, peer);
+  }
+
+  getTopology() {
+    return connectivity.getTopology(this.url);
+  }
+
+  pingPeer(peer) {
+    return connectivity.pingPeer(this.url, peer);
   }
   /*
    * Balance endpoints
@@ -10822,7 +10870,10 @@ class BeeDebug {
    */
 
   /**
-   * Get the address of the chequebook contract used
+   * Get the address of the chequebook contract used.
+   *
+   * **Warning:** The address is returned with 0x prefix unlike all other calls.
+   * https://github.com/ethersphere/bee/issues/1443
    */
 
 
@@ -10834,8 +10885,8 @@ class BeeDebug {
    */
 
 
-  getChequeubookBalance() {
-    return chequebook.getChequeubookBalance(this.url);
+  getChequebookBalance() {
+    return chequebook.getChequebookBalance(this.url);
   }
   /**
    * Get last cheques for all peers
@@ -10878,21 +10929,25 @@ class BeeDebug {
   /**
    * Deposit tokens from overlay address into chequebook
    *
-   * @param amount  Amount of tokens to deposit
+   * @param amount  Amount of tokens to deposit (must be positive integer)
    */
 
 
   depositTokens(amount) {
+    (0, _type.assertInteger)(amount);
+    if (amount < 0) throw new TypeError('must be positive number');
     return chequebook.depositTokens(this.url, amount);
   }
   /**
    * Withdraw tokens from the chequebook to the overlay address
    *
-   * @param amount  Amount of tokens to withdraw
+   * @param amount  Amount of tokens to withdraw (must be positive integer)
    */
 
 
   withdrawTokens(amount) {
+    (0, _type.assertInteger)(amount);
+    if (amount < 0) throw new TypeError('must be positive number');
     return chequebook.withdrawTokens(this.url, amount);
   }
   /*
@@ -10916,6 +10971,10 @@ class BeeDebug {
 
   getAllSettlements() {
     return settlements.getAllSettlements(this.url);
+  }
+
+  getHealth() {
+    return status.getHealth(this.url);
   }
 
 }
@@ -10950,9 +11009,11 @@ var bytes = _interopRequireWildcard(__webpack_require__(/*! ./modules/bytes */ "
 
 var pss = _interopRequireWildcard(__webpack_require__(/*! ./modules/pss */ "./src/modules/pss.ts"));
 
+var status = _interopRequireWildcard(__webpack_require__(/*! ./modules/status */ "./src/modules/status.ts"));
+
 var _error = __webpack_require__(/*! ./utils/error */ "./src/utils/error.ts");
 
-var _data = __webpack_require__(/*! ./utils/data */ "./src/utils/data.ts");
+var _data = __webpack_require__(/*! ./utils/data */ "./src/utils/data.browser.ts");
 
 var _file2 = __webpack_require__(/*! ./utils/file */ "./src/utils/file.ts");
 
@@ -10964,17 +11025,21 @@ var _type = __webpack_require__(/*! ./feed/type */ "./src/feed/type.ts");
 
 var _soc = __webpack_require__(/*! ./chunk/soc */ "./src/chunk/soc.ts");
 
-var _owner = __webpack_require__(/*! ./chunk/owner */ "./src/chunk/owner.ts");
-
 var _topic = __webpack_require__(/*! ./feed/topic */ "./src/feed/topic.ts");
 
 var _feed2 = __webpack_require__(/*! ./modules/feed */ "./src/modules/feed.ts");
 
-var _hex = __webpack_require__(/*! ./utils/hex */ "./src/utils/hex.ts");
+var _url = __webpack_require__(/*! ./utils/url */ "./src/utils/url.ts");
+
+var _eth = __webpack_require__(/*! ./utils/eth */ "./src/utils/eth.ts");
+
+var _bytes2 = __webpack_require__(/*! ./utils/bytes */ "./src/utils/bytes.ts");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -10983,7 +11048,13 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
  */
 class Bee {
   constructor(url) {
-    this.url = url;
+    _defineProperty(this, "url", void 0);
+
+    (0, _url.assertBeeUrl)(url); // Remove last slash if present, as our endpoint strings starts with `/...`
+    // which could lead to double slash in URL to which Bee responds with
+    // unnecessary redirects.
+
+    this.url = (0, _url.stripLastSlash)(url);
   }
   /**
    * Upload data to a Bee node
@@ -11238,7 +11309,7 @@ class Bee {
         // with the library that we are using (isomorphic-ws) it doesn't close
         // the websocket properly, whereas `terminate` does
 
-        ws.terminate();
+        if (ws.terminate) ws.terminate();else ws.close(); // standard Websocket in browser does not have terminate function
       }
     };
 
@@ -11247,11 +11318,11 @@ class Bee {
       cancel
     };
 
-    ws.onmessage = ev => {
-      const data = (0, _data.prepareWebsocketData)(ev.data); // ignore empty messages
+    ws.onmessage = async ev => {
+      const data = await (0, _data.prepareWebsocketData)(ev.data); // ignore empty messages
 
       if (data.length > 0) {
-        handler.onMessage(data, subscription);
+        handler.onMessage((0, _bytes2.wrapBytesWithHelpers)(data), subscription);
       }
     };
 
@@ -11322,8 +11393,8 @@ class Bee {
   createFeedManifest(type, topic, owner) {
     (0, _type.assertIsFeedType)(type);
     const canonicalTopic = (0, _topic.makeTopic)(topic);
-    const canonicalOwner = (0, _owner.makeOwner)(owner);
-    return (0, _feed2.createFeedManifest)(this.url, (0, _hex.bytesToHex)(canonicalOwner), (0, _hex.bytesToHex)(canonicalTopic), {
+    const canonicalOwner = (0, _eth.makeHexEthAddress)(owner);
+    return (0, _feed2.createFeedManifest)(this.url, canonicalOwner, canonicalTopic, {
       type
     });
   }
@@ -11339,7 +11410,7 @@ class Bee {
   makeFeedReader(type, topic, owner) {
     (0, _type.assertIsFeedType)(type);
     const canonicalTopic = (0, _topic.makeTopic)(topic);
-    const canonicalOwner = (0, _owner.makeOwner)(owner);
+    const canonicalOwner = (0, _eth.makeHexEthAddress)(owner);
     return (0, _feed.makeFeedReader)(this.url, type, canonicalTopic, canonicalOwner);
   }
   /**
@@ -11378,7 +11449,7 @@ class Bee {
 
 
   makeSOCReader(ownerAddress) {
-    const canonicalOwner = (0, _owner.makeOwner)(ownerAddress);
+    const canonicalOwner = (0, _eth.makeEthAddress)(ownerAddress);
     return {
       download: _soc.downloadSingleOwnerChunk.bind(null, this.url, canonicalOwner)
     };
@@ -11395,6 +11466,30 @@ class Bee {
     return { ...this.makeSOCReader(canonicalSigner.address),
       upload: _soc.uploadSingleOwnerChunkData.bind(null, this.url, canonicalSigner)
     };
+  }
+  /**
+   * Ping the base bee URL. If connection was not successful throw error
+   */
+
+
+  checkConnection() {
+    return status.checkConnection(this.url);
+  }
+  /**
+   * Ping the base bee URL.
+   *
+   * @returns true if succesfull, false on error
+   */
+
+
+  async isConnected() {
+    try {
+      await status.checkConnection(this.url);
+    } catch (e) {
+      return false;
+    }
+
+    return true;
   }
 
 }
@@ -11600,38 +11695,6 @@ function keccak256Hash(...messages) {
 
 /***/ }),
 
-/***/ "./src/chunk/owner.ts":
-/*!****************************!*\
-  !*** ./src/chunk/owner.ts ***!
-  \****************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports.makeOwner = makeOwner;
-
-var _bytes = __webpack_require__(/*! ../utils/bytes */ "./src/utils/bytes.ts");
-
-var _hex = __webpack_require__(/*! ../utils/hex */ "./src/utils/hex.ts");
-
-function makeOwner(owner) {
-  if (typeof owner === 'string') {
-    const hexOwner = (0, _hex.verifyHex)(owner);
-    const ownerBytes = (0, _hex.hexToBytes)(hexOwner);
-    return (0, _bytes.verifyBytes)(20, ownerBytes);
-  } else if (owner instanceof Uint8Array) {
-    return (0, _bytes.verifyBytes)(20, owner);
-  }
-
-  throw new TypeError('invalid owner');
-}
-
-/***/ }),
-
 /***/ "./src/chunk/serialize.ts":
 /*!********************************!*\
   !*** ./src/chunk/serialize.ts ***!
@@ -11679,8 +11742,9 @@ Object.defineProperty(exports, "__esModule", ({
 exports.defaultSign = defaultSign;
 exports.recoverAddress = recoverAddress;
 exports.makeDefaultSigner = makeDefaultSigner;
-exports.isSigner = isSigner;
+exports.assertSigner = assertSigner;
 exports.makeSigner = makeSigner;
+exports.sign = sign;
 
 var _elliptic = __webpack_require__(/*! elliptic */ "./node_modules/elliptic/lib/elliptic.js");
 
@@ -11692,6 +11756,11 @@ var _hash = __webpack_require__(/*! ./hash */ "./src/chunk/hash.ts");
 
 var _hex = __webpack_require__(/*! ../utils/hex */ "./src/utils/hex.ts");
 
+/**
+ * Ethereum compatible signing and recovery
+ */
+const SIGNATURE_HEX_LENGTH = 130;
+const SIGNATURE_BYTES_LENGTH = 65;
 const UNCOMPRESSED_RECOVERY_ID = 27;
 
 function hashWithEthereumPrefix(data) {
@@ -11771,24 +11840,51 @@ function makeDefaultSigner(privateKey) {
   };
 }
 
-function isSigner(signer) {
-  return typeof signer === 'object' && signer !== null && 'sign' in signer && 'address' in signer;
+function assertSigner(signer) {
+  if (typeof signer !== 'object' || signer === null) {
+    throw new TypeError('Signer must be an object or string!');
+  }
+
+  const typedSigner = signer;
+
+  if (!(0, _bytes.isBytes)(20, typedSigner.address)) {
+    throw new TypeError("Signer's address must be Uint8Array with 20 bytes!");
+  }
+
+  if (typeof typedSigner.sign !== 'function') {
+    throw new TypeError('Signer sign property needs to be function!');
+  }
 }
 
 function makeSigner(signer) {
   if (typeof signer === 'string') {
-    const hexKey = (0, _hex.verifyHex)(signer);
-    const keyBytes = (0, _hex.hexToBytes)(hexKey);
-    const verifiedPrivateKey = (0, _bytes.verifyBytes)(32, keyBytes);
-    return makeDefaultSigner(verifiedPrivateKey);
+    const hexKey = (0, _hex.makeHexString)(signer, 64);
+    const keyBytes = (0, _hex.hexToBytes)(hexKey); // HexString is verified for 64 length => 32 is guaranteed
+
+    return makeDefaultSigner(keyBytes);
   } else if (signer instanceof Uint8Array) {
     const verifiedPrivateKey = (0, _bytes.verifyBytes)(32, signer);
     return makeDefaultSigner(verifiedPrivateKey);
-  } else if (isSigner(signer)) {
-    return signer;
   }
 
-  throw TypeError('invalid signer');
+  assertSigner(signer);
+  return signer;
+}
+
+async function sign(signer, data) {
+  const result = await signer.sign((0, _bytes.wrapBytesWithHelpers)(data));
+
+  if (typeof result === 'string') {
+    const hexString = (0, _hex.makeHexString)(result, SIGNATURE_HEX_LENGTH);
+    return (0, _hex.hexToBytes)(hexString);
+  }
+
+  if (result instanceof Uint8Array) {
+    (0, _bytes.verifyBytes)(SIGNATURE_BYTES_LENGTH, result);
+    return result;
+  }
+
+  throw new TypeError('Invalid output of sign function!');
 }
 
 /***/ }),
@@ -11916,7 +12012,7 @@ async function makeSingleOwnerChunk(chunk, identifier, signer) {
   const chunkAddress = chunk.address();
   (0, _cac.verifyChunk)(chunk.data, chunkAddress);
   const digest = (0, _hash.keccak256Hash)(identifier, chunkAddress);
-  const signature = await signer.sign(digest);
+  const signature = await (0, _signer.sign)(signer, digest);
   const data = (0, _serialize.serializeBytes)(identifier, signature, chunk.span(), chunk.payload());
   const address = makeSOCAddress(identifier, signer.address);
   const soc = makeSingleOwnerChunkFromData(data, address, signer.address);
@@ -12053,6 +12149,8 @@ var _soc = __webpack_require__(/*! ../chunk/soc */ "./src/chunk/soc.ts");
 
 var _feed = __webpack_require__(/*! ../modules/feed */ "./src/modules/feed.ts");
 
+var _types = __webpack_require__(/*! ../types */ "./src/types/index.ts");
+
 var _bytes = __webpack_require__(/*! ../utils/bytes */ "./src/utils/bytes.ts");
 
 var _error = __webpack_require__(/*! ../utils/error */ "./src/utils/error.ts");
@@ -12063,6 +12161,8 @@ var _uint = __webpack_require__(/*! ../utils/uint64 */ "./src/utils/uint64.ts");
 
 var chunkAPI = _interopRequireWildcard(__webpack_require__(/*! ../modules/chunk */ "./src/modules/chunk.ts"));
 
+var _eth = __webpack_require__(/*! ../utils/eth */ "./src/utils/eth.ts");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -12072,13 +12172,14 @@ const TIMESTAMP_PAYLOAD_SIZE = 8;
 const REFERENCE_PAYLOAD_OFFSET = TIMESTAMP_PAYLOAD_SIZE;
 const REFERENCE_PAYLOAD_MIN_SIZE = 32;
 const REFERENCE_PAYLOAD_MAX_SIZE = 64;
+const INDEX_HEX_LENGTH = 16;
 
 function isEpoch(epoch) {
   return typeof epoch === 'object' && epoch !== null && 'time' in epoch && 'level' in epoch;
 }
 
 function hashFeedIdentifier(topic, index) {
-  return (0, _hash.keccak256Hash)(topic, index);
+  return (0, _hash.keccak256Hash)((0, _hex.hexToBytes)(topic), index);
 }
 
 function makeSequentialFeedIdentifier(topic, index) {
@@ -12087,9 +12188,8 @@ function makeSequentialFeedIdentifier(topic, index) {
 }
 
 function makeFeedIndexBytes(s) {
-  const hex = (0, _hex.verifyHex)(s);
-  const bytes = (0, _hex.hexToBytes)(hex);
-  return (0, _bytes.verifyBytes)(8, bytes);
+  const hex = (0, _hex.makeHexString)(s, INDEX_HEX_LENGTH);
+  return (0, _hex.hexToBytes)(hex);
 }
 
 function makeFeedIdentifier(topic, index) {
@@ -12118,7 +12218,7 @@ function uploadFeedUpdate(url, signer, topic, index, reference, options) {
 async function findNextIndex(url, owner, topic, options) {
   try {
     const feedUpdate = await (0, _feed.fetchFeedUpdate)(url, owner, topic, options);
-    return feedUpdate.feedIndexNext;
+    return (0, _hex.makeHexString)(feedUpdate.feedIndexNext, INDEX_HEX_LENGTH);
   } catch (e) {
     if (e instanceof _error.BeeResponseError && e.status === 404) {
       return (0, _hex.bytesToHex)((0, _bytes.makeBytes)(8));
@@ -12129,9 +12229,8 @@ async function findNextIndex(url, owner, topic, options) {
 }
 
 async function updateFeed(url, signer, topic, reference, options) {
-  const ownerHex = (0, _hex.bytesToHex)(signer.address);
-  const topicHex = (0, _hex.bytesToHex)(topic);
-  const nextIndex = await findNextIndex(url, ownerHex, topicHex, options);
+  const ownerHex = (0, _eth.makeHexEthAddress)(signer.address);
+  const nextIndex = await findNextIndex(url, ownerHex, topic, options);
   return uploadFeedUpdate(url, signer, topic, nextIndex, reference, options);
 }
 
@@ -12164,10 +12263,7 @@ async function downloadFeedUpdate(url, owner, topic, index) {
 }
 
 function makeFeedReader(url, type, topic, owner) {
-  const ownerHex = (0, _hex.bytesToHex)(owner);
-  const topicHex = (0, _hex.bytesToHex)(topic);
-
-  const download = options => (0, _feed.fetchFeedUpdate)(url, ownerHex, topicHex, { ...options,
+  const download = options => (0, _feed.fetchFeedUpdate)(url, owner, topic, { ...options,
     type
   });
 
@@ -12181,9 +12277,19 @@ function makeFeedReader(url, type, topic, owner) {
 
 function makeChunkReference(reference) {
   if (typeof reference === 'string') {
-    const hexReference = (0, _hex.verifyHex)(reference);
-    const referenceBytes = (0, _hex.hexToBytes)(hexReference);
-    return verifyChunkReference(referenceBytes);
+    try {
+      // Non-encrypted chunk hex string reference
+      const hexReference = (0, _hex.makeHexString)(reference, _types.REFERENCE_HEX_LENGTH);
+      return (0, _hex.hexToBytes)(hexReference);
+    } catch (e) {
+      if (!(e instanceof TypeError)) {
+        throw e;
+      } // Encrypted chunk hex string reference
+
+
+      const hexReference = (0, _hex.makeHexString)(reference, _types.ENCRYPTED_REFERENCE_HEX_LENGTH);
+      return (0, _hex.hexToBytes)(hexReference);
+    }
   } else if (reference instanceof Uint8Array) {
     return verifyChunkReference(reference);
   }
@@ -12199,7 +12305,7 @@ function makeFeedWriter(url, type, topic, signer) {
     });
   };
 
-  return { ...makeFeedReader(url, type, topic, signer.address),
+  return { ...makeFeedReader(url, type, topic, (0, _eth.makeHexEthAddress)(signer.address)),
     upload
   };
 }
@@ -12220,7 +12326,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.makeTopic = makeTopic;
 exports.makeTopicFromString = makeTopicFromString;
-exports.TOPIC_LENGTH_HEX = exports.TOPIC_LENGTH_BYTES = void 0;
+exports.TOPIC_HEX_LENGTH = exports.TOPIC_BYTES_LENGTH = void 0;
 
 var _hash = __webpack_require__(/*! ../chunk/hash */ "./src/chunk/hash.ts");
 
@@ -12228,25 +12334,24 @@ var _bytes = __webpack_require__(/*! ../utils/bytes */ "./src/utils/bytes.ts");
 
 var _hex = __webpack_require__(/*! ../utils/hex */ "./src/utils/hex.ts");
 
-const TOPIC_LENGTH_BYTES = 32;
-exports.TOPIC_LENGTH_BYTES = TOPIC_LENGTH_BYTES;
-const TOPIC_LENGTH_HEX = 2 * TOPIC_LENGTH_BYTES;
-exports.TOPIC_LENGTH_HEX = TOPIC_LENGTH_HEX;
+const TOPIC_BYTES_LENGTH = 32;
+exports.TOPIC_BYTES_LENGTH = TOPIC_BYTES_LENGTH;
+const TOPIC_HEX_LENGTH = 64;
+exports.TOPIC_HEX_LENGTH = TOPIC_HEX_LENGTH;
 
 function makeTopic(topic) {
   if (typeof topic === 'string') {
-    const topicHex = (0, _hex.verifyHex)(topic);
-    const topicBytes = (0, _hex.hexToBytes)(topicHex);
-    return (0, _bytes.verifyBytes)(TOPIC_LENGTH_BYTES, topicBytes);
+    return (0, _hex.makeHexString)(topic, TOPIC_HEX_LENGTH);
   } else if (topic instanceof Uint8Array) {
-    return (0, _bytes.verifyBytes)(TOPIC_LENGTH_BYTES, topic);
+    (0, _bytes.verifyBytes)(TOPIC_BYTES_LENGTH, topic);
+    return (0, _hex.bytesToHex)(topic, TOPIC_HEX_LENGTH);
   }
 
   throw new TypeError('invalid topic');
 }
 
 function makeTopicFromString(s) {
-  return (0, _hash.keccak256Hash)(s);
+  return (0, _hex.bytesToHex)((0, _hash.keccak256Hash)(s), TOPIC_HEX_LENGTH);
 }
 
 /***/ }),
@@ -12273,7 +12378,7 @@ function isFeedType(type) {
 
 function assertIsFeedType(type) {
   if (!isFeedType(type)) {
-    throw new TypeError(`invalid feed type`);
+    throw new TypeError('invalid feed type');
   }
 }
 
@@ -12368,11 +12473,13 @@ exports.upload = upload;
 exports.download = download;
 exports.downloadReadable = downloadReadable;
 
-var _data = __webpack_require__(/*! ../utils/data */ "./src/utils/data.ts");
+var _data = __webpack_require__(/*! ../utils/data */ "./src/utils/data.browser.ts");
 
 var _headers = __webpack_require__(/*! ../utils/headers */ "./src/utils/headers.ts");
 
 var _safeAxios = __webpack_require__(/*! ../utils/safeAxios */ "./src/utils/safeAxios.ts");
+
+var _bytes = __webpack_require__(/*! ../utils/bytes */ "./src/utils/bytes.ts");
 
 const endpoint = '/bytes';
 /**
@@ -12409,7 +12516,7 @@ async function download(url, hash) {
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`
   });
-  return new Uint8Array(response.data);
+  return (0, _bytes.wrapBytesWithHelpers)(new Uint8Array(response.data));
 }
 /**
  * Download data as a readable stream
@@ -12545,6 +12652,8 @@ var _headers = __webpack_require__(/*! ../utils/headers */ "./src/utils/headers.
 var _error = __webpack_require__(/*! ../utils/error */ "./src/utils/error.ts");
 
 var _file = __webpack_require__(/*! ../utils/file */ "./src/utils/file.ts");
+
+var _bytes = __webpack_require__(/*! ../utils/bytes */ "./src/utils/bytes.ts");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -12692,7 +12801,7 @@ async function download(url, hash, path = '') {
     url: `${url}${bzzEndpoint}/${hash}/${path}`
   });
   const file = { ...(0, _headers.readFileHeaders)(response.headers),
-    data: new Uint8Array(response.data)
+    data: (0, _bytes.wrapBytesWithHelpers)(new Uint8Array(response.data))
   };
   return file;
 }
@@ -12819,7 +12928,7 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.getChequebookAddress = getChequebookAddress;
-exports.getChequeubookBalance = getChequeubookBalance;
+exports.getChequebookBalance = getChequebookBalance;
 exports.getLastCashoutAction = getLastCashoutAction;
 exports.cashoutLastCheque = cashoutLastCheque;
 exports.getLastChequesForPeer = getLastChequesForPeer;
@@ -12850,7 +12959,7 @@ async function getChequebookAddress(url) {
  */
 
 
-async function getChequeubookBalance(url) {
+async function getChequebookBalance(url) {
   const response = await (0, _safeAxios.safeAxios)({
     url: url + chequebookEndpoint + '/balance',
     responseType: 'json'
@@ -12931,7 +13040,7 @@ async function depositTokens(url, amount) {
     url: url + chequebookEndpoint + '/deposit',
     responseType: 'json',
     params: {
-      amount
+      amount: amount.toString(10)
     }
   });
   return response.data;
@@ -12950,7 +13059,7 @@ async function withdrawTokens(url, amount) {
     url: url + chequebookEndpoint + '/withdraw',
     responseType: 'json',
     params: {
-      amount
+      amount: amount.toString(10)
     }
   });
   return response.data;
@@ -12972,6 +13081,10 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.getNodeAddresses = getNodeAddresses;
 exports.getPeers = getPeers;
+exports.getBlocklist = getBlocklist;
+exports.removePeer = removePeer;
+exports.getTopology = getTopology;
+exports.pingPeer = pingPeer;
 
 var _safeAxios = __webpack_require__(/*! ../../utils/safeAxios */ "./src/utils/safeAxios.ts");
 
@@ -12988,7 +13101,41 @@ async function getPeers(url) {
     url: url + '/peers',
     responseType: 'json'
   });
-  return response.data.peers;
+  return response.data.peers || [];
+}
+
+async function getBlocklist(url) {
+  const response = await (0, _safeAxios.safeAxios)({
+    url: url + '/blocklist',
+    responseType: 'json'
+  });
+  return response.data.peers || [];
+}
+
+async function removePeer(url, peer) {
+  const response = await (0, _safeAxios.safeAxios)({
+    url: `${url}/peers/${peer}`,
+    responseType: 'json',
+    method: 'DELETE'
+  });
+  return response.data;
+}
+
+async function getTopology(url) {
+  const response = await (0, _safeAxios.safeAxios)({
+    url: `${url}/topology`,
+    responseType: 'json'
+  });
+  return response.data;
+}
+
+async function pingPeer(url, peer) {
+  const response = await (0, _safeAxios.safeAxios)({
+    url: `${url}/pingpong/${peer}`,
+    responseType: 'json',
+    method: 'POST'
+  });
+  return response.data;
 }
 
 /***/ }),
@@ -13035,6 +13182,38 @@ async function getSettlements(url, peer) {
 async function getAllSettlements(url) {
   const response = await (0, _safeAxios.safeAxios)({
     url: url + settlementsEndpoint,
+    responseType: 'json'
+  });
+  return response.data;
+}
+
+/***/ }),
+
+/***/ "./src/modules/debug/status.ts":
+/*!*************************************!*\
+  !*** ./src/modules/debug/status.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.getHealth = getHealth;
+
+var _safeAxios = __webpack_require__(/*! ../../utils/safeAxios */ "./src/utils/safeAxios.ts");
+
+/**
+ * Get health of node
+ *
+ * @param url Bee debug URL
+ */
+async function getHealth(url) {
+  const response = await (0, _safeAxios.safeAxios)({
+    method: 'get',
+    url: `${url}/health`,
     responseType: 'json'
   });
   return response.data;
@@ -13128,11 +13307,13 @@ exports.upload = upload;
 exports.download = download;
 exports.downloadReadable = downloadReadable;
 
-var _data = __webpack_require__(/*! ../utils/data */ "./src/utils/data.ts");
+var _data = __webpack_require__(/*! ../utils/data */ "./src/utils/data.browser.ts");
 
 var _headers = __webpack_require__(/*! ../utils/headers */ "./src/utils/headers.ts");
 
 var _safeAxios = __webpack_require__(/*! ../utils/safeAxios */ "./src/utils/safeAxios.ts");
+
+var _bytes = __webpack_require__(/*! ../utils/bytes */ "./src/utils/bytes.ts");
 
 const endpoint = '/files';
 
@@ -13182,7 +13363,7 @@ async function download(url, hash, axiosOptions) {
     url: `${url}${endpoint}/${hash}`
   });
   const file = { ...(0, _headers.readFileHeaders)(response.headers),
-    data: new Uint8Array(response.data)
+    data: (0, _bytes.wrapBytesWithHelpers)(new Uint8Array(response.data))
   };
   return file;
 }
@@ -13424,7 +13605,7 @@ exports.subscribe = subscribe;
 
 var _isomorphicWs = _interopRequireDefault(__webpack_require__(/*! isomorphic-ws */ "./node_modules/isomorphic-ws/browser.js"));
 
-var _data = __webpack_require__(/*! ../utils/data */ "./src/utils/data.ts");
+var _data = __webpack_require__(/*! ../utils/data */ "./src/utils/data.browser.ts");
 
 var _safeAxios = __webpack_require__(/*! ../utils/safeAxios */ "./src/utils/safeAxios.ts");
 
@@ -13516,6 +13697,36 @@ async function upload(url, owner, identifier, signature, data, options) {
 
 /***/ }),
 
+/***/ "./src/modules/status.ts":
+/*!*******************************!*\
+  !*** ./src/modules/status.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.checkConnection = checkConnection;
+
+var _safeAxios = __webpack_require__(/*! ../utils/safeAxios */ "./src/utils/safeAxios.ts");
+
+/**
+ * Ping the base bee URL. If connection was not successful throw error
+ *
+ * @param url Bee URL
+ */
+async function checkConnection(url) {
+  await (0, _safeAxios.safeAxios)({
+    url: url,
+    responseType: 'json'
+  });
+}
+
+/***/ }),
+
 /***/ "./src/modules/tag.ts":
 /*!****************************!*\
   !*** ./src/modules/tag.ts ***!
@@ -13590,10 +13801,12 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 var _exportNames = {
-  HEX_REFERENCE_LENGTH: true,
-  ENCRYPTED_HEX_REFERENCE_LENGTH: true
+  REFERENCE_HEX_LENGTH: true,
+  ENCRYPTED_REFERENCE_HEX_LENGTH: true,
+  REFERENCE_BYTES_LENGTH: true,
+  ENCRYPTED_REFERENCE_BYTES_LENGTH: true
 };
-exports.ENCRYPTED_HEX_REFERENCE_LENGTH = exports.HEX_REFERENCE_LENGTH = void 0;
+exports.ENCRYPTED_REFERENCE_BYTES_LENGTH = exports.REFERENCE_BYTES_LENGTH = exports.ENCRYPTED_REFERENCE_HEX_LENGTH = exports.REFERENCE_HEX_LENGTH = void 0;
 
 var _debug = __webpack_require__(/*! ./debug */ "./src/types/debug.ts");
 
@@ -13608,10 +13821,14 @@ Object.keys(_debug).forEach(function (key) {
     }
   });
 });
-const HEX_REFERENCE_LENGTH = 64;
-exports.HEX_REFERENCE_LENGTH = HEX_REFERENCE_LENGTH;
-const ENCRYPTED_HEX_REFERENCE_LENGTH = 2 * HEX_REFERENCE_LENGTH;
-exports.ENCRYPTED_HEX_REFERENCE_LENGTH = ENCRYPTED_HEX_REFERENCE_LENGTH;
+const REFERENCE_HEX_LENGTH = 64;
+exports.REFERENCE_HEX_LENGTH = REFERENCE_HEX_LENGTH;
+const ENCRYPTED_REFERENCE_HEX_LENGTH = 128;
+exports.ENCRYPTED_REFERENCE_HEX_LENGTH = ENCRYPTED_REFERENCE_HEX_LENGTH;
+const REFERENCE_BYTES_LENGTH = 32;
+exports.REFERENCE_BYTES_LENGTH = REFERENCE_BYTES_LENGTH;
+const ENCRYPTED_REFERENCE_BYTES_LENGTH = 64;
+exports.ENCRYPTED_REFERENCE_BYTES_LENGTH = ENCRYPTED_REFERENCE_BYTES_LENGTH;
 
 /***/ }),
 
@@ -13619,7 +13836,7 @@ exports.ENCRYPTED_HEX_REFERENCE_LENGTH = ENCRYPTED_HEX_REFERENCE_LENGTH;
 /*!****************************!*\
   !*** ./src/utils/bytes.ts ***!
   \****************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
@@ -13636,6 +13853,9 @@ exports.flexBytesAtOffset = flexBytesAtOffset;
 exports.bytesEqual = bytesEqual;
 exports.makeBytes = makeBytes;
 exports.verifyBytesAtOffset = verifyBytesAtOffset;
+exports.wrapBytesWithHelpers = wrapBytesWithHelpers;
+
+var _hex = __webpack_require__(/*! ./hex */ "./src/utils/hex.ts");
 
 /**
  * Helper type for dealing with fixed size byte arrays.
@@ -13646,22 +13866,13 @@ exports.verifyBytesAtOffset = verifyBytesAtOffset;
  */
 
 /**
- * Helper type for dealing with flexible sized byte arrays.
- *
- * The actual min and and max values are not stored in runtime, they
- * are only there to differentiate the type from the Uint8Array at
- * compile time.
- * @see BrandedType
- */
-
-/**
  * Type guard for Bytes<T> type
  *
  * @param length  The length of the byte array
  * @param b       The byte array
  */
 function isBytes(length, b) {
-  return b.length === length;
+  return b instanceof Uint8Array && b.length === length;
 }
 /**
  * Verifies if a byte array has a certain length
@@ -13765,12 +13976,20 @@ function verifyBytesAtOffset(offset, length, data) {
   return verifyBytes(length, bytesAtOffset(offset, length, data));
 }
 
+function wrapBytesWithHelpers(data) {
+  return Object.assign(data, {
+    text: () => new TextDecoder('utf-8').decode(data),
+    json: () => JSON.parse(new TextDecoder('utf-8').decode(data)),
+    hex: () => (0, _hex.bytesToHex)(data)
+  });
+}
+
 /***/ }),
 
-/***/ "./src/utils/data.ts":
-/*!***************************!*\
-  !*** ./src/utils/data.ts ***!
-  \***************************/
+/***/ "./src/utils/data.browser.ts":
+/*!***********************************!*\
+  !*** ./src/utils/data.browser.ts ***!
+  \***********************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -13782,26 +14001,23 @@ Object.defineProperty(exports, "__esModule", ({
 exports.prepareData = prepareData;
 exports.prepareWebsocketData = prepareWebsocketData;
 
+/**
+ * Validates input and converts to Uint8Array
+ *
+ * @param data any string, ArrayBuffer or Uint8Array
+ */
 function prepareData(data) {
-  if (typeof data === 'string') {
-    return new TextEncoder().encode(data);
-  } else if (data instanceof ArrayBuffer) {
-    return new Uint8Array(data);
-  }
-
-  return data;
+  if (typeof data === 'string') return new TextEncoder().encode(data);
+  if (data instanceof ArrayBuffer) return new Uint8Array(data);
+  if (data instanceof Uint8Array) return data;
+  throw new TypeError('unknown data type');
 }
 
-function prepareWebsocketData(data) {
-  if (typeof data === 'string') {
-    return new TextEncoder().encode(data);
-  } else if (data instanceof Buffer) {
-    return new Uint8Array(data);
-  } else if (data instanceof ArrayBuffer) {
-    return new Uint8Array(data);
-  } else {
-    return new Uint8Array(Buffer.concat(data));
-  }
+async function prepareWebsocketData(data) {
+  if (typeof data === 'string') return new TextEncoder().encode(data);
+  if (data instanceof ArrayBuffer) return new Uint8Array(data);
+  if (data instanceof Blob) return new Uint8Array(await new Response(data).arrayBuffer());
+  throw new TypeError('unknown websocket data type');
 }
 
 /***/ }),
@@ -13872,20 +14088,53 @@ exports.BeeResponseError = BeeResponseError;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
+exports.makeEthAddress = makeEthAddress;
+exports.makeHexEthAddress = makeHexEthAddress;
 exports.isEthAddress = isEthAddress;
 exports.toLittleEndian = toLittleEndian;
 exports.fromLittleEndian = fromLittleEndian;
 exports.ethToSwarmAddress = ethToSwarmAddress;
+exports.createEthereumWalletSigner = createEthereumWalletSigner;
 
 var _jsSha = __webpack_require__(/*! js-sha3 */ "./node_modules/js-sha3/src/sha3.js");
 
 var _hex = __webpack_require__(/*! ./hex */ "./src/utils/hex.ts");
 
+var _bytes = __webpack_require__(/*! ./bytes */ "./src/utils/bytes.ts");
+
+const ETH_ADDR_BYTES_LENGTH = 20;
+const ETH_ADDR_HEX_LENGTH = 40;
+
+function makeEthAddress(address) {
+  if (typeof address === 'string') {
+    const hexAddr = (0, _hex.makeHexString)(address, ETH_ADDR_HEX_LENGTH);
+    const ownerBytes = (0, _hex.hexToBytes)(hexAddr);
+    return (0, _bytes.verifyBytes)(ETH_ADDR_BYTES_LENGTH, ownerBytes);
+  } else if (address instanceof Uint8Array) {
+    return (0, _bytes.verifyBytes)(ETH_ADDR_BYTES_LENGTH, address);
+  }
+
+  throw new TypeError('Invalid EthAddress');
+}
+
+function makeHexEthAddress(address) {
+  try {
+    return (0, _hex.makeHexString)(address, ETH_ADDR_HEX_LENGTH);
+  } catch (e) {
+    if (e instanceof TypeError) {
+      e.message = `Invalid HexEthAddress: ${e.message}`;
+    }
+
+    throw e;
+  }
+}
 /**
  * Check if this is all caps or small caps eth address (=address without checksum)
  *
  * @param address Ethereum address as hex string
  */
+
+
 function isEthAddrCaseIns(address) {
   // Check it's string, all small caps or all all caps hex and 40 chars long without the `0x` prefix
   return typeof address === 'string' && (/^(0x|0X)?[0-9a-f]{40}$/.test(address) || /^(0x|0X)?[0-9A-F]{40}$/.test(address));
@@ -13898,20 +14147,27 @@ function isEthAddrCaseIns(address) {
 
 
 function isValidChecksummedEthAddress(address) {
-  // Does not meet basic requirements of an address - type string, 40 chars, case insensitive hex numbers
-  if (typeof address !== 'string' && !/^(0x)?[0-9a-f]{40}$/i.test(address)) return false; // Check the checksum
+  try {
+    // Check for valid case insensitive hex type string, 40 chars
+    const addr = (0, _hex.makeHexString)(address, ETH_ADDR_HEX_LENGTH); // Check the checksum
 
-  const addr = (0, _hex.stripHexPrefix)(address);
-  const addressHash = (0, _jsSha.keccak256)(addr.toLowerCase());
+    const addressHash = (0, _jsSha.keccak256)(addr.toLowerCase());
 
-  for (let i = 0; i < 40; i += 1) {
-    // the nth letter should be uppercase if the nth digit of casemap is 1
-    if (parseInt(addressHash[i], 16) > 7 && addr[i].toUpperCase() !== addr[i] || parseInt(addressHash[i], 16) <= 7 && addr[i].toLowerCase() !== addr[i]) {
+    for (let i = 0; i < 40; i += 1) {
+      // the nth letter should be uppercase if the nth digit of casemap is 1
+      if (parseInt(addressHash[i], 16) > 7 && addr[i].toUpperCase() !== addr[i] || parseInt(addressHash[i], 16) <= 7 && addr[i].toLowerCase() !== addr[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch (e) {
+    if (e instanceof TypeError) {
       return false;
     }
-  }
 
-  return true;
+    throw e;
+  }
 }
 /**
  * Check if is valid ethereum address
@@ -13947,7 +14203,7 @@ function toLittleEndian(bigEndian, pad = 2) {
   }
 
   let hexRep;
-  if ((0, _hex.isHexString)(bigEndian)) hexRep = (0, _hex.stripHexPrefix)(bigEndian);else if (typeof bigEndian === 'number') hexRep = (0, _hex.intToHex)(bigEndian);else throw new TypeError('incorrect input type');
+  if (typeof bigEndian === 'string') hexRep = (0, _hex.makeHexString)(bigEndian);else if (typeof bigEndian === 'number') hexRep = (0, _hex.intToHex)(bigEndian);else throw new TypeError('incorrect input type');
   hexRep = hexRep.padStart(pad, '0'); // Extend to an even length hexstring
 
   if (hexRep.length % 2 !== 0) hexRep = hexRep.padStart(hexRep.length + 1, '0'); // Match all two pairs in the hexstring, reverse the pairs and join it again
@@ -13994,9 +14250,53 @@ function assertIsSwarmNetworkId(networkId) {
 function ethToSwarmAddress(ethAddress, networkId = 1) {
   assertIsEthAddress(ethAddress);
   assertIsSwarmNetworkId(networkId);
-  const hex = (0, _hex.verifyHex)(`${(0, _hex.stripHexPrefix)(ethAddress)}${toLittleEndian(networkId, 16)}`);
+  const hex = `${(0, _hex.makeHexString)(ethAddress)}${toLittleEndian(networkId, 16)}`;
+  (0, _hex.assertHexString)(hex);
   const overlayAddress = (0, _jsSha.sha3_256)((0, _hex.hexToBytes)(hex));
   return overlayAddress;
+}
+
+/**
+ * Function that takes Ethereum EIP-1102 compatible provider and create an Signer instance that
+ * uses personal_sign method to sign requested data.
+ *
+ * @param provider
+ * @param ethAddress Optional address of the account which the data should be signed with. If not specified eth_requestAccounts requests is used to get the account address.
+ */
+async function createEthereumWalletSigner(provider, ethAddress) {
+  let executorFnc;
+
+  if (typeof provider !== 'object' || provider === null) {
+    throw new TypeError('We need JsonRPC provider object!');
+  }
+
+  if (provider.request) {
+    executorFnc = provider.request;
+  } else if (provider.sendAsync) {
+    executorFnc = provider.sendAsync;
+  } else {
+    throw new Error('Incompatible interface of given provider!');
+  }
+
+  if (!ethAddress) {
+    ethAddress = (await executorFnc({
+      method: 'eth_requestAccounts'
+    }))[0];
+  }
+
+  const bytesEthAddress = makeEthAddress(ethAddress);
+  ethAddress = makeHexEthAddress(ethAddress);
+  return {
+    address: bytesEthAddress,
+    sign: async data => {
+      const result = await executorFnc({
+        jsonrpc: '2.0',
+        method: 'personal_sign',
+        params: ['0x' + ethAddress, '0x' + data.hex()]
+      });
+      return result;
+    }
+  };
 }
 
 /***/ }),
@@ -14013,13 +14313,13 @@ function ethToSwarmAddress(ethAddress, networkId = 1) {
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.Hash = exports.Eth = exports.Tar = exports.Hex = exports.File = exports.Data = exports.Bytes = void 0;
+exports.Eth = exports.Tar = exports.Hex = exports.File = exports.Data = exports.Bytes = void 0;
 
 var _Bytes = _interopRequireWildcard(__webpack_require__(/*! ./bytes */ "./src/utils/bytes.ts"));
 
 exports.Bytes = _Bytes;
 
-var _Data = _interopRequireWildcard(__webpack_require__(/*! ./data */ "./src/utils/data.ts"));
+var _Data = _interopRequireWildcard(__webpack_require__(/*! ./data */ "./src/utils/data.browser.ts"));
 
 exports.Data = _Data;
 
@@ -14038,10 +14338,6 @@ exports.Tar = _Tar;
 var _Eth = _interopRequireWildcard(__webpack_require__(/*! ./eth */ "./src/utils/eth.ts"));
 
 exports.Eth = _Eth;
-
-var _Hash = _interopRequireWildcard(__webpack_require__(/*! ../chunk/hash */ "./src/chunk/hash.ts"));
-
-exports.Hash = _Hash;
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -14187,7 +14483,7 @@ function extractUploadHeaders(options) {
 /*!**************************!*\
   !*** ./src/utils/hex.ts ***!
   \**************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
@@ -14195,104 +14491,173 @@ function extractUploadHeaders(options) {
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.stripHexPrefix = stripHexPrefix;
+exports.makeHexString = makeHexString;
 exports.hexToBytes = hexToBytes;
 exports.bytesToHex = bytesToHex;
 exports.intToHex = intToHex;
 exports.isHexString = isHexString;
-exports.verifyHex = verifyHex;
+exports.isPrefixedHexString = isPrefixedHexString;
+exports.assertHexString = assertHexString;
+exports.assertPrefixedHexString = assertPrefixedHexString;
+
+var _bytes = __webpack_require__(/*! ./bytes */ "./src/utils/bytes.ts");
 
 /**
- * Nominal type to represent hex strings
+ * Creates unprefixed hex string from wide range of data.
+ *
+ * TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
+ *
+ * @param input
+ * @param len of the resulting HexString WITHOUT prefix!
  */
+function makeHexString(input, len) {
+  if (typeof input === 'number') {
+    return intToHex(input, len);
+  }
 
-/**
- * Strips the '0x' hex prefix from a string
+  if (input instanceof Uint8Array) {
+    return bytesToHex(input, len);
+  }
 
- * @param hex string input
- */
-function stripHexPrefix(hex) {
-  return hex.startsWith('0x') ? hex.slice(2) : hex;
+  if (typeof input === 'string') {
+    if (isPrefixedHexString(input)) {
+      const hex = input.slice(2);
+
+      if (len && hex.length !== len) {
+        throw new TypeError(`Length mismatch for valid hex string. Expecting length ${len}: ${hex}`);
+      }
+
+      return hex;
+    } else {
+      // We use assertHexString() as there might be more reasons why a string is not valid hex string
+      // and usage of isHexString() would not give enough information to the user on what is going
+      // wrong.
+      assertHexString(input, len);
+      return input;
+    }
+  }
+
+  throw new TypeError('Not HexString compatible type!');
 }
 /**
  * Converts a hex string to Uint8Array
  *
- * @param hex string input
+ * @param hex string input without 0x prefix!
  */
 
 
 function hexToBytes(hex) {
-  const hexWithoutPrefix = stripHexPrefix(hex);
-  const bytes = new Uint8Array(hexWithoutPrefix.length / 2);
+  assertHexString(hex);
+  const bytes = (0, _bytes.makeBytes)(hex.length / 2);
 
   for (let i = 0; i < bytes.length; i++) {
-    const hexByte = hexWithoutPrefix.substr(i * 2, 2);
+    const hexByte = hex.substr(i * 2, 2);
     bytes[i] = parseInt(hexByte, 16);
   }
 
   return bytes;
 }
 /**
- * Converts array of number or Uint8Array to hex string.
+ * Converts array of number or Uint8Array to HexString without prefix.
  *
- * Optionally provides '0x' prefix.
- *
- * @param bytes       The input array
- * @param withPrefix  Provides '0x' prefix when true (default: false)
+ * @param bytes   The input array
+ * @param len     The length of the non prefixed HexString
  */
 
 
-function bytesToHex(bytes, withPrefix = false) {
-  const prefix = withPrefix ? '0x' : '';
-
+function bytesToHex(bytes, len) {
   const hexByte = n => n.toString(16).padStart(2, '0');
 
-  const hex = Array.from(bytes, hexByte).join('');
-  return `${prefix}${hex}`;
+  const hex = Array.from(bytes, hexByte).join(''); // TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
+
+  if (len && hex.length !== len) {
+    throw new TypeError(`Resulting HexString does not have expected length ${len}: ${hex}`);
+  }
+
+  return hex;
 }
 /**
- * Converst integer number to hex string.
+ * Converts integer number to hex string.
  *
  * Optionally provides '0x' prefix or padding
  *
  * @param int         The positive integer to be converted
- * @param withPrefix  Provides '0x' prefix when true (default: false)
+ * @param len     The length of the non prefixed HexString
  */
 
 
-function intToHex(int, withPrefix = false) {
+function intToHex(int, len) {
   if (!Number.isInteger(int)) throw new TypeError('the value provided is not integer');
   if (int > Number.MAX_SAFE_INTEGER) throw new TypeError('the value provided exceeds safe integer');
   if (int < 0) throw new TypeError('the value provided is a negative integer');
-  const prefix = withPrefix ? '0x' : '';
-  const hex = int.toString(16);
-  return `${prefix}${hex}`;
+  const hex = int.toString(16); // TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
+
+  if (len && hex.length !== len) {
+    throw new TypeError(`Resulting HexString does not have expected length ${len}: ${hex}`);
+  }
+
+  return hex;
 }
 /**
- * Type guard for HexStrings
+ * Type guard for HexStrings.
+ * Requires no 0x prefix!
+ *
+ * TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
+ *
+ * @param s string input
+ * @param len expected length of the HexString
+ */
+
+
+function isHexString(s, len) {
+  return typeof s === 'string' && /^[0-9a-f]+$/i.test(s) && (!len || s.length === len);
+}
+/**
+ * Type guard for PrefixedHexStrings.
+ * Does enforce presence of 0x prefix!
  *
  * @param s string input
  */
 
 
-function isHexString(s) {
-  return typeof s === 'string' && /^(0x)?[0-9a-f]+$/i.test(s);
+function isPrefixedHexString(s) {
+  return typeof s === 'string' && /^0x[0-9a-f]+$/i.test(s);
 }
 /**
  * Verifies if the provided input is a HexString.
  *
- * @param s string input
+ * TODO: Make Length mandatory: https://github.com/ethersphere/bee-js/issues/208
  *
+ * @param s string input
+ * @param len expected length of the HexString
  * @returns HexString or throws error
  */
 
 
-function verifyHex(s) {
-  if (isHexString(s)) {
-    return s;
-  }
+function assertHexString(s, len) {
+  if (!isHexString(s, len)) {
+    if (isPrefixedHexString(s)) {
+      throw new TypeError(`Not valid non prefixed hex string (has 0x prefix): ${s}`);
+    } // Don't display length error if no length specified in order not to confuse user
 
-  throw new Error(`verifyHex: not valid hex string: ${s}`);
+
+    const lengthMsg = len ? ` of length ${len}` : '';
+    throw new TypeError(`Not valid hex string${lengthMsg}: ${s}`);
+  }
+}
+/**
+ * Verifies if the provided input is a PrefixedHexString.
+ *
+ * @param s string input
+ * @param len expected length of the HexString
+ * @returns HexString or throws error
+ */
+
+
+function assertPrefixedHexString(s) {
+  if (!isPrefixedHexString(s)) {
+    throw new TypeError(`Not valid prefixed hex string: ${s}`);
+  }
 }
 
 /***/ }),
@@ -14381,6 +14746,31 @@ function makeTar(data) {
 
 /***/ }),
 
+/***/ "./src/utils/type.ts":
+/*!***************************!*\
+  !*** ./src/utils/type.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.isInteger = isInteger;
+exports.assertInteger = assertInteger;
+
+function isInteger(value) {
+  return typeof value === 'bigint' || typeof value === 'number' && value > Number.MIN_SAFE_INTEGER && value < Number.MAX_SAFE_INTEGER && Number.isInteger(value);
+}
+
+function assertInteger(value) {
+  if (!isInteger(value)) throw new TypeError('value is not integer');
+}
+
+/***/ }),
+
 /***/ "./src/utils/uint64.ts":
 /*!*****************************!*\
   !*** ./src/utils/uint64.ts ***!
@@ -14426,6 +14816,78 @@ function readUint64BigEndian(bytes) {
 
 /***/ }),
 
+/***/ "./src/utils/url.ts":
+/*!**************************!*\
+  !*** ./src/utils/url.ts ***!
+  \**************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.isValidBeeUrl = isValidBeeUrl;
+exports.assertBeeUrl = assertBeeUrl;
+exports.stripLastSlash = stripLastSlash;
+
+var _error = __webpack_require__(/*! ./error */ "./src/utils/error.ts");
+
+/**
+ * Validates that passed string is valid URL of Bee.
+ * We support only HTTP and HTTPS protocols.
+ *
+ * @param url
+ */
+function isValidBeeUrl(url) {
+  try {
+    if (typeof url !== 'string') {
+      return false;
+    }
+
+    const urlObject = new URL(url); // There can be wide range of protocols passed.
+
+    return urlObject.protocol === 'http:' || urlObject.protocol === 'https:';
+  } catch (e) {
+    // URL constructor throws TypeError if not valid URL
+    // TODO: Drop the `.code` hack for NodeJS environment: https://github.com/ethersphere/bee-js/issues/204
+    if (e instanceof TypeError || e.code && e.code === 'ERR_INVALID_URL') {
+      return false;
+    }
+
+    throw e;
+  }
+}
+/**
+ * Validates that passed string is valid URL of Bee, if not it throws BeeArgumentError.
+ * We support only HTTP and HTTPS protocols.
+ * @param url
+ * @throws BeeArgumentError if non valid URL
+ */
+
+
+function assertBeeUrl(url) {
+  if (!isValidBeeUrl(url)) {
+    throw new _error.BeeArgumentError('URL is not valid!', url);
+  }
+}
+/**
+ * Removes trailing slash out of the given string.
+ * @param url
+ */
+
+
+function stripLastSlash(url) {
+  if (url.endsWith('/')) {
+    return url.slice(0, -1);
+  }
+
+  return url;
+}
+
+/***/ }),
+
 /***/ "./node_modules/elliptic/package.json":
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
@@ -14433,7 +14895,7 @@ function readUint64BigEndian(bytes) {
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse("{\"name\":\"elliptic\",\"version\":\"6.5.3\",\"description\":\"EC cryptography\",\"main\":\"lib/elliptic.js\",\"files\":[\"lib\"],\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"test\":\"npm run lint && npm run unit\",\"version\":\"grunt dist && git add dist/\"},\"repository\":{\"type\":\"git\",\"url\":\"git@github.com:indutny/elliptic\"},\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"author\":\"Fedor Indutny <fedor@indutny.com>\",\"license\":\"MIT\",\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"homepage\":\"https://github.com/indutny/elliptic\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.8\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.10.3\",\"mocha\":\"^6.2.2\"},\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.3.tgz\",\"_integrity\":\"sha512-IMqzv5wNQf+E6aHeIqATs0tOLeOTwj1QKbRcS3jBbYkl5oLAserA8yJTT7/VyHUYG91PRmPyeQDObKLPpeS4dw==\",\"_from\":\"elliptic@6.5.3\"}");
+module.exports = JSON.parse("{\"_args\":[[\"elliptic@6.5.4\",\"/Users/adam/Projects/swarm/bee-js\"]],\"_from\":\"elliptic@6.5.4\",\"_id\":\"elliptic@6.5.4\",\"_inBundle\":false,\"_integrity\":\"sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"elliptic@6.5.4\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"6.5.4\",\"saveSpec\":null,\"fetchSpec\":\"6.5.4\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.4.tgz\",\"_spec\":\"6.5.4\",\"_where\":\"/Users/adam/Projects/swarm/bee-js\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"dependencies\":{\"bn.js\":\"^4.11.9\",\"brorand\":\"^1.1.0\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.1\",\"inherits\":\"^2.0.4\",\"minimalistic-assert\":\"^1.0.1\",\"minimalistic-crypto-utils\":\"^1.0.1\"},\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^2.0.2\",\"coveralls\":\"^3.1.0\",\"eslint\":\"^7.6.0\",\"grunt\":\"^1.2.1\",\"grunt-browserify\":\"^5.3.0\",\"grunt-cli\":\"^1.3.2\",\"grunt-contrib-connect\":\"^3.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^5.0.0\",\"grunt-mocha-istanbul\":\"^5.0.2\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.5\",\"mocha\":\"^8.0.1\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"lint\":\"eslint lib test\",\"lint:fix\":\"npm run lint -- --fix\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.4\"}");
 
 /***/ }),
 

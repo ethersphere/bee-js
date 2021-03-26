@@ -2,36 +2,6 @@
 const BEE_URL = 'http://localhost:1633'
 
 /**
- * Function that returns Signer instance.
- * The Signer.sign() function has to be compatible with the Ethereum `personal_sign` call that
- * prefixes the signing data with `\x19Ethereum Signed Message:\n${data.length}`.
- * If your signing method does not do that, you have to do it manually!
- *
- * @param address - Hex address prefixed with 0x of the account that will sign the data
- * @returns Signer instance
- */
-function createSigner(address) {
-  return {
-    address: BeeJs.Utils.Hex.hexToBytes(address),
-    sign: async data => {
-      // Convert bytes into prefixed hex string
-      data = BeeJs.Utils.Hex.bytesToHex(data, true)
-      console.log('Signing data: ', data)
-
-      // Request the Eth wallet for signature
-      const result = await window.ethereum.request({
-        jsonrpc: '2.0',
-        method: 'personal_sign',
-        params: [address, data],
-      })
-
-      // We need to convert the signature to bytes
-      return BeeJs.Utils.Hex.hexToBytes(result)
-    },
-  }
-}
-
-/**
  * The `/bzz` endpoint accepts only Manifest/Collection so we have to build one.
  *
  * @param message
@@ -54,38 +24,19 @@ function main() {
   }
   const bee = new BeeJs.Bee(BEE_URL)
 
-  let signer, address
   const sendBtn = document.getElementById('send')
-  const connectBtn = document.getElementById('connect')
   const resultLink = document.getElementById('result')
-
-  connectBtn.addEventListener('click', async () => {
-    try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-      address = accounts[0]
-      signer = createSigner(address)
-
-      connectBtn.disabled = true
-      sendBtn.disabled = false
-    } catch (e) {
-      alert(`There was error while connecting to Wallet!\n${e}`)
-      throw e
-    }
-  })
 
   document.getElementById('form').addEventListener('submit', async e => {
     e.preventDefault() // Lets not submit the form
-
-    if (!signer || !address) {
-      alert('Signer not instantiated! Have you connect wallet?')
-      throw new Error('No Signer or Address')
-    }
 
     try {
       sendBtn.disabled = true
       sendBtn.value = 'Uploading...'
 
-      console.log('Uploading using address: ' + address)
+      console.log('Creating signer')
+      const signer = await BeeJs.Utils.Eth.createEthereumWalletSigner(window.ethereum)
+      console.log(`Signer for address 0x${BeeJs.Utils.Hex.bytesToHex(signer.address)} created.`)
 
       // Upload the data as normal content addressed chunk
       console.log('Uploading data as regular chunk')
@@ -106,11 +57,7 @@ function main() {
       console.log('Verification result: ', feedVerification.reference === dataHash)
 
       // Lets create chunk hash for manifest that can be used with the BZZ endpoint
-      const resultUrl = `${BEE_URL}/bzz/${await bee.createFeedManifest(
-        'sequence',
-        topic,
-        BeeJs.Utils.Hex.hexToBytes(address),
-      )}/index.html`
+      const resultUrl = `${BEE_URL}/bzz/${await bee.createFeedManifest('sequence', topic, signer.address)}/index.html`
       console.log('Feed Manifest URL: ' + resultUrl)
 
       resultLink.href = resultUrl
