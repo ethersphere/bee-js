@@ -155,7 +155,7 @@ export function isPrefixedHexString(s: unknown): s is PrefixedHexString {
  * @returns HexString or throws error
  */
 export function assertHexString<Length extends number = number>(
-  s: string,
+  s: unknown,
   len?: number,
 ): asserts s is HexString<Length> {
   if (!isHexString(s, len)) {

@@ -34,6 +34,7 @@ import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
+import { assertReference } from './utils/type'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -69,7 +70,9 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  downloadData(reference: Reference): Promise<Data> {
+  downloadData(reference: Reference | string): Promise<Data> {
+    assertReference(reference)
+
     return bytes.download(this.url, reference)
   }
 
@@ -79,7 +82,9 @@ export class Bee {
    * @param reference Bee data reference
    * @param axiosOptions optional - alter default options of axios HTTP client
    */
-  downloadReadableData(reference: Reference, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
+  downloadReadableData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
+    assertReference(reference)
+
     return bytes.downloadReadable(this.url, reference, axiosOptions)
   }
 
@@ -114,7 +119,9 @@ export class Bee {
    *
    * @param reference Bee file reference
    */
-  downloadFile(reference: Reference): Promise<FileData<Data>> {
+  downloadFile(reference: Reference | string): Promise<FileData<Data>> {
+    assertReference(reference)
+
     return file.download(this.url, reference)
   }
 
@@ -123,7 +130,9 @@ export class Bee {
    *
    * @param reference Bee file reference
    */
-  downloadReadableFile(reference: Reference): Promise<FileData<Readable>> {
+  downloadReadableFile(reference: Reference | string): Promise<FileData<Readable>> {
+    assertReference(reference)
+
     return file.downloadReadable(this.url, reference)
   }
 
@@ -168,7 +177,9 @@ export class Bee {
    *
    * @returns file in byte array with metadata
    */
-  downloadFileFromCollection(reference: Reference, path = ''): Promise<FileData<Data>> {
+  downloadFileFromCollection(reference: Reference | string, path = ''): Promise<FileData<Data>> {
+    assertReference(reference)
+
     return collection.download(this.url, reference, path)
   }
 
@@ -182,10 +193,12 @@ export class Bee {
    * @returns file in readable stream with metadata
    */
   downloadReadableFileFromCollection(
-    reference: Reference,
+    reference: Reference | string,
     path = '',
     axiosOptions?: AxiosRequestConfig,
   ): Promise<FileData<Readable>> {
+    assertReference(reference)
+
     return collection.downloadReadable(this.url, reference, path, axiosOptions)
   }
 
@@ -210,7 +223,9 @@ export class Bee {
    *
    * @param reference Bee file reference
    */
-  pinFile(reference: Reference): Promise<BeeResponse> {
+  pinFile(reference: Reference | string): Promise<BeeResponse> {
+    assertReference(reference)
+
     return pinning.pinFile(this.url, reference)
   }
 
@@ -219,7 +234,9 @@ export class Bee {
    *
    * @param reference Bee file reference
    */
-  unpinFile(reference: Reference): Promise<BeeResponse> {
+  unpinFile(reference: Reference | string): Promise<BeeResponse> {
+    assertReference(reference)
+
     return pinning.unpinFile(this.url, reference)
   }
 
@@ -228,7 +245,9 @@ export class Bee {
    *
    * @param reference Bee collection reference
    */
-  pinCollection(reference: Reference): Promise<BeeResponse> {
+  pinCollection(reference: Reference | string): Promise<BeeResponse> {
+    assertReference(reference)
+
     return pinning.pinCollection(this.url, reference)
   }
 
@@ -237,7 +256,9 @@ export class Bee {
    *
    * @param reference Bee collection reference
    */
-  unpinCollection(reference: Reference): Promise<BeeResponse> {
+  unpinCollection(reference: Reference | string): Promise<BeeResponse> {
+    assertReference(reference)
+
     return pinning.unpinCollection(this.url, reference)
   }
 
@@ -246,7 +267,9 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  pinData(reference: Reference): Promise<BeeResponse> {
+  pinData(reference: Reference | string): Promise<BeeResponse> {
+    assertReference(reference)
+
     return pinning.pinData(this.url, reference)
   }
 
@@ -255,7 +278,9 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  unpinData(reference: Reference): Promise<BeeResponse> {
+  unpinData(reference: Reference | string): Promise<BeeResponse> {
+    assertReference(reference)
+
     return pinning.unpinData(this.url, reference)
   }
 
