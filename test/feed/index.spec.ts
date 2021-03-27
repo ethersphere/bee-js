@@ -1,6 +1,6 @@
 import { fetchFeedUpdate } from '../../src/modules/feed'
 import { HexString, hexToBytes, makeHexString } from '../../src/utils/hex'
-import { beeUrl, testIdentity } from '../utils'
+import { beeUrl, ERR_TIMEOUT, testIdentity } from '../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../src/feed'
 import { Bytes, verifyBytes } from '../../src/utils/bytes'
 import { makeDefaultSigner, PrivateKey, Signer } from '../../src/chunk/signer'
@@ -41,12 +41,16 @@ describe('feed', () => {
   const signer = makeDefaultSigner(hexToBytes(testIdentity.privateKey) as PrivateKey)
   const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
 
-  test('empty feed update', async () => {
-    const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
-    const index = await findNextIndex(url, owner, emptyTopic)
+  test(
+    'empty feed update',
+    async () => {
+      const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
+      const index = await findNextIndex(url, owner, emptyTopic)
 
-    expect(index).toEqual('0000000000000000')
-  }, 15000)
+      expect(index).toEqual('0000000000000000')
+    },
+    ERR_TIMEOUT,
+  )
 
   test('feed update', async () => {
     const uploadedChunk = await uploadChunk(url, 0)
