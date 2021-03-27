@@ -3,7 +3,15 @@ import * as file from '../../src/modules/file'
 import * as collection from '../../src/modules/collection'
 import * as bytes from '../../src/modules/bytes'
 import * as chunk from '../../src/modules/chunk'
-import { beeUrl, invalidReference, okResponse, randomByteArray, testChunkData, testChunkHash } from '../utils'
+import {
+  beeUrl,
+  invalidReference,
+  okResponse,
+  randomByteArray,
+  testChunkData,
+  testChunkHash,
+  ERR_TIMEOUT,
+} from '../utils'
 import { Collection } from '../../src/types'
 
 const BEE_URL = beeUrl()
@@ -26,9 +34,13 @@ describe('modules/pin', () => {
       expect(response).toEqual(okResponse)
     })
 
-    it('should not pin a non-existing file', async () => {
-      await expect(pinning.pinFile(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
-    })
+    it(
+      'should not pin a non-existing file',
+      async () => {
+        await expect(pinning.pinFile(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+      },
+      ERR_TIMEOUT,
+    )
 
     it('should not unpin a non-existing file', async () => {
       await expect(pinning.unpinFile(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
@@ -61,9 +73,13 @@ describe('modules/pin', () => {
       expect(response).toEqual(okResponse)
     })
 
-    it('should not pin a non-existing collections', async () => {
-      await expect(pinning.pinCollection(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
-    })
+    it(
+      'should not pin a non-existing collections',
+      async () => {
+        await expect(pinning.pinCollection(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+      },
+      ERR_TIMEOUT,
+    )
 
     it('should not unpin a non-existing collections', async () => {
       await expect(pinning.unpinCollection(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
@@ -87,9 +103,13 @@ describe('modules/pin', () => {
       expect(response).toEqual(okResponse)
     })
 
-    it('should not pin a non-existing data', async () => {
-      await expect(pinning.pinData(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
-    })
+    it(
+      'should not pin a non-existing data',
+      async () => {
+        await expect(pinning.pinData(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+      },
+      ERR_TIMEOUT,
+    )
 
     it('should not unpin a non-existing data', async () => {
       await expect(pinning.unpinData(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
@@ -113,9 +133,13 @@ describe('modules/pin', () => {
       expect(pinningResponse).toEqual(okResponse)
     })
 
-    it('should not pin a non-existing chunk', async () => {
-      await expect(pinning.pinChunk(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
-    })
+    it(
+      'should not pin a non-existing chunk',
+      async () => {
+        await expect(pinning.pinChunk(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+      },
+      ERR_TIMEOUT,
+    )
 
     it('should not unpin a non-existing chunk', async () => {
       await expect(pinning.unpinChunk(BEE_URL, invalidReference)).rejects.toThrow('Not Found')

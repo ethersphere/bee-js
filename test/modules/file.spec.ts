@@ -1,6 +1,6 @@
 import * as file from '../../src/modules/file'
 import * as tag from '../../src/modules/tag'
-import { beeUrl, createReadable, invalidReference, randomByteArray } from '../utils'
+import { beeUrl, BIG_FILE_TIMEOUT, createReadable, ERR_TIMEOUT, invalidReference, randomByteArray } from '../utils'
 
 const BEE_URL = beeUrl()
 
@@ -49,14 +49,22 @@ describe('modules/file', () => {
     expect(tag2.processed).toEqual(5)
   }, 5000)
 
-  it('should catch error', async () => {
-    await expect(file.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
-  })
+  it(
+    'should catch error',
+    async () => {
+      await expect(file.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+    },
+    ERR_TIMEOUT,
+  )
 
-  it('should upload bigger file', async () => {
-    const data = new Uint8Array(32 * 1024 * 1024)
-    const response = await file.upload(BEE_URL, data)
+  it(
+    'should upload bigger file',
+    async () => {
+      const data = new Uint8Array(32 * 1024 * 1024)
+      const response = await file.upload(BEE_URL, data)
 
-    expect(typeof response).toEqual('string')
-  }, 20000)
+      expect(typeof response).toEqual('string')
+    },
+    BIG_FILE_TIMEOUT,
+  )
 })

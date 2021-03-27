@@ -146,6 +146,9 @@ export const okResponse: BeeResponse = {
   code: 200,
   message: 'OK',
 }
+
+export const ERR_TIMEOUT = 40000
+export const BIG_FILE_TIMEOUT = 100000
 export const PSS_TIMEOUT = 120000
 export const FEED_TIMEOUT = 120000
 

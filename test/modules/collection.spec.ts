@@ -1,6 +1,6 @@
 import * as collection from '../../src/modules/collection'
 import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../src/types'
-import { beeUrl } from '../utils'
+import { beeUrl, BIG_FILE_TIMEOUT } from '../utils'
 
 const BEE_URL = beeUrl()
 
@@ -68,18 +68,22 @@ describe('modules/collection', () => {
     expect(hash.length).toEqual(ENCRYPTED_REFERENCE_HEX_LENGTH)
   })
 
-  it('should upload bigger file', async () => {
-    const directoryStructure: Collection<Uint8Array> = [
-      {
-        path: '0',
-        data: new Uint8Array(32 * 1024 * 1024),
-      },
-    ]
+  it(
+    'should upload bigger file',
+    async () => {
+      const directoryStructure: Collection<Uint8Array> = [
+        {
+          path: '0',
+          data: new Uint8Array(32 * 1024 * 1024),
+        },
+      ]
 
-    const response = await collection.upload(BEE_URL, directoryStructure)
+      const response = await collection.upload(BEE_URL, directoryStructure)
 
-    expect(typeof response).toEqual('string')
-  }, 20000)
+      expect(typeof response).toEqual('string')
+    },
+    BIG_FILE_TIMEOUT,
+  )
 
   it('should throw error when the upload url is not set', async () => {
     await expect(
