@@ -56,7 +56,7 @@ log_queen() {
 
 # Init variables
 EPHEMERAL=false
-WORKERS=2
+WORKERS=4
 QUEEN_CONTAINER_NAME="bee-queen-test"
 WORKER_CONTAINER_NAME="bee-worker-test"
 QUEEN_CONTAINER_IN_DOCKER=`docker container ls -qaf name=$QUEEN_CONTAINER_NAME`
