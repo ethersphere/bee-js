@@ -87,6 +87,11 @@ export interface Health {
   status: 'ok'
   version: string
 }
+export interface BeeVersion {
+  version: string
+  date: string
+  url: string
+}
 
 export interface RemovePeerResponse {
   message: string

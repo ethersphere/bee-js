@@ -23,6 +23,7 @@ import type {
   PingResponse,
   Health,
   NodeAddresses,
+  BeeVersion,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertInteger } from './utils/type'
@@ -42,6 +43,24 @@ export class BeeDebug {
     // which could lead to double slash in URL to which Bee responds with
     // unnecessary redirects.
     this.url = stripLastSlash(url)
+  }
+
+  /**
+   * Get all published Bee versions from github
+   *
+   * @returns List of published and released Bee versions
+   */
+  static getBeeVersions(): Promise<BeeVersion[]> {
+    return status.getBeeVersions()
+  }
+
+  /**
+   * Get latest released Bee versions from github
+   *
+   * @returns Latest released Bee version
+   */
+  static getBeeVersionLatest(): Promise<BeeVersion> {
+    return status.getBeeVersionLatest()
   }
 
   getNodeAddresses(): Promise<NodeAddresses> {
@@ -208,6 +227,13 @@ export class BeeDebug {
     return settlements.getAllSettlements(this.url)
   }
 
+  /**
+   * Get health of node
+   *
+   * @param url Bee debug URL
+   *
+   * @returns Health of the bee node and version
+   */
   getHealth(): Promise<Health> {
     return status.getHealth(this.url)
   }
