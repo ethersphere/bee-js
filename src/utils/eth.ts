@@ -210,7 +210,7 @@ export async function createEthereumWalletSigner(
   }
 
   const bytesEthAddress = makeEthAddress(ethAddress)
-  ethAddress = makeHexEthAddress(ethAddress)
+  const hexEthAddress = makeHexEthAddress(ethAddress)
 
   return {
     address: bytesEthAddress,
@@ -218,7 +218,7 @@ export async function createEthereumWalletSigner(
       const result = await executorFnc({
         jsonrpc: '2.0',
         method: 'personal_sign',
-        params: ['0x' + ethAddress, '0x' + data.hex()],
+        params: ['0x' + hexEthAddress, '0x' + data.hex()],
       })
 
       return result as string
