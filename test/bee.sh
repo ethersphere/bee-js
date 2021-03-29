@@ -11,12 +11,12 @@ COMMANDS:
     stop                        stop Bee cluster
 PARAMETERS:
     --ephemeral                 create ephemeral container for bee-client. Data won't be persisted.
-    --workers=number            all Bee nodes in the test environment. Default is 2.
+    --workers=number            all Bee nodes in the test environment. Default is 4.
     --port-maps=number          map ports of the cluster nodes to the hosting machine in the following manner:
                                 1. 1633:1635
                                 2. 11633:11635
                                 3. 21633:21635 (...)
-                                number represents the nodes number to map from. Default is 2.
+                                number represents the nodes number to map from. Default is 4.
     --password=string           password for Bee client(s).
     --version=x.y.z             used version of Bee client.
 USAGE
@@ -56,7 +56,7 @@ log_queen() {
 
 # Init variables
 EPHEMERAL=false
-WORKERS=2
+WORKERS=4
 QUEEN_CONTAINER_NAME="bee-queen-test"
 WORKER_CONTAINER_NAME="bee-worker-test"
 QUEEN_CONTAINER_IN_DOCKER=`docker container ls -qaf name=$QUEEN_CONTAINER_NAME`

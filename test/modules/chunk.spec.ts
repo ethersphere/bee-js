@@ -1,5 +1,5 @@
 import * as chunk from '../../src/modules/chunk'
-import { beeUrl, invalidReference } from '../utils'
+import { beeUrl, invalidReference, ERR_TIMEOUT } from '../utils'
 
 const BEE_URL = beeUrl()
 
@@ -19,7 +19,11 @@ describe('modules/chunk', () => {
     expect(downloadedData).toEqual(data)
   })
 
-  it('should catch error', async () => {
-    await expect(chunk.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
-  })
+  it(
+    'should catch error',
+    async () => {
+      await expect(chunk.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+    },
+    ERR_TIMEOUT,
+  )
 })

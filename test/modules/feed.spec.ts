@@ -1,6 +1,6 @@
 import { createFeedManifest, fetchFeedUpdate } from '../../src/modules/feed'
 import { HexString, hexToBytes, makeHexString } from '../../src/utils/hex'
-import { beeUrl, testIdentity, tryDeleteChunkFromLocalStorage } from '../utils'
+import { beeUrl, ERR_TIMEOUT, testIdentity, tryDeleteChunkFromLocalStorage } from '../utils'
 import { upload as uploadSOC } from '../../src/modules/soc'
 import type { Topic } from '../../src/feed/topic'
 
@@ -16,12 +16,16 @@ describe('modules/feed', () => {
     expect(response).toEqual(reference)
   })
 
-  test('empty feed update', async () => {
-    const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
-    const feedUpdate = fetchFeedUpdate(url, owner, emptyTopic)
+  test(
+    'empty feed update',
+    async () => {
+      const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
+      const feedUpdate = fetchFeedUpdate(url, owner, emptyTopic)
 
-    await expect(feedUpdate).rejects.toThrow('Not Found')
-  }, 15000)
+      await expect(feedUpdate).rejects.toThrow('Not Found')
+    },
+    ERR_TIMEOUT,
+  )
 
   test('one feed update', async () => {
     const oneUpdateTopic = '2000000000000000000000000000000000000000000000000000000000000000' as Topic
