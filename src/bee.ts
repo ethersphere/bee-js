@@ -47,7 +47,7 @@ export class Bee {
   /**
    * @param url URL of a running Bee node
    * @param options
-   * @param options.signer Optional Signer object/string/Uint8Array that will be default signer for the instance.
+   * @param options.signer Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   constructor(url: string, options?: BeeOptions) {
     assertBeeUrl(url)

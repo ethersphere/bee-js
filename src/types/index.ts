@@ -1,7 +1,7 @@
 import { BeeError } from '../utils/error'
 import type { AxiosRequestConfig } from 'axios'
 import { HexString } from '../utils/hex'
-import { Signer } from '../chunk/signer'
+import type { Signer } from '../chunk/signer'
 export * from './debug'
 
 export interface Dictionary<T> {
