@@ -10,7 +10,6 @@ on:
 
 
 env:
-  BEE_VERSION: '0.5.3'
   REPLICA: 5
   BEE_API_URL: 'http://bee-0.localhost'
   BEE_PEER_API_URL: 'http://bee-1.localhost'
@@ -23,6 +22,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x, 14.x, 15.x]
+        bee-version: [0.5.2, 0.5.3]
 
     steps:
       - name: Checkout
@@ -42,7 +42,7 @@ jobs:
           export URL=$(curl -s https://api.github.com/repos/ethersphere/bee-local/releases/latest | jq -r .tarball_url)
           curl -Ls ${URL} -o bee-local.tar.gz
           tar --strip-components=1 --wildcards -xzf bee-local.tar.gz ethersphere-bee-local-*/{beeinfra.sh,helm-values,hack}
-          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG='\"${BEE_VERSION}\"'/' beeinfra.sh
+          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG='\"${{ matrix.bee-version }}\"'/' beeinfra.sh
       - name: Install latest beekeeper
         run: |
           export TAG=$(curl -s https://api.github.com/repos/ethersphere/beekeeper/releases/latest | jq -r .tag_name)
@@ -65,10 +65,10 @@ jobs:
         id: cache-npm
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.OS }}-node-${{ matrix.node }}-${{ env.cache-name }}-
-            ${{ runner.OS }}-node-${{ matrix.node }}-
+            ${{ runner.OS }}-node-${{ matrix.node-version }}-${{ env.cache-name }}-
+            ${{ runner.OS }}-node-${{ matrix.node-version }}-
 
       - name: Install npm deps
         if: steps.cache-npm.outputs.cache-hit != 'true'
@@ -92,6 +92,7 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
+        bee-version: [0.5.2, 0.5.3]
 
     steps:
       - name: Checkout
@@ -106,7 +107,7 @@ jobs:
           export URL=$(curl -s https://api.github.com/repos/ethersphere/bee-local/releases/latest | jq -r .tarball_url)
           curl -Ls ${URL} -o bee-local.tar.gz
           tar --strip-components=1 --wildcards -xzf bee-local.tar.gz ethersphere-bee-local-*/{beeinfra.sh,helm-values,hack}
-          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG='\"${BEE_VERSION}\"'/' beeinfra.sh
+          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG='\"${{ matrix.bee-version }}\"'/' beeinfra.sh
       - name: Install latest beekeeper
         run: |
           export TAG=$(curl -s https://api.github.com/repos/ethersphere/beekeeper/releases/latest | jq -r .tag_name)
@@ -129,10 +130,10 @@ jobs:
         id: cache-npm
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.OS }}-node-${{ matrix.node }}-${{ env.cache-name }}-
-            ${{ runner.OS }}-node-${{ matrix.node }}-
+            ${{ runner.OS }}-node-${{ matrix.node-version }}-${{ env.cache-name }}-
+            ${{ runner.OS }}-node-${{ matrix.node-version }}-
 
       - name: Install npm deps
         if: steps.cache-npm.outputs.cache-hit != 'true'
