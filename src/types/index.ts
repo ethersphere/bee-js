@@ -1,7 +1,12 @@
 import { BeeError } from '../utils/error'
 import type { AxiosRequestConfig } from 'axios'
 import { HexString } from '../utils/hex'
-import type { Signer } from '../chunk/signer'
+import { Bytes } from '../utils/bytes'
+import { EthAddress, HexEthAddress } from '../utils/eth'
+import { Identifier, SingleOwnerChunk } from '../chunk/soc'
+import { FeedType } from '../feed/type'
+import { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
+import { ChunkReference, FeedUploadOptions } from '../feed'
 export * from './debug'
 
 export interface Dictionary<T> {
@@ -116,6 +121,115 @@ export interface BeeResponse {
 
 export interface ReferenceResponse {
   reference: Reference
+}
+
+/*********************************************************
+ * Writers and Readers interfaces
+ */
+
+export const TOPIC_BYTES_LENGTH = 32
+export const TOPIC_HEX_LENGTH = 64
+
+/**
+ * Hex string of length 64 chars without prefix that specifies topics for feed.
+ */
+export type Topic = HexString<typeof TOPIC_HEX_LENGTH>
+
+/**
+ * FeedReader is an interface for downloading feed updates
+ */
+export interface FeedReader {
+  readonly type: FeedType
+  readonly owner: HexEthAddress
+  readonly topic: Topic
+  /**
+   * Download the latest feed update
+   */
+  download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
+}
+
+/**
+ * FeedWriter is an interface for updating feeds
+ */
+export interface FeedWriter extends FeedReader {
+  /**
+   * Upload a new feed update
+   *
+   * @param reference The reference to be stored in the new update
+   * @param options   Additional options like `at`
+   *
+   * @returns The reference of the new update
+   */
+  upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
+}
+
+/**
+ * Interface for downloading single owner chunks
+ */
+export interface SOCReader {
+  /**
+   * Downloads a single owner chunk
+   *
+   * @param identifier  The identifier of the chunk
+   */
+  download: (identifier: Identifier) => Promise<SingleOwnerChunk>
+}
+
+/**
+ * Interface for downloading and uploading single owner chunks
+ */
+export interface SOCWriter extends SOCReader {
+  /**
+   * Uploads a single owner chunk
+   *
+   * @param identifier  The identifier of the chunk
+   * @param data        The chunk payload data
+   * @param options     Upload options
+   */
+  upload: (identifier: Identifier, data: Uint8Array, options?: UploadOptions) => Promise<ReferenceResponse>
+}
+
+/*********************************************************
+ * Ethereum compatible signing interfaces and definitions
+ */
+
+export const SIGNATURE_HEX_LENGTH = 130
+export const SIGNATURE_BYTES_LENGTH = 65
+
+export type Signature = Bytes<typeof SIGNATURE_BYTES_LENGTH>
+export type PrivateKeyBytes = Bytes<32>
+export type PublicKeyBytes = Bytes<32> | Bytes<64>
+
+/**
+ * Signing function that takes digest in Uint8Array  to be signed that has helpers to convert it
+ * conveniently into other types like hex-string (non prefix).
+ * Result of the signing can be returned either in Uint8Array or hex string form.
+ *
+ * @see Data
+ */
+type SyncSigner = (digest: Data) => Signature | HexString<typeof SIGNATURE_HEX_LENGTH> | string
+type AsyncSigner = (digest: Data) => Promise<Signature | HexString<typeof SIGNATURE_HEX_LENGTH> | string>
+
+/**
+ * Interface for implementing Ethereum compatible signing.
+ *
+ * In order to be compatible with Ethereum and its signing method `personal_sign`, the data
+ * that are passed to sign() function should be prefixed with: `\x19Ethereum Signed Message:\n${data.length}`, hashed
+ * and only then signed.
+ * If you are wrapping another signer tool/library (like Metamask or some other Ethereum wallet), you might not have
+ * to do this prefixing manually if you use the `personal_sign` method. Check documentation of the tool!
+ * If you are writing your own storage for keys, then you have to prefix the data manually otherwise the Bee node
+ * will reject the chunks signed by you!
+ *
+ * For example see the hashWithEthereumPrefix() function.
+ *
+ * @property sign     The sign function that can be sync or async. This function takes non-prefixed data. See above.
+ * @property address  The ethereum address of the signer in bytes.
+ * @see hashWithEthereumPrefix
+ */
+export type Signer = {
+  sign: SyncSigner | AsyncSigner
+  address: EthAddress
 }
 
 /**

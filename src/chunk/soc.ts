@@ -1,12 +1,12 @@
 import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset, verifyBytesAtOffset } from '../utils/bytes'
 import { bmtHash } from './bmt'
-import { recoverAddress, sign, Signature, Signer } from './signer'
+import { recoverAddress, sign } from './signer'
 import { keccak256Hash } from '../utils/hash'
 import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
 import { BeeError } from '../utils/error'
 import { Chunk, ChunkAddress, makeContentAddressedChunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, verifyChunk } from './cac'
-import { ReferenceResponse, UploadOptions } from '../types'
+import { ReferenceResponse, UploadOptions, Signature, Signer } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
@@ -34,32 +34,6 @@ export interface SingleOwnerChunk extends Chunk {
   identifier: () => Identifier
   signature: () => Signature
   owner: () => EthAddress
-}
-
-/**
- * Interface for downloading single owner chunks
- */
-export interface SOCReader {
-  /**
-   * Downloads a single owner chunk
-   *
-   * @param identifier  The identifier of the chunk
-   */
-  download: (identifier: Identifier) => Promise<SingleOwnerChunk>
-}
-
-/**
- * Interface for downloading and uploading single owner chunks
- */
-export interface SOCWriter extends SOCReader {
-  /**
-   * Uploads a single owner chunk
-   *
-   * @param identifier  The identifier of the chunk
-   * @param data        The chunk payload data
-   * @param options     Upload options
-   */
-  upload: (identifier: Identifier, data: Uint8Array, options?: UploadOptions) => Promise<ReferenceResponse>
 }
 
 function recoverChunkOwner(data: Uint8Array): EthAddress {

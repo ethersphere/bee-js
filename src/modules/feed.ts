@@ -1,8 +1,7 @@
-import { Dictionary, Reference, ReferenceResponse } from '../types'
+import { Dictionary, Reference, ReferenceResponse, Topic } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
-import { Topic } from '../feed/topic'
 
 const feedEndpoint = '/feeds'
 

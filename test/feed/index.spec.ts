@@ -3,7 +3,7 @@ import { HexString, hexToBytes, makeHexString } from '../../src/utils/hex'
 import { beeUrl, ERR_TIMEOUT, testIdentity } from '../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../src/feed'
 import { Bytes, verifyBytes } from '../../src/utils/bytes'
-import { makePrivateKeySigner, PrivateKey, Signer } from '../../src/chunk/signer'
+import { makePrivateKeySigner, PrivateKeyBytes, Signer } from '../../src/chunk/signer'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import * as chunkAPI from '../../src/modules/chunk'
 import { Topic } from '../../src/feed/topic'
@@ -38,7 +38,7 @@ async function tryUploadFeedUpdate(url: string, signer: Signer, topic: Topic, in
 describe('feed', () => {
   const url = beeUrl()
   const owner = makeHexString(testIdentity.address, 40)
-  const signer = makePrivateKeySigner(hexToBytes(testIdentity.privateKey) as PrivateKey)
+  const signer = makePrivateKeySigner(hexToBytes(testIdentity.privateKey) as PrivateKeyBytes)
   const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
 
   test(
