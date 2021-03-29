@@ -87,7 +87,7 @@ function isValidChecksummedEthAddress(address: string | HexString | HexEthAddres
  *
  * @return True if is valid eth address
  */
-export function isEthAddress(address: string | HexString | HexEthAddress): address is HexEthAddress {
+export function isHexEthAddress(address: string | HexString | HexEthAddress): address is HexEthAddress {
   return isEthAddrCaseIns(address) || isValidChecksummedEthAddress(address)
 }
 
@@ -139,7 +139,7 @@ export function fromLittleEndian(littleEndian: number | string | HexString, pad 
 }
 
 function assertIsEthAddress(ethAddress: string | HexString | HexEthAddress): asserts ethAddress is HexEthAddress {
-  if (!isEthAddress(ethAddress)) throw new TypeError('invalid ETH address')
+  if (!isHexEthAddress(ethAddress)) throw new TypeError('invalid ETH address')
 }
 
 function assertIsSwarmNetworkId(networkId: number): asserts networkId is number {

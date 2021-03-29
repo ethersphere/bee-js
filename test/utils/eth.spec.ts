@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/no-empty-function: 0 */
-import { ethToSwarmAddress, fromLittleEndian, isEthAddress, toLittleEndian } from '../../src/utils/eth'
+import { ethToSwarmAddress, fromLittleEndian, isHexEthAddress, toLittleEndian } from '../../src/utils/eth'
 
 describe('eth', () => {
   describe('isEthAddress', () => {
@@ -24,7 +24,7 @@ describe('eth', () => {
 
     testValues.forEach(({ value, result }) => {
       test(`should test if value ${value} is address: ${result}`, () => {
-        expect(isEthAddress((value as unknown) as string)).toBe(result)
+        expect(isHexEthAddress((value as unknown) as string)).toBe(result)
       })
     })
   })
