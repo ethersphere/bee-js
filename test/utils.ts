@@ -140,6 +140,22 @@ export async function tryDeleteChunkFromLocalStorage(address: string | ChunkAddr
   }
 }
 
+/**
+ * Formatting utility for displaying long strings like hexstrings.
+ *
+ * @param str
+ * @param len
+ */
+export function shorten(inputStr: unknown, len = 17): string {
+  const str = typeof inputStr === 'string' ? inputStr : (inputStr as string).toString()
+
+  if (str.length <= len) {
+    return str
+  }
+
+  return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
+}
+
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
 
 export const okResponse: BeeResponse = {
