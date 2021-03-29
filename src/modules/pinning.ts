@@ -1,4 +1,4 @@
-import type { BeeResponse } from '../types'
+import type { BeeResponse, Reference } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 
 enum Endpoint {
@@ -27,11 +27,11 @@ async function pinRequest(url: string, method: 'post' | 'delete'): Promise<BeeRe
   return response.data
 }
 
-function pin(url: string, endpoint: Endpoint, hash: string): Promise<BeeResponse> {
+function pin(url: string, endpoint: Endpoint, hash: Reference): Promise<BeeResponse> {
   return pinRequest(`${url}${endpoint}/${hash}`, 'post')
 }
 
-function unpin(url: string, endpoint: Endpoint, hash: string): Promise<BeeResponse> {
+function unpin(url: string, endpoint: Endpoint, hash: Reference): Promise<BeeResponse> {
   return pinRequest(`${url}${endpoint}/${hash}`, 'delete')
 }
 
@@ -41,7 +41,7 @@ function unpin(url: string, endpoint: Endpoint, hash: string): Promise<BeeRespon
  * @param url  Bee URL
  * @param hash Bee file reference
  */
-export function pinFile(url: string, hash: string): Promise<BeeResponse> {
+export function pinFile(url: string, hash: Reference): Promise<BeeResponse> {
   return pin(url, Endpoint.FILE, hash)
 }
 
@@ -51,7 +51,7 @@ export function pinFile(url: string, hash: string): Promise<BeeResponse> {
  * @param url  Bee URL
  * @param hash Bee file reference
  */
-export function unpinFile(url: string, hash: string): Promise<BeeResponse> {
+export function unpinFile(url: string, hash: Reference): Promise<BeeResponse> {
   return unpin(url, Endpoint.FILE, hash)
 }
 
@@ -61,7 +61,7 @@ export function unpinFile(url: string, hash: string): Promise<BeeResponse> {
  * @param url  Bee URL
  * @param hash Bee collection reference
  */
-export function pinCollection(url: string, hash: string): Promise<BeeResponse> {
+export function pinCollection(url: string, hash: Reference): Promise<BeeResponse> {
   return pin(url, Endpoint.COLLECTION, hash)
 }
 
@@ -71,7 +71,7 @@ export function pinCollection(url: string, hash: string): Promise<BeeResponse> {
  * @param url  Bee URL
  * @param hash Bee collection reference
  */
-export function unpinCollection(url: string, hash: string): Promise<BeeResponse> {
+export function unpinCollection(url: string, hash: Reference): Promise<BeeResponse> {
   return unpin(url, Endpoint.COLLECTION, hash)
 }
 
@@ -81,7 +81,7 @@ export function unpinCollection(url: string, hash: string): Promise<BeeResponse>
  * @param url  Bee URL
  * @param hash Bee data reference
  */
-export function pinData(url: string, hash: string): Promise<BeeResponse> {
+export function pinData(url: string, hash: Reference): Promise<BeeResponse> {
   return pin(url, Endpoint.BYTES, hash)
 }
 
@@ -91,7 +91,7 @@ export function pinData(url: string, hash: string): Promise<BeeResponse> {
  * @param url  Bee URL
  * @param hash Bee data reference
  */
-export function unpinData(url: string, hash: string): Promise<BeeResponse> {
+export function unpinData(url: string, hash: Reference): Promise<BeeResponse> {
   return unpin(url, Endpoint.BYTES, hash)
 }
 
@@ -101,7 +101,7 @@ export function unpinData(url: string, hash: string): Promise<BeeResponse> {
  * @param url  Bee URL
  * @param hash Bee data reference
  */
-export function pinChunk(url: string, hash: string): Promise<BeeResponse> {
+export function pinChunk(url: string, hash: Reference): Promise<BeeResponse> {
   return pin(url, Endpoint.CHUNKS, hash)
 }
 
@@ -111,7 +111,7 @@ export function pinChunk(url: string, hash: string): Promise<BeeResponse> {
  * @param url  Bee URL
  * @param hash Bee data reference
  */
-export function unpinChunk(url: string, hash: string): Promise<BeeResponse> {
+export function unpinChunk(url: string, hash: Reference): Promise<BeeResponse> {
   return unpin(url, Endpoint.CHUNKS, hash)
 }
 
@@ -121,7 +121,7 @@ export function unpinChunk(url: string, hash: string): Promise<BeeResponse> {
  * @param url  Bee URL
  * @param hash Bee data reference
  */
-export async function getChunkPinningStatus(url: string, hash: string): Promise<PinningStatus> {
+export async function getChunkPinningStatus(url: string, hash: Reference): Promise<PinningStatus> {
   const response = await safeAxios<PinningStatus>({
     method: 'get',
     responseType: 'json',
@@ -138,7 +138,7 @@ export async function getChunkPinningStatus(url: string, hash: string): Promise<
  * @param hash        Bee data reference
  * @param pinCounter  New value of the pin counter
  */
-export async function updateChunkPinCounter(url: string, hash: string, pinCounter: number): Promise<PinningStatus> {
+export async function updateChunkPinCounter(url: string, hash: Reference, pinCounter: number): Promise<PinningStatus> {
   const response = await safeAxios<PinningStatus>({
     method: 'put',
     responseType: 'json',
