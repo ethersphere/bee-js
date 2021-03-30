@@ -1,7 +1,8 @@
 import { keccak256, sha3_256 } from 'js-sha3'
-import { BrandedString } from '../types'
+import { BrandedString, Data } from '../types'
 import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
 import { Bytes, verifyBytes } from './bytes'
+import { Signer } from '../chunk/signer'
 
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 export type EthAddress = Bytes<20>
@@ -166,4 +167,61 @@ export function ethToSwarmAddress(ethAddress: string | HexString | HexEthAddress
   const overlayAddress = sha3_256(hexToBytes(hex))
 
   return overlayAddress as OverlayAddress
+}
+
+interface RequestArguments {
+  method: string
+  jsonrpc?: string
+  params?: unknown[] | Record<string, unknown>
+}
+
+export interface JsonRPC {
+  request?(args: RequestArguments): Promise<unknown>
+  sendAsync?(args: RequestArguments): Promise<unknown>
+}
+
+/**
+ * Function that takes Ethereum EIP-1193 compatible provider and create an Signer instance that
+ * uses personal_sign method to sign requested data.
+ *
+ * @param provider Injected web3 provider like window.ethereum or other compatible with EIP-1193
+ * @param ethAddress Optional address of the account which the data should be signed with. If not specified eth_requestAccounts requests is used to get the account address.
+ */
+export async function makeEthereumWalletSigner(
+  provider: JsonRPC,
+  ethAddress?: string | HexString | HexEthAddress,
+): Promise<Signer> {
+  let executorFnc: (args: RequestArguments) => Promise<unknown>
+
+  if (typeof provider !== 'object' || provider === null) {
+    throw new TypeError('We need JsonRPC provider object!')
+  }
+
+  if (provider.request) {
+    executorFnc = provider.request
+  } else if (provider.sendAsync) {
+    executorFnc = provider.sendAsync
+  } else {
+    throw new Error('Incompatible interface of given provider!')
+  }
+
+  if (!ethAddress) {
+    ethAddress = ((await executorFnc({ method: 'eth_requestAccounts' })) as string[])[0]
+  }
+
+  const bytesEthAddress = makeEthAddress(ethAddress)
+  const hexEthAddress = makeHexEthAddress(ethAddress)
+
+  return {
+    address: bytesEthAddress,
+    sign: async (data: Data): Promise<string> => {
+      const result = await executorFnc({
+        jsonrpc: '2.0',
+        method: 'personal_sign',
+        params: ['0x' + data.hex(), '0x' + hexEthAddress],
+      })
+
+      return result as string
+    },
+  } as Signer
 }
