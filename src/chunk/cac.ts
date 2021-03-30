@@ -1,7 +1,7 @@
 import { BrandedType } from '../types'
 import { BeeError } from '../utils/error'
 import { bmtHash } from './bmt'
-import { Bytes, bytesAtOffset, bytesEqual, FlexBytes, flexBytesAtOffset, verifyFlexBytes } from '../utils/bytes'
+import { Bytes, bytesEqual, FlexBytes, flexBytesAtOffset, verifyFlexBytes } from '../utils/bytes'
 import { serializeBytes } from './serialize'
 import { makeSpan, SPAN_SIZE } from './span'
 
@@ -41,20 +41,12 @@ export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
   const span = makeSpan(payloadBytes.length)
   verifyFlexBytes(MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, payloadBytes)
   const data = serializeBytes(span, payloadBytes) as ValidChunkData
-  const address = () => bmtHash(data)
-
-  return makeChunk(data, address)
-}
-
-function makeChunk(data: ValidChunkData, address: () => ChunkAddress): Chunk {
-  const span = () => bytesAtOffset(CAC_SPAN_OFFSET, SPAN_SIZE, data)
-  const payload = () => flexBytesAtOffset(CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, data)
 
   return {
     data,
-    span,
-    payload,
-    address,
+    span: () => span,
+    payload: () => flexBytesAtOffset(CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, data),
+    address: () => bmtHash(data),
   }
 }
 
@@ -64,23 +56,24 @@ function makeChunk(data: ValidChunkData, address: () => ChunkAddress): Chunk {
  * @param data          The chunk data
  * @param chunkAddress  The address of the chunk
  */
-export function isValidChunkData(data: Uint8Array, chunkAddress: ChunkAddress): data is ValidChunkData {
+export function isValidChunkData(data: unknown, chunkAddress: ChunkAddress): data is ValidChunkData {
+  if (!(data instanceof Uint8Array)) return false
+
   const address = bmtHash(data)
 
   return bytesEqual(address, chunkAddress)
 }
 
 /**
- * Verifies if a chunk is a valid content addressed chunk
+ * Asserts if data are representing given address of its chunk.
  *
  * @param data          The chunk data
  * @param chunkAddress  The address of the chunk
  *
  * @returns a valid content addressed chunk or throws error
  */
-export function verifyChunk(data: Uint8Array, chunkAddress: ChunkAddress): Chunk {
-  if (isValidChunkData(data, chunkAddress)) {
-    return makeChunk(data, () => chunkAddress)
+export function assertValidChunkData(data: unknown, chunkAddress: ChunkAddress): asserts data is ValidChunkData {
+  if (!isValidChunkData(data, chunkAddress)) {
+    throw new BeeError('Address of content address chunk does not match given data!')
   }
-  throw new BeeError('verifyChunk')
 }

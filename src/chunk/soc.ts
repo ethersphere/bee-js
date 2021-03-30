@@ -5,7 +5,14 @@ import { keccak256Hash } from '../utils/hash'
 import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
 import { BeeError } from '../utils/error'
-import { Chunk, ChunkAddress, makeContentAddressedChunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, verifyChunk } from './cac'
+import {
+  Chunk,
+  ChunkAddress,
+  makeContentAddressedChunk,
+  MAX_PAYLOAD_SIZE,
+  MIN_PAYLOAD_SIZE,
+  assertValidChunkData,
+} from './cac'
 import { ReferenceResponse, UploadOptions } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
@@ -133,15 +140,14 @@ export async function makeSingleOwnerChunk(
   signer: Signer,
 ): Promise<SingleOwnerChunk> {
   const chunkAddress = chunk.address()
-  verifyChunk(chunk.data, chunkAddress)
+  assertValidChunkData(chunk.data, chunkAddress)
 
   const digest = keccak256Hash(identifier, chunkAddress)
   const signature = await sign(signer, digest)
   const data = serializeBytes(identifier, signature, chunk.span(), chunk.payload())
   const address = makeSOCAddress(identifier, signer.address)
-  const soc = makeSingleOwnerChunkFromData(data, address, signer.address)
 
-  return soc
+  return makeSingleOwnerChunkFromData(data, address, signer.address)
 }
 
 /**
