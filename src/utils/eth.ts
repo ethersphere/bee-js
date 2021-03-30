@@ -170,8 +170,8 @@ export function ethToSwarmAddress(ethAddress: string | HexString | HexEthAddress
 }
 
 interface RequestArguments {
-  jsonrpc?: string
   method: string
+  jsonrpc?: string
   params?: unknown[] | Record<string, unknown>
 }
 
@@ -181,13 +181,13 @@ export interface JsonRPC {
 }
 
 /**
- * Function that takes Ethereum EIP-1102 compatible provider and create an Signer instance that
+ * Function that takes Ethereum EIP-1193 compatible provider and create an Signer instance that
  * uses personal_sign method to sign requested data.
  *
- * @param provider
+ * @param provider Injected web3 provider like window.ethereum or other compatible with EIP-1193
  * @param ethAddress Optional address of the account which the data should be signed with. If not specified eth_requestAccounts requests is used to get the account address.
  */
-export async function createEthereumWalletSigner(
+export async function makeEthereumWalletSigner(
   provider: JsonRPC,
   ethAddress?: string | HexString | HexEthAddress,
 ): Promise<Signer> {

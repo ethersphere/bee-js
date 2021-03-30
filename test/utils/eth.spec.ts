@@ -1,6 +1,6 @@
 /* eslint @typescript-eslint/no-empty-function: 0 */
 import {
-  createEthereumWalletSigner,
+  makeEthereumWalletSigner,
   ethToSwarmAddress,
   fromLittleEndian,
   isHexEthAddress,
@@ -153,18 +153,18 @@ describe('eth', () => {
     const expectedSignatureHex = '0x336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
 
     it('should detect valid interface', async () => {
-      await expect(createEthereumWalletSigner({})).rejects.toThrow()
-      await expect(createEthereumWalletSigner(('' as unknown) as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(createEthereumWalletSigner((1 as unknown) as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(createEthereumWalletSigner((null as unknown) as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(createEthereumWalletSigner((undefined as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner({})).rejects.toThrow()
+      await expect(makeEthereumWalletSigner(('' as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner((1 as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner((null as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner((undefined as unknown) as JsonRPC)).rejects.toThrow(TypeError)
     })
 
     it('should request address if not specified', async () => {
       const providerMock = jest.fn()
       providerMock.mockReturnValue(['0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a'])
 
-      const signer = await createEthereumWalletSigner({ request: providerMock } as JsonRPC)
+      const signer = await makeEthereumWalletSigner({ request: providerMock } as JsonRPC)
 
       expect(signer.address).toEqual(hexToBytes('f1B07aC6E91A423d9c3c834cc9d938E89E19334a'))
       expect(providerMock.mock.calls.length).toEqual(1)
@@ -175,7 +175,7 @@ describe('eth', () => {
       const providerMock = jest.fn()
       providerMock.mockReturnValue(expectedSignatureHex)
 
-      const signer = await createEthereumWalletSigner(
+      const signer = await makeEthereumWalletSigner(
         { request: providerMock } as JsonRPC,
         '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
       )
@@ -195,7 +195,7 @@ describe('eth', () => {
       const providerMock = jest.fn()
       providerMock.mockReturnValue(expectedSignatureHex)
 
-      const signer = await createEthereumWalletSigner(
+      const signer = await makeEthereumWalletSigner(
         { request: providerMock } as JsonRPC,
         'f1B07aC6E91A423d9c3c834cc9d938E89E19334a',
       )
@@ -216,7 +216,7 @@ describe('eth', () => {
       providerMock.mockReturnValue(expectedSignatureHex)
 
       await expect(
-        createEthereumWalletSigner({ request: providerMock } as JsonRPC, '0x307aC6E91A423d9c3c834cc9d938E89E19334a'),
+        makeEthereumWalletSigner({ request: providerMock } as JsonRPC, '0x307aC6E91A423d9c3c834cc9d938E89E19334a'),
       ).rejects.toThrow(TypeError)
     })
   })
