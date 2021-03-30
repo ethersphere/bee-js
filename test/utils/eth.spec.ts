@@ -205,8 +205,8 @@ describe('eth', () => {
         jsonrpc: '2.0',
         method: 'personal_sign',
         params: [
-          '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
           '0x2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
+          '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
         ],
       })
     })
