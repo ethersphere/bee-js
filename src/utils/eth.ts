@@ -218,7 +218,7 @@ export async function makeEthereumWalletSigner(
       const result = await executorFnc({
         jsonrpc: '2.0',
         method: 'personal_sign',
-        params: ['0x' + hexEthAddress, '0x' + data.hex()],
+        params: ['0x' + data.hex(), '0x' + hexEthAddress],
       })
 
       return result as string
