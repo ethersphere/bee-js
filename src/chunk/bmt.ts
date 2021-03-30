@@ -1,7 +1,7 @@
 import { keccak256 } from 'js-sha3'
 import { BeeArgumentError } from '../utils/error'
 import { Bytes } from '../utils/bytes'
-import { keccak256Hash } from './hash'
+import { keccak256Hash } from '../utils/hash'
 
 const MAX_CHUNK_PAYLOAD_SIZE = 4096
 const SEGMENT_SIZE = 32

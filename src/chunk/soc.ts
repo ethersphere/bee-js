@@ -1,7 +1,7 @@
 import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset, verifyBytesAtOffset } from '../utils/bytes'
 import { bmtHash } from './bmt'
 import { recoverAddress, sign, Signature, Signer } from './signer'
-import { keccak256Hash } from './hash'
+import { keccak256Hash } from '../utils/hash'
 import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
 import { BeeError } from '../utils/error'

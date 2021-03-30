@@ -1,4 +1,4 @@
-import { keccak256Hash } from '../chunk/hash'
+import { keccak256Hash } from '../utils/hash'
 import { serializeBytes } from '../chunk/serialize'
 import { Identifier, uploadSingleOwnerChunkData, verifySingleOwnerChunk } from '../chunk/soc'
 import { FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'

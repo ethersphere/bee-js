@@ -1,4 +1,4 @@
-import { keccak256Hash } from '../chunk/hash'
+import { keccak256Hash } from '../utils/hash'
 import { verifyBytes } from '../utils/bytes'
 import { HexString, makeHexString, bytesToHex } from '../utils/hex'
 

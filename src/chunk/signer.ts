@@ -1,7 +1,7 @@
 import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
 import { Bytes, isBytes, verifyBytes, wrapBytesWithHelpers } from '../utils/bytes'
-import { keccak256Hash } from './hash'
+import { keccak256Hash } from '../utils/hash'
 import { HexString, hexToBytes, makeHexString } from '../utils/hex'
 import { EthAddress } from '../utils/eth'
 import { Data } from '../types'
