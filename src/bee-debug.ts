@@ -208,7 +208,19 @@ export class BeeDebug {
     return settlements.getAllSettlements(this.url)
   }
 
+  /**
+   * Get health of node
+   */
   getHealth(): Promise<Health> {
     return status.getHealth(this.url)
+  }
+
+  /**
+   * Connnects to a node and checks if it is a supported Bee version by the bee-js
+   *
+   * @returns true if the Bee node version is supported
+   */
+  isSupportedVersion(): Promise<boolean> | never {
+    return status.isSupportedVersion(this.url)
   }
 }
