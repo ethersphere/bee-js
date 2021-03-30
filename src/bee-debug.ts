@@ -211,4 +211,15 @@ export class BeeDebug {
   getHealth(): Promise<Health> {
     return status.getHealth(this.url)
   }
+
+  /**
+   * Connects to a node and checks if it is a supported Bee version by the bee-js
+   *
+   * @param url Bee debug URL
+   *
+   * @returns true if the Bee node version is supported
+   */
+  isSupportedVersion(): Promise<boolean> | never {
+    return status.isSupportedVersion(this.url)
+  }
 }

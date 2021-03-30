@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x, 14.x, 15.x]
-        bee-version: [0.5.2, 0.5.3]
+        bee-version: [0.5.3]
 
     steps:
       - name: Checkout
@@ -92,7 +92,7 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
-        bee-version: [0.5.2, 0.5.3]
+        bee-version: [0.5.3]
 
     steps:
       - name: Checkout
