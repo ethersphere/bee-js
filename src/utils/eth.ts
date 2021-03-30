@@ -1,8 +1,7 @@
 import { keccak256, sha3_256 } from 'js-sha3'
-import { BrandedString, Data } from '../types'
+import { BrandedString, Data, Signer } from '../types'
 import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
 import { Bytes, verifyBytes } from './bytes'
-import { Signer } from '../chunk/signer'
 
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 export type EthAddress = Bytes<20>

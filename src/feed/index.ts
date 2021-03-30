@@ -1,7 +1,7 @@
 import { keccak256Hash } from '../utils/hash'
 import { serializeBytes } from '../chunk/serialize'
 import { Identifier, uploadSingleOwnerChunkData, verifySingleOwnerChunk } from '../chunk/soc'
-import { FeedUpdateOptions, fetchFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
+import { FeedUpdateOptions, fetchFeedUpdate } from '../modules/feed'
 import {
   REFERENCE_HEX_LENGTH,
   Reference,
@@ -10,6 +10,10 @@ import {
   ENCRYPTED_REFERENCE_HEX_LENGTH,
   ENCRYPTED_REFERENCE_BYTES_LENGTH,
   REFERENCE_BYTES_LENGTH,
+  Signer,
+  FeedReader,
+  FeedWriter,
+  Topic,
 } from '../types'
 import { Bytes, makeBytes, verifyBytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -18,8 +22,6 @@ import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
 
-import type { Signer } from '../chunk/signer'
-import type { Topic } from './topic'
 import type { FeedType } from './type'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
@@ -45,34 +47,6 @@ export type ChunkReference = PlainChunkReference | EncryptedChunkReference
 export interface FeedUpdate {
   timestamp: number
   reference: ChunkReference
-}
-
-/**
- * FeedReader is an interface for downloading feed updates
- */
-export interface FeedReader {
-  readonly type: FeedType
-  readonly owner: HexEthAddress
-  readonly topic: Topic
-  /**
-   * Download the latest feed update
-   */
-  download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
-}
-
-/**
- * FeedWriter is an interface for updating feeds
- */
-export interface FeedWriter extends FeedReader {
-  /**
-   * Upload a new feed update
-   *
-   * @param reference The reference to be stored in the new update
-   * @param options   Additional options like `at`
-   *
-   * @returns The reference of the new update
-   */
-  upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
 }
 
 export function isEpoch(epoch: unknown): epoch is Epoch {

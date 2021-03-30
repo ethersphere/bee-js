@@ -2,53 +2,11 @@ import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
 import { Bytes, isBytes, verifyBytes, wrapBytesWithHelpers } from '../utils/bytes'
 import { keccak256Hash } from '../utils/hash'
-import { HexString, hexToBytes, makeHexString } from '../utils/hex'
+import { hexToBytes, makeHexString } from '../utils/hex'
 import { EthAddress } from '../utils/eth'
-import { Data } from '../types'
+import { Data, PrivateKeyBytes, Signature, SIGNATURE_BYTES_LENGTH, SIGNATURE_HEX_LENGTH, Signer } from '../types'
 
-/**
- * Ethereum compatible signing and recovery
- */
-const SIGNATURE_HEX_LENGTH = 130
-const SIGNATURE_BYTES_LENGTH = 65
-
-export type Signature = Bytes<typeof SIGNATURE_BYTES_LENGTH>
-export type PrivateKey = Bytes<32>
-export type PublicKey = Bytes<32> | Bytes<64>
-
-/**
- * Signing function that takes digest in Uint8Array  to be signed that has helpers to convert it
- * conveniently into other types like hex-string (non prefix).
- * Result of the signing can be returned either in Uint8Array or hex string form.
- *
- * @see Data
- */
-type SyncSigner = (digest: Data) => Signature | HexString<typeof SIGNATURE_HEX_LENGTH> | string
-type AsyncSigner = (digest: Data) => Promise<Signature | HexString<typeof SIGNATURE_HEX_LENGTH> | string>
 type EllipticPublicKey = curve.base.BasePoint
-
-/**
- * Interface for implementing Ethereum compatible signing.
- *
- * In order to be compatible with Ethereum and its signing method `personal_sign`, the data
- * that are passed to sign() function should be prefixed with: `\x19Ethereum Signed Message:\n${data.length}`, hashed
- * and only then signed.
- * If you are wrapping another signer tool/library (like Metamask or some other Ethereum wallet), you might not have
- * to do this prefixing manually if you use the `personal_sign` method. Check documentation of the tool!
- * If you are writing your own storage for keys, then you have to prefix the data manually otherwise the Bee node
- * will reject the chunks signed by you!
- *
- * For example see the hashWithEthereumPrefix() function.
- *
- * @property sign     The sign function that can be sync or async. This function takes non-prefixed data. See above.
- * @property address  The ethereum address of the signer in bytes.
- * @see hashWithEthereumPrefix
- */
-export type Signer = {
-  sign: SyncSigner | AsyncSigner
-  address: EthAddress
-}
-
 const UNCOMPRESSED_RECOVERY_ID = 27
 
 function hashWithEthereumPrefix(data: Uint8Array): Bytes<32> {
@@ -65,7 +23,7 @@ function hashWithEthereumPrefix(data: Uint8Array): Bytes<32> {
  * @param data      The data to be signed
  * @param privateKey  The private key used for signing the data
  */
-export function defaultSign(data: Uint8Array, privateKey: PrivateKey): Signature {
+export function defaultSign(data: Uint8Array, privateKey: PrivateKeyBytes): Signature {
   const curve = new ec('secp256k1')
   const keyPair = curve.keyFromPrivate(privateKey)
 
@@ -119,7 +77,7 @@ export function recoverAddress(signature: Signature, digest: Uint8Array): EthAdd
  *
  * @param privateKey The private key
  */
-export function makePrivateKeySigner(privateKey: PrivateKey): Signer {
+export function makePrivateKeySigner(privateKey: PrivateKeyBytes): Signer {
   const curve = new ec('secp256k1')
   const keyPair = curve.keyFromPrivate(privateKey)
   const address = publicKeyToAddress(keyPair.getPublic())

@@ -19,18 +19,23 @@ import type {
   CollectionUploadOptions,
   FileUploadOptions,
   Data,
+  Signer,
+  FeedReader,
+  FeedWriter,
+  SOCWriter,
+  SOCReader,
+  Topic,
   BeeOptions,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
-import { FeedReader, FeedWriter, makeFeedReader, makeFeedWriter } from './feed'
+import { makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
 import { assertIsFeedType, FeedType } from './feed/type'
-import { Signer } from './chunk/signer'
-import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData, SOCReader, SOCWriter } from './chunk/soc'
-import { Topic, makeTopic, makeTopicFromString } from './feed/topic'
+import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
+import { makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
