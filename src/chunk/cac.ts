@@ -56,7 +56,9 @@ export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
  * @param data          The chunk data
  * @param chunkAddress  The address of the chunk
  */
-export function isValidChunkData(data: Uint8Array, chunkAddress: ChunkAddress): data is ValidChunkData {
+export function isValidChunkData(data: unknown, chunkAddress: ChunkAddress): data is ValidChunkData {
+  if (!(data instanceof Uint8Array)) return false
+
   const address = bmtHash(data)
 
   return bytesEqual(address, chunkAddress)
@@ -70,7 +72,7 @@ export function isValidChunkData(data: Uint8Array, chunkAddress: ChunkAddress): 
  *
  * @returns a valid content addressed chunk or throws error
  */
-export function assertValidChunkData(data: Uint8Array, chunkAddress: ChunkAddress): void {
+export function assertValidChunkData(data: unknown, chunkAddress: ChunkAddress): asserts data is ValidChunkData {
   if (!isValidChunkData(data, chunkAddress)) {
     throw new BeeError('Address of content address chunk does not match given data!')
   }
