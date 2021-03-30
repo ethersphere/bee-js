@@ -115,12 +115,11 @@ export function recoverAddress(signature: Signature, digest: Uint8Array): EthAdd
 }
 
 /**
- * Creates a default singer object that can be used when the private
- * key is known.
+ * Creates a singer object that can be used when the private key is known.
  *
  * @param privateKey The private key
  */
-export function makeDefaultSigner(privateKey: PrivateKey): Signer {
+export function makePrivateKeySigner(privateKey: PrivateKey): Signer {
   const curve = new ec('secp256k1')
   const keyPair = curve.keyFromPrivate(privateKey)
   const address = publicKeyToAddress(keyPair.getPublic())
@@ -152,11 +151,11 @@ export function makeSigner(signer: Signer | Uint8Array | string | unknown): Sign
     const hexKey = makeHexString(signer, 64)
     const keyBytes = hexToBytes<32>(hexKey) // HexString is verified for 64 length => 32 is guaranteed
 
-    return makeDefaultSigner(keyBytes)
+    return makePrivateKeySigner(keyBytes)
   } else if (signer instanceof Uint8Array) {
     const verifiedPrivateKey = verifyBytes(32, signer)
 
-    return makeDefaultSigner(verifiedPrivateKey)
+    return makePrivateKeySigner(verifiedPrivateKey)
   }
 
   assertSigner(signer)

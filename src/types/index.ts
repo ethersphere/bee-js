@@ -1,6 +1,7 @@
 import { BeeError } from '../utils/error'
 import type { AxiosRequestConfig } from 'axios'
 import { HexString } from '../utils/hex'
+import type { Signer } from '../chunk/signer'
 export * from './debug'
 
 export interface Dictionary<T> {
@@ -17,6 +18,10 @@ export type PublicKey = string
 
 export type Address = string
 export type AddressPrefix = Address
+
+export interface BeeOptions {
+  signer?: Signer | Uint8Array | string
+}
 
 export interface UploadOptions {
   pin?: boolean

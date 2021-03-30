@@ -19,6 +19,7 @@ import type {
   CollectionUploadOptions,
   FileUploadOptions,
   Data,
+  BeeOptions,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -38,26 +39,34 @@ import { assertReference } from './utils/type'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
- *
- * @param url URL of a running Bee node
  */
 export class Bee {
   public readonly url: string
+  public readonly signer?: Signer
 
-  constructor(url: string) {
+  /**
+   * @param url URL of a running Bee node
+   * @param options
+   * @param options.signer Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
+   */
+  constructor(url: string, options?: BeeOptions) {
     assertBeeUrl(url)
 
     // Remove last slash if present, as our endpoint strings starts with `/...`
     // which could lead to double slash in URL to which Bee responds with
     // unnecessary redirects.
     this.url = stripLastSlash(url)
+
+    if (options?.signer) {
+      this.signer = makeSigner(options.signer)
+    }
   }
 
   /**
    * Upload data to a Bee node
    *
    * @param data    Data to be uploaded
-   * @param options Aditional options like tag, encryption, pinning, content-type
+   * @param options Additional options like tag, encryption, pinning, content-type
    *
    * @returns reference is a content hash of the data
    */
@@ -441,11 +450,15 @@ export class Bee {
    * @param topic   Topic in hex or bytes
    * @param signer  The signer's private key or a Signer instance that can sign data
    */
-  makeFeedWriter(type: FeedType, topic: Topic | Uint8Array | string, signer: Signer | Uint8Array | string): FeedWriter {
+  makeFeedWriter(
+    type: FeedType,
+    topic: Topic | Uint8Array | string,
+    signer?: Signer | Uint8Array | string,
+  ): FeedWriter {
     assertIsFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
-    const canonicalSigner = makeSigner(signer)
+    const canonicalSigner = this.resolveSigner(signer)
 
     return makeFeedWriter(this.url, type, canonicalTopic, canonicalSigner)
   }
@@ -480,8 +493,8 @@ export class Bee {
    *
    * @param signer The signer's private key or a Signer instance that can sign data
    */
-  makeSOCWriter(signer: Signer | Uint8Array | string): SOCWriter {
-    const canonicalSigner = makeSigner(signer)
+  makeSOCWriter(signer?: Signer | Uint8Array | string): SOCWriter {
+    const canonicalSigner = this.resolveSigner(signer)
 
     return {
       ...this.makeSOCReader(canonicalSigner.address),
@@ -510,5 +523,17 @@ export class Bee {
     }
 
     return true
+  }
+
+  private resolveSigner(signer?: Signer | Uint8Array | string): Signer {
+    if (signer) {
+      return makeSigner(signer)
+    }
+
+    if (this.signer) {
+      return this.signer
+    }
+
+    throw new BeeError('You have to pass Signer as property to either the method call or constructor! Non found.')
   }
 }

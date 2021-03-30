@@ -349,4 +349,40 @@ describe('Bee class', () => {
       })
     })
   })
+
+  describe('signer', () => {
+    it('should be possible to pass it in constructor', async () => {
+      const identifier = makeBytes(32)
+      identifier[31] = 1
+
+      const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
+      await tryDeleteChunkFromLocalStorage(socAddress)
+
+      const bee = new Bee(BEE_URL, { signer: testIdentity.privateKey })
+      const socWriter = bee.makeSOCWriter()
+
+      const reference = await socWriter.upload(identifier, testChunkPayload)
+      expect(reference).toEqual({ reference: '00019ec85e8859aa641cf149fbd1147ac7965a9cad1dfe4ab7beaa12d5dc8027' })
+    })
+
+    it('should prioritize signer passed to method', async () => {
+      const identifier = makeBytes(32)
+      identifier[31] = 2
+
+      const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
+      await tryDeleteChunkFromLocalStorage(socAddress)
+
+      // We pass different private key to the instance
+      const bee = new Bee(BEE_URL, { signer: '634fb5a872396d9611e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' })
+      const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
+
+      const reference = await socWriter.upload(identifier, testChunkPayload)
+      expect(reference).toEqual({ reference: 'd1a21cce4c86411f6af2f621ce9a3a0aa3cc5cea6cc9e1b28523d28411398cfb' })
+    })
+
+    it('should throw if no signers are passed', () => {
+      const bee = new Bee(BEE_URL)
+      expect(() => bee.makeSOCWriter()).toThrow()
+    })
+  })
 })
