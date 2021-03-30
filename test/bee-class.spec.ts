@@ -364,7 +364,7 @@ describe('Bee class', () => {
       const socWriter = bee.makeSOCWriter()
 
       const reference = await socWriter.upload(identifier, testChunkPayload)
-      expect(reference).toEqual({ reference: socHash })
+      expect(reference).toEqual({ reference: '00019ec85e8859aa641cf149fbd1147ac7965a9cad1dfe4ab7beaa12d5dc8027' })
     })
 
     it('should prioritize signer passed to method', async () => {
@@ -379,7 +379,7 @@ describe('Bee class', () => {
       const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
 
       const reference = await socWriter.upload(identifier, testChunkPayload)
-      expect(reference).toEqual({ reference: socHash })
+      expect(reference).toEqual({ reference: 'd1a21cce4c86411f6af2f621ce9a3a0aa3cc5cea6cc9e1b28523d28411398cfb' })
     })
 
     it('should throw if no signers are passed', () => {
