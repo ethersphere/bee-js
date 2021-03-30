@@ -147,7 +147,7 @@ describe('eth', () => {
     )
   })
 
-  describe('createEthereumWalletSigner', () => {
+  describe('makeEthereumWalletSigner', () => {
     const dataToSignBytes = hexToBytes('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae' as HexString)
     const dataToSignWithHelpers = wrapBytesWithHelpers(dataToSignBytes)
     const expectedSignatureHex = '0x336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
@@ -185,8 +185,8 @@ describe('eth', () => {
         jsonrpc: '2.0',
         method: 'personal_sign',
         params: [
-          '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
           '0x2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
+          '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
         ],
       })
     })
