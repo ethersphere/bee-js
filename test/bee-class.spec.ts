@@ -351,8 +351,6 @@ describe('Bee class', () => {
   })
 
   describe('signer', () => {
-    const socHash = '9d453ebb73b2fedaaf44ceddcf7a0aa37f3e3d6453fea5841c31f0ea6d61dc85' as HexString
-
     it('should be possible to pass it in constructor', async () => {
       const identifier = makeBytes(32)
       identifier[31] = 1
