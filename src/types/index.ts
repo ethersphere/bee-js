@@ -149,6 +149,22 @@ export interface FeedReader {
 }
 
 /**
+ * Higher level abstraction build on top of Feeds that allow easy setting and getting
+ * data from feeds. It works closely with JSON.parse/stringify so all supported data
+ * types by that is also supported by this abstraction.
+ */
+export interface DataFeed<T extends Record<string, unknown> | number | string> {
+  readonly writer: FeedWriter
+  set(data: T): Promise<ReferenceResponse>
+  get(): Promise<T>
+}
+
+export interface DataFeedOptions {
+  signer?: Signer
+  type?: FeedType
+}
+
+/**
  * FeedWriter is an interface for updating feeds
  */
 export interface FeedWriter extends FeedReader {

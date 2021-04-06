@@ -26,6 +26,9 @@ import type {
   SOCReader,
   Topic,
   BeeOptions,
+  DataFeed,
+  ReferenceResponse,
+  DataFeedOptions,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -33,7 +36,7 @@ import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
-import { assertIsFeedType, FeedType } from './feed/type'
+import { assertIsFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
 import { makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
@@ -41,6 +44,7 @@ import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertReference } from './utils/type'
+import { makeDataFeed } from './feed/data'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -466,6 +470,57 @@ export class Bee {
     const canonicalSigner = this.resolveSigner(signer)
 
     return makeFeedWriter(this.url, type, canonicalTopic, canonicalSigner)
+  }
+
+  /**
+   * Makes a DataFeed which allows easily setting and getting of data to feeds.
+   * Especially handy if you manipulate feed's data more then once.
+   *
+   * @param writer
+   */
+  makeDataFeed<T extends Record<string, unknown> | number | string>(writer: FeedWriter): DataFeed<T> {
+    return makeDataFeed<T>(this, writer)
+  }
+
+  /**
+   * High-level function that allows you to easily set data to feed.
+   * JSON-like data types are supported.
+   *
+   * @param topic
+   * @param data
+   * @param options
+   * @param options.signer Custom instance of Signer or string with private key.
+   * @param options.type Type of Feed
+   */
+  setFeed<T extends Record<string, unknown> | number | string>(
+    topic: string,
+    data: T,
+    options?: DataFeedOptions,
+  ): Promise<ReferenceResponse> {
+    const hashedTopic = this.makeFeedTopic(topic)
+    const feedType = options?.type ?? DEFAULT_FEED_TYPE
+    const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
+    const dataFeed = this.makeDataFeed<T>(writer)
+
+    return dataFeed.set(data)
+  }
+
+  /**
+   * High-level function that allows you to easily get data from feed.
+   * Returned data are parsed using JSON.parse().
+   *
+   * @param topic
+   * @param options
+   * @param options.signer Custom instance of Signer or string with private key.
+   * @param options.type Type of Feed
+   */
+  getFeed<T extends Record<string, unknown> | number | string>(topic: string, options?: DataFeedOptions): Promise<T> {
+    const hashedTopic = this.makeFeedTopic(topic)
+    const feedType = options?.type ?? DEFAULT_FEED_TYPE
+    const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
+    const dataFeed = this.makeDataFeed<T>(writer)
+
+    return dataFeed.get()
   }
 
   /**
