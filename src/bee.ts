@@ -45,7 +45,7 @@ import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertReference } from './utils/type'
-import { makeJsonFeed } from './feed/data'
+import { makeJsonFeed } from './feed/json'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
