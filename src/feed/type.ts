@@ -1,6 +1,6 @@
 const feedTypes = ['sequence', 'epoch'] as const
 export type FeedType = typeof feedTypes[number]
-export const DEFAULT_FEED_TYPE = 'sequence' as FeedType
+export const DEFAULT_FEED_TYPE: FeedType = 'sequence'
 
 export function isFeedType(type: unknown): type is FeedType {
   return typeof type === 'string' && feedTypes.includes(type as FeedType)

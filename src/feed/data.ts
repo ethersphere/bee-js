@@ -1,9 +1,7 @@
-import { DataFeed, FeedWriter, ReferenceResponse } from '../types'
+import { JsonFeed, FeedWriter, ReferenceResponse, FeedReader, AnyJson } from '../types'
 import { Bee } from '../bee'
 
-function serializeData(data: Record<string, unknown> | number | string): Uint8Array {
-  if (typeof data === 'string') return new TextEncoder().encode(data)
-
+function serializeJson(data: AnyJson): Uint8Array {
   try {
     const jsonString = JSON.stringify(data)
 
@@ -14,34 +12,28 @@ function serializeData(data: Record<string, unknown> | number | string): Uint8Ar
   }
 }
 
-function getData<T extends Record<string, unknown> | number | string>(bee: Bee, writer: FeedWriter): () => Promise<T> {
+function getJsonData<T extends AnyJson>(bee: Bee, reader: FeedReader): () => Promise<T> {
   return async () => {
-    const feedUpdate = await writer.download()
+    const feedUpdate = await reader.download()
     const retrievedData = await bee.downloadData(feedUpdate.reference)
 
     return JSON.parse(new TextDecoder().decode(retrievedData))
   }
 }
 
-function setData<T extends Record<string, unknown> | number | string>(
-  bee: Bee,
-  writer: FeedWriter,
-): (data: T) => Promise<ReferenceResponse> {
-  return async (data: T) => {
-    const serializedData = serializeData(data)
+function setJsonData(bee: Bee, writer: FeedWriter): (data: AnyJson) => Promise<ReferenceResponse> {
+  return async (data: AnyJson) => {
+    const serializedData = serializeJson(data)
     const reference = await bee.uploadData(serializedData)
 
     return writer.upload(reference)
   }
 }
 
-export function makeDataFeed<T extends Record<string, unknown> | number | string>(
-  bee: Bee,
-  writer: FeedWriter,
-): DataFeed<T> {
+export function makeJsonFeed<T extends AnyJson>(bee: Bee, writer: FeedWriter): JsonFeed<T> {
   return {
     writer,
-    get: getData<T>(bee, writer),
-    set: setData<T>(bee, writer),
+    get: getJsonData<T>(bee, writer),
+    set: setJsonData(bee, writer),
   }
 }

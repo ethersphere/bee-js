@@ -26,9 +26,10 @@ import type {
   SOCReader,
   Topic,
   BeeOptions,
-  DataFeed,
+  JsonFeed,
   ReferenceResponse,
   DataFeedOptions,
+  AnyJson,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -44,7 +45,7 @@ import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertReference } from './utils/type'
-import { makeDataFeed } from './feed/data'
+import { makeJsonFeed } from './feed/data'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -473,16 +474,6 @@ export class Bee {
   }
 
   /**
-   * Makes a DataFeed which allows easily setting and getting of data to feeds.
-   * Especially handy if you manipulate feed's data more then once.
-   *
-   * @param writer
-   */
-  makeDataFeed<T extends Record<string, unknown> | number | string>(writer: FeedWriter): DataFeed<T> {
-    return makeDataFeed<T>(this, writer)
-  }
-
-  /**
    * High-level function that allows you to easily set data to feed.
    * JSON-like data types are supported.
    *
@@ -492,17 +483,13 @@ export class Bee {
    * @param options.signer Custom instance of Signer or string with private key.
    * @param options.type Type of Feed
    */
-  setFeed<T extends Record<string, unknown> | number | string>(
-    topic: string,
-    data: T,
-    options?: DataFeedOptions,
-  ): Promise<ReferenceResponse> {
+  setJsonFeed<T extends AnyJson>(topic: string, data: T, options?: DataFeedOptions): Promise<ReferenceResponse> {
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
     const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
-    const dataFeed = this.makeDataFeed<T>(writer)
+    const jsonFeed = makeJsonFeed<T>(this, writer)
 
-    return dataFeed.set(data)
+    return jsonFeed.set(data)
   }
 
   /**
@@ -514,13 +501,13 @@ export class Bee {
    * @param options.signer Custom instance of Signer or string with private key.
    * @param options.type Type of Feed
    */
-  getFeed<T extends Record<string, unknown> | number | string>(topic: string, options?: DataFeedOptions): Promise<T> {
+  getJsonFeed<T extends AnyJson>(topic: string, options?: DataFeedOptions): Promise<T> {
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
     const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
-    const dataFeed = this.makeDataFeed<T>(writer)
+    const jsonFeed = makeJsonFeed<T>(this, writer)
 
-    return dataFeed.get()
+    return jsonFeed.get()
   }
 
   /**
