@@ -1,7 +1,7 @@
 import { keccak256, sha3_256 } from 'js-sha3'
 import { BrandedString, Data, Signer } from '../types'
 import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
-import { Bytes, verifyBytes } from './bytes'
+import { Bytes, assertBytes } from './bytes'
 
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 export type EthAddress = Bytes<20>
@@ -13,10 +13,13 @@ export function makeEthAddress(address: EthAddress | Uint8Array | string): EthAd
   if (typeof address === 'string') {
     const hexAddr = makeHexString(address, ETH_ADDR_HEX_LENGTH)
     const ownerBytes = hexToBytes<typeof ETH_ADDR_BYTES_LENGTH>(hexAddr)
+    assertBytes(ownerBytes, ETH_ADDR_BYTES_LENGTH)
 
-    return verifyBytes(ETH_ADDR_BYTES_LENGTH, ownerBytes)
+    return ownerBytes
   } else if (address instanceof Uint8Array) {
-    return verifyBytes(ETH_ADDR_BYTES_LENGTH, address)
+    assertBytes(address, ETH_ADDR_BYTES_LENGTH)
+
+    return address
   }
   throw new TypeError('Invalid EthAddress')
 }

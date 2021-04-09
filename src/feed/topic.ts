@@ -1,5 +1,5 @@
 import { keccak256Hash } from '../utils/hash'
-import { verifyBytes } from '../utils/bytes'
+import { assertBytes } from '../utils/bytes'
 import { makeHexString, bytesToHex } from '../utils/hex'
 import { Topic, TOPIC_BYTES_LENGTH, TOPIC_HEX_LENGTH } from '../types'
 
@@ -7,7 +7,7 @@ export function makeTopic(topic: Uint8Array | string): Topic {
   if (typeof topic === 'string') {
     return makeHexString(topic, TOPIC_HEX_LENGTH)
   } else if (topic instanceof Uint8Array) {
-    verifyBytes(TOPIC_BYTES_LENGTH, topic)
+    assertBytes(topic, TOPIC_BYTES_LENGTH)
 
     return bytesToHex(topic, TOPIC_HEX_LENGTH)
   }

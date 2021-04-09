@@ -31,7 +31,7 @@ export interface FlexBytes<Min extends number, Max extends number> extends Uint8
  * @param length  The length of the byte array
  * @param b       The byte array
  */
-export function isBytes<Length extends number>(length: Length, b: Uint8Array): b is Bytes<Length> {
+export function isBytes<Length extends number>(b: unknown, length: Length): b is Bytes<Length> {
   return b instanceof Uint8Array && b.length === length
 }
 
@@ -41,11 +41,10 @@ export function isBytes<Length extends number>(length: Length, b: Uint8Array): b
  * @param length  The specified length
  * @param b       The byte array
  */
-export function verifyBytes<Length extends number>(length: Length, b: Uint8Array): Bytes<Length> | never {
-  if (isBytes(length, b)) {
-    return b
+export function assertBytes<Length extends number>(b: unknown, length: Length): asserts b is Bytes<Length> {
+  if (!isBytes(b, length)) {
+    throw new TypeError(`Parameter is not valid Bytes of length: ${length} !== ${(b as Uint8Array).length}`)
   }
-  throw new Error(`verifyBytes failed, length: ${length} !== ${b.length}`)
 }
 
 /**
@@ -58,9 +57,9 @@ export function verifyBytes<Length extends number>(length: Length, b: Uint8Array
 export function isFlexBytes<Min extends number, Max extends number = Min>(
   min: Min,
   max: Max,
-  b: Uint8Array,
+  b: unknown,
 ): b is FlexBytes<Min, Max> {
-  return b.length >= min && b.length <= max
+  return b instanceof Uint8Array && b.length >= min && b.length <= max
 }
 
 /**
@@ -70,15 +69,16 @@ export function isFlexBytes<Min extends number, Max extends number = Min>(
  * @param max     Maximum size of the array
  * @param b       The byte array
  */
-export function verifyFlexBytes<Min extends number, Max extends number = Min>(
+export function assertFlexBytes<Min extends number, Max extends number = Min>(
+  b: unknown,
   min: Min,
   max: Max,
-  b: Uint8Array,
-): FlexBytes<Min, Max> | never {
-  if (isFlexBytes(min, max, b)) {
-    return b
+): asserts b is FlexBytes<Min, Max> {
+  if (!isFlexBytes(min, max, b)) {
+    throw new TypeError(
+      `Parameter is not valid FlexBytes of  min: ${min}, max: ${max}, length: ${(b as Uint8Array).length}`,
+    )
   }
-  throw new Error(`verifyFlexBytes failed, min: ${min}, max: ${max}, length: ${b.length}`)
 }
 
 /**
@@ -88,8 +88,13 @@ export function verifyFlexBytes<Min extends number, Max extends number = Min>(
  * @param length The length of data to be returned
  * @param data   The original data
  */
-export function bytesAtOffset<Length extends number>(offset: number, length: Length, data: Uint8Array): Bytes<Length> {
-  return data.slice(offset, offset + length) as Bytes<Length>
+export function bytesAtOffset<Length extends number>(data: Uint8Array, offset: number, length: Length): Bytes<Length> {
+  const offsetBytes = data.slice(offset, offset + length) as Bytes<Length>
+
+  // We are returning strongly typed Bytes so we have to verify that length is really what we claim
+  assertBytes<Length>(offsetBytes, length)
+
+  return offsetBytes
 }
 
 /**
@@ -126,21 +131,6 @@ export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
  */
 export function makeBytes<Length extends number>(length: Length): Bytes<Length> {
   return new Uint8Array(length) as Bytes<Length>
-}
-
-/**
- * Verifies if a byte array has a certain length starting from offset
- *
- * @param offset The offset to start from
- * @param length The length of data to be returned
- * @param data   The original data
- */
-export function verifyBytesAtOffset<Length extends number>(
-  offset: number,
-  length: Length,
-  data: Uint8Array,
-): Bytes<Length> {
-  return verifyBytes(length, bytesAtOffset(offset, length, data))
 }
 
 export function wrapBytesWithHelpers(data: Uint8Array): Data {

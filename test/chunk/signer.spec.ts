@@ -1,7 +1,8 @@
-import { Signer, sign, makePrivateKeySigner, makeSigner, recoverAddress, Signature } from '../../src/chunk/signer'
-import { makeBytes, verifyBytes, wrapBytesWithHelpers } from '../../src/utils/bytes'
+import { sign, makePrivateKeySigner, makeSigner, recoverAddress } from '../../src/chunk/signer'
+import { makeBytes, assertBytes, wrapBytesWithHelpers } from '../../src/utils/bytes'
 import { HexString, hexToBytes, bytesToHex } from '../../src/utils/hex'
 import { shorten, testIdentity } from '../utils'
+import type { Signature, Signer } from '../../src/types'
 
 describe('signer', () => {
   const dataToSignBytes = hexToBytes('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae' as HexString)
@@ -11,7 +12,9 @@ describe('signer', () => {
   const expectedSignatureBytes = hexToBytes(expectedSignatureHex)
 
   test('default signer (same data as Bee Go client)', async () => {
-    const privateKey = verifyBytes(32, hexToBytes(testIdentity.privateKey))
+    const privateKey = hexToBytes(testIdentity.privateKey)
+    assertBytes(privateKey, 32)
+
     const signer = makePrivateKeySigner(privateKey)
     const signature = await signer.sign(dataToSignWithHelpers)
 
