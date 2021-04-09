@@ -17,7 +17,7 @@ function getJsonData<T extends AnyJson>(bee: Bee, reader: FeedReader): () => Pro
     const feedUpdate = await reader.download()
     const retrievedData = await bee.downloadData(feedUpdate.reference)
 
-    return JSON.parse(new TextDecoder().decode(retrievedData))
+    return retrievedData.json() as T
   }
 }
 

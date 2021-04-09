@@ -160,7 +160,7 @@ export interface JsonFeed<T extends AnyJson> {
 }
 
 export interface DataFeedOptions {
-  signer?: Signer
+  signer?: Signer | Uint8Array | string
   type?: FeedType
 }
 

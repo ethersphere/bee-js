@@ -26,7 +26,6 @@ import type {
   SOCReader,
   Topic,
   BeeOptions,
-  JsonFeed,
   ReferenceResponse,
   DataFeedOptions,
   AnyJson,
@@ -477,8 +476,8 @@ export class Bee {
    * High-level function that allows you to easily set data to feed.
    * JSON-like data types are supported.
    *
-   * @param topic
-   * @param data
+   * @param topic Human readable string, that is internally hashed so there are no constrains there.
+   * @param data JSON compatible data
    * @param options
    * @param options.signer Custom instance of Signer or string with private key.
    * @param options.type Type of Feed
@@ -496,7 +495,7 @@ export class Bee {
    * High-level function that allows you to easily get data from feed.
    * Returned data are parsed using JSON.parse().
    *
-   * @param topic
+   * @param topic Human readable string, that is internally hashed so there are no constrains there.
    * @param options
    * @param options.signer Custom instance of Signer or string with private key.
    * @param options.type Type of Feed

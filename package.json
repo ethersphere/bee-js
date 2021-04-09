@@ -56,6 +56,7 @@
     "@babel/preset-typescript": "^7.12.1",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
+    "@fluffy-spoon/substitute": "^1.201.0",
     "@types/content-disposition": "^0.5.3",
     "@types/debug": "^4.1.5",
     "@types/elliptic": "^6.4.12",

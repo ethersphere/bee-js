@@ -385,4 +385,40 @@ describe('Bee class', () => {
       expect(() => bee.makeSOCWriter()).toThrow()
     })
   })
+
+  describe('JsonFeed', () => {
+    const TOPIC = 'some=very%nice#topic'
+
+    it(
+      'should set JSON to feed',
+      async () => {
+        const data = [{ some: 'object' }]
+        await bee.setJsonFeed(TOPIC, data, { signer: testIdentity.privateKey })
+
+        const hashedTopic = bee.makeFeedTopic(TOPIC)
+        const reader = bee.makeFeedReader('sequence', hashedTopic, testIdentity.address)
+        const chunkReferenceResponse = await reader.download()
+        const downloadedData = await bee.downloadData(chunkReferenceResponse.reference)
+
+        expect(downloadedData.json()).toEqual(data)
+      },
+      FEED_TIMEOUT,
+    )
+
+    it(
+      'should get JSON from feed',
+      async () => {
+        const data = [{ some: { other: 'object' } }]
+
+        const hashedTopic = bee.makeFeedTopic(TOPIC)
+        const writer = bee.makeFeedWriter('sequence', hashedTopic, testIdentity.privateKey)
+        const dataChunkReference = await bee.uploadData(JSON.stringify(data))
+        await writer.upload(dataChunkReference)
+
+        const fetchedData = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
+        expect(fetchedData).toEqual(data)
+      },
+      FEED_TIMEOUT,
+    )
+  })
 })
