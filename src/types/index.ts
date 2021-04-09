@@ -159,7 +159,7 @@ export interface JsonFeed<T extends AnyJson> {
   get(): Promise<T>
 }
 
-export interface DataFeedOptions {
+export interface JsonFeedOptions {
   signer?: Signer | Uint8Array | string
   type?: FeedType
 }

@@ -7,7 +7,7 @@ function serializeJson(data: AnyJson): Uint8Array {
 
     return new TextEncoder().encode(jsonString)
   } catch (e) {
-    e.message = `DataFeed: ${e.message}`
+    e.message = `JsonFeed: ${e.message}`
     throw e
   }
 }

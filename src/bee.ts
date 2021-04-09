@@ -27,7 +27,7 @@ import type {
   Topic,
   BeeOptions,
   ReferenceResponse,
-  DataFeedOptions,
+  JsonFeedOptions,
   AnyJson,
 } from './types'
 import { BeeError } from './utils/error'
@@ -482,7 +482,7 @@ export class Bee {
    * @param options.signer Custom instance of Signer or string with private key.
    * @param options.type Type of Feed
    */
-  setJsonFeed<T extends AnyJson>(topic: string, data: T, options?: DataFeedOptions): Promise<ReferenceResponse> {
+  setJsonFeed<T extends AnyJson>(topic: string, data: T, options?: JsonFeedOptions): Promise<ReferenceResponse> {
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
     const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
@@ -500,7 +500,7 @@ export class Bee {
    * @param options.signer Custom instance of Signer or string with private key.
    * @param options.type Type of Feed
    */
-  getJsonFeed<T extends AnyJson>(topic: string, options?: DataFeedOptions): Promise<T> {
+  getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
     const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
