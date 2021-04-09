@@ -181,10 +181,10 @@ export interface JsonRPC {
 
 /**
  * Function that takes Ethereum EIP-1193 compatible provider and create an Signer instance that
- * uses personal_sign method to sign requested data.
+ * uses `personal_sign` method to sign requested data.
  *
  * @param provider Injected web3 provider like window.ethereum or other compatible with EIP-1193
- * @param ethAddress Optional address of the account which the data should be signed with. If not specified eth_requestAccounts requests is used to get the account address.
+ * @param ethAddress Optional address of the account which the data should be signed with. If not specified `eth_requestAccounts` request is used to get the account address.
  */
 export async function makeEthereumWalletSigner(
   provider: JsonRPC,

@@ -158,7 +158,7 @@ export interface FeedWriter extends FeedReader {
    * @param reference The reference to be stored in the new update
    * @param options   Additional options like `at`
    *
-   * @returns The reference of the new update
+   * @returns Reference that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
    */
   upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
 }
