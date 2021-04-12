@@ -48,16 +48,28 @@ export default async (): Promise<Config.InitialOptions> => {
 
     // Run tests from one or more projects
     projects: ([
+      // We don't have any DOM specific tests atm.
+      // {
+      //   displayName: 'dom:unit',
+      //   testRegex: 'test/unit/.*\\.browser\\.spec\\.ts',
+      //   moduleNameMapper: await getBrowserPathMapping(),
+      //   preset: 'jest-puppeteer',
+      // },
       {
-        displayName: 'dom',
-        testRegex: 'test/.*\\.browser\\.spec\\.ts',
+        displayName: 'node:unit',
+        testEnvironment: 'node',
+        testRegex: 'test/unit/((?!\\.browser).)*\\.spec\\.ts',
+      },
+      {
+        displayName: 'dom:integration',
+        testRegex: 'test/integration/.*\\.browser\\.spec\\.ts',
         moduleNameMapper: await getBrowserPathMapping(),
         preset: 'jest-puppeteer',
       },
       {
-        displayName: 'node',
+        displayName: 'node:integration',
         testEnvironment: 'node',
-        testRegex: 'test/((?!\\.browser).)*\\.spec\\.ts',
+        testRegex: 'test/integration/((?!\\.browser).)*\\.spec\\.ts',
       },
     ] as unknown[]) as string[], // bad types
 

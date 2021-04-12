@@ -34,9 +34,10 @@
     "compile:types": "tsc --emitDeclarationOnly --declaration",
     "compile:browser": "webpack --progress --env target=web",
     "docs": "rimraf docs && typedoc",
-    "test": "npm run test:node && npm run test:browser",
-    "test:browser": "npm run compile:browser && jest --verbose --config=jest.config.ts --selectProjects=dom",
-    "test:node": "jest --verbose --config=jest.config.ts --selectProjects=node",
+    "test": "npm run test:unit && npm run test:integration:node && npm run test:integration:browser",
+    "test:integration:browser": "npm run compile:browser && jest --verbose --config=jest.config.ts --selectProjects=dom:integration",
+    "test:integration:node": "jest --verbose --config=jest.config.ts --selectProjects=node:integration",
+    "test:unit": "jest --verbose --config=jest.config.ts --selectProjects=node:unit",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\""
   },

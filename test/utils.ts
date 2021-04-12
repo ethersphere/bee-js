@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import type { BeeResponse } from '../src/types'
+import type { BeeResponse, Reference } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
@@ -156,7 +156,7 @@ export function shorten(inputStr: unknown, len = 17): string {
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
 }
 
-export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000'
+export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000' as Reference
 
 export const okResponse: BeeResponse = {
   code: 200,
@@ -173,7 +173,7 @@ export const testChunkPayload = new Uint8Array([1, 2, 3])
 export const testChunkSpan = new Uint8Array([testChunkPayload.length, 0, 0, 0, 0, 0, 0, 0])
 export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPayload])
 // the hash is hardcoded because we would need the bmt hasher otherwise
-export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as HexString
+export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as Reference
 
 export const testIdentity = {
   privateKey: '634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' as HexString,
