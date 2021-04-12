@@ -26,6 +26,9 @@ import type {
   SOCReader,
   Topic,
   BeeOptions,
+  ReferenceResponse,
+  JsonFeedOptions,
+  AnyJson,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -33,7 +36,7 @@ import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
-import { assertIsFeedType, FeedType } from './feed/type'
+import { assertIsFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
 import { makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
@@ -41,6 +44,7 @@ import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertReference } from './utils/type'
+import { makeJsonFeed } from './feed/json'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -466,6 +470,43 @@ export class Bee {
     const canonicalSigner = this.resolveSigner(signer)
 
     return makeFeedWriter(this.url, type, canonicalTopic, canonicalSigner)
+  }
+
+  /**
+   * High-level function that allows you to easily set JSON data to feed.
+   * JSON-like data types are supported.
+   *
+   * @param topic Human readable string, that is internally hashed so there are no constrains there.
+   * @param data JSON compatible data
+   * @param options
+   * @param options.signer Custom instance of Signer or string with private key.
+   * @param options.type Type of Feed
+   */
+  setJsonFeed<T extends AnyJson>(topic: string, data: T, options?: JsonFeedOptions): Promise<ReferenceResponse> {
+    const hashedTopic = this.makeFeedTopic(topic)
+    const feedType = options?.type ?? DEFAULT_FEED_TYPE
+    const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
+    const jsonFeed = makeJsonFeed<T>(this, writer)
+
+    return jsonFeed.set(data)
+  }
+
+  /**
+   * High-level function that allows you to easily get data from feed.
+   * Returned data are parsed using JSON.parse().
+   *
+   * @param topic Human readable string, that is internally hashed so there are no constrains there.
+   * @param options
+   * @param options.signer Custom instance of Signer or string with private key.
+   * @param options.type Type of Feed
+   */
+  getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
+    const hashedTopic = this.makeFeedTopic(topic)
+    const feedType = options?.type ?? DEFAULT_FEED_TYPE
+    const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
+    const jsonFeed = makeJsonFeed<T>(this, writer)
+
+    return jsonFeed.get()
   }
 
   /**

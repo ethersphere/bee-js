@@ -149,6 +149,22 @@ export interface FeedReader {
 }
 
 /**
+ * Higher level abstraction build on top of Feeds that allow easy setting and getting
+ * data from feeds. It works closely with JSON.parse/stringify so all supported data
+ * types by that is also supported by this abstraction.
+ */
+export interface JsonFeed<T extends AnyJson> {
+  readonly writer: FeedWriter
+  set(data: AnyJson): Promise<ReferenceResponse>
+  get(): Promise<T>
+}
+
+export interface JsonFeedOptions {
+  signer?: Signer | Uint8Array | string
+  type?: FeedType
+}
+
+/**
  * FeedWriter is an interface for updating feeds
  */
 export interface FeedWriter extends FeedReader {
@@ -242,3 +258,11 @@ export type BrandedType<Type, Name> = Type & { __tag__: Name }
 export type BrandedString<Name> = BrandedType<string, Name>
 
 export type FlavoredType<Type, Name> = Type & { __tag__?: Name }
+
+// JSON typings
+// by @indiescripter at https://github.com/microsoft/TypeScript/issues/1897#issuecomment-338650717
+export type AnyJson = boolean | number | string | null | JsonArray | JsonMap
+interface JsonMap {
+  [key: string]: AnyJson
+}
+type JsonArray = Array<AnyJson>
