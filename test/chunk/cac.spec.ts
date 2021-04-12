@@ -1,4 +1,4 @@
-import { verifyBytes } from '../../src/utils/bytes'
+import { assertBytes } from '../../src/utils/bytes'
 import { makeContentAddressedChunk, assertValidChunkData } from '../../src/chunk/cac'
 import { beeUrl } from '../utils'
 import { serializeBytes } from '../../src/chunk/serialize'
@@ -18,11 +18,10 @@ describe('cac', () => {
   })
 
   test('content address chunk verification', () => {
-    const validAddress = verifyBytes(32, hexToBytes(contentHash))
-    const invalidAddress = verifyBytes(
-      32,
-      hexToBytes('ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4335'),
-    )
+    const validAddress = hexToBytes(contentHash)
+    assertBytes(validAddress, 32)
+    const invalidAddress = hexToBytes('ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4335')
+    assertBytes(invalidAddress, 32)
 
     const data = serializeBytes(makeSpan(payload.length), payload)
 
@@ -40,7 +39,8 @@ describe('cac', () => {
   })
 
   test('download content address chunk', async () => {
-    const address = verifyBytes(32, hexToBytes(contentHash))
+    const address = hexToBytes(contentHash)
+    assertBytes(address, 32)
     const data = await chunkAPI.download(beeUrl(), contentHash)
 
     expect(() => assertValidChunkData(data, address)).not.toThrow()

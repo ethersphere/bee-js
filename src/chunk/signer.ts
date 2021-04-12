@@ -1,6 +1,6 @@
 import { ec, curve } from 'elliptic'
 import { BeeError } from '../utils/error'
-import { Bytes, isBytes, verifyBytes, wrapBytesWithHelpers } from '../utils/bytes'
+import { Bytes, isBytes, assertBytes, wrapBytesWithHelpers } from '../utils/bytes'
 import { keccak256Hash } from '../utils/hash'
 import { hexToBytes, makeHexString } from '../utils/hex'
 import { EthAddress } from '../utils/eth'
@@ -95,7 +95,7 @@ export function assertSigner(signer: unknown): asserts signer is Signer {
 
   const typedSigner = signer as Signer
 
-  if (!isBytes(20, typedSigner.address)) {
+  if (!isBytes(typedSigner.address, 20)) {
     throw new TypeError("Signer's address must be Uint8Array with 20 bytes!")
   }
 
@@ -111,9 +111,9 @@ export function makeSigner(signer: Signer | Uint8Array | string | unknown): Sign
 
     return makePrivateKeySigner(keyBytes)
   } else if (signer instanceof Uint8Array) {
-    const verifiedPrivateKey = verifyBytes(32, signer)
+    assertBytes(signer, 32)
 
-    return makePrivateKeySigner(verifiedPrivateKey)
+    return makePrivateKeySigner(signer)
   }
 
   assertSigner(signer)
@@ -131,7 +131,7 @@ export async function sign(signer: Signer, data: Uint8Array): Promise<Signature>
   }
 
   if (result instanceof Uint8Array) {
-    verifyBytes(SIGNATURE_BYTES_LENGTH, result)
+    assertBytes(result, SIGNATURE_BYTES_LENGTH)
 
     return result
   }

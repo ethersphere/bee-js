@@ -2,11 +2,11 @@ import { fetchFeedUpdate } from '../../src/modules/feed'
 import { HexString, hexToBytes, makeHexString } from '../../src/utils/hex'
 import { beeUrl, ERR_TIMEOUT, testIdentity } from '../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../src/feed'
-import { Bytes, verifyBytes } from '../../src/utils/bytes'
-import { makePrivateKeySigner, PrivateKeyBytes, Signer } from '../../src/chunk/signer'
+import { Bytes, assertBytes } from '../../src/utils/bytes'
+import { makePrivateKeySigner } from '../../src/chunk/signer'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import * as chunkAPI from '../../src/modules/chunk'
-import { Topic } from '../../src/feed/topic'
+import type { PrivateKeyBytes, Signer, Topic } from '../../src/types'
 import { BeeResponseError } from '../../src'
 
 function makeChunk(index: number) {
@@ -64,7 +64,8 @@ describe('feed', () => {
 
   test('multiple updates and lookup', async () => {
     const reference = makeHexString('0000000000000000000000000000000000000000000000000000000000000000', 64)
-    const referenceBytes = verifyBytes(32, hexToBytes(reference))
+    const referenceBytes = hexToBytes(reference)
+    assertBytes(referenceBytes, 32)
     const multipleUpdateTopic = '3000000000000000000000000000000000000000000000000000000000000000' as Topic
 
     const numUpdates = 5

@@ -1,7 +1,7 @@
 import { BrandedType } from '../types'
 import { BeeError } from '../utils/error'
 import { bmtHash } from './bmt'
-import { Bytes, bytesEqual, FlexBytes, flexBytesAtOffset, verifyFlexBytes } from '../utils/bytes'
+import { Bytes, bytesEqual, FlexBytes, flexBytesAtOffset, assertFlexBytes } from '../utils/bytes'
 import { serializeBytes } from './serialize'
 import { makeSpan, SPAN_SIZE } from './span'
 
@@ -39,13 +39,13 @@ type ValidChunkData = BrandedType<Uint8Array, 'ValidChunkData'>
  */
 export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
   const span = makeSpan(payloadBytes.length)
-  verifyFlexBytes(MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, payloadBytes)
+  assertFlexBytes(payloadBytes, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE)
   const data = serializeBytes(span, payloadBytes) as ValidChunkData
 
   return {
     data,
     span: () => span,
-    payload: () => flexBytesAtOffset(CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, data),
+    payload: () => flexBytesAtOffset(data, CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE),
     address: () => bmtHash(data),
   }
 }

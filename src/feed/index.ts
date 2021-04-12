@@ -1,6 +1,6 @@
 import { keccak256Hash } from '../utils/hash'
 import { serializeBytes } from '../chunk/serialize'
-import { Identifier, uploadSingleOwnerChunkData, verifySingleOwnerChunk } from '../chunk/soc'
+import { Identifier, uploadSingleOwnerChunkData, makeSingleOwnerChunkFromData } from '../chunk/soc'
 import { FeedUpdateOptions, fetchFeedUpdate } from '../modules/feed'
 import {
   REFERENCE_HEX_LENGTH,
@@ -15,7 +15,7 @@ import {
   FeedWriter,
   Topic,
 } from '../types'
-import { Bytes, makeBytes, verifyBytesAtOffset } from '../utils/bytes'
+import { Bytes, makeBytes, bytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
 import { bytesToHex, HexString, hexToBytes, makeHexString } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
@@ -132,9 +132,9 @@ export async function updateFeed(
 
 function verifyChunkReferenceAtOffset(offset: number, data: Uint8Array): ChunkReference {
   try {
-    return verifyBytesAtOffset(offset, REFERENCE_PAYLOAD_MAX_SIZE, data)
+    return bytesAtOffset(data, offset, REFERENCE_PAYLOAD_MAX_SIZE)
   } catch (e) {
-    return verifyBytesAtOffset(offset, REFERENCE_PAYLOAD_MIN_SIZE, data)
+    return bytesAtOffset(data, offset, REFERENCE_PAYLOAD_MIN_SIZE)
   }
 }
 
@@ -152,9 +152,9 @@ export async function downloadFeedUpdate(
   const address = keccak256Hash(identifier, owner)
   const addressHex = bytesToHex(address)
   const data = await chunkAPI.download(url, addressHex)
-  const soc = verifySingleOwnerChunk(data, address)
+  const soc = makeSingleOwnerChunkFromData(data, address)
   const payload = soc.payload()
-  const timestampBytes = verifyBytesAtOffset(TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE, payload)
+  const timestampBytes = bytesAtOffset(payload, TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
   const timestamp = readUint64BigEndian(timestampBytes)
   const reference = verifyChunkReferenceAtOffset(REFERENCE_PAYLOAD_OFFSET, payload)
 

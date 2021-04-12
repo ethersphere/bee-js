@@ -4,7 +4,7 @@ import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
-import { verifyBytes } from '../src/utils/bytes'
+import { assertBytes } from '../src/utils/bytes'
 
 /**
  * Load common own Jest Matchers which can be used to check particular return values.
@@ -125,7 +125,7 @@ export function beeDebugUrl(url: string = beeUrl()): string {
  */
 export async function tryDeleteChunkFromLocalStorage(address: string | ChunkAddress): Promise<void> {
   if (typeof address !== 'string') {
-    verifyBytes(32, address)
+    assertBytes(address, 32)
     address = bytesToHex(address)
   }
 
