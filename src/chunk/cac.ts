@@ -45,7 +45,7 @@ export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
   return {
     data,
     span: () => span,
-    payload: () => flexBytesAtOffset(CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, data),
+    payload: () => flexBytesAtOffset(data, CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE),
     address: () => bmtHash(data),
   }
 }

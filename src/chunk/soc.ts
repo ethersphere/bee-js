@@ -73,7 +73,7 @@ export function makeSingleOwnerChunkFromData(data: Uint8Array, address: ChunkAdd
 
   const signature = () => bytesAtOffset(data, SOC_SIGNATURE_OFFSET, SIGNATURE_SIZE)
   const span = () => bytesAtOffset(data, SOC_SPAN_OFFSET, SPAN_SIZE)
-  const payload = () => flexBytesAtOffset(SOC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE, data)
+  const payload = () => flexBytesAtOffset(data, SOC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE)
 
   return {
     data,

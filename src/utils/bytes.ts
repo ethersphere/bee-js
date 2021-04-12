@@ -28,8 +28,8 @@ export interface FlexBytes<Min extends number, Max extends number> extends Uint8
 /**
  * Type guard for Bytes<T> type
  *
- * @param length  The length of the byte array
  * @param b       The byte array
+ * @param length  The length of the byte array
  */
 export function isBytes<Length extends number>(b: unknown, length: Length): b is Bytes<Length> {
   return b instanceof Uint8Array && b.length === length
@@ -38,8 +38,8 @@ export function isBytes<Length extends number>(b: unknown, length: Length): b is
 /**
  * Verifies if a byte array has a certain length
  *
- * @param length  The specified length
  * @param b       The byte array
+ * @param length  The specified length
  */
 export function assertBytes<Length extends number>(b: unknown, length: Length): asserts b is Bytes<Length> {
   if (!isBytes(b, length)) {
@@ -50,14 +50,14 @@ export function assertBytes<Length extends number>(b: unknown, length: Length): 
 /**
  * Type guard for FlexBytes<Min,Max> type
  *
+ * @param b       The byte array
  * @param min     Minimum size of the array
  * @param max     Maximum size of the array
- * @param b       The byte array
  */
 export function isFlexBytes<Min extends number, Max extends number = Min>(
+  b: unknown,
   min: Min,
   max: Max,
-  b: unknown,
 ): b is FlexBytes<Min, Max> {
   return b instanceof Uint8Array && b.length >= min && b.length <= max
 }
@@ -65,16 +65,16 @@ export function isFlexBytes<Min extends number, Max extends number = Min>(
 /**
  * Verifies if a byte array has a certain length between min and max
  *
+ * @param b       The byte array
  * @param min     Minimum size of the array
  * @param max     Maximum size of the array
- * @param b       The byte array
  */
 export function assertFlexBytes<Min extends number, Max extends number = Min>(
   b: unknown,
   min: Min,
   max: Max,
 ): asserts b is FlexBytes<Min, Max> {
-  if (!isFlexBytes(min, max, b)) {
+  if (!isFlexBytes(b, min, max)) {
     throw new TypeError(
       `Parameter is not valid FlexBytes of  min: ${min}, max: ${max}, length: ${(b as Uint8Array).length}`,
     )
@@ -84,9 +84,9 @@ export function assertFlexBytes<Min extends number, Max extends number = Min>(
 /**
  * Return `length` bytes starting from `offset`
  *
+ * @param data   The original data
  * @param offset The offset to start from
  * @param length The length of data to be returned
- * @param data   The original data
  */
 export function bytesAtOffset<Length extends number>(data: Uint8Array, offset: number, length: Length): Bytes<Length> {
   const offsetBytes = data.slice(offset, offset + length) as Bytes<Length>
@@ -100,16 +100,16 @@ export function bytesAtOffset<Length extends number>(data: Uint8Array, offset: n
 /**
  * Return flex bytes starting from `offset`
  *
+ * @param data   The original data
  * @param offset The offset to start from
  * @param _min   The minimum size of the data
  * @param _max   The maximum size of the data
- * @param data   The original data
  */
 export function flexBytesAtOffset<Min extends number, Max extends number>(
+  data: Uint8Array,
   offset: number,
   _min: Min,
   _max: Max,
-  data: Uint8Array,
 ): FlexBytes<Min, Max> {
   return data.slice(offset) as FlexBytes<Min, Max>
 }
