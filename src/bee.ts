@@ -473,7 +473,7 @@ export class Bee {
   }
 
   /**
-   * High-level function that allows you to easily set data to feed.
+   * High-level function that allows you to easily set JSON data to feed.
    * JSON-like data types are supported.
    *
    * @param topic Human readable string, that is internally hashed so there are no constrains there.
