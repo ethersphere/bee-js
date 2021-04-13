@@ -74,7 +74,7 @@ jobs:
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Run nodejs tests
+      - name: Run unit tests
         run: npm run test:node
 
       - name: Debug workflow if failed

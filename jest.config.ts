@@ -40,6 +40,9 @@ export default async (): Promise<Config.InitialOptions> => {
     // The directory where Jest should output its coverage files
     coverageDirectory: 'coverage',
 
+    // Custom sequencer that priorities running unit tests before integration tests
+    testSequencer: '<rootDir>/test-type-sequencer.js',
+
     // An array of regexp pattern strings used to skip coverage collection
     coveragePathIgnorePatterns: ['/node_modules/'],
 
