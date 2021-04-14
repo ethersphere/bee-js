@@ -13,6 +13,7 @@ export async function getSettlements(url: string, peer: string): Promise<Settlem
   const response = await safeAxios<Settlements>({
     url: url + `${settlementsEndpoint}/${peer}`,
     responseType: 'json',
+    forceBigInt: true,
   })
 
   return response.data
@@ -27,6 +28,7 @@ export async function getAllSettlements(url: string): Promise<AllSettlements> {
   const response = await safeAxios<AllSettlements>({
     url: url + settlementsEndpoint,
     responseType: 'json',
+    forceBigInt: true,
   })
 
   return response.data

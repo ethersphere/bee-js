@@ -35,6 +35,7 @@ export async function getChequebookBalance(url: string): Promise<ChequebookBalan
   const response = await safeAxios<ChequebookBalanceResponse>({
     url: url + chequebookEndpoint + '/balance',
     responseType: 'json',
+    forceBigInt: true,
   })
 
   return response.data
@@ -50,6 +51,7 @@ export async function getLastCashoutAction(url: string, peer: string): Promise<L
   const response = await safeAxios<LastCashoutActionResponse>({
     url: url + chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
+    forceBigInt: true,
   })
 
   return response.data
@@ -81,6 +83,7 @@ export async function getLastChequesForPeer(url: string, peer: string): Promise<
   const response = await safeAxios<LastChequesForPeerResponse>({
     url: url + chequebookEndpoint + `/cheque/${peer}`,
     responseType: 'json',
+    forceBigInt: true,
   })
 
   return response.data

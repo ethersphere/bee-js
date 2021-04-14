@@ -19,8 +19,8 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     test('balance', async () => {
       const response = await getChequebookBalance(beeDebugUrl())
 
-      expect(typeof response.availableBalance).toBe('number')
-      expect(typeof response.totalBalance).toBe('number')
+      expect(typeof response.availableBalance).toBe('bigint')
+      expect(typeof response.totalBalance).toBe('bigint')
     })
 
     const TRANSACTION_TIMEOUT = 20 * 1000

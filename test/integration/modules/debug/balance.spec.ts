@@ -19,7 +19,7 @@ describe('balance', () => {
         expect.arrayContaining([
           expect.objectContaining({
             peer: expect.any(String),
-            balance: expect.any(Number),
+            balance: expect.any(BigInt),
           }),
         ]),
       )
@@ -47,7 +47,7 @@ describe('balance', () => {
         expect.arrayContaining([
           expect.objectContaining({
             peer: expect.any(String),
-            balance: expect.any(Number),
+            balance: expect.any(BigInt),
           }),
         ]),
       )
@@ -62,7 +62,7 @@ describe('balance', () => {
       const peerBalance = await balance.getPastDueConsumptionPeerBalance(beeDebugUrl(), peerOverlay)
 
       expect(peerBalance.peer).toEqual(peerOverlay)
-      expect(typeof peerBalance.balance).toBe('number')
+      expect(typeof peerBalance.balance).toBe('bigint')
     })
   })
 })
