@@ -34,7 +34,7 @@ describe('balance', () => {
       const peerBalance = await balance.getPeerBalance(beeDebugUrl(), peerOverlay)
 
       expect(peerBalance.peer).toEqual(peerOverlay)
-      expect(typeof peerBalance.balance).toBe('number')
+      expect(typeof peerBalance.balance).toBe('bigint')
     })
   })
 
