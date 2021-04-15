@@ -5,8 +5,8 @@ describe('settlements', () => {
   test('all settlements', async () => {
     const response = await settlements.getAllSettlements(beeDebugUrl())
 
-    expect(typeof response.totalreceived).toBe('number')
-    expect(typeof response.totalsent).toBe('number')
+    expect(typeof response.totalreceived).toBe('bigint')
+    expect(typeof response.totalsent).toBe('bigint')
     expect(Array.isArray(response.settlements)).toBeTruthy()
 
     if (response.settlements.length > 0) {
@@ -25,8 +25,8 @@ describe('settlements', () => {
       const peerSettlementResponse = await settlements.getSettlements(beeDebugUrl(), peerSettlement.peer)
 
       expect(peerSettlementResponse.peer).toEqual(peerSettlement.peer)
-      expect(typeof peerSettlementResponse.received).toBe('number')
-      expect(typeof peerSettlementResponse.sent).toBe('number')
+      expect(typeof peerSettlementResponse.received).toBe('bigint')
+      expect(typeof peerSettlementResponse.sent).toBe('bigint')
     }
   })
 })
