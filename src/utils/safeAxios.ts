@@ -6,6 +6,13 @@ import utils from 'axios/lib/utils'
 import normalizeHeaderName from 'axios/lib/helpers/normalizeHeaderName'
 axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackoverflow.com/a/57320262
 
+/**
+ * Utility function from axios's implementation
+ * https://github.com/axios/axios/blob/d99d5faac29899eba68ce671e6b3cbc9832e9ad8/lib/defaults.js
+ *
+ * @param headers
+ * @param value
+ */
 function setContentTypeIfUnset(headers: Record<string, unknown>, value: string) {
   if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
     headers['Content-Type'] = value
