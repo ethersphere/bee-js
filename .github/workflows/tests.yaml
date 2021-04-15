@@ -74,7 +74,7 @@ jobs:
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Run nodejs tests
+      - name: Run unit and integration tests for node
         run: npm run test:node
 
       - name: Debug workflow if failed
@@ -149,4 +149,3 @@ jobs:
           echo "Connect to github actions node using"
           echo "sh <(curl -sSf https://lets.tunshell.com/init.sh) L $(echo $KEYS | jq -r .peer2_key) \${TUNSHELL_SECRET} relay.tunshell.com"
           curl -sSf https://lets.tunshell.com/init.sh | sh /dev/stdin T $(echo $KEYS | jq -r .peer1_key) ${{ secrets.TUNSHELL_SECRET }} relay.tunshell.com
-

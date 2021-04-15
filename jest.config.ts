@@ -40,6 +40,9 @@ export default async (): Promise<Config.InitialOptions> => {
     // The directory where Jest should output its coverage files
     coverageDirectory: 'coverage',
 
+    // Custom sequencer that priorities running unit tests before integration tests
+    testSequencer: '<rootDir>/test-type-sequencer.js',
+
     // An array of regexp pattern strings used to skip coverage collection
     coveragePathIgnorePatterns: ['/node_modules/'],
 
@@ -48,16 +51,28 @@ export default async (): Promise<Config.InitialOptions> => {
 
     // Run tests from one or more projects
     projects: ([
+      // We don't have any DOM specific tests atm.
+      // {
+      //   displayName: 'dom:unit',
+      //   testRegex: 'test/unit/.*\\.browser\\.spec\\.ts',
+      //   moduleNameMapper: await getBrowserPathMapping(),
+      //   preset: 'jest-puppeteer',
+      // },
       {
-        displayName: 'dom',
-        testRegex: 'test/.*\\.browser\\.spec\\.ts',
+        displayName: 'node:unit',
+        testEnvironment: 'node',
+        testRegex: 'test/unit/((?!\\.browser).)*\\.spec\\.ts',
+      },
+      {
+        displayName: 'dom:integration',
+        testRegex: 'test/integration/.*\\.browser\\.spec\\.ts',
         moduleNameMapper: await getBrowserPathMapping(),
         preset: 'jest-puppeteer',
       },
       {
-        displayName: 'node',
+        displayName: 'node:integration',
         testEnvironment: 'node',
-        testRegex: 'test/((?!\\.browser).)*\\.spec\\.ts',
+        testRegex: 'test/integration/((?!\\.browser).)*\\.spec\\.ts',
       },
     ] as unknown[]) as string[], // bad types
 
