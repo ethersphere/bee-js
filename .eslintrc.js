@@ -13,9 +13,8 @@ module.exports = {
   },
   plugins: ['jest'],
   rules: {
-    'array-bracket-newline': ['error', { multiline: true }],
+    'array-bracket-newline': ['error', 'consistent'],
     strict: ['error', 'safe'],
-    curly: 'error',
     'block-scoped-var': 'error',
     complexity: 'warn',
     'default-case': 'error',
