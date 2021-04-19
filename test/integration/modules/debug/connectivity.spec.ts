@@ -43,7 +43,7 @@ describe('modules/debug/connectivity', () => {
     expect(topology.depth).toBeGreaterThanOrEqual(0)
 
     for (let i = 0; i < 16; ++i) {
-      const bin = topology.bins[`bin_${i}`] as Bin
+      const bin = topology.bins[`bin_${i}` as keyof typeof topology.bins]
       expect(bin.population).toBeGreaterThanOrEqual(0)
       expect(bin.connected).toBeGreaterThanOrEqual(0)
       expect(Array.isArray(bin.disconnectedPeers) || bin.disconnectedPeers === null).toBeTruthy()

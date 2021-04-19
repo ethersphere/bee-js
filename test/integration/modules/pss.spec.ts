@@ -33,7 +33,7 @@ describe('modules/pss', () => {
 
       const ws = pss.subscribe(BEE_URL, topic)
       ws.onmessage = ev => {
-        const receivedMessage = Buffer.from(ev.data).toString()
+        const receivedMessage = Buffer.from(ev.data as string).toString()
 
         // ignore empty messages
         if (receivedMessage.length === 0) {
@@ -61,7 +61,7 @@ describe('modules/pss', () => {
 
       const ws = pss.subscribe(BEE_URL, topic)
       ws.onmessage = ev => {
-        const receivedMessage = Buffer.from(ev.data).toString()
+        const receivedMessage = Buffer.from(ev.data as string).toString()
 
         // ignore empty messages
         if (receivedMessage.length === 0) {

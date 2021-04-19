@@ -41,6 +41,7 @@
     "test:unit": "jest --verbose --config=jest.config.ts --selectProjects=node:unit",
     "test:node": "jest --verbose --config=jest.config.ts --selectProjects=node:unit node:integration",
     "test:browser": "npm run test:integration:browser",
+    "check:types": "tsc --project tsconfig.test.json",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "depcheck": "depcheck ."
