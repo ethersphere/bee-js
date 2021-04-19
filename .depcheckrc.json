@@ -1,0 +1,27 @@
+{
+  "ignores": [
+    "@babel/core",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-runtime",
+    "@babel/preset-env",
+    "@babel/preset-typescript",
+    "@commitlint/cli",
+    "@commitlint/config-conventional",
+    "@types/content-disposition",
+    "@types/debug",
+    "@types/expect-puppeteer",
+    "@types/jest",
+    "@types/jest-environment-puppeteer",
+    "@types/puppeteer",
+    "@types/tar-stream",
+    "babel-jest",
+    "babel-loader",
+    "debug",
+    "husky",
+    "jest-puppeteer",
+    "puppeteer",
+    "ts-node",
+    "typedoc-plugin-markdown",
+    "webpack-cli"
+  ]
+}
