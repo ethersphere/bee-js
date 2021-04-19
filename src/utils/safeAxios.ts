@@ -12,7 +12,7 @@ axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackover
  * @param headers
  */
 export function setDefaultHeaders(headers: Record<string, string>): void {
-  axios.defaults.headers = headers
+  axios.defaults.headers.common = headers
 }
 
 /**
