@@ -329,7 +329,7 @@ export class Bee {
    *
    * @param options Optional offset and limit of listing
    */
-  getPinnedChunks(options: pinning.PinnedChunksOptions): Promise<pinning.PinnedChunks> {
+  getPinnedChunks(options?: pinning.PinnedChunksOptions): Promise<pinning.PinnedChunks> {
     return pinning.getPinnedChunks(this.url, options)
   }
 
