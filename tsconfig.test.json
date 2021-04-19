@@ -3,5 +3,8 @@
   "include": [
     "src",
     "test"
-  ]
+  ],
+  "compilerOptions": {
+    "noEmit": true
+  }
 }
