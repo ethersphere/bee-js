@@ -7,6 +7,15 @@ import normalizeHeaderName from 'axios/lib/helpers/normalizeHeaderName'
 axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackoverflow.com/a/57320262
 
 /**
+ * Utility function that sets passed headers to ALL axios calls without distinction of Bee URLs.
+ *
+ * @param headers
+ */
+export function setDefaultHeaders(headers: Record<string, string>): void {
+  axios.defaults.headers.common = headers
+}
+
+/**
  * Utility function from axios's implementation
  * https://github.com/axios/axios/blob/d99d5faac29899eba68ce671e6b3cbc9832e9ad8/lib/defaults.js
  *
