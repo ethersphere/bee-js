@@ -303,6 +303,60 @@ export class Bee {
   }
 
   /**
+   * Pin data with given reference
+   *
+   * @param reference Bee data reference
+   */
+  pinChunk(reference: Reference | string): Promise<BeeResponse> {
+    assertReference(reference)
+
+    return pinning.pinChunk(this.url, reference)
+  }
+
+  /**
+   * Unpin data with given reference
+   *
+   * @param reference Bee data reference
+   */
+  unpinChunk(reference: Reference | string): Promise<BeeResponse> {
+    assertReference(reference)
+
+    return pinning.unpinChunk(this.url, reference)
+  }
+
+  /**
+   * Get list of pinned chunks
+   *
+   * @param options Optional offset and limit of listing
+   */
+  getPinnedChunks(options?: pinning.PinnedChunksOptions): Promise<pinning.PinnedChunks> {
+    return pinning.getPinnedChunks(this.url, options)
+  }
+
+  /**
+   * Get pinning status of chunk with given reference
+   *
+   * @param reference Bee data reference
+   */
+  getChunkPinningStatus(reference: Reference | string): Promise<pinning.PinningStatus> {
+    assertReference(reference)
+
+    return pinning.getChunkPinningStatus(this.url, reference)
+  }
+
+  /**
+   * Update pin counter of chunk with given reference
+   *
+   * @param reference   Bee data reference
+   * @param pinCounter  New value of the pin counter
+   */
+  updateChunkPinCounter(reference: Reference | string, pinCounter: number): Promise<pinning.PinningStatus> {
+    assertReference(reference)
+
+    return pinning.updateChunkPinCounter(this.url, reference, pinCounter)
+  }
+
+  /**
    * Send to recipient or target with Postal Service for Swarm
    *
    * @param topic Topic name
