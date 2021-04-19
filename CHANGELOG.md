@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.8.0](https://www.github.com/ethersphere/bee-js/compare/v0.7.1...v0.8.0) (2021-04-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* shape of the LastCashoutActionResponse (#263)
+* verify to assert (#255)
+
+### Features
+
+* enable setting default headers ([#271](https://www.github.com/ethersphere/bee-js/issues/271)) ([21d63e3](https://www.github.com/ethersphere/bee-js/commit/21d63e3efebd86d018434d5af085753bd1455b4a))
+* expose pinning functions ([#262](https://www.github.com/ethersphere/bee-js/issues/262)) ([8a4274e](https://www.github.com/ethersphere/bee-js/commit/8a4274ef141ffd021c5956e106978662cbaa91df))
+* high-level json feed api ([#246](https://www.github.com/ethersphere/bee-js/issues/246)) ([4b22563](https://www.github.com/ethersphere/bee-js/commit/4b22563d7c499b036bb5535d49417aed21ed7504))
+
+
+### Bug Fixes
+
+* check typings for test folder ([#264](https://www.github.com/ethersphere/bee-js/issues/264)) ([b924e89](https://www.github.com/ethersphere/bee-js/commit/b924e890c6cfc506e114894838634bae5d904083))
+* shape of the LastCashoutActionResponse ([#263](https://www.github.com/ethersphere/bee-js/issues/263)) ([cf5503c](https://www.github.com/ethersphere/bee-js/commit/cf5503c578290c917a252fa80e29ccf4065620c2))
+* use bigint for bzz amounts ([#259](https://www.github.com/ethersphere/bee-js/issues/259)) ([9da31c2](https://www.github.com/ethersphere/bee-js/commit/9da31c2051df42f48cedd5ae00821f42aeb8fec5))
+
+
+### Reverts
+
+* "fix!: shape of the LastCashoutActionResponse ([#263](https://www.github.com/ethersphere/bee-js/issues/263))" ([#266](https://www.github.com/ethersphere/bee-js/issues/266)) ([d7f5a14](https://www.github.com/ethersphere/bee-js/commit/d7f5a149f5a6e64fa274ed4ae1d65084296e6eed))
+
+
+### Code Refactoring
+
+* verify to assert ([#255](https://www.github.com/ethersphere/bee-js/issues/255)) ([725292b](https://www.github.com/ethersphere/bee-js/commit/725292b97afb07354346400f915f9f678e8f3306))
+
 ### [0.7.1](https://www.github.com/ethersphere/bee-js/compare/v0.7.0...v0.7.1) (2021-03-31)
 
 
