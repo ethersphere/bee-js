@@ -132,7 +132,7 @@ or for Browsers
 ## Maintainers
 
 - [nugaon](https://github.com/nugaon)
-- [agazso](https://github.com/agazso)
+- [auhau](https://github.com/auhau)
 
 ## License
 
