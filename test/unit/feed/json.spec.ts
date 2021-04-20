@@ -62,7 +62,7 @@ describe('JsonFeed', () => {
   it(`should fail for non-serializable data`, async () => {
     const bee = Substitute.for<Bee>()
     const writer = Substitute.for<FeedWriter>()
-    await expect(setJsonData(bee, writer, (BigInt(123) as unknown) as AnyJson)).resolves.toEqual(FEED_REFERENCE)
+    await expect(setJsonData(bee, writer, (BigInt(123) as unknown) as AnyJson)).rejects.toThrow(TypeError)
 
     const circularReference: CircularReference = { otherData: 123 }
     circularReference.myself = circularReference
