@@ -1,10 +1,10 @@
-import { beeDebugUrl, beePeerUrl } from '../../../utils'
+import { beeDebugUrl, beePeerDebugUrl, beePeerUrl } from '../../../utils'
 import * as balance from '../../../../src/modules/debug/balance'
 import * as connectivity from '../../../../src/modules/debug/connectivity'
 
 // helper function to get the peer overlay address
 async function getPeerOverlay() {
-  const nodeAddresses = await connectivity.getNodeAddresses(beeDebugUrl(beePeerUrl()))
+  const nodeAddresses = await connectivity.getNodeAddresses(beePeerDebugUrl())
 
   return nodeAddresses.overlay
 }

@@ -102,15 +102,14 @@ npm i
 
 The tests run in both context: node and dom with Jest.
 
-To run the integration tests, you need to have a Bee cluster running locally. To create a cluster, please consult the readme of [@ethersphere/bee-local](https://github.com/ethersphere/bee-local).
+To run the integration tests, you need to have a Bee cluster running locally. You can run your own local Bee client for test purposes with the help of [test/bee.sh](test/bee.sh).
+If you pass `--ephemeral` flag, the container automatically will be removed at the end of the run.
 
-By default, tests are run against local bee node 0 - `http://bee-0.localhost`. You can change it by setting environment variable `BEE_API_URL`.
-In order to run tests which require one more node, you need to define `BEE_PEER_API_URL` as well. Its default value `http://bee-1.localhost`
+By default, for integration tests two bee nodes are expected to run on localhost on addresses `http://localhost:1633` and `http://localhost:11633`. These are the default values for the `test/bee.sh` script.
+If you want to use custom setup, you can change the behavior of tests to different addresses using environment variables `BEE_API_URL`, `BEE_DEBUG_API_URL`, `BEE_PEER_DEBUG_API_URL` and `BEE_PEER_API_URL`.
 
 In Visual Studio environment, the tests have been set up to run against your local bee node on `http://localhost:1633`
 To run Jest tests, choose the `vscode-jest-tests` CI job under the Run tab.
-You can run your own local Bee client for test purposes with the help of [test/bee.sh](test/bee.sh).
-If you pass `--ephemeral` flag, the container automatically will be removed at the end of the run.
 
 There are also browser tests by Puppeteer, which also provide integrity testing.
 ```sh

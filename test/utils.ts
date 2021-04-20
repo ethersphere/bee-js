@@ -105,29 +105,28 @@ export function randomByteArray(length: number, seed = 500): Uint8Array {
  * Returns a url for testing the Bee public API
  */
 export function beeUrl(): string {
-  return process.env.BEE_API_URL || 'http://bee-0.localhost'
+  return process.env.BEE_API_URL || 'http://localhost:1633'
 }
 
 /**
  * Returns a url of another peer for testing the Bee public API
  */
 export function beePeerUrl(): string {
-  return process.env.BEE_PEER_API_URL || 'http://bee-1.localhost'
+  return process.env.BEE_PEER_API_URL || 'http://localhost:11633'
 }
 
 /**
  * Returns a url for testing the Bee Debug API
  */
-export function beeDebugUrl(url: string = beeUrl()): string {
-  const regexp = /http:\/\/bee-(\d).localhost/
+export function beeDebugUrl(): string {
+  return process.env.BEE_DEBUG_API_URL || 'http://localhost:1635'
+}
 
-  if (url.match(regexp)) {
-    return url.replace(regexp, 'http://bee-$1-debug.localhost')
-  }
-  const urlObj = new URL(url)
-  const port = urlObj.port ? parseInt(urlObj.port, 10) + 2 : 1635
-
-  return urlObj.protocol + '//' + urlObj.hostname + ':' + port
+/**
+ * Returns a url for testing the Bee Debug API
+ */
+export function beePeerDebugUrl(): string {
+  return process.env.BEE_PEER_DEBUG_API_URL || 'http://localhost:11635'
 }
 
 /**
