@@ -41,10 +41,11 @@ import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/so
 import { makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
+import { EthAddress, HexEthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertReference } from './utils/type'
-import { makeJsonFeed } from './feed/json'
+import { setJsonData, getJsonData } from './feed/json'
+import { add } from 'husky'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -540,9 +541,8 @@ export class Bee {
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
     const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
-    const jsonFeed = makeJsonFeed<T>(this, writer)
 
-    return jsonFeed.set(data)
+    return setJsonData(this, writer, data)
   }
 
   /**
@@ -552,15 +552,31 @@ export class Bee {
    * @param topic Human readable string, that is internally hashed so there are no constrains there.
    * @param options
    * @param options.signer Custom instance of Signer or string with private key.
+   * @param options.address Ethereum address of owner of the feed that signed it. Either `signer` or `address` has to be specified.
    * @param options.type Type of Feed
    */
   getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
-    const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
-    const jsonFeed = makeJsonFeed<T>(this, writer)
+    let address: EthAddress
 
-    return jsonFeed.get()
+    try {
+      address = this.resolveSigner(options?.signer).address
+    } catch (e) {
+      if (e instanceof BeeError) {
+        address = makeEthAddress(options?.address)
+      } else {
+        throw e
+      }
+    }
+
+    if (!address) {
+      throw new BeeError('Either address or signer has to be specified!')
+    }
+
+    const reader = this.makeFeedReader(feedType, hashedTopic, address)
+
+    return getJsonData(this, reader)
   }
 
   /**

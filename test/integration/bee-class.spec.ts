@@ -462,5 +462,20 @@ describe('Bee class', () => {
       },
       FEED_TIMEOUT,
     )
+    it(
+      'should get JSON from feed with address',
+      async () => {
+        const data = [{ some: { other: 'object' } }]
+
+        const hashedTopic = bee.makeFeedTopic(TOPIC)
+        const writer = bee.makeFeedWriter('sequence', hashedTopic, testIdentity.privateKey)
+        const dataChunkReference = await bee.uploadData(JSON.stringify(data))
+        await writer.upload(dataChunkReference)
+
+        const fetchedData = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
+        expect(fetchedData).toEqual(data)
+      },
+      FEED_TIMEOUT,
+    )
   })
 })

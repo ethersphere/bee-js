@@ -9,7 +9,7 @@ export type HexEthAddress = HexString<40>
 const ETH_ADDR_BYTES_LENGTH = 20
 const ETH_ADDR_HEX_LENGTH = 40
 
-export function makeEthAddress(address: EthAddress | Uint8Array | string): EthAddress {
+export function makeEthAddress(address: EthAddress | Uint8Array | string | unknown): EthAddress {
   if (typeof address === 'string') {
     const hexAddr = makeHexString(address, ETH_ADDR_HEX_LENGTH)
     const ownerBytes = hexToBytes<typeof ETH_ADDR_BYTES_LENGTH>(hexAddr)
@@ -24,7 +24,7 @@ export function makeEthAddress(address: EthAddress | Uint8Array | string): EthAd
   throw new TypeError('Invalid EthAddress')
 }
 
-export function makeHexEthAddress(address: EthAddress | Uint8Array | string): HexEthAddress {
+export function makeHexEthAddress(address: EthAddress | Uint8Array | string | unknown): HexEthAddress {
   try {
     return makeHexString(address, ETH_ADDR_HEX_LENGTH)
   } catch (e) {

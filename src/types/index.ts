@@ -160,6 +160,17 @@ export interface JsonFeed<T extends AnyJson> {
 }
 
 export interface JsonFeedOptions {
+  /**
+   * Valid only for `get` action, where either this `address` or `signer` has
+   * to be specified.
+   */
+  address?: EthAddress | Uint8Array | string
+
+  /**
+   * Custom Signer object or private key in either binary or hex form.
+   * This required for `set` action, and optional for `get` although
+   * if not specified for `get` then `address` option has to be specified.
+   */
   signer?: Signer | Uint8Array | string
   type?: FeedType
 }
