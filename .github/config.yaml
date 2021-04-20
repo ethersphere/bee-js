@@ -1,3 +1,22 @@
 labels:
   issue: type:issue
   pull-request: type:pull-request
+release:
+  trigger:
+    labels:
+      - 'autorelease: pending'
+  checklist: |
+    ## 🚀 Release checklist
+
+    ### Before release
+
+     - [ ] Ensure the release works with the intended `bee` version
+     - [ ] Verify all the example code works with the release code
+     - [ ] Verify all user documentation is up to date
+     - [ ] Have two approval for this PR
+     - [ ] Write small summary for the release and verify changelog
+
+    ### After release
+
+     - [ ] Update API docs
+     - [ ] Update example's `bee-js` version
