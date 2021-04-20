@@ -41,11 +41,10 @@ import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/so
 import { makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { EthAddress, HexEthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
+import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertReference } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
-import { add } from 'husky'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
