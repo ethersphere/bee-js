@@ -1,4 +1,12 @@
 # Changelog
+### [0.8.1](https://www.github.com/ethersphere/bee-js/compare/v0.8.0...v0.8.1) (2021-04-21)
+
+
+### Bug Fixes
+
+* expose hashing function ([#277](https://www.github.com/ethersphere/bee-js/issues/277)) ([d6c0b22](https://www.github.com/ethersphere/bee-js/commit/d6c0b22e0c083513cfdae369e90b14637083eece))
+* support address option for getJsonFeed ([#276](https://www.github.com/ethersphere/bee-js/issues/276)) ([85a7574](https://www.github.com/ethersphere/bee-js/commit/85a7574fbd2372542360fdd047a42e139cb733f5))
+
 ## [0.8.0](https://www.github.com/ethersphere/bee-js/compare/v0.7.1...v0.8.0) (2021-04-19)
 
 ### ☁️ High-level feed's API
