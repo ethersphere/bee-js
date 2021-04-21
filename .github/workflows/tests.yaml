@@ -14,6 +14,8 @@ env:
   REPLICA: 5
   BEE_API_URL: 'http://bee-0.localhost'
   BEE_PEER_API_URL: 'http://bee-1.localhost'
+  BEE_DEBUG_API_URL: 'http://bee-0-debug.localhost'
+  BEE_PEER_DEBUG_API_URL: 'http://bee-1-debug.localhost'
   BEE_TEST_CHEQUEBOOK: true
 
 jobs:
