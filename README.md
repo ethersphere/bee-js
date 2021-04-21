@@ -35,6 +35,15 @@
 > npm install @ethersphere/bee-js --save
 ```
 
+### yarn
+
+```sh
+> yarn add @ethersphere/bee-js
+```
+
+Be aware, if you are running Yarn v1 and are attempting to install this repo using GitHub URL, this won't unfortunately
+work as it does not correctly handle execution of `prepare` script.
+
 ### Use in Node.js
 
 **We require Node.js's version of at least 12.x**
