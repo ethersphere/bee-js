@@ -187,6 +187,10 @@ export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPaylo
 // the hash is hardcoded because we would need the bmt hasher otherwise
 export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as Reference
 
+export const testJsonPayload = [{ some: 'object' }]
+export const testJsonStringPayload = JSON.stringify(testJsonPayload)
+export const testJsonHash = '872a858115b8bee4408b1427b49e472883fdc2512d5a8f2d428b97ecc8f7ccfa'
+
 export const testIdentity = {
   privateKey: '634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' as HexString,
   publicKey: '03c32bb011339667a487b6c1c35061f15f7edc36aa9a0f8648aba07a4b8bd741b4' as HexString,

@@ -1,4 +1,4 @@
-import { JsonFeed, FeedWriter, ReferenceResponse, FeedReader, AnyJson } from '../types'
+import { FeedWriter, ReferenceResponse, FeedReader, AnyJson } from '../types'
 import { Bee } from '../bee'
 
 function serializeJson(data: AnyJson): Uint8Array {

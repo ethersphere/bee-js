@@ -548,29 +548,41 @@ export class Bee {
    * High-level function that allows you to easily get data from feed.
    * Returned data are parsed using JSON.parse().
    *
+   * This method also supports specification of `signer` object passed to constructor. The order of evaluation is:
+   *  - `options.address`
+   *  - `options.signer`
+   *  - `this.signer`
+   *
+   * At least one of these has to be specified!
+   *
    * @param topic Human readable string, that is internally hashed so there are no constrains there.
    * @param options
-   * @param options.signer Custom instance of Signer or string with private key.
-   * @param options.address Ethereum address of owner of the feed that signed it. Either `signer` or `address` has to be specified.
+   * @param options.signer Custom instance of Signer or string with private key. This option is exclusive with `address` option.
+   * @param options.address Ethereum address of owner of the feed that signed it. This option is exclusive with `signer` option.
    * @param options.type Type of Feed
    */
   getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
-    let address: EthAddress
 
-    try {
-      address = this.resolveSigner(options?.signer).address
-    } catch (e) {
-      if (e instanceof BeeError) {
-        address = makeEthAddress(options?.address)
-      } else {
-        throw e
-      }
+    if (options?.signer && options?.address) {
+      return Promise.reject(new BeeError('Both options "signer" and "address" can not be specified at one time!'))
     }
 
-    if (!address) {
-      throw new BeeError('Either address or signer has to be specified!')
+    let address: EthAddress
+
+    if (options?.address) {
+      address = makeEthAddress(options?.address)
+    } else {
+      try {
+        address = this.resolveSigner(options?.signer).address
+      } catch (e) {
+        if (e instanceof BeeError) {
+          return Promise.reject(new BeeError('Either address, signer or default signer has to be specified!'))
+        } else {
+          return Promise.reject(e)
+        }
+      }
     }
 
     const reader = this.makeFeedReader(feedType, hashedTopic, address)
