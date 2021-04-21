@@ -15,6 +15,8 @@ import {
   randomByteArray,
   testChunkPayload,
   testIdentity,
+  testJsonHash,
+  testJsonPayload,
   tryDeleteChunkFromLocalStorage,
 } from '../utils'
 import { makeSigner } from '../../src/chunk/signer'
@@ -434,15 +436,15 @@ describe('Bee class', () => {
     it(
       'should set JSON to feed',
       async () => {
-        const data = [{ some: 'object' }]
-        await bee.setJsonFeed(TOPIC, data, { signer: testIdentity.privateKey })
+        await bee.setJsonFeed(TOPIC, testJsonPayload, { signer: testIdentity.privateKey })
 
         const hashedTopic = bee.makeFeedTopic(TOPIC)
         const reader = bee.makeFeedReader('sequence', hashedTopic, testIdentity.address)
         const chunkReferenceResponse = await reader.download()
-        const downloadedData = await bee.downloadData(chunkReferenceResponse.reference)
+        expect(chunkReferenceResponse.reference).toEqual(testJsonHash)
 
-        expect(downloadedData.json()).toEqual(data)
+        const downloadedData = await bee.downloadData(chunkReferenceResponse.reference)
+        expect(downloadedData.json()).toEqual(testJsonPayload)
       },
       FEED_TIMEOUT,
     )
@@ -458,6 +460,21 @@ describe('Bee class', () => {
         await writer.upload(dataChunkReference)
 
         const fetchedData = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
+        expect(fetchedData).toEqual(data)
+      },
+      FEED_TIMEOUT,
+    )
+    it(
+      'should get JSON from feed with address',
+      async () => {
+        const data = [{ some: { other: 'object' } }]
+
+        const hashedTopic = bee.makeFeedTopic(TOPIC)
+        const writer = bee.makeFeedWriter('sequence', hashedTopic, testIdentity.privateKey)
+        const dataChunkReference = await bee.uploadData(JSON.stringify(data))
+        await writer.upload(dataChunkReference)
+
+        const fetchedData = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
         expect(fetchedData).toEqual(data)
       },
       FEED_TIMEOUT,

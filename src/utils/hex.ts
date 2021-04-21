@@ -30,7 +30,7 @@ export type PrefixedHexString = BrandedType<string, 'PrefixedHexString'>
  * @param input
  * @param len of the resulting HexString WITHOUT prefix!
  */
-export function makeHexString<L extends number>(input: string | number | Uint8Array, len?: L): HexString<L> {
+export function makeHexString<L extends number>(input: string | number | Uint8Array | unknown, len?: L): HexString<L> {
   if (typeof input === 'number') {
     return intToHex<L>(input, len)
   }

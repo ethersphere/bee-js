@@ -148,18 +148,18 @@ export interface FeedReader {
   download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
 }
 
-/**
- * Higher level abstraction build on top of Feeds that allow easy setting and getting
- * data from feeds. It works closely with JSON.parse/stringify so all supported data
- * types by that is also supported by this abstraction.
- */
-export interface JsonFeed<T extends AnyJson> {
-  readonly writer: FeedWriter
-  set(data: AnyJson): Promise<ReferenceResponse>
-  get(): Promise<T>
-}
-
 export interface JsonFeedOptions {
+  /**
+   * Valid only for `get` action, where either this `address` or `signer` has
+   * to be specified.
+   */
+  address?: EthAddress | Uint8Array | string
+
+  /**
+   * Custom Signer object or private key in either binary or hex form.
+   * This required for `set` action, and optional for `get` although
+   * if not specified for `get` then `address` option has to be specified.
+   */
   signer?: Signer | Uint8Array | string
   type?: FeedType
 }
