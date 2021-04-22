@@ -1,5 +1,5 @@
 import { assertAllIsDone, downloadDataMock, fetchFeedUpdateMock, MOCK_SERVER_URL } from './nock'
-import { Bee, BeeError, ReferenceResponse } from '../../src'
+import { Bee, BeeArgumentError, BeeError, ReferenceResponse } from '../../src'
 import { testIdentity, testJsonHash, testJsonPayload, testJsonStringPayload } from '../utils'
 import { makeTopicFromString } from '../../src/feed/topic'
 
@@ -7,6 +7,33 @@ const TOPIC = 'some=very%nice#topic'
 const HASHED_TOPIC = makeTopicFromString(TOPIC)
 
 describe('Bee class', () => {
+  function testUrl(url: unknown): void {
+    it(`should not accept invalid url '${url}'`, () => {
+      try {
+        new Bee(url as string)
+        fail('Bee constructor should have thrown error.')
+      } catch (e) {
+        if (e instanceof BeeArgumentError) {
+          expect(e.value).toEqual(url)
+
+          return
+        }
+
+        throw e
+      }
+    })
+  }
+
+  testUrl('')
+  testUrl(null)
+  testUrl(undefined)
+  testUrl(1)
+  testUrl('some-invalid-url')
+  testUrl('invalid:protocol')
+  // eslint-disable-next-line no-script-url
+  testUrl('javascript:console.log()')
+  testUrl('ws://localhost:1633')
+
   describe('getJsonFeed', () => {
     it('should fetch with specified address', async () => {
       downloadDataMock(testJsonHash).reply(200, testJsonStringPayload)
