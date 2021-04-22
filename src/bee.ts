@@ -178,13 +178,12 @@ export class Bee {
    * Uses the `fs` module of Node.js
    *
    * @param dir the path of the files to be uploaded
-   * @param recursive specifies if the directory should be recursively uploaded
    * @param options Additional options like tag, encryption, pinning
    *
    * @returns reference of the collection of files
    */
-  async uploadFilesFromDirectory(dir: string, recursive = true, options?: CollectionUploadOptions): Promise<Reference> {
-    const data = await makeCollectionFromFS(dir, recursive)
+  async uploadFilesFromDirectory(dir: string, options?: CollectionUploadOptions): Promise<Reference> {
+    const data = await makeCollectionFromFS(dir)
 
     return bzz.uploadCollection(this.url, data, options)
   }
