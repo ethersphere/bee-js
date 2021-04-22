@@ -1,6 +1,5 @@
 import type { Readable } from 'stream'
-import * as file from './modules/file'
-import * as collection from './modules/collection'
+import * as bzz from './modules/bzz'
 import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
@@ -45,6 +44,7 @@ import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertReference } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
+import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -126,9 +126,9 @@ export class Bee {
       const contentType = data.type
       const fileOptions = options !== undefined ? { contentType, ...options } : { contentType }
 
-      return file.upload(this.url, fileData, fileName, fileOptions)
+      return bzz.uploadFile(this.url, fileData, fileName, fileOptions)
     } else {
-      return file.upload(this.url, data, name, options)
+      return bzz.uploadFile(this.url, data, name, options)
     }
   }
 
@@ -136,22 +136,24 @@ export class Bee {
    * Download single file as a byte array
    *
    * @param reference Bee file reference
+   * @param path If reference points to manifest, then this parameter defines path to the file
    */
-  downloadFile(reference: Reference | string): Promise<FileData<Data>> {
+  downloadFile(reference: Reference | string, path = ''): Promise<FileData<Data>> {
     assertReference(reference)
 
-    return file.download(this.url, reference)
+    return bzz.downloadFile(this.url, reference, path)
   }
 
   /**
    * Download single file as a readable stream
    *
    * @param reference Bee file reference
+   * @param path If reference points to manifest, then this parameter defines path to the file
    */
-  downloadReadableFile(reference: Reference | string): Promise<FileData<Readable>> {
+  downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<Readable>> {
     assertReference(reference)
 
-    return file.downloadReadable(this.url, reference)
+    return bzz.downloadFileReadable(this.url, reference, path)
   }
 
   /**
@@ -165,9 +167,9 @@ export class Bee {
    * @returns reference of the collection of files
    */
   async uploadFiles(fileList: FileList | File[], options?: CollectionUploadOptions): Promise<Reference> {
-    const data = await collection.buildFileListCollection(fileList)
+    const data = await makeCollectionFromFileList(fileList)
 
-    return collection.upload(this.url, data, options)
+    return bzz.uploadCollection(this.url, data, options)
   }
 
   /**
@@ -182,42 +184,9 @@ export class Bee {
    * @returns reference of the collection of files
    */
   async uploadFilesFromDirectory(dir: string, recursive = true, options?: CollectionUploadOptions): Promise<Reference> {
-    const data = await collection.buildCollection(dir, recursive)
+    const data = await makeCollectionFromFS(dir, recursive)
 
-    return collection.upload(this.url, data, options)
-  }
-
-  /**
-   * Download single file as a byte array from collection given using the path
-   *
-   * @param reference Bee collection reference
-   * @param path Path of the requested file in the collection
-   *
-   * @returns file in byte array with metadata
-   */
-  downloadFileFromCollection(reference: Reference | string, path = ''): Promise<FileData<Data>> {
-    assertReference(reference)
-
-    return collection.download(this.url, reference, path)
-  }
-
-  /**
-   * Download single file as a readable stream from collection given using the path
-   *
-   * @param reference Bee collection reference
-   * @param path Path of the requested file in the collection
-   * @param axiosOptions optional - alter default options of axios HTTP client
-   *
-   * @returns file in readable stream with metadata
-   */
-  downloadReadableFileFromCollection(
-    reference: Reference | string,
-    path = '',
-    axiosOptions?: AxiosRequestConfig,
-  ): Promise<FileData<Readable>> {
-    assertReference(reference)
-
-    return collection.downloadReadable(this.url, reference, path, axiosOptions)
+    return bzz.uploadCollection(this.url, data, options)
   }
 
   /**
