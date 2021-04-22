@@ -230,6 +230,9 @@ describe('modules/bzz', () => {
     })
 
     it('should store file with a tag', async () => {
+      // Relates to how many chunks is uploaded which depends on manifest serialization.
+      const EXPECTED_TAGS_COUNT = 6
+
       const data = randomByteArray(5000, 1)
       const filename = 'hello.txt'
 
@@ -237,8 +240,8 @@ describe('modules/bzz', () => {
       await bzz.uploadFile(BEE_URL, data, filename, { tag: tag1.uid })
       const tag2 = await tag.retrieveTag(BEE_URL, tag1)
 
-      expect(tag2.total).toEqual(5)
-      expect(tag2.processed).toEqual(5)
+      expect(tag2.total).toEqual(EXPECTED_TAGS_COUNT)
+      expect(tag2.processed).toEqual(EXPECTED_TAGS_COUNT)
     }, 5000)
 
     it(
