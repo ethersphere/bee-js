@@ -124,7 +124,7 @@ describe('Bee class - in browser', () => {
 
         const result = await page.evaluate(
           async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message) => {
-            const topic = 'bee-class-topic'
+            const topic = 'browser-bee-class-topic1'
 
             const bee = new window.BeeJs.Bee(BEE_URL)
             const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
@@ -159,7 +159,7 @@ describe('Bee class - in browser', () => {
 
         const result = await page.evaluate(
           async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message) => {
-            const topic = 'bee-class-topic'
+            const topic = 'browser-bee-class-topic2'
 
             const bee = new window.BeeJs.Bee(BEE_URL)
             const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
