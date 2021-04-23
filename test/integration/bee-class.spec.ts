@@ -28,33 +28,6 @@ describe('Bee class', () => {
   const BEE_URL = beeUrl()
   const bee = new Bee(BEE_URL)
 
-  function testUrl(url: unknown): void {
-    it(`should not accept invalid url '${url}'`, () => {
-      try {
-        new Bee(url as string)
-        fail('Bee constructor should have thrown error.')
-      } catch (e) {
-        if (e instanceof BeeArgumentError) {
-          expect(e.value).toEqual(url)
-
-          return
-        }
-
-        throw e
-      }
-    })
-  }
-
-  testUrl('')
-  testUrl(null)
-  testUrl(undefined)
-  testUrl(1)
-  testUrl('some-invalid-url')
-  testUrl('invalid:protocol')
-  // eslint-disable-next-line no-script-url
-  testUrl('javascript:console.log()')
-  testUrl('ws://localhost:1633')
-
   it('should strip trailing slash', () => {
     const bee = new Bee('http://localhost:1633/')
     expect(bee.url).toEqual('http://localhost:1633')
