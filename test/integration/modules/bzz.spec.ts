@@ -231,6 +231,7 @@ describe('modules/bzz', () => {
 
     it('should store file with a tag', async () => {
       // Relates to how many chunks is uploaded which depends on manifest serialization.
+      // https://github.com/ethersphere/bee/pull/1501#discussion_r611385602
       const EXPECTED_TAGS_COUNT = 6
 
       const data = randomByteArray(5000, 1)
