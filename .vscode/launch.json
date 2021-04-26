@@ -6,32 +6,43 @@
         "command": "npm run test",
         "type": "node-terminal",
         "request": "launch",
-          "env": {
-              "NODE_ENV": "development",
-              "BEE_API_URL": "http://localhost:1633",
-              "BEE_PEER_API_URL": "http://localhost:11633"
-          }
+        "env": {
+            "NODE_ENV": "development",
+            "BEE_API_URL": "http://localhost:1633",
+            "BEE_DEBUG_API_URL": "http://localhost:1635",
+            "BEE_PEER_API_URL": "http://localhost:11633",
+            "BEE_PEER_DEBUG_API_URL": "http://localhost:11635",
+            "BEE_TEST_CHEQUEBOOK": "true"
+        }
       },
 
       {
-        "name": "vscode-jest-tests",
-        "program": "${workspaceFolder}/node_modules/.bin/jest",
-        "type": "node",
+        "name": "Run One Specific Node Jest test",
+        "command": "npm run test:node -- --testPathPattern ${file}",
+        "type": "node-terminal",
         "request": "launch",
         "env": {
             "NODE_ENV": "development",
             "BEE_API_URL": "http://localhost:1633",
-            "BEE_PEER_API_URL": "http://localhost:11633"
-        },
-        "args": [
-          "--runInBand",
-          "--config",
-          "jest.config.ts"
-        ],
-        "console": "integratedTerminal",
-        "disableOptimisticBPs": true,
-        "windows": {
-            "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+            "BEE_DEBUG_API_URL": "http://localhost:1635",
+            "BEE_PEER_API_URL": "http://localhost:11633",
+            "BEE_PEER_DEBUG_API_URL": "http://localhost:11635",
+            "BEE_TEST_CHEQUEBOOK": "true"
+        }
+      },
+
+      {
+        "name": "Run One Specific Browser Jest test",
+        "command": "npm run test:browser -- --testPathPattern ${file}",
+        "type": "node-terminal",
+        "request": "launch",
+        "env": {
+            "NODE_ENV": "development",
+            "BEE_API_URL": "http://localhost:1633",
+            "BEE_DEBUG_API_URL": "http://localhost:1635",
+            "BEE_PEER_API_URL": "http://localhost:11633",
+            "BEE_PEER_DEBUG_API_URL": "http://localhost:11635",
+            "BEE_TEST_CHEQUEBOOK": "true"
         }
       }
   ]
