@@ -18,13 +18,13 @@ describe('type', () => {
 
     wrongValues.forEach(v =>
       test(`should return false for value  ${v}`, () => {
-        expect(isInteger((v as unknown) as number | BigInt)).toEqual(false)
+        expect(isInteger((v as unknown) as number | bigint)).toEqual(false)
       }),
     )
 
     correctValues.forEach(v =>
       test(`should return true for value  ${v}`, () => {
-        expect(isInteger((v as unknown) as number | BigInt)).toEqual(true)
+        expect(isInteger((v as unknown) as number | bigint)).toEqual(true)
       }),
     )
   })

@@ -109,7 +109,7 @@ export async function getLastCheques(url: string): Promise<LastChequesResponse> 
  * @param url     Bee debug url
  * @param amount  Amount of tokens to deposit
  */
-export async function depositTokens(url: string, amount: number | BigInt): Promise<DepositTokensResponse> {
+export async function depositTokens(url: string, amount: number | bigint): Promise<DepositTokensResponse> {
   const response = await safeAxios<DepositTokensResponse>({
     method: 'post',
     url: url + chequebookEndpoint + '/deposit',
@@ -126,7 +126,7 @@ export async function depositTokens(url: string, amount: number | BigInt): Promi
  * @param url     Bee debug url
  * @param amount  Amount of tokens to withdraw
  */
-export async function withdrawTokens(url: string, amount: number | BigInt): Promise<WithdrawTokensResponse> {
+export async function withdrawTokens(url: string, amount: number | bigint): Promise<WithdrawTokensResponse> {
   const response = await safeAxios<WithdrawTokensResponse>({
     method: 'post',
     url: url + chequebookEndpoint + '/withdraw',

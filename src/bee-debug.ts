@@ -167,7 +167,7 @@ export class BeeDebug {
    *
    * @param amount  Amount of tokens to deposit (must be positive integer)
    */
-  depositTokens(amount: number | BigInt): Promise<DepositTokensResponse> {
+  depositTokens(amount: number | bigint): Promise<DepositTokensResponse> {
     assertInteger(amount)
 
     if (amount < 0) throw new TypeError('must be positive number')
@@ -180,7 +180,7 @@ export class BeeDebug {
    *
    * @param amount  Amount of tokens to withdraw (must be positive integer)
    */
-  withdrawTokens(amount: number | BigInt): Promise<WithdrawTokensResponse> {
+  withdrawTokens(amount: number | bigint): Promise<WithdrawTokensResponse> {
     assertInteger(amount)
 
     if (amount < 0) throw new TypeError('must be positive number')
