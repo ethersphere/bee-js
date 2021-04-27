@@ -1,5 +1,6 @@
 import { Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
 import { BeeError } from './error'
+import { assertAddress } from './type'
 
 /**
  * Read the filename from the content-disposition header
@@ -62,6 +63,12 @@ export function extractUploadHeaders(options?: UploadOptions): UploadHeaders {
   if (options?.encrypt) headers['swarm-encrypt'] = String(options.encrypt)
 
   if (options?.tag) headers['swarm-tag'] = String(options.tag)
+
+  if (options?.batchId) {
+    assertAddress(options.batchId)
+
+    headers['swarm-postage-batch-id'] = String(options.batchId)
+  }
 
   return headers
 }

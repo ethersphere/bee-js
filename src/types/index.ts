@@ -38,6 +38,7 @@ export interface UploadOptions {
   pin?: boolean
   encrypt?: boolean
   tag?: number
+  batchId?: Address | string
   /** alter default options of axios HTTP client */
   axiosOptions?: AxiosRequestConfig
 }
@@ -60,6 +61,7 @@ export interface UploadHeaders {
   'swarm-pin'?: string
   'swarm-encrypt'?: string
   'swarm-tag'?: string
+  'swarm-postage-batch-id'?: string
 }
 
 export interface Tag {
@@ -213,6 +215,14 @@ export interface SOCWriter extends SOCReader {
    * @param options     Upload options
    */
   upload: (identifier: Identifier, data: Uint8Array, options?: UploadOptions) => Promise<ReferenceResponse>
+}
+
+/**
+ * Interface representing Postage stamp batch.
+ */
+export interface StampBatch {
+  batchID: Address
+  utilization: number
 }
 
 /*********************************************************

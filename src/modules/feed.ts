@@ -1,4 +1,4 @@
-import { Dictionary, Reference, ReferenceResponse, Topic } from '../types'
+import { Address, Dictionary, Reference, ReferenceResponse, Topic } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
@@ -7,6 +7,8 @@ const feedEndpoint = '/feeds'
 
 export interface CreateFeedOptions {
   type?: FeedType
+
+  batchId?: Address | string
 }
 
 export interface FeedUpdateOptions {
