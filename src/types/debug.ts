@@ -1,12 +1,12 @@
 export interface Settlements {
   peer: string
-  received: BigInt
-  sent: BigInt
+  received: bigint
+  sent: bigint
 }
 
 export interface AllSettlements {
-  totalreceived: BigInt
-  totalsent: BigInt
+  totalreceived: bigint
+  totalsent: bigint
   settlements: Settlements[]
 }
 
@@ -28,20 +28,20 @@ export interface ChequebookAddressResponse {
 }
 
 export interface ChequebookBalanceResponse {
-  totalBalance: BigInt
-  availableBalance: BigInt
+  totalBalance: bigint
+  availableBalance: bigint
 }
 
 export interface CashoutResult {
   recipient: string
-  lastPayout: BigInt
+  lastPayout: bigint
   bounced: boolean
 }
 
 export interface LastCashoutActionResponse {
   peer: string
   chequebook: string
-  cumulativePayout: BigInt
+  cumulativePayout: bigint
   beneficiary: string
   transactionHash: string
   result: CashoutResult
@@ -54,7 +54,7 @@ export interface CashoutResponse {
 export interface Cheque {
   beneficiary: string
   chequebook: string
-  payout: BigInt
+  payout: bigint
 }
 
 export interface LastChequesForPeerResponse {
@@ -76,7 +76,7 @@ export interface WithdrawTokensResponse {
 
 export interface PeerBalance {
   peer: string
-  balance: BigInt
+  balance: bigint
 }
 
 export interface BalanceResponse {

@@ -1,7 +1,7 @@
 import { ENCRYPTED_REFERENCE_HEX_LENGTH, Reference, REFERENCE_HEX_LENGTH } from '../types'
 import { assertHexString } from './hex'
 
-export function isInteger(value: unknown): value is number | BigInt {
+export function isInteger(value: unknown): value is number | bigint {
   return (
     typeof value === 'bigint' ||
     (typeof value === 'number' &&
@@ -11,7 +11,7 @@ export function isInteger(value: unknown): value is number | BigInt {
   )
 }
 
-export function assertInteger(value: unknown): asserts value is number | BigInt {
+export function assertInteger(value: unknown): asserts value is number | bigint {
   if (!isInteger(value)) throw new TypeError('value is not integer')
 }
 

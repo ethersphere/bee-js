@@ -25,7 +25,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
 
     const TRANSACTION_TIMEOUT = 20 * 1000
 
-    const withDrawDepositTest = (amount: number | BigInt) => async () => {
+    const withDrawDepositTest = (amount: number | bigint) => async () => {
       const withdrawResponse = await withdrawTokens(beeDebugUrl(), amount)
       expect(typeof withdrawResponse.transactionHash).toBe('string')
 
