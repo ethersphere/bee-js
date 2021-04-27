@@ -25,7 +25,7 @@ import type {
   NodeAddresses,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { assertInteger } from './utils/type'
+import { assertAddress, assertInteger } from './utils/type'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -87,7 +87,9 @@ export class BeeDebug {
    *
    * @param address Swarm address of peer
    */
-  getPeerBalance(address: Address): Promise<PeerBalance> {
+  getPeerBalance(address: Address | string): Promise<PeerBalance> {
+    assertAddress(address)
+
     return balance.getPeerBalance(this.url, address)
   }
 
@@ -103,7 +105,9 @@ export class BeeDebug {
    *
    * @param address Swarm address of peer
    */
-  getPastDueConsumptionPeerBalance(address: Address): Promise<PeerBalance> {
+  getPastDueConsumptionPeerBalance(address: Address | string): Promise<PeerBalance> {
+    assertAddress(address)
+
     return balance.getPastDueConsumptionPeerBalance(this.url, address)
   }
 
@@ -140,7 +144,9 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  getLastChequesForPeer(address: Address): Promise<LastChequesForPeerResponse> {
+  getLastChequesForPeer(address: Address | string): Promise<LastChequesForPeerResponse> {
+    assertAddress(address)
+
     return chequebook.getLastChequesForPeer(this.url, address)
   }
 
@@ -149,7 +155,9 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  getLastCashoutAction(address: Address): Promise<LastCashoutActionResponse> {
+  getLastCashoutAction(address: Address | string): Promise<LastCashoutActionResponse> {
+    assertAddress(address)
+
     return chequebook.getLastCashoutAction(this.url, address)
   }
 
@@ -197,7 +205,9 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  getSettlements(address: Address): Promise<Settlements> {
+  getSettlements(address: Address | string): Promise<Settlements> {
+    assertAddress(address)
+
     return settlements.getSettlements(this.url, address)
   }
 

@@ -13,6 +13,7 @@ export interface Dictionary<T> {
   [Key: string]: T
 }
 
+export const ADDRESS_HEX_LENGTH = 64
 export const REFERENCE_HEX_LENGTH = 64
 export const ENCRYPTED_REFERENCE_HEX_LENGTH = 128
 export const REFERENCE_BYTES_LENGTH = 32
@@ -21,8 +22,13 @@ export const ENCRYPTED_REFERENCE_BYTES_LENGTH = 64
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
 export type PublicKey = string
 
-export type Address = string
-export type AddressPrefix = Address
+export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
+
+/**
+ * AddressPrefix is an HexString of length equal or smaller then ADDRESS_HEX_LENGTH.
+ * It represents PSS Address Prefix that is used to define address neighborhood that will receive the PSS message.
+ */
+export type AddressPrefix = HexString
 
 export interface BeeOptions {
   signer?: Signer | Uint8Array | string
