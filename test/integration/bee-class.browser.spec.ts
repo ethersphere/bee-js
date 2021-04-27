@@ -57,7 +57,7 @@ describe('Bee class - in browser', () => {
   testUrl('javascript:console.log()')
   testUrl('ws://localhost:1633')
 
-  it.skip('should pin and unpin collection', async () => {
+  it('should pin and unpin collection', async () => {
     const fileHash = await page.evaluate(async BEE_URL => {
       const bee = new window.BeeJs.Bee(BEE_URL)
       const files: File[] = [new File(['hello'], 'hello')]
