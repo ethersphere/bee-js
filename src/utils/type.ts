@@ -1,4 +1,4 @@
-import { ENCRYPTED_REFERENCE_HEX_LENGTH, Reference, REFERENCE_HEX_LENGTH } from '../types'
+import { Address, ADDRESS_HEX_LENGTH, ENCRYPTED_REFERENCE_HEX_LENGTH, Reference, REFERENCE_HEX_LENGTH } from '../types'
 import { assertHexString } from './hex'
 
 export function isInteger(value: unknown): value is number | bigint {
@@ -21,4 +21,8 @@ export function assertReference(value: unknown): asserts value is Reference {
   } catch (e) {
     assertHexString(value, ENCRYPTED_REFERENCE_HEX_LENGTH)
   }
+}
+
+export function assertAddress(value: unknown): asserts value is Address {
+  assertHexString(value, ADDRESS_HEX_LENGTH)
 }
