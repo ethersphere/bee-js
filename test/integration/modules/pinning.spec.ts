@@ -1,6 +1,5 @@
 import * as pinning from '../../../src/modules/pinning'
-import * as file from '../../../src/modules/file'
-import * as collection from '../../../src/modules/collection'
+import * as bzz from '../../../src/modules/bzz'
 import * as bytes from '../../../src/modules/bytes'
 import * as chunk from '../../../src/modules/chunk'
 import {
@@ -21,14 +20,14 @@ describe('modules/pin', () => {
     const randomData = randomByteArray(5000)
 
     it('should pin an existing file', async () => {
-      const hash = await file.upload(BEE_URL, randomData)
+      const hash = await bzz.uploadFile(BEE_URL, randomData)
       const response = await pinning.pinFile(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
     })
 
     it('should unpin an existing file', async () => {
-      const hash = await file.upload(BEE_URL, randomData)
+      const hash = await bzz.uploadFile(BEE_URL, randomData)
       const response = await pinning.unpinFile(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
@@ -60,14 +59,14 @@ describe('modules/pin', () => {
     ]
 
     it('should pin an existing collection', async () => {
-      const hash = await collection.upload(BEE_URL, testCollection)
+      const hash = await bzz.uploadCollection(BEE_URL, testCollection)
       const response = await pinning.pinCollection(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
     })
 
     it('should unpin an existing collections', async () => {
-      const hash = await collection.upload(BEE_URL, testCollection)
+      const hash = await bzz.uploadCollection(BEE_URL, testCollection)
       const response = await pinning.unpinCollection(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
