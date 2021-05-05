@@ -5,7 +5,6 @@ import {
   getNodeAddresses,
   pingPeer,
 } from '../../../../src/modules/debug/connectivity'
-import type { Bin } from '../../../../src/types/debug'
 import { beeDebugUrl } from '../../../utils'
 
 describe('modules/debug/connectivity', () => {
@@ -65,6 +64,6 @@ describe('modules/debug/connectivity', () => {
     const peers = await getPeers(beeDebugUrl())
     const res = await pingPeer(beeDebugUrl(), peers[0].address)
 
-    expect(res.rtt).toMatch(/^\d+(\.\d+)[mnp]?s$/)
+    expect(res.rtt).toMatch(/^\d+(\.\d+)[mnpµ]?s$/)
   })
 })
