@@ -40,6 +40,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Use Python 2.7 for setups
+        uses: actions/setup-python@v2
+        with:
+        python-version: '2.7'
+
       - name: Auth to Github Package Docker Registry
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
