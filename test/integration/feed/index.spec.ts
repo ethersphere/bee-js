@@ -60,7 +60,7 @@ describe('feed', () => {
 
     expect(feedUpdate.feedIndex).toEqual('0000000000000000')
     expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
-  }, 15000)
+  }, 21000)
 
   test('multiple updates and lookup', async () => {
     const reference = makeHexString('0000000000000000000000000000000000000000000000000000000000000000', 64)
