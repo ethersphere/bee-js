@@ -43,7 +43,7 @@ jobs:
       - name: Use Python 2.7 for setups
         uses: actions/setup-python@v2
         with:
-        python-version: '2.7'
+          python-version: '2.7'
 
       - name: Auth to Github Package Docker Registry
         run: |
