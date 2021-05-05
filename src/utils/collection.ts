@@ -13,7 +13,7 @@ export function isCollection(data: unknown): data is Collection<Uint8Array> {
     return false
   }
 
-  return !data.some(entry => typeof entry !== 'object' || !entry.data || !entry.path || !isUint8Array(entry.data))
+  return data.every(entry => typeof entry === 'object' && entry.data && entry.path && isUint8Array(entry.data))
 }
 
 export function assertCollection(data: unknown): asserts data is Collection<Uint8Array> {

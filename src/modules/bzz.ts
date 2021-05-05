@@ -39,14 +39,8 @@ export async function uploadFile(
   name?: string,
   options?: FileUploadOptions,
 ): Promise<Reference> {
-  if (!url || url === '') {
+  if (!url) {
     throw new BeeArgumentError('url parameter is required and cannot be empty', url)
-  }
-
-  const params: Record<string, string> = {}
-
-  if (name) {
-    params.name = name
   }
 
   const response = await safeAxios<{ reference: Reference }>({
@@ -57,7 +51,7 @@ export async function uploadFile(
     headers: {
       ...extractFileUploadHeaders(options),
     },
-    params,
+    params: { name },
     responseType: 'json',
   })
 
@@ -143,7 +137,7 @@ export async function uploadCollection(
   collection: Collection<Uint8Array>,
   options?: CollectionUploadOptions,
 ): Promise<Reference> {
-  if (!url || url === '') {
+  if (!url) {
     throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
 
