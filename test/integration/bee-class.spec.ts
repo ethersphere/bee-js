@@ -22,7 +22,7 @@ import {
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import { makeEthAddress } from '../../src/utils/eth'
-import * as collection from '../../src/modules/collection'
+import * as bzz from '../../src/modules/bzz'
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
@@ -306,7 +306,7 @@ describe('Bee class', () => {
             data: new TextEncoder().encode('some data'),
           },
         ]
-        const cacHash = await collection.upload(BEE_URL, directoryStructure)
+        const cacHash = await bzz.uploadCollection(BEE_URL, directoryStructure)
 
         const feed = bee.makeFeedWriter('sequence', topic, signer)
         await feed.upload(cacHash)
@@ -315,8 +315,8 @@ describe('Bee class', () => {
         expect(typeof manifestReference).toBe('string')
 
         // this calls /bzz endpoint that should resolve the manifest and the feed returning the latest feed's content
-        const bzz = await bee.downloadFileFromCollection(manifestReference, 'index.html')
-        expect(new TextDecoder().decode(bzz.data)).toEqual('some data')
+        const file = await bee.downloadFile(manifestReference, 'index.html')
+        expect(new TextDecoder().decode(file.data)).toEqual('some data')
       },
       FEED_TIMEOUT,
     )
