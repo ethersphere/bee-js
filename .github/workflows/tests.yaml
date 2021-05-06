@@ -8,14 +8,17 @@ on:
     branches:
       - '**'
 
-
 env:
   BEE_VERSION: '0.5.3'
-  REPLICA: 5
-  BEE_API_URL: 'http://bee-0.localhost'
-  BEE_PEER_API_URL: 'http://bee-1.localhost'
-  BEE_DEBUG_API_URL: 'http://bee-0-debug.localhost'
-  BEE_PEER_DEBUG_API_URL: 'http://bee-1-debug.localhost'
+  BLOCKCHAIN_VERSION: '1.0.0'
+  BEE_ENV_PREFIX: 'swarm-test'
+  BEE_IMAGE_PREFIX: 'docker.pkg.github.com/ethersphere/bee-factory'
+  COMMIT_VERSION_TAG: 'false'
+  WORKERS: 4
+  BEE_API_URL: 'http://localhost:1633'
+  BEE_PEER_API_URL: 'http://localhost:11633'
+  BEE_DEBUG_API_URL: 'http://localhost:1635'
+  BEE_PEER_DEBUG_API_URL: 'http://localhost:11635'
   BEE_TEST_CHEQUEBOOK: true
 
 jobs:
@@ -37,30 +40,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Auth to Github Package Docker Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+
       # Setup Bee environment
-      - name: Install bee-local
+      - name: Start Bee Factory environment
         run: |
-          sudo mv $(command -v brew){,_disable}
-          export URL=$(curl -s https://api.github.com/repos/ethersphere/bee-local/releases/latest | jq -r .tarball_url)
-          curl -Ls ${URL} -o bee-local.tar.gz
-          tar --strip-components=1 --wildcards -xzf bee-local.tar.gz ethersphere-bee-local-*/{beeinfra.sh,helm-values,hack}
-          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG='\"${BEE_VERSION}\"'/' beeinfra.sh
-      - name: Install latest beekeeper
-        run: |
-          export TAG=$(curl -s https://api.github.com/repos/ethersphere/beekeeper/releases/latest | jq -r .tag_name)
-          curl -Ls https://github.com/ethersphere/beekeeper/releases/download/${TAG}/beekeeper-linux-amd64 -o beekeeper
-          chmod +x beekeeper
-      - name: Prepare testing cluster
-        run: ./beeinfra.sh prepare --geth
-      - name: Set kube config
-        run: |
-          mkdir -p ~/.kube
-          cp $(k3d get-kubeconfig --name='k3s-default') ~/.kube/config
-      - name: Set testing cluster
-        run: |
-          echo -e "127.0.0.10\tregistry.localhost" | sudo tee -a /etc/hosts
-          for ((i=0; i<REPLICA; i++)); do echo -e "127.0.1.$((i+1))\tbee-${i}.localhost bee-${i}-debug.localhost"; done | sudo tee -a /etc/hosts
-          ./beeinfra.sh install -r "${REPLICA}" --geth
+          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
+          chmod +x -R ./bee-factory/scripts
+          ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 
       ## Try getting the node modules from cache, if failed npm ci
       - uses: actions/cache@v2
@@ -101,30 +90,16 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Auth to Github Package Docker Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
+
       # Setup Bee environment
-      - name: Install bee-local
+      - name: Start Bee Factory environment
         run: |
-          sudo mv $(command -v brew){,_disable}
-          export URL=$(curl -s https://api.github.com/repos/ethersphere/bee-local/releases/latest | jq -r .tarball_url)
-          curl -Ls ${URL} -o bee-local.tar.gz
-          tar --strip-components=1 --wildcards -xzf bee-local.tar.gz ethersphere-bee-local-*/{beeinfra.sh,helm-values,hack}
-          sed -i 's/IMAGE_TAG="latest"/IMAGE_TAG='\"${BEE_VERSION}\"'/' beeinfra.sh
-      - name: Install latest beekeeper
-        run: |
-          export TAG=$(curl -s https://api.github.com/repos/ethersphere/beekeeper/releases/latest | jq -r .tag_name)
-          curl -Ls https://github.com/ethersphere/beekeeper/releases/download/${TAG}/beekeeper-linux-amd64 -o beekeeper
-          chmod +x beekeeper
-      - name: Prepare testing cluster
-        run: ./beeinfra.sh prepare --geth
-      - name: Set kube config
-        run: |
-          mkdir -p ~/.kube
-          cp $(k3d get-kubeconfig --name='k3s-default') ~/.kube/config
-      - name: Set testing cluster
-        run: |
-          echo -e "127.0.0.10\tregistry.localhost" | sudo tee -a /etc/hosts
-          for ((i=0; i<REPLICA; i++)); do echo -e "127.0.1.$((i+1))\tbee-${i}.localhost bee-${i}-debug.localhost"; done | sudo tee -a /etc/hosts
-          ./beeinfra.sh install -r "${REPLICA}" --geth
+          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
+          chmod +x -R ./bee-factory/scripts
+          ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 
       ## Try getting the node modules from cache, if failed npm ci
       - uses: actions/cache@v2

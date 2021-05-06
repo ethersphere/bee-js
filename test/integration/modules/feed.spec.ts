@@ -48,5 +48,5 @@ describe('modules/feed', () => {
     expect(typeof feedUpdate.reference).toBe('string')
     expect(feedUpdate.feedIndex).toEqual('0000000000000000')
     expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
-  }, 15000)
+  }, 21000)
 })
