@@ -115,17 +115,17 @@ describe('Bee class', () => {
   })
 
   describe('pinning', () => {
-    it('should list pinned chunks', async () => {
+    it('should list all pins', async () => {
       const content = new Uint8Array([1, 2, 3])
       const hash = await bee.uploadFile(content)
 
-      const pinResponse = await bee.pinFile(hash)
+      const pinResponse = await bee.pin(hash)
       expect(pinResponse).toEqual(okResponse)
 
-      const pinnedChunks = await bee.getPinnedChunks()
-      expect(pinnedChunks).toHaveProperty('chunks')
-      expect(pinnedChunks.chunks.length).toBeGreaterThanOrEqual(1)
-      expect(pinnedChunks.chunks.find(chunk => chunk.address === hash)).toBeTruthy()
+      const pinnedChunks = await bee.getAllPins()
+      expect(pinnedChunks).toBe('array')
+      expect(pinnedChunks.length).toEqual(1)
+      expect(pinnedChunks.find(chunk => chunk.address === hash)).toBeTruthy()
     })
 
     it('should get pinning status', async () => {
@@ -134,15 +134,14 @@ describe('Bee class', () => {
         pin: false,
       })
 
-      const statusBeforePinning = bee.getChunkPinningStatus(hash)
+      const statusBeforePinning = bee.getPin(hash)
       await expect(statusBeforePinning).rejects.toThrowError('Not Found')
 
-      const pinResponse = await bee.pinFile(hash)
+      const pinResponse = await bee.pin(hash)
       expect(pinResponse).toEqual(okResponse)
 
-      const statusAfterPinning = await bee.getChunkPinningStatus(hash)
+      const statusAfterPinning = await bee.getPin(hash)
       expect(statusAfterPinning).toHaveProperty('address', hash)
-      expect(statusAfterPinning).toHaveProperty('pinCounter', 1)
     })
 
     it('should pin and unpin files', async () => {
@@ -150,22 +149,10 @@ describe('Bee class', () => {
 
       const hash = await bee.uploadFile(content)
 
-      const pinResponse = await bee.pinFile(hash)
+      const pinResponse = await bee.pin(hash)
       expect(pinResponse).toEqual(okResponse)
 
-      const unpinResponse = await bee.unpinFile(hash)
-      expect(unpinResponse).toEqual(okResponse)
-    })
-
-    it('should pin and unpin chunks', async () => {
-      const content = new Uint8Array([1, 2, 3])
-
-      const hash = await bee.uploadFile(content)
-
-      const pinResponse = await bee.pinChunk(hash)
-      expect(pinResponse).toEqual(okResponse)
-
-      const unpinResponse = await bee.unpinChunk(hash)
+      const unpinResponse = await bee.unpin(hash)
       expect(unpinResponse).toEqual(okResponse)
     })
 
@@ -173,10 +160,10 @@ describe('Bee class', () => {
       const path = './test/data/'
       const hash = await bee.uploadFilesFromDirectory(path)
 
-      const pinResponse = await bee.pinCollection(hash)
+      const pinResponse = await bee.pin(hash)
       expect(pinResponse).toEqual(okResponse)
 
-      const unpinResponse = await bee.unpinCollection(hash)
+      const unpinResponse = await bee.unpin(hash)
       expect(unpinResponse).toEqual(okResponse)
     })
 
@@ -185,10 +172,10 @@ describe('Bee class', () => {
 
       const hash = await bee.uploadData(content)
 
-      const pinResponse = await bee.pinData(hash)
+      const pinResponse = await bee.pin(hash)
       expect(pinResponse).toEqual(okResponse)
 
-      const unpinResponse = await bee.unpinData(hash)
+      const unpinResponse = await bee.unpin(hash)
       expect(unpinResponse).toEqual(okResponse)
     })
   })
