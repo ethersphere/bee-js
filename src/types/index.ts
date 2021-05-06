@@ -80,6 +80,10 @@ export interface FileData<T> extends FileHeaders {
   data: T
 }
 
+export interface Pin {
+  address: string
+}
+
 /**
  * Helper interface that adds utility functions
  * to work more conveniently with bytes in normal

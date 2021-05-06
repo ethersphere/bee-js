@@ -28,6 +28,7 @@ import type {
   ReferenceResponse,
   JsonFeedOptions,
   AnyJson,
+  Pin,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -205,58 +206,14 @@ export class Bee {
   }
 
   /**
-   * Pin file with given reference
-   *
-   * @param reference Bee file reference
-   */
-  pinFile(reference: Reference | string): Promise<BeeResponse> {
-    assertReference(reference)
-
-    return pinning.pinFile(this.url, reference)
-  }
-
-  /**
-   * Unpin file with given reference
-   *
-   * @param reference Bee file reference
-   */
-  unpinFile(reference: Reference | string): Promise<BeeResponse> {
-    assertReference(reference)
-
-    return pinning.unpinFile(this.url, reference)
-  }
-
-  /**
-   * Pin collection with given reference
-   *
-   * @param reference Bee collection reference
-   */
-  pinCollection(reference: Reference | string): Promise<BeeResponse> {
-    assertReference(reference)
-
-    return pinning.pinCollection(this.url, reference)
-  }
-
-  /**
-   * Unpin collection with given reference
-   *
-   * @param reference Bee collection reference
-   */
-  unpinCollection(reference: Reference | string): Promise<BeeResponse> {
-    assertReference(reference)
-
-    return pinning.unpinCollection(this.url, reference)
-  }
-
-  /**
    * Pin data with given reference
    *
    * @param reference Bee data reference
    */
-  pinData(reference: Reference | string): Promise<BeeResponse> {
+  pin(reference: Reference | string): Promise<BeeResponse> {
     assertReference(reference)
 
-    return pinning.pinData(this.url, reference)
+    return pinning.pin(this.url, reference)
   }
 
   /**
@@ -264,41 +221,17 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  unpinData(reference: Reference | string): Promise<BeeResponse> {
+  unpin(reference: Reference | string): Promise<BeeResponse> {
     assertReference(reference)
 
-    return pinning.unpinData(this.url, reference)
+    return pinning.unpin(this.url, reference)
   }
 
   /**
-   * Pin data with given reference
-   *
-   * @param reference Bee data reference
+   * Get list of all pins
    */
-  pinChunk(reference: Reference | string): Promise<BeeResponse> {
-    assertReference(reference)
-
-    return pinning.pinChunk(this.url, reference)
-  }
-
-  /**
-   * Unpin data with given reference
-   *
-   * @param reference Bee data reference
-   */
-  unpinChunk(reference: Reference | string): Promise<BeeResponse> {
-    assertReference(reference)
-
-    return pinning.unpinChunk(this.url, reference)
-  }
-
-  /**
-   * Get list of pinned chunks
-   *
-   * @param options Optional offset and limit of listing
-   */
-  getPinnedChunks(options?: pinning.PinnedChunksOptions): Promise<pinning.PinnedChunks> {
-    return pinning.getPinnedChunks(this.url, options)
+  getAllPins(): Promise<Pin[]> {
+    return pinning.getAllPins(this.url)
   }
 
   /**
@@ -306,22 +239,10 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  getChunkPinningStatus(reference: Reference | string): Promise<pinning.PinningStatus> {
+  getPin(reference: Reference | string): Promise<Pin> {
     assertReference(reference)
 
-    return pinning.getChunkPinningStatus(this.url, reference)
-  }
-
-  /**
-   * Update pin counter of chunk with given reference
-   *
-   * @param reference   Bee data reference
-   * @param pinCounter  New value of the pin counter
-   */
-  updateChunkPinCounter(reference: Reference | string, pinCounter: number): Promise<pinning.PinningStatus> {
-    assertReference(reference)
-
-    return pinning.updateChunkPinCounter(this.url, reference, pinCounter)
+    return pinning.getPin(this.url, reference)
   }
 
   /**
