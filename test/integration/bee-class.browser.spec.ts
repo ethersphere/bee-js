@@ -70,7 +70,7 @@ describe('Bee class - in browser', () => {
       async (BEE_URL, fileHash) => {
         const bee = new window.BeeJs.Bee(BEE_URL)
 
-        return await bee.pinFile(fileHash)
+        return await bee.pin(fileHash)
       },
       BEE_URL,
       fileHash,
@@ -81,7 +81,7 @@ describe('Bee class - in browser', () => {
       async (BEE_URL, fileHash) => {
         const bee = new window.BeeJs.Bee(BEE_URL)
 
-        return await bee.unpinFile(fileHash)
+        return await bee.unpin(fileHash)
       },
       BEE_URL,
       fileHash,
