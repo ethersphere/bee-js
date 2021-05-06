@@ -4,7 +4,7 @@ import { safeAxios } from '../utils/safeAxios'
 const PINNING_ENDPOINT = '/pins'
 
 export interface GetAllPinResponse {
-  chunks: Pin[]
+  references: Pin[] | null
 }
 
 /**
@@ -68,5 +68,11 @@ export async function getAllPins(url: string): Promise<Pin[]> {
     url: `${url}${PINNING_ENDPOINT}`,
   })
 
-  return response.data.chunks
+  const result = response.data.references
+
+  if (result === null) {
+    return []
+  }
+
+  return result
 }
