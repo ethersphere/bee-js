@@ -212,9 +212,9 @@ describe('Bee class', () => {
           done()
         })
 
-        const { overlay, pss_public_key } = await beeDebug.getNodeAddresses()
+        const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
         const beePeer = new Bee(beePeerUrl())
-        await beePeer.pssSend(topic, overlay, message, pss_public_key)
+        await beePeer.pssSend(topic, overlay, message, pssPublicKey)
       },
       PSS_TIMEOUT,
     )

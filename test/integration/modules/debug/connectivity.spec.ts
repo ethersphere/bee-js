@@ -57,7 +57,7 @@ describe('modules/debug/connectivity', () => {
     expect(Array.isArray(addresses.underlay)).toBeTruthy()
     expect(addresses.ethereum).toMatch(/^0x[0-9a-f]{40}$/)
     expect(addresses.public_key).toMatch(/^[0-9a-f]{66}$/)
-    expect(addresses.pss_public_key).toMatch(/^[0-9a-f]{66}$/)
+    expect(addresses.pssPublicKey).toMatch(/^[0-9a-f]{66}$/)
   })
 
   test('pingPeer', async () => {
