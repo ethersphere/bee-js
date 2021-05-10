@@ -5,8 +5,8 @@ export interface Settlements {
 }
 
 export interface AllSettlements {
-  totalreceived: bigint
-  totalsent: bigint
+  totalReceived: bigint
+  totalSent: bigint
   settlements: Settlements[]
 }
 
@@ -14,8 +14,8 @@ export interface NodeAddresses {
   overlay: string
   underlay: string[]
   ethereum: string
-  public_key: string
-  pss_public_key: string
+  publicKey: string
+  pssPublicKey: string
 }
 
 export interface Peer {
@@ -23,8 +23,7 @@ export interface Peer {
 }
 
 export interface ChequebookAddressResponse {
-  // see this issue regarding the naming https://github.com/ethersphere/bee/issues/1078
-  chequebookaddress: string
+  chequebookAddress: string
 }
 
 export interface ChequebookBalanceResponse {
@@ -59,8 +58,8 @@ export interface Cheque {
 
 export interface LastChequesForPeerResponse {
   peer: string
-  lastreceived: Cheque
-  lastsent: Cheque
+  lastReceived: Cheque
+  lastSent: Cheque
 }
 
 export interface LastChequesResponse {

@@ -13,7 +13,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     test('address', async () => {
       const response = await getChequebookAddress(beeDebugUrl())
 
-      expect(isPrefixedHexString(response.chequebookaddress)).toBeTruthy()
+      expect(isPrefixedHexString(response.chequebookAddress)).toBeTruthy()
     })
 
     test('balance', async () => {

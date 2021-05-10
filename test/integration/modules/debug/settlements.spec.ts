@@ -5,8 +5,8 @@ describe('settlements', () => {
   test('all settlements', async () => {
     const response = await settlements.getAllSettlements(beeDebugUrl())
 
-    expect(typeof response.totalreceived).toBe('bigint')
-    expect(typeof response.totalsent).toBe('bigint')
+    expect(typeof response.totalReceived).toBe('bigint')
+    expect(typeof response.totalSent).toBe('bigint')
     expect(Array.isArray(response.settlements)).toBeTruthy()
 
     if (response.settlements.length > 0) {
