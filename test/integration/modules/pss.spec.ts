@@ -76,7 +76,7 @@ describe('modules/pss', () => {
 
       const addresses = await connectivity.getNodeAddresses(debugUrl)
       const target = addresses.overlay
-      const recipient = addresses.pss_public_key
+      const recipient = addresses.pssPublicKey
       await pss.send(BEE_PEER_URL, topic, target, message, recipient)
     },
     PSS_TIMEOUT,
