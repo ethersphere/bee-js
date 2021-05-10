@@ -164,11 +164,11 @@ describe('Bee class - in browser', () => {
             const bee = new window.BeeJs.Bee(BEE_URL)
             const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
 
-            const { overlay, pss_public_key } = await beeDebug.getNodeAddresses()
+            const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
             const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
 
             const receive = bee.pssReceive(topic)
-            await beePeer.pssSend(topic, overlay, message, pss_public_key)
+            await beePeer.pssSend(topic, overlay, message, pssPublicKey)
 
             const msg = await receive
 
