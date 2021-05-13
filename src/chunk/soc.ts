@@ -13,11 +13,12 @@ import {
   MIN_PAYLOAD_SIZE,
   assertValidChunkData,
 } from './cac'
-import { ReferenceResponse, UploadOptions, Signature, Signer } from '../types'
+import { ReferenceResponse, UploadOptions, Signature, Signer, Address } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
 import { EthAddress } from '../utils/eth'
+import { assertAddress } from '../utils/type'
 
 const IDENTIFIER_SIZE = 32
 const SIGNATURE_SIZE = 65
@@ -126,13 +127,15 @@ export async function makeSingleOwnerChunk(
  *
  * It uses the Chunk API and calculates the address before uploading.
  *
- * @param url       The url of the Bee service
- * @param chunk     A chunk object
- * @param options   Upload options
+ * @param url             The url of the Bee service
+ * @param chunk           A chunk object
+ * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
+ * @param options         Upload options
  */
 export function uploadSingleOwnerChunk(
   url: string,
   chunk: SingleOwnerChunk,
+  postageBatchId: Address,
   options?: UploadOptions,
 ): Promise<ReferenceResponse> {
   const owner = bytesToHex(chunk.owner())
@@ -140,21 +143,23 @@ export function uploadSingleOwnerChunk(
   const signature = bytesToHex(chunk.signature())
   const data = serializeBytes(chunk.span(), chunk.payload())
 
-  return socAPI.upload(url, owner, identifier, signature, data, options)
+  return socAPI.upload(url, owner, identifier, signature, data, postageBatchId, options)
 }
 
 /**
  * Helper function to create and upload SOC.
  *
- * @param url         The url of the Bee service
- * @param signer      The singer interface for signing the chunk
- * @param identifier  The identifier of the chunk
- * @param data        The chunk data
+ * @param url             The url of the Bee service
+ * @param signer          The singer interface for signing the chunk
+ * @param postageBatchId
+ * @param identifier      The identifier of the chunk
+ * @param data            The chunk data
  * @param options
  */
 export async function uploadSingleOwnerChunkData(
   url: string,
   signer: Signer,
+  postageBatchId: Address | undefined,
   identifier: Identifier,
   data: Uint8Array,
   options?: UploadOptions,
@@ -162,7 +167,20 @@ export async function uploadSingleOwnerChunkData(
   const cac = makeContentAddressedChunk(data)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
 
-  return uploadSingleOwnerChunk(url, soc, options)
+  if (options?.postageBatchId) {
+    assertAddress(options?.postageBatchId)
+    postageBatchId = options?.postageBatchId
+  }
+
+  if (!postageBatchId) {
+    throw new BeeError(
+      "You have to pass PostageBatchId to either the writer call's options or Bee constructor! Non found.",
+    )
+  } else {
+    assertAddress(postageBatchId)
+  }
+
+  return uploadSingleOwnerChunk(url, soc, postageBatchId, options)
 }
 
 /**

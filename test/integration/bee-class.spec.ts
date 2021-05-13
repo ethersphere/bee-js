@@ -1,5 +1,4 @@
 import { Bee, BeeDebug, Collection } from '../../src'
-import { BeeArgumentError } from '../../src/utils/error'
 
 import { ChunkReference } from '../../src/feed'
 import { REFERENCE_HEX_LENGTH } from '../../src/types'
@@ -9,7 +8,10 @@ import {
   beeDebugUrl,
   beePeerUrl,
   beeUrl,
+  commonMatchers,
+  createdResponse,
   FEED_TIMEOUT,
+  getPostageBatch,
   okResponse,
   PSS_TIMEOUT,
   randomByteArray,
@@ -24,9 +26,18 @@ import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import { makeEthAddress } from '../../src/utils/eth'
 import * as bzz from '../../src/modules/bzz'
 
+commonMatchers()
+
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
+  const BEE_PEER_URL = beePeerUrl()
   const bee = new Bee(BEE_URL)
+  const beePeer = new Bee(BEE_PEER_URL)
+
+  beforeAll(async () => {
+    bee.setDefaultPostageBatchId(await getPostageBatch())
+    beePeer.setDefaultPostageBatchId(await getPostageBatch(BEE_PEER_URL))
+  }, 90000)
 
   it('should strip trailing slash', () => {
     const bee = new Bee('http://localhost:1633/')
@@ -120,12 +131,11 @@ describe('Bee class', () => {
       const hash = await bee.uploadFile(content)
 
       const pinResponse = await bee.pin(hash)
-      expect(pinResponse).toEqual(okResponse)
+      expect(pinResponse).toBeOneOf([createdResponse, okResponse])
 
       const pinnedChunks = await bee.getAllPins()
-      expect(pinnedChunks).toBe('array')
-      expect(pinnedChunks.length).toEqual(1)
-      expect(pinnedChunks.find(chunk => chunk.address === hash)).toBeTruthy()
+      expect(pinnedChunks).toBeType('array')
+      expect(pinnedChunks.find(chunk => chunk.reference === hash)).toBeTruthy()
     })
 
     it('should get pinning status', async () => {
@@ -138,10 +148,10 @@ describe('Bee class', () => {
       await expect(statusBeforePinning).rejects.toThrowError('Not Found')
 
       const pinResponse = await bee.pin(hash)
-      expect(pinResponse).toEqual(okResponse)
+      expect(pinResponse).toBeOneOf([createdResponse, okResponse])
 
       const statusAfterPinning = await bee.getPin(hash)
-      expect(statusAfterPinning).toHaveProperty('address', hash)
+      expect(statusAfterPinning).toHaveProperty('reference', hash)
     })
 
     it('should pin and unpin files', async () => {
@@ -150,7 +160,7 @@ describe('Bee class', () => {
       const hash = await bee.uploadFile(content)
 
       const pinResponse = await bee.pin(hash)
-      expect(pinResponse).toEqual(okResponse)
+      expect(pinResponse).toBeOneOf([createdResponse, okResponse])
 
       const unpinResponse = await bee.unpin(hash)
       expect(unpinResponse).toEqual(okResponse)
@@ -161,7 +171,7 @@ describe('Bee class', () => {
       const hash = await bee.uploadFilesFromDirectory(path)
 
       const pinResponse = await bee.pin(hash)
-      expect(pinResponse).toEqual(okResponse)
+      expect(pinResponse).toBeOneOf([createdResponse, okResponse])
 
       const unpinResponse = await bee.unpin(hash)
       expect(unpinResponse).toEqual(okResponse)
@@ -173,7 +183,7 @@ describe('Bee class', () => {
       const hash = await bee.uploadData(content)
 
       const pinResponse = await bee.pin(hash)
-      expect(pinResponse).toEqual(okResponse)
+      expect(pinResponse).toBeOneOf([createdResponse, okResponse])
 
       const unpinResponse = await bee.unpin(hash)
       expect(unpinResponse).toEqual(okResponse)
@@ -194,7 +204,6 @@ describe('Bee class', () => {
         })
 
         const { overlay } = await beeDebug.getNodeAddresses()
-        const beePeer = new Bee(beePeerUrl())
         await beePeer.pssSend(topic, overlay, message)
       },
       PSS_TIMEOUT,
@@ -213,7 +222,6 @@ describe('Bee class', () => {
         })
 
         const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-        const beePeer = new Bee(beePeerUrl())
         await beePeer.pssSend(topic, overlay, message, pssPublicKey)
       },
       PSS_TIMEOUT,
@@ -240,7 +248,6 @@ describe('Bee class', () => {
         })
 
         const { overlay } = await beeDebug.getNodeAddresses()
-        const beePeer = new Bee(beePeerUrl())
         await beePeer.pssSend(topic, overlay, message)
       },
       PSS_TIMEOUT,
@@ -293,7 +300,7 @@ describe('Bee class', () => {
             data: new TextEncoder().encode('some data'),
           },
         ]
-        const cacHash = await bzz.uploadCollection(BEE_URL, directoryStructure)
+        const cacHash = await bzz.uploadCollection(BEE_URL, directoryStructure, bee.getDefaultPostageBatchId()!)
 
         const feed = bee.makeFeedWriter('sequence', topic, signer)
         await feed.upload(cacHash)
@@ -344,7 +351,7 @@ describe('Bee class', () => {
         const identifier = makeBytes(32) // all zeroes
         const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
         await tryDeleteChunkFromLocalStorage(socAddress)
-        await uploadSingleOwnerChunkData(BEE_URL, signer, identifier, testChunkPayload)
+        await uploadSingleOwnerChunkData(BEE_URL, signer, await getPostageBatch(), identifier, testChunkPayload)
 
         const socReader = bee.makeSOCReader(testIdentity.address)
         const soc = await socReader.download(identifier)
@@ -362,7 +369,7 @@ describe('Bee class', () => {
       const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
       await tryDeleteChunkFromLocalStorage(socAddress)
 
-      const bee = new Bee(BEE_URL, { signer: testIdentity.privateKey })
+      const bee = new Bee(BEE_URL, { signer: testIdentity.privateKey, postageBatchId: await getPostageBatch() })
       const socWriter = bee.makeSOCWriter()
 
       const reference = await socWriter.upload(identifier, testChunkPayload)
@@ -377,7 +384,10 @@ describe('Bee class', () => {
       await tryDeleteChunkFromLocalStorage(socAddress)
 
       // We pass different private key to the instance
-      const bee = new Bee(BEE_URL, { signer: '634fb5a872396d9611e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' })
+      const bee = new Bee(BEE_URL, {
+        signer: '634fb5a872396d9611e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd',
+        postageBatchId: await getPostageBatch(),
+      })
       const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
 
       const reference = await socWriter.upload(identifier, testChunkPayload)

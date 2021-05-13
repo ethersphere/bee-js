@@ -32,13 +32,14 @@ export type AddressPrefix = HexString
 
 export interface BeeOptions {
   signer?: Signer | Uint8Array | string
+  postageBatchId?: Address | string
 }
 
 export interface UploadOptions {
   pin?: boolean
   encrypt?: boolean
   tag?: number
-  batchId?: Address | string
+  postageBatchId?: Address | string
   /** alter default options of axios HTTP client */
   axiosOptions?: AxiosRequestConfig
 }
@@ -83,7 +84,7 @@ export interface FileData<T> extends FileHeaders {
 }
 
 export interface Pin {
-  address: string
+  reference: string
 }
 
 /**

@@ -2,13 +2,12 @@ import { Address, Dictionary, Reference, ReferenceResponse, Topic } from '../typ
 import { safeAxios } from '../utils/safeAxios'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
+import { extractUploadHeaders } from '../utils/headers'
 
 const feedEndpoint = '/feeds'
 
 export interface CreateFeedOptions {
   type?: FeedType
-
-  batchId?: Address | string
 }
 
 export interface FeedUpdateOptions {
@@ -31,21 +30,24 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
 /**
  * Create an initial feed root manifest
  *
- * @param url         Bee URL
- * @param owner       Owner's ethereum address in hex
- * @param topic       Topic in hex
- * @param options     Additional options, like type (default: 'sequence')
+ * @param url             Bee URL
+ * @param owner           Owner's ethereum address in hex
+ * @param topic           Topic in hex
+ * @param postageBatchId  Postage BatchId to be used to create the Feed Manifest
+ * @param options         Additional options, like type (default: 'sequence')
  */
 export async function createFeedManifest(
   url: string,
   owner: HexEthAddress,
   topic: Topic,
+  postageBatchId: Address,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
   const response = await safeAxios<ReferenceResponse>({
     method: 'post',
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
     params: options,
+    headers: extractUploadHeaders(postageBatchId),
   })
 
   return response.data.reference

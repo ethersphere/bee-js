@@ -15,6 +15,12 @@ export function assertInteger(value: unknown): asserts value is number | bigint 
   if (!isInteger(value)) throw new TypeError('value is not integer')
 }
 
+export function assertPositiveInteger(value: unknown): asserts value is number | bigint {
+  assertInteger(value)
+
+  if (value < 0) throw new TypeError('value has to be bigger or equal to zero')
+}
+
 export function assertReference(value: unknown): asserts value is Reference {
   try {
     assertHexString(value, REFERENCE_HEX_LENGTH)

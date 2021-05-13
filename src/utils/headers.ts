@@ -1,4 +1,4 @@
-import { Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
+import { Address, Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
 import { BeeError } from './error'
 import { assertAddress } from './type'
 
@@ -55,20 +55,20 @@ export function readFileHeaders(headers: Dictionary<string>): FileHeaders {
   }
 }
 
-export function extractUploadHeaders(options?: UploadOptions): UploadHeaders {
-  const headers: UploadHeaders = {}
+export function extractUploadHeaders(postageBatchId: Address, options?: UploadOptions): UploadHeaders {
+  if (!postageBatchId) {
+    throw new BeeError('Postage BatchID has to be specified!')
+  }
+
+  const headers: UploadHeaders = {
+    'swarm-postage-batch-id': postageBatchId,
+  }
 
   if (options?.pin) headers['swarm-pin'] = String(options.pin)
 
   if (options?.encrypt) headers['swarm-encrypt'] = String(options.encrypt)
 
   if (options?.tag) headers['swarm-tag'] = String(options.tag)
-
-  if (options?.batchId) {
-    assertAddress(options.batchId)
-
-    headers['swarm-postage-batch-id'] = String(options.batchId)
-  }
 
   return headers
 }

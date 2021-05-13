@@ -1,5 +1,5 @@
 import { join } from 'path'
-import { beeDebugUrl, beePeerUrl, beeUrl, commonMatchers, PSS_TIMEOUT } from '../utils'
+import { beeDebugUrl, beePeerUrl, beeUrl, commonMatchers, getPostageBatch, PSS_TIMEOUT } from '../utils'
 import '../../src'
 
 commonMatchers()
@@ -8,14 +8,14 @@ describe('Bee class - in browser', () => {
   const BEE_URL = beeUrl()
   const BEE_DEBUG_URL = beeDebugUrl()
   const BEE_PEER_URL = beePeerUrl()
-
-  beforeAll(async done => {
+  beforeAll(async () => {
     await jestPuppeteer.resetPage()
     const testPage = join(__dirname, '..', 'testpage', 'testpage.html')
     await page.goto(`file://${testPage}`)
 
-    done()
-  })
+    // This will create the default batch if it is was not created before
+    await getPostageBatch()
+  }, 60000)
 
   it('should create a new Bee instance in browser', async () => {
     const testBeeInstance = await page.evaluate(BEE_URL => {

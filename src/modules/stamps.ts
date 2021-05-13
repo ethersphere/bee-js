@@ -1,4 +1,4 @@
-import { StampBatch } from '../types'
+import { Address, StampBatch } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 
 const STAMPS_ENDPOINT = '/stamps'
@@ -8,10 +8,10 @@ interface GetAllStampsResponse {
 }
 
 interface CreateStampResponse {
-  batchID: string
+  batchID: Address
 }
 
-export async function getAllStamps(url: string): Promise<StampBatch[]> {
+export async function getAllStampBatches(url: string): Promise<StampBatch[]> {
   const response = await safeAxios<GetAllStampsResponse>({
     method: 'get',
     url: url + STAMPS_ENDPOINT,
@@ -21,17 +21,17 @@ export async function getAllStamps(url: string): Promise<StampBatch[]> {
   return response.data.stamps
 }
 
-export async function getStamp(url: string, batchId: string): Promise<StampBatch> {
+export async function getStampBatch(url: string, postageBatchId: Address): Promise<StampBatch> {
   const response = await safeAxios<StampBatch>({
     method: 'get',
-    url: `${url}${STAMPS_ENDPOINT}/${batchId}`,
+    url: `${url}${STAMPS_ENDPOINT}/${postageBatchId}`,
     responseType: 'json',
   })
 
   return response.data
 }
 
-export async function createStamp(url: string, amount: bigint, depth: number, label?: string): Promise<string> {
+export async function createStampBatch(url: string, amount: bigint, depth: number, label?: string): Promise<Address> {
   const params: Record<string, string> = {}
 
   if (label) {
