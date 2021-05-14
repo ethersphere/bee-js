@@ -1,6 +1,7 @@
 import { join } from 'path'
 import { beeDebugUrl, beePeerUrl, beeUrl, commonMatchers, getPostageBatch, PSS_TIMEOUT } from '../utils'
 import '../../src'
+import type { Address } from '../../src/types'
 
 commonMatchers()
 
@@ -8,19 +9,26 @@ describe('Bee class - in browser', () => {
   const BEE_URL = beeUrl()
   const BEE_DEBUG_URL = beeDebugUrl()
   const BEE_PEER_URL = beePeerUrl()
+  let batchId: Address, batchIdPeer: Address
+
   beforeAll(async () => {
     await jestPuppeteer.resetPage()
     const testPage = join(__dirname, '..', 'testpage', 'testpage.html')
     await page.goto(`file://${testPage}`)
 
     // This will create the default batch if it is was not created before
-    await getPostageBatch()
-  }, 60000)
+    batchId = await getPostageBatch()
+    batchIdPeer = await getPostageBatch(BEE_PEER_URL)
+  }, 90000)
 
   it('should create a new Bee instance in browser', async () => {
-    const testBeeInstance = await page.evaluate(BEE_URL => {
-      return new window.BeeJs.Bee(BEE_URL)
-    }, BEE_URL)
+    const testBeeInstance = await page.evaluate(
+      (BEE_URL, batchId) => {
+        return new window.BeeJs.Bee(BEE_URL, { postageBatchId: batchId })
+      },
+      BEE_URL,
+      batchId,
+    )
 
     expect(testBeeInstance.url).toBe(BEE_URL)
   })
@@ -58,60 +66,70 @@ describe('Bee class - in browser', () => {
   testUrl('ws://localhost:1633')
 
   it('should pin and unpin collection', async () => {
-    const fileHash = await page.evaluate(async BEE_URL => {
-      const bee = new window.BeeJs.Bee(BEE_URL)
-      const files: File[] = [new File(['hello'], 'hello')]
+    const fileHash = await page.evaluate(
+      async (BEE_URL, batchId) => {
+        const bee = new window.BeeJs.Bee(BEE_URL, { postageBatchId: batchId })
+        const files: File[] = [new File(['hello'], 'hello')]
 
-      return await bee.uploadFiles(files)
-    }, BEE_URL)
+        return await bee.uploadFiles(files)
+      },
+      BEE_URL,
+      batchId,
+    )
     expect(fileHash).toBeHashReference()
     //pinning
     const pinResult = await page.evaluate(
       async (BEE_URL, fileHash) => {
-        const bee = new window.BeeJs.Bee(BEE_URL)
+        const bee = new window.BeeJs.Bee(BEE_URL, { postageBatchId: batchId })
 
         return await bee.pin(fileHash)
       },
       BEE_URL,
       fileHash,
+      batchId,
     )
     expect(pinResult).toBeBeeResponse(200)
     //unpinning
     const unpinResult = await page.evaluate(
-      async (BEE_URL, fileHash) => {
-        const bee = new window.BeeJs.Bee(BEE_URL)
+      async (BEE_URL, fileHash, batchId) => {
+        const bee = new window.BeeJs.Bee(BEE_URL, { postageBatchId: batchId })
 
         return await bee.unpin(fileHash)
       },
       BEE_URL,
       fileHash,
+      batchId,
     )
     expect(pinResult).toBeBeeResponse(200)
     expect(unpinResult).toBeBeeResponse(200)
   })
 
   it('should get state of uploading on uploading file', async () => {
-    const uploadEvent = await page.evaluate(async BEE_URL => {
-      const bee = new window.BeeJs.Bee(BEE_URL)
-      const filename = 'hello.txt'
-      const data = new Uint8Array([1, 2, 3, 4])
+    const uploadEvent = await page.evaluate(
+      async (BEE_URL, batchId) => {
+        const bee = new window.BeeJs.Bee(BEE_URL, { postageBatchId: batchId })
+        const filename = 'hello.txt'
+        const data = new Uint8Array([1, 2, 3, 4])
 
-      let uploadEvent: { loaded: number; total: number } = {
-        loaded: 0,
-        total: 4,
-      }
+        let uploadEvent: { loaded: number; total: number } = {
+          loaded: 0,
+          total: 4,
+        }
 
-      await bee.uploadFile(data, filename, {
-        contentType: 'text/html',
-        axiosOptions: {
-          onUploadProgress: ({ loaded, total }) => {
-            uploadEvent = { loaded, total }
+        await bee.uploadFile(data, filename, {
+          contentType: 'text/html',
+          axiosOptions: {
+            onUploadProgress: ({ loaded, total }) => {
+              uploadEvent = { loaded, total }
+            },
           },
-        },
-      })
+        })
 
-      return uploadEvent
-    }, BEE_URL)
+        return uploadEvent
+      },
+      BEE_URL,
+      batchId,
+    )
 
     expect(uploadEvent).toEqual({ loaded: 4, total: 4 })
   })
@@ -123,14 +141,14 @@ describe('Bee class - in browser', () => {
         const message = '1234'
 
         const result = await page.evaluate(
-          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message) => {
+          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchId, batchIdPeer) => {
             const topic = 'browser-bee-class-topic1'
 
-            const bee = new window.BeeJs.Bee(BEE_URL)
+            const bee = new window.BeeJs.Bee(BEE_URL, { postageBatchId: batchId })
             const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
 
             const { overlay } = await beeDebug.getNodeAddresses()
-            const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
+            const beePeer = new window.BeeJs.Bee(BEE_PEER_URL, { postageBatchId: batchIdPeer })
 
             const receive = bee.pssReceive(topic)
             await beePeer.pssSend(topic, overlay, message)
@@ -144,6 +162,8 @@ describe('Bee class - in browser', () => {
           BEE_DEBUG_URL,
           BEE_PEER_URL,
           message,
+          batchId,
+          batchIdPeer,
         )
 
         expect(result).toEqual(message)
@@ -158,14 +178,14 @@ describe('Bee class - in browser', () => {
         const message = '1234'
 
         const result = await page.evaluate(
-          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message) => {
+          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchId, batchIdPeer) => {
             const topic = 'browser-bee-class-topic2'
 
-            const bee = new window.BeeJs.Bee(BEE_URL)
+            const bee = new window.BeeJs.Bee(BEE_URL, { postageBatchId: batchId })
             const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
 
             const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-            const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
+            const beePeer = new window.BeeJs.Bee(BEE_PEER_URL, { postageBatchId: batchIdPeer })
 
             const receive = bee.pssReceive(topic)
             await beePeer.pssSend(topic, overlay, message, pssPublicKey)
@@ -179,6 +199,8 @@ describe('Bee class - in browser', () => {
           BEE_DEBUG_URL,
           BEE_PEER_URL,
           message,
+          batchId,
+          batchIdPeer,
         )
 
         expect(result).toEqual(message)
