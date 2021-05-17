@@ -11,7 +11,6 @@ describe('modules/pss', () => {
     // This will create the default batch if it is was not created before
     await getPostageBatch()
     await getPostageBatch(BEE_PEER_URL)
-    await sleep(10000)
   }, 90000)
 
   it(
