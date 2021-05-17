@@ -135,7 +135,7 @@ describe('Bee class', () => {
 
       const pinnedChunks = await bee.getAllPins()
       expect(pinnedChunks).toBeType('array')
-      expect(pinnedChunks.find(chunk => chunk.reference === hash)).toBeTruthy()
+      expect(pinnedChunks.includes(hash)).toBeTruthy()
     })
 
     it('should get pinning status', async () => {

@@ -245,9 +245,9 @@ export class Bee {
   }
 
   /**
-   * Get list of all pins
+   * Get list of all pinned references
    */
-  getAllPins(): Promise<Pin[]> {
+  getAllPins(): Promise<string[]> {
     return pinning.getAllPins(this.url)
   }
 

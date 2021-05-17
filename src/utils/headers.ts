@@ -1,6 +1,5 @@
 import { Address, Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
 import { BeeError } from './error'
-import { assertAddress } from './type'
 
 /**
  * Read the filename from the content-disposition header
