@@ -1,4 +1,11 @@
 # Changelog
+### [0.8.2](https://www.github.com/ethersphere/bee-js/compare/v0.8.1...v0.8.2) (2021-05-17)
+
+
+### Bug Fixes
+
+* use bigint primitive ([#287](https://www.github.com/ethersphere/bee-js/issues/287)) ([6e104dc](https://www.github.com/ethersphere/bee-js/commit/6e104dca1f1da4fb9713789854bc1b4ea31cefef))
+
 ### [0.8.1](https://www.github.com/ethersphere/bee-js/compare/v0.8.0...v0.8.1) (2021-04-21)
 
 
