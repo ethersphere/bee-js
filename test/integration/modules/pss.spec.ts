@@ -1,6 +1,6 @@
 import * as pss from '../../../src/modules/pss'
 import * as connectivity from '../../../src/modules/debug/connectivity'
-import { beeDebugUrl, beePeerUrl, beeUrl, getPostageBatch, okResponse, PSS_TIMEOUT } from '../../utils'
+import { beeDebugUrl, beePeerUrl, beeUrl, createdResponse, getPostageBatch, PSS_TIMEOUT, sleep } from '../../utils'
 
 const BEE_URL = beeUrl()
 const BEE_PEER_URL = beePeerUrl()
@@ -11,6 +11,7 @@ describe('modules/pss', () => {
     // This will create the default batch if it is was not created before
     await getPostageBatch()
     await getPostageBatch(BEE_PEER_URL)
+    await sleep(10000)
   }, 90000)
 
   it(
@@ -26,7 +27,7 @@ describe('modules/pss', () => {
       const target = peers[0].address
       const response = await pss.send(BEE_URL, topic, target, message, await getPostageBatch())
 
-      expect(response).toEqual(okResponse)
+      expect(response).toEqual(createdResponse)
     },
     PSS_TIMEOUT,
   )
