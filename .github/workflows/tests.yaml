@@ -97,7 +97,7 @@ jobs:
       # Setup Bee environment
       - name: Start Bee Factory environment
         run: |
-          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
+          git clone --branch feat/postage-stamp  --depth=1 https://github.com/ethersphere/bee-factory.git
           chmod +x -R ./bee-factory/scripts
           ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 
