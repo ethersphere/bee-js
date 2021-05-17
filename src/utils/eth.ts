@@ -141,11 +141,11 @@ export function fromLittleEndian(littleEndian: number | string | HexString, pad 
   return toLittleEndian(littleEndian, pad)
 }
 
-function assertIsEthAddress(ethAddress: string | HexString | HexEthAddress): asserts ethAddress is HexEthAddress {
+function assertEthAddress(ethAddress: string | HexString | HexEthAddress): asserts ethAddress is HexEthAddress {
   if (!isHexEthAddress(ethAddress)) throw new TypeError('invalid ETH address')
 }
 
-function assertIsSwarmNetworkId(networkId: number): asserts networkId is number {
+function assertSwarmNetworkId(networkId: number): asserts networkId is number {
   if (Number.isInteger(networkId && networkId > 0 && networkId < Number.MAX_SAFE_INTEGER)) {
     throw new TypeError('swarm network id must be positive integer')
   }
@@ -160,8 +160,8 @@ function assertIsSwarmNetworkId(networkId: number): asserts networkId is number 
  * @return Swarm overlay address
  */
 export function ethToSwarmAddress(ethAddress: string | HexString | HexEthAddress, networkId = 1): OverlayAddress {
-  assertIsEthAddress(ethAddress)
-  assertIsSwarmNetworkId(networkId)
+  assertEthAddress(ethAddress)
+  assertSwarmNetworkId(networkId)
 
   const hex = `${makeHexString(ethAddress)}${toLittleEndian(networkId, 16)}`
   assertHexString(hex)

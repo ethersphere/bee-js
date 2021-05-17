@@ -36,7 +36,7 @@ import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
-import { assertIsFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
+import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
 import { makeTopic, makeTopicFromString } from './feed/topic'
 import { createFeedManifest } from './modules/feed'
@@ -478,7 +478,7 @@ export class Bee {
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
   ): Promise<Reference> {
-    assertIsFeedType(type)
+    assertFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
@@ -498,7 +498,7 @@ export class Bee {
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
   ): FeedReader {
-    assertIsFeedType(type)
+    assertFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
@@ -518,7 +518,7 @@ export class Bee {
     topic: Topic | Uint8Array | string,
     signer?: Signer | Uint8Array | string,
   ): FeedWriter {
-    assertIsFeedType(type)
+    assertFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalSigner = this.resolveSigner(signer)
