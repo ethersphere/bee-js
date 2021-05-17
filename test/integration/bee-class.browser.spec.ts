@@ -1,5 +1,14 @@
 import { join } from 'path'
-import { beeDebugUrl, beePeerUrl, beeUrl, commonMatchers, getPostageBatch, PSS_TIMEOUT } from '../utils'
+import {
+  beeDebugUrl,
+  beePeerUrl,
+  beeUrl,
+  commonMatchers,
+  createdResponse,
+  getPostageBatch,
+  okResponse,
+  PSS_TIMEOUT,
+} from '../utils'
 import '../../src'
 import type { Address } from '../../src/types'
 
@@ -79,7 +88,7 @@ describe('Bee class - in browser', () => {
     expect(fileHash).toBeHashReference()
     //pinning
     const pinResult = await page.evaluate(
-      async (BEE_URL, fileHash) => {
+      async (BEE_URL, fileHash, batchId) => {
         const bee = new window.BeeJs.Bee(BEE_URL, { postageBatchId: batchId })
 
         return await bee.pin(fileHash)
@@ -88,7 +97,8 @@ describe('Bee class - in browser', () => {
       fileHash,
       batchId,
     )
-    expect(pinResult).toBeBeeResponse(200)
+    expect(pinResult).toBeOneOf([createdResponse, okResponse])
+
     //unpinning
     const unpinResult = await page.evaluate(
       async (BEE_URL, fileHash, batchId) => {
@@ -100,8 +110,8 @@ describe('Bee class - in browser', () => {
       fileHash,
       batchId,
     )
-    expect(pinResult).toBeBeeResponse(200)
-    expect(unpinResult).toBeBeeResponse(200)
+    expect(pinResult).toBeOneOf([createdResponse, okResponse])
+    expect(unpinResult).toEqual(okResponse)
   })
 
   it('should get state of uploading on uploading file', async () => {
