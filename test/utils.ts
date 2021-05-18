@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import type { BeeResponse, Reference, Address } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
-import { createStampBatch, getAllStampBatches } from '../src/modules/stamps'
+import { createPostageBatch, getAllPostageBatches } from '../src/modules/stamps'
 import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
@@ -165,14 +165,14 @@ const batchId: Record<string, Address> = {}
 export async function getPostageBatch(url = beeUrl()): Promise<Address> {
   if (!batchId[url]) {
     try {
-      batchId[url] = await createStampBatch(url, BigInt('1000'), 25)
+      batchId[url] = await createPostageBatch(url, BigInt('1000'), 25)
     } catch (e) {
       await sleep(500)
 
-      const batches = await getAllStampBatches(url)
+      const batches = await getAllPostageBatches(url)
 
       if (!batches.length) {
-        batchId[url] = await createStampBatch(url, BigInt('1000'), 25)
+        batchId[url] = await createPostageBatch(url, BigInt('1000'), 25)
       } else {
         batchId[url] = batches[0].batchID
       }
@@ -257,6 +257,7 @@ export const testChunkSpan = new Uint8Array([testChunkPayload.length, 0, 0, 0, 0
 export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPayload])
 // the hash is hardcoded because we would need the bmt hasher otherwise
 export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as Reference
+export const testAddress = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as Address
 
 export const testJsonPayload = [{ some: 'object' }]
 export const testJsonStringPayload = JSON.stringify(testJsonPayload)

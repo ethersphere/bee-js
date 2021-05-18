@@ -35,8 +35,8 @@ describe('Bee class', () => {
   const beePeer = new Bee(BEE_PEER_URL)
 
   beforeAll(async () => {
-    bee.setDefaultPostageBatchId(await getPostageBatch())
-    beePeer.setDefaultPostageBatchId(await getPostageBatch(BEE_PEER_URL))
+    await getPostageBatch()
+    await getPostageBatch(BEE_PEER_URL)
   }, 90000)
 
   it('should strip trailing slash', () => {
@@ -50,7 +50,7 @@ describe('Bee class', () => {
       const name = 'hello.txt'
       const contentType = 'text/html'
 
-      const hash = await bee.uploadFile(content, name, { contentType })
+      const hash = await bee.uploadFile(await getPostageBatch(), content, name, { contentType })
       const file = await bee.downloadFile(hash)
 
       expect(file.name).toEqual(name)
@@ -67,7 +67,7 @@ describe('Bee class', () => {
         type,
       } as unknown) as File
 
-      const hash = await bee.uploadFile(file)
+      const hash = await bee.uploadFile(await getPostageBatch(), file)
       const downloadedFile = await bee.downloadFile(hash)
 
       expect(downloadedFile.data).toEqual(content)
@@ -84,7 +84,7 @@ describe('Bee class', () => {
       } as unknown) as File
       const nameOverride = 'hello-override.txt'
 
-      const hash = await bee.uploadFile(file, nameOverride)
+      const hash = await bee.uploadFile(await getPostageBatch(), file, nameOverride)
       const downloadedFile = await bee.downloadFile(hash)
 
       expect(downloadedFile.data).toEqual(content)
@@ -100,7 +100,7 @@ describe('Bee class', () => {
       } as unknown) as File
       const contentTypeOverride = 'text/plain+override'
 
-      const hash = await bee.uploadFile(file, undefined, { contentType: contentTypeOverride })
+      const hash = await bee.uploadFile(await getPostageBatch(), file, undefined, { contentType: contentTypeOverride })
       const downloadedFile = await bee.downloadFile(hash)
 
       expect(downloadedFile.data).toEqual(content)
@@ -110,7 +110,7 @@ describe('Bee class', () => {
 
   describe('collections', () => {
     it('should work with directory with unicode filenames', async () => {
-      const hash = await bee.uploadFilesFromDirectory('./test/data')
+      const hash = await bee.uploadFilesFromDirectory(await getPostageBatch(), './test/data')
 
       expect(hash.length).toEqual(REFERENCE_HEX_LENGTH)
     })
@@ -128,7 +128,7 @@ describe('Bee class', () => {
   describe('pinning', () => {
     it('should list all pins', async () => {
       const content = new Uint8Array([1, 2, 3])
-      const hash = await bee.uploadFile(content)
+      const hash = await bee.uploadFile(await getPostageBatch(), content)
 
       const pinResponse = await bee.pin(hash)
       expect(pinResponse).toBeOneOf([createdResponse, okResponse])
@@ -140,7 +140,7 @@ describe('Bee class', () => {
 
     it('should get pinning status', async () => {
       const content = randomByteArray(16, Date.now())
-      const hash = await bee.uploadFile(content, 'test', {
+      const hash = await bee.uploadFile(await getPostageBatch(), content, 'test', {
         pin: false,
       })
 
@@ -157,7 +157,7 @@ describe('Bee class', () => {
     it('should pin and unpin files', async () => {
       const content = new Uint8Array([1, 2, 3])
 
-      const hash = await bee.uploadFile(content)
+      const hash = await bee.uploadFile(await getPostageBatch(), content)
 
       const pinResponse = await bee.pin(hash)
       expect(pinResponse).toBeOneOf([createdResponse, okResponse])
@@ -168,7 +168,7 @@ describe('Bee class', () => {
 
     it('should pin and unpin collection', async () => {
       const path = './test/data/'
-      const hash = await bee.uploadFilesFromDirectory(path)
+      const hash = await bee.uploadFilesFromDirectory(await getPostageBatch(), path)
 
       const pinResponse = await bee.pin(hash)
       expect(pinResponse).toBeOneOf([createdResponse, okResponse])
@@ -180,7 +180,7 @@ describe('Bee class', () => {
     it('should pin and unpin data', async () => {
       const content = new Uint8Array([1, 2, 3])
 
-      const hash = await bee.uploadData(content)
+      const hash = await bee.uploadData(await getPostageBatch(), content)
 
       const pinResponse = await bee.pin(hash)
       expect(pinResponse).toBeOneOf([createdResponse, okResponse])
@@ -204,7 +204,7 @@ describe('Bee class', () => {
         })
 
         const { overlay } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(topic, overlay, message)
+        await beePeer.pssSend(await getPostageBatch(BEE_PEER_URL), topic, overlay, message)
       },
       PSS_TIMEOUT,
     )
@@ -222,7 +222,7 @@ describe('Bee class', () => {
         })
 
         const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(topic, overlay, message, pssPublicKey)
+        await beePeer.pssSend(await getPostageBatch(BEE_PEER_URL), topic, overlay, message, pssPublicKey)
       },
       PSS_TIMEOUT,
     )
@@ -248,7 +248,7 @@ describe('Bee class', () => {
         })
 
         const { overlay } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(topic, overlay, message)
+        await beePeer.pssSend(await getPostageBatch(BEE_PEER_URL), topic, overlay, message)
       },
       PSS_TIMEOUT,
     )
@@ -271,7 +271,7 @@ describe('Bee class', () => {
         const feed = bee.makeFeedWriter('sequence', topic, signer)
         const referenceZero = makeBytes(32) // all zeroes
 
-        await feed.upload(referenceZero)
+        await feed.upload(await getPostageBatch(), referenceZero)
         const firstUpdateReferenceResponse = await feed.download()
 
         expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceZero))
@@ -279,7 +279,7 @@ describe('Bee class', () => {
 
         const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
 
-        await feed.upload(referenceOne)
+        await feed.upload(await getPostageBatch(), referenceOne)
         const secondUpdateReferenceResponse = await feed.download()
 
         expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
@@ -300,11 +300,11 @@ describe('Bee class', () => {
             data: new TextEncoder().encode('some data'),
           },
         ]
-        const cacHash = await bzz.uploadCollection(BEE_URL, directoryStructure, bee.getDefaultPostageBatchId()!)
+        const cacHash = await bzz.uploadCollection(BEE_URL, directoryStructure, await getPostageBatch())
 
         const feed = bee.makeFeedWriter('sequence', topic, signer)
-        await feed.upload(cacHash)
-        const manifestReference = await bee.createFeedManifest('sequence', topic, owner)
+        await feed.upload(await getPostageBatch(), cacHash)
+        const manifestReference = await bee.createFeedManifest(await getPostageBatch(), 'sequence', topic, owner)
 
         expect(typeof manifestReference).toBe('string')
 
@@ -336,7 +336,7 @@ describe('Bee class', () => {
 
         const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
 
-        const reference = await socWriter.upload(identifier, testChunkPayload)
+        const reference = await socWriter.upload(await getPostageBatch(), identifier, testChunkPayload)
         expect(reference).toEqual({ reference: socHash })
 
         const soc = await socWriter.download(identifier)
@@ -369,10 +369,10 @@ describe('Bee class', () => {
       const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
       await tryDeleteChunkFromLocalStorage(socAddress)
 
-      const bee = new Bee(BEE_URL, { signer: testIdentity.privateKey, postageBatchId: await getPostageBatch() })
+      const bee = new Bee(BEE_URL, { signer: testIdentity.privateKey })
       const socWriter = bee.makeSOCWriter()
 
-      const reference = await socWriter.upload(identifier, testChunkPayload)
+      const reference = await socWriter.upload(await getPostageBatch(), identifier, testChunkPayload)
       expect(reference).toEqual({ reference: '00019ec85e8859aa641cf149fbd1147ac7965a9cad1dfe4ab7beaa12d5dc8027' })
     })
 
@@ -386,11 +386,10 @@ describe('Bee class', () => {
       // We pass different private key to the instance
       const bee = new Bee(BEE_URL, {
         signer: '634fb5a872396d9611e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd',
-        postageBatchId: await getPostageBatch(),
       })
       const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
 
-      const reference = await socWriter.upload(identifier, testChunkPayload)
+      const reference = await socWriter.upload(await getPostageBatch(), identifier, testChunkPayload)
       expect(reference).toEqual({ reference: 'd1a21cce4c86411f6af2f621ce9a3a0aa3cc5cea6cc9e1b28523d28411398cfb' })
     })
 
@@ -406,7 +405,7 @@ describe('Bee class', () => {
     it(
       'should set JSON to feed',
       async () => {
-        await bee.setJsonFeed(TOPIC, testJsonPayload, { signer: testIdentity.privateKey })
+        await bee.setJsonFeed(await getPostageBatch(), TOPIC, testJsonPayload, { signer: testIdentity.privateKey })
 
         const hashedTopic = bee.makeFeedTopic(TOPIC)
         const reader = bee.makeFeedReader('sequence', hashedTopic, testIdentity.address)
@@ -426,8 +425,8 @@ describe('Bee class', () => {
 
         const hashedTopic = bee.makeFeedTopic(TOPIC)
         const writer = bee.makeFeedWriter('sequence', hashedTopic, testIdentity.privateKey)
-        const dataChunkReference = await bee.uploadData(JSON.stringify(data))
-        await writer.upload(dataChunkReference)
+        const dataChunkReference = await bee.uploadData(await getPostageBatch(), JSON.stringify(data))
+        await writer.upload(await getPostageBatch(), dataChunkReference)
 
         const fetchedData = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
         expect(fetchedData).toEqual(data)
@@ -441,8 +440,8 @@ describe('Bee class', () => {
 
         const hashedTopic = bee.makeFeedTopic(TOPIC)
         const writer = bee.makeFeedWriter('sequence', hashedTopic, testIdentity.privateKey)
-        const dataChunkReference = await bee.uploadData(JSON.stringify(data))
-        await writer.upload(dataChunkReference)
+        const dataChunkReference = await bee.uploadData(await getPostageBatch(), JSON.stringify(data))
+        await writer.upload(await getPostageBatch(), dataChunkReference)
 
         const fetchedData = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
         expect(fetchedData).toEqual(data)

@@ -17,7 +17,7 @@ import {
   Address,
 } from '../types'
 import { Bytes, makeBytes, bytesAtOffset } from '../utils/bytes'
-import { BeeError, BeeResponseError } from '../utils/error'
+import { BeeResponseError } from '../utils/error'
 import { bytesToHex, HexString, hexToBytes, makeHexString } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
@@ -202,28 +202,14 @@ function makeChunkReference(reference: ChunkReference | Reference): ChunkReferen
   throw new TypeError('invalid chunk reference')
 }
 
-export function makeFeedWriter(
-  url: string,
-  type: FeedType,
-  topic: Topic,
-  signer: Signer,
-  postageBatchId: Address | undefined,
-): FeedWriter {
-  const upload = (reference: ChunkReference | Reference, options?: FeedUploadOptions) => {
+export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
+  const upload = (
+    postageBatchId: string | Address,
+    reference: ChunkReference | Reference,
+    options?: FeedUploadOptions,
+  ) => {
+    assertAddress(postageBatchId)
     const canonicalReference = makeChunkReference(reference)
-
-    if (options?.postageBatchId) {
-      assertAddress(options?.postageBatchId)
-      postageBatchId = options?.postageBatchId
-    }
-
-    if (!postageBatchId) {
-      throw new BeeError(
-        "You have to pass PostageBatchId to either the writer call's options or Bee constructor! Non found.",
-      )
-    } else {
-      assertAddress(postageBatchId)
-    }
 
     return updateFeed(url, signer, topic, canonicalReference, postageBatchId, { ...options, type })
   }

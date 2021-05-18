@@ -159,26 +159,14 @@ export function uploadSingleOwnerChunk(
 export async function uploadSingleOwnerChunkData(
   url: string,
   signer: Signer,
-  postageBatchId: Address | undefined,
+  postageBatchId: Address | string,
   identifier: Identifier,
   data: Uint8Array,
   options?: UploadOptions,
 ): Promise<ReferenceResponse> {
+  assertAddress(postageBatchId)
   const cac = makeContentAddressedChunk(data)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
-
-  if (options?.postageBatchId) {
-    assertAddress(options?.postageBatchId)
-    postageBatchId = options?.postageBatchId
-  }
-
-  if (!postageBatchId) {
-    throw new BeeError(
-      "You have to pass PostageBatchId to either the writer call's options or Bee constructor! Non found.",
-    )
-  } else {
-    assertAddress(postageBatchId)
-  }
 
   return uploadSingleOwnerChunk(url, soc, postageBatchId, options)
 }

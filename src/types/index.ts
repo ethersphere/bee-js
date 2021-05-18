@@ -32,14 +32,12 @@ export type AddressPrefix = HexString
 
 export interface BeeOptions {
   signer?: Signer | Uint8Array | string
-  postageBatchId?: Address | string
 }
 
 export interface UploadOptions {
   pin?: boolean
   encrypt?: boolean
   tag?: number
-  postageBatchId?: Address | string
   /** alter default options of axios HTTP client */
   axiosOptions?: AxiosRequestConfig
 }
@@ -189,7 +187,11 @@ export interface FeedWriter extends FeedReader {
    *
    * @returns Reference that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
    */
-  upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
+  upload(
+    postageBatchId: string | Address,
+    reference: ChunkReference | Reference,
+    options?: FeedUploadOptions,
+  ): Promise<ReferenceResponse>
 }
 
 /**
@@ -215,7 +217,12 @@ export interface SOCWriter extends SOCReader {
    * @param data        The chunk payload data
    * @param options     Upload options
    */
-  upload: (identifier: Identifier, data: Uint8Array, options?: UploadOptions) => Promise<ReferenceResponse>
+  upload: (
+    postageBatchId: string | Address,
+    identifier: Identifier,
+    data: Uint8Array,
+    options?: UploadOptions,
+  ) => Promise<ReferenceResponse>
 }
 
 /**

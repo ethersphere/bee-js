@@ -11,7 +11,7 @@ interface CreateStampResponse {
   batchID: Address
 }
 
-export async function getAllStampBatches(url: string): Promise<StampBatch[]> {
+export async function getAllPostageBatches(url: string): Promise<StampBatch[]> {
   const response = await safeAxios<GetAllStampsResponse>({
     method: 'get',
     url: url + STAMPS_ENDPOINT,
@@ -21,7 +21,7 @@ export async function getAllStampBatches(url: string): Promise<StampBatch[]> {
   return response.data.stamps
 }
 
-export async function getStampBatch(url: string, postageBatchId: Address): Promise<StampBatch> {
+export async function getPostageBatch(url: string, postageBatchId: Address): Promise<StampBatch> {
   const response = await safeAxios<StampBatch>({
     method: 'get',
     url: `${url}${STAMPS_ENDPOINT}/${postageBatchId}`,
@@ -31,7 +31,7 @@ export async function getStampBatch(url: string, postageBatchId: Address): Promi
   return response.data
 }
 
-export async function createStampBatch(url: string, amount: bigint, depth: number, label?: string): Promise<Address> {
+export async function createPostageBatch(url: string, amount: bigint, depth: number, label?: string): Promise<Address> {
   const params: Record<string, string> = {}
 
   if (label) {

@@ -62,11 +62,6 @@ export class Bee {
   public readonly signer?: Signer
 
   /**
-   * Default Postage Batch that will be added to uploaded data.
-   */
-  private postageBatchId?: Address
-
-  /**
    * @param url URL of a running Bee node
    * @param options
    * @param options.signer Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
@@ -82,23 +77,21 @@ export class Bee {
     if (options?.signer) {
       this.signer = makeSigner(options.signer)
     }
-
-    if (options?.postageBatchId) {
-      assertAddress(options.postageBatchId)
-      this.postageBatchId = options.postageBatchId
-    }
   }
 
   /**
    * Upload data to a Bee node
    *
+   * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data to be uploaded
    * @param options Additional options like tag, encryption, pinning, content-type
    *
    * @returns reference is a content hash of the data
    */
-  uploadData(data: string | Uint8Array, options?: UploadOptions): Promise<Reference> {
-    return bytes.upload(this.url, data, this.resolvePostageId(options?.postageBatchId), options)
+  uploadData(postageBatchId: string | Address, data: string | Uint8Array, options?: UploadOptions): Promise<Reference> {
+    assertAddress(postageBatchId)
+
+    return bytes.upload(this.url, data, postageBatchId, options)
   }
 
   /**
@@ -127,6 +120,7 @@ export class Bee {
   /**
    * Upload single file to a Bee node
    *
+   * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data or file to be uploaded
    * @param name    Name of the uploaded file (optional)
    * @param options Aditional options like tag, encryption, pinning, content-type
@@ -134,19 +128,22 @@ export class Bee {
    * @returns reference is a content hash of the file
    */
   async uploadFile(
+    postageBatchId: string | Address,
     data: string | Uint8Array | Readable | File,
     name?: string,
     options?: FileUploadOptions,
   ): Promise<Reference> {
+    assertAddress(postageBatchId)
+
     if (isFile(data)) {
       const fileData = await fileArrayBuffer(data)
       const fileName = name || data.name
       const contentType = data.type
       const fileOptions = options !== undefined ? { contentType, ...options } : { contentType }
 
-      return bzz.uploadFile(this.url, fileData, this.resolvePostageId(options?.postageBatchId), fileName, fileOptions)
+      return bzz.uploadFile(this.url, fileData, postageBatchId, fileName, fileOptions)
     } else {
-      return bzz.uploadFile(this.url, data, this.resolvePostageId(options?.postageBatchId), name, options)
+      return bzz.uploadFile(this.url, data, postageBatchId, name, options)
     }
   }
 
@@ -179,15 +176,21 @@ export class Bee {
    *
    * Uses the FileList API from the browser.
    *
+   * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param fileList list of files to be uploaded
    * @param options Additional options like tag, encryption, pinning
    *
    * @returns reference of the collection of files
    */
-  async uploadFiles(fileList: FileList | File[], options?: CollectionUploadOptions): Promise<Reference> {
+  async uploadFiles(
+    postageBatchId: string | Address,
+    fileList: FileList | File[],
+    options?: CollectionUploadOptions,
+  ): Promise<Reference> {
+    assertAddress(postageBatchId)
     const data = await makeCollectionFromFileList(fileList)
 
-    return bzz.uploadCollection(this.url, data, this.resolvePostageId(options?.postageBatchId), options)
+    return bzz.uploadCollection(this.url, data, postageBatchId, options)
   }
 
   /**
@@ -195,15 +198,21 @@ export class Bee {
    *
    * Uses the `fs` module of Node.js
    *
+   * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param dir the path of the files to be uploaded
    * @param options Additional options like tag, encryption, pinning
    *
    * @returns reference of the collection of files
    */
-  async uploadFilesFromDirectory(dir: string, options?: CollectionUploadOptions): Promise<Reference> {
+  async uploadFilesFromDirectory(
+    postageBatchId: string | Address,
+    dir: string,
+    options?: CollectionUploadOptions,
+  ): Promise<Reference> {
+    assertAddress(postageBatchId)
     const data = await makeCollectionFromFS(dir)
 
-    return bzz.uploadCollection(this.url, data, this.resolvePostageId(options?.postageBatchId), options)
+    return bzz.uploadCollection(this.url, data, postageBatchId, options)
   }
 
   /**
@@ -216,7 +225,7 @@ export class Bee {
   /**
    * Retrieve tag information from Bee node
    *
-   * @param tag UID or tag object to be retrieved
+   * @param tagUid UID or tag object to be retrieved
    */
   retrieveTag(tagUid: number | Tag): Promise<Tag> {
     return tag.retrieveTag(this.url, tagUid)
@@ -247,7 +256,7 @@ export class Bee {
   /**
    * Get list of all pinned references
    */
-  getAllPins(): Promise<string[]> {
+  getAllPins(): Promise<Reference[]> {
     return pinning.getAllPins(this.url)
   }
 
@@ -265,6 +274,7 @@ export class Bee {
   /**
    * Send to recipient or target with Postal Service for Swarm
    *
+   * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param topic Topic name
    * @param target Target message address prefix
    * @param data Message to be sent
@@ -272,13 +282,15 @@ export class Bee {
    * @param postageBatchId Postage BatchId that will be assigned to sent message
    */
   pssSend(
+    postageBatchId: string | Address,
     topic: string,
     target: AddressPrefix,
     data: string | Uint8Array,
     recipient?: PublicKey,
-    postageBatchId?: Address,
   ): Promise<BeeResponse> {
-    return pss.send(this.url, topic, target, data, this.resolvePostageId(postageBatchId), recipient)
+    assertAddress(postageBatchId)
+
+    return pss.send(this.url, topic, target, data, postageBatchId, recipient)
   }
 
   /**
@@ -376,23 +388,24 @@ export class Bee {
   /**
    * Create feed manifest chunk and return the reference to it
    *
+   * @param postageBatchId  Postage BatchId to be used to create the Feed Manifest
    * @param type            The type of the feed, can be 'epoch' or 'sequence'
    * @param topic           Topic in hex or bytes
    * @param owner           Owner's ethereum address in hex or bytes
-   * @param postageBatchId  Postage BatchId to be used to create the Feed Manifest
    */
   createFeedManifest(
+    postageBatchId: string | Address,
     type: FeedType,
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
-    postageBatchId?: Address,
   ): Promise<Reference> {
     assertFeedType(type)
+    assertAddress(postageBatchId)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
 
-    return createFeedManifest(this.url, canonicalOwner, canonicalTopic, this.resolvePostageId(postageBatchId), { type })
+    return createFeedManifest(this.url, canonicalOwner, canonicalTopic, postageBatchId, { type })
   }
 
   /**
@@ -432,25 +445,33 @@ export class Bee {
     const canonicalTopic = makeTopic(topic)
     const canonicalSigner = this.resolveSigner(signer)
 
-    return makeFeedWriter(this.url, type, canonicalTopic, canonicalSigner, this.postageBatchId)
+    return makeFeedWriter(this.url, type, canonicalTopic, canonicalSigner)
   }
 
   /**
    * High-level function that allows you to easily set JSON data to feed.
    * JSON-like data types are supported.
    *
+   * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param topic Human readable string, that is internally hashed so there are no constrains there.
    * @param data JSON compatible data
    * @param options
    * @param options.signer Custom instance of Signer or string with private key.
    * @param options.type Type of Feed
    */
-  setJsonFeed<T extends AnyJson>(topic: string, data: T, options?: JsonFeedOptions): Promise<ReferenceResponse> {
+  setJsonFeed<T extends AnyJson>(
+    postageBatchId: string | Address,
+    topic: string,
+    data: T,
+    options?: JsonFeedOptions,
+  ): Promise<ReferenceResponse> {
+    assertAddress(postageBatchId)
+
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
     const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
 
-    return setJsonData(this, writer, data)
+    return setJsonData(this, writer, postageBatchId, data)
   }
 
   /**
@@ -535,7 +556,7 @@ export class Bee {
     return {
       ...this.makeSOCReader(canonicalSigner.address),
 
-      upload: uploadSingleOwnerChunkData.bind(null, this.url, canonicalSigner, this.postageBatchId),
+      upload: uploadSingleOwnerChunkData.bind(null, this.url, canonicalSigner),
     }
   }
 
@@ -546,11 +567,11 @@ export class Bee {
    * @param depth Logarithm of the number of chunks that can be stamped with the batch
    * @param label An optional label for the batch
    */
-  createStampBatch(amount: bigint, depth: number, label?: string): Promise<Address> {
+  createPostageBatch(amount: bigint, depth: number, label?: string): Promise<Address> {
     assertPositiveInteger(amount)
     assertPositiveInteger(depth)
 
-    return stamps.createStampBatch(this.url, amount, depth, label)
+    return stamps.createPostageBatch(this.url, amount, depth, label)
   }
 
   /**
@@ -558,17 +579,17 @@ export class Bee {
    *
    * @param postageBatchId BatchId
    */
-  getStampBatch(postageBatchId: Address | string): Promise<StampBatch> {
+  getPostageBatch(postageBatchId: Address | string): Promise<StampBatch> {
     assertAddress(postageBatchId)
 
-    return stamps.getStampBatch(this.url, postageBatchId)
+    return stamps.getPostageBatch(this.url, postageBatchId)
   }
 
   /**
    * Return all postage batches that has the node available.
    */
-  getAllStampBatches(): Promise<StampBatch[]> {
-    return stamps.getAllStampBatches(this.url)
+  getAllPostageBatch(): Promise<StampBatch[]> {
+    return stamps.getAllPostageBatches(this.url)
   }
 
   /**
@@ -581,7 +602,7 @@ export class Bee {
   /**
    * Ping the base bee URL.
    *
-   * @returns true if succesfull, false on error
+   * @returns true if successful, false on error
    */
   async isConnected(): Promise<boolean> {
     try {
@@ -591,22 +612,6 @@ export class Bee {
     }
 
     return true
-  }
-
-  /**
-   * Getter for default postage batchId
-   */
-  getDefaultPostageBatchId(): Address | undefined {
-    return this.postageBatchId
-  }
-
-  /**
-   * Setter for default postage batchId
-   * @param batchId
-   */
-  setDefaultPostageBatchId(batchId: Address | string): void {
-    assertAddress(batchId)
-    this.postageBatchId = batchId
   }
 
   private resolveSigner(signer?: Signer | Uint8Array | string): Signer {
@@ -619,21 +624,5 @@ export class Bee {
     }
 
     throw new BeeError('You have to pass Signer as property to either the method call or constructor! Non found.')
-  }
-
-  private resolvePostageId(postageBatchId?: Address | string): Address {
-    if (postageBatchId) {
-      assertAddress(postageBatchId)
-
-      return postageBatchId
-    }
-
-    if (this.postageBatchId) {
-      return this.postageBatchId
-    }
-
-    throw new BeeError(
-      'You have to pass PostageBatchId as property to either the method call or constructor! Non found.',
-    )
   }
 }
