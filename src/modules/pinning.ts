@@ -4,7 +4,7 @@ import { safeAxios } from '../utils/safeAxios'
 const PINNING_ENDPOINT = '/pins'
 
 export interface GetAllPinResponse {
-  references: Pin[] | null
+  references: Reference[] | null
 }
 
 /**
@@ -61,7 +61,7 @@ export async function getPin(url: string, reference: Reference): Promise<Pin> {
  *
  * @param url     Bee URL
  */
-export async function getAllPins(url: string): Promise<Pin[]> {
+export async function getAllPins(url: string): Promise<Reference[]> {
   const response = await safeAxios<GetAllPinResponse>({
     method: 'get',
     responseType: 'json',

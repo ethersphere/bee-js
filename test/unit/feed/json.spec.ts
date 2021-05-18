@@ -1,6 +1,6 @@
 import { Arg, Substitute } from '@fluffy-spoon/substitute'
 import { AnyJson, Bee, FeedWriter, Reference } from '../../../src'
-import { testChunkHash } from '../../utils'
+import { testAddress, testChunkHash } from '../../utils'
 import { getJsonData, setJsonData } from '../../../src/feed/json'
 import { FetchFeedUpdateResponse } from '../../../src/modules/feed'
 import { wrapBytesWithHelpers } from '../../../src/utils/bytes'
@@ -25,9 +25,9 @@ describe('JsonFeed', () => {
       const writer = Substitute.for<FeedWriter>()
       writer.upload(Arg.all()).resolves(FEED_REFERENCE)
 
-      await expect(setJsonData(bee, writer, data as AnyJson)).resolves.toEqual(FEED_REFERENCE)
-      bee.received(1).uploadData(expectedBytes)
-      writer.received(1).upload(DATA_REFERENCE)
+      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).resolves.toEqual(FEED_REFERENCE)
+      bee.received(1).uploadData(testAddress, expectedBytes)
+      writer.received(1).upload(testAddress, DATA_REFERENCE)
     })
 
     it(`should get feed for data: ${data}`, async () => {
@@ -62,7 +62,7 @@ describe('JsonFeed', () => {
   it(`should fail for non-serializable data`, async () => {
     const bee = Substitute.for<Bee>()
     const writer = Substitute.for<FeedWriter>()
-    await expect(setJsonData(bee, writer, (BigInt(123) as unknown) as AnyJson)).rejects.toThrow(TypeError)
+    await expect(setJsonData(bee, writer, testAddress, (BigInt(123) as unknown) as AnyJson)).rejects.toThrow(TypeError)
 
     const circularReference: CircularReference = { otherData: 123 }
     circularReference.myself = circularReference

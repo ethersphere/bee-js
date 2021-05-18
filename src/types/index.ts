@@ -60,6 +60,7 @@ export interface UploadHeaders {
   'swarm-pin'?: string
   'swarm-encrypt'?: string
   'swarm-tag'?: string
+  'swarm-postage-batch-id'?: string
 }
 
 export interface Tag {
@@ -81,7 +82,7 @@ export interface FileData<T> extends FileHeaders {
 }
 
 export interface Pin {
-  address: string
+  reference: string
 }
 
 /**
@@ -186,7 +187,11 @@ export interface FeedWriter extends FeedReader {
    *
    * @returns Reference that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
    */
-  upload(reference: ChunkReference | Reference, options?: FeedUploadOptions): Promise<ReferenceResponse>
+  upload(
+    postageBatchId: string | Address,
+    reference: ChunkReference | Reference,
+    options?: FeedUploadOptions,
+  ): Promise<ReferenceResponse>
 }
 
 /**
@@ -212,7 +217,20 @@ export interface SOCWriter extends SOCReader {
    * @param data        The chunk payload data
    * @param options     Upload options
    */
-  upload: (identifier: Identifier, data: Uint8Array, options?: UploadOptions) => Promise<ReferenceResponse>
+  upload: (
+    postageBatchId: string | Address,
+    identifier: Identifier,
+    data: Uint8Array,
+    options?: UploadOptions,
+  ) => Promise<ReferenceResponse>
+}
+
+/**
+ * Interface representing Postage stamp batch.
+ */
+export interface StampBatch {
+  batchID: Address
+  utilization: number
 }
 
 /*********************************************************

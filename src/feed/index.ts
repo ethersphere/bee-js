@@ -14,6 +14,7 @@ import {
   FeedReader,
   FeedWriter,
   Topic,
+  Address,
 } from '../types'
 import { Bytes, makeBytes, bytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -23,6 +24,7 @@ import * as chunkAPI from '../modules/chunk'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
 
 import type { FeedType } from './type'
+import { assertAddress } from '../utils/type'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8
@@ -89,6 +91,7 @@ export function uploadFeedUpdate(
   topic: Topic,
   index: Index,
   reference: ChunkReference,
+  postageBatchId: Address,
   options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const identifier = makeFeedIdentifier(topic, index)
@@ -96,7 +99,7 @@ export function uploadFeedUpdate(
   const timestamp = writeUint64BigEndian(at)
   const payloadBytes = serializeBytes(timestamp, reference)
 
-  return uploadSingleOwnerChunkData(url, signer, identifier, payloadBytes, options)
+  return uploadSingleOwnerChunkData(url, signer, postageBatchId, identifier, payloadBytes, options)
 }
 
 export async function findNextIndex(
@@ -122,12 +125,13 @@ export async function updateFeed(
   signer: Signer,
   topic: Topic,
   reference: ChunkReference,
+  postageBatchId: Address,
   options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const ownerHex = makeHexEthAddress(signer.address)
   const nextIndex = await findNextIndex(url, ownerHex, topic, options)
 
-  return uploadFeedUpdate(url, signer, topic, nextIndex, reference, options)
+  return uploadFeedUpdate(url, signer, topic, nextIndex, reference, postageBatchId, options)
 }
 
 function verifyChunkReferenceAtOffset(offset: number, data: Uint8Array): ChunkReference {
@@ -199,10 +203,15 @@ function makeChunkReference(reference: ChunkReference | Reference): ChunkReferen
 }
 
 export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
-  const upload = (reference: ChunkReference | Reference, options?: FeedUploadOptions) => {
+  const upload = (
+    postageBatchId: string | Address,
+    reference: ChunkReference | Reference,
+    options?: FeedUploadOptions,
+  ) => {
+    assertAddress(postageBatchId)
     const canonicalReference = makeChunkReference(reference)
 
-    return updateFeed(url, signer, topic, canonicalReference, { ...options, type })
+    return updateFeed(url, signer, topic, canonicalReference, postageBatchId, { ...options, type })
   }
 
   return {

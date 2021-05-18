@@ -1,4 +1,5 @@
 import {
+  Address,
   Collection,
   CollectionUploadOptions,
   Data,
@@ -24,8 +25,8 @@ interface FileUploadHeaders extends UploadHeaders {
   'content-type'?: string
 }
 
-function extractFileUploadHeaders(options?: FileUploadOptions): FileUploadHeaders {
-  const headers: FileUploadHeaders = extractUploadHeaders(options)
+function extractFileUploadHeaders(postageBatchId: Address, options?: FileUploadOptions): FileUploadHeaders {
+  const headers: FileUploadHeaders = extractUploadHeaders(postageBatchId, options)
 
   if (options?.size) headers['content-length'] = String(options.size)
 
@@ -33,9 +34,20 @@ function extractFileUploadHeaders(options?: FileUploadOptions): FileUploadHeader
 
   return headers
 }
+
+/**
+ * Upload single file
+ *
+ * @param url Bee URL
+ * @param data Files data
+ * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
+ * @param name Name that will be attached to the uploaded file. Wraps the data into manifest with set index document.
+ * @param options
+ */
 export async function uploadFile(
   url: string,
   data: string | Uint8Array | Readable | ArrayBuffer,
+  postageBatchId: Address,
   name?: string,
   options?: FileUploadOptions,
 ): Promise<Reference> {
@@ -49,7 +61,7 @@ export async function uploadFile(
     url: url + bzzEndpoint,
     data: prepareData(data),
     headers: {
-      ...extractFileUploadHeaders(options),
+      ...extractFileUploadHeaders(postageBatchId, options),
     },
     params: { name },
     responseType: 'json',
@@ -122,8 +134,11 @@ interface CollectionUploadHeaders extends UploadHeaders {
   'swarm-error-document'?: string
 }
 
-function extractCollectionUploadHeaders(options?: CollectionUploadOptions): CollectionUploadHeaders {
-  const headers: CollectionUploadHeaders = extractUploadHeaders(options)
+function extractCollectionUploadHeaders(
+  postageBatchId: Address,
+  options?: CollectionUploadOptions,
+): CollectionUploadHeaders {
+  const headers: CollectionUploadHeaders = extractUploadHeaders(postageBatchId, options)
 
   if (options?.indexDocument) headers['swarm-index-document'] = options.indexDocument
 
@@ -132,9 +147,17 @@ function extractCollectionUploadHeaders(options?: CollectionUploadOptions): Coll
   return headers
 }
 
+/**
+ * Upload collection
+ * @param url Bee URL
+ * @param collection Collection of Uint8Array buffers to upload
+ * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
+ * @param options
+ */
 export async function uploadCollection(
   url: string,
   collection: Collection<Uint8Array>,
+  postageBatchId: Address,
   options?: CollectionUploadOptions,
 ): Promise<Reference> {
   if (!url) {
@@ -153,7 +176,7 @@ export async function uploadCollection(
     headers: {
       'content-type': 'application/x-tar',
       'swarm-collection': 'true',
-      ...extractCollectionUploadHeaders(options),
+      ...extractCollectionUploadHeaders(postageBatchId, options),
     },
   })
 

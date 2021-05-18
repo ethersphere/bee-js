@@ -10,24 +10,33 @@ import {
   testChunkData,
   testChunkHash,
   ERR_TIMEOUT,
+  getPostageBatch,
+  createdResponse,
+  commonMatchers,
 } from '../../utils'
 import { Collection } from '../../../src/types'
 
 const BEE_URL = beeUrl()
+commonMatchers()
 
 describe('modules/pin', () => {
+  beforeAll(async () => {
+    // This will create the default batch if it is was not created before
+    await getPostageBatch()
+  }, 60000)
+
   describe('should work with files', () => {
     const randomData = randomByteArray(5000)
 
     it('should pin an existing file', async () => {
-      const hash = await bzz.uploadFile(BEE_URL, randomData)
+      const hash = await bzz.uploadFile(BEE_URL, randomData, await getPostageBatch())
       const response = await pinning.pin(BEE_URL, hash)
 
-      expect(response).toEqual(okResponse)
+      expect(response).toBeOneOf([createdResponse, okResponse])
     })
 
     it('should unpin an existing file', async () => {
-      const hash = await bzz.uploadFile(BEE_URL, randomData)
+      const hash = await bzz.uploadFile(BEE_URL, randomData, await getPostageBatch())
       const response = await pinning.unpin(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
@@ -59,14 +68,14 @@ describe('modules/pin', () => {
     ]
 
     it('should pin an existing collection', async () => {
-      const hash = await bzz.uploadCollection(BEE_URL, testCollection)
+      const hash = await bzz.uploadCollection(BEE_URL, testCollection, await getPostageBatch())
       const response = await pinning.pin(BEE_URL, hash)
 
-      expect(response).toEqual(okResponse)
+      expect(response).toBeOneOf([createdResponse, okResponse])
     })
 
     it('should unpin an existing collections', async () => {
-      const hash = await bzz.uploadCollection(BEE_URL, testCollection)
+      const hash = await bzz.uploadCollection(BEE_URL, testCollection, await getPostageBatch())
       const response = await pinning.unpin(BEE_URL, hash)
 
       expect(response).toEqual(okResponse)
@@ -89,17 +98,17 @@ describe('modules/pin', () => {
     const randomData = randomByteArray(5000)
 
     it('should pin existing data', async () => {
-      const hash = await bytes.upload(BEE_URL, randomData)
+      const hash = await bytes.upload(BEE_URL, randomData, await getPostageBatch())
       const response = await pinning.pin(BEE_URL, hash)
 
-      expect(response).toEqual(okResponse)
+      expect(response).toBeOneOf([createdResponse, okResponse])
     })
 
     it('should unpin existing data', async () => {
-      const hash = await bytes.upload(BEE_URL, randomData)
+      const hash = await bytes.upload(BEE_URL, randomData, await getPostageBatch())
       const response = await pinning.pin(BEE_URL, hash)
 
-      expect(response).toEqual(okResponse)
+      expect(response).toBeOneOf([createdResponse, okResponse])
     })
 
     it(
@@ -111,21 +120,21 @@ describe('modules/pin', () => {
     )
 
     it('should not unpin a non-existing data', async () => {
-      await expect(pinning.pin(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
     })
   })
 
   describe('should work with chunks', () => {
     it('should pin existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, await getPostageBatch())
       expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
-      expect(pinningResponse).toEqual(okResponse)
+      expect(pinningResponse).toBeOneOf([createdResponse, okResponse])
     })
 
     it('should unpin existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, await getPostageBatch())
       expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.unpin(BEE_URL, testChunkHash)
@@ -145,14 +154,14 @@ describe('modules/pin', () => {
     })
 
     it('should return pinning status of existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, await getPostageBatch())
       expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
-      expect(pinningResponse).toEqual(okResponse)
+      expect(pinningResponse).toBeOneOf([createdResponse, okResponse])
 
       const pinningStatus = await pinning.getPin(BEE_URL, testChunkHash)
-      expect(pinningStatus.address).toEqual(testChunkHash)
+      expect(pinningStatus.reference).toEqual(testChunkHash)
     })
 
     it('should not return pinning status of non-existing chunk', async () => {
@@ -160,11 +169,11 @@ describe('modules/pin', () => {
     })
 
     it('should return list of pinned chunks', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData)
+      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, await getPostageBatch())
       expect(chunkResponse).toEqual({ reference: testChunkHash })
 
       const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
-      expect(pinningResponse).toEqual(okResponse)
+      expect(pinningResponse).toBeOneOf([createdResponse, okResponse])
     })
   })
 })

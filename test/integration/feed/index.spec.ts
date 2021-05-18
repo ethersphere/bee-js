@@ -1,6 +1,6 @@
 import { fetchFeedUpdate } from '../../../src/modules/feed'
 import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
-import { beeUrl, ERR_TIMEOUT, testIdentity } from '../../utils'
+import { beeUrl, ERR_TIMEOUT, getPostageBatch, testIdentity } from '../../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../../src/feed'
 import { Bytes, assertBytes } from '../../../src/utils/bytes'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
@@ -15,7 +15,7 @@ function makeChunk(index: number) {
 
 async function uploadChunk(url: string, index: number): Promise<ChunkReference> {
   const chunk = makeChunk(index)
-  const referenceResponse = await chunkAPI.upload(url, chunk.data)
+  const referenceResponse = await chunkAPI.upload(url, chunk.data, await getPostageBatch())
 
   return hexToBytes(referenceResponse.reference as HexString) as ChunkReference
 }
@@ -25,7 +25,7 @@ async function uploadChunk(url: string, index: number): Promise<ChunkReference> 
 // https://github.com/ethersphere/bee-js/issues/154
 async function tryUploadFeedUpdate(url: string, signer: Signer, topic: Topic, index: Index, reference: ChunkReference) {
   try {
-    await uploadFeedUpdate(url, signer, topic, index, reference)
+    await uploadFeedUpdate(url, signer, topic, index, reference, await getPostageBatch())
   } catch (e) {
     if (e instanceof BeeResponseError && e.status === 409) {
       // ignore conflict errors when uploading the same feed update twice
@@ -40,6 +40,11 @@ describe('feed', () => {
   const owner = makeHexString(testIdentity.address, 40)
   const signer = makePrivateKeySigner(hexToBytes(testIdentity.privateKey) as PrivateKeyBytes)
   const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
+
+  beforeAll(async () => {
+    // This will create the default batch if it is was not created before
+    await getPostageBatch(url)
+  }, 60000)
 
   test(
     'empty feed update',

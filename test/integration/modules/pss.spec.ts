@@ -1,12 +1,18 @@
 import * as pss from '../../../src/modules/pss'
 import * as connectivity from '../../../src/modules/debug/connectivity'
-import { beeDebugUrl, beePeerUrl, beeUrl, okResponse, PSS_TIMEOUT } from '../../utils'
+import { beeDebugUrl, beePeerUrl, beeUrl, createdResponse, getPostageBatch, PSS_TIMEOUT, sleep } from '../../utils'
 
 const BEE_URL = beeUrl()
 const BEE_PEER_URL = beePeerUrl()
 
 // these tests only work when there is at least one peer connected
 describe('modules/pss', () => {
+  beforeAll(async () => {
+    // This will create the default batch if it is was not created before
+    await getPostageBatch()
+    await getPostageBatch(BEE_PEER_URL)
+  }, 90000)
+
   it(
     'should send PSS message',
     async () => {
@@ -18,9 +24,9 @@ describe('modules/pss', () => {
       expect(peers.length).toBeGreaterThan(0)
 
       const target = peers[0].address
-      const response = await pss.send(BEE_URL, topic, target, message)
+      const response = await pss.send(BEE_URL, topic, target, message, await getPostageBatch())
 
-      expect(response).toEqual(okResponse)
+      expect(response).toEqual(createdResponse)
     },
     PSS_TIMEOUT,
   )
@@ -48,7 +54,7 @@ describe('modules/pss', () => {
 
       const addresses = await connectivity.getNodeAddresses(debugUrl)
       const target = addresses.overlay
-      await pss.send(BEE_PEER_URL, topic, target, message)
+      await pss.send(BEE_PEER_URL, topic, target, message, await getPostageBatch(BEE_PEER_URL))
     },
     PSS_TIMEOUT,
   )
@@ -77,7 +83,7 @@ describe('modules/pss', () => {
       const addresses = await connectivity.getNodeAddresses(debugUrl)
       const target = addresses.overlay
       const recipient = addresses.pssPublicKey
-      await pss.send(BEE_PEER_URL, topic, target, message, recipient)
+      await pss.send(BEE_PEER_URL, topic, target, message, await getPostageBatch(BEE_PEER_URL), recipient)
     },
     PSS_TIMEOUT,
   )
