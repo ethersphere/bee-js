@@ -64,7 +64,7 @@ export async function getLastCashoutAction(url: string, peer: string): Promise<L
  * @param peer  Swarm address of peer
  */
 export async function cashoutLastCheque(url: string, peer: string): Promise<CashoutResponse> {
-  const response = await safeAxios<LastCashoutActionResponse>({
+  const response = await safeAxios<CashoutResponse>({
     method: 'post',
     url: url + chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
