@@ -14,8 +14,8 @@ describe('modules/status', () => {
     const health = await getHealth(BEE_DEBUG_URL)
 
     expect(health.status).toBe('ok')
-    // Matches both versions like 0.5.3-c423a39c and 0.5.3
-    expect(health.version).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]+)?$/i)
+    // Matches both versions like 0.5.3-c423a39c, 0.5.3-c423a39c-dirty and 0.5.3
+    expect(health.version).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]+)?(-dirty)?$/i)
   })
 
   test('isSupportedVersion', async () => {
@@ -29,7 +29,7 @@ describe('modules/status', () => {
     expect(SUPPORTED_BEE_VERSION).toMatch(/^\d+\.\d+\.\d+$/i)
 
     // Matches semantic version with commit message e.g. 0.5.3-acbd0e2
-    expect(SUPPORTED_BEE_VERSION_EXACT).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]+)$/i)
+    expect(SUPPORTED_BEE_VERSION_EXACT).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]+)?(-dirty)?$/i)
   })
 
   test('SUPPORTED_BEE_VERSION_EXACT should come from package.json', () => {
