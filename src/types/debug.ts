@@ -39,11 +39,10 @@ export interface CashoutResult {
 
 export interface LastCashoutActionResponse {
   peer: string
-  chequebook: string
-  cumulativePayout: bigint
-  beneficiary: string
-  transactionHash: string
-  result: CashoutResult
+  uncashedAmount: bigint
+  transactionHash: string | null
+  lastCashedCheque: Cheque | null
+  result: CashoutResult | null
 }
 
 export interface CashoutResponse {
