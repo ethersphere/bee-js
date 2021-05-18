@@ -29,7 +29,7 @@ describe('modules/status', () => {
     expect(SUPPORTED_BEE_VERSION).toMatch(/^\d+\.\d+\.\d+$/i)
 
     // Matches semantic version with commit message e.g. 0.5.3-acbd0e2
-    expect(SUPPORTED_BEE_VERSION_EXACT).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]+)?(-dirty)?$/i)
+    expect(SUPPORTED_BEE_VERSION_EXACT).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]{8}(-dirty)?)?$/i)
   })
 
   test('SUPPORTED_BEE_VERSION_EXACT should come from package.json', () => {
