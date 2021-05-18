@@ -267,7 +267,7 @@ describe('modules/bzz', () => {
       async () => {
         await expect(bzz.downloadFile(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
       },
-      ERR_TIMEOUT,
+      BIG_FILE_TIMEOUT,
     )
 
     it(
