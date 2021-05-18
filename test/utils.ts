@@ -250,6 +250,7 @@ export const ERR_TIMEOUT = 40000
 export const BIG_FILE_TIMEOUT = 100000
 export const PSS_TIMEOUT = 120000
 export const FEED_TIMEOUT = 120000
+export const POSTAGE_BATCH_TIMEOUT = 40000
 
 export const testChunkPayload = new Uint8Array([1, 2, 3])
 // span is the payload length encoded as uint64 little endian

@@ -4,7 +4,6 @@ import {
   beeUrl,
   BIG_FILE_TIMEOUT,
   createReadable,
-  ERR_TIMEOUT,
   getPostageBatch,
   invalidReference,
   randomByteArray,

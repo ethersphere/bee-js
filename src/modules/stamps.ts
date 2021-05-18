@@ -14,7 +14,7 @@ interface CreateStampResponse {
 export async function getAllPostageBatches(url: string): Promise<StampBatch[]> {
   const response = await safeAxios<GetAllStampsResponse>({
     method: 'get',
-    url: url + STAMPS_ENDPOINT,
+    url: `${url}${STAMPS_ENDPOINT}`,
     responseType: 'json',
   })
 

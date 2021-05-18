@@ -46,7 +46,7 @@ import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
-import { assertAddress, assertPositiveInteger, assertReference } from './utils/type'
+import { assertAddress, assertNonNegativeInteger, assertReference } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 
@@ -274,12 +274,11 @@ export class Bee {
   /**
    * Send to recipient or target with Postal Service for Swarm
    *
-   * @param postageBatchId Postage BatchId to be used to upload the data with
+   * @param postageBatchId Postage BatchId that will be assigned to sent message
    * @param topic Topic name
    * @param target Target message address prefix
    * @param data Message to be sent
    * @param recipient Recipient public key
-   * @param postageBatchId Postage BatchId that will be assigned to sent message
    */
   pssSend(
     postageBatchId: string | Address,
@@ -561,15 +560,17 @@ export class Bee {
   }
 
   /**
-   * Creates new postage batch from the funds that the node has available.
+   * Creates new postage batch from the funds that the node has available in its Ethereum account.
    *
-   * @param amount Amount added to the balance of the batch
-   * @param depth Logarithm of the number of chunks that can be stamped with the batch
-   * @param label An optional label for the batch
+   * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
+   * @param depth Logarithm of the number of chunks that can be stamped with the batch.
+   * @param label An optional label for the batch.
+   * @throws BeeArgumentError when negative amount or depth is specified
+   * @throws TypeError if non-integer value is passed to amount or depth
    */
   createPostageBatch(amount: bigint, depth: number, label?: string): Promise<Address> {
-    assertPositiveInteger(amount)
-    assertPositiveInteger(depth)
+    assertNonNegativeInteger(amount)
+    assertNonNegativeInteger(depth)
 
     return stamps.createPostageBatch(this.url, amount, depth, label)
   }

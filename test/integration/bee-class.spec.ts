@@ -1,4 +1,4 @@
-import { Bee, BeeDebug, Collection } from '../../src'
+import { Bee, BeeArgumentError, BeeDebug, Collection } from '../../src'
 
 import { ChunkReference } from '../../src/feed'
 import { REFERENCE_HEX_LENGTH } from '../../src/types'
@@ -13,6 +13,7 @@ import {
   FEED_TIMEOUT,
   getPostageBatch,
   okResponse,
+  POSTAGE_BATCH_TIMEOUT,
   PSS_TIMEOUT,
   randomByteArray,
   testChunkPayload,
@@ -448,5 +449,22 @@ describe('Bee class', () => {
       },
       FEED_TIMEOUT,
     )
+  })
+
+  describe('PostageBatch', () => {
+    it(
+      'should create a new postage batch with zero amount',
+      async () => {
+        const batchId = await bee.createPostageBatch(BigInt('0'), 17)
+        const allBatches = await bee.getAllPostageBatch()
+
+        expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
+      },
+      POSTAGE_BATCH_TIMEOUT,
+    )
+
+    it('should error with negative amoutn', async () => {
+      await expect(await bee.createPostageBatch(BigInt('-1'), 17)).rejects.toThrowError(BeeArgumentError)
+    })
   })
 })

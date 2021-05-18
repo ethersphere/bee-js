@@ -42,7 +42,6 @@ describe('modules/pin', () => {
       expect(response).toEqual(okResponse)
     })
 
-    // TODO: https://github.com/ethersphere/bee-js/issues/304
     it(
       'should not pin a non-existing file',
       async () => {
