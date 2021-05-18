@@ -1,7 +1,7 @@
 import { Bytes, assertBytes } from '../../../src/utils/bytes'
 import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
-import { beeUrl, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
+import { beeUrl, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import * as chunkAPI from '../../../src/modules/chunk'
 import { HexString, hexToBytes, bytesToHex } from '../../../src/utils/hex'
@@ -14,6 +14,11 @@ describe('soc', () => {
   const socHash = '9d453ebb73b2fedaaf44ceddcf7a0aa37f3e3d6453fea5841c31f0ea6d61dc85' as HexString
   const identifier = new Uint8Array(32) as Bytes<32>
 
+  beforeAll(async () => {
+    // This will create the default batch if it is was not created before
+    await getPostageBatch()
+  }, 60000)
+
   test('upload single owner chunk', async () => {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
@@ -21,7 +26,7 @@ describe('soc', () => {
 
     await tryDeleteChunkFromLocalStorage(socHash)
 
-    const response = await uploadSingleOwnerChunk(beeUrl(), soc)
+    const response = await uploadSingleOwnerChunk(beeUrl(), soc, await getPostageBatch())
 
     expect(response).toEqual({ reference: socAddress })
   })

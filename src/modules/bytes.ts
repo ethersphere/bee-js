@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import { Data, Reference, UploadOptions } from '../types'
+import { Address, Data, Reference, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
@@ -11,11 +11,17 @@ const endpoint = '/bytes'
 /**
  * Upload data to a Bee node
  *
- * @param url     Bee URL
- * @param data    Data to be uploaded
- * @param options Aditional options like tag, encryption, pinning
+ * @param url             Bee URL
+ * @param data            Data to be uploaded
+ * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
+ * @param options         Additional options like tag, encryption, pinning
  */
-export async function upload(url: string, data: string | Uint8Array, options?: UploadOptions): Promise<Reference> {
+export async function upload(
+  url: string,
+  data: string | Uint8Array,
+  postageBatchId: Address,
+  options?: UploadOptions,
+): Promise<Reference> {
   const response = await safeAxios<{ reference: Reference }>({
     ...options?.axiosOptions,
     method: 'post',
@@ -23,7 +29,7 @@ export async function upload(url: string, data: string | Uint8Array, options?: U
     data: await prepareData(data),
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractUploadHeaders(options),
+      ...extractUploadHeaders(postageBatchId, options),
     },
     responseType: 'json',
   })

@@ -3,6 +3,7 @@ import type { Readable } from 'stream'
 import type { ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
+import { Address } from '../types'
 
 const endpoint = '/chunks'
 
@@ -14,11 +15,16 @@ const endpoint = '/chunks'
  * Upload expects the chuck data to be set accordingly.
  *
  * @param url     Bee URL
- * @param hash    Chunk reference
  * @param data    Chunk data to be uploaded
+ * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options Aditional options like tag, encryption, pinning
  */
-export async function upload(url: string, data: Uint8Array, options?: UploadOptions): Promise<ReferenceResponse> {
+export async function upload(
+  url: string,
+  data: Uint8Array,
+  postageBatchId: Address,
+  options?: UploadOptions,
+): Promise<ReferenceResponse> {
   const response = await safeAxios<ReferenceResponse>({
     ...options?.axiosOptions,
     method: 'post',
@@ -26,7 +32,7 @@ export async function upload(url: string, data: Uint8Array, options?: UploadOpti
     data,
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractUploadHeaders(options),
+      ...extractUploadHeaders(postageBatchId, options),
     },
     responseType: 'json',
   })
