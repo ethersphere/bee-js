@@ -15,7 +15,7 @@ describe('modules/status', () => {
 
     expect(health.status).toBe('ok')
     // Matches both versions like 0.5.3-c423a39c, 0.5.3-c423a39c-dirty and 0.5.3
-    expect(health.version).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]+)?(-dirty)?$/i)
+    expect(health.version).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]{8}(-dirty)?)?$/i)
   })
 
   test('isSupportedVersion', async () => {
