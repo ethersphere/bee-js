@@ -1,17 +1,17 @@
-import { Address, StampBatch } from '../types'
+import { Address, PostageBatch, PostageBatchOptions } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 
 const STAMPS_ENDPOINT = '/stamps'
 
 interface GetAllStampsResponse {
-  stamps: StampBatch[]
+  stamps: PostageBatch[]
 }
 
 interface CreateStampResponse {
   batchID: Address
 }
 
-export async function getAllPostageBatches(url: string): Promise<StampBatch[]> {
+export async function getAllPostageBatches(url: string): Promise<PostageBatch[]> {
   const response = await safeAxios<GetAllStampsResponse>({
     method: 'get',
     url: `${url}${STAMPS_ENDPOINT}`,
@@ -21,8 +21,8 @@ export async function getAllPostageBatches(url: string): Promise<StampBatch[]> {
   return response.data.stamps
 }
 
-export async function getPostageBatch(url: string, postageBatchId: Address): Promise<StampBatch> {
-  const response = await safeAxios<StampBatch>({
+export async function getPostageBatch(url: string, postageBatchId: Address): Promise<PostageBatch> {
+  const response = await safeAxios<PostageBatch>({
     method: 'get',
     url: `${url}${STAMPS_ENDPOINT}/${postageBatchId}`,
     responseType: 'json',
@@ -31,18 +31,24 @@ export async function getPostageBatch(url: string, postageBatchId: Address): Pro
   return response.data
 }
 
-export async function createPostageBatch(url: string, amount: bigint, depth: number, label?: string): Promise<Address> {
-  const params: Record<string, string> = {}
+export async function createPostageBatch(
+  url: string,
+  amount: bigint,
+  depth: number,
+  options?: PostageBatchOptions,
+): Promise<Address> {
+  const headers: Record<string, string> = {}
 
-  if (label) {
-    params.label = label
+  if (options?.gasPrice) {
+    headers['gas-price'] = options.gasPrice.toString()
   }
 
   const response = await safeAxios<CreateStampResponse>({
     method: 'post',
     url: `${url}${STAMPS_ENDPOINT}/${amount}/${depth}`,
     responseType: 'json',
-    params,
+    params: { label: options?.label },
+    headers,
   })
 
   return response.data.batchID

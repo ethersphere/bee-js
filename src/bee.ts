@@ -31,7 +31,7 @@ import type {
   AnyJson,
   Pin,
   Address,
-  StampBatch,
+  PostageBatch,
 } from './types'
 import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -49,6 +49,7 @@ import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertAddress, assertNonNegativeInteger, assertReference } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
+import { PostageBatchOptions } from './types'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -564,15 +565,22 @@ export class Bee {
    *
    * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
    * @param depth Logarithm of the number of chunks that can be stamped with the batch.
-   * @param label An optional label for the batch.
+   * @param options Options for creation of postage batch
+   * @param options.gasPrice Sets gas price for the transaction that creates the postage batch
+   * @param options.label Sets label for the postage batch
    * @throws BeeArgumentError when negative amount or depth is specified
    * @throws TypeError if non-integer value is passed to amount or depth
    */
-  createPostageBatch(amount: bigint, depth: number, label?: string): Promise<Address> {
+  // eslint-disable-next-line require-await
+  async createPostageBatch(amount: bigint, depth: number, options?: PostageBatchOptions): Promise<Address> {
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
 
-    return stamps.createPostageBatch(this.url, amount, depth, label)
+    if (options?.gasPrice) {
+      assertNonNegativeInteger(options.gasPrice)
+    }
+
+    return stamps.createPostageBatch(this.url, amount, depth, options)
   }
 
   /**
@@ -580,7 +588,7 @@ export class Bee {
    *
    * @param postageBatchId BatchId
    */
-  getPostageBatch(postageBatchId: Address | string): Promise<StampBatch> {
+  getPostageBatch(postageBatchId: Address | string): Promise<PostageBatch> {
     assertAddress(postageBatchId)
 
     return stamps.getPostageBatch(this.url, postageBatchId)
@@ -589,7 +597,7 @@ export class Bee {
   /**
    * Return all postage batches that has the node available.
    */
-  getAllPostageBatch(): Promise<StampBatch[]> {
+  getAllPostageBatch(): Promise<PostageBatch[]> {
     return stamps.getAllPostageBatches(this.url)
   }
 

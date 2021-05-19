@@ -228,9 +228,17 @@ export interface SOCWriter extends SOCReader {
 /**
  * Interface representing Postage stamp batch.
  */
-export interface StampBatch {
+export interface PostageBatch {
   batchID: Address
   utilization: number
+}
+
+/**
+ * Options for creation of postage batch
+ */
+export interface PostageBatchOptions {
+  label?: string
+  gasPrice?: bigint | number
 }
 
 /*********************************************************
