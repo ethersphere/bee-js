@@ -20,7 +20,7 @@ export async function getAllPostageBatches(url: string): Promise<PostageBatch[]>
     responseType: 'json',
   })
 
-  return response.data.stamps
+  return response.data.stamps || []
 }
 
 export async function getPostageBatch(url: string, postageBatchId: Address): Promise<PostageBatch> {
