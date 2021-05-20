@@ -103,7 +103,11 @@ export async function safeAxios<T>(config: AxiosRequestConfig & { forceBigInt?: 
     return response
   } catch (e) {
     if (e.response) {
-      throw new BeeResponseError(e.response.status, e.response.statusText)
+      if (e.response.data?.message) {
+        throw new BeeResponseError(e.response.status, `${e.response.statusText}: ${e.response.data.message}`)
+      } else {
+        throw new BeeResponseError(e.response.status, e.response.statusText)
+      }
     } else if (e.request) {
       throw new BeeRequestError(e.message)
     } else {
