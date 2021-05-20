@@ -57,8 +57,8 @@ export interface Cheque {
 
 export interface LastChequesForPeerResponse {
   peer: string
-  lastReceived: Cheque
-  lastSent: Cheque
+  lastreceived: Cheque
+  lastsent: Cheque
 }
 
 export interface LastChequesResponse {
