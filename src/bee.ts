@@ -33,7 +33,7 @@ import type {
   Address,
   PostageBatch,
 } from './types'
-import { BeeError } from './utils/error'
+import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
@@ -575,6 +575,14 @@ export class Bee {
   async createPostageBatch(amount: bigint, depth: number, options?: PostageBatchOptions): Promise<Address> {
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
+
+    if (depth < stamps.MINIMUM_DEPTH) {
+      throw new BeeArgumentError(`Depth has to be at least ${stamps.MINIMUM_DEPTH}`, depth)
+    }
+
+    if (depth > stamps.MAXIMUM_DEPTH) {
+      throw new BeeArgumentError(`Depth has to be at most ${stamps.MAXIMUM_DEPTH}`, depth)
+    }
 
     if (options?.gasPrice) {
       assertNonNegativeInteger(options.gasPrice)

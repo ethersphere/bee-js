@@ -2,6 +2,8 @@ import { Address, PostageBatch, PostageBatchOptions } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 
 const STAMPS_ENDPOINT = '/stamps'
+export const MINIMUM_DEPTH = 16
+export const MAXIMUM_DEPTH = 255
 
 interface GetAllStampsResponse {
   stamps: PostageBatch[]
