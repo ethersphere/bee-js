@@ -13,14 +13,14 @@ interface CreateStampResponse {
   batchID: Address
 }
 
-export async function getAllPostageBatches(url: string): Promise<PostageBatch[] | null> {
+export async function getAllPostageBatches(url: string): Promise<PostageBatch[]> {
   const response = await safeAxios<GetAllStampsResponse>({
     method: 'get',
     url: `${url}${STAMPS_ENDPOINT}`,
     responseType: 'json',
   })
 
-  return response.data.stamps
+  return response.data.stamps || []
 }
 
 export async function getPostageBatch(url: string, postageBatchId: Address): Promise<PostageBatch> {

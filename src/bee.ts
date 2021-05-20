@@ -605,7 +605,7 @@ export class Bee {
   /**
    * Return all postage batches that has the node available.
    */
-  getAllPostageBatch(): Promise<PostageBatch[] | null> {
+  getAllPostageBatch(): Promise<PostageBatch[]> {
     return stamps.getAllPostageBatches(this.url)
   }
 
