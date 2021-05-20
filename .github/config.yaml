@@ -15,6 +15,7 @@ release:
      - [ ] Verify all user documentation is up to date
      - [ ] Have two approval for this PR
      - [ ] Write small summary for the release and verify changelog
+     - [ ] Verify that changes to release PR comment is synchronized to `CHANGELOG` with manual commit
 
     ### After release
 
