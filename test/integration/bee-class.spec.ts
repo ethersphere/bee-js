@@ -463,8 +463,8 @@ describe('Bee class', () => {
       POSTAGE_BATCH_TIMEOUT,
     )
 
-    it('should error with negative amoutn', async () => {
-      await expect(await bee.createPostageBatch(BigInt('-1'), 17)).rejects.toThrowError(BeeArgumentError)
+    it('should error with negative amount', async () => {
+      await expect(bee.createPostageBatch(BigInt('-1'), 17)).rejects.toThrowError(BeeArgumentError)
     })
   })
 })
