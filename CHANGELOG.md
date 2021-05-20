@@ -1,13 +1,38 @@
 # Changelog
 ## [0.9.0](https://www.github.com/ethersphere/bee-js/compare/v0.8.1...v0.9.0) (2021-05-20)
 
+We would like to introduce you to this big release with many changes that follow the [Bee's 0.6.0 release](https://github.com/ethersphere/bee/releases/tag/v0.6.0) and is fully compatible with it. This release contains new features and breaking changes that depend on the new Bee version, so if you have not already read the [Bee's release notes](https://github.com/ethersphere/bee/releases/tag/v0.6.0) do so for a better understanding of changes!
 
-### ⚠ BREAKING CHANGES
+### 💮 Postage Stamp support
 
-* postage stamp support (#290)
-* camelCasing of some properties (#301)
-* new pinning api (#293)
-* use bzz endpoint for file and dirs (#280)
+One of the most significant changes in Bee is the support of Postage Stamps (read about them [here](https://docs.ethswarm.org/access-the-swarm/keep-your-data-alive)). They are now **required** for all "write" operations like uploading files, writing to manifests, or sending PSS messages. You can now create a new postage batch with `bee.createPostageBatch()` method, but be aware this spends the Bee node's Ethereum and BZZ to create the batch with the on-chain transaction! Use with caution.
+
+```javascript=
+const bee = new Bee(...)
+
+const batchId = await bee.createPostageBatch(10, 17) // example values
+const reference = await bee.uploadData(batchId, 'Hello world')
+```
+
+### 📍 Pinning methods simplification
+
+The new pinning API now doesn't distinguish between the underlying data structure, so you simply pin any type of content with one method `bee.pin(reference)` and unpin with `bee.unpin(reference)`.
+
+### ↺ Renaming and refactoring
+
+Some endpoints were removed, and some properties renamed. We also used this opportunity to streamline our API. Please check breaking changes!
+
+---
+
+### ⚠️ BREAKING CHANGES
+
+- Removing `bee.download*FromCollection` method ([#280](https://github.com/ethersphere/bee-js/pull/280))
+- Removed `recursive` flag from `uploadFilesFromDirectory` ([#280](https://github.com/ethersphere/bee-js/pull/280))
+- Following methods are removed `bee.pinFile()`, `bee.unpinFile()`, `bee.pinCollection()` `bee.unpinCollection()`, `bee.pinData()`, `bee.unpinData()`, `bee.pinChunk()`, `bee.unpinChunk()`, `bee. getChunkPinningStatus()` ([#293](https://github.com/ethersphere/bee-js/pull/293))
+- Following properties were converted from snake_case to camelCase ([#301](https://github.com/ethersphere/bee-js/pull/301)):
+  - `BeeDebug.getNodeAddresses()`: `public_key`, `pss_public_key`
+  - `BeeDebug.getChequebookAddress()`: `chequebookaddress`
+  - `BeeDebug.getAllSettlements()`: `total_received`, `total_sent`
 
 ### Features
 
