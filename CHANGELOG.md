@@ -1,4 +1,60 @@
 # Changelog
+## [0.9.0](https://www.github.com/ethersphere/bee-js/compare/v0.8.1...v0.9.0) (2021-05-20)
+
+We would like to introduce you to this big release with many changes that follow the [Bee's 0.6.0 release](https://github.com/ethersphere/bee/releases/tag/v0.6.0) and is fully compatible with it. This release contains new features and breaking changes that depend on the new Bee version, so if you have not already read the [Bee's release notes](https://github.com/ethersphere/bee/releases/tag/v0.6.0) do so for a better understanding of changes!
+
+### 💮 Postage Stamp support
+
+One of the most significant changes in Bee is the support of Postage Stamps (read about them [here](https://docs.ethswarm.org/access-the-swarm/keep-your-data-alive)). They are now **required** for all "write" operations like uploading files, writing to manifests, or sending PSS messages. You can now create a new postage batch with `bee.createPostageBatch()` method, but be aware this spends the Bee node's Ethereum and BZZ to create the batch with the on-chain transaction! Use with caution.
+
+```javascript=
+const bee = new Bee(...)
+
+const batchId = await bee.createPostageBatch(10, 17) // example values
+const reference = await bee.uploadData(batchId, 'Hello world')
+```
+
+### 📍 Pinning methods simplification
+
+The new pinning API now doesn't distinguish between the underlying data structure, so you simply pin any type of content with one method `bee.pin(reference)` and unpin with `bee.unpin(reference)`.
+
+### ↺ Renaming and refactoring
+
+Some endpoints were removed, and some properties renamed. We also used this opportunity to streamline our API. Please check breaking changes!
+
+---
+
+### ⚠️ BREAKING CHANGES
+
+- Removing `bee.download*FromCollection` method ([#280](https://github.com/ethersphere/bee-js/pull/280))
+- Removed `recursive` flag from `uploadFilesFromDirectory` ([#280](https://github.com/ethersphere/bee-js/pull/280))
+- Following methods are removed `bee.pinFile()`, `bee.unpinFile()`, `bee.pinCollection()` `bee.unpinCollection()`, `bee.pinData()`, `bee.unpinData()`, `bee.pinChunk()`, `bee.unpinChunk()`, `bee. getChunkPinningStatus()` ([#293](https://github.com/ethersphere/bee-js/pull/293))
+- Following properties were converted from snake_case to camelCase ([#301](https://github.com/ethersphere/bee-js/pull/301)):
+  - `BeeDebug.getNodeAddresses()`: `public_key`, `pss_public_key`
+  - `BeeDebug.getChequebookAddress()`: `chequebookaddress`
+  - `BeeDebug.getAllSettlements()`: `total_received`, `total_sent`
+
+### Features
+
+* gas price for postage batch creation ([#312](https://www.github.com/ethersphere/bee-js/issues/312)) ([7e47e09](https://www.github.com/ethersphere/bee-js/commit/7e47e09b087b967fc2b57c50b82c630ba20df345))
+* limit postage depth ([#318](https://www.github.com/ethersphere/bee-js/issues/318)) ([e9a4758](https://www.github.com/ethersphere/bee-js/commit/e9a4758017c3d0fc6c554a16cd6d725819f8882d))
+* postage stamp support ([#290](https://www.github.com/ethersphere/bee-js/issues/290)) ([da50ad6](https://www.github.com/ethersphere/bee-js/commit/da50ad6714e1ef885c03f45510c5ac19e3b769b4))
+
+
+### Bug Fixes
+
+* if there are no postage stamps the getAllPostageBatch should return [] ([#319](https://www.github.com/ethersphere/bee-js/issues/319)) ([82985d3](https://www.github.com/ethersphere/bee-js/commit/82985d3761c3d7bc51d205f20f3a0636eb76f250))
+* last cheque peer response property case ([#320](https://www.github.com/ethersphere/bee-js/issues/320)) ([c8f0cea](https://www.github.com/ethersphere/bee-js/commit/c8f0cea09fe996398a02138e9df0702da49d3879))
+* shape of `LastCashoutActionResponse` for Bee 0.6.0 ([#306](https://www.github.com/ethersphere/bee-js/issues/306)) ([d637379](https://www.github.com/ethersphere/bee-js/commit/d637379b52bc6ce229c02d18bfba87e4194b3107))
+* use bigint primitive ([#287](https://www.github.com/ethersphere/bee-js/issues/287)) ([6e104dc](https://www.github.com/ethersphere/bee-js/commit/6e104dca1f1da4fb9713789854bc1b4ea31cefef))
+
+
+### Code Refactoring
+
+* camelCasing of some properties ([#301](https://www.github.com/ethersphere/bee-js/issues/301)) ([13cd882](https://www.github.com/ethersphere/bee-js/commit/13cd882e10094e90ae0e9f132bda7c4aec4c6f30))
+* new pinning api ([#293](https://www.github.com/ethersphere/bee-js/issues/293)) ([bc90e7b](https://www.github.com/ethersphere/bee-js/commit/bc90e7ba0e9dfd4f3bb92192a9348bce75ce1491))
+* use bzz endpoint for file and dirs ([#280](https://www.github.com/ethersphere/bee-js/issues/280)) ([6cd8f28](https://www.github.com/ethersphere/bee-js/commit/6cd8f28470f0358782f7a44c649aac29ccbc9c82))
+
 ### [0.8.1](https://www.github.com/ethersphere/bee-js/compare/v0.8.0...v0.8.1) (2021-04-21)
 
 
