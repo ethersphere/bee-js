@@ -33,7 +33,7 @@ import type {
   Address,
   PostageBatch,
 } from './types'
-import { BeeError } from './utils/error'
+import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
@@ -50,6 +50,7 @@ import { assertAddress, assertNonNegativeInteger, assertReference } from './util
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 import { PostageBatchOptions } from './types'
+import { MINIMUM_DEPTH } from './modules/stamps'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -575,6 +576,10 @@ export class Bee {
   async createPostageBatch(amount: bigint, depth: number, options?: PostageBatchOptions): Promise<Address> {
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
+
+    if (depth < stamps.MINIMUM_DEPTH) {
+      throw new BeeArgumentError('Depth has to be greater or equal then 16', depth)
+    }
 
     if (options?.gasPrice) {
       assertNonNegativeInteger(options.gasPrice)

@@ -158,5 +158,12 @@ describe('Bee class', () => {
         BeeArgumentError,
       )
     })
+
+    it('should throw error if too small depth', async () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      await expect(bee.createPostageBatch(BigInt('10'), -1)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.createPostageBatch(BigInt('10'), 15)).rejects.toThrow(BeeArgumentError)
+    })
   })
 })
