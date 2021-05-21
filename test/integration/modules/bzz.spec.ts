@@ -210,6 +210,18 @@ describe('modules/bzz', () => {
       expect(file1.name).toEqual(fileName)
       expect(file1.data).toEqual(data)
     })
+
+    it('should reupload directory', async () => {
+      const directoryStructure: Collection<Uint8Array> = [
+        {
+          path: '0',
+          data: Uint8Array.from([0]),
+        },
+      ]
+
+      const hash = await bzz.uploadCollection(BEE_URL, directoryStructure, await getPostageBatch(), { pin: true })
+      await bzz.reupload(BEE_URL, hash) // Does not return anything, but will throw error if something is wrong
+    })
   })
 
   describe('file', () => {
@@ -279,5 +291,13 @@ describe('modules/bzz', () => {
       },
       BIG_FILE_TIMEOUT,
     )
+
+    it('should reupload file', async () => {
+      const data = 'hello world'
+      const filename = 'hello.txt'
+
+      const hash = await bzz.uploadFile(BEE_URL, data, await getPostageBatch(), filename, { pin: true })
+      await bzz.reupload(BEE_URL, hash) // Does not return anything, but will throw error if something is wrong
+    })
   })
 })
