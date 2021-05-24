@@ -128,3 +128,16 @@ export interface Topology {
 export interface PingResponse {
   rtt: string
 }
+
+export interface ReserveState {
+  radius: number
+  available: number
+  outer: number
+  inner: number
+}
+
+export interface ChainState {
+  block: bigint
+  totalAmount: bigint
+  currentPrice: bigint
+}
