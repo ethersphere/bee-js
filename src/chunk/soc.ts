@@ -132,7 +132,7 @@ export async function makeSingleOwnerChunk(
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options         Upload options
  */
-export function uploadSingleOwnerChunk(
+export async function uploadSingleOwnerChunk(
   url: string,
   chunk: SingleOwnerChunk,
   postageBatchId: Address,

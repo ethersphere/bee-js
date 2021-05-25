@@ -1,6 +1,6 @@
 import * as pss from '../../../src/modules/pss'
 import * as connectivity from '../../../src/modules/debug/connectivity'
-import { beeDebugUrl, beePeerUrl, beeUrl, createdResponse, getPostageBatch, PSS_TIMEOUT, sleep } from '../../utils'
+import { beeDebugUrl, beePeerUrl, beeUrl, createdResponse, getPostageBatch, PSS_TIMEOUT } from '../../utils'
 
 const BEE_URL = beeUrl()
 const BEE_PEER_URL = beePeerUrl()

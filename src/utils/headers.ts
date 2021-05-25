@@ -10,28 +10,18 @@ import { BeeError } from './error'
  * @returns the filename
  */
 function readContentDispositionFilename(header?: string): string {
-  try {
-    if (!header) {
-      // FIXME: the header may not exist due to CORS even if CORS is set on Bee for a given domain
-      // this is because Bee does not set Access-Control-Expose-Headers for Content-Disposition
-      // see https://github.com/ethersphere/bee-js/issues/86
-      // eslint-disable-next-line
-      console.error('BeeError: missing content-disposition header')
-
-      return ''
-      // throw new BeeError('missing content-disposition header')
-    }
-    // Regex was found here
-    // https://stackoverflow.com/questions/23054475/javascript-regex-for-extracting-filename-from-content-disposition-header
-    const dispositionMatch = header.match(/filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?;?/i)
-
-    if (dispositionMatch && dispositionMatch.length > 0) {
-      return dispositionMatch[1]
-    }
-    throw new BeeError('invalid content-disposition header')
-  } catch (e) {
-    throw new BeeError(e.message)
+  if (!header) {
+    throw new BeeError('missing content-disposition header')
   }
+
+  // Regex was found here
+  // https://stackoverflow.com/questions/23054475/javascript-regex-for-extracting-filename-from-content-disposition-header
+  const dispositionMatch = header.match(/filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?;?/i)
+
+  if (dispositionMatch && dispositionMatch.length > 0) {
+    return dispositionMatch[1]
+  }
+  throw new BeeError('invalid content-disposition header')
 }
 
 function readTagUid(header?: string): number | undefined {

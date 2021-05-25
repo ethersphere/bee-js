@@ -26,7 +26,7 @@ export function isFile(file: unknown): file is File {
  *
  * @param file A File object
  */
-export function fileArrayBuffer(file: File): Promise<ArrayBuffer> {
+export async function fileArrayBuffer(file: File): Promise<ArrayBuffer> {
   if (file.arrayBuffer) {
     return file.arrayBuffer()
   }

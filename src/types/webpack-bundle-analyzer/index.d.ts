@@ -7,7 +7,7 @@ declare module 'webpack-bundle-analyzer' {
   import { Compiler, WebpackPluginInstance } from 'webpack'
 
   export class BundleAnalyzerPlugin implements WebpackPluginInstance {
-    constructor(options?: any)
+    constructor(options?: unknown)
     apply(compiler: Compiler): void
   }
 }
