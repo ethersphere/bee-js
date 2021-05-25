@@ -40,7 +40,7 @@ describe('BeeDebug class', () => {
       cashoutLastChequeMock(testAddress).reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.cashoutLastCheque(testAddress)).resolves.toEqual(CASHOUT_RESPONSE)
+      await expect(bee.cashoutLastCheque(testAddress)).resolves.toEqual(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
@@ -49,7 +49,7 @@ describe('BeeDebug class', () => {
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
       await expect(bee.cashoutLastCheque(testAddress, { gasPrice: BigInt('100000000000') })).resolves.toEqual(
-        CASHOUT_RESPONSE,
+        TRANSACTION_HASH,
       )
       assertAllIsDone()
     })
@@ -59,7 +59,7 @@ describe('BeeDebug class', () => {
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
       await expect(bee.cashoutLastCheque(testAddress, { gasLimit: BigInt('100000000000') })).resolves.toEqual(
-        CASHOUT_RESPONSE,
+        TRANSACTION_HASH,
       )
       assertAllIsDone()
     })
