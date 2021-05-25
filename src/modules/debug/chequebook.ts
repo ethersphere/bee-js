@@ -9,6 +9,7 @@ import type {
   DepositTokensResponse,
   WithdrawTokensResponse,
 } from '../../types'
+import { CashoutOptions } from '../../types'
 
 const chequebookEndpoint = '/chequebook'
 
@@ -62,12 +63,24 @@ export async function getLastCashoutAction(url: string, peer: string): Promise<L
  *
  * @param url   Bee debug url
  * @param peer  Swarm address of peer
+ * @param options
  */
-export async function cashoutLastCheque(url: string, peer: string): Promise<CashoutResponse> {
+export async function cashoutLastCheque(url: string, peer: string, options?: CashoutOptions): Promise<CashoutResponse> {
+  const headers: Record<string, string> = {}
+
+  if (options?.gasPrice) {
+    headers['gas-price'] = options.gasPrice.toString()
+  }
+
+  if (options?.gasLimit) {
+    headers['gas-limit'] = options.gasLimit.toString()
+  }
+
   const response = await safeAxios<CashoutResponse>({
     method: 'post',
     url: url + chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
+    headers,
   })
 
   return response.data

@@ -25,7 +25,9 @@ import type {
   NodeAddresses,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { assertAddress, assertInteger } from './utils/type'
+import { assertAddress, assertInteger, assertNonNegativeInteger } from './utils/type'
+import { CashoutOptions } from './types'
+import { add } from 'husky'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -165,9 +167,23 @@ export class BeeDebug {
    * Cashout the last cheque for the peer
    *
    * @param address  Swarm address of peer
+   * @param options
+   * @param options.gasPrice Gas price for the cashout transaction in WEI
+   * @param options.gasLimit Gas limit for the cashout transaction in WEI
    */
-  cashoutLastCheque(address: string): Promise<CashoutResponse> {
-    return chequebook.cashoutLastCheque(this.url, address)
+  // eslint-disable-next-line require-await
+  async cashoutLastCheque(address: string | Address, options?: CashoutOptions): Promise<CashoutResponse> {
+    assertAddress(address)
+
+    if (options?.gasLimit) {
+      assertNonNegativeInteger(options.gasLimit)
+    }
+
+    if (options?.gasPrice) {
+      assertNonNegativeInteger(options.gasPrice)
+    }
+
+    return chequebook.cashoutLastCheque(this.url, address, options)
   }
 
   /**

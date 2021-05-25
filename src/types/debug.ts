@@ -31,6 +31,18 @@ export interface ChequebookBalanceResponse {
   availableBalance: bigint
 }
 
+export interface CashoutOptions {
+  /**
+   * Gas price for the cashout transaction in WEI
+   */
+  gasPrice?: bigint
+
+  /**
+   * Gas limit for the cashout transaction in WEI
+   */
+  gasLimit?: bigint
+}
+
 export interface CashoutResult {
   recipient: string
   lastPayout: bigint

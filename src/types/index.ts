@@ -238,7 +238,7 @@ export interface PostageBatch {
  */
 export interface PostageBatchOptions {
   label?: string
-  gasPrice?: bigint | number
+  gasPrice?: bigint
 }
 
 /*********************************************************
