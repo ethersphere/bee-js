@@ -27,7 +27,6 @@ import type {
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertAddress, assertInteger, assertNonNegativeInteger } from './utils/type'
 import { CashoutOptions } from './types'
-import { add } from 'husky'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url

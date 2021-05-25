@@ -1,5 +1,5 @@
 import { assertAllIsDone, createPostageBatchMock, downloadDataMock, fetchFeedUpdateMock, MOCK_SERVER_URL } from './nock'
-import { Bee, BeeArgumentError, BeeError, ReferenceResponse } from '../../src'
+import { Bee, BeeArgumentError, ReferenceResponse } from '../../src'
 import { testIdentity, testJsonHash, testJsonPayload, testJsonStringPayload } from '../utils'
 import { makeTopicFromString } from '../../src/feed/topic'
 
@@ -153,7 +153,6 @@ describe('Bee class', () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: true })).rejects.toThrow(TypeError)
-      await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: -1 })).rejects.toThrow(BeeArgumentError)
       await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: BigInt('-1') })).rejects.toThrow(
         BeeArgumentError,
       )
