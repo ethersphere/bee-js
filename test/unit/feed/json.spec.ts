@@ -67,7 +67,6 @@ describe('JsonFeed', () => {
     const circularReference: CircularReference = { otherData: 123 }
     circularReference.myself = circularReference
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: Circular references are detected with TS, so we have to ts-ignore to test it.
     await expect(setJsonData(bee, writer, circularReference)).rejects.toThrow(TypeError)
   })
