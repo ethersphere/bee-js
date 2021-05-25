@@ -171,7 +171,7 @@ export class BeeDebug {
    * @param options.gasLimit Gas limit for the cashout transaction in WEI
    */
   // eslint-disable-next-line require-await
-  async cashoutLastCheque(address: string | Address, options?: CashoutOptions): Promise<CashoutResponse> {
+  async cashoutLastCheque(address: string | Address, options?: CashoutOptions): Promise<string> {
     assertAddress(address)
 
     if (options?.gasLimit) {
