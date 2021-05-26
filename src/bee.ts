@@ -272,7 +272,14 @@ export class Bee {
     return pinning.getPin(this.url, reference)
   }
 
-  async reuploadPinnedData(reference: Reference | string): Promise<void> {
+  /**
+   * Instructs the Bee node to reupload a locally pinned data into the network.
+   *
+   * @param reference
+   * @param axiosOptions
+   * @throws BeeArgumentError if the reference is not locally pinned
+   */
+  async reuploadPinnedData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<void> {
     assertReference(reference)
 
     try {
@@ -285,7 +292,7 @@ export class Bee {
       }
     }
 
-    await bzz.reupload(this.url, reference)
+    await bzz.reupload(this.url, reference, axiosOptions)
   }
 
   /**
