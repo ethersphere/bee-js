@@ -9,6 +9,7 @@ export const MOCK_SERVER_URL = 'http://localhost:12345/'
 const FEED_ENDPOINT = '/feeds'
 const BYTES_ENDPOINT = '/bytes'
 const POSTAGE_ENDPOINT = '/stamps'
+const CHEQUEBOOK_ENDPOINT = '/chequebook'
 
 export function assertAllIsDone(): void {
   if (!nock.isDone()) {
@@ -53,4 +54,20 @@ export function createPostageBatchMock(
   } else {
     return nockMock
   }
+}
+
+export function cashoutLastChequeMock(peer: string, gasPrice?: string, gasLimit?: string): nock.Interceptor {
+  const headers: Record<string, string> = {}
+
+  if (gasPrice) {
+    headers['gas-price'] = gasPrice
+  }
+
+  if (gasLimit) {
+    headers['gas-limit'] = gasLimit
+  }
+
+  return nock(MOCK_SERVER_URL, {
+    reqheaders: headers,
+  }).post(`${CHEQUEBOOK_ENDPOINT}/cashout/${peer}`)
 }
