@@ -1,4 +1,4 @@
-import { Address, Dictionary, Reference, ReferenceResponse, Topic } from '../types'
+import { BatchId, Dictionary, Reference, ReferenceResponse, Topic } from '../types'
 import { safeAxios } from '../utils/safeAxios'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
@@ -40,7 +40,7 @@ export async function createFeedManifest(
   url: string,
   owner: HexEthAddress,
   topic: Topic,
-  postageBatchId: Address,
+  postageBatchId: BatchId,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
   const response = await safeAxios<ReferenceResponse>({

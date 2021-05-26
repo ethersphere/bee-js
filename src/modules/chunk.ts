@@ -1,9 +1,8 @@
 import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import type { ReferenceResponse, UploadOptions } from '../types'
+import type { BatchId, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
-import { Address } from '../types'
 
 const endpoint = '/chunks'
 
@@ -22,7 +21,7 @@ const endpoint = '/chunks'
 export async function upload(
   url: string,
   data: Uint8Array,
-  postageBatchId: Address,
+  postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<ReferenceResponse> {
   const response = await safeAxios<ReferenceResponse>({

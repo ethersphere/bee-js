@@ -15,6 +15,7 @@ import {
   FeedWriter,
   Topic,
   Address,
+  BatchId,
 } from '../types'
 import { Bytes, makeBytes, bytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -91,7 +92,7 @@ export async function uploadFeedUpdate(
   topic: Topic,
   index: Index,
   reference: ChunkReference,
-  postageBatchId: Address,
+  postageBatchId: BatchId,
   options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const identifier = makeFeedIdentifier(topic, index)
@@ -125,7 +126,7 @@ export async function updateFeed(
   signer: Signer,
   topic: Topic,
   reference: ChunkReference,
-  postageBatchId: Address,
+  postageBatchId: BatchId,
   options?: FeedUploadOptions,
 ): Promise<ReferenceResponse> {
   const ownerHex = makeHexEthAddress(signer.address)

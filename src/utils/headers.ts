@@ -1,4 +1,4 @@
-import { Address, Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
+import { BatchId, Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
 import { BeeError } from './error'
 
 /**
@@ -44,7 +44,7 @@ export function readFileHeaders(headers: Dictionary<string>): FileHeaders {
   }
 }
 
-export function extractUploadHeaders(postageBatchId: Address, options?: UploadOptions): UploadHeaders {
+export function extractUploadHeaders(postageBatchId: BatchId, options?: UploadOptions): UploadHeaders {
   if (!postageBatchId) {
     throw new BeeError('Postage BatchID has to be specified!')
   }
