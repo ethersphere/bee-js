@@ -88,7 +88,8 @@ module.exports = {
       },
     ],
     "require-await": "off",
-    "@typescript-eslint/promise-function-async": "error"
+    "@typescript-eslint/promise-function-async": "error",
+    "@typescript-eslint/require-await": "error"
   },
   overrides: [
     {
