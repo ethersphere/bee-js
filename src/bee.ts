@@ -273,6 +273,29 @@ export class Bee {
   }
 
   /**
+   * Instructs the Bee node to reupload a locally pinned data into the network.
+   *
+   * @param reference
+   * @param axiosOptions
+   * @throws BeeArgumentError if the reference is not locally pinned
+   */
+  async reuploadPinnedData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<void> {
+    assertReference(reference)
+
+    try {
+      // TODO: This should be detected by Bee, but until https://github.com/ethersphere/bee/issues/1803 is resolved
+      //  it is good idea to do some input validation on our side.
+      await this.getPin(reference)
+    } catch (e) {
+      if (e.status === 404) {
+        throw new BeeArgumentError('The passed reference is not locally pinned!', reference)
+      }
+    }
+
+    await bzz.reupload(this.url, reference, axiosOptions)
+  }
+
+  /**
    * Send to recipient or target with Postal Service for Swarm
    *
    * @param postageBatchId Postage BatchId that will be assigned to sent message
