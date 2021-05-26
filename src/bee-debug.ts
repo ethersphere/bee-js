@@ -3,6 +3,7 @@ import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
 import * as settlements from './modules/debug/settlements'
 import * as status from './modules/debug/status'
+import * as states from './modules/debug/states'
 import type {
   Address,
   Peer,
@@ -23,6 +24,8 @@ import type {
   PingResponse,
   Health,
   NodeAddresses,
+  ReserveState,
+  ChainState,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertAddress, assertInteger } from './utils/type'
@@ -232,5 +235,19 @@ export class BeeDebug {
    */
   isSupportedVersion(): Promise<boolean> | never {
     return status.isSupportedVersion(this.url)
+  }
+
+  /**
+   * Get reserve state
+   */
+  getReserveState(): Promise<ReserveState> {
+    return states.getReserveState(this.url)
+  }
+
+  /**
+   * Get chain state
+   */
+  getChainState(): Promise<ChainState> {
+    return states.getChainState(this.url)
   }
 }
