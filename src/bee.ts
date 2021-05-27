@@ -30,7 +30,6 @@ import type {
   JsonFeedOptions,
   AnyJson,
   Pin,
-  Address,
   PostageBatch,
   BatchId,
 } from './types'
@@ -47,7 +46,7 @@ import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
-import { assertAddress, assertBatchId, assertNonNegativeInteger, assertReference } from './utils/type'
+import { assertBatchId, assertNonNegativeInteger, assertReference } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 import { PostageBatchOptions } from './types'
