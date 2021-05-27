@@ -12,7 +12,7 @@ module.exports = {
     browser: true,
     page: true,
   },
-  plugins: ['jest'],
+  plugins: ['jest', 'unused-imports'],
   rules: {
     'array-bracket-newline': ['error', 'consistent'],
     strict: ['error', 'safe'],
@@ -89,7 +89,13 @@ module.exports = {
     ],
     "require-await": "off",
     "@typescript-eslint/promise-function-async": "error",
-    "@typescript-eslint/require-await": "error"
+    "@typescript-eslint/require-await": "error",
+    "@typescript-eslint/no-unused-vars": "off",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
+    ]
   },
   overrides: [
     {

@@ -14,7 +14,6 @@ import type {
   LastChequesResponse,
   LastChequesForPeerResponse,
   LastCashoutActionResponse,
-  CashoutResponse,
   DepositTokensResponse,
   WithdrawTokensResponse,
   Settlements,
