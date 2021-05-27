@@ -146,11 +146,9 @@ describe('Bee class', () => {
     it('should throw error if passed wrong gas price input', async () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: 'asd' })).rejects.toThrow(TypeError)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: true })).rejects.toThrow(TypeError)
       await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: BigInt('-1') })).rejects.toThrow(

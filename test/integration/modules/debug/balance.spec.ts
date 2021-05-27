@@ -1,4 +1,4 @@
-import { beeDebugUrl, beePeerDebugUrl, beePeerUrl } from '../../../utils'
+import { beeDebugUrl, beePeerDebugUrl } from '../../../utils'
 import * as balance from '../../../../src/modules/debug/balance'
 import * as connectivity from '../../../../src/modules/debug/connectivity'
 

@@ -16,6 +16,7 @@ import {
   POSTAGE_BATCH_TIMEOUT,
   PSS_TIMEOUT,
   randomByteArray,
+  sleep,
   testChunkPayload,
   testIdentity,
   testJsonHash,
@@ -195,8 +196,9 @@ describe('Bee class', () => {
     it('should reupload pinned data', async () => {
       const content = randomByteArray(16, Date.now())
 
-      const hash = await bee.uploadData(await getPostageBatch(), content)
-      await bee.pin(hash)
+      const hash = await bee.uploadData(await getPostageBatch(), content, { pin: true })
+
+      await sleep(10)
       await bee.reuploadPinnedData(hash) // Does not return anything, but will throw exception if something is going wrong
     })
 

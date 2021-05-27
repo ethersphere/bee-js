@@ -85,7 +85,7 @@ export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
   return hashFeedIdentifier(topic, index)
 }
 
-export function uploadFeedUpdate(
+export async function uploadFeedUpdate(
   url: string,
   signer: Signer,
   topic: Topic,
@@ -169,7 +169,7 @@ export async function downloadFeedUpdate(
 }
 
 export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: HexEthAddress): FeedReader {
-  const download = (options?: FeedUpdateOptions) => fetchFeedUpdate(url, owner, topic, { ...options, type })
+  const download = async (options?: FeedUpdateOptions) => fetchFeedUpdate(url, owner, topic, { ...options, type })
 
   return {
     type,
@@ -203,7 +203,7 @@ function makeChunkReference(reference: ChunkReference | Reference): ChunkReferen
 }
 
 export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
-  const upload = (
+  const upload = async (
     postageBatchId: string | Address,
     reference: ChunkReference | Reference,
     options?: FeedUploadOptions,

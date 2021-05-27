@@ -11,8 +11,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
     // We have to adhere to upstream API
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    interface Matchers<R, T = {}> {
+    interface Matchers<R> {
       toBeHashReference(): R
       toBeBeeResponse(expectedStatusCode: number): R
       toBeOneOf(el: unknown[]): R
@@ -61,6 +60,7 @@ export function commonMatchers(): void {
         try {
           expect(received).toEqual(validValue)
           containsValidValue = true
+          // eslint-disable-next-line no-empty
         } catch (e) {}
       }
 
@@ -78,7 +78,8 @@ export function commonMatchers(): void {
     },
     toBeType(received, argument) {
       const initialType = typeof received
-      const type = initialType === 'object' ? (Array.isArray(received) ? 'array' : initialType) : initialType
+      const isArray = Array.isArray(received) ? 'array' : initialType
+      const type = initialType === 'object' ? isArray : initialType
 
       return type === argument
         ? {
@@ -98,7 +99,7 @@ export function commonMatchers(): void {
  *
  * @param ms Number of miliseconds to sleep
  */
-export function sleep(ms: number): Promise<void> {
+export async function sleep(ms: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 }
 
@@ -164,18 +165,12 @@ const batchId: Record<string, Address> = {}
  */
 export async function getPostageBatch(url = beeUrl()): Promise<Address> {
   if (!batchId[url]) {
-    try {
-      batchId[url] = await createPostageBatch(url, BigInt('1000'), 25)
-    } catch (e) {
-      await sleep(500)
+    const batches = await getAllPostageBatches(url)
 
-      const batches = await getAllPostageBatches(url)
-
-      if (!batches.length) {
-        batchId[url] = await createPostageBatch(url, BigInt('1000'), 25)
-      } else {
-        batchId[url] = batches[0].batchID
-      }
+    if (!batches.length) {
+      batchId[url] = await createPostageBatch(url, BigInt('10000'), 30)
+    } else {
+      batchId[url] = batches[0].batchID
     }
   }
 
@@ -221,7 +216,7 @@ export async function tryDeleteChunkFromLocalStorage(address: string | ChunkAddr
 /**
  * Formatting utility for displaying long strings like hexstrings.
  *
- * @param str
+ * @param inputStr
  * @param len
  */
 export function shorten(inputStr: unknown, len = 17): string {

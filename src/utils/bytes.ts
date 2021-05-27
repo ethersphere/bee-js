@@ -108,7 +108,9 @@ export function bytesAtOffset<Length extends number>(data: Uint8Array, offset: n
 export function flexBytesAtOffset<Min extends number, Max extends number>(
   data: Uint8Array,
   offset: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _min: Min,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _max: Max,
 ): FlexBytes<Min, Max> {
   return data.slice(offset) as FlexBytes<Min, Max>

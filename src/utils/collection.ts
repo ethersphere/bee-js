@@ -28,7 +28,7 @@ export function assertCollection(data: unknown): asserts data is Collection<Uint
  *
  * @param dir absolute path to the directory
  */
-export function makeCollectionFromFS(dir: string): Promise<Collection<Uint8Array>> {
+export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint8Array>> {
   return buildCollectionRelative(dir, '')
 }
 

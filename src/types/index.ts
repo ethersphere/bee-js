@@ -52,10 +52,6 @@ export interface CollectionUploadOptions extends UploadOptions {
   errorDocument?: string
 }
 
-export interface DownloadOptions {
-  timeout?: number
-}
-
 export interface UploadHeaders {
   'swarm-pin'?: string
   'swarm-encrypt'?: string
@@ -95,7 +91,7 @@ export interface Pin {
 export interface Data extends Uint8Array {
   text(): string
   hex(): HexString
-  json(): Record<string, any>
+  json(): Record<string, unknown>
 }
 
 /**
@@ -182,6 +178,7 @@ export interface FeedWriter extends FeedReader {
   /**
    * Upload a new feed update
    *
+   * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param reference The reference to be stored in the new update
    * @param options   Additional options like `at`
    *
@@ -250,7 +247,6 @@ export const SIGNATURE_BYTES_LENGTH = 65
 
 export type Signature = Bytes<typeof SIGNATURE_BYTES_LENGTH>
 export type PrivateKeyBytes = Bytes<32>
-export type PublicKeyBytes = Bytes<32> | Bytes<64>
 
 /**
  * Signing function that takes digest in Uint8Array  to be signed that has helpers to convert it

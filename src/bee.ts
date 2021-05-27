@@ -89,7 +89,11 @@ export class Bee {
    *
    * @returns reference is a content hash of the data
    */
-  uploadData(postageBatchId: string | Address, data: string | Uint8Array, options?: UploadOptions): Promise<Reference> {
+  async uploadData(
+    postageBatchId: string | Address,
+    data: string | Uint8Array,
+    options?: UploadOptions,
+  ): Promise<Reference> {
     assertAddress(postageBatchId)
 
     return bytes.upload(this.url, data, postageBatchId, options)
@@ -100,7 +104,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  downloadData(reference: Reference | string): Promise<Data> {
+  async downloadData(reference: Reference | string): Promise<Data> {
     assertReference(reference)
 
     return bytes.download(this.url, reference)
@@ -112,7 +116,7 @@ export class Bee {
    * @param reference Bee data reference
    * @param axiosOptions optional - alter default options of axios HTTP client
    */
-  downloadReadableData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
+  async downloadReadableData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
     assertReference(reference)
 
     return bytes.downloadReadable(this.url, reference, axiosOptions)
@@ -154,7 +158,7 @@ export class Bee {
    * @param reference Bee file reference
    * @param path If reference points to manifest, then this parameter defines path to the file
    */
-  downloadFile(reference: Reference | string, path = ''): Promise<FileData<Data>> {
+  async downloadFile(reference: Reference | string, path = ''): Promise<FileData<Data>> {
     assertReference(reference)
 
     return bzz.downloadFile(this.url, reference, path)
@@ -166,7 +170,7 @@ export class Bee {
    * @param reference Bee file reference
    * @param path If reference points to manifest, then this parameter defines path to the file
    */
-  downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<Readable>> {
+  async downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<Readable>> {
     assertReference(reference)
 
     return bzz.downloadFileReadable(this.url, reference, path)
@@ -219,7 +223,7 @@ export class Bee {
   /**
    * Create new tag
    */
-  createTag(): Promise<Tag> {
+  async createTag(): Promise<Tag> {
     return tag.createTag(this.url)
   }
 
@@ -228,7 +232,7 @@ export class Bee {
    *
    * @param tagUid UID or tag object to be retrieved
    */
-  retrieveTag(tagUid: number | Tag): Promise<Tag> {
+  async retrieveTag(tagUid: number | Tag): Promise<Tag> {
     return tag.retrieveTag(this.url, tagUid)
   }
 
@@ -237,7 +241,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  pin(reference: Reference | string): Promise<BeeResponse> {
+  async pin(reference: Reference | string): Promise<BeeResponse> {
     assertReference(reference)
 
     return pinning.pin(this.url, reference)
@@ -248,7 +252,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  unpin(reference: Reference | string): Promise<BeeResponse> {
+  async unpin(reference: Reference | string): Promise<BeeResponse> {
     assertReference(reference)
 
     return pinning.unpin(this.url, reference)
@@ -257,7 +261,7 @@ export class Bee {
   /**
    * Get list of all pinned references
    */
-  getAllPins(): Promise<Reference[]> {
+  async getAllPins(): Promise<Reference[]> {
     return pinning.getAllPins(this.url)
   }
 
@@ -266,7 +270,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  getPin(reference: Reference | string): Promise<Pin> {
+  async getPin(reference: Reference | string): Promise<Pin> {
     assertReference(reference)
 
     return pinning.getPin(this.url, reference)
@@ -304,7 +308,7 @@ export class Bee {
    * @param data Message to be sent
    * @param recipient Recipient public key
    */
-  pssSend(
+  async pssSend(
     postageBatchId: string | Address,
     topic: string,
     target: AddressPrefix,
@@ -381,7 +385,7 @@ export class Bee {
    *
    * @returns Message in byte array
    */
-  pssReceive(topic: string, timeoutMsec = 0): Promise<Data> {
+  async pssReceive(topic: string, timeoutMsec = 0): Promise<Data> {
     return new Promise((resolve, reject) => {
       let timeout: number | undefined
       const subscription = this.pssSubscribe(topic, {
@@ -416,7 +420,7 @@ export class Bee {
    * @param topic           Topic in hex or bytes
    * @param owner           Owner's ethereum address in hex or bytes
    */
-  createFeedManifest(
+  async createFeedManifest(
     postageBatchId: string | Address,
     type: FeedType,
     topic: Topic | Uint8Array | string,
@@ -482,7 +486,7 @@ export class Bee {
    * @param options.signer Custom instance of Signer or string with private key.
    * @param options.type Type of Feed
    */
-  setJsonFeed<T extends AnyJson>(
+  async setJsonFeed<T extends AnyJson>(
     postageBatchId: string | Address,
     topic: string,
     data: T,
@@ -514,7 +518,7 @@ export class Bee {
    * @param options.address Ethereum address of owner of the feed that signed it. This option is exclusive with `signer` option.
    * @param options.type Type of Feed
    */
-  getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
+  async getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
 
@@ -594,7 +598,6 @@ export class Bee {
    * @throws BeeArgumentError when negative amount or depth is specified
    * @throws TypeError if non-integer value is passed to amount or depth
    */
-  // eslint-disable-next-line require-await
   async createPostageBatch(amount: bigint, depth: number, options?: PostageBatchOptions): Promise<Address> {
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
@@ -619,7 +622,7 @@ export class Bee {
    *
    * @param postageBatchId BatchId
    */
-  getPostageBatch(postageBatchId: Address | string): Promise<PostageBatch> {
+  async getPostageBatch(postageBatchId: Address | string): Promise<PostageBatch> {
     assertAddress(postageBatchId)
 
     return stamps.getPostageBatch(this.url, postageBatchId)
@@ -628,14 +631,14 @@ export class Bee {
   /**
    * Return all postage batches that has the node available.
    */
-  getAllPostageBatch(): Promise<PostageBatch[]> {
+  async getAllPostageBatch(): Promise<PostageBatch[]> {
     return stamps.getAllPostageBatches(this.url)
   }
 
   /**
    * Ping the base bee URL. If connection was not successful throw error
    */
-  checkConnection(): Promise<void> | never {
+  async checkConnection(): Promise<void> | never {
     return status.checkConnection(this.url)
   }
 

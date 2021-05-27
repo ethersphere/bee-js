@@ -67,17 +67,13 @@ describe('BeeDebug class', () => {
     it('should throw error if passed wrong address', async () => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(true)).rejects.toThrow(TypeError)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(11)).rejects.toThrow(TypeError)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(null)).rejects.toThrow(TypeError)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque()).rejects.toThrow(TypeError)
 
@@ -88,11 +84,9 @@ describe('BeeDebug class', () => {
     it('should throw error if passed wrong gas price input', async () => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(testAddress, { gasPrice: 'asd' })).rejects.toThrow(TypeError)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(testAddress, { gasPrice: true })).rejects.toThrow(TypeError)
       await expect(bee.cashoutLastCheque(testAddress, { gasPrice: BigInt('-1') })).rejects.toThrow(BeeArgumentError)
@@ -101,11 +95,9 @@ describe('BeeDebug class', () => {
     it('should throw error if passed wrong gas limit input', async () => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(testAddress, { gasLimit: 'asd' })).rejects.toThrow(TypeError)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(testAddress, { gasLimit: true })).rejects.toThrow(TypeError)
       await expect(bee.cashoutLastCheque(testAddress, { gasLimit: BigInt('-1') })).rejects.toThrow(BeeArgumentError)
