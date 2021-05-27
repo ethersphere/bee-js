@@ -166,14 +166,14 @@ const batchId: Record<string, Address> = {}
 export async function getPostageBatch(url = beeUrl()): Promise<Address> {
   if (!batchId[url]) {
     try {
-      batchId[url] = await createPostageBatch(url, BigInt('10'), 253)
+      batchId[url] = await createPostageBatch(url, BigInt('1'), 50)
     } catch (e) {
       await sleep(500)
 
       const batches = await getAllPostageBatches(url)
 
       if (!batches.length) {
-        batchId[url] = await createPostageBatch(url, BigInt('10'), 253)
+        batchId[url] = await createPostageBatch(url, BigInt('1'), 50)
       } else {
         batchId[url] = batches[0].batchID
       }
