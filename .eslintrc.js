@@ -89,7 +89,7 @@ module.exports = {
     ],
     "require-await": "off",
     "@typescript-eslint/promise-function-async": "error",
-    "@typescript-eslint/require-await": "error",
+    "@typescript-eslint/require-await": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [

@@ -128,7 +128,7 @@ export class Bee {
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data or file to be uploaded
    * @param name    Name of the uploaded file (optional)
-   * @param options Aditional options like tag, encryption, pinning, content-type
+   * @param options Additional options like tag, encryption, pinning, content-type
    *
    * @returns reference is a content hash of the file
    */
