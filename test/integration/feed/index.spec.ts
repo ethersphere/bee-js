@@ -15,7 +15,7 @@ function makeChunk(index: number) {
 
 async function uploadChunk(url: string, index: number): Promise<ChunkReference> {
   const chunk = makeChunk(index)
-  const referenceResponse = await chunkAPI.upload(url, chunk.data, await getPostageBatch())
+  const referenceResponse = await chunkAPI.upload(url, chunk.data, getPostageBatch())
 
   return hexToBytes(referenceResponse.reference as HexString) as ChunkReference
 }
@@ -25,7 +25,7 @@ async function uploadChunk(url: string, index: number): Promise<ChunkReference> 
 // https://github.com/ethersphere/bee-js/issues/154
 async function tryUploadFeedUpdate(url: string, signer: Signer, topic: Topic, index: Index, reference: ChunkReference) {
   try {
-    await uploadFeedUpdate(url, signer, topic, index, reference, await getPostageBatch())
+    await uploadFeedUpdate(url, signer, topic, index, reference, getPostageBatch())
   } catch (e) {
     if (e instanceof BeeResponseError && e.status === 409) {
       // ignore conflict errors when uploading the same feed update twice
@@ -43,7 +43,7 @@ describe('feed', () => {
 
   beforeAll(async () => {
     // This will create the default batch if it is was not created before
-    await getPostageBatch(url)
+    getPostageBatch(url)
   }, 60000)
 
   test(

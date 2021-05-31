@@ -9,14 +9,9 @@ describe('modules/feed', () => {
   const owner = makeHexString(testIdentity.address, 40)
   const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
 
-  beforeAll(async () => {
-    // This will create the default batch if it is was not created before
-    await getPostageBatch()
-  }, 60000)
-
   test('feed manifest creation', async () => {
     const reference = '92442c3e08a308aeba8e2d231733ec57011a203354cad24129e7e0c37bac0cbe'
-    const response = await createFeedManifest(url, owner, topic, await getPostageBatch())
+    const response = await createFeedManifest(url, owner, topic, getPostageBatch())
 
     expect(response).toEqual(reference)
   })
@@ -46,7 +41,7 @@ describe('modules/feed', () => {
     const cacAddress = '03e8eef6d72dbca9dfb7d2e15a5a305a152a3807ac7fd5ea52721a16972f3813'
     await tryDeleteChunkFromLocalStorage(cacAddress)
 
-    const socResponse = await uploadSOC(url, owner, identifier, signature, socData, await getPostageBatch())
+    const socResponse = await uploadSOC(url, owner, identifier, signature, socData, getPostageBatch())
     expect(typeof socResponse.reference).toBe('string')
 
     const feedUpdate = await fetchFeedUpdate(url, owner, oneUpdateTopic)

@@ -6,6 +6,7 @@ import type { Config } from '@jest/types'
 import * as Path from 'path'
 import { glob } from 'glob'
 import { createPostageBatch } from './src/modules/stamps'
+import { sleep } from './test/utils'
 
 /**
  * Get 'alias' configuration of Jest and Webpack for browser testing and compilation.
@@ -37,9 +38,12 @@ export default async (): Promise<Config.InitialOptions> => {
   try {
     console.log('Creating postage stamps...')
     const beeUrl = process.env.BEE_API_URL || 'http://localhost:1633'
-    const beePeerUrl = process.env.BEE_API_URL || 'http://localhost:11633'
+    const beePeerUrl = process.env.BEE_PEER_API_URL || 'http://localhost:11633'
     process.env.BEE_POSTAGE = await createPostageBatch(beeUrl, BigInt('1'), 20)
+    console.log('Queen stamp: ', process.env.BEE_POSTAGE)
+
     process.env.BEE_PEER_POSTAGE = await createPostageBatch(beePeerUrl, BigInt('1'), 20)
+    console.log('Peer stamp: ', process.env.BEE_PEER_POSTAGE)
   } catch (e) {
     // It is possible that for unit tests the Bee nodes does not run
     // so we are only logging errors and not leaving them to propagate

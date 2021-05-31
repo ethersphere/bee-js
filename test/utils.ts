@@ -2,7 +2,6 @@ import { Readable } from 'stream'
 import type { BeeResponse, Reference, Address, BatchId } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
-import { createPostageBatch } from '../src/modules/stamps'
 import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
@@ -156,16 +155,12 @@ export function beePeerUrl(): string {
   return process.env.BEE_PEER_API_URL || 'http://localhost:11633'
 }
 
-export async function createTestingPostageBatch(url: string): Promise<BatchId> {
-  return await createPostageBatch(url, BigInt('1'), 20)
-}
-
 /**
  * Helper function that create monster batch for all the tests.
  * There is semaphore mechanism that allows only creation of one batch across all the
  * parallel running tests that have to wait until it is created.
  */
-export async function getPostageBatch(url = beeUrl()): Promise<BatchId> {
+export function getPostageBatch(url = beeUrl()): BatchId {
   let stamp: BatchId
 
   switch (url) {
