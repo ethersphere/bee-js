@@ -1,4 +1,12 @@
-import { Address, ADDRESS_HEX_LENGTH, ENCRYPTED_REFERENCE_HEX_LENGTH, Reference, REFERENCE_HEX_LENGTH } from '../types'
+import {
+  Address,
+  ADDRESS_HEX_LENGTH,
+  BATCH_ID_HEX_LENGTH,
+  BatchId,
+  ENCRYPTED_REFERENCE_HEX_LENGTH,
+  Reference,
+  REFERENCE_HEX_LENGTH,
+} from '../types'
 import { assertHexString } from './hex'
 import { BeeArgumentError } from './error'
 
@@ -32,4 +40,8 @@ export function assertReference(value: unknown): asserts value is Reference {
 
 export function assertAddress(value: unknown): asserts value is Address {
   assertHexString(value, ADDRESS_HEX_LENGTH)
+}
+
+export function assertBatchId(value: unknown): asserts value is BatchId {
+  assertHexString(value, BATCH_ID_HEX_LENGTH)
 }

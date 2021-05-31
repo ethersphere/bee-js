@@ -30,8 +30,8 @@ import type {
   JsonFeedOptions,
   AnyJson,
   Pin,
-  Address,
   PostageBatch,
+  BatchId,
 } from './types'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
@@ -46,7 +46,7 @@ import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
-import { assertAddress, assertNonNegativeInteger, assertReference } from './utils/type'
+import { assertBatchId, assertNonNegativeInteger, assertReference } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 import { PostageBatchOptions } from './types'
@@ -90,11 +90,11 @@ export class Bee {
    * @returns reference is a content hash of the data
    */
   async uploadData(
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     data: string | Uint8Array,
     options?: UploadOptions,
   ): Promise<Reference> {
-    assertAddress(postageBatchId)
+    assertBatchId(postageBatchId)
 
     return bytes.upload(this.url, data, postageBatchId, options)
   }
@@ -128,17 +128,17 @@ export class Bee {
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data or file to be uploaded
    * @param name    Name of the uploaded file (optional)
-   * @param options Aditional options like tag, encryption, pinning, content-type
+   * @param options Additional options like tag, encryption, pinning, content-type
    *
    * @returns reference is a content hash of the file
    */
   async uploadFile(
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     data: string | Uint8Array | Readable | File,
     name?: string,
     options?: FileUploadOptions,
   ): Promise<Reference> {
-    assertAddress(postageBatchId)
+    assertBatchId(postageBatchId)
 
     if (isFile(data)) {
       const fileData = await fileArrayBuffer(data)
@@ -188,11 +188,11 @@ export class Bee {
    * @returns reference of the collection of files
    */
   async uploadFiles(
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     fileList: FileList | File[],
     options?: CollectionUploadOptions,
   ): Promise<Reference> {
-    assertAddress(postageBatchId)
+    assertBatchId(postageBatchId)
     const data = await makeCollectionFromFileList(fileList)
 
     return bzz.uploadCollection(this.url, data, postageBatchId, options)
@@ -210,11 +210,11 @@ export class Bee {
    * @returns reference of the collection of files
    */
   async uploadFilesFromDirectory(
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     dir: string,
     options?: CollectionUploadOptions,
   ): Promise<Reference> {
-    assertAddress(postageBatchId)
+    assertBatchId(postageBatchId)
     const data = await makeCollectionFromFS(dir)
 
     return bzz.uploadCollection(this.url, data, postageBatchId, options)
@@ -309,13 +309,13 @@ export class Bee {
    * @param recipient Recipient public key
    */
   async pssSend(
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     topic: string,
     target: AddressPrefix,
     data: string | Uint8Array,
     recipient?: PublicKey,
   ): Promise<BeeResponse> {
-    assertAddress(postageBatchId)
+    assertBatchId(postageBatchId)
 
     return pss.send(this.url, topic, target, data, postageBatchId, recipient)
   }
@@ -421,13 +421,13 @@ export class Bee {
    * @param owner           Owner's ethereum address in hex or bytes
    */
   async createFeedManifest(
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     type: FeedType,
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
   ): Promise<Reference> {
     assertFeedType(type)
-    assertAddress(postageBatchId)
+    assertBatchId(postageBatchId)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
@@ -487,12 +487,12 @@ export class Bee {
    * @param options.type Type of Feed
    */
   async setJsonFeed<T extends AnyJson>(
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     topic: string,
     data: T,
     options?: JsonFeedOptions,
   ): Promise<ReferenceResponse> {
-    assertAddress(postageBatchId)
+    assertBatchId(postageBatchId)
 
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
@@ -598,7 +598,7 @@ export class Bee {
    * @throws BeeArgumentError when negative amount or depth is specified
    * @throws TypeError if non-integer value is passed to amount or depth
    */
-  async createPostageBatch(amount: bigint, depth: number, options?: PostageBatchOptions): Promise<Address> {
+  async createPostageBatch(amount: bigint, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
 
@@ -622,8 +622,8 @@ export class Bee {
    *
    * @param postageBatchId BatchId
    */
-  async getPostageBatch(postageBatchId: Address | string): Promise<PostageBatch> {
-    assertAddress(postageBatchId)
+  async getPostageBatch(postageBatchId: BatchId | string): Promise<PostageBatch> {
+    assertBatchId(postageBatchId)
 
     return stamps.getPostageBatch(this.url, postageBatchId)
   }

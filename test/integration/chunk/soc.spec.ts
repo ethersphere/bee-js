@@ -14,11 +14,6 @@ describe('soc', () => {
   const socHash = '9d453ebb73b2fedaaf44ceddcf7a0aa37f3e3d6453fea5841c31f0ea6d61dc85' as HexString
   const identifier = new Uint8Array(32) as Bytes<32>
 
-  beforeAll(async () => {
-    // This will create the default batch if it is was not created before
-    await getPostageBatch()
-  }, 60000)
-
   test('upload single owner chunk', async () => {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
@@ -26,7 +21,7 @@ describe('soc', () => {
 
     await tryDeleteChunkFromLocalStorage(socHash)
 
-    const response = await uploadSingleOwnerChunk(beeUrl(), soc, await getPostageBatch())
+    const response = await uploadSingleOwnerChunk(beeUrl(), soc, getPostageBatch())
 
     expect(response).toEqual({ reference: socAddress })
   })

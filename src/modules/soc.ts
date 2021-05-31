@@ -1,4 +1,4 @@
-import { Address, ReferenceResponse, UploadOptions } from '../types'
+import { BatchId, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safeAxios'
 
@@ -21,7 +21,7 @@ export async function upload(
   identifier: string,
   signature: string,
   data: Uint8Array,
-  postageBatchId: Address,
+  postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<ReferenceResponse> {
   const response = await safeAxios<ReferenceResponse>({

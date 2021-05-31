@@ -14,6 +14,7 @@ export interface Dictionary<T> {
 }
 
 export const ADDRESS_HEX_LENGTH = 64
+export const BATCH_ID_HEX_LENGTH = 64
 export const REFERENCE_HEX_LENGTH = 64
 export const ENCRYPTED_REFERENCE_HEX_LENGTH = 128
 export const REFERENCE_BYTES_LENGTH = 32
@@ -23,6 +24,11 @@ export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeo
 export type PublicKey = string
 
 export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
+
+/**
+ * BatchId is result of keccak256 hash so 64 hex string without prefix.
+ */
+export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
 
 /**
  * AddressPrefix is an HexString of length equal or smaller then ADDRESS_HEX_LENGTH.
@@ -185,7 +191,7 @@ export interface FeedWriter extends FeedReader {
    * @returns Reference that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
    */
   upload(
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     reference: ChunkReference | Reference,
     options?: FeedUploadOptions,
   ): Promise<ReferenceResponse>
@@ -215,7 +221,7 @@ export interface SOCWriter extends SOCReader {
    * @param options     Upload options
    */
   upload: (
-    postageBatchId: string | Address,
+    postageBatchId: string | BatchId,
     identifier: Identifier,
     data: Uint8Array,
     options?: UploadOptions,
@@ -226,7 +232,7 @@ export interface SOCWriter extends SOCReader {
  * Interface representing Postage stamp batch.
  */
 export interface PostageBatch {
-  batchID: Address
+  batchID: BatchId
   utilization: number
 }
 

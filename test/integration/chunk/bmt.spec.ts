@@ -5,11 +5,6 @@ import { makeSpan } from '../../../src/chunk/span'
 import { bytesToHex } from '../../../src/utils/hex'
 
 describe('bmt', () => {
-  beforeAll(async () => {
-    // This will create the default batch if it is was not created before
-    await getPostageBatch()
-  }, 60000)
-
   it('should produce the same hash as Bee', async () => {
     /**
      * We upload chunks smaller than 4096 bytes on the /bytes
@@ -21,7 +16,7 @@ describe('bmt', () => {
       const data = new Uint8Array([...span, ...payload])
 
       const reference = bytesToHex(bmtHash(data))
-      const response = await chunk.upload(beeUrl(), data, await getPostageBatch())
+      const response = await chunk.upload(beeUrl(), data, getPostageBatch())
       expect(response).toEqual({ reference })
     }
   })
@@ -32,7 +27,7 @@ describe('bmt', () => {
     const data = new Uint8Array([...span, ...payload])
 
     const reference = bytesToHex(bmtHash(data))
-    const response = await chunk.upload(beeUrl(), data, await getPostageBatch())
+    const response = await chunk.upload(beeUrl(), data, getPostageBatch())
     expect(response).toEqual({ reference })
   })
 })

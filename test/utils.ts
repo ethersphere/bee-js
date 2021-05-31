@@ -1,8 +1,7 @@
 import { Readable } from 'stream'
-import type { BeeResponse, Reference, Address } from '../src/types'
+import type { BeeResponse, Reference, Address, BatchId } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
-import { createPostageBatch, getAllPostageBatches } from '../src/modules/stamps'
 import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
@@ -156,25 +155,30 @@ export function beePeerUrl(): string {
   return process.env.BEE_PEER_API_URL || 'http://localhost:11633'
 }
 
-const batchId: Record<string, Address> = {}
-
 /**
  * Helper function that create monster batch for all the tests.
  * There is semaphore mechanism that allows only creation of one batch across all the
  * parallel running tests that have to wait until it is created.
  */
-export async function getPostageBatch(url = beeUrl()): Promise<Address> {
-  if (!batchId[url]) {
-    const batches = await getAllPostageBatches(url)
+export function getPostageBatch(url = beeUrl()): BatchId {
+  let stamp: BatchId
 
-    if (!batches.length) {
-      batchId[url] = await createPostageBatch(url, BigInt('10000'), 30)
-    } else {
-      batchId[url] = batches[0].batchID
-    }
+  switch (url) {
+    case beeUrl():
+      stamp = process.env.BEE_POSTAGE as BatchId
+      break
+    case beePeerUrl():
+      stamp = process.env.BEE_PEER_POSTAGE as BatchId
+      break
+    default:
+      throw new Error('Unknown URL ' + url)
   }
 
-  return batchId[url]
+  if (!stamp) {
+    throw new Error('There is no postage stamp configured for URL ' + url)
+  }
+
+  return stamp
 }
 
 /**

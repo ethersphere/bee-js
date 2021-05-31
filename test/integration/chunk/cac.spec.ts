@@ -8,16 +8,11 @@ describe('cac', () => {
   const payload = new Uint8Array([1, 2, 3])
   const contentHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
 
-  beforeAll(async () => {
-    // This will create the default batch if it is was not created before
-    await getPostageBatch()
-  }, 60000)
-
   test('upload content address chunk', async () => {
     const cac = makeContentAddressedChunk(payload)
     const address = cac.address()
     const reference = bytesToHex(address)
-    const response = await chunkAPI.upload(beeUrl(), cac.data, await getPostageBatch())
+    const response = await chunkAPI.upload(beeUrl(), cac.data, getPostageBatch())
 
     expect(response).toEqual({ reference })
   })

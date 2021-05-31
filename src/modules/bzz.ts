@@ -1,5 +1,5 @@
 import {
-  Address,
+  BatchId,
   Collection,
   CollectionUploadOptions,
   Data,
@@ -25,7 +25,7 @@ interface FileUploadHeaders extends UploadHeaders {
   'content-type'?: string
 }
 
-function extractFileUploadHeaders(postageBatchId: Address, options?: FileUploadOptions): FileUploadHeaders {
+function extractFileUploadHeaders(postageBatchId: BatchId, options?: FileUploadOptions): FileUploadHeaders {
   const headers: FileUploadHeaders = extractUploadHeaders(postageBatchId, options)
 
   if (options?.size) headers['content-length'] = String(options.size)
@@ -47,7 +47,7 @@ function extractFileUploadHeaders(postageBatchId: Address, options?: FileUploadO
 export async function uploadFile(
   url: string,
   data: string | Uint8Array | Readable | ArrayBuffer,
-  postageBatchId: Address,
+  postageBatchId: BatchId,
   name?: string,
   options?: FileUploadOptions,
 ): Promise<Reference> {
@@ -135,7 +135,7 @@ interface CollectionUploadHeaders extends UploadHeaders {
 }
 
 function extractCollectionUploadHeaders(
-  postageBatchId: Address,
+  postageBatchId: BatchId,
   options?: CollectionUploadOptions,
 ): CollectionUploadHeaders {
   const headers: CollectionUploadHeaders = extractUploadHeaders(postageBatchId, options)
@@ -157,7 +157,7 @@ function extractCollectionUploadHeaders(
 export async function uploadCollection(
   url: string,
   collection: Collection<Uint8Array>,
-  postageBatchId: Address,
+  postageBatchId: BatchId,
   options?: CollectionUploadOptions,
 ): Promise<Reference> {
   if (!url) {

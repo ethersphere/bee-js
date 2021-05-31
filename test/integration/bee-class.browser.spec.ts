@@ -28,7 +28,7 @@ describe('Bee class - in browser', () => {
     // This will create the default batch if it is was not created before
     batchId = await getPostageBatch()
     batchIdPeer = await getPostageBatch(BEE_PEER_URL)
-  }, 90000)
+  })
 
   it('should create a new Bee instance in browser', async () => {
     const testBeeInstance = await page.evaluate(BEE_URL => {

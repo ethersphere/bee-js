@@ -4,15 +4,10 @@ import { beeUrl, invalidReference, ERR_TIMEOUT, getPostageBatch } from '../../ut
 const BEE_URL = beeUrl()
 
 describe('modules/bytes', () => {
-  beforeAll(async () => {
-    // This will create the default batch if it is was not created before
-    await getPostageBatch()
-  }, 60000)
-
   it('should store and retrieve data', async () => {
     const data = 'hello world'
 
-    const hash = await bytes.upload(BEE_URL, data, await getPostageBatch())
+    const hash = await bytes.upload(BEE_URL, data, getPostageBatch())
     const downloadedData = await bytes.download(BEE_URL, hash)
 
     expect(Buffer.from(downloadedData).toString()).toEqual(data)
