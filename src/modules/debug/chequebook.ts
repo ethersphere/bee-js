@@ -3,11 +3,9 @@ import type {
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
   LastCashoutActionResponse,
-  CashoutResponse,
+  TransactionResponse,
   LastChequesForPeerResponse,
   LastChequesResponse,
-  DepositTokensResponse,
-  WithdrawTokensResponse,
 } from '../../types'
 import { CashoutOptions } from '../../types'
 
@@ -76,7 +74,7 @@ export async function cashoutLastCheque(url: string, peer: string, options?: Cas
     headers['gas-limit'] = options.gasLimit.toString()
   }
 
-  const response = await safeAxios<CashoutResponse>({
+  const response = await safeAxios<TransactionResponse>({
     method: 'post',
     url: url + chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
@@ -119,33 +117,51 @@ export async function getLastCheques(url: string): Promise<LastChequesResponse> 
 /**
  * Deposit tokens from overlay address into chequebook
  *
- * @param url     Bee debug url
- * @param amount  Amount of tokens to deposit
+ * @param url      Bee debug url
+ * @param amount   Amount of tokens to deposit
+ * @param gasPrice Gas Price in WEI for the transaction call
+ * @return string  Hash of the transaction
  */
-export async function depositTokens(url: string, amount: number | bigint): Promise<DepositTokensResponse> {
-  const response = await safeAxios<DepositTokensResponse>({
+export async function depositTokens(url: string, amount: number | bigint, gasPrice?: bigint): Promise<string> {
+  const headers: Record<string, string> = {}
+
+  if (gasPrice) {
+    headers['gas-price'] = gasPrice.toString()
+  }
+
+  const response = await safeAxios<TransactionResponse>({
     method: 'post',
     url: url + chequebookEndpoint + '/deposit',
     responseType: 'json',
     params: { amount: amount.toString(10) },
+    headers,
   })
 
-  return response.data
+  return response.data.transactionHash
 }
 
 /**
  * Withdraw tokens from the chequebook to the overlay address
  *
- * @param url     Bee debug url
- * @param amount  Amount of tokens to withdraw
+ * @param url      Bee debug url
+ * @param amount   Amount of tokens to withdraw
+ * @param gasPrice Gas Price in WEI for the transaction call
+ * @return string  Hash of the transaction
  */
-export async function withdrawTokens(url: string, amount: number | bigint): Promise<WithdrawTokensResponse> {
-  const response = await safeAxios<WithdrawTokensResponse>({
+export async function withdrawTokens(url: string, amount: number | bigint, gasPrice?: bigint): Promise<string> {
+  const headers: Record<string, string> = {}
+
+  if (gasPrice) {
+    headers['gas-price'] = gasPrice.toString()
+  }
+
+  const response = await safeAxios<TransactionResponse>({
     method: 'post',
     url: url + chequebookEndpoint + '/withdraw',
     responseType: 'json',
     params: { amount: amount.toString(10) },
+    headers,
   })
 
-  return response.data
+  return response.data.transactionHash
 }

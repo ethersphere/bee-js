@@ -57,7 +57,7 @@ export interface LastCashoutActionResponse {
   result: CashoutResult | null
 }
 
-export interface CashoutResponse {
+export interface TransactionResponse {
   transactionHash: string
 }
 
@@ -75,13 +75,6 @@ export interface LastChequesForPeerResponse {
 
 export interface LastChequesResponse {
   lastcheques: LastChequesForPeerResponse[]
-}
-export interface DepositTokensResponse {
-  transactionHash: string
-}
-
-export interface WithdrawTokensResponse {
-  transactionHash: string
 }
 
 export interface PeerBalance {
