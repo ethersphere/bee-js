@@ -49,7 +49,7 @@ import { wrapBytesWithHelpers } from './utils/bytes'
 import { assertBatchId, assertNonNegativeInteger, assertReference } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
-import { PostageBatchOptions } from './types'
+import { PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -602,12 +602,12 @@ export class Bee {
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
 
-    if (depth < stamps.MINIMUM_DEPTH) {
-      throw new BeeArgumentError(`Depth has to be at least ${stamps.MINIMUM_DEPTH}`, depth)
+    if (depth < STAMPS_DEPTH_MIN) {
+      throw new BeeArgumentError(`Depth has to be at least ${STAMPS_DEPTH_MIN}`, depth)
     }
 
-    if (depth > stamps.MAXIMUM_DEPTH) {
-      throw new BeeArgumentError(`Depth has to be at most ${stamps.MAXIMUM_DEPTH}`, depth)
+    if (depth > STAMPS_DEPTH_MAX) {
+      throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
     }
 
     if (options?.gasPrice) {

@@ -20,6 +20,16 @@ export const ENCRYPTED_REFERENCE_HEX_LENGTH = 128
 export const REFERENCE_BYTES_LENGTH = 32
 export const ENCRYPTED_REFERENCE_BYTES_LENGTH = 64
 
+/**
+ * Minimal depth that can be used for creation of postage batch
+ */
+export const STAMPS_DEPTH_MIN = 16
+
+/**
+ * Maximal depth that can be used for creation of postage batch
+ */
+export const STAMPS_DEPTH_MAX = 255
+
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
 export type PublicKey = string
 
