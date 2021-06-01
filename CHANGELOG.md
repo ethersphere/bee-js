@@ -1,4 +1,51 @@
 # Changelog
+## [0.10.0](https://www.github.com/ethersphere/bee-js/compare/v0.9.0...v0.10.0) (2021-06-01)
+
+We would like to introduce you to a new release that brings access to other new features of `0.6.0` Bee release and several other improvements. This version is compatible with `0.6.2` version of Bee.
+
+### ⁉️ Improved error reporting
+
+Until now most returned Errors contained very limited information on what actually went wrong as most of the problems originated directly from the Bee node. We improved our internal handling of these errors and now if Bee returns the reason for the error we pass it along with our thrown errors.
+
+### ⛓ New endpoints
+
+We have included support for the new Bee Debug's endpoints that exposes chain state with `BeeDebug.getChainState()` (`/chainstate`) and reserve state `BeeDebug.getReserveState()` (`/reservestate`).
+
+### ♻️ Reupload support
+
+Now you can re-upload content that you have locally pinned in your node to the network with `Bee.reuploadPinnedData()`. If the data is not pinned, then an error is thrown.
+
+### ⛽️ Gas prices and limits for transactions
+
+Now you can specify a gas price for methods that create transactions:
+-  `BeeDebug.cashoutLastCheque()`
+-  `BeeDebug.depositTokens()`
+-  `BeeDebug.withdrawTokens()`
+
+---
+
+### ⚠ BREAKING CHANGES
+
+* `Promise` returning methods from now on never throw errors, but return rejected promise instead (#326)
+* `BeeDebug.cashoutLastCheque()` now directly returns the transaction hash as string and not object (#325)
+* `BeeDebug.depositTokens()` now directly returns the transaction hash as string and not object (#336)
+* `BeeDebug.withdrawTokens()` now directly returns the transaction hash as string and not object (#336)
+
+### Features
+
+* chain and reserve state endpoints ([#324](https://www.github.com/ethersphere/bee-js/issues/324)) ([0ec57e9](https://www.github.com/ethersphere/bee-js/commit/0ec57e986109aee3faff5061821d3f0e04bf8bae))
+* pass error message from bee to thrown error ([#314](https://www.github.com/ethersphere/bee-js/issues/314)) ([59b5834](https://www.github.com/ethersphere/bee-js/commit/59b5834c2b97c5e23ac8b1c5c13d29b3ca60399a))
+* expose stamps depth limits ([#334](https://www.github.com/ethersphere/bee-js/issues/334)) ([0bb4dcf](https://www.github.com/ethersphere/bee-js/commit/0bb4dcf24cd2de66bf682094765340ef80cfc6eb))
+* reupload ([#323](https://www.github.com/ethersphere/bee-js/issues/323)) ([3a256f8](https://www.github.com/ethersphere/bee-js/commit/3a256f8d26114ad18d3c361a23cc05f6bf7a27fa))
+* support gas price and limit for cashout ([#325](https://www.github.com/ethersphere/bee-js/issues/325)) ([61195c7](https://www.github.com/ethersphere/bee-js/commit/61195c780f934b3e4cf778ef8fa47391956459a5))
+
+
+### Bug Fixes
+
+* correctly return reject promise for promise returning fnc ([#326](https://www.github.com/ethersphere/bee-js/issues/326)) ([d76ef2d](https://www.github.com/ethersphere/bee-js/commit/d76ef2dd216de9d02349e1ae818c592e1c1678a6))
+
+---
+
 ## [0.9.0](https://www.github.com/ethersphere/bee-js/compare/v0.8.1...v0.9.0) (2021-05-20)
 
 We would like to introduce you to this big release with many changes that follow the [Bee's 0.6.0 release](https://github.com/ethersphere/bee/releases/tag/v0.6.0) and is fully compatible with it. This release contains new features and breaking changes that depend on the new Bee version, so if you have not already read the [Bee's release notes](https://github.com/ethersphere/bee/releases/tag/v0.6.0) do so for a better understanding of changes!
