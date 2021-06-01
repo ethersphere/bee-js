@@ -6,9 +6,11 @@ import {
   withdrawTokens,
 } from '../../../../src/modules/debug/chequebook'
 import { isPrefixedHexString } from '../../../../src/utils/hex'
-import { beeDebugUrl, sleep } from '../../../utils'
+import { beeDebugUrl, commonMatchers, sleep } from '../../../utils'
 
 if (process.env.BEE_TEST_CHEQUEBOOK) {
+  commonMatchers()
+
   describe('swap enabled chequebook', () => {
     test('address', async () => {
       const response = await getChequebookAddress(beeDebugUrl())
@@ -19,15 +21,15 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     test('balance', async () => {
       const response = await getChequebookBalance(beeDebugUrl())
 
-      expect(typeof response.availableBalance).toBe('bigint')
-      expect(typeof response.totalBalance).toBe('bigint')
+      expect(response.availableBalance).toBeType('bigint')
+      expect(response.totalBalance).toBeType('bigint')
     })
 
     const TRANSACTION_TIMEOUT = 20 * 1000
 
     const withDrawDepositTest = (amount: number | bigint) => async () => {
       const withdrawResponse = await withdrawTokens(beeDebugUrl(), amount)
-      expect(typeof withdrawResponse.transactionHash).toBe('string')
+      expect(withdrawResponse).toBeType('string')
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
@@ -35,7 +37,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
 
       const depositResponse = await depositTokens(beeDebugUrl(), amount)
 
-      expect(typeof depositResponse.transactionHash).toBe('string')
+      expect(depositResponse).toBeType('string')
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
