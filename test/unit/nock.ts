@@ -71,3 +71,27 @@ export function cashoutLastChequeMock(peer: string, gasPrice?: string, gasLimit?
     reqheaders: headers,
   }).post(`${CHEQUEBOOK_ENDPOINT}/cashout/${peer}`)
 }
+
+export function depositTokensMock(amount: string, gasPrice?: string): nock.Interceptor {
+  const headers: Record<string, string> = {}
+
+  if (gasPrice) {
+    headers['gas-price'] = gasPrice
+  }
+
+  return nock(MOCK_SERVER_URL, {
+    reqheaders: headers,
+  }).post(`${CHEQUEBOOK_ENDPOINT}/deposit?amount=${amount}`)
+}
+
+export function withdrawTokensMock(amount: string, gasPrice?: string): nock.Interceptor {
+  const headers: Record<string, string> = {}
+
+  if (gasPrice) {
+    headers['gas-price'] = gasPrice
+  }
+
+  return nock(MOCK_SERVER_URL, {
+    reqheaders: headers,
+  }).post(`${CHEQUEBOOK_ENDPOINT}/withdraw?amount=${amount}`)
+}

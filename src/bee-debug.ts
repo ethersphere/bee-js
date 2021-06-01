@@ -14,8 +14,6 @@ import type {
   LastChequesResponse,
   LastChequesForPeerResponse,
   LastCashoutActionResponse,
-  DepositTokensResponse,
-  WithdrawTokensResponse,
   Settlements,
   AllSettlements,
   RemovePeerResponse,
@@ -27,7 +25,7 @@ import type {
   ChainState,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { assertAddress, assertInteger, assertNonNegativeInteger } from './utils/type'
+import { assertAddress, assertNonNegativeInteger } from './utils/type'
 import { CashoutOptions } from './types'
 
 /**
@@ -190,26 +188,34 @@ export class BeeDebug {
    * Deposit tokens from overlay address into chequebook
    *
    * @param amount  Amount of tokens to deposit (must be positive integer)
+   * @param gasPrice Gas Price in WEI for the transaction call
+   * @return string  Hash of the transaction
    */
-  async depositTokens(amount: number | bigint): Promise<DepositTokensResponse> {
-    assertInteger(amount)
+  async depositTokens(amount: number | bigint, gasPrice?: bigint): Promise<string> {
+    assertNonNegativeInteger(amount)
 
-    if (amount < 0) throw new TypeError('must be positive number')
+    if (gasPrice) {
+      assertNonNegativeInteger(gasPrice)
+    }
 
-    return chequebook.depositTokens(this.url, amount)
+    return chequebook.depositTokens(this.url, amount, gasPrice)
   }
 
   /**
    * Withdraw tokens from the chequebook to the overlay address
    *
    * @param amount  Amount of tokens to withdraw (must be positive integer)
+   * @param gasPrice Gas Price in WEI for the transaction call
+   * @return string  Hash of the transaction
    */
-  async withdrawTokens(amount: number | bigint): Promise<WithdrawTokensResponse> {
-    assertInteger(amount)
+  async withdrawTokens(amount: number | bigint, gasPrice?: bigint): Promise<string> {
+    assertNonNegativeInteger(amount)
 
-    if (amount < 0) throw new TypeError('must be positive number')
+    if (gasPrice) {
+      assertNonNegativeInteger(gasPrice)
+    }
 
-    return chequebook.withdrawTokens(this.url, amount)
+    return chequebook.withdrawTokens(this.url, amount, gasPrice)
   }
 
   /*
