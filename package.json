@@ -33,6 +33,7 @@
     "compile:node": "webpack --progress --env target=node",
     "compile:types": "tsc --emitDeclarationOnly --declaration",
     "compile:browser": "webpack --progress --env target=web",
+    "ci": "npm run lint && npm run check:types && npm run test",
     "docs": "rimraf docs && typedoc",
     "test": "npm run compile:browser && jest --verbose --selectProjects=node:unit node:integration dom:integration --config=jest.config.ts",
     "test:integration:browser": "npm run compile:browser && jest --verbose --selectProjects=dom:integration --config=jest.config.ts",
