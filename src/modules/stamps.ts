@@ -1,5 +1,5 @@
 import { BatchId, PostageBatch, PostageBatchOptions } from '../types'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 
 const STAMPS_ENDPOINT = '/stamps'
 

@@ -1,6 +1,6 @@
 import { BatchId, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 
 const socEndpoint = '/soc'
 

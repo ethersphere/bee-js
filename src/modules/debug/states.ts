@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safeAxios'
+import { safeAxios } from '../../utils/safe-axios'
 import { ChainState, ReserveState } from '../../types'
 
 const RESERVE_STATE_ENDPOINT = '/reservestate'

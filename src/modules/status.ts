@@ -1,4 +1,4 @@
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 
 /**
  * Ping the base bee URL. If connection was not successful throw error

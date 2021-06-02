@@ -1,5 +1,5 @@
 import type { BeeResponse, Pin, Reference } from '../types'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 
 const PINNING_ENDPOINT = '/pins'
 

@@ -3,7 +3,7 @@ import type { Readable } from 'stream'
 import { BatchId, Data, Reference, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 
 const endpoint = '/bytes'

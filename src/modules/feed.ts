@@ -1,5 +1,5 @@
 import { BatchId, Dictionary, Reference, ReferenceResponse, Topic } from '../types'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'

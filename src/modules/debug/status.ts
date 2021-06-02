@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safeAxios'
+import { safeAxios } from '../../utils/safe-axios'
 import type { Health } from '../../types/debug'
 import { engines } from '../../../package.json'
 export const SUPPORTED_BEE_VERSION_EXACT = engines.bee
