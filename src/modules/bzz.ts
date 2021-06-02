@@ -9,7 +9,7 @@ import {
   UploadHeaders,
 } from '../types'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 import { prepareData } from '../utils/data'
 import { BeeArgumentError } from '../utils/error'
 import { makeTar } from '../utils/tar'

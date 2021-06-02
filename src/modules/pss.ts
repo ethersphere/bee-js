@@ -2,7 +2,7 @@ import WebSocket from 'isomorphic-ws'
 
 import type { BatchId, BeeResponse, PublicKey } from '../types'
 import { prepareData } from '../utils/data'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 import { extractUploadHeaders } from '../utils/headers'
 
 const endpoint = '/pss'

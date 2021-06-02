@@ -1,5 +1,5 @@
 import { Tag } from '../types'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 
 const endpoint = '/tags'
 

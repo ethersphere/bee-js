@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safeAxios'
+import { safeAxios } from '../../utils/safe-axios'
 import { Settlements, AllSettlements } from '../../types'
 
 const settlementsEndpoint = '/settlements'

@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safeAxios'
+import { safeAxios } from '../../utils/safe-axios'
 import type { NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
 
 export async function getNodeAddresses(url: string): Promise<NodeAddresses> {

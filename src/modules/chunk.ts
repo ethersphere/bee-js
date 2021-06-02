@@ -2,7 +2,7 @@ import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
 import type { BatchId, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safeAxios'
+import { safeAxios } from '../utils/safe-axios'
 
 const endpoint = '/chunks'
 
