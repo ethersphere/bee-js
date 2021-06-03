@@ -1,4 +1,11 @@
 # Changelog
+### [0.10.1](https://www.github.com/ethersphere/bee-js/compare/v0.10.0...v0.10.1) (2021-06-03)
+
+
+### Reverts
+
+* empty test data ([#339](https://www.github.com/ethersphere/bee-js/issues/339)) ([ffecd9f](https://www.github.com/ethersphere/bee-js/commit/ffecd9fbc1e2a2e8a1e9b757af6a0346b826951f))
+
 ## [0.10.0](https://www.github.com/ethersphere/bee-js/compare/v0.9.0...v0.10.0) (2021-06-01)
 
 We would like to introduce you to a new release that brings access to other new features of `0.6.0` Bee release and several other improvements. This version is compatible with `0.6.2` version of Bee.
