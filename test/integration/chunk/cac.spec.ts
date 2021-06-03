@@ -14,7 +14,7 @@ describe('cac', () => {
     const reference = bytesToHex(address)
     const response = await chunkAPI.upload(beeUrl(), cac.data, getPostageBatch())
 
-    expect(response).toEqual({ reference })
+    expect(response).toEqual(reference)
   })
 
   test('download content address chunk', async () => {

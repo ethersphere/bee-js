@@ -121,16 +121,16 @@ describe('modules/pin', () => {
 
   describe('should work with chunks', () => {
     it('should pin existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
-      expect(chunkResponse).toEqual({ reference: testChunkHash })
+      const chunkReference = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
+      expect(chunkReference).toEqual(testChunkHash)
 
       const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
       expect(pinningResponse).toBeOneOf([createdResponse, okResponse])
     })
 
     it('should unpin existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
-      expect(chunkResponse).toEqual({ reference: testChunkHash })
+      const chunkReference = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
+      expect(chunkReference).toEqual(testChunkHash)
 
       const pinningResponse = await pinning.unpin(BEE_URL, testChunkHash)
       expect(pinningResponse).toEqual(okResponse)
@@ -149,8 +149,8 @@ describe('modules/pin', () => {
     })
 
     it('should return pinning status of existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
-      expect(chunkResponse).toEqual({ reference: testChunkHash })
+      const chunkReference = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
+      expect(chunkReference).toEqual(testChunkHash)
 
       const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
       expect(pinningResponse).toBeOneOf([createdResponse, okResponse])
@@ -164,8 +164,8 @@ describe('modules/pin', () => {
     })
 
     it('should return list of pinned chunks', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
-      expect(chunkResponse).toEqual({ reference: testChunkHash })
+      const chunkReference = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
+      expect(chunkReference).toEqual(testChunkHash)
 
       const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
       expect(pinningResponse).toBeOneOf([createdResponse, okResponse])

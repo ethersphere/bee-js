@@ -5,7 +5,6 @@ import { FeedUpdateOptions, fetchFeedUpdate } from '../modules/feed'
 import {
   REFERENCE_HEX_LENGTH,
   Reference,
-  ReferenceResponse,
   UploadOptions,
   ENCRYPTED_REFERENCE_HEX_LENGTH,
   ENCRYPTED_REFERENCE_BYTES_LENGTH,
@@ -94,7 +93,7 @@ export async function uploadFeedUpdate(
   reference: ChunkReference,
   postageBatchId: BatchId,
   options?: FeedUploadOptions,
-): Promise<ReferenceResponse> {
+): Promise<Reference> {
   const identifier = makeFeedIdentifier(topic, index)
   const at = options?.at ?? Date.now() / 1000.0
   const timestamp = writeUint64BigEndian(at)
@@ -128,7 +127,7 @@ export async function updateFeed(
   reference: ChunkReference,
   postageBatchId: BatchId,
   options?: FeedUploadOptions,
-): Promise<ReferenceResponse> {
+): Promise<Reference> {
   const ownerHex = makeHexEthAddress(signer.address)
   const nextIndex = await findNextIndex(url, ownerHex, topic, options)
 

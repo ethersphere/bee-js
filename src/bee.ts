@@ -26,7 +26,6 @@ import type {
   SOCReader,
   Topic,
   BeeOptions,
-  ReferenceResponse,
   JsonFeedOptions,
   AnyJson,
   Pin,
@@ -491,7 +490,7 @@ export class Bee {
     topic: string,
     data: T,
     options?: JsonFeedOptions,
-  ): Promise<ReferenceResponse> {
+  ): Promise<Reference> {
     assertBatchId(postageBatchId)
 
     const hashedTopic = this.makeFeedTopic(topic)

@@ -1,4 +1,4 @@
-import { FeedWriter, ReferenceResponse, FeedReader, AnyJson, Address } from '../types'
+import { FeedWriter, FeedReader, AnyJson, Address, Reference } from '../types'
 import { Bee } from '../bee'
 import { assertAddress } from '../utils/type'
 
@@ -25,7 +25,7 @@ export async function setJsonData(
   writer: FeedWriter,
   postageBatchId: string | Address,
   data: AnyJson,
-): Promise<ReferenceResponse> {
+): Promise<Reference> {
   assertAddress(postageBatchId)
 
   const serializedData = serializeJson(data)
