@@ -25,7 +25,7 @@ describe('JsonFeed', () => {
       const writer = Substitute.for<FeedWriter>()
       writer.upload(Arg.all()).resolves(FEED_REFERENCE_HASH)
 
-      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).resolves.toEqual(FEED_REFERENCE)
+      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).resolves.toEqual(FEED_REFERENCE_HASH)
       bee.received(1).uploadData(testAddress, expectedBytes)
       writer.received(1).upload(testAddress, DATA_REFERENCE)
     })
