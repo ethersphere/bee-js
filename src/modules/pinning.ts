@@ -1,5 +1,6 @@
 import type { BeeResponse, Pin, Reference } from '../types'
 import { safeAxios } from '../utils/safe-axios'
+import { BeeResponseError } from '../utils/error'
 
 const PINNING_ENDPOINT = '/pins'
 
@@ -13,14 +14,18 @@ export interface GetAllPinResponse {
  * @param url  Bee URL
  * @param reference Bee data reference
  */
-export async function pin(url: string, reference: Reference): Promise<BeeResponse> {
+export async function pin(url: string, reference: Reference): Promise<void> {
   const response = await safeAxios<BeeResponse>({
     method: 'post',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,
   })
 
-  return response.data
+  const beeResponse = response.data
+
+  if (beeResponse.code >= 400) {
+    throw new BeeResponseError(beeResponse.code, beeResponse.message)
+  }
 }
 
 /**
@@ -29,14 +34,18 @@ export async function pin(url: string, reference: Reference): Promise<BeeRespons
  * @param url  Bee URL
  * @param reference Bee data reference
  */
-export async function unpin(url: string, reference: Reference): Promise<BeeResponse> {
+export async function unpin(url: string, reference: Reference): Promise<void> {
   const response = await safeAxios<BeeResponse>({
     method: 'delete',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,
   })
 
-  return response.data
+  const beeResponse = response.data
+
+  if (beeResponse.code >= 400) {
+    throw new BeeResponseError(beeResponse.code, beeResponse.message)
+  }
 }
 
 /**

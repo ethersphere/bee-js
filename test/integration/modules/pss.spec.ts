@@ -1,6 +1,6 @@
 import * as pss from '../../../src/modules/pss'
 import * as connectivity from '../../../src/modules/debug/connectivity'
-import { beeDebugUrl, beePeerUrl, beeUrl, createdResponse, getPostageBatch, PSS_TIMEOUT } from '../../utils'
+import { beeDebugUrl, beePeerUrl, beeUrl, getPostageBatch, PSS_TIMEOUT } from '../../utils'
 
 const BEE_URL = beeUrl()
 const BEE_PEER_URL = beePeerUrl()
@@ -18,9 +18,7 @@ describe('modules/pss', () => {
       expect(peers.length).toBeGreaterThan(0)
 
       const target = peers[0].address
-      const response = await pss.send(BEE_URL, topic, target, message, getPostageBatch())
-
-      expect(response).toEqual(createdResponse)
+      await pss.send(BEE_URL, topic, target, message, getPostageBatch()) // Nothing is returned, will throw error if problem
     },
     PSS_TIMEOUT,
   )

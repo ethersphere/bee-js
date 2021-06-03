@@ -4,6 +4,7 @@ import type { BatchId, BeeResponse, PublicKey } from '../types'
 import { prepareData } from '../utils/data'
 import { safeAxios } from '../utils/safe-axios'
 import { extractUploadHeaders } from '../utils/headers'
+import { BeeResponseError } from '../utils/error'
 
 const endpoint = '/pss'
 
@@ -25,7 +26,7 @@ export async function send(
   data: string | Uint8Array,
   postageBatchId: BatchId,
   recipient?: PublicKey,
-): Promise<BeeResponse> {
+): Promise<void> {
   const response = await safeAxios<BeeResponse>({
     method: 'post',
     url: `${url}${endpoint}/send/${topic}/${target.slice(0, 4)}`,
@@ -35,7 +36,11 @@ export async function send(
     headers: extractUploadHeaders(postageBatchId),
   })
 
-  return response.data
+  const beeResponse = response.data
+
+  if (beeResponse.code >= 400) {
+    throw new BeeResponseError(beeResponse.code, beeResponse.message)
+  }
 }
 
 /**
