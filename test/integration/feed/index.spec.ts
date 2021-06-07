@@ -17,7 +17,7 @@ async function uploadChunk(url: string, index: number): Promise<ChunkReference> 
   const chunk = makeChunk(index)
   const reference = await chunkAPI.upload(url, chunk.data, getPostageBatch())
 
-  return hexToBytes(reference as HexString) as ChunkReference
+  return hexToBytes(reference) as ChunkReference
 }
 
 // FIXME helper function for setting up test state for testing finding feed updates
