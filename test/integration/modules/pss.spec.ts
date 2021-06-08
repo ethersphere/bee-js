@@ -18,7 +18,7 @@ describe('modules/pss', () => {
       expect(peers.length).toBeGreaterThan(0)
 
       const target = peers[0].address
-      await pss.send(BEE_URL, topic, target, message, getPostageBatch()) // Nothing is returned, will throw error if problem
+      await pss.send(BEE_URL, topic, target, message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     },
     PSS_TIMEOUT,
   )

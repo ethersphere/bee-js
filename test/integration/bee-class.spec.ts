@@ -125,7 +125,7 @@ describe('Bee class', () => {
       const content = new Uint8Array([1, 2, 3])
       const hash = await bee.uploadFile(getPostageBatch(), content)
 
-      await bee.pin(hash) // Nothing is returned, will throw error if problem
+      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
 
       const pinnedChunks = await bee.getAllPins()
       expect(pinnedChunks).toBeType('array')
@@ -141,7 +141,7 @@ describe('Bee class', () => {
       const statusBeforePinning = bee.getPin(hash)
       await expect(statusBeforePinning).rejects.toThrowError('Not Found')
 
-      await bee.pin(hash) // Nothing is returned, will throw error if problem
+      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
 
       const statusAfterPinning = await bee.getPin(hash)
       expect(statusAfterPinning).toHaveProperty('reference', hash)
@@ -152,16 +152,16 @@ describe('Bee class', () => {
 
       const hash = await bee.uploadFile(getPostageBatch(), content)
 
-      await bee.pin(hash) // Nothing is returned, will throw error if problem
-      await bee.unpin(hash) // Nothing is returned, will throw error if problem
+      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.unpin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should pin and unpin collection', async () => {
       const path = './test/data/'
       const hash = await bee.uploadFilesFromDirectory(getPostageBatch(), path)
 
-      await bee.pin(hash) // Nothing is returned, will throw error if problem
-      await bee.unpin(hash) // Nothing is returned, will throw error if problem
+      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.unpin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should pin and unpin data', async () => {
@@ -169,8 +169,8 @@ describe('Bee class', () => {
 
       const hash = await bee.uploadData(getPostageBatch(), content)
 
-      await bee.pin(hash) // Nothing is returned, will throw error if problem
-      await bee.unpin(hash) // Nothing is returned, will throw error if problem
+      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.unpin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
   })
 
