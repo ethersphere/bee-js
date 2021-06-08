@@ -204,7 +204,7 @@ export interface FeedWriter extends FeedReader {
     postageBatchId: string | BatchId,
     reference: ChunkReference | Reference,
     options?: FeedUploadOptions,
-  ): Promise<ReferenceResponse>
+  ): Promise<Reference>
 }
 
 /**
@@ -235,7 +235,7 @@ export interface SOCWriter extends SOCReader {
     identifier: Identifier,
     data: Uint8Array,
     options?: UploadOptions,
-  ) => Promise<ReferenceResponse>
+  ) => Promise<Reference>
 }
 
 /**

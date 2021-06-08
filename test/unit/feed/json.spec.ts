@@ -12,7 +12,7 @@ interface CircularReference {
 
 describe('JsonFeed', () => {
   const DATA_REFERENCE = testChunkHash as Reference
-  const FEED_REFERENCE_HASH = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a1111'
+  const FEED_REFERENCE_HASH = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a1111' as Reference
   const FEED_REFERENCE = {
     reference: FEED_REFERENCE_HASH,
   } as FetchFeedUpdateResponse
@@ -23,9 +23,9 @@ describe('JsonFeed', () => {
       bee.uploadData(Arg.all()).resolves(DATA_REFERENCE)
 
       const writer = Substitute.for<FeedWriter>()
-      writer.upload(Arg.all()).resolves(FEED_REFERENCE)
+      writer.upload(Arg.all()).resolves(FEED_REFERENCE_HASH)
 
-      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).resolves.toEqual(FEED_REFERENCE)
+      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).resolves.toEqual(FEED_REFERENCE_HASH)
       bee.received(1).uploadData(testAddress, expectedBytes)
       writer.received(1).upload(testAddress, DATA_REFERENCE)
     })

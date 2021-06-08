@@ -107,15 +107,15 @@ describe('modules/pin', () => {
 
   describe('should work with chunks', () => {
     it('should pin existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
-      expect(chunkResponse).toEqual({ reference: testChunkHash })
+      const chunkReference = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
+      expect(chunkReference).toEqual(testChunkHash)
 
       await pinning.pin(BEE_URL, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
-      expect(chunkResponse).toEqual({ reference: testChunkHash })
+      const chunkReference = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
+      expect(chunkReference).toEqual(testChunkHash)
 
       await pinning.unpin(BEE_URL, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
@@ -133,8 +133,8 @@ describe('modules/pin', () => {
     })
 
     it('should return pinning status of existing chunk', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
-      expect(chunkResponse).toEqual({ reference: testChunkHash })
+      const chunkReference = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
+      expect(chunkReference).toEqual(testChunkHash)
 
       await pinning.pin(BEE_URL, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
       const pinningStatus = await pinning.getPin(BEE_URL, testChunkHash)
@@ -146,8 +146,8 @@ describe('modules/pin', () => {
     })
 
     it('should return list of pinned chunks', async () => {
-      const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
-      expect(chunkResponse).toEqual({ reference: testChunkHash })
+      const chunkReference = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
+      expect(chunkReference).toEqual(testChunkHash)
 
       await pinning.pin(BEE_URL, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })

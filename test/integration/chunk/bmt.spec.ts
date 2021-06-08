@@ -17,7 +17,7 @@ describe('bmt', () => {
 
       const reference = bytesToHex(bmtHash(data))
       const response = await chunk.upload(beeUrl(), data, getPostageBatch())
-      expect(response).toEqual({ reference })
+      expect(response).toEqual(reference)
     }
   })
 
@@ -28,6 +28,6 @@ describe('bmt', () => {
 
     const reference = bytesToHex(bmtHash(data))
     const response = await chunk.upload(beeUrl(), data, getPostageBatch())
-    expect(response).toEqual({ reference })
+    expect(response).toEqual(reference)
   })
 })

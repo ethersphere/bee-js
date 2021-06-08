@@ -23,7 +23,7 @@ describe('soc', () => {
 
     const response = await uploadSingleOwnerChunk(beeUrl(), soc, getPostageBatch())
 
-    expect(response).toEqual({ reference: socAddress })
+    expect(response).toEqual(socAddress)
   })
 
   test('download single owner chunk', async () => {

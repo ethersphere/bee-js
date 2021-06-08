@@ -1,4 +1,4 @@
-import { BatchId, ReferenceResponse, UploadOptions } from '../types'
+import { BatchId, Reference, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safe-axios'
 
@@ -23,7 +23,7 @@ export async function upload(
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<ReferenceResponse> {
+): Promise<Reference> {
   const response = await safeAxios<ReferenceResponse>({
     ...options?.axiosOptions,
     method: 'post',
@@ -37,5 +37,5 @@ export async function upload(
     params: { sig: signature },
   })
 
-  return response.data
+  return response.data.reference
 }

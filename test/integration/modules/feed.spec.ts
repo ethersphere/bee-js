@@ -1,8 +1,17 @@
 import { createFeedManifest, fetchFeedUpdate } from '../../../src/modules/feed'
 import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
-import { beeUrl, ERR_TIMEOUT, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
+import {
+  beeUrl,
+  commonMatchers,
+  ERR_TIMEOUT,
+  getPostageBatch,
+  testIdentity,
+  tryDeleteChunkFromLocalStorage,
+} from '../../utils'
 import { upload as uploadSOC } from '../../../src/modules/soc'
 import type { Topic } from '../../../src/types'
+
+commonMatchers()
 
 describe('modules/feed', () => {
   const url = beeUrl()
@@ -42,10 +51,10 @@ describe('modules/feed', () => {
     await tryDeleteChunkFromLocalStorage(cacAddress)
 
     const socResponse = await uploadSOC(url, owner, identifier, signature, socData, getPostageBatch())
-    expect(typeof socResponse.reference).toBe('string')
+    expect(socResponse).toBeType('string')
 
     const feedUpdate = await fetchFeedUpdate(url, owner, oneUpdateTopic)
-    expect(typeof feedUpdate.reference).toBe('string')
+    expect(feedUpdate.reference).toBeType('string')
     expect(feedUpdate.feedIndex).toEqual('0000000000000000')
     expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
   }, 21000)

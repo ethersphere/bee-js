@@ -13,9 +13,9 @@ describe('modules/chunk', () => {
     const reference = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
 
     const response = await chunk.upload(BEE_URL, data, getPostageBatch())
-    expect(response).toEqual({ reference })
+    expect(response).toEqual(reference)
 
-    const downloadedData = await chunk.download(BEE_URL, response.reference)
+    const downloadedData = await chunk.download(BEE_URL, response)
     expect(downloadedData).toEqual(data)
   })
 

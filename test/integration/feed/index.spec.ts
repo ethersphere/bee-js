@@ -1,5 +1,5 @@
 import { fetchFeedUpdate } from '../../../src/modules/feed'
-import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
+import { hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeUrl, ERR_TIMEOUT, getPostageBatch, testIdentity } from '../../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../../src/feed'
 import { Bytes, assertBytes } from '../../../src/utils/bytes'
@@ -15,9 +15,9 @@ function makeChunk(index: number) {
 
 async function uploadChunk(url: string, index: number): Promise<ChunkReference> {
   const chunk = makeChunk(index)
-  const referenceResponse = await chunkAPI.upload(url, chunk.data, getPostageBatch())
+  const reference = await chunkAPI.upload(url, chunk.data, getPostageBatch())
 
-  return hexToBytes(referenceResponse.reference as HexString) as ChunkReference
+  return hexToBytes(reference) as ChunkReference
 }
 
 // FIXME helper function for setting up test state for testing finding feed updates

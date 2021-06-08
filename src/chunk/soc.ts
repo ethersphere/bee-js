@@ -13,7 +13,7 @@ import {
   MIN_PAYLOAD_SIZE,
   assertValidChunkData,
 } from './cac'
-import { ReferenceResponse, UploadOptions, Signature, Signer, BatchId } from '../types'
+import { UploadOptions, Signature, Signer, BatchId, Reference } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
@@ -137,7 +137,7 @@ export async function uploadSingleOwnerChunk(
   chunk: SingleOwnerChunk,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<ReferenceResponse> {
+): Promise<Reference> {
   const owner = bytesToHex(chunk.owner())
   const identifier = bytesToHex(chunk.identifier())
   const signature = bytesToHex(chunk.signature())
@@ -163,7 +163,7 @@ export async function uploadSingleOwnerChunkData(
   identifier: Identifier,
   data: Uint8Array,
   options?: UploadOptions,
-): Promise<ReferenceResponse> {
+): Promise<Reference> {
   assertAddress(postageBatchId)
   const cac = makeContentAddressedChunk(data)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
