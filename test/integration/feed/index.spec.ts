@@ -1,5 +1,5 @@
 import { fetchFeedUpdate } from '../../../src/modules/feed'
-import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
+import { hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeUrl, ERR_TIMEOUT, getPostageBatch, testIdentity } from '../../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../../src/feed'
 import { Bytes, assertBytes } from '../../../src/utils/bytes'
