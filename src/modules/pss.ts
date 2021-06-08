@@ -25,8 +25,8 @@ export async function send(
   data: string | Uint8Array,
   postageBatchId: BatchId,
   recipient?: PublicKey,
-): Promise<BeeResponse> {
-  const response = await safeAxios<BeeResponse>({
+): Promise<void> {
+  await safeAxios<BeeResponse>({
     method: 'post',
     url: `${url}${endpoint}/send/${topic}/${target.slice(0, 4)}`,
     data: await prepareData(data),
@@ -34,8 +34,6 @@ export async function send(
     params: { recipient },
     headers: extractUploadHeaders(postageBatchId),
   })
-
-  return response.data
 }
 
 /**

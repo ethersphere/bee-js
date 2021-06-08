@@ -5,13 +5,11 @@ import * as chunk from '../../../src/modules/chunk'
 import {
   beeUrl,
   invalidReference,
-  okResponse,
   randomByteArray,
   testChunkData,
   testChunkHash,
   ERR_TIMEOUT,
   getPostageBatch,
-  createdResponse,
   commonMatchers,
 } from '../../utils'
 import { Collection } from '../../../src/types'
@@ -25,16 +23,12 @@ describe('modules/pin', () => {
 
     it('should pin an existing file', async () => {
       const hash = await bzz.uploadFile(BEE_URL, randomData, getPostageBatch())
-      const response = await pinning.pin(BEE_URL, hash)
-
-      expect(response).toBeOneOf([createdResponse, okResponse])
+      await pinning.pin(BEE_URL, hash)
     })
 
     it('should unpin an existing file', async () => {
       const hash = await bzz.uploadFile(BEE_URL, randomData, getPostageBatch())
-      const response = await pinning.unpin(BEE_URL, hash)
-
-      expect(response).toEqual(okResponse)
+      await pinning.unpin(BEE_URL, hash)
     })
 
     it(
@@ -64,16 +58,12 @@ describe('modules/pin', () => {
 
     it('should pin an existing collection', async () => {
       const hash = await bzz.uploadCollection(BEE_URL, testCollection, getPostageBatch())
-      const response = await pinning.pin(BEE_URL, hash)
-
-      expect(response).toBeOneOf([createdResponse, okResponse])
+      await pinning.pin(BEE_URL, hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin an existing collections', async () => {
       const hash = await bzz.uploadCollection(BEE_URL, testCollection, getPostageBatch())
-      const response = await pinning.unpin(BEE_URL, hash)
-
-      expect(response).toEqual(okResponse)
+      await pinning.unpin(BEE_URL, hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it(
@@ -94,16 +84,12 @@ describe('modules/pin', () => {
 
     it('should pin existing data', async () => {
       const hash = await bytes.upload(BEE_URL, randomData, getPostageBatch())
-      const response = await pinning.pin(BEE_URL, hash)
-
-      expect(response).toBeOneOf([createdResponse, okResponse])
+      await pinning.pin(BEE_URL, hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin existing data', async () => {
       const hash = await bytes.upload(BEE_URL, randomData, getPostageBatch())
-      const response = await pinning.pin(BEE_URL, hash)
-
-      expect(response).toBeOneOf([createdResponse, okResponse])
+      await pinning.pin(BEE_URL, hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it(
@@ -124,16 +110,14 @@ describe('modules/pin', () => {
       const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
       expect(chunkResponse).toEqual({ reference: testChunkHash })
 
-      const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
-      expect(pinningResponse).toBeOneOf([createdResponse, okResponse])
+      await pinning.pin(BEE_URL, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin existing chunk', async () => {
       const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
       expect(chunkResponse).toEqual({ reference: testChunkHash })
 
-      const pinningResponse = await pinning.unpin(BEE_URL, testChunkHash)
-      expect(pinningResponse).toEqual(okResponse)
+      await pinning.unpin(BEE_URL, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it(
@@ -152,9 +136,7 @@ describe('modules/pin', () => {
       const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
       expect(chunkResponse).toEqual({ reference: testChunkHash })
 
-      const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
-      expect(pinningResponse).toBeOneOf([createdResponse, okResponse])
-
+      await pinning.pin(BEE_URL, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
       const pinningStatus = await pinning.getPin(BEE_URL, testChunkHash)
       expect(pinningStatus.reference).toEqual(testChunkHash)
     })
@@ -167,8 +149,7 @@ describe('modules/pin', () => {
       const chunkResponse = await chunk.upload(BEE_URL, testChunkData, getPostageBatch())
       expect(chunkResponse).toEqual({ reference: testChunkHash })
 
-      const pinningResponse = await pinning.pin(BEE_URL, testChunkHash)
-      expect(pinningResponse).toBeOneOf([createdResponse, okResponse])
+      await pinning.pin(BEE_URL, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
   })
 })

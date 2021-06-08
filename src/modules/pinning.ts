@@ -13,14 +13,12 @@ export interface GetAllPinResponse {
  * @param url  Bee URL
  * @param reference Bee data reference
  */
-export async function pin(url: string, reference: Reference): Promise<BeeResponse> {
-  const response = await safeAxios<BeeResponse>({
+export async function pin(url: string, reference: Reference): Promise<void> {
+  await safeAxios<BeeResponse>({
     method: 'post',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,
   })
-
-  return response.data
 }
 
 /**
@@ -29,14 +27,12 @@ export async function pin(url: string, reference: Reference): Promise<BeeRespons
  * @param url  Bee URL
  * @param reference Bee data reference
  */
-export async function unpin(url: string, reference: Reference): Promise<BeeResponse> {
-  const response = await safeAxios<BeeResponse>({
+export async function unpin(url: string, reference: Reference): Promise<void> {
+  await safeAxios<BeeResponse>({
     method: 'delete',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,
   })
-
-  return response.data
 }
 
 /**

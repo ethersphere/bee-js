@@ -6,33 +6,7 @@ import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
 import * as stamps from './modules/stamps'
-import type {
-  Tag,
-  FileData,
-  Reference,
-  UploadOptions,
-  PublicKey,
-  AddressPrefix,
-  PssMessageHandler,
-  PssSubscription,
-  BeeResponse,
-  CollectionUploadOptions,
-  FileUploadOptions,
-  Data,
-  Signer,
-  FeedReader,
-  FeedWriter,
-  SOCWriter,
-  SOCReader,
-  Topic,
-  BeeOptions,
-  ReferenceResponse,
-  JsonFeedOptions,
-  AnyJson,
-  Pin,
-  PostageBatch,
-  BatchId,
-} from './types'
+
 import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
@@ -50,6 +24,33 @@ import { assertBatchId, assertNonNegativeInteger, assertReference } from './util
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 import { PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+
+import type {
+  Tag,
+  FileData,
+  Reference,
+  UploadOptions,
+  PublicKey,
+  AddressPrefix,
+  PssMessageHandler,
+  PssSubscription,
+  CollectionUploadOptions,
+  FileUploadOptions,
+  Data,
+  Signer,
+  FeedReader,
+  FeedWriter,
+  SOCWriter,
+  SOCReader,
+  Topic,
+  BeeOptions,
+  ReferenceResponse,
+  JsonFeedOptions,
+  AnyJson,
+  Pin,
+  PostageBatch,
+  BatchId,
+} from './types'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -241,7 +242,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  async pin(reference: Reference | string): Promise<BeeResponse> {
+  async pin(reference: Reference | string): Promise<void> {
     assertReference(reference)
 
     return pinning.pin(this.url, reference)
@@ -252,7 +253,7 @@ export class Bee {
    *
    * @param reference Bee data reference
    */
-  async unpin(reference: Reference | string): Promise<BeeResponse> {
+  async unpin(reference: Reference | string): Promise<void> {
     assertReference(reference)
 
     return pinning.unpin(this.url, reference)
@@ -314,7 +315,7 @@ export class Bee {
     target: AddressPrefix,
     data: string | Uint8Array,
     recipient?: PublicKey,
-  ): Promise<BeeResponse> {
+  ): Promise<void> {
     assertBatchId(postageBatchId)
 
     return pss.send(this.url, topic, target, data, postageBatchId, recipient)
