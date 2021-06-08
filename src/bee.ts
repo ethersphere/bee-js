@@ -1,3 +1,6 @@
+// noinspection SuspiciousTypeOfGuard
+// Code quality instruction for IntelliJ IDEs
+
 import type { Readable } from 'stream'
 import * as bzz from './modules/bzz'
 import * as tag from './modules/tag'
@@ -63,7 +66,6 @@ import type {
   PostageBatch,
   BatchId,
 } from './types'
-// noinspection SuspiciousTypeOfGuard
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url

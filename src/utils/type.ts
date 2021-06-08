@@ -1,4 +1,5 @@
 // noinspection SuspiciousTypeOfGuard
+// Code quality instruction for IntelliJ IDEs
 
 import {
   Address,
@@ -141,7 +142,7 @@ export function isTag(value: unknown): value is Tag {
 
   const numberProperties = ['total', 'processed', 'synced', 'uid']
   for (const numberProperty of numberProperties) {
-    if (!tag[numberProperty] || typeof tag[numberProperty] !== 'number') {
+    if (typeof tag[numberProperty] !== 'number') {
       return false
     }
   }
