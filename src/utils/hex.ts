@@ -152,20 +152,22 @@ export function isPrefixedHexString(s: unknown): s is PrefixedHexString {
  *
  * @param s string input
  * @param len expected length of the HexString
+ * @param name optional name for the asserted value
  * @returns HexString or throws error
  */
 export function assertHexString<Length extends number = number>(
   s: unknown,
   len?: number,
+  name = 'value',
 ): asserts s is HexString<Length> {
   if (!isHexString(s, len)) {
     if (isPrefixedHexString(s)) {
-      throw new TypeError(`Not valid non prefixed hex string (has 0x prefix): ${s}`)
+      throw new TypeError(`${name} not valid non prefixed hex string (has 0x prefix): ${s}`)
     }
 
     // Don't display length error if no length specified in order not to confuse user
     const lengthMsg = len ? ` of length ${len}` : ''
-    throw new TypeError(`Not valid hex string${lengthMsg}: ${s}`)
+    throw new TypeError(`${name} not valid hex string${lengthMsg}: ${s}`)
   }
 }
 
@@ -174,10 +176,11 @@ export function assertHexString<Length extends number = number>(
  *
  * @param s string input
  * @param len expected length of the HexString
+ * @param name optional name for the asserted value
  * @returns HexString or throws error
  */
-export function assertPrefixedHexString(s: string): asserts s is PrefixedHexString {
+export function assertPrefixedHexString(s: string, name = 'value'): asserts s is PrefixedHexString {
   if (!isPrefixedHexString(s)) {
-    throw new TypeError(`Not valid prefixed hex string: ${s}`)
+    throw new TypeError(`${name} not valid prefixed hex string: ${s}`)
   }
 }

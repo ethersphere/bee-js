@@ -14,6 +14,7 @@ export interface Dictionary<T> {
 }
 
 export const ADDRESS_HEX_LENGTH = 64
+export const PUBKEY_HEX_LENGTH = 66
 export const BATCH_ID_HEX_LENGTH = 64
 export const REFERENCE_HEX_LENGTH = 64
 export const ENCRYPTED_REFERENCE_HEX_LENGTH = 128
@@ -31,7 +32,7 @@ export const STAMPS_DEPTH_MIN = 16
 export const STAMPS_DEPTH_MAX = 255
 
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
-export type PublicKey = string
+export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 
 export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
 

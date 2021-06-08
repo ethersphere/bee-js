@@ -15,5 +15,9 @@ export function makeTopic(topic: Uint8Array | string): Topic {
 }
 
 export function makeTopicFromString(s: string): Topic {
+  if (typeof s !== 'string') {
+    throw new TypeError('topic has to be string!')
+  }
+
   return bytesToHex(keccak256Hash(s), TOPIC_HEX_LENGTH)
 }

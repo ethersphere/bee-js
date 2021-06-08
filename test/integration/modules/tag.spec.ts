@@ -16,7 +16,7 @@ describe('modules/tag', () => {
 
   it('should retrieve previously created empty tag', async () => {
     const tag1 = await tag.createTag(BEE_URL)
-    const tag2 = await tag.retrieveTag(BEE_URL, tag1)
+    const tag2 = await tag.retrieveTag(BEE_URL, tag1.uid)
 
     expect(tag1).toEqual(tag2)
   })

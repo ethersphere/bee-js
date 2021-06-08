@@ -1,6 +1,7 @@
 import { assertAllIsDone, cashoutLastChequeMock, depositTokensMock, MOCK_SERVER_URL, withdrawTokensMock } from './nock'
 import { BeeArgumentError, BeeDebug } from '../../src'
 import { testAddress } from '../utils'
+import { testAddressAssertions } from './assertions'
 
 describe('BeeDebug class', () => {
   function testUrl(url: unknown): void {
@@ -29,6 +30,62 @@ describe('BeeDebug class', () => {
   // eslint-disable-next-line no-script-url
   testUrl('javascript:console.log()')
   testUrl('ws://localhost:1633')
+
+  describe('removePeer', () => {
+    testAddressAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.removePeer(input as string)
+    })
+  })
+
+  describe('pingPeer', () => {
+    testAddressAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.pingPeer(input as string)
+    })
+  })
+
+  describe('getPeerBalance', () => {
+    testAddressAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.getPeerBalance(input as string)
+    })
+  })
+
+  describe('getPastDueConsumptionPeerBalance', () => {
+    testAddressAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.getPastDueConsumptionPeerBalance(input as string)
+    })
+  })
+
+  describe('getLastChequesForPeer', () => {
+    testAddressAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.getLastChequesForPeer(input as string)
+    })
+  })
+
+  describe('getLastCashoutAction', () => {
+    testAddressAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.getLastCashoutAction(input as string)
+    })
+  })
+
+  describe('getSettlements', () => {
+    testAddressAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.getSettlements(input as string)
+    })
+  })
 
   describe('cashoutLastCheque', () => {
     const TRANSACTION_HASH = '36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f'
@@ -64,21 +121,10 @@ describe('BeeDebug class', () => {
       assertAllIsDone()
     })
 
-    it('should throw error if passed wrong address', async () => {
+    testAddressAssertions(async (input: unknown) => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
-      // @ts-ignore: Input testing
-      await expect(bee.cashoutLastCheque(true)).rejects.toThrow(TypeError)
-
-      // @ts-ignore: Input testing
-      await expect(bee.cashoutLastCheque(11)).rejects.toThrow(TypeError)
-      // @ts-ignore: Input testing
-      await expect(bee.cashoutLastCheque(null)).rejects.toThrow(TypeError)
-      // @ts-ignore: Input testing
-      await expect(bee.cashoutLastCheque()).rejects.toThrow(TypeError)
-
-      await expect(bee.cashoutLastCheque('')).rejects.toThrow(TypeError)
-      await expect(bee.cashoutLastCheque('asd')).rejects.toThrow(TypeError)
+      return bee.cashoutLastCheque(input as string)
     })
 
     it('should throw error if passed wrong gas price input', async () => {

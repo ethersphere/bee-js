@@ -89,7 +89,7 @@ export function makePrivateKeySigner(privateKey: PrivateKeyBytes): Signer {
 }
 
 export function assertSigner(signer: unknown): asserts signer is Signer {
-  if (typeof signer !== 'object' || signer === null) {
+  if (typeof signer !== 'object' || signer === null || Array.isArray(signer)) {
     throw new TypeError('Signer must be an object or string!')
   }
 

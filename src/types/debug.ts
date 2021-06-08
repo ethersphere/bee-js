@@ -1,3 +1,6 @@
+import { PublicKey } from './index'
+import { HexEthAddress } from '../utils/eth'
+
 export interface Settlements {
   peer: string
   received: bigint
@@ -13,9 +16,9 @@ export interface AllSettlements {
 export interface NodeAddresses {
   overlay: string
   underlay: string[]
-  ethereum: string
-  publicKey: string
-  pssPublicKey: string
+  ethereum: HexEthAddress
+  publicKey: PublicKey
+  pssPublicKey: PublicKey
 }
 
 export interface Peer {

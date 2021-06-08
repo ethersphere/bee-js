@@ -20,7 +20,20 @@ import { createFeedManifest } from './modules/feed'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
-import { assertBatchId, assertNonNegativeInteger, assertReference } from './utils/type'
+import {
+  assertAddressPrefix,
+  assertBatchId,
+  assertCollectionUploadOptions,
+  assertData,
+  assertFileData,
+  assertFileUploadOptions,
+  assertNonNegativeInteger,
+  assertPssMessageHandler,
+  assertPublicKey,
+  assertReference,
+  assertUploadOptions,
+  isTag,
+} from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 import { PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
@@ -50,6 +63,7 @@ import type {
   PostageBatch,
   BatchId,
 } from './types'
+// noinspection SuspiciousTypeOfGuard
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -95,6 +109,9 @@ export class Bee {
     options?: UploadOptions,
   ): Promise<Reference> {
     assertBatchId(postageBatchId)
+    assertData(data)
+
+    if (options) assertUploadOptions(options)
 
     return bytes.upload(this.url, data, postageBatchId, options)
   }
@@ -139,12 +156,19 @@ export class Bee {
     options?: FileUploadOptions,
   ): Promise<Reference> {
     assertBatchId(postageBatchId)
+    assertFileData(data)
+
+    if (options) assertFileUploadOptions(options)
+
+    if (name && typeof name !== 'string') {
+      throw new TypeError('name has to be string or undefined!')
+    }
 
     if (isFile(data)) {
       const fileData = await fileArrayBuffer(data)
-      const fileName = name || data.name
+      const fileName = name ?? data.name
       const contentType = data.type
-      const fileOptions = options !== undefined ? { contentType, ...options } : { contentType }
+      const fileOptions = options ? { contentType, ...options } : { contentType }
 
       return bzz.uploadFile(this.url, fileData, postageBatchId, fileName, fileOptions)
     } else {
@@ -193,6 +217,9 @@ export class Bee {
     options?: CollectionUploadOptions,
   ): Promise<Reference> {
     assertBatchId(postageBatchId)
+
+    if (options) assertCollectionUploadOptions(options)
+
     const data = await makeCollectionFromFileList(fileList)
 
     return bzz.uploadCollection(this.url, data, postageBatchId, options)
@@ -215,6 +242,8 @@ export class Bee {
     options?: CollectionUploadOptions,
   ): Promise<Reference> {
     assertBatchId(postageBatchId)
+
+    if (options) assertCollectionUploadOptions(options)
     const data = await makeCollectionFromFS(dir)
 
     return bzz.uploadCollection(this.url, data, postageBatchId, options)
@@ -233,6 +262,14 @@ export class Bee {
    * @param tagUid UID or tag object to be retrieved
    */
   async retrieveTag(tagUid: number | Tag): Promise<Tag> {
+    if (isTag(tagUid)) {
+      tagUid = tagUid.uid
+    } else if (typeof tagUid === 'number') {
+      assertNonNegativeInteger(tagUid, 'UID')
+    } else {
+      throw new TypeError('tagUid has to be either Tag or a number (UID)!')
+    }
+
     return tag.retrieveTag(this.url, tagUid)
   }
 
@@ -313,11 +350,23 @@ export class Bee {
     topic: string,
     target: AddressPrefix,
     data: string | Uint8Array,
-    recipient?: PublicKey,
+    recipient?: string | PublicKey,
   ): Promise<void> {
+    assertData(data)
     assertBatchId(postageBatchId)
+    assertAddressPrefix(target)
 
-    return pss.send(this.url, topic, target, data, postageBatchId, recipient)
+    if (typeof topic !== 'string') {
+      throw new TypeError('topic has to be an string!')
+    }
+
+    if (recipient) {
+      assertPublicKey(recipient)
+
+      return pss.send(this.url, topic, target, data, postageBatchId, recipient)
+    } else {
+      return pss.send(this.url, topic, target, data, postageBatchId)
+    }
   }
 
   /**
@@ -329,6 +378,12 @@ export class Bee {
    * @returns Subscription to a given topic
    */
   pssSubscribe(topic: string, handler: PssMessageHandler): PssSubscription {
+    assertPssMessageHandler(handler)
+
+    if (typeof topic !== 'string') {
+      throw new TypeError('topic has to be an string!')
+    }
+
     const ws = pss.subscribe(this.url, topic)
 
     let cancelled = false
@@ -386,6 +441,14 @@ export class Bee {
    * @returns Message in byte array
    */
   async pssReceive(topic: string, timeoutMsec = 0): Promise<Data> {
+    if (typeof topic !== 'string') {
+      throw new TypeError('topic has to be an string!')
+    }
+
+    if (typeof timeoutMsec !== 'number') {
+      throw new TypeError('timeoutMsc parameter has to be a number!')
+    }
+
     return new Promise((resolve, reject) => {
       let timeout: number | undefined
       const subscription = this.pssSubscribe(topic, {
@@ -523,7 +586,7 @@ export class Bee {
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
 
     if (options?.signer && options?.address) {
-      return Promise.reject(new BeeError('Both options "signer" and "address" can not be specified at one time!'))
+      throw new BeeError('Both options "signer" and "address" can not be specified at one time!')
     }
 
     let address: EthAddress
@@ -535,9 +598,9 @@ export class Bee {
         address = this.resolveSigner(options?.signer).address
       } catch (e) {
         if (e instanceof BeeError) {
-          return Promise.reject(new BeeError('Either address, signer or default signer has to be specified!'))
+          throw new BeeError('Either address, signer or default signer has to be specified!')
         } else {
-          return Promise.reject(e)
+          throw e
         }
       }
     }
