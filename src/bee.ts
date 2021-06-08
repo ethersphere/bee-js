@@ -168,7 +168,7 @@ export class Bee {
       const fileData = await fileArrayBuffer(data)
       const fileName = name ?? data.name
       const contentType = data.type
-      const fileOptions = options ? { contentType, ...options } : { contentType }
+      const fileOptions = { contentType, ...options }
 
       return bzz.uploadFile(this.url, fileData, postageBatchId, fileName, fileOptions)
     } else {

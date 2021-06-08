@@ -31,7 +31,7 @@ export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint
   }
 
   if (dir === '') {
-    throw new TypeError('dir most not be empty string!')
+    throw new TypeError('dir must not be empty string!')
   }
 
   return buildCollectionRelative(dir, '')
