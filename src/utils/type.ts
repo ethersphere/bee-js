@@ -1,6 +1,3 @@
-// noinspection SuspiciousTypeOfGuard
-// Code quality instruction for IntelliJ IDEs
-
 import {
   Address,
   ADDRESS_HEX_LENGTH,

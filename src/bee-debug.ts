@@ -70,7 +70,7 @@ export class BeeDebug {
     return connectivity.getTopology(this.url)
   }
 
-  async pingPeer(peer: string): Promise<PingResponse> {
+  async pingPeer(peer: string | Address): Promise<PingResponse> {
     assertAddress(peer)
 
     return connectivity.pingPeer(this.url, peer)
