@@ -1,6 +1,6 @@
 import { Arg, Substitute } from '@fluffy-spoon/substitute'
 import { AnyJson, Bee, FeedWriter, Reference } from '../../../src'
-import { testAddress, testChunkHash } from '../../utils'
+import { testAddress, testBatchId, testChunkHash } from '../../utils'
 import { getJsonData, setJsonData } from '../../../src/feed/json'
 import { FetchFeedUpdateResponse } from '../../../src/modules/feed'
 import { wrapBytesWithHelpers } from '../../../src/utils/bytes'
@@ -68,6 +68,6 @@ describe('JsonFeed', () => {
     circularReference.myself = circularReference
 
     // @ts-ignore: Circular references are detected with TS, so we have to ts-ignore to test it.
-    await expect(setJsonData(bee, writer, circularReference)).rejects.toThrow(TypeError)
+    await expect(setJsonData(bee, writer, testBatchId, circularReference)).rejects.toThrow(TypeError)
   })
 })

@@ -60,7 +60,9 @@ export class BeeDebug {
     return connectivity.getPeers(this.url)
   }
 
-  async removePeer(peer: string): Promise<RemovePeerResponse> {
+  async removePeer(peer: string | Address): Promise<RemovePeerResponse> {
+    assertAddress(peer)
+
     return connectivity.removePeer(this.url, peer)
   }
 
@@ -68,7 +70,9 @@ export class BeeDebug {
     return connectivity.getTopology(this.url)
   }
 
-  async pingPeer(peer: string): Promise<PingResponse> {
+  async pingPeer(peer: string | Address): Promise<PingResponse> {
+    assertAddress(peer)
+
     return connectivity.pingPeer(this.url, peer)
   }
 

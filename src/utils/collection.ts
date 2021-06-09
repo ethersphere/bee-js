@@ -3,10 +3,7 @@ import { BeeArgumentError } from './error'
 import path from 'path'
 import fs from 'fs'
 import { fileArrayBuffer } from './file'
-
-function isUint8Array(obj: unknown): obj is Uint8Array {
-  return obj instanceof Uint8Array
-}
+import { isUint8Array } from './type'
 
 export function isCollection(data: unknown): data is Collection<Uint8Array> {
   if (!Array.isArray(data)) {
@@ -29,6 +26,14 @@ export function assertCollection(data: unknown): asserts data is Collection<Uint
  * @param dir absolute path to the directory
  */
 export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint8Array>> {
+  if (typeof dir !== 'string') {
+    throw new TypeError('dir has to be string!')
+  }
+
+  if (dir === '') {
+    throw new TypeError('dir must not be empty string!')
+  }
+
   return buildCollectionRelative(dir, '')
 }
 
@@ -66,12 +71,16 @@ interface WebkitFile extends File {
   readonly webkitRelativePath?: string
 }
 
-function filePath(file: WebkitFile) {
+function makeFilePath(file: WebkitFile) {
   if (file.webkitRelativePath && file.webkitRelativePath !== '') {
     return file.webkitRelativePath.replace(/.*?\//i, '')
   }
 
-  return file.name
+  if (file.name) {
+    return file.name
+  }
+
+  throw new TypeError('file is not valid File object')
 }
 
 export async function makeCollectionFromFileList(fileList: FileList | File[]): Promise<Collection<Uint8Array>> {
@@ -82,7 +91,7 @@ export async function makeCollectionFromFileList(fileList: FileList | File[]): P
 
     if (file) {
       collection.push({
-        path: filePath(file),
+        path: makeFilePath(file),
         data: new Uint8Array(await fileArrayBuffer(file)),
       })
     }

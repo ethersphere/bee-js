@@ -261,7 +261,7 @@ describe('modules/bzz', () => {
 
       const tag1 = await tag.createTag(BEE_URL)
       await bzz.uploadFile(BEE_URL, data, getPostageBatch(), filename, { tag: tag1.uid })
-      const tag2 = await tag.retrieveTag(BEE_URL, tag1)
+      const tag2 = await tag.retrieveTag(BEE_URL, tag1.uid)
 
       expect(tag2.total).toEqual(EXPECTED_TAGS_COUNT)
       expect(tag2.processed).toEqual(EXPECTED_TAGS_COUNT)

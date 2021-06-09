@@ -22,10 +22,9 @@ export async function createTag(url: string): Promise<Tag> {
  * Retrieve tag information from Bee node
  *
  * @param url Bee tag URL
- * @param tag UID or tag object to be retrieved
+ * @param uid UID of tag to be retrieved
  */
-export async function retrieveTag(url: string, tag: Tag | number): Promise<Tag> {
-  const uid = typeof tag === 'number' ? tag : tag?.uid
+export async function retrieveTag(url: string, uid: number): Promise<Tag> {
   const response = await safeAxios<Tag>({
     url: `${url}${endpoint}/${uid}`,
   })
