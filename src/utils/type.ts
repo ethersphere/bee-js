@@ -138,13 +138,9 @@ export function isTag(value: unknown): value is Tag {
   const tag = value as Record<string, unknown>
 
   const numberProperties = ['total', 'processed', 'synced', 'uid']
-  for (const numberProperty of numberProperties) {
-    if (typeof tag[numberProperty] !== 'number') {
-      return false
-    }
-  }
+  const correctNumberProperties = numberProperties.every(numberProperty => typeof tag[numberProperty] === 'number')
 
-  if (!tag.startedAt || typeof tag.startedAt !== 'string') {
+  if (!correctNumberProperties || !tag.startedAt || typeof tag.startedAt !== 'string') {
     return false
   }
 
