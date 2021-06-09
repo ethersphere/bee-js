@@ -77,19 +77,15 @@ export function assertUploadOptions(value: unknown, name = 'UploadOptions'): ass
 
   const options = value as UploadOptions
 
-  if (options.pin && typeof options.pin !== 'boolean') {
+  if (typeof options.pin !== 'boolean') {
     throw new TypeError(`options.pin property in ${name} has to be boolean or undefined!`)
   }
 
-  if (options.encrypt && typeof options.encrypt !== 'boolean') {
+  if (typeof options.encrypt !== 'boolean') {
     throw new TypeError(`options.encrypt property in ${name} has to be boolean or undefined!`)
   }
 
   if (options.tag) {
-    if (typeof options.tag !== 'number') {
-      throw new TypeError(`options.tag property in ${name} has to be number or undefined!`)
-    }
-
     assertNonNegativeInteger(options.tag, 'options.tag')
   }
 
@@ -111,7 +107,7 @@ export function assertFileUploadOptions(value: unknown): asserts value is FileUp
     assertNonNegativeInteger(options.size, 'options.size')
   }
 
-  if (options.contentType && typeof options.contentType !== 'string') {
+  if (typeof options.contentType !== 'string') {
     throw new TypeError('contentType property in FileUploadOptions has to be string or undefined!')
   }
 }
@@ -121,11 +117,11 @@ export function assertCollectionUploadOptions(value: unknown): asserts value is 
 
   const options = value as CollectionUploadOptions
 
-  if (options.indexDocument && typeof options.indexDocument !== 'string') {
+  if (typeof options.indexDocument !== 'string') {
     throw new TypeError('indexDocument property in CollectionUploadOptions has to be string or undefined!')
   }
 
-  if (options.errorDocument && typeof options.errorDocument !== 'string') {
+  if (typeof options.errorDocument !== 'string') {
     throw new TypeError('errorDocument property in CollectionUploadOptions has to be string or undefined!')
   }
 }
