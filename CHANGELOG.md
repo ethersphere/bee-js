@@ -1,4 +1,28 @@
 # Changelog
+## [0.11.0](https://www.github.com/ethersphere/bee-js/compare/v0.10.0...v0.11.0) (2021-06-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* input validation (#343)
+* no single-property object returned (#341)
+* no generic BeeResponse returned from Bee class (#342)
+
+### Features
+
+* input validation ([#343](https://www.github.com/ethersphere/bee-js/issues/343)) ([1a33932](https://www.github.com/ethersphere/bee-js/commit/1a33932233f255d7d89d8b6336ab1191f9946484))
+
+
+### Reverts
+
+* empty test data ([#339](https://www.github.com/ethersphere/bee-js/issues/339)) ([ffecd9f](https://www.github.com/ethersphere/bee-js/commit/ffecd9fbc1e2a2e8a1e9b757af6a0346b826951f))
+
+
+### Code Refactoring
+
+* no generic BeeResponse returned from Bee class ([#342](https://www.github.com/ethersphere/bee-js/issues/342)) ([d2a65ee](https://www.github.com/ethersphere/bee-js/commit/d2a65ee31b42eed70685a62085164c39caf092c0))
+* no single-property object returned ([#341](https://www.github.com/ethersphere/bee-js/issues/341)) ([572253c](https://www.github.com/ethersphere/bee-js/commit/572253c173b4acc8c2e515677f66a68c8e5076b0))
+
 ## [0.10.0](https://www.github.com/ethersphere/bee-js/compare/v0.9.0...v0.10.0) (2021-06-01)
 
 We would like to introduce you to a new release that brings access to other new features of `0.6.0` Bee release and several other improvements. This version is compatible with `0.6.2` version of Bee.
