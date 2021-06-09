@@ -1,12 +1,17 @@
 # Changelog
 ## [0.11.0](https://www.github.com/ethersphere/bee-js/compare/v0.10.0...v0.11.0) (2021-06-09)
 
+This release mainly brings internal improvements as we have attacked head-on our backlog with outstanding issues. But several changes introduce breaking changes so be aware and continue reading on!
+
+### 🔎 Input validation
+
+We implemented thorough input validation to catch problems even before sending requests to Bee and give better errors on what is wrong.
 
 ### ⚠ BREAKING CHANGES
 
-* input validation (#343)
-* no single-property object returned (#341)
-* no generic BeeResponse returned from Bee class (#342)
+- Methods `Bee.pin()`, `Bee.unpin()`, `Bee.pssSend()` now return `Promise<void>` (#342)
+- Methods `Bee.setJsonFeed()`, `SocWriter.upload()`, `FeedWriter.upload()` now return directly the reference hash (string) instead of it being wrapped in object (#341)
+- The new input validation might require more thorough types specification
 
 ### Features
 
@@ -22,6 +27,8 @@
 
 * no generic BeeResponse returned from Bee class ([#342](https://www.github.com/ethersphere/bee-js/issues/342)) ([d2a65ee](https://www.github.com/ethersphere/bee-js/commit/d2a65ee31b42eed70685a62085164c39caf092c0))
 * no single-property object returned ([#341](https://www.github.com/ethersphere/bee-js/issues/341)) ([572253c](https://www.github.com/ethersphere/bee-js/commit/572253c173b4acc8c2e515677f66a68c8e5076b0))
+
+---
 
 ## [0.10.0](https://www.github.com/ethersphere/bee-js/compare/v0.9.0...v0.10.0) (2021-06-01)
 
