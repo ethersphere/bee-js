@@ -159,7 +159,7 @@ export class Bee {
 
     if (options) assertFileUploadOptions(options)
 
-    if (name !== 'string') {
+    if (name && typeof name !== 'string') {
       throw new TypeError('name has to be string or undefined!')
     }
 
