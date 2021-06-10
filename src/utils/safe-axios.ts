@@ -71,7 +71,7 @@ export async function safeAxios<T>(config: AxiosRequestConfig): Promise<AxiosRes
     const response = await axios({
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
-      transformRequest: transformRequest,
+      transformRequest,
       ...config,
     })
 
