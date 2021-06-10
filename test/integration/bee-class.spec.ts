@@ -457,7 +457,7 @@ describe('Bee class', () => {
     it(
       'should create a new postage batch with zero amount',
       async () => {
-        const batchId = await bee.createPostageBatch(BigInt('0'), 17)
+        const batchId = await bee.createPostageBatch('0', 17)
         const allBatches = await bee.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
@@ -466,7 +466,7 @@ describe('Bee class', () => {
     )
 
     it('should error with negative amount', async () => {
-      await expect(bee.createPostageBatch(BigInt('-1'), 17)).rejects.toThrowError(BeeArgumentError)
+      await expect(bee.createPostageBatch('-1', 17)).rejects.toThrowError(BeeArgumentError)
     })
   })
 })

@@ -1,4 +1,4 @@
-import { BatchId, PostageBatch, PostageBatchOptions } from '../types'
+import { BatchId, NumberString, PostageBatch, PostageBatchOptions } from '../types'
 import { safeAxios } from '../utils/safe-axios'
 
 const STAMPS_ENDPOINT = '/stamps'
@@ -33,7 +33,7 @@ export async function getPostageBatch(url: string, postageBatchId: BatchId): Pro
 
 export async function createPostageBatch(
   url: string,
-  amount: bigint,
+  amount: NumberString,
   depth: number,
   options?: PostageBatchOptions,
 ): Promise<BatchId> {

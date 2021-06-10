@@ -13,7 +13,6 @@ export async function getAllBalances(url: string): Promise<BalanceResponse> {
   const response = await safeAxios<BalanceResponse>({
     url: url + balancesEndpoint,
     responseType: 'json',
-    forceBigInt: true,
   })
 
   return response.data
@@ -29,7 +28,6 @@ export async function getPeerBalance(url: string, address: string): Promise<Peer
   const response = await safeAxios<PeerBalance>({
     url: url + `${balancesEndpoint}/${address}`,
     responseType: 'json',
-    forceBigInt: true,
   })
 
   return response.data
@@ -44,7 +42,6 @@ export async function getPastDueConsumptionBalances(url: string): Promise<Balanc
   const response = await safeAxios<BalanceResponse>({
     url: url + consumedEndpoint,
     responseType: 'json',
-    forceBigInt: true,
   })
 
   return response.data
@@ -60,7 +57,6 @@ export async function getPastDueConsumptionPeerBalance(url: string, address: str
   const response = await safeAxios<PeerBalance>({
     url: url + `${consumedEndpoint}/${address}`,
     responseType: 'json',
-    forceBigInt: true,
   })
 
   return response.data

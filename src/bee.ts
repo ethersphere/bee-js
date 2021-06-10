@@ -36,7 +36,7 @@ import {
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
-import { PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+import { NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
 
 import type {
   Tag,
@@ -660,7 +660,7 @@ export class Bee {
    * @throws BeeArgumentError when negative amount or depth is specified
    * @throws TypeError if non-integer value is passed to amount or depth
    */
-  async createPostageBatch(amount: bigint, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
+  async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
 

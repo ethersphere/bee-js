@@ -5,6 +5,7 @@ import {
   getLastCheques,
   withdrawTokens,
 } from '../../../../src/modules/debug/chequebook'
+import { NumberString } from '../../../../src/types'
 import { isPrefixedHexString } from '../../../../src/utils/hex'
 import { beeDebugUrl, commonMatchers, sleep } from '../../../utils'
 
@@ -21,13 +22,13 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     test('balance', async () => {
       const response = await getChequebookBalance(beeDebugUrl())
 
-      expect(response.availableBalance).toBeType('bigint')
-      expect(response.totalBalance).toBeType('bigint')
+      expect(response.availableBalance).toBeNumberString()
+      expect(response.totalBalance).toBeNumberString()
     })
 
     const TRANSACTION_TIMEOUT = 20 * 1000
 
-    const withDrawDepositTest = (amount: number | bigint) => async () => {
+    const withDrawDepositTest = (amount: number | NumberString) => async () => {
       const withdrawResponse = await withdrawTokens(beeDebugUrl(), amount)
       expect(withdrawResponse).toBeType('string')
 
@@ -44,7 +45,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
       await sleep(TRANSACTION_TIMEOUT)
     }
 
-    test('withdraw and deposit BigInt', async () => await withDrawDepositTest(BigInt(5)), 3 * TRANSACTION_TIMEOUT)
+    test('withdraw and deposit string', async () => await withDrawDepositTest('5'), 3 * TRANSACTION_TIMEOUT)
     test('withdraw and deposit integer', async () => await withDrawDepositTest(5), 3 * TRANSACTION_TIMEOUT)
 
     test('get last cheques for all peers', async () => {

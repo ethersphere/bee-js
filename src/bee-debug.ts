@@ -23,6 +23,7 @@ import type {
   NodeAddresses,
   ReserveState,
   ChainState,
+  NumberString,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertAddress, assertNonNegativeInteger } from './utils/type'
@@ -195,7 +196,7 @@ export class BeeDebug {
    * @param gasPrice Gas Price in WEI for the transaction call
    * @return string  Hash of the transaction
    */
-  async depositTokens(amount: number | bigint, gasPrice?: bigint): Promise<string> {
+  async depositTokens(amount: number | NumberString, gasPrice?: NumberString): Promise<string> {
     assertNonNegativeInteger(amount)
 
     if (gasPrice) {
@@ -212,7 +213,7 @@ export class BeeDebug {
    * @param gasPrice Gas Price in WEI for the transaction call
    * @return string  Hash of the transaction
    */
-  async withdrawTokens(amount: number | bigint, gasPrice?: bigint): Promise<string> {
+  async withdrawTokens(amount: number | NumberString, gasPrice?: NumberString): Promise<string> {
     assertNonNegativeInteger(amount)
 
     if (gasPrice) {

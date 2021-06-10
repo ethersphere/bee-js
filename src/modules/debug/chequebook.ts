@@ -6,6 +6,7 @@ import type {
   TransactionResponse,
   LastChequesForPeerResponse,
   LastChequesResponse,
+  NumberString,
 } from '../../types'
 import { CashoutOptions } from '../../types'
 
@@ -34,7 +35,6 @@ export async function getChequebookBalance(url: string): Promise<ChequebookBalan
   const response = await safeAxios<ChequebookBalanceResponse>({
     url: url + chequebookEndpoint + '/balance',
     responseType: 'json',
-    forceBigInt: true,
   })
 
   return response.data
@@ -50,7 +50,6 @@ export async function getLastCashoutAction(url: string, peer: string): Promise<L
   const response = await safeAxios<LastCashoutActionResponse>({
     url: url + chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
-    forceBigInt: true,
   })
 
   return response.data
@@ -94,7 +93,6 @@ export async function getLastChequesForPeer(url: string, peer: string): Promise<
   const response = await safeAxios<LastChequesForPeerResponse>({
     url: url + chequebookEndpoint + `/cheque/${peer}`,
     responseType: 'json',
-    forceBigInt: true,
   })
 
   return response.data
@@ -122,7 +120,11 @@ export async function getLastCheques(url: string): Promise<LastChequesResponse> 
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
  */
-export async function depositTokens(url: string, amount: number | bigint, gasPrice?: bigint): Promise<string> {
+export async function depositTokens(
+  url: string,
+  amount: number | NumberString,
+  gasPrice?: NumberString,
+): Promise<string> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {
@@ -148,7 +150,11 @@ export async function depositTokens(url: string, amount: number | bigint, gasPri
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
  */
-export async function withdrawTokens(url: string, amount: number | bigint, gasPrice?: bigint): Promise<string> {
+export async function withdrawTokens(
+  url: string,
+  amount: number | NumberString,
+  gasPrice?: NumberString,
+): Promise<string> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {

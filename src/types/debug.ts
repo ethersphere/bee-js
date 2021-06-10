@@ -1,15 +1,15 @@
-import { PublicKey } from './index'
+import { PublicKey, NumberString } from './index'
 import { HexEthAddress } from '../utils/eth'
 
 export interface Settlements {
   peer: string
-  received: bigint
-  sent: bigint
+  received: NumberString
+  sent: NumberString
 }
 
 export interface AllSettlements {
-  totalReceived: bigint
-  totalSent: bigint
+  totalReceived: NumberString
+  totalSent: NumberString
   settlements: Settlements[]
 }
 
@@ -30,31 +30,31 @@ export interface ChequebookAddressResponse {
 }
 
 export interface ChequebookBalanceResponse {
-  totalBalance: bigint
-  availableBalance: bigint
+  totalBalance: NumberString
+  availableBalance: NumberString
 }
 
 export interface CashoutOptions {
   /**
    * Gas price for the cashout transaction in WEI
    */
-  gasPrice?: bigint
+  gasPrice?: NumberString
 
   /**
    * Gas limit for the cashout transaction in WEI
    */
-  gasLimit?: bigint
+  gasLimit?: NumberString
 }
 
 export interface CashoutResult {
   recipient: string
-  lastPayout: bigint
+  lastPayout: NumberString
   bounced: boolean
 }
 
 export interface LastCashoutActionResponse {
   peer: string
-  uncashedAmount: bigint
+  uncashedAmount: NumberString
   transactionHash: string | null
   lastCashedCheque: Cheque | null
   result: CashoutResult | null
@@ -67,7 +67,7 @@ export interface TransactionResponse {
 export interface Cheque {
   beneficiary: string
   chequebook: string
-  payout: bigint
+  payout: NumberString
 }
 
 export interface LastChequesForPeerResponse {
@@ -82,7 +82,7 @@ export interface LastChequesResponse {
 
 export interface PeerBalance {
   peer: string
-  balance: bigint
+  balance: NumberString
 }
 
 export interface BalanceResponse {
@@ -145,7 +145,7 @@ export interface ReserveState {
 }
 
 export interface ChainState {
-  block: bigint
-  totalAmount: bigint
-  currentPrice: bigint
+  block: NumberString
+  totalAmount: NumberString
+  currentPrice: NumberString
 }

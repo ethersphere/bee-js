@@ -1,4 +1,5 @@
 /* eslint @typescript-eslint/no-empty-function: 0 */
+import { NumberString } from '../../../src/types'
 import { isInteger } from '../../../src/utils/type'
 
 describe('type', () => {
@@ -14,17 +15,17 @@ describe('type', () => {
       NaN,
       [1],
     ]
-    const correctValues = [5, 0, BigInt(10), 5.0000000000000001]
+    const correctValues = [5, 0, '10', 5.0000000000000001, '-1']
 
-    wrongValues.forEach(v =>
+    wrongValues.forEach((v: unknown | NumberString) =>
       test(`should return false for value  ${v}`, () => {
-        expect(isInteger((v as unknown) as number | bigint)).toEqual(false)
+        expect(isInteger(v)).toEqual(false)
       }),
     )
 
-    correctValues.forEach(v =>
+    correctValues.forEach((v: unknown | NumberString) =>
       test(`should return true for value  ${v}`, () => {
-        expect(isInteger((v as unknown) as number | bigint)).toEqual(true)
+        expect(isInteger(v)).toEqual(true)
       }),
     )
   })

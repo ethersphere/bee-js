@@ -14,6 +14,7 @@ import {
   REFERENCE_HEX_LENGTH,
   Tag,
   UploadOptions,
+  NumberString,
 } from '../types'
 import { assertHexString } from './hex'
 import { BeeArgumentError } from './error'
@@ -34,9 +35,9 @@ export function isUint8Array(obj: unknown): obj is Uint8Array {
   return obj instanceof Uint8Array
 }
 
-export function isInteger(value: unknown): value is number | bigint {
+export function isInteger(value: unknown): value is number | NumberString {
   return (
-    typeof value === 'bigint' ||
+    (typeof value === 'string' && /^-?(0|[1-9][0-9]*)$/g.test(value)) ||
     (typeof value === 'number' &&
       value > Number.MIN_SAFE_INTEGER &&
       value < Number.MAX_SAFE_INTEGER &&
@@ -44,14 +45,14 @@ export function isInteger(value: unknown): value is number | bigint {
   )
 }
 
-export function assertInteger(value: unknown): asserts value is number | bigint {
+export function assertInteger(value: unknown): asserts value is number | NumberString {
   if (!isInteger(value)) throw new TypeError('value is not integer')
 }
 
-export function assertNonNegativeInteger(value: unknown, name = 'Value'): asserts value is number | bigint {
+export function assertNonNegativeInteger(value: unknown, name = 'Value'): asserts value is number | NumberString {
   assertInteger(value)
 
-  if (value < 0) throw new BeeArgumentError(`${name} has to be bigger or equal to zero`, value)
+  if (Number(value) < 0) throw new BeeArgumentError(`${name} has to be bigger or equal to zero`, value)
 }
 
 export function assertReference(value: unknown): asserts value is Reference {

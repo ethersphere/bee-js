@@ -252,8 +252,13 @@ export interface PostageBatch {
  */
 export interface PostageBatchOptions {
   label?: string
-  gasPrice?: bigint
+  gasPrice?: NumberString
 }
+
+/**
+ * With this type a number should be represented in a string
+ */
+export type NumberString = FlavoredType<string, 'NumberString'>
 
 /*********************************************************
  * Ethereum compatible signing interfaces and definitions
