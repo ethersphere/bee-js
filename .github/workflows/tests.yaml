@@ -9,7 +9,7 @@ on:
       - '**'
 
 env:
-  BEE_VERSION: '0.6.2-984dca0a'
+  BEE_VERSION: '0.6.3-388256b-dirty'
   BLOCKCHAIN_VERSION: '1.1.1'
   BEE_ENV_PREFIX: 'swarm-test'
   BEE_IMAGE_PREFIX: 'docker.pkg.github.com/ethersphere/bee-factory'
