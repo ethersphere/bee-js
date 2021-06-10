@@ -536,7 +536,7 @@ describe('Bee class', () => {
       createPostageBatchMock('10', '17').reply(201, BATCH_RESPONSE)
 
       const bee = new Bee(MOCK_SERVER_URL)
-      await expect(bee.createPostageBatch(BigInt('10'), 17)).resolves.toEqual(BATCH_ID)
+      await expect(bee.createPostageBatch('10', 17)).resolves.toEqual(BATCH_ID)
       assertAllIsDone()
     })
 
@@ -544,7 +544,7 @@ describe('Bee class', () => {
       createPostageBatchMock('10', '17', '100').reply(201, BATCH_RESPONSE)
 
       const bee = new Bee(MOCK_SERVER_URL)
-      await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: BigInt('100') })).resolves.toEqual(BATCH_ID)
+      await expect(bee.createPostageBatch('10', 17, { gasPrice: '100' })).resolves.toEqual(BATCH_ID)
       assertAllIsDone()
     })
 
@@ -552,26 +552,24 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Input testing
-      await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: 'asd' })).rejects.toThrow(TypeError)
+      await expect(bee.createPostageBatch('10', 17, { gasPrice: 'asd' })).rejects.toThrow(TypeError)
 
       // @ts-ignore: Input testing
-      await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: true })).rejects.toThrow(TypeError)
-      await expect(bee.createPostageBatch(BigInt('10'), 17, { gasPrice: BigInt('-1') })).rejects.toThrow(
-        BeeArgumentError,
-      )
+      await expect(bee.createPostageBatch('10', 17, { gasPrice: true })).rejects.toThrow(TypeError)
+      await expect(bee.createPostageBatch('10', 17, { gasPrice: '-1' })).rejects.toThrow(BeeArgumentError)
     })
 
     it('should throw error if too small depth', async () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
-      await expect(bee.createPostageBatch(BigInt('10'), -1)).rejects.toThrow(BeeArgumentError)
-      await expect(bee.createPostageBatch(BigInt('10'), 15)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.createPostageBatch('10', -1)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.createPostageBatch('10', 15)).rejects.toThrow(BeeArgumentError)
     })
 
     it('should throw error if too big depth', async () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
-      await expect(bee.createPostageBatch(BigInt('10'), 256)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.createPostageBatch('10', 256)).rejects.toThrow(BeeArgumentError)
     })
   })
 

@@ -105,9 +105,7 @@ describe('BeeDebug class', () => {
       cashoutLastChequeMock(testAddress, '100000000000').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: BigInt('100000000000') })).resolves.toEqual(
-        TRANSACTION_HASH,
-      )
+      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: '100000000000' })).resolves.toEqual(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
@@ -115,9 +113,7 @@ describe('BeeDebug class', () => {
       cashoutLastChequeMock(testAddress, undefined, '100000000000').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: BigInt('100000000000') })).resolves.toEqual(
-        TRANSACTION_HASH,
-      )
+      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: '100000000000' })).resolves.toEqual(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
@@ -135,7 +131,7 @@ describe('BeeDebug class', () => {
 
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(testAddress, { gasPrice: true })).rejects.toThrow(TypeError)
-      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: BigInt('-1') })).rejects.toThrow(BeeArgumentError)
+      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: '-1' })).rejects.toThrow(BeeArgumentError)
     })
 
     it('should throw error if passed wrong gas limit input', async () => {
@@ -146,7 +142,7 @@ describe('BeeDebug class', () => {
 
       // @ts-ignore: Input testing
       await expect(bee.cashoutLastCheque(testAddress, { gasLimit: true })).rejects.toThrow(TypeError)
-      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: BigInt('-1') })).rejects.toThrow(BeeArgumentError)
+      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: '-1' })).rejects.toThrow(BeeArgumentError)
     })
   })
 
@@ -160,7 +156,7 @@ describe('BeeDebug class', () => {
       withdrawTokensMock('10').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.withdrawTokens(BigInt('10'))).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.withdrawTokens('10')).resolves.toEqual(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
@@ -168,7 +164,7 @@ describe('BeeDebug class', () => {
       withdrawTokensMock('10', '100000000000').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.withdrawTokens(BigInt('10'), BigInt('100000000000'))).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.withdrawTokens('10', '100000000000')).resolves.toEqual(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
@@ -185,17 +181,17 @@ describe('BeeDebug class', () => {
       // @ts-ignore: Input testing
       await expect(bee.withdrawTokens()).rejects.toThrow(TypeError)
 
-      await expect(bee.withdrawTokens(BigInt('-1'))).rejects.toThrow(BeeArgumentError)
+      await expect(bee.withdrawTokens('-1')).rejects.toThrow(BeeArgumentError)
     })
 
     it('should throw error if passed wrong gas price input', async () => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       // @ts-ignore: Input testing
-      await expect(bee.withdrawTokens(BigInt('1'), true)).rejects.toThrow(TypeError)
+      await expect(bee.withdrawTokens('1', true)).rejects.toThrow(TypeError)
       // @ts-ignore: Input testing
-      await expect(bee.withdrawTokens(BigInt('1'), 'asd')).rejects.toThrow(TypeError)
-      await expect(bee.withdrawTokens(BigInt('1'), BigInt('-1'))).rejects.toThrow(BeeArgumentError)
+      await expect(bee.withdrawTokens('1', 'asd')).rejects.toThrow(TypeError)
+      await expect(bee.withdrawTokens('1', '-1')).rejects.toThrow(BeeArgumentError)
     })
   })
 
@@ -209,7 +205,7 @@ describe('BeeDebug class', () => {
       depositTokensMock('10').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.depositTokens(BigInt('10'))).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.depositTokens('10')).resolves.toEqual(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
@@ -217,7 +213,7 @@ describe('BeeDebug class', () => {
       depositTokensMock('10', '100000000000').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.depositTokens(BigInt('10'), BigInt('100000000000'))).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.depositTokens('10', '100000000000')).resolves.toEqual(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
@@ -234,17 +230,17 @@ describe('BeeDebug class', () => {
       // @ts-ignore: Input testing
       await expect(bee.depositTokens()).rejects.toThrow(TypeError)
 
-      await expect(bee.depositTokens(BigInt('-1'))).rejects.toThrow(BeeArgumentError)
+      await expect(bee.depositTokens('-1')).rejects.toThrow(BeeArgumentError)
     })
 
     it('should throw error if passed wrong gas price input', async () => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       // @ts-ignore: Input testing
-      await expect(bee.depositTokens(BigInt('1'), true)).rejects.toThrow(TypeError)
+      await expect(bee.depositTokens('1', true)).rejects.toThrow(TypeError)
       // @ts-ignore: Input testing
-      await expect(bee.depositTokens(BigInt('1'), 'asd')).rejects.toThrow(TypeError)
-      await expect(bee.depositTokens(BigInt('1'), BigInt('-1'))).rejects.toThrow(BeeArgumentError)
+      await expect(bee.depositTokens('1', 'asd')).rejects.toThrow(TypeError)
+      await expect(bee.depositTokens('1', '-1')).rejects.toThrow(BeeArgumentError)
     })
   })
 })

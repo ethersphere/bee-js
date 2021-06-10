@@ -7,8 +7,8 @@ describe('settlements', () => {
   test('all settlements', async () => {
     const response = await settlements.getAllSettlements(beeDebugUrl())
 
-    expect(response.totalReceived).toBeType('bigint')
-    expect(response.totalSent).toBeType('bigint')
+    expect(response.totalReceived).toBeNumberString()
+    expect(response.totalSent).toBeNumberString()
     expect(Array.isArray(response.settlements)).toBeTruthy()
 
     if (response.settlements.length > 0) {
@@ -16,8 +16,8 @@ describe('settlements', () => {
         expect.arrayContaining([
           expect.objectContaining({
             peer: expect.any(String),
-            received: expect.any(BigInt),
-            sent: expect.any(BigInt),
+            received: expect.any(String),
+            sent: expect.any(String),
           }),
         ]),
       )
@@ -27,8 +27,8 @@ describe('settlements', () => {
       const peerSettlementResponse = await settlements.getSettlements(beeDebugUrl(), peerSettlement.peer)
 
       expect(peerSettlementResponse.peer).toEqual(peerSettlement.peer)
-      expect(peerSettlementResponse.received).toBeType('bigint')
-      expect(peerSettlementResponse.sent).toBeType('bigint')
+      expect(peerSettlementResponse.received).toBeNumberString()
+      expect(peerSettlementResponse.sent).toBeNumberString()
     }
   })
 })

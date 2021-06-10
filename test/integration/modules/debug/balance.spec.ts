@@ -1,4 +1,4 @@
-import { beeDebugUrl, beePeerDebugUrl } from '../../../utils'
+import { beeDebugUrl, beePeerDebugUrl, commonMatchers } from '../../../utils'
 import * as balance from '../../../../src/modules/debug/balance'
 import * as connectivity from '../../../../src/modules/debug/connectivity'
 
@@ -8,6 +8,8 @@ async function getPeerOverlay() {
 
   return nodeAddresses.overlay
 }
+
+commonMatchers()
 
 describe('balance', () => {
   describe('balances', () => {
@@ -19,7 +21,7 @@ describe('balance', () => {
         expect.arrayContaining([
           expect.objectContaining({
             peer: expect.any(String),
-            balance: expect.any(BigInt),
+            balance: expect.any(String),
           }),
         ]),
       )
@@ -34,7 +36,7 @@ describe('balance', () => {
       const peerBalance = await balance.getPeerBalance(beeDebugUrl(), peerOverlay)
 
       expect(peerBalance.peer).toEqual(peerOverlay)
-      expect(typeof peerBalance.balance).toBe('bigint')
+      expect(peerBalance.balance).toBeNumberString()
     })
   })
 
@@ -47,7 +49,7 @@ describe('balance', () => {
         expect.arrayContaining([
           expect.objectContaining({
             peer: expect.any(String),
-            balance: expect.any(BigInt),
+            balance: expect.any(String),
           }),
         ]),
       )
@@ -62,7 +64,7 @@ describe('balance', () => {
       const peerBalance = await balance.getPastDueConsumptionPeerBalance(beeDebugUrl(), peerOverlay)
 
       expect(peerBalance.peer).toEqual(peerOverlay)
-      expect(typeof peerBalance.balance).toBe('bigint')
+      expect(peerBalance.balance).toBeNumberString()
     })
   })
 })
