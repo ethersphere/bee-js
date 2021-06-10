@@ -66,7 +66,7 @@ function transformRequest(data: unknown, headers: Record<string, unknown>): stri
   return data
 }
 
-export async function safeAxios<T>(config: AxiosRequestConfig & { forceBigInt?: boolean }): Promise<AxiosResponse<T>> {
+export async function safeAxios<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
   try {
     const response = await axios({
       maxContentLength: Infinity,

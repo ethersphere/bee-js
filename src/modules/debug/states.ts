@@ -29,7 +29,6 @@ export async function getChainState(url: string): Promise<ChainState> {
     method: 'get',
     url: `${url}${CHAIN_STATE_ENDPOINT}`,
     responseType: 'json',
-    forceBigInt: true,
   })
 
   return response.data
