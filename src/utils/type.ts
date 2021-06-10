@@ -37,7 +37,7 @@ export function isUint8Array(obj: unknown): obj is Uint8Array {
 
 export function isInteger(value: unknown): value is number | NumberString {
   return (
-    (typeof value === 'string' && /-?[0-9]+/g.test(value)) ||
+    (typeof value === 'string' && /^-?(0|[1-9][0-9]*)$/g.test(value)) ||
     (typeof value === 'number' &&
       value > Number.MIN_SAFE_INTEGER &&
       value < Number.MAX_SAFE_INTEGER &&

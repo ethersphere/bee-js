@@ -80,7 +80,7 @@ export function commonMatchers(): void {
     toBeNumberString(received) {
       const message = () => `expected ${received} to be a number in a string type`
 
-      return /-?[0-9]+/g.test(received)
+      return /^-?(0|[1-9][0-9]*)$/g.test(received)
         ? {
             message,
             pass: true,
