@@ -3,7 +3,6 @@
   "include": [
     "src",
     "test",
-    "types",
     "jest.config.ts"
   ],
   "compilerOptions": {

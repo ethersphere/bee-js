@@ -6,6 +6,19 @@ import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace jest {
+    interface Matchers<R> {
+      toBeHashReference(): R
+      toBeBeeResponse(expectedStatusCode: number): R
+      toBeOneOf(el: unknown[]): R
+      toBeType(type: string): R
+      toBeNumberString(): R
+    }
+  }
+}
+
 /**
  * Load common own Jest Matchers which can be used to check particular return values.
  */
