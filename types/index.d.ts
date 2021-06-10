@@ -4,7 +4,10 @@ declare global {
   namespace jest {
     interface Matchers<R> {
       toBeHashReference(): R
-      toBeBeeResponse(statusCode: number): R
+      toBeBeeResponse(expectedStatusCode: number): R
+      toBeOneOf(el: unknown[]): R
+      toBeType(type: string): R
+      toBeNumberString(): R
     }
   }
 }

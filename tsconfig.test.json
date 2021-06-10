@@ -2,7 +2,9 @@
   "extends": "./tsconfig.json",
   "include": [
     "src",
-    "test"
+    "test",
+    "types",
+    "jest.config.ts"
   ],
   "compilerOptions": {
     "noEmit": true
