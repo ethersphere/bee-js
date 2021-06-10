@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { BeeError, BeeRequestError, BeeResponseError } from './error'
-import JsonBig from 'json-bigint'
 
 import utils from 'axios/lib/utils'
 import normalizeHeaderName from 'axios/lib/helpers/normalizeHeaderName'
@@ -39,7 +38,7 @@ function setContentTypeIfUnset(headers: Record<string, unknown>, value: string) 
  * @param data
  * @param headers
  */
-function jsonBigTransformRequest(data: unknown, headers: Record<string, unknown>): string | unknown {
+function transformRequest(data: unknown, headers: Record<string, unknown>): string | unknown {
   normalizeHeaderName(headers, 'Accept')
   normalizeHeaderName(headers, 'Content-Type')
 
@@ -64,30 +63,7 @@ function jsonBigTransformRequest(data: unknown, headers: Record<string, unknown>
     return data.toString()
   }
 
-  if (utils.isObject(data)) {
-    setContentTypeIfUnset(headers, 'application/json;charset=utf-8')
-    const JsonBigNative = JsonBig({ useNativeBigInt: true })
-
-    return JsonBigNative.stringify(data)
-  }
-
   return data
-}
-
-function jsonBigTransformResponse(forceBigInt = false) {
-  return (data: unknown): unknown => {
-    if (typeof data === 'string') {
-      const JsonBigNative = JsonBig({ useNativeBigInt: true, alwaysParseAsBig: forceBigInt })
-
-      try {
-        data = JsonBigNative.parse(data)
-      } catch (e) {
-        /* Ignore */
-      }
-    }
-
-    return data
-  }
 }
 
 export async function safeAxios<T>(config: AxiosRequestConfig & { forceBigInt?: boolean }): Promise<AxiosResponse<T>> {
@@ -95,8 +71,7 @@ export async function safeAxios<T>(config: AxiosRequestConfig & { forceBigInt?: 
     const response = await axios({
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
-      transformRequest: jsonBigTransformRequest,
-      transformResponse: jsonBigTransformResponse(config.forceBigInt),
+      transformRequest: transformRequest,
       ...config,
     })
 
