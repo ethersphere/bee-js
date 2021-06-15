@@ -76,6 +76,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       fallback: {
         path: false,
         fs: false,
+        stream: false,
       },
     },
     optimization: {
