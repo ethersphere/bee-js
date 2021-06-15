@@ -1,8 +1,11 @@
 import { Bee, BeeArgumentError, BeeDebug, Collection } from '../../src'
-
+import { makeSigner } from '../../src/chunk/signer'
+import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import { ChunkReference } from '../../src/feed'
+import * as bzz from '../../src/modules/bzz'
 import { REFERENCE_HEX_LENGTH } from '../../src/types'
 import { makeBytes } from '../../src/utils/bytes'
+import { makeEthAddress } from '../../src/utils/eth'
 import { bytesToHex, HexString } from '../../src/utils/hex'
 import {
   beeDebugUrl,
@@ -21,10 +24,6 @@ import {
   testJsonPayload,
   tryDeleteChunkFromLocalStorage,
 } from '../utils'
-import { makeSigner } from '../../src/chunk/signer'
-import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
-import { makeEthAddress } from '../../src/utils/eth'
-import * as bzz from '../../src/modules/bzz'
 
 commonMatchers()
 
@@ -108,6 +107,12 @@ describe('Bee class', () => {
       const hash = await bee.uploadFilesFromDirectory(getPostageBatch(), './test/data')
 
       expect(hash.length).toEqual(REFERENCE_HEX_LENGTH)
+    })
+
+    it('should calculate folder size', async () => {
+      const size = await bee.getFolderSize('./test/data')
+
+      expect(size).toBeGreaterThan(0)
     })
   })
 

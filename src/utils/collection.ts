@@ -1,7 +1,7 @@
+import fs from 'fs'
+import path, { join } from 'path'
 import { Collection } from '../types'
 import { BeeArgumentError } from './error'
-import path from 'path'
-import fs from 'fs'
 import { fileArrayBuffer } from './file'
 import { isUint8Array } from './type'
 
@@ -98,4 +98,42 @@ export async function makeCollectionFromFileList(fileList: FileList | File[]): P
   }
 
   return collection
+}
+
+export async function getCollectionSize(fileList: FileList | File[]): Promise<number> {
+  let sum = 0
+
+  for (let i = 0; i < fileList.length; i++) {
+    const file = fileList[i] as WebkitFile
+
+    if (file) {
+      sum += file.size
+    }
+  }
+
+  return sum
+}
+
+export async function getFolderSize(dir: string): Promise<number> {
+  if (typeof dir !== 'string') {
+    throw new TypeError('dir has to be string!')
+  }
+
+  if (dir === '') {
+    throw new TypeError('dir must not be empty string!')
+  }
+
+  const entries = await fs.promises.opendir(dir)
+  let size = 0
+
+  for await (const entry of entries) {
+    if (entry.isFile()) {
+      const stats = await fs.promises.stat(join(dir, entry.name))
+      size += stats.size
+    } else if (entry.isDirectory()) {
+      size += await getFolderSize(join(dir, entry.name))
+    }
+  }
+
+  return size
 }
