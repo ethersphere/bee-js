@@ -247,26 +247,6 @@ export class Bee {
   }
 
   /**
-   * Calculate cumulative size of files
-   *
-   * @param fileList list of files to check
-   * @returns size in bytes
-   */
-  async getCollectionSize(fileList: FileList | File[]): Promise<number> {
-    return collection.getCollectionSize(fileList)
-  }
-
-  /**
-   * Calculate folder size recursively
-   *
-   * @param dir the path to the folder to check
-   * @returns size in bytes
-   */
-  async getFolderSize(dir: string): Promise<number> {
-    return collection.getFolderSize(dir)
-  }
-
-  /**
    * Create new tag
    */
   async createTag(): Promise<Tag> {

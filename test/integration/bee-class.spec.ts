@@ -108,12 +108,6 @@ describe('Bee class', () => {
 
       expect(hash.length).toEqual(REFERENCE_HEX_LENGTH)
     })
-
-    it('should calculate folder size', async () => {
-      const size = await bee.getFolderSize('./test/data')
-
-      expect(size).toBeGreaterThan(0)
-    })
   })
 
   describe('tags', () => {

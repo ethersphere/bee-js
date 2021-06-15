@@ -100,7 +100,13 @@ export async function makeCollectionFromFileList(fileList: FileList | File[]): P
   return collection
 }
 
-export async function getCollectionSize(fileList: FileList | File[]): Promise<number> {
+/**
+ * Calculate cumulative size of files
+ *
+ * @param fileList list of files to check
+ * @returns size in bytes
+ */
+export function getCollectionSize(fileList: FileList | File[]): number {
   let sum = 0
 
   for (let i = 0; i < fileList.length; i++) {
@@ -114,6 +120,12 @@ export async function getCollectionSize(fileList: FileList | File[]): Promise<nu
   return sum
 }
 
+/**
+ * Calculate folder size recursively
+ *
+ * @param dir the path to the folder to check
+ * @returns size in bytes
+ */
 export async function getFolderSize(dir: string): Promise<number> {
   if (typeof dir !== 'string') {
     throw new TypeError('dir has to be string!')

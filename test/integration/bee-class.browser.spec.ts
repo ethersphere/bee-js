@@ -198,16 +198,5 @@ describe('Bee class - in browser', () => {
       },
       PSS_TIMEOUT,
     )
-
-    it('should calculate collection size', async () => {
-      const size = await page.evaluate(async BEE_URL => {
-        const bee = new window.BeeJs.Bee(BEE_URL)
-        const files: File[] = [new File(['hello'], 'hello')]
-
-        return await bee.getCollectionSize(files)
-      }, BEE_URL)
-
-      expect(size).toBeGreaterThan(1)
-    })
   })
 })
