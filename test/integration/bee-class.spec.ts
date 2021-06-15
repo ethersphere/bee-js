@@ -22,7 +22,7 @@ import {
   testIdentity,
   testJsonHash,
   testJsonPayload,
-  tryDeleteChunkFromLocalStorage
+  tryDeleteChunkFromLocalStorage,
 } from '../utils'
 
 commonMatchers()
