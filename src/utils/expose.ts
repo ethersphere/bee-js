@@ -1,3 +1,4 @@
+export * as Collections from './collection'
 export * as Bytes from './bytes'
 export * as Data from './data'
 export * as File from './file'
