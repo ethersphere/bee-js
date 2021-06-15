@@ -22,7 +22,7 @@ import {
   testIdentity,
   testJsonHash,
   testJsonPayload,
-  tryDeleteChunkFromLocalStorage,
+  tryDeleteChunkFromLocalStorage
 } from '../utils'
 
 commonMatchers()
@@ -477,7 +477,7 @@ describe('Bee class', () => {
             usable: expect.any(Boolean),
             label: expect.any(String),
             depth: expect.any(Number),
-            amount: expect.any(Number),
+            amount: expect.any(String),
             bucketDepth: expect.any(Number),
             blockNumber: expect.any(Number),
             immutableFlag: expect.any(Boolean),
