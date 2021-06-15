@@ -246,7 +246,7 @@ export interface PostageBatch {
   batchID: BatchId
   utilization: number
   usable: boolean
-  label?: string
+  label: '' | string
   depth: number
   amount: string
   bucketDepth: number

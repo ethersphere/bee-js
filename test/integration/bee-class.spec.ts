@@ -1,8 +1,11 @@
 import { Bee, BeeArgumentError, BeeDebug, Collection } from '../../src'
-
+import { makeSigner } from '../../src/chunk/signer'
+import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import { ChunkReference } from '../../src/feed'
+import * as bzz from '../../src/modules/bzz'
 import { REFERENCE_HEX_LENGTH } from '../../src/types'
 import { makeBytes } from '../../src/utils/bytes'
+import { makeEthAddress } from '../../src/utils/eth'
 import { bytesToHex, HexString } from '../../src/utils/hex'
 import {
   beeDebugUrl,
@@ -19,12 +22,8 @@ import {
   testIdentity,
   testJsonHash,
   testJsonPayload,
-  tryDeleteChunkFromLocalStorage,
+  tryDeleteChunkFromLocalStorage
 } from '../utils'
-import { makeSigner } from '../../src/chunk/signer'
-import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
-import { makeEthAddress } from '../../src/utils/eth'
-import * as bzz from '../../src/modules/bzz'
 
 commonMatchers()
 
@@ -464,6 +463,28 @@ describe('Bee class', () => {
       },
       POSTAGE_BATCH_TIMEOUT,
     )
+
+    it('should have all properties', async () => {
+      const allBatches = await bee.getAllPostageBatch()
+
+      expect(allBatches.length).toBeGreaterThan(0)
+
+      expect(allBatches).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            batchID: expect.any(String),
+            utilization: expect.any(Number),
+            usable: expect.any(Boolean),
+            label: expect.any(String),
+            depth: expect.any(Number),
+            amount: expect.any(Number),
+            bucketDepth: expect.any(Number),
+            blockNumber: expect.any(Number),
+            immutableFlag: expect.any(Boolean),
+          }),
+        ]),
+      )
+    })
 
     it('should error with negative amount', async () => {
       await expect(bee.createPostageBatch('-1', 17)).rejects.toThrowError(BeeArgumentError)
