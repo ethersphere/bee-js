@@ -10,7 +10,7 @@ on:
 
 env:
   BEE_VERSION: '1.0.0-f5a460b-dirty'
-  BLOCKCHAIN_VERSION: '1.1.1'
+  BLOCKCHAIN_VERSION: '1.2.0'
   BEE_ENV_PREFIX: 'swarm-test'
   BEE_IMAGE_PREFIX: 'docker.pkg.github.com/ethersphere/bee-factory'
   COMMIT_VERSION_TAG: 'false'
