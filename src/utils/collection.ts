@@ -1,5 +1,5 @@
 import fs from 'fs'
-import path, { join } from 'path'
+import path from 'path'
 import { Collection } from '../types'
 import { BeeArgumentError } from './error'
 import { fileArrayBuffer } from './file'
@@ -140,10 +140,10 @@ export async function getFolderSize(dir: string): Promise<number> {
 
   for await (const entry of entries) {
     if (entry.isFile()) {
-      const stats = await fs.promises.stat(join(dir, entry.name))
+      const stats = await fs.promises.stat(path.join(dir, entry.name))
       size += stats.size
     } else if (entry.isDirectory()) {
-      size += await getFolderSize(join(dir, entry.name))
+      size += await getFolderSize(path.join(dir, entry.name))
     }
   }
 
