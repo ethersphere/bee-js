@@ -1,5 +1,7 @@
 import * as bzz from '../../../src/modules/bzz'
+import * as tag from '../../../src/modules/tag'
 import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
+import { makeCollectionFromFS } from '../../../src/utils/collection'
 import {
   beeUrl,
   BIG_FILE_TIMEOUT,
@@ -8,8 +10,6 @@ import {
   invalidReference,
   randomByteArray,
 } from '../../utils'
-import { makeCollectionFromFS } from '../../../src/utils/collection'
-import * as tag from '../../../src/modules/tag'
 
 const BEE_URL = beeUrl()
 
@@ -204,8 +204,7 @@ describe('modules/bzz', () => {
       expect(file1.data).toEqual(data)
     })
 
-    // TODO: Is skipped until https://github.com/ethersphere/bee/issues/1897 is solved
-    it.skip('should reupload directory', async () => {
+    it('should reupload directory', async () => {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -286,8 +285,7 @@ describe('modules/bzz', () => {
       BIG_FILE_TIMEOUT,
     )
 
-    // TODO: Is skipped until https://github.com/ethersphere/bee/issues/1897 is solved
-    it.skip('should reupload file', async () => {
+    it('should reupload file', async () => {
       const data = 'hello world'
       const filename = 'hello.txt'
 
