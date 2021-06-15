@@ -1,7 +1,7 @@
 import { join } from 'path'
+import { beeDebugUrl, beePeerUrl, beeUrl, commonMatchers, getPostageBatch, PSS_TIMEOUT } from '../utils'
 import '../../src'
 import type { Address } from '../../src/types'
-import { beeDebugUrl, beePeerUrl, beeUrl, commonMatchers, getPostageBatch, PSS_TIMEOUT } from '../utils'
 
 commonMatchers()
 

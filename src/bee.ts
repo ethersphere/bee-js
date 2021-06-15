@@ -1,51 +1,25 @@
-import { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import { makeSigner } from './chunk/signer'
-import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
-import { makeFeedReader, makeFeedWriter } from './feed'
-import { getJsonData, setJsonData } from './feed/json'
-import { makeTopic, makeTopicFromString } from './feed/topic'
-import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
-import * as bytes from './modules/bytes'
 import * as bzz from './modules/bzz'
-import { createFeedManifest } from './modules/feed'
-import * as pinning from './modules/pinning'
-import * as pss from './modules/pss'
-import * as stamps from './modules/stamps'
-import * as status from './modules/status'
 import * as tag from './modules/tag'
-import type {
-  AddressPrefix,
-  AnyJson,
-  BatchId,
-  BeeOptions,
-  CollectionUploadOptions,
-  Data,
-  FeedReader,
-  FeedWriter,
-  FileData,
-  FileUploadOptions,
-  JsonFeedOptions,
-  Pin,
-  PostageBatch,
-  PssMessageHandler,
-  PssSubscription,
-  PublicKey,
-  Reference,
-  Signer,
-  SOCReader,
-  SOCWriter,
-  Tag,
-  Topic,
-  UploadOptions,
-} from './types'
-import { NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
-import { wrapBytesWithHelpers } from './utils/bytes'
-import * as collection from './utils/collection'
-import { prepareWebsocketData } from './utils/data'
+import * as pinning from './modules/pinning'
+import * as bytes from './modules/bytes'
+import * as pss from './modules/pss'
+import * as status from './modules/status'
+import * as stamps from './modules/stamps'
+
 import { BeeArgumentError, BeeError } from './utils/error'
-import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
+import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
+import { AxiosRequestConfig } from 'axios'
+import { makeFeedReader, makeFeedWriter } from './feed'
+import { makeSigner } from './chunk/signer'
+import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
+import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
+import { makeTopic, makeTopicFromString } from './feed/topic'
+import { createFeedManifest } from './modules/feed'
+import { assertBeeUrl, stripLastSlash } from './utils/url'
+import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
+import { wrapBytesWithHelpers } from './utils/bytes'
 import {
   assertAddressPrefix,
   assertBatchId,
@@ -60,7 +34,35 @@ import {
   assertUploadOptions,
   isTag,
 } from './utils/type'
-import { assertBeeUrl, stripLastSlash } from './utils/url'
+import { setJsonData, getJsonData } from './feed/json'
+import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
+import { NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+
+import type {
+  Tag,
+  FileData,
+  Reference,
+  UploadOptions,
+  PublicKey,
+  AddressPrefix,
+  PssMessageHandler,
+  PssSubscription,
+  CollectionUploadOptions,
+  FileUploadOptions,
+  Data,
+  Signer,
+  FeedReader,
+  FeedWriter,
+  SOCWriter,
+  SOCReader,
+  Topic,
+  BeeOptions,
+  JsonFeedOptions,
+  AnyJson,
+  Pin,
+  PostageBatch,
+  BatchId,
+} from './types'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -217,7 +219,7 @@ export class Bee {
 
     if (options) assertCollectionUploadOptions(options)
 
-    const data = await collection.makeCollectionFromFileList(fileList)
+    const data = await makeCollectionFromFileList(fileList)
 
     return bzz.uploadCollection(this.url, data, postageBatchId, options)
   }
@@ -241,7 +243,7 @@ export class Bee {
     assertBatchId(postageBatchId)
 
     if (options) assertCollectionUploadOptions(options)
-    const data = await collection.makeCollectionFromFS(dir)
+    const data = await makeCollectionFromFS(dir)
 
     return bzz.uploadCollection(this.url, data, postageBatchId, options)
   }
