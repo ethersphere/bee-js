@@ -174,7 +174,8 @@ describe('Bee class', () => {
   })
 
   describe('reupload', () => {
-    it('should reupload pinned data', async () => {
+    // TODO: Is skipped until https://github.com/ethersphere/bee/issues/1897 is solved
+    it.skip('should reupload pinned data', async () => {
       const content = randomByteArray(16, Date.now())
 
       const hash = await bee.uploadData(getPostageBatch(), content, { pin: true })

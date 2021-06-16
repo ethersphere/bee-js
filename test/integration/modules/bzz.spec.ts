@@ -204,7 +204,8 @@ describe('modules/bzz', () => {
       expect(file1.data).toEqual(data)
     })
 
-    it('should reupload directory', async () => {
+    // TODO: Is skipped until https://github.com/ethersphere/bee/issues/1897 is solved
+    it.skip('should reupload directory', async () => {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -285,7 +286,8 @@ describe('modules/bzz', () => {
       BIG_FILE_TIMEOUT,
     )
 
-    it('should reupload file', async () => {
+    // TODO: Is skipped until https://github.com/ethersphere/bee/issues/1897 is solved
+    it.skip('should reupload file', async () => {
       const data = 'hello world'
       const filename = 'hello.txt'
 
