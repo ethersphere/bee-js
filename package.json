@@ -111,6 +111,6 @@
   "engines": {
     "node": ">=12.0.0",
     "npm": ">=6.0.0",
-    "bee": "1.0.0-ece80f6-dirty"
+    "bee": "1.0.0-5d5bdaf-dirty"
   }
 }
