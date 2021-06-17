@@ -4,8 +4,8 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 import type { Config } from '@jest/types'
-import { glob } from 'glob'
 import * as Path from 'path'
+import { glob } from 'glob'
 import { createPostageBatch } from './src/modules/stamps'
 
 /**
@@ -36,11 +36,6 @@ export async function getBrowserPathMapping(): Promise<{ [aliasNodeReference: st
 
 export default async (): Promise<Config.InitialOptions> => {
   try {
-    await new Promise<void>(resolve =>
-      setTimeout(() => {
-        resolve()
-      }, 90_000),
-    )
     console.log('Creating postage stamps...')
     const beeUrl = process.env.BEE_API_URL || 'http://localhost:1633'
     const beePeerUrl = process.env.BEE_PEER_API_URL || 'http://localhost:11633'
