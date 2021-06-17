@@ -467,10 +467,8 @@ describe('Bee class', () => {
     it(
       'should have both immutable true and false',
       async () => {
-        await Promise.all([
-          bee.createPostageBatch('1', 17, { immutableFlag: true }),
-          bee.createPostageBatch('1', 17, { immutableFlag: false }),
-        ])
+        await bee.createPostageBatch('1', 17, { immutableFlag: true })
+        await bee.createPostageBatch('1', 17, { immutableFlag: false })
         const allBatches = await bee.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
