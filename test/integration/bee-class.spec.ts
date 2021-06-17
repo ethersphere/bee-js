@@ -464,6 +464,21 @@ describe('Bee class', () => {
       POSTAGE_BATCH_TIMEOUT,
     )
 
+    it(
+      'should have both immutable true and false',
+      async () => {
+        await Promise.all([
+          bee.createPostageBatch('1', 17, { immutableFlag: true }),
+          bee.createPostageBatch('1', 17, { immutableFlag: false }),
+        ])
+        const allBatches = await bee.getAllPostageBatch()
+
+        expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
+        expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
+      },
+      POSTAGE_BATCH_TIMEOUT,
+    )
+
     it('should have all properties', async () => {
       const allBatches = await bee.getAllPostageBatch()
 
