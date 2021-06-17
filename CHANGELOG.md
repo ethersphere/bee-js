@@ -1,4 +1,27 @@
 # Changelog
+## [0.12.0](https://www.github.com/ethersphere/bee-js/compare/v0.11.0...v0.12.0) (2021-06-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* string instead of bigint (#345)
+
+### Features
+
+* add folder and collection size check ([#349](https://www.github.com/ethersphere/bee-js/issues/349)) ([f289c81](https://www.github.com/ethersphere/bee-js/commit/f289c81ecb77c8754589d67c1b9ca03d379dc23a))
+* extend PostageBatch type with new properties ([#350](https://www.github.com/ethersphere/bee-js/issues/350)) ([7695e27](https://www.github.com/ethersphere/bee-js/commit/7695e27bcac758c153609ba973830c0472e1e5c6))
+
+
+### Bug Fixes
+
+* expose collections utils ([#352](https://www.github.com/ethersphere/bee-js/issues/352)) ([6a5d15a](https://www.github.com/ethersphere/bee-js/commit/6a5d15aa57ec858769a723034167cb4463292d9e))
+* missing stream package with webpack ([#351](https://www.github.com/ethersphere/bee-js/issues/351)) ([a083a1b](https://www.github.com/ethersphere/bee-js/commit/a083a1b5bb98277db3ef15a80aa8044718fb00f5)), closes [#348](https://www.github.com/ethersphere/bee-js/issues/348)
+
+
+### Code Refactoring
+
+* string instead of bigint ([#345](https://www.github.com/ethersphere/bee-js/issues/345)) ([358ca42](https://www.github.com/ethersphere/bee-js/commit/358ca4231595b9883aed0d8eade39da509cbb118))
+
 ## [0.11.0](https://www.github.com/ethersphere/bee-js/compare/v0.10.0...v0.11.0) (2021-06-09)
 
 This release mainly brings internal improvements as we have attacked head-on our backlog with outstanding issues. But several changes introduce breaking changes so be aware and continue reading on!
