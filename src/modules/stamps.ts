@@ -43,7 +43,7 @@ export async function createPostageBatch(
     headers['gas-price'] = options.gasPrice.toString()
   }
 
-  if (options?.immutableFlag) {
+  if (options?.immutableFlag !== undefined) {
     headers.immutable = String(options.immutableFlag)
   }
 
