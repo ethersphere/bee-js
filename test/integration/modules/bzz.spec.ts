@@ -1,5 +1,7 @@
 import * as bzz from '../../../src/modules/bzz'
+import * as tag from '../../../src/modules/tag'
 import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
+import { makeCollectionFromFS } from '../../../src/utils/collection'
 import {
   beeUrl,
   BIG_FILE_TIMEOUT,
@@ -8,8 +10,6 @@ import {
   invalidReference,
   randomByteArray,
 } from '../../utils'
-import { makeCollectionFromFS } from '../../../src/utils/collection'
-import * as tag from '../../../src/modules/tag'
 
 const BEE_URL = beeUrl()
 

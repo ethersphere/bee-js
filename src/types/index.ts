@@ -1,12 +1,12 @@
-import { BeeError } from '../utils/error'
 import type { AxiosRequestConfig } from 'axios'
-import { HexString } from '../utils/hex'
-import { Bytes } from '../utils/bytes'
-import { EthAddress, HexEthAddress } from '../utils/eth'
 import { Identifier, SingleOwnerChunk } from '../chunk/soc'
+import { ChunkReference, FeedUploadOptions } from '../feed'
 import { FeedType } from '../feed/type'
 import { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
-import { ChunkReference, FeedUploadOptions } from '../feed'
+import { Bytes } from '../utils/bytes'
+import { BeeError } from '../utils/error'
+import { EthAddress, HexEthAddress } from '../utils/eth'
+import { HexString } from '../utils/hex'
 export * from './debug'
 
 export interface Dictionary<T> {
@@ -245,6 +245,13 @@ export interface SOCWriter extends SOCReader {
 export interface PostageBatch {
   batchID: BatchId
   utilization: number
+  usable: boolean
+  label: '' | string
+  depth: number
+  amount: string
+  bucketDepth: number
+  blockNumber: number
+  immutableFlag: boolean
 }
 
 /**
@@ -253,6 +260,7 @@ export interface PostageBatch {
 export interface PostageBatchOptions {
   label?: string
   gasPrice?: NumberString
+  immutableFlag?: boolean
 }
 
 /**

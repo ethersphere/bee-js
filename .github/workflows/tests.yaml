@@ -9,8 +9,8 @@ on:
       - '**'
 
 env:
-  BEE_VERSION: '0.6.3-388256b-dirty'
-  BLOCKCHAIN_VERSION: '1.1.1'
+  BEE_VERSION: '1.0.0-3a92ef5-dirty'
+  BLOCKCHAIN_VERSION: '1.2.0'
   BEE_ENV_PREFIX: 'swarm-test'
   BEE_IMAGE_PREFIX: 'docker.pkg.github.com/ethersphere/bee-factory'
   COMMIT_VERSION_TAG: 'false'
@@ -47,7 +47,7 @@ jobs:
       # Setup Bee environment
       - name: Start Bee Factory environment
         run: |
-          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
+          git clone -b bee-1.0.0-rc2 --depth=1 https://github.com/ethersphere/bee-factory.git
           chmod +x -R ./bee-factory/scripts
           ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 
@@ -97,7 +97,7 @@ jobs:
       # Setup Bee environment
       - name: Start Bee Factory environment
         run: |
-          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
+          git clone -b bee-1.0.0-rc2 --depth=1 https://github.com/ethersphere/bee-factory.git
           chmod +x -R ./bee-factory/scripts
           ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 

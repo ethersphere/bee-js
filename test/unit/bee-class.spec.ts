@@ -548,6 +548,14 @@ describe('Bee class', () => {
       assertAllIsDone()
     })
 
+    it('should pass headers if immutable flag is specified', async () => {
+      createPostageBatchMock('10', '17', undefined, undefined, 'true').reply(201, BATCH_RESPONSE)
+
+      const bee = new Bee(MOCK_SERVER_URL)
+      await expect(bee.createPostageBatch('10', 17, { immutableFlag: true })).resolves.toEqual(BATCH_ID)
+      assertAllIsDone()
+    })
+
     it('should throw error if passed wrong gas price input', async () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
@@ -557,6 +565,19 @@ describe('Bee class', () => {
       // @ts-ignore: Input testing
       await expect(bee.createPostageBatch('10', 17, { gasPrice: true })).rejects.toThrow(TypeError)
       await expect(bee.createPostageBatch('10', 17, { gasPrice: '-1' })).rejects.toThrow(BeeArgumentError)
+    })
+
+    it('should throw error if passed wrong immutable input', async () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      // @ts-ignore: Input testing
+      await expect(bee.createPostageBatch('10', 17, { immutableFlag: 'asd' })).rejects.toThrow(TypeError)
+
+      // @ts-ignore: Input testing
+      await expect(bee.createPostageBatch('10', 17, { immutableFlag: -1 })).rejects.toThrow(TypeError)
+
+      // @ts-ignore: Input testing
+      await expect(bee.createPostageBatch('10', 17, { immutableFlag: 'true' })).rejects.toThrow(TypeError)
     })
 
     it('should throw error if too small depth', async () => {
