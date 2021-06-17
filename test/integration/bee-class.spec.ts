@@ -474,7 +474,7 @@ describe('Bee class', () => {
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
       },
-      POSTAGE_BATCH_TIMEOUT,
+      POSTAGE_BATCH_TIMEOUT * 2,
     )
 
     it('should have all properties', async () => {
