@@ -1,6 +1,7 @@
 # Changelog
 ## [0.12.0](https://www.github.com/ethersphere/bee-js/compare/v0.11.0...v0.12.0) (2021-06-17)
 
+This is a compatibility release for the Bee 1.0.0-rc2. It also handles extended postage stamp information.
 
 ### ⚠ BREAKING CHANGES
 
