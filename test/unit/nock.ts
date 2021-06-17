@@ -1,7 +1,7 @@
-import nock from 'nock'
-import { HexEthAddress } from '../../src/utils/eth'
-import { Reference } from '../../src/types'
+import nock, { RequestHeaderMatcher } from 'nock'
 import { DEFAULT_FEED_TYPE, FeedType } from '../../src/feed/type'
+import { Reference } from '../../src/types'
+import { HexEthAddress } from '../../src/utils/eth'
 
 export const MOCK_SERVER_URL = 'http://localhost:12345/'
 
@@ -34,14 +34,23 @@ export function createPostageBatchMock(
   depth: string,
   gasPrice?: string,
   label?: string,
+  immutableFlag?: string,
 ): nock.Interceptor {
   let nockScope: nock.Scope
 
+  const reqheaders: Record<string, RequestHeaderMatcher> = {}
+
+  if (immutableFlag) {
+    reqheaders.immutable = immutableFlag
+  }
+
   if (gasPrice) {
+    reqheaders['gas-price'] = gasPrice
+  }
+
+  if (immutableFlag || gasPrice) {
     nockScope = nock(MOCK_SERVER_URL, {
-      reqheaders: {
-        'gas-price': gasPrice,
-      },
+      reqheaders,
     })
   } else {
     nockScope = nock(MOCK_SERVER_URL)

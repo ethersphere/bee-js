@@ -23,6 +23,7 @@ import { wrapBytesWithHelpers } from './utils/bytes'
 import {
   assertAddressPrefix,
   assertBatchId,
+  assertBoolean,
   assertCollectionUploadOptions,
   assertData,
   assertFileData,
@@ -674,6 +675,10 @@ export class Bee {
 
     if (options?.gasPrice) {
       assertNonNegativeInteger(options.gasPrice)
+    }
+
+    if (options?.immutableFlag !== undefined) {
+      assertBoolean(options.immutableFlag)
     }
 
     return stamps.createPostageBatch(this.url, amount, depth, options)

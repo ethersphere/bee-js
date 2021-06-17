@@ -1,12 +1,14 @@
+import { Readable } from 'stream'
 import {
   Address,
-  ADDRESS_HEX_LENGTH,
   AddressPrefix,
-  BATCH_ID_HEX_LENGTH,
+  ADDRESS_HEX_LENGTH,
   BatchId,
+  BATCH_ID_HEX_LENGTH,
   CollectionUploadOptions,
   ENCRYPTED_REFERENCE_HEX_LENGTH,
   FileUploadOptions,
+  NumberString,
   PssMessageHandler,
   PUBKEY_HEX_LENGTH,
   PublicKey,
@@ -14,12 +16,10 @@ import {
   REFERENCE_HEX_LENGTH,
   Tag,
   UploadOptions,
-  NumberString,
 } from '../types'
-import { assertHexString } from './hex'
 import { BeeArgumentError } from './error'
-import { Readable } from 'stream'
 import { isFile } from './file'
+import { assertHexString } from './hex'
 
 export function isReadable(entry: unknown): entry is Readable {
   return (
@@ -43,6 +43,10 @@ export function isInteger(value: unknown): value is number | NumberString {
       value < Number.MAX_SAFE_INTEGER &&
       Number.isInteger(value))
   )
+}
+
+export function assertBoolean(value: unknown): asserts value is boolean {
+  if (value !== true && value !== false) throw new TypeError('value is not boolean')
 }
 
 export function assertInteger(value: unknown): asserts value is number | NumberString {

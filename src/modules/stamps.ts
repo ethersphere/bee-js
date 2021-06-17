@@ -43,6 +43,10 @@ export async function createPostageBatch(
     headers['gas-price'] = options.gasPrice.toString()
   }
 
+  if (options?.immutableFlag) {
+    headers.immutable = String(options.immutableFlag)
+  }
+
   const response = await safeAxios<CreateStampResponse>({
     method: 'post',
     url: `${url}${STAMPS_ENDPOINT}/${amount}/${depth}`,

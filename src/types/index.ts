@@ -260,6 +260,7 @@ export interface PostageBatch {
 export interface PostageBatchOptions {
   label?: string
   gasPrice?: NumberString
+  immutableFlag?: boolean
 }
 
 /**
