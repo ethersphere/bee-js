@@ -24,7 +24,7 @@ export const ENCRYPTED_REFERENCE_BYTES_LENGTH = 64
 /**
  * Minimal depth that can be used for creation of postage batch
  */
-export const STAMPS_DEPTH_MIN = 16
+export const STAMPS_DEPTH_MIN = 17
 
 /**
  * Maximal depth that can be used for creation of postage batch
