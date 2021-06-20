@@ -4,9 +4,10 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 import type { Config } from '@jest/types'
-import * as Path from 'path'
 import { glob } from 'glob'
+import * as Path from 'path'
 import { createPostageBatch } from './src/modules/stamps'
+import { sleep } from './test/utils'
 
 /**
  * Get 'alias' configuration of Jest and Webpack for browser testing and compilation.
@@ -44,6 +45,7 @@ export default async (): Promise<Config.InitialOptions> => {
     console.log('Queen stamp: ', process.env.BEE_POSTAGE)
     process.env.BEE_PEER_POSTAGE = stamps[1]
     console.log('Peer stamp: ', process.env.BEE_PEER_POSTAGE)
+    await sleep(11_000) // 11 seconds (10 blocks with ganache block time = 1s)
   } catch (e) {
     // It is possible that for unit tests the Bee nodes does not run
     // so we are only logging errors and not leaving them to propagate
