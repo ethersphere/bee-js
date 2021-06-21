@@ -1,7 +1,14 @@
-import { assertAllIsDone, cashoutLastChequeMock, depositTokensMock, MOCK_SERVER_URL, withdrawTokensMock } from './nock'
-import { BeeArgumentError, BeeDebug } from '../../src'
+import { BatchId, BeeArgumentError, BeeDebug } from '../../src'
 import { testAddress } from '../utils'
-import { testAddressAssertions } from './assertions'
+import { testAddressAssertions, testBatchIdAssertion } from './assertions'
+import {
+  assertAllIsDone,
+  cashoutLastChequeMock,
+  createPostageBatchMock,
+  depositTokensMock,
+  MOCK_SERVER_URL,
+  withdrawTokensMock,
+} from './nock'
 
 describe('BeeDebug class', () => {
   function testUrl(url: unknown): void {
@@ -241,6 +248,82 @@ describe('BeeDebug class', () => {
       // @ts-ignore: Input testing
       await expect(bee.depositTokens('1', 'asd')).rejects.toThrow(TypeError)
       await expect(bee.depositTokens('1', '-1')).rejects.toThrow(BeeArgumentError)
+    })
+  })
+
+  describe('createPostageBatch', () => {
+    const BATCH_ID = '36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f'
+    const BATCH_RESPONSE = {
+      batchID: BATCH_ID,
+    }
+
+    it('should not pass headers if no gas price is specified', async () => {
+      createPostageBatchMock('10', '17').reply(201, BATCH_RESPONSE)
+
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+      await expect(bee.createPostageBatch('10', 17)).resolves.toEqual(BATCH_ID)
+      assertAllIsDone()
+    })
+
+    it('should pass headers if gas price is specified', async () => {
+      createPostageBatchMock('10', '17', '100').reply(201, BATCH_RESPONSE)
+
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+      await expect(bee.createPostageBatch('10', 17, { gasPrice: '100' })).resolves.toEqual(BATCH_ID)
+      assertAllIsDone()
+    })
+
+    it('should pass headers if immutable flag is specified', async () => {
+      createPostageBatchMock('10', '17', undefined, undefined, 'true').reply(201, BATCH_RESPONSE)
+
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+      await expect(bee.createPostageBatch('10', 17, { immutableFlag: true })).resolves.toEqual(BATCH_ID)
+      assertAllIsDone()
+    })
+
+    it('should throw error if passed wrong gas price input', async () => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      // @ts-ignore: Input testing
+      await expect(bee.createPostageBatch('10', 17, { gasPrice: 'asd' })).rejects.toThrow(TypeError)
+
+      // @ts-ignore: Input testing
+      await expect(bee.createPostageBatch('10', 17, { gasPrice: true })).rejects.toThrow(TypeError)
+      await expect(bee.createPostageBatch('10', 17, { gasPrice: '-1' })).rejects.toThrow(BeeArgumentError)
+    })
+
+    it('should throw error if passed wrong immutable input', async () => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      // @ts-ignore: Input testing
+      await expect(bee.createPostageBatch('10', 17, { immutableFlag: 'asd' })).rejects.toThrow(TypeError)
+
+      // @ts-ignore: Input testing
+      await expect(bee.createPostageBatch('10', 17, { immutableFlag: -1 })).rejects.toThrow(TypeError)
+
+      // @ts-ignore: Input testing
+      await expect(bee.createPostageBatch('10', 17, { immutableFlag: 'true' })).rejects.toThrow(TypeError)
+    })
+
+    it('should throw error if too small depth', async () => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      await expect(bee.createPostageBatch('10', -1)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.createPostageBatch('10', 15)).rejects.toThrow(BeeArgumentError)
+    })
+
+    it('should throw error if too big depth', async () => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      await expect(bee.createPostageBatch('10', 256)).rejects.toThrow(BeeArgumentError)
+    })
+  })
+
+  describe('getPostageBatch', () => {
+    testBatchIdAssertion(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.getPostageBatch(input as BatchId)
     })
   })
 })
