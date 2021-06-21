@@ -37,8 +37,8 @@ export async function getBrowserPathMapping(): Promise<{ [aliasNodeReference: st
 export default async (): Promise<Config.InitialOptions> => {
   try {
     console.log('Creating postage stamps...')
-    const beeUrl = process.env.BEE_API_URL || 'http://localhost:1633'
-    const beePeerUrl = process.env.BEE_PEER_API_URL || 'http://localhost:11633'
+    const beeUrl = process.env.BEE_API_URL || 'http://localhost:1635'
+    const beePeerUrl = process.env.BEE_PEER_API_URL || 'http://localhost:11635'
     const stamps = await Promise.all([createPostageBatch(beeUrl, '1', 20), createPostageBatch(beePeerUrl, '1', 20)])
     process.env.BEE_POSTAGE = stamps[0]
     console.log('Queen stamp: ', process.env.BEE_POSTAGE)
