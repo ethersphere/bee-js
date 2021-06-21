@@ -453,11 +453,13 @@ describe('Bee class', () => {
   })
 
   describe('PostageBatch', () => {
+    const beeDebug = new BeeDebug(beeDebugUrl())
+
     it(
       'should create a new postage batch with zero amount',
       async () => {
-        const batchId = await bee.createPostageBatch('0', 17)
-        const allBatches = await bee.getAllPostageBatch()
+        const batchId = await beeDebug.createPostageBatch('0', 17)
+        const allBatches = await beeDebug.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
       },
@@ -467,9 +469,9 @@ describe('Bee class', () => {
     it(
       'should have both immutable true and false',
       async () => {
-        await bee.createPostageBatch('1', 17, { immutableFlag: true })
-        await bee.createPostageBatch('1', 17, { immutableFlag: false })
-        const allBatches = await bee.getAllPostageBatch()
+        await beeDebug.createPostageBatch('1', 17, { immutableFlag: true })
+        await beeDebug.createPostageBatch('1', 17, { immutableFlag: false })
+        const allBatches = await beeDebug.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
@@ -478,7 +480,7 @@ describe('Bee class', () => {
     )
 
     it('should have all properties', async () => {
-      const allBatches = await bee.getAllPostageBatch()
+      const allBatches = await beeDebug.getAllPostageBatch()
 
       expect(allBatches.length).toBeGreaterThan(0)
 
@@ -500,7 +502,7 @@ describe('Bee class', () => {
     })
 
     it('should error with negative amount', async () => {
-      await expect(bee.createPostageBatch('-1', 17)).rejects.toThrowError(BeeArgumentError)
+      await expect(beeDebug.createPostageBatch('-1', 17)).rejects.toThrowError(BeeArgumentError)
     })
   })
 })

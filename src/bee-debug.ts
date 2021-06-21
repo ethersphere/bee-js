@@ -1,33 +1,40 @@
-import * as connectivity from './modules/debug/connectivity'
+import { BeeArgumentError } from '.'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
+import * as connectivity from './modules/debug/connectivity'
 import * as settlements from './modules/debug/settlements'
-import * as status from './modules/debug/status'
 import * as states from './modules/debug/states'
-import type {
+import * as status from './modules/debug/status'
+import * as stamps from './modules/stamps'
+import {
   Address,
-  Peer,
+  AllSettlements,
   BalanceResponse,
-  PeerBalance,
+  BatchId,
+  CashoutOptions,
+  ChainState,
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
-  LastChequesResponse,
-  LastChequesForPeerResponse,
-  LastCashoutActionResponse,
-  Settlements,
-  AllSettlements,
-  RemovePeerResponse,
-  Topology,
-  PingResponse,
   Health,
+  LastCashoutActionResponse,
+  LastChequesForPeerResponse,
+  LastChequesResponse,
   NodeAddresses,
-  ReserveState,
-  ChainState,
   NumberString,
+  Peer,
+  PeerBalance,
+  PingResponse,
+  PostageBatch,
+  PostageBatchOptions,
+  RemovePeerResponse,
+  ReserveState,
+  Settlements,
+  STAMPS_DEPTH_MAX,
+  STAMPS_DEPTH_MIN,
+  Topology,
 } from './types'
+import { assertAddress, assertBatchId, assertBoolean, assertNonNegativeInteger } from './utils/type'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { assertAddress, assertNonNegativeInteger } from './utils/type'
-import { CashoutOptions } from './types'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -221,6 +228,58 @@ export class BeeDebug {
     }
 
     return chequebook.withdrawTokens(this.url, amount, gasPrice)
+  }
+
+  /**
+   * Creates new postage batch from the funds that the node has available in its Ethereum account.
+   *
+   * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
+   * @param depth Logarithm of the number of chunks that can be stamped with the batch.
+   * @param options Options for creation of postage batch
+   * @param options.gasPrice Sets gas price for the transaction that creates the postage batch
+   * @param options.label Sets label for the postage batch
+   * @throws BeeArgumentError when negative amount or depth is specified
+   * @throws TypeError if non-integer value is passed to amount or depth
+   */
+  async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
+    assertNonNegativeInteger(amount)
+    assertNonNegativeInteger(depth)
+
+    if (depth < STAMPS_DEPTH_MIN) {
+      throw new BeeArgumentError(`Depth has to be at least ${STAMPS_DEPTH_MIN}`, depth)
+    }
+
+    if (depth > STAMPS_DEPTH_MAX) {
+      throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
+    }
+
+    if (options?.gasPrice) {
+      assertNonNegativeInteger(options.gasPrice)
+    }
+
+    if (options?.immutableFlag !== undefined) {
+      assertBoolean(options.immutableFlag)
+    }
+
+    return stamps.createPostageBatch(this.url, amount, depth, options)
+  }
+
+  /**
+   * Return details for specific postage batch.
+   *
+   * @param postageBatchId BatchId
+   */
+  async getPostageBatch(postageBatchId: BatchId | string): Promise<PostageBatch> {
+    assertBatchId(postageBatchId)
+
+    return stamps.getPostageBatch(this.url, postageBatchId)
+  }
+
+  /**
+   * Return all postage batches that has the node available.
+   */
+  async getAllPostageBatch(): Promise<PostageBatch[]> {
+    return stamps.getAllPostageBatches(this.url)
   }
 
   /*

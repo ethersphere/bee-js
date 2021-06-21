@@ -1,29 +1,51 @@
+import { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import * as bzz from './modules/bzz'
-import * as tag from './modules/tag'
-import * as pinning from './modules/pinning'
+import { makeSigner } from './chunk/signer'
+import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
+import { makeFeedReader, makeFeedWriter } from './feed'
+import { getJsonData, setJsonData } from './feed/json'
+import { makeTopic, makeTopicFromString } from './feed/topic'
+import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
 import * as bytes from './modules/bytes'
+import * as bzz from './modules/bzz'
+import { createFeedManifest } from './modules/feed'
+import * as pinning from './modules/pinning'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
-import * as stamps from './modules/stamps'
-
-import { BeeArgumentError, BeeError } from './utils/error'
-import { prepareWebsocketData } from './utils/data'
-import { fileArrayBuffer, isFile } from './utils/file'
-import { AxiosRequestConfig } from 'axios'
-import { makeFeedReader, makeFeedWriter } from './feed'
-import { makeSigner } from './chunk/signer'
-import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
-import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
-import { makeTopic, makeTopicFromString } from './feed/topic'
-import { createFeedManifest } from './modules/feed'
-import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
+import * as tag from './modules/tag'
+import type {
+  AddressPrefix,
+  AnyJson,
+  BatchId,
+  BeeOptions,
+  CollectionUploadOptions,
+  Data,
+  FeedReader,
+  FeedWriter,
+  FileData,
+  FileUploadOptions,
+  JsonFeedOptions,
+  Pin,
+  PssMessageHandler,
+  PssSubscription,
+  PublicKey,
+  Reference,
+  Signer,
+  SOCReader,
+  SOCWriter,
+  Tag,
+  Topic,
+  UploadOptions,
+} from './types'
 import { wrapBytesWithHelpers } from './utils/bytes'
+import { makeCollectionFromFileList, makeCollectionFromFS } from './utils/collection'
+import { prepareWebsocketData } from './utils/data'
+import { BeeArgumentError, BeeError } from './utils/error'
+import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
+import { fileArrayBuffer, isFile } from './utils/file'
 import {
   assertAddressPrefix,
   assertBatchId,
-  assertBoolean,
   assertCollectionUploadOptions,
   assertData,
   assertFileData,
@@ -33,37 +55,9 @@ import {
   assertPublicKey,
   assertReference,
   assertUploadOptions,
-  isTag,
+  isTag
 } from './utils/type'
-import { setJsonData, getJsonData } from './feed/json'
-import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
-import { NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
-
-import type {
-  Tag,
-  FileData,
-  Reference,
-  UploadOptions,
-  PublicKey,
-  AddressPrefix,
-  PssMessageHandler,
-  PssSubscription,
-  CollectionUploadOptions,
-  FileUploadOptions,
-  Data,
-  Signer,
-  FeedReader,
-  FeedWriter,
-  SOCWriter,
-  SOCReader,
-  Topic,
-  BeeOptions,
-  JsonFeedOptions,
-  AnyJson,
-  Pin,
-  PostageBatch,
-  BatchId,
-} from './types'
+import { assertBeeUrl, stripLastSlash } from './utils/url'
 
 /**
  * The Bee class provides a way of interacting with the Bee APIs based on the provided url
@@ -648,58 +642,6 @@ export class Bee {
 
       upload: uploadSingleOwnerChunkData.bind(null, this.url, canonicalSigner),
     }
-  }
-
-  /**
-   * Creates new postage batch from the funds that the node has available in its Ethereum account.
-   *
-   * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
-   * @param depth Logarithm of the number of chunks that can be stamped with the batch.
-   * @param options Options for creation of postage batch
-   * @param options.gasPrice Sets gas price for the transaction that creates the postage batch
-   * @param options.label Sets label for the postage batch
-   * @throws BeeArgumentError when negative amount or depth is specified
-   * @throws TypeError if non-integer value is passed to amount or depth
-   */
-  async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
-    assertNonNegativeInteger(amount)
-    assertNonNegativeInteger(depth)
-
-    if (depth < STAMPS_DEPTH_MIN) {
-      throw new BeeArgumentError(`Depth has to be at least ${STAMPS_DEPTH_MIN}`, depth)
-    }
-
-    if (depth > STAMPS_DEPTH_MAX) {
-      throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
-    }
-
-    if (options?.gasPrice) {
-      assertNonNegativeInteger(options.gasPrice)
-    }
-
-    if (options?.immutableFlag !== undefined) {
-      assertBoolean(options.immutableFlag)
-    }
-
-    return stamps.createPostageBatch(this.url, amount, depth, options)
-  }
-
-  /**
-   * Return details for specific postage batch.
-   *
-   * @param postageBatchId BatchId
-   */
-  async getPostageBatch(postageBatchId: BatchId | string): Promise<PostageBatch> {
-    assertBatchId(postageBatchId)
-
-    return stamps.getPostageBatch(this.url, postageBatchId)
-  }
-
-  /**
-   * Return all postage batches that has the node available.
-   */
-  async getAllPostageBatch(): Promise<PostageBatch[]> {
-    return stamps.getAllPostageBatches(this.url)
   }
 
   /**
