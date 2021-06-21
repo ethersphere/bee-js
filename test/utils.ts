@@ -1,10 +1,10 @@
 import { Readable } from 'stream'
-import type { BeeResponse, Reference, Address, BatchId } from '../src/types'
-import { bytesToHex, HexString } from '../src/utils/hex'
-import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
+import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
+import type { Address, BatchId, BeeResponse, Reference } from '../src/types'
 import { assertBytes } from '../src/utils/bytes'
+import { bytesToHex, HexString } from '../src/utils/hex'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -173,14 +173,14 @@ export function beePeerUrl(): string {
  * There is semaphore mechanism that allows only creation of one batch across all the
  * parallel running tests that have to wait until it is created.
  */
-export function getPostageBatch(url = beeUrl()): BatchId {
+export function getPostageBatch(url = beeDebugUrl()): BatchId {
   let stamp: BatchId
 
   switch (url) {
-    case beeUrl():
+    case beeDebugUrl():
       stamp = process.env.BEE_POSTAGE as BatchId
       break
-    case beePeerUrl():
+    case beePeerDebugUrl():
       stamp = process.env.BEE_PEER_POSTAGE as BatchId
       break
     default:
