@@ -139,13 +139,14 @@ export interface PingResponse {
 
 export interface ReserveState {
   radius: number
+  storageRadius: number
   available: number
-  outer: number
-  inner: number
+  outer: NumberString
+  inner: NumberString
 }
 
 export interface ChainState {
-  block: NumberString
+  block: number
   totalAmount: NumberString
   currentPrice: NumberString
 }
