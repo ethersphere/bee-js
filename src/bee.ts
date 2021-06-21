@@ -55,7 +55,7 @@ import {
   assertPublicKey,
   assertReference,
   assertUploadOptions,
-  isTag
+  isTag,
 } from './utils/type'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 
