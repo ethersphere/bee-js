@@ -1,3 +1,4 @@
+import { engines } from '../../../../package.json'
 import {
   getHealth,
   isSupportedVersion,
@@ -5,7 +6,33 @@ import {
   SUPPORTED_BEE_VERSION_EXACT,
 } from '../../../../src/modules/debug/status'
 import { beeDebugUrl } from '../../../utils'
-import { engines } from '../../../../package.json'
+
+/**
+ * Matches these:
+ * 0.5.3-c423a39c, 0.5.3-c423a39c-dirty, 0.5.3, 1.0.0-rc4, 1.0.0-rc4-02dd4346
+ */
+const expectValidVersion = (string: string): void => {
+  const parts = string.split('-')
+  expect(parts.length).toBeGreaterThanOrEqual(1)
+  expect(parts.length).toBeLessThanOrEqual(3)
+  expect(parts[0]).toMatch(/^\d+\.\d+\.\d+$/)
+
+  if (parts[1]) {
+    if (parts[1].startsWith('rc')) {
+      expect(parts[1]).toMatch(/^rc\d+$/)
+
+      if (parts[2]) {
+        expect(parts[2]).toMatch(/^[0-9a-f]{7,8}$/)
+      }
+    } else {
+      expect(parts[1]).toMatch(/^[0-9a-f]{7,8}$/)
+
+      if (parts[2]) {
+        expect(parts[2]).toBe('dirty')
+      }
+    }
+  }
+}
 
 const BEE_DEBUG_URL = beeDebugUrl()
 
@@ -15,7 +42,7 @@ describe('modules/status', () => {
 
     expect(health.status).toBe('ok')
     // Matches both versions like 0.5.3-c423a39c, 0.5.3-c423a39c-dirty and 0.5.3
-    expect(health.version).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]{7,8}(-dirty)?)?$/i)
+    expectValidVersion(health.version)
   })
 
   test('isSupportedVersion', async () => {
@@ -29,7 +56,7 @@ describe('modules/status', () => {
     expect(SUPPORTED_BEE_VERSION).toMatch(/^\d+\.\d+\.\d+$/i)
 
     // Matches semantic version with commit message e.g. 0.5.3-acbd0e2
-    expect(SUPPORTED_BEE_VERSION_EXACT).toMatch(/^\d+\.\d+\.\d+(-[0-9a-f]{7,8}(-dirty)?)?$/i)
+    expectValidVersion(SUPPORTED_BEE_VERSION_EXACT)
   })
 
   test('SUPPORTED_BEE_VERSION_EXACT should come from package.json', () => {
