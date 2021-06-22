@@ -1,4 +1,12 @@
 # Changelog
+## [1.0.0](https://www.github.com/ethersphere/bee-js/compare/v0.12.0...v1.0.0) (2021-06-22)
+
+This release bumps the supported Bee version to 1.0.0, which marks the mainnet launch of the project.
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([#356](https://www.github.com/ethersphere/bee-js/issues/356)) ([f409915](https://www.github.com/ethersphere/bee-js/commit/f40991585074a7cf07e7f13fdd3aef6577b59677))
+
 ## [0.12.0](https://www.github.com/ethersphere/bee-js/compare/v0.11.0...v0.12.0) (2021-06-17)
 
 This is a compatibility release for the Bee 1.0.0-rc2. It also handles extended postage stamp information.
