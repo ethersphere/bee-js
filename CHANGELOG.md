@@ -1,6 +1,7 @@
 # Changelog
 ## [1.0.0](https://www.github.com/ethersphere/bee-js/compare/v0.12.0...v1.0.0) (2021-06-22)
 
+This release bumps the supported Bee version to 1.0.0, which marks the mainnet launch of the project.
 
 ### Miscellaneous Chores
 
