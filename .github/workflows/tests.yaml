@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 15.x]
+        node-version: [12.x, 14.x, 16.x]
 
     steps:
       - name: Checkout
@@ -47,7 +47,7 @@ jobs:
       # Setup Bee environment
       - name: Start Bee Factory environment
         run: |
-          git clone -b bee-1.0.0-rc2 --depth=1 https://github.com/ethersphere/bee-factory.git
+          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
           chmod +x -R ./bee-factory/scripts
           ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 
@@ -97,7 +97,7 @@ jobs:
       # Setup Bee environment
       - name: Start Bee Factory environment
         run: |
-          git clone -b bee-1.0.0-rc2 --depth=1 https://github.com/ethersphere/bee-factory.git
+          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
           chmod +x -R ./bee-factory/scripts
           ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 
