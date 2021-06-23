@@ -195,62 +195,71 @@ describe('Bee class', () => {
   describe('pss', () => {
     it(
       'should send and receive data',
-      async done => {
-        const topic = 'bee-class-topic'
-        const message = new Uint8Array([1, 2, 3])
-        const beeDebug = new BeeDebug(beeDebugUrl())
+      done => {
+        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+        ;(async () => {
+          const topic = 'bee-class-topic'
+          const message = new Uint8Array([1, 2, 3])
+          const beeDebug = new BeeDebug(beeDebugUrl())
 
-        bee.pssReceive(topic).then(receivedMessage => {
-          expect(receivedMessage).toEqual(message)
-          done()
-        })
+          bee.pssReceive(topic).then(receivedMessage => {
+            expect(receivedMessage).toEqual(message)
+            done()
+          })
 
-        const { overlay } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+          const { overlay } = await beeDebug.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+        })()
       },
       PSS_TIMEOUT,
     )
 
     it(
       'should send and receive data with public key',
-      async done => {
-        const topic = 'bee-class-topic-publickey'
-        const message = new Uint8Array([1, 2, 3])
-        const beeDebug = new BeeDebug(beeDebugUrl())
+      done => {
+        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+        ;(async () => {
+          const topic = 'bee-class-topic-publickey'
+          const message = new Uint8Array([1, 2, 3])
+          const beeDebug = new BeeDebug(beeDebugUrl())
 
-        bee.pssReceive(topic).then(receivedMessage => {
-          expect(receivedMessage).toEqual(message)
-          done()
-        })
+          bee.pssReceive(topic).then(receivedMessage => {
+            expect(receivedMessage).toEqual(message)
+            done()
+          })
 
-        const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message, pssPublicKey)
+          const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message, pssPublicKey)
+        })()
       },
       PSS_TIMEOUT,
     )
 
     it(
       'should subscribe to topic',
-      async done => {
-        const topic = 'bee-class-subscribe-topic'
-        const message = new Uint8Array([1, 2, 3])
-        const beeDebug = new BeeDebug(beeDebugUrl())
+      done => {
+        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+        ;(async () => {
+          const topic = 'bee-class-subscribe-topic'
+          const message = new Uint8Array([1, 2, 3])
+          const beeDebug = new BeeDebug(beeDebugUrl())
 
-        const subscription = bee.pssSubscribe(topic, {
-          onMessage: receivedMessage => {
-            // without cancel jest complains for leaking handles and may hang
-            subscription.cancel()
+          const subscription = bee.pssSubscribe(topic, {
+            onMessage: receivedMessage => {
+              // without cancel jest complains for leaking handles and may hang
+              subscription.cancel()
 
-            expect(receivedMessage).toEqual(message)
-            done()
-          },
-          onError: e => {
-            throw e
-          },
-        })
+              expect(receivedMessage).toEqual(message)
+              done()
+            },
+            onError: e => {
+              throw e
+            },
+          })
 
-        const { overlay } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+          const { overlay } = await beeDebug.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+        })()
       },
       PSS_TIMEOUT,
     )
