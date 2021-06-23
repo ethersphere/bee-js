@@ -55,11 +55,11 @@ describe('Bee class', () => {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
       const type = 'text/plain'
-      const file = ({
+      const file = {
         arrayBuffer: () => content,
         name,
         type,
-      } as unknown) as File
+      } as unknown as File
 
       const hash = await bee.uploadFile(getPostageBatch(), file)
       const downloadedFile = await bee.downloadFile(hash)
@@ -72,10 +72,10 @@ describe('Bee class', () => {
     it('should work with file object and name overridden', async () => {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
-      const file = ({
+      const file = {
         arrayBuffer: () => content,
         name,
-      } as unknown) as File
+      } as unknown as File
       const nameOverride = 'hello-override.txt'
 
       const hash = await bee.uploadFile(getPostageBatch(), file, nameOverride)
@@ -87,11 +87,11 @@ describe('Bee class', () => {
 
     it('should work with file object and content-type overridden', async () => {
       const content = new Uint8Array([1, 2, 3])
-      const file = ({
+      const file = {
         arrayBuffer: () => content,
         name: 'hello.txt',
         type: 'text/plain',
-      } as unknown) as File
+      } as unknown as File
       const contentTypeOverride = 'text/plain+override'
 
       const hash = await bee.uploadFile(getPostageBatch(), file, undefined, { contentType: contentTypeOverride })

@@ -33,7 +33,7 @@ describe('eth', () => {
 
     testValues.forEach(({ value, result }) => {
       test(`should test if value ${value} is address: ${result}`, () => {
-        expect(isHexEthAddress((value as unknown) as string)).toBe(result)
+        expect(isHexEthAddress(value as unknown as string)).toBe(result)
       })
     })
   })
@@ -60,7 +60,7 @@ describe('eth', () => {
 
     wrongTestValues.forEach(value =>
       test(`should throw for non string or positive int values: ${value}`, () => {
-        expect(() => toLittleEndian((value as unknown) as string)).toThrow()
+        expect(() => toLittleEndian(value as unknown as string)).toThrow()
       }),
     )
   })
@@ -142,7 +142,7 @@ describe('eth', () => {
 
     wrongTestValues.forEach((address, netId) =>
       test(`should throw for incorrect values address ${address} netId ${netId}`, () => {
-        expect(() => ethToSwarmAddress((address as unknown) as string, (netId as unknown) as number)).toThrow()
+        expect(() => ethToSwarmAddress(address as unknown as string, netId as unknown as number)).toThrow()
       }),
     )
   })
@@ -150,14 +150,15 @@ describe('eth', () => {
   describe('makeEthereumWalletSigner', () => {
     const dataToSignBytes = hexToBytes('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae' as HexString)
     const dataToSignWithHelpers = wrapBytesWithHelpers(dataToSignBytes)
-    const expectedSignatureHex = '0x336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
+    const expectedSignatureHex =
+      '0x336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
 
     it('should detect valid interface', async () => {
       await expect(makeEthereumWalletSigner({})).rejects.toThrow()
-      await expect(makeEthereumWalletSigner(('' as unknown) as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(makeEthereumWalletSigner((1 as unknown) as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(makeEthereumWalletSigner((null as unknown) as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(makeEthereumWalletSigner((undefined as unknown) as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner('' as unknown as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner(1 as unknown as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner(null as unknown as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner(undefined as unknown as JsonRPC)).rejects.toThrow(TypeError)
     })
 
     it('should request address if not specified', async () => {

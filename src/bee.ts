@@ -467,10 +467,10 @@ export class Bee {
       if (timeoutMsec > 0) {
         // we need to cast the type because Typescript is getting confused with Node.js'
         // alternative type definitions
-        timeout = (setTimeout(() => {
+        timeout = setTimeout(() => {
           subscription.cancel()
           reject(new BeeError('pssReceive timeout'))
-        }, timeoutMsec) as unknown) as number
+        }, timeoutMsec) as unknown as number
       }
     })
   }

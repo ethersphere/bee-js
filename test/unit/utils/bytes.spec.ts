@@ -16,7 +16,7 @@ describe('bytes', () => {
 
       expect(wrapBytesWithHelpers(data).text()).toEqual('hello world')
       expect(wrapBytesWithHelpers(new Uint8Array([])).text()).toEqual('')
-      expect(() => wrapBytesWithHelpers((null as unknown) as Uint8Array).text()).toThrowError()
+      expect(() => wrapBytesWithHelpers(null as unknown as Uint8Array).text()).toThrowError()
     })
 
     it('should convert to json', () => {
