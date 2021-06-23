@@ -129,72 +129,78 @@ describe('Bee class - in browser', () => {
   describe('pss', () => {
     it(
       'should send and receive pss message',
-      async done => {
-        const message = '1234'
+      done => {
+        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+        ;(async () => {
+          const message = '1234'
 
-        const result = await page.evaluate(
-          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchIdPeer) => {
-            const topic = 'browser-bee-class-topic1'
+          const result = await page.evaluate(
+            async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchIdPeer) => {
+              const topic = 'browser-bee-class-topic1'
 
-            const bee = new window.BeeJs.Bee(BEE_URL)
-            const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
+              const bee = new window.BeeJs.Bee(BEE_URL)
+              const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
 
-            const { overlay } = await beeDebug.getNodeAddresses()
-            const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
+              const { overlay } = await beeDebug.getNodeAddresses()
+              const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
 
-            const receive = bee.pssReceive(topic)
-            await beePeer.pssSend(batchIdPeer, topic, overlay, message)
+              const receive = bee.pssReceive(topic)
+              await beePeer.pssSend(batchIdPeer, topic, overlay, message)
 
-            const msg = await receive
+              const msg = await receive
 
-            // Need to pass it back as string
-            return new TextDecoder('utf-8').decode(new Uint8Array(msg))
-          },
-          BEE_URL,
-          BEE_DEBUG_URL,
-          BEE_PEER_URL,
-          message,
-          batchIdPeer,
-        )
+              // Need to pass it back as string
+              return new TextDecoder('utf-8').decode(new Uint8Array(msg))
+            },
+            BEE_URL,
+            BEE_DEBUG_URL,
+            BEE_PEER_URL,
+            message,
+            batchIdPeer,
+          )
 
-        expect(result).toEqual(message)
-        done()
+          expect(result).toEqual(message)
+          done()
+        })()
       },
       PSS_TIMEOUT,
     )
 
     it(
       'should send and receive pss message encrypted with PSS key',
-      async done => {
-        const message = '1234'
+      done => {
+        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+        ;(async () => {
+          const message = '1234'
 
-        const result = await page.evaluate(
-          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchIdPeer) => {
-            const topic = 'browser-bee-class-topic2'
+          const result = await page.evaluate(
+            async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchIdPeer) => {
+              const topic = 'browser-bee-class-topic2'
 
-            const bee = new window.BeeJs.Bee(BEE_URL)
-            const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
+              const bee = new window.BeeJs.Bee(BEE_URL)
+              const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
 
-            const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-            const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
+              const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
+              const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
 
-            const receive = bee.pssReceive(topic)
-            await beePeer.pssSend(batchIdPeer, topic, overlay, message, pssPublicKey)
+              const receive = bee.pssReceive(topic)
+              await beePeer.pssSend(batchIdPeer, topic, overlay, message, pssPublicKey)
 
-            const msg = await receive
+              const msg = await receive
 
-            // Need to pass it back as string
-            return new TextDecoder('utf-8').decode(new Uint8Array(msg))
-          },
-          BEE_URL,
-          BEE_DEBUG_URL,
-          BEE_PEER_URL,
-          message,
-          batchIdPeer,
-        )
+              // Need to pass it back as string
+              return new TextDecoder('utf-8').decode(new Uint8Array(msg))
+            },
+            BEE_URL,
+            BEE_DEBUG_URL,
+            BEE_PEER_URL,
+            message,
+            batchIdPeer,
+          )
 
-        expect(result).toEqual(message)
-        done()
+          expect(result).toEqual(message)
+          done()
+        })()
       },
       PSS_TIMEOUT,
     )

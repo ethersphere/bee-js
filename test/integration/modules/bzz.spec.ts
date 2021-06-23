@@ -97,13 +97,13 @@ describe('modules/bzz', () => {
 
     it('should throw error when the upload url is not set', async () => {
       await expect(
-        bzz.uploadCollection((undefined as unknown) as string, (undefined as unknown) as [], getPostageBatch()),
+        bzz.uploadCollection(undefined as unknown as string, undefined as unknown as [], getPostageBatch()),
       ).rejects.toThrowError()
     })
 
     it('should throw error when the upload url is not empty', async () => {
       const url = ''
-      await expect(bzz.uploadCollection(url, (undefined as unknown) as [], getPostageBatch())).rejects.toThrowError()
+      await expect(bzz.uploadCollection(url, undefined as unknown as [], getPostageBatch())).rejects.toThrowError()
     })
 
     it('should throw error when the collection is empty', async () => {

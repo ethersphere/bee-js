@@ -25,57 +25,63 @@ describe('modules/pss', () => {
 
   it(
     'should send and receive PSS message',
-    async done => {
-      const topic = 'send-receive-pss-message'
-      const message = 'hello'
+    done => {
+      // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+      ;(async () => {
+        const topic = 'send-receive-pss-message'
+        const message = 'hello'
 
-      const ws = pss.subscribe(BEE_URL, topic)
-      ws.onmessage = ev => {
-        const receivedMessage = Buffer.from(ev.data as string).toString()
+        const ws = pss.subscribe(BEE_URL, topic)
+        ws.onmessage = ev => {
+          const receivedMessage = Buffer.from(ev.data as string).toString()
 
-        // ignore empty messages
-        if (receivedMessage.length === 0) {
-          return
+          // ignore empty messages
+          if (receivedMessage.length === 0) {
+            return
+          }
+          ws.terminate()
+          expect(receivedMessage).toEqual(message)
+          done()
         }
-        ws.terminate()
-        expect(receivedMessage).toEqual(message)
-        done()
-      }
 
-      const debugUrl = beeDebugUrl()
+        const debugUrl = beeDebugUrl()
 
-      const addresses = await connectivity.getNodeAddresses(debugUrl)
-      const target = addresses.overlay
-      await pss.send(BEE_PEER_URL, topic, target, message, getPostageBatch(BEE_PEER_URL))
+        const addresses = await connectivity.getNodeAddresses(debugUrl)
+        const target = addresses.overlay
+        await pss.send(BEE_PEER_URL, topic, target, message, getPostageBatch(BEE_PEER_URL))
+      })()
     },
     PSS_TIMEOUT,
   )
 
   it(
     'should send and receive PSS message with public key',
-    async done => {
-      const topic = 'send-receive-pss-public-key'
-      const message = 'hello'
+    done => {
+      // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+      ;(async () => {
+        const topic = 'send-receive-pss-public-key'
+        const message = 'hello'
 
-      const ws = pss.subscribe(BEE_URL, topic)
-      ws.onmessage = ev => {
-        const receivedMessage = Buffer.from(ev.data as string).toString()
+        const ws = pss.subscribe(BEE_URL, topic)
+        ws.onmessage = ev => {
+          const receivedMessage = Buffer.from(ev.data as string).toString()
 
-        // ignore empty messages
-        if (receivedMessage.length === 0) {
-          return
+          // ignore empty messages
+          if (receivedMessage.length === 0) {
+            return
+          }
+          ws.terminate()
+          expect(receivedMessage).toEqual(message)
+          done()
         }
-        ws.terminate()
-        expect(receivedMessage).toEqual(message)
-        done()
-      }
 
-      const debugUrl = beeDebugUrl()
+        const debugUrl = beeDebugUrl()
 
-      const addresses = await connectivity.getNodeAddresses(debugUrl)
-      const target = addresses.overlay
-      const recipient = addresses.pssPublicKey
-      await pss.send(BEE_PEER_URL, topic, target, message, getPostageBatch(BEE_PEER_URL), recipient)
+        const addresses = await connectivity.getNodeAddresses(debugUrl)
+        const target = addresses.overlay
+        const recipient = addresses.pssPublicKey
+        await pss.send(BEE_PEER_URL, topic, target, message, getPostageBatch(BEE_PEER_URL), recipient)
+      })()
     },
     PSS_TIMEOUT,
   )

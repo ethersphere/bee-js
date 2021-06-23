@@ -55,11 +55,11 @@ describe('Bee class', () => {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
       const type = 'text/plain'
-      const file = ({
+      const file = {
         arrayBuffer: () => content,
         name,
         type,
-      } as unknown) as File
+      } as unknown as File
 
       const hash = await bee.uploadFile(getPostageBatch(), file)
       const downloadedFile = await bee.downloadFile(hash)
@@ -72,10 +72,10 @@ describe('Bee class', () => {
     it('should work with file object and name overridden', async () => {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
-      const file = ({
+      const file = {
         arrayBuffer: () => content,
         name,
-      } as unknown) as File
+      } as unknown as File
       const nameOverride = 'hello-override.txt'
 
       const hash = await bee.uploadFile(getPostageBatch(), file, nameOverride)
@@ -87,11 +87,11 @@ describe('Bee class', () => {
 
     it('should work with file object and content-type overridden', async () => {
       const content = new Uint8Array([1, 2, 3])
-      const file = ({
+      const file = {
         arrayBuffer: () => content,
         name: 'hello.txt',
         type: 'text/plain',
-      } as unknown) as File
+      } as unknown as File
       const contentTypeOverride = 'text/plain+override'
 
       const hash = await bee.uploadFile(getPostageBatch(), file, undefined, { contentType: contentTypeOverride })
@@ -195,62 +195,71 @@ describe('Bee class', () => {
   describe('pss', () => {
     it(
       'should send and receive data',
-      async done => {
-        const topic = 'bee-class-topic'
-        const message = new Uint8Array([1, 2, 3])
-        const beeDebug = new BeeDebug(beeDebugUrl())
+      done => {
+        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+        ;(async () => {
+          const topic = 'bee-class-topic'
+          const message = new Uint8Array([1, 2, 3])
+          const beeDebug = new BeeDebug(beeDebugUrl())
 
-        bee.pssReceive(topic).then(receivedMessage => {
-          expect(receivedMessage).toEqual(message)
-          done()
-        })
+          bee.pssReceive(topic).then(receivedMessage => {
+            expect(receivedMessage).toEqual(message)
+            done()
+          })
 
-        const { overlay } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+          const { overlay } = await beeDebug.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+        })()
       },
       PSS_TIMEOUT,
     )
 
     it(
       'should send and receive data with public key',
-      async done => {
-        const topic = 'bee-class-topic-publickey'
-        const message = new Uint8Array([1, 2, 3])
-        const beeDebug = new BeeDebug(beeDebugUrl())
+      done => {
+        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+        ;(async () => {
+          const topic = 'bee-class-topic-publickey'
+          const message = new Uint8Array([1, 2, 3])
+          const beeDebug = new BeeDebug(beeDebugUrl())
 
-        bee.pssReceive(topic).then(receivedMessage => {
-          expect(receivedMessage).toEqual(message)
-          done()
-        })
+          bee.pssReceive(topic).then(receivedMessage => {
+            expect(receivedMessage).toEqual(message)
+            done()
+          })
 
-        const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message, pssPublicKey)
+          const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message, pssPublicKey)
+        })()
       },
       PSS_TIMEOUT,
     )
 
     it(
       'should subscribe to topic',
-      async done => {
-        const topic = 'bee-class-subscribe-topic'
-        const message = new Uint8Array([1, 2, 3])
-        const beeDebug = new BeeDebug(beeDebugUrl())
+      done => {
+        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+        ;(async () => {
+          const topic = 'bee-class-subscribe-topic'
+          const message = new Uint8Array([1, 2, 3])
+          const beeDebug = new BeeDebug(beeDebugUrl())
 
-        const subscription = bee.pssSubscribe(topic, {
-          onMessage: receivedMessage => {
-            // without cancel jest complains for leaking handles and may hang
-            subscription.cancel()
+          const subscription = bee.pssSubscribe(topic, {
+            onMessage: receivedMessage => {
+              // without cancel jest complains for leaking handles and may hang
+              subscription.cancel()
 
-            expect(receivedMessage).toEqual(message)
-            done()
-          },
-          onError: e => {
-            throw e
-          },
-        })
+              expect(receivedMessage).toEqual(message)
+              done()
+            },
+            onError: e => {
+              throw e
+            },
+          })
 
-        const { overlay } = await beeDebug.getNodeAddresses()
-        await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+          const { overlay } = await beeDebug.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+        })()
       },
       PSS_TIMEOUT,
     )
