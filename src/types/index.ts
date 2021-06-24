@@ -31,6 +31,14 @@ export const STAMPS_DEPTH_MIN = 17
  */
 export const STAMPS_DEPTH_MAX = 255
 
+/**
+ * Generic reference type that can be either non-encrypted reference which is a hex string of length 64 or encrypted
+ * reference which is a hex string of length 128.
+ *
+ * Encrypted reference consists of two parts. The reference address itself (like non-encrypted reference) and decryption key.
+ *
+ * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
+ */
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
 export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 
@@ -48,11 +56,22 @@ export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
 export type AddressPrefix = HexString
 
 export interface BeeOptions {
+  /**
+   * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
+   */
   signer?: Signer | Uint8Array | string
 }
 
 export interface UploadOptions {
+  /**
+   * Will pin the data locally in the Bee node as well.
+   */
   pin?: boolean
+
+  /**
+   * Will encrypt the uploaded data and return longer hash which also includes the decryption key.
+   * @see Reference
+   */
   encrypt?: boolean
   tag?: number
   /** alter default options of axios HTTP client */

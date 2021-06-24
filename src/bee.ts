@@ -66,20 +66,25 @@ import type {
 } from './types'
 
 /**
- * The Bee class provides a way of interacting with the Bee APIs based on the provided url
+ * The main component that abstracts operations available on the main Bee API.
+ *
+ * Not all methods are always available as it depends in what mode is Bee node launched in.
+ * For example gateway mode and light node mode has only limited set of endpoints enabled.
  */
 export class Bee {
+  /**
+   * URL on which is the main API of Bee node exposed
+   */
   public readonly url: string
 
   /**
-   * Default Signer used for signing operations, mainly Feeds.
+   * Default Signer object used for signing operations, mainly Feeds.
    */
   public readonly signer?: Signer
 
   /**
-   * @param url URL of a running Bee node
+   * @param url URL on which is the main API of Bee node exposed
    * @param options
-   * @param options.signer Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   constructor(url: string, options?: BeeOptions) {
     assertBeeUrl(url)
@@ -102,6 +107,8 @@ export class Bee {
    * @param options Additional options like tag, encryption, pinning, content-type
    *
    * @returns reference is a content hash of the data
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [API reference - `POST /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes/post)
    */
   async uploadData(
     postageBatchId: string | BatchId,
@@ -120,6 +127,8 @@ export class Bee {
    * Download data as a byte array
    *
    * @param reference Bee data reference
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
   async downloadData(reference: Reference | string): Promise<Data> {
     assertReference(reference)
@@ -467,10 +476,10 @@ export class Bee {
       if (timeoutMsec > 0) {
         // we need to cast the type because Typescript is getting confused with Node.js'
         // alternative type definitions
-        timeout = setTimeout(() => {
+        timeout = (setTimeout(() => {
           subscription.cancel()
           reject(new BeeError('pssReceive timeout'))
-        }, timeoutMsec) as unknown as number
+        }, timeoutMsec) as unknown) as number
       }
     })
   }
