@@ -1,8 +1,8 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from 'axios'
+import normalizeHeaderName from 'axios/lib/helpers/normalizeHeaderName'
+import utils from 'axios/lib/utils'
 import { BeeError, BeeRequestError, BeeResponseError } from './error'
 
-import utils from 'axios/lib/utils'
-import normalizeHeaderName from 'axios/lib/helpers/normalizeHeaderName'
 axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackoverflow.com/a/57320262
 
 /**
@@ -12,6 +12,16 @@ axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackover
  */
 export function setDefaultHeaders(headers: Record<string, string>): void {
   axios.defaults.headers.common = headers
+}
+
+/**
+ * Utility function to get Axios interceptor managers
+ */
+export function getInterceptorManagers(): {
+  request: AxiosInterceptorManager<AxiosRequestConfig>
+  response: AxiosInterceptorManager<AxiosResponse>
+} {
+  return axios.interceptors
 }
 
 /**
