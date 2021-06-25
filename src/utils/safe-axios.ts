@@ -1,4 +1,4 @@
-import axios, { AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import normalizeHeaderName from 'axios/lib/helpers/normalizeHeaderName'
 import utils from 'axios/lib/utils'
 import { BeeError, BeeRequestError, BeeResponseError } from './error'
@@ -12,16 +12,6 @@ axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackover
  */
 export function setDefaultHeaders(headers: Record<string, string>): void {
   axios.defaults.headers.common = headers
-}
-
-/**
- * Utility function to get Axios interceptor managers
- */
-export function getInterceptorManagers(): {
-  request: AxiosInterceptorManager<AxiosRequestConfig>
-  response: AxiosInterceptorManager<AxiosResponse>
-} {
-  return axios.interceptors
 }
 
 /**
@@ -100,3 +90,5 @@ export async function safeAxios<T>(config: AxiosRequestConfig): Promise<AxiosRes
     }
   }
 }
+
+export const axiosInstance = axios

@@ -5,6 +5,5 @@ export * as Eth from './eth'
 export * as File from './file'
 export { keccak256Hash } from './hash'
 export * as Hex from './hex'
-export { getInterceptorManagers, setDefaultHeaders } from './safe-axios'
+export { axiosInstance, setDefaultHeaders } from './safe-axios'
 export * as Tar from './tar'
-
