@@ -403,6 +403,9 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
+   * **Warning! If the recipient Bee node is a light node, then he will never receive the message!**
+   * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
+   *
    * @param postageBatchId Postage BatchId that will be assigned to sent message
    * @param topic Topic name
    * @param target Target message address prefix
@@ -441,6 +444,9 @@ export class Bee {
    * Subscribe to messages for given topic with Postal Service for Swarm
    *
    * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * **Warning! If connected Bee node is a light node, then he will never receive any message!**
+   * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
    *
    * @param topic Topic name
    * @param handler Message handler interface
@@ -509,6 +515,9 @@ export class Bee {
    * an error will be thrown.
    *
    * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * **Warning! If connected Bee node is a light node, then he will never receive any message!**
+   * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
    *
    * @param topic Topic name
    * @param timeoutMsec Timeout in milliseconds
