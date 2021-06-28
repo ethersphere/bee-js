@@ -280,7 +280,7 @@ export class Bee {
   /**
    * Create a new Tag which is meant for tracking progres of syncing data across network.
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
    */
@@ -313,7 +313,7 @@ export class Bee {
   /**
    * Pin local data with given reference
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Data reference
    * @throws TypeError if reference is in not correct format
@@ -329,7 +329,7 @@ export class Bee {
   /**
    * Unpin local data with given reference
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Data reference
    * @throws TypeError if reference is in not correct format
@@ -345,7 +345,7 @@ export class Bee {
   /**
    * Get list of all locally pinned references
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    */
@@ -401,7 +401,7 @@ export class Bee {
    * most likely for setting up an encrypted communication
    * channel by sending an one-off message.
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param postageBatchId Postage BatchId that will be assigned to sent message
    * @param topic Topic name
@@ -440,7 +440,7 @@ export class Bee {
   /**
    * Subscribe to messages for given topic with Postal Service for Swarm
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param topic Topic name
    * @param handler Message handler interface
@@ -508,7 +508,7 @@ export class Bee {
    * timeout can be provided for the message to arrive or else
    * an error will be thrown.
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param topic Topic name
    * @param timeoutMsec Timeout in milliseconds
@@ -756,8 +756,8 @@ export class Bee {
    * For better understanding what each parameter means and what are the optimal values please see
    * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
    *
-   * !!! WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY !!!
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
    * @param depth Logarithm of the number of chunks that can be stamped with the batch.
@@ -794,7 +794,7 @@ export class Bee {
   /**
    * Return details for specific postage batch.
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param postageBatchId Batch ID
    *
@@ -810,7 +810,7 @@ export class Bee {
   /**
    * Return all postage batches that has the node available.
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
@@ -820,7 +820,7 @@ export class Bee {
   }
 
   /**
-   * Ping the base bee URL.
+   * Ping the Bee node to see if there is a live Bee node on the given URL.
    *
    * @throws If connection was not successful throw error
    */
@@ -829,7 +829,7 @@ export class Bee {
   }
 
   /**
-   * Ping the base bee URL.
+   * Ping the Bee node to see if there is a live Bee node on the given URL.
    *
    * @returns true if successful, false on error
    */
