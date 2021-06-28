@@ -71,7 +71,7 @@ export interface UploadOptions {
    * !!! Warning! Not allowed when node is in Gateway mode!
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
    */
   pin?: boolean
 
@@ -81,7 +81,7 @@ export interface UploadOptions {
    * !!! Warning! Not allowed when node is in Gateway mode!
    *
    * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
    * @see Reference
    */
   encrypt?: boolean
@@ -89,7 +89,7 @@ export interface UploadOptions {
   /**
    * Tags keep track of syncing the data with network. This option allows attach existing Tag UUID to the uploaded data.
    *
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
    * @link Tag
    */
@@ -363,7 +363,7 @@ export interface PostageBatchOptions {
   label?: string
 
   /**
-   * Sets gas price for the transaction that creates the postage batch
+   * Sets gas price in Wei for the transaction that creates the postage batch
    */
   gasPrice?: NumberString
   immutableFlag?: boolean

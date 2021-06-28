@@ -211,7 +211,7 @@ export function assertPublicKey(value: unknown): asserts value is PublicKey {
 }
 
 /**
- * Check if it is valid Data.
+ * Check whether the given parameter is valid data to upload
  * @param value
  * @throws TypeError if not valid
  */
@@ -222,7 +222,7 @@ export function assertData(value: unknown): asserts value is string | Uint8Array
 }
 
 /**
- * Check if it is a valid FileData.
+ * Check whether the given parameter is a correct file representation to file upload.
  * @param value
  * @throws TypeError if not valid
  */

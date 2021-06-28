@@ -291,7 +291,7 @@ export class Bee {
   /**
    * Retrieve tag information from Bee node
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
    * @throws TypeError if reference is in not correct format
@@ -356,7 +356,7 @@ export class Bee {
   /**
    * Get pinning status of chunk with given reference
    *
-   * !!! Warning! Not allowed when node is in Gateway mode!
+   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Bee data reference
    * @throws TypeError if reference is in not correct format
