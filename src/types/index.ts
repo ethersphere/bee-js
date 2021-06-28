@@ -31,6 +31,14 @@ export const STAMPS_DEPTH_MIN = 17
  */
 export const STAMPS_DEPTH_MAX = 255
 
+/**
+ * Generic reference that can be either non-encrypted reference which is a hex string of length 64 or encrypted
+ * reference which is a hex string of length 128.
+ *
+ * Encrypted reference consists of two parts. The reference address itself (like non-encrypted reference) and decryption key.
+ *
+ * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
+ */
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
 export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 
@@ -48,24 +56,80 @@ export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
 export type AddressPrefix = HexString
 
 export interface BeeOptions {
+  /**
+   * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
+   */
   signer?: Signer | Uint8Array | string
 }
 
 export interface UploadOptions {
+  /**
+   * Will pin the data locally in the Bee node as well.
+   *
+   * Locally pinned data is possible to reupload to network if it disappear.
+   *
+   * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   */
   pin?: boolean
+
+  /**
+   * Will encrypt the uploaded data and return longer hash which also includes the decryption key.
+   *
+   * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see Reference
+   */
   encrypt?: boolean
+
+  /**
+   * Tags keep track of syncing the data with network. This option allows attach existing Tag UUID to the uploaded data.
+   *
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @link Tag
+   */
   tag?: number
-  /** alter default options of axios HTTP client */
+
+  /** Alter default options of axios HTTP client */
   axiosOptions?: AxiosRequestConfig
 }
 
 export interface FileUploadOptions extends UploadOptions {
+  /**
+   * Specifies Content-Length for the given data. It is required when uploading with Readable.
+   *
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   */
   size?: number
+
+  /**
+   * Specifies given Content-Type so when loaded in browser the file is correctly represented.
+   *
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   */
   contentType?: string
 }
 
 export interface CollectionUploadOptions extends UploadOptions {
+  /**
+   * Default file to be returned when the root hash of collection is accessed.
+   *
+   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   */
   indexDocument?: string
+
+  /**
+   * Configure custom error document to be returned when a specified path can not be found in collection.
+   *
+   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   */
   errorDocument?: string
 }
 
@@ -76,11 +140,35 @@ export interface UploadHeaders {
   'swarm-postage-batch-id'?: string
 }
 
+/**
+ * Object that contains infromation about progress of upload of data to network.
+ *
+ * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+ */
 export interface Tag {
+  /**
+   * Number of all chunks that the data will be split into.
+   */
   total: number
+
+  /**
+   * Number of chunks that is locally stored in the Bee node.
+   */
   processed: number
+
+  /**
+   * Number of chunks that arrived to their designated destination in the network
+   */
   synced: number
+
+  /**
+   * Unique identifier
+   */
   uid: number
+
+  /**
+   * When the upload process started
+   */
   startedAt: string
 }
 
@@ -106,8 +194,19 @@ export interface Pin {
  * Concretely: text(), hex(), json()
  */
 export interface Data extends Uint8Array {
+  /**
+   * Converts the binary data using UTF-8 decoding into string.
+   */
   text(): string
+
+  /**
+   * Converts the binary data into hex-string.
+   */
   hex(): HexString
+
+  /**
+   * Converts the binary data into string which is then parsed into JSON.
+   */
   json(): Record<string, unknown>
 }
 
@@ -258,7 +357,14 @@ export interface PostageBatch {
  * Options for creation of postage batch
  */
 export interface PostageBatchOptions {
+  /**
+   * Sets label for the postage batch
+   */
   label?: string
+
+  /**
+   * Sets gas price in Wei for the transaction that creates the postage batch
+   */
   gasPrice?: NumberString
   immutableFlag?: boolean
 }

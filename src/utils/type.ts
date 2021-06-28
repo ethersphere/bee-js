@@ -210,12 +210,22 @@ export function assertPublicKey(value: unknown): asserts value is PublicKey {
   assertHexString(value, PUBKEY_HEX_LENGTH, 'PublicKey')
 }
 
+/**
+ * Check whether the given parameter is valid data to upload
+ * @param value
+ * @throws TypeError if not valid
+ */
 export function assertData(value: unknown): asserts value is string | Uint8Array {
   if (typeof value !== 'string' && !(value instanceof Uint8Array)) {
     throw new TypeError('Data must be either string or Uint8Array!')
   }
 }
 
+/**
+ * Check whether the given parameter is a correct file representation to file upload.
+ * @param value
+ * @throws TypeError if not valid
+ */
 export function assertFileData(value: unknown): asserts value is string | Uint8Array | Readable | File {
   if (typeof value !== 'string' && !(value instanceof Uint8Array) && !isFile(value) && !isReadable(value)) {
     throw new TypeError('Data must be either string, Readable, Uint8Array or File!')

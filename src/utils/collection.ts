@@ -23,7 +23,7 @@ export function assertCollection(data: unknown): asserts data is Collection<Uint
  * Creates array in the format of Collection with data loaded from directory on filesystem.
  * The function loads all the data into memory!
  *
- * @param dir absolute path to the directory
+ * @param dir path to the directory
  */
 export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint8Array>> {
   if (typeof dir !== 'string') {

@@ -81,6 +81,8 @@ const data = await bee.downloadData(fileHash)
 console.log(data.text()) // prints 'Bee is awesome!'
 ```
 
+[**Check out our examples repo for some more ideas on how to use `bee-js`**](https://github.com/ethersphere/examples-js)
+
 ## Documentation
 
 You can find the full documentation [here](https://bee-js.ethswarm.org/docs). The API reference documentation can be found [here](https://bee-js.ethswarm.org/docs/api).
