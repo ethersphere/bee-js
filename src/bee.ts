@@ -254,7 +254,7 @@ export class Bee {
   /**
    * Upload collection of files.
    *
-   * Available only in NodeJs as it uses the `fs` module.
+   * Available only in Node.js as it uses the `fs` module.
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param dir the path of the files to be uploaded
@@ -630,7 +630,7 @@ export class Bee {
    * JSON-like data types are supported.
    *
    * The default Signer of Bee instance is used if `options.signer` is not specified.
-   * If non of those two is set error is thrown.
+   * If none of those two is set error is thrown.
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param topic Human readable string, that is internally hashed so there are no constrains there.
@@ -710,7 +710,7 @@ export class Bee {
    * Make a new feed topic from a string
    *
    * Because the topic has to be 32 bytes long this function
-   * hashes the input string to create a topic from arbitrary long string.
+   * hashes the input string to create a topic string of arbitrary length.
    *
    * @param topic The input string
    */
