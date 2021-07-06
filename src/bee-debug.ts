@@ -24,10 +24,12 @@ import type {
   ReserveState,
   ChainState,
   NumberString,
+  ExtendedTag,
 } from './types'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { assertAddress, assertNonNegativeInteger } from './utils/type'
-import { CashoutOptions } from './types'
+import { assertAddress, assertNonNegativeInteger, isTag } from './utils/type'
+import { CashoutOptions, Tag } from './types'
+import * as tag from './modules/debug/tag'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -52,6 +54,28 @@ export class BeeDebug {
 
   async getBlocklist(): Promise<Peer[]> {
     return connectivity.getBlocklist(this.url)
+  }
+
+  /**
+   * Retrieve tag extended information from Bee node
+   *
+   * @param tagUid UID or tag object to be retrieved
+   * @throws TypeError if tagUid is in not correct format
+   *
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/debug-api/#tag/Tag)
+   *
+   */
+  async retrieveExtendedTag(tagUid: number | Tag): Promise<ExtendedTag> {
+    if (isTag(tagUid)) {
+      tagUid = tagUid.uid
+    } else if (typeof tagUid === 'number') {
+      assertNonNegativeInteger(tagUid, 'UID')
+    } else {
+      throw new TypeError('tagUid has to be either Tag or a number (UID)!')
+    }
+
+    return tag.retrieveExtendedTag(this.url, tagUid)
   }
 
   /**

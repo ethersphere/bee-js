@@ -37,7 +37,15 @@ import {
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
-import { NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+import {
+  AllTagsOptions,
+  NumberString,
+  PostageBatchOptions,
+  STAMPS_DEPTH_MAX,
+  STAMPS_DEPTH_MIN,
+  TAGS_LIMIT_MAX,
+  TAGS_LIMIT_MIN,
+} from './types'
 
 import type {
   Tag,
@@ -283,9 +291,50 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `POST /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)
    */
   async createTag(): Promise<Tag> {
     return tag.createTag(this.url)
+  }
+
+  /**
+   * Fetches all tags.
+   *
+   * The listing is limited by options.limit. So you have to iterate using options.offset to get all tags.
+   *
+   * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * @param options
+   * @throws TypeError if limit or offset are not numbers or undefined
+   * @throws BeeArgumentError if limit or offset have invalid options
+   *
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `GET /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)
+   */
+  async getAllTags(options?: AllTagsOptions): Promise<Tag[]> {
+    if (options !== undefined && (typeof options !== 'object' || options === null || Array.isArray(options))) {
+      throw new TypeError('options has to be an object or undefined!')
+    }
+
+    if (options?.limit !== undefined) {
+      if (typeof options.limit !== 'number') {
+        throw new TypeError('options.limit has to be a number or undefined!')
+      }
+
+      if (options.limit < TAGS_LIMIT_MIN) {
+        throw new BeeArgumentError(`options.limit has to be at least ${TAGS_LIMIT_MIN}`, options.limit)
+      }
+
+      if (options.limit > TAGS_LIMIT_MAX) {
+        throw new BeeArgumentError(`options.limit has to be at most ${TAGS_LIMIT_MAX}`, options.limit)
+      }
+    }
+
+    if (options?.offset !== undefined) {
+      assertNonNegativeInteger(options.offset, 'options.offset')
+    }
+
+    return tag.getAllTags(this.url, options?.offset, options?.limit)
   }
 
   /**
@@ -294,9 +343,11 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
-   * @throws TypeError if reference is in not correct format
+   * @throws TypeError if tagUid is in not correct format
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/get)
+   *
    */
   async retrieveTag(tagUid: number | Tag): Promise<Tag> {
     if (isTag(tagUid)) {
@@ -308,6 +359,30 @@ export class Bee {
     }
 
     return tag.retrieveTag(this.url, tagUid)
+  }
+
+  /**
+   * Delete Tag
+   *
+   * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * @param tagUid UID or tag object to be retrieved
+   * @throws TypeError if tagUid is in not correct format
+   * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
+   *
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `DELETE /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/delete)
+   */
+  async deleteTag(tagUid: number | Tag): Promise<void> {
+    if (isTag(tagUid)) {
+      tagUid = tagUid.uid
+    } else if (typeof tagUid === 'number') {
+      assertNonNegativeInteger(tagUid, 'UID')
+    } else {
+      throw new TypeError('tagUid has to be either Tag or a number (UID)!')
+    }
+
+    return tag.deleteTag(this.url, tagUid)
   }
 
   /**

@@ -203,26 +203,107 @@ describe('Bee class', () => {
     it('should throw exception for bad Tag', async () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
-      await expect(bee.uploadFilesFromDirectory(testBatchId, '')).rejects.toThrow(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, true)).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag('')).rejects.toThrow(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, -1)).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag(true)).rejects.toThrow(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, [])).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag([])).rejects.toThrow(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, {})).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag({})).rejects.toThrow(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, null)).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag(null)).rejects.toThrow(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, undefined)).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag(undefined)).rejects.toThrow(TypeError)
 
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, { total: 'asd' })).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag({ total: true })).rejects.toThrow(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, { total: true })).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag({ total: 'asdf' })).rejects.toThrow(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, { total: null })).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag({ total: null })).rejects.toThrow(TypeError)
+
+      await expect(bee.retrieveTag(-1)).rejects.toThrow(BeeArgumentError)
+    })
+  })
+
+  describe('deleteTag', () => {
+    it('should throw exception for bad Tag', async () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag('')).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag(true)).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag([])).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag({})).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag(null)).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag(undefined)).rejects.toThrow(TypeError)
+
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag({ total: true })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag({ total: 'asdf' })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.deleteTag({ total: null })).rejects.toThrow(TypeError)
+
+      await expect(bee.deleteTag(-1)).rejects.toThrow(BeeArgumentError)
+    })
+  })
+
+  describe('getAllTags', () => {
+    it('should throw exception for bad options', async () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags('')).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags(true)).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags(-1)).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags([])).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags(null)).rejects.toThrow(TypeError)
+    })
+
+    it('should throw exception for bad limit', async () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ limit: '' })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ limit: true })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ limit: [] })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ limit: {} })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ limit: null })).rejects.toThrow(TypeError)
+
+      await expect(bee.getAllTags({ limit: -1 })).rejects.toThrow(BeeArgumentError)
+      await expect(bee.getAllTags({ limit: Number.MAX_VALUE })).rejects.toThrow(BeeArgumentError)
+    })
+
+    it('should throw exception for bad offset', async () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ offset: '' })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ offset: true })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ offset: [] })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ offset: {} })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.getAllTags({ offset: null })).rejects.toThrow(TypeError)
+
+      await expect(bee.getAllTags({ offset: -1 })).rejects.toThrow(BeeArgumentError)
     })
   })
 

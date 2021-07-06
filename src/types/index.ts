@@ -31,6 +31,9 @@ export const STAMPS_DEPTH_MIN = 17
  */
 export const STAMPS_DEPTH_MAX = 255
 
+export const TAGS_LIMIT_MIN = 1
+export const TAGS_LIMIT_MAX = 1000
+
 /**
  * Generic reference that can be either non-encrypted reference which is a hex string of length 64 or encrypted
  * reference which is a hex string of length 128.
@@ -170,6 +173,11 @@ export interface Tag {
    * When the upload process started
    */
   startedAt: string
+}
+
+export interface AllTagsOptions {
+  limit?: number
+  offset?: number
 }
 
 export interface FileHeaders {

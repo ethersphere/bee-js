@@ -1,5 +1,57 @@
-import { PublicKey, NumberString } from './index'
+import { PublicKey, NumberString, Reference } from './index'
 import { HexEthAddress } from '../utils/eth'
+
+/**
+ * Object that contains information about progress of upload of data to network.
+ *
+ * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+ */
+export interface ExtendedTag {
+  /**
+   * Number of all chunks that the data will be split into.
+   */
+  total: number
+
+  /**
+   * Number of chunks already processed by splitter for hashing
+   */
+  split: number
+
+  /**
+   * Number of chunks already seen
+   */
+  seen: number
+
+  /**
+   * Number of chunks already stored locally
+   */
+  stored: number
+
+  /**
+   * Number of chunks sent for push syncing
+   */
+  sent: number
+
+  /**
+   * Number of chunks synced with proof
+   */
+  synced: number
+
+  /**
+   * Unique identifier
+   */
+  uid: number
+
+  /**
+   * The associated swarm hash for this tag
+   */
+  address: Reference
+
+  /**
+   * When the upload process started
+   */
+  startedAt: string
+}
 
 export interface Settlements {
   peer: string
