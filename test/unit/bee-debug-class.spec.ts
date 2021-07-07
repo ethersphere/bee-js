@@ -243,4 +243,32 @@ describe('BeeDebug class', () => {
       await expect(bee.depositTokens('1', '-1')).rejects.toThrow(BeeArgumentError)
     })
   })
+
+  describe('retrieveExtendedTag', () => {
+    it('should throw exception for bad Tag', async () => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag('')).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag(true)).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag([])).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag({})).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag(null)).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag(undefined)).rejects.toThrow(TypeError)
+
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag({ total: true })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag({ total: 'asdf' })).rejects.toThrow(TypeError)
+      // @ts-ignore: Type testing
+      await expect(bee.retrieveExtendedTag({ total: null })).rejects.toThrow(TypeError)
+
+      await expect(bee.retrieveExtendedTag(-1)).rejects.toThrow(BeeArgumentError)
+    })
+  })
 })

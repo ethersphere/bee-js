@@ -111,11 +111,33 @@ describe('Bee class', () => {
   })
 
   describe('tags', () => {
+    it('should list tags', async () => {
+      const originalTags = await bee.getAllTags({ limit: 1000 })
+      const createdTag = await bee.createTag()
+      const updatedTags = await bee.getAllTags({ limit: 1000 })
+
+      expect(updatedTags.length - originalTags.length).toEqual(1)
+      expect(originalTags.find(tag => tag.uid === createdTag.uid)).toBeFalsy()
+      expect(updatedTags.find(tag => tag.uid === createdTag.uid)).toBeTruthy()
+    })
+
     it('should retrieve previously created empty tag', async () => {
       const tag = await bee.createTag()
       const tag2 = await bee.retrieveTag(tag)
 
       expect(tag).toEqual(tag2)
+    })
+
+    it('should delete tag', async () => {
+      const createdTag = await bee.createTag()
+      const originalTags = await bee.getAllTags({ limit: 1000 })
+      expect(originalTags.find(tag => tag.uid === createdTag.uid)).toBeTruthy()
+
+      await bee.deleteTag(createdTag)
+      const updatedTags = await bee.getAllTags({ limit: 1000 })
+
+      expect(updatedTags.length - originalTags.length).toEqual(-1)
+      expect(updatedTags.find(tag => tag.uid === createdTag.uid)).toBeFalsy()
     })
   })
 
