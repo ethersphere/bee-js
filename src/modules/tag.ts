@@ -1,4 +1,4 @@
-import { Tag } from '../types'
+import { Reference, Tag } from '../types'
 import { safeAxios } from '../utils/safe-axios'
 
 const endpoint = '/tags'
@@ -54,9 +54,30 @@ export async function getAllTags(url: string, offset?: number, limit?: number): 
   return response.data.tags
 }
 
+/**
+ * Removes tag from the Bee node.
+ * @param url
+ * @param uid
+ */
 export async function deleteTag(url: string, uid: number): Promise<void> {
   await safeAxios<void>({
     method: 'delete',
     url: `${url}${endpoint}/${uid}`,
+  })
+}
+
+/**
+ * Updates tag
+ * @param url
+ * @param uid
+ * @param reference
+ */
+export async function updateTag(url: string, uid: number, reference: Reference): Promise<void> {
+  await safeAxios<void>({
+    method: 'patch',
+    url: `${url}${endpoint}/${uid}`,
+    data: {
+      reference,
+    },
   })
 }

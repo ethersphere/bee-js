@@ -63,6 +63,12 @@ function transformRequest(data: unknown, headers: Record<string, unknown>): stri
     return data.toString()
   }
 
+  if (utils.isObject(data) || (headers && headers['Content-Type'] === 'application/json')) {
+    setContentTypeIfUnset(headers, 'application/json')
+
+    return JSON.stringify(data)
+  }
+
   return data
 }
 

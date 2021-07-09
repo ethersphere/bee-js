@@ -33,6 +33,7 @@ import {
   assertPublicKey,
   assertReference,
   assertUploadOptions,
+  isReadable,
   isTag,
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
@@ -196,6 +197,12 @@ export class Bee {
       const fileOptions = { contentType, ...options }
 
       return bzz.uploadFile(this.url, fileData, postageBatchId, fileName, fileOptions)
+    } else if (isReadable(data) && options?.tag && !options.size) {
+      // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
+      const reference = await bzz.uploadFile(this.url, data, postageBatchId, name, options)
+      await this.updateTag(options.tag, reference)
+
+      return reference
     } else {
       return bzz.uploadFile(this.url, data, postageBatchId, name, options)
     }
@@ -383,6 +390,36 @@ export class Bee {
     }
 
     return tag.deleteTag(this.url, tagUid)
+  }
+
+  /**
+   * Update tag's total chunks count.
+   *
+   * This is important if you are uploading individual chunks with a tag. Then upon finishing the final root chunk,
+   * you can use this method to update the total chunks count for the tag.
+   *
+   * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * @param tagUid UID or tag object to be retrieved
+   * @param reference The root reference that contains all the chunks to be counted
+   * @throws TypeError if tagUid is in not correct format
+   * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
+   *
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `PATCH /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/patch)
+   */
+  async updateTag(tagUid: number | Tag, reference: Reference | string): Promise<void> {
+    assertReference(reference)
+
+    if (isTag(tagUid)) {
+      tagUid = tagUid.uid
+    } else if (typeof tagUid === 'number') {
+      assertNonNegativeInteger(tagUid, 'UID')
+    } else {
+      throw new TypeError('tagUid has to be either Tag or a number (UID)!')
+    }
+
+    return tag.updateTag(this.url, tagUid, reference)
   }
 
   /**

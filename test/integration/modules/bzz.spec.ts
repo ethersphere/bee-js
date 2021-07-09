@@ -2,14 +2,8 @@ import * as bzz from '../../../src/modules/bzz'
 import * as tag from '../../../src/modules/tag'
 import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
 import { makeCollectionFromFS } from '../../../src/utils/collection'
-import {
-  beeUrl,
-  BIG_FILE_TIMEOUT,
-  createReadable,
-  getPostageBatch,
-  invalidReference,
-  randomByteArray,
-} from '../../utils'
+import { beeUrl, BIG_FILE_TIMEOUT, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
+import { Readable } from 'stream'
 
 const BEE_URL = beeUrl()
 
@@ -243,7 +237,7 @@ describe('modules/bzz', () => {
       const data = randomByteArray(5000, 0)
       const filename = 'hello.txt'
 
-      const hash = await bzz.uploadFile(BEE_URL, createReadable(data), getPostageBatch(), filename, {
+      const hash = await bzz.uploadFile(BEE_URL, Readable.from([data]), getPostageBatch(), filename, {
         size: data.length,
       })
       const fileData = await bzz.downloadFile(BEE_URL, hash)
