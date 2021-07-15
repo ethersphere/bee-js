@@ -6,6 +6,8 @@ type HookCallback<V> = (value: V) => V | Promise<V>
 function wrapRequest(request: AxiosRequestConfig): BeeRequest {
   let headers = request.headers
 
+  // For request interceptor, axios returns wrapped headers split based on methods
+  // which needs to be joined. This is not case for response interceptor's config property which has headers already "flat".
   if (headers.common && headers.get && headers.delete && headers.post && headers.patch) {
     headers = Object.assign({}, request.headers.common ?? {}, request.headers[request.method as HttpMethod] ?? {})
   }
