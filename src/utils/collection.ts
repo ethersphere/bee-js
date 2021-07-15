@@ -3,17 +3,21 @@ import path from 'path'
 import { Collection } from '../types'
 import { BeeArgumentError } from './error'
 import { fileArrayBuffer } from './file'
-import { isUint8Array } from './type'
+import { isReadable, isUint8Array } from './type'
+import type { Readable } from 'stream'
 
 export function isCollection(data: unknown): data is Collection<Uint8Array> {
   if (!Array.isArray(data)) {
     return false
   }
 
-  return data.every(entry => typeof entry === 'object' && entry.data && entry.path && isUint8Array(entry.data))
+  return data.every(
+    entry =>
+      typeof entry === 'object' && entry.data && entry.path && (isUint8Array(entry.data) || isReadable(entry.data)),
+  )
 }
 
-export function assertCollection(data: unknown): asserts data is Collection<Uint8Array> {
+export function assertCollection(data: unknown): asserts data is Collection<Uint8Array | Readable> {
   if (!isCollection(data)) {
     throw new BeeArgumentError('invalid collection', data)
   }

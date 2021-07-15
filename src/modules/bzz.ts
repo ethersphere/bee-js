@@ -156,7 +156,7 @@ function extractCollectionUploadHeaders(
  */
 export async function uploadCollection(
   url: string,
-  collection: Collection<Uint8Array>,
+  collection: Collection<Uint8Array | Readable>,
   postageBatchId: BatchId,
   options?: CollectionUploadOptions,
 ): Promise<Reference> {
