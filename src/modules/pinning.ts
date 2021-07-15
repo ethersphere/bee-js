@@ -1,4 +1,4 @@
-import type { BeeResponse, Pin, Reference } from '../types'
+import type { BeeGenericResponse, Pin, Reference } from '../types'
 import { safeAxios } from '../utils/safe-axios'
 
 const PINNING_ENDPOINT = '/pins'
@@ -14,7 +14,7 @@ export interface GetAllPinResponse {
  * @param reference Bee data reference
  */
 export async function pin(url: string, reference: Reference): Promise<void> {
-  await safeAxios<BeeResponse>({
+  await safeAxios<BeeGenericResponse>({
     method: 'post',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,
@@ -28,7 +28,7 @@ export async function pin(url: string, reference: Reference): Promise<void> {
  * @param reference Bee data reference
  */
 export async function unpin(url: string, reference: Reference): Promise<void> {
-  await safeAxios<BeeResponse>({
+  await safeAxios<BeeGenericResponse>({
     method: 'delete',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,

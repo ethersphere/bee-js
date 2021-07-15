@@ -1,6 +1,6 @@
 import WebSocket from 'isomorphic-ws'
 
-import type { BatchId, BeeResponse, PublicKey } from '../types'
+import type { BatchId, BeeGenericResponse, PublicKey } from '../types'
 import { prepareData } from '../utils/data'
 import { safeAxios } from '../utils/safe-axios'
 import { extractUploadHeaders } from '../utils/headers'
@@ -26,7 +26,7 @@ export async function send(
   postageBatchId: BatchId,
   recipient?: PublicKey,
 ): Promise<void> {
-  await safeAxios<BeeResponse>({
+  await safeAxios<BeeGenericResponse>({
     method: 'post',
     url: `${url}${endpoint}/send/${topic}/${target.slice(0, 4)}`,
     data: await prepareData(data),
