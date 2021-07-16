@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import type { BeeResponse, Reference, Address, BatchId } from '../src/types'
+import type { BeeGenericResponse, Reference, Address, BatchId } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
@@ -37,7 +37,7 @@ export function commonMatchers(): void {
 
       return result
     },
-    toBeBeeResponse(received: BeeResponse, expectedStatusCode: number) {
+    toBeBeeResponse(received: BeeGenericResponse, expectedStatusCode: number) {
       const result = {
         pass: false,
         message: () =>
@@ -248,12 +248,12 @@ export function shorten(inputStr: unknown, len = 17): string {
 
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000' as Reference
 
-export const okResponse: BeeResponse = {
+export const okResponse: BeeGenericResponse = {
   code: 200,
   message: 'OK',
 }
 
-export const createdResponse: BeeResponse = {
+export const createdResponse: BeeGenericResponse = {
   code: 201,
   message: 'Created',
 }

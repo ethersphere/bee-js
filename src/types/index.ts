@@ -237,13 +237,31 @@ export interface PssMessageHandler {
   onError: (error: BeeError, subscription: PssSubscription) => void
 }
 
-export interface BeeResponse {
+export interface BeeGenericResponse {
   message: string
   code: number
 }
 
 export interface ReferenceResponse {
   reference: Reference
+}
+
+export type HttpMethod = 'get' | 'GET' | 'delete' | 'DELETE' | 'post' | 'POST' | 'patch' | 'PATCH'
+
+export interface BeeRequest {
+  url: string
+  method: HttpMethod
+  headers?: Record<string, string>
+  params?: Record<string, unknown>
+  data?: unknown
+}
+
+export interface BeeResponse {
+  headers: Record<string, string>
+  data: unknown
+  status: number
+  statusText?: string
+  request: BeeRequest
 }
 
 /*********************************************************
