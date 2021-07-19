@@ -2,9 +2,9 @@ import fs from 'fs'
 import path from 'path'
 import { Collection } from '../types'
 import { BeeArgumentError } from './error'
-import { fileArrayBuffer } from './file'
 import { isReadable, isUint8Array } from './type'
-import type { Readable } from 'stream'
+import { ReadableWebToNodeStream } from 'readable-web-to-node-stream'
+import type { Readable } from 'readable-stream'
 
 export function isCollection(data: unknown): data is Collection<Uint8Array> {
   if (!Array.isArray(data)) {
@@ -87,8 +87,8 @@ function makeFilePath(file: WebkitFile) {
   throw new TypeError('file is not valid File object')
 }
 
-export async function makeCollectionFromFileList(fileList: FileList | File[]): Promise<Collection<Uint8Array>> {
-  const collection: Collection<Uint8Array> = []
+export function makeCollectionFromFileList(fileList: FileList | File[]): Collection<Readable> {
+  const collection: Collection<Readable> = []
 
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList[i] as WebkitFile
@@ -96,7 +96,8 @@ export async function makeCollectionFromFileList(fileList: FileList | File[]): P
     if (file) {
       collection.push({
         path: makeFilePath(file),
-        data: new Uint8Array(await fileArrayBuffer(file)),
+        data: new ReadableWebToNodeStream(file.stream()),
+        length: file.size,
       })
     }
   }

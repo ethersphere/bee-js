@@ -9,7 +9,6 @@ import * as stamps from './modules/stamps'
 
 import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
-import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
@@ -34,6 +33,7 @@ import {
   assertPublicKey,
   assertReference,
   assertUploadOptions,
+  isFile,
   isReadable,
   makeTagUid,
 } from './utils/type'
@@ -184,12 +184,11 @@ export class Bee {
     }
 
     if (isFile(data)) {
-      const fileData = await fileArrayBuffer(data)
       const fileName = name ?? data.name
       const contentType = data.type
       const fileOptions = { contentType, ...options }
 
-      return bzz.uploadFile(this.url, fileData, postageBatchId, fileName, fileOptions)
+      return bzz.uploadFile(this.url, data.stream(), postageBatchId, fileName, fileOptions)
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
       const reference = await bzz.uploadFile(this.url, data, postageBatchId, name, options)
@@ -254,7 +253,7 @@ export class Bee {
 
     if (options) assertCollectionUploadOptions(options)
 
-    const data = await makeCollectionFromFileList(fileList)
+    const data = makeCollectionFromFileList(fileList)
 
     return bzz.uploadCollection(this.url, data, postageBatchId, options)
   }

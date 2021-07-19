@@ -1,31 +1,92 @@
 import { Collection } from '../types'
-import Tar from 'tar-js'
-import type { Readable } from 'stream'
+import { Readable } from 'stream'
+import * as tar from 'tar-stream'
+import { Pack } from 'tar-stream'
+import { assertNonNegativeInteger, isReadable } from './type'
 
-// this is a workaround type so that we are able to pass in Uint8Arrays
-// as string to `tar.append`
-interface StringLike {
-  readonly length: number
-  charCodeAt: (index: number) => number
-}
+type FileInfo = { name: string; size: number; stream: Readable }
 
-// converts a string to utf8 Uint8Array and returns it as a string-like
-// object that `tar.append` accepts as path
-function fixUnicodePath(path: string): StringLike {
-  const codes = new TextEncoder().encode(path)
+/**
+ * Helper class for tar-stream as found at https://github.com/mafintosh/tar-stream/issues/24#issuecomment-579797456
+ * Modified for better readability.
+ *
+ * Credit to https://github.com/dominicbartl
+ */
+export class TarArchive {
+  private pack = tar.pack()
+  private streamQueue: FileInfo[] = []
+  private size = 0
 
-  return {
-    length: codes.length,
-    charCodeAt: index => codes[index],
+  addBuffer(name: string, buffer: Buffer) {
+    this.size += buffer.length
+    this.pack.entry(
+      {
+        name: name,
+      },
+      buffer,
+    )
+  }
+
+  addStream(name: string, size: number, stream: Readable) {
+    this.streamQueue.push({
+      name,
+      size,
+      stream,
+    })
+  }
+
+  async write(): Promise<Pack> {
+    return new Promise((resolve, reject) => {
+      this.nextEntry(err => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(this.pack)
+        }
+      })
+    })
+  }
+
+  private nextEntry(callback: (err?: Error) => void) {
+    const file = this.streamQueue.shift()
+
+    if (file) {
+      const writeEntryStream = this.pack.entry(
+        {
+          name: file.name,
+          size: file.size,
+        },
+        err => {
+          if (err) {
+            callback(err)
+          } else {
+            this.size += file.size
+            this.nextEntry(callback)
+          }
+        },
+      )
+      file.stream.pipe(writeEntryStream)
+    } else {
+      this.pack.finalize()
+      callback()
+    }
   }
 }
 
-export function makeTar(data: Collection<Uint8Array | Readable>): Uint8Array {
-  const tar = new Tar()
+export async function makeTar(data: Collection<Uint8Array | Readable>): Promise<Readable> {
+  const tar = new TarArchive()
+
   for (const entry of data) {
-    const path = fixUnicodePath(entry.path)
-    tar.append(path, entry.data)
+    if (isReadable(entry.data)) {
+      assertNonNegativeInteger(entry.length, 'entry.length')
+
+      tar.addStream(entry.path, entry.length, entry.data)
+    } else if (entry.data instanceof Uint8Array) {
+      tar.addBuffer(entry.path, Buffer.from(entry.data))
+    } else {
+      throw new TypeError('Unknown data type!')
+    }
   }
 
-  return tar.out
+  return tar.write()
 }

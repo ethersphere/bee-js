@@ -165,7 +165,7 @@ export async function uploadCollection(
   }
 
   assertCollection(collection)
-  const tarData = makeTar(collection)
+  const tarData = await makeTar(collection)
 
   const response = await safeAxios<{ reference: Reference }>({
     ...options?.axiosOptions,

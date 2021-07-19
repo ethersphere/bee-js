@@ -21,7 +21,6 @@ import {
   TAGS_LIMIT_MAX,
 } from '../types'
 import { BeeArgumentError } from './error'
-import { isFile } from './file'
 import { assertHexString } from './hex'
 
 export function isReadable(entry: unknown): entry is Readable {
@@ -31,6 +30,22 @@ export function isReadable(entry: unknown): entry is Readable {
     typeof (entry as Readable).pipe === 'function' &&
     (entry as Readable).readable &&
     typeof (entry as Readable)._read === 'function'
+  )
+}
+
+export function isFile(file: unknown): file is File {
+  // browser
+  if (typeof File === 'function') {
+    return file instanceof File
+  }
+
+  // node.js
+  const f = file as File
+
+  return (
+    typeof f === 'object' &&
+    typeof f.name === 'string' &&
+    (typeof f.stream === 'function' || typeof f.arrayBuffer === 'function')
   )
 }
 

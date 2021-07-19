@@ -7,6 +7,9 @@ import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { EthAddress, HexEthAddress } from '../utils/eth'
 import { HexString } from '../utils/hex'
+import { Readable as NativeReadable } from 'stream'
+import { Readable as CompatibilityReadable } from 'readable-stream'
+
 export * from './debug'
 
 export interface Dictionary<T> {
@@ -46,6 +49,12 @@ export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeo
 export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 
 export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
+
+/**
+ * Type representing Readable stream that abstracts away implementation especially the difference between
+ * browser and NodeJS versions
+ */
+export type Readable = NativeReadable | CompatibilityReadable | ReadableStream
 
 /**
  * BatchId is result of keccak256 hash so 64 hex string without prefix.
@@ -222,12 +231,20 @@ export interface Data extends Uint8Array {
  * Object represents a file and some of its metadata in [[Directory]] object.
  */
 export interface CollectionEntry<T> {
+  /**
+   * Data of the entry
+   */
   data: T
 
   /**
-   *
+   * Path in the directory structure
    */
   path: string
+
+  /**
+   * If data is Readable then length has to be specified as well!
+   */
+  length?: number
 }
 
 /**
