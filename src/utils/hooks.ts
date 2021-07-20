@@ -45,18 +45,42 @@ function wrapResponseClosure(cb: HookCallback<BeeResponse>): (response: AxiosRes
   }
 }
 
+/**
+ * Function that registers listener callback for all outgoing HTTP requests that bee-js makes.
+ *
+ * **Be Aware! This listener listens to all Bee/BeeDebug class instances without differentiation!**
+ *
+ * @param cb
+ * @returns ID of the listener that can be used to stop the callback to receive new requests
+ */
 export function onRequest(cb: HookCallback<BeeRequest>): number {
   return axios.interceptors.request.use(wrapRequestClosure(cb))
 }
 
+/**
+ * Function that stops forwarding new requests to associated listener callback
+ * @param id ID that onRequest returned
+ */
 export function clearOnRequest(id: number): void {
   axios.interceptors.request.eject(id)
 }
 
+/**
+ * Function that registers listener callback for all incoming HTTP responses that bee-js made.
+ *
+ * **Be Aware! This listener listens to all Bee/BeeDebug class instances without differentiation!**
+ *
+ * @param cb
+ * @returns ID of the listener that can be used to stop the callback to receive new responses
+ */
 export function onResponse(cb: HookCallback<BeeResponse>): number {
   return axios.interceptors.response.use(wrapResponseClosure(cb))
 }
 
+/**
+ * Function that stops forwarding new responses to associated listener callback
+ * @param id ID that onResponse returned
+ */
 export function clearOnResponse(id: number): void {
   axios.interceptors.response.eject(id)
 }
