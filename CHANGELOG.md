@@ -1,4 +1,27 @@
 # Changelog
+
+## [1.1.0](https://www.github.com/ethersphere/bee-js/compare/v1.0.0...v1.1.0) (2021-07-16)
+
+This is a small incremental release that brings two new features.
+
+### 🪝 Hooks system
+
+If you need to know what exact HTTP requests `bee-js` sends to Bee you can now register hooks for outgoing requests and incoming responses using [`Utils.Hooks` interface](https://bee-js.ethswarm.org/docs/api/modules/utils.hooks).
+
+**Be aware! These listeners listen to all outgoing `bee-js`'s requests/responses, so if you have multiple `Bee`/`BeeDebug` instances for different Bee nodes, than all requests will be forwarded to your callbacks!**
+
+### 🏷 New Tag endpoints
+
+With the `1.0` Bee release few new endpoints related to [Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing) were introduced that allows you to list, update and delete tags.
+
+
+### Features
+
+* hooks system ([#367](https://www.github.com/ethersphere/bee-js/issues/367)) ([97441b3](https://www.github.com/ethersphere/bee-js/commit/97441b3137ff1e10ff43f7ccb8ae45b547175907))
+* new tags endpoints ([#365](https://www.github.com/ethersphere/bee-js/issues/365)) ([90dc15e](https://www.github.com/ethersphere/bee-js/commit/90dc15e0b0232de3d08127e16da2b5a499d5abbb))
+
+---
+
 ## [1.0.0](https://www.github.com/ethersphere/bee-js/compare/v0.12.0...v1.0.0) (2021-06-22)
 
 This release bumps the supported Bee version to 1.0.0, which marks the mainnet launch of the project.
