@@ -22,6 +22,7 @@ import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import {
   assertAddressPrefix,
+  assertAllTagsOptions,
   assertBatchId,
   assertBoolean,
   assertCollectionUploadOptions,
@@ -33,11 +34,12 @@ import {
   assertPublicKey,
   assertReference,
   assertUploadOptions,
-  isTag,
+  isReadable,
+  makeTagUid,
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
-import { NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+import { AllTagsOptions, NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
 
 import type {
   Tag,
@@ -188,6 +190,12 @@ export class Bee {
       const fileOptions = { contentType, ...options }
 
       return bzz.uploadFile(this.url, fileData, postageBatchId, fileName, fileOptions)
+    } else if (isReadable(data) && options?.tag && !options.size) {
+      // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
+      const reference = await bzz.uploadFile(this.url, data, postageBatchId, name, options)
+      await this.updateTag(options.tag, reference)
+
+      return reference
     } else {
       return bzz.uploadFile(this.url, data, postageBatchId, name, options)
     }
@@ -283,9 +291,30 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `POST /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)
    */
   async createTag(): Promise<Tag> {
     return tag.createTag(this.url)
+  }
+
+  /**
+   * Fetches all tags.
+   *
+   * The listing is limited by options.limit. So you have to iterate using options.offset to get all tags.
+   *
+   * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * @param options
+   * @throws TypeError if limit or offset are not numbers or undefined
+   * @throws BeeArgumentError if limit or offset have invalid options
+   *
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `GET /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)
+   */
+  async getAllTags(options?: AllTagsOptions): Promise<Tag[]> {
+    assertAllTagsOptions(options)
+
+    return tag.getAllTags(this.url, options?.offset, options?.limit)
   }
 
   /**
@@ -294,20 +323,57 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
-   * @throws TypeError if reference is in not correct format
+   * @throws TypeError if tagUid is in not correct format
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/get)
+   *
    */
   async retrieveTag(tagUid: number | Tag): Promise<Tag> {
-    if (isTag(tagUid)) {
-      tagUid = tagUid.uid
-    } else if (typeof tagUid === 'number') {
-      assertNonNegativeInteger(tagUid, 'UID')
-    } else {
-      throw new TypeError('tagUid has to be either Tag or a number (UID)!')
-    }
+    tagUid = makeTagUid(tagUid)
 
     return tag.retrieveTag(this.url, tagUid)
+  }
+
+  /**
+   * Delete Tag
+   *
+   * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * @param tagUid UID or tag object to be retrieved
+   * @throws TypeError if tagUid is in not correct format
+   * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
+   *
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `DELETE /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/delete)
+   */
+  async deleteTag(tagUid: number | Tag): Promise<void> {
+    tagUid = makeTagUid(tagUid)
+
+    return tag.deleteTag(this.url, tagUid)
+  }
+
+  /**
+   * Update tag's total chunks count.
+   *
+   * This is important if you are uploading individual chunks with a tag. Then upon finishing the final root chunk,
+   * you can use this method to update the total chunks count for the tag.
+   *
+   * **Warning! Not allowed when node is in Gateway mode!**
+   *
+   * @param tagUid UID or tag object to be retrieved
+   * @param reference The root reference that contains all the chunks to be counted
+   * @throws TypeError if tagUid is in not correct format
+   * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
+   *
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `PATCH /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/patch)
+   */
+  async updateTag(tagUid: number | Tag, reference: Reference | string): Promise<void> {
+    assertReference(reference)
+    tagUid = makeTagUid(tagUid)
+
+    return tag.updateTag(this.url, tagUid, reference)
   }
 
   /**

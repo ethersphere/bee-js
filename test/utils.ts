@@ -115,11 +115,19 @@ export async function sleep(ms: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 }
 
-export function createReadable(input: string | Uint8Array): Readable {
+export function createRandomReadable(totalSize: number, chunkSize = 1000): Readable {
+  if (totalSize % chunkSize !== 0) {
+    throw new Error(`totalSize ${totalSize} is not dividable without remainder by chunkSize ${chunkSize}`)
+  }
+
   const stream = new Readable()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   stream._read = (): void => {}
-  stream.push(Buffer.from(input))
+
+  for (let i = 0; i < totalSize / chunkSize; i++) {
+    stream.push(randomByteArray(chunkSize))
+  }
+
   stream.push(null)
 
   return stream

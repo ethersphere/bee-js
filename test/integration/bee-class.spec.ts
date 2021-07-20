@@ -12,6 +12,7 @@ import {
   beePeerUrl,
   beeUrl,
   commonMatchers,
+  createRandomReadable,
   FEED_TIMEOUT,
   getPostageBatch,
   POSTAGE_BATCH_TIMEOUT,
@@ -24,6 +25,7 @@ import {
   testJsonPayload,
   tryDeleteChunkFromLocalStorage,
 } from '../utils'
+import { Readable } from 'stream'
 
 commonMatchers()
 
@@ -49,6 +51,24 @@ describe('Bee class', () => {
 
       expect(file.name).toEqual(name)
       expect(file.data).toEqual(content)
+    })
+
+    it('should work with files and tags', async () => {
+      const tag = await bee.createTag()
+
+      // Should fit into 4 chunks
+      const content = randomByteArray(13000)
+      const name = 'hello.txt'
+      const contentType = 'text/html'
+
+      const hash = await bee.uploadFile(getPostageBatch(), content, name, { contentType, tag: tag.uid })
+      const file = await bee.downloadFile(hash)
+
+      expect(file.name).toEqual(name)
+      expect(file.data).toEqual(content)
+
+      const retrievedTag = await bee.retrieveTag(tag)
+      expect(retrievedTag.total).toEqual(8)
     })
 
     it('should work with file object', async () => {
@@ -100,6 +120,39 @@ describe('Bee class', () => {
       expect(downloadedFile.data).toEqual(content)
       expect(downloadedFile.contentType).toEqual(contentTypeOverride)
     })
+
+    it('should work with readable', async () => {
+      const readable = Readable.from(['hello world'])
+      const name = 'hello.txt'
+      const contentType = 'text/plain'
+
+      const hash = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
+      const file = await bee.downloadFile(hash)
+
+      expect(file.name).toEqual(name)
+      expect(file.data.text()).toEqual('hello world')
+    })
+
+    it('should work with readable and tags', async () => {
+      const tag = await bee.createTag()
+
+      const readable = createRandomReadable(13000)
+      const name = 'hello.txt'
+      const contentType = 'text/plain'
+
+      const hash = await bee.uploadFile(getPostageBatch(), readable, name, {
+        contentType,
+        tag: tag.uid,
+      })
+
+      const file = await bee.downloadFile(hash)
+
+      expect(file.name).toEqual(name)
+      expect(file.data.length).toEqual(13000)
+
+      const retrievedTag = await bee.retrieveTag(tag)
+      expect(retrievedTag.total).toEqual(8)
+    })
   })
 
   describe('collections', () => {
@@ -111,11 +164,33 @@ describe('Bee class', () => {
   })
 
   describe('tags', () => {
+    it('should list tags', async () => {
+      const originalTags = await bee.getAllTags({ limit: 1000 })
+      const createdTag = await bee.createTag()
+      const updatedTags = await bee.getAllTags({ limit: 1000 })
+
+      expect(updatedTags.length - originalTags.length).toEqual(1)
+      expect(originalTags.find(tag => tag.uid === createdTag.uid)).toBeFalsy()
+      expect(updatedTags.find(tag => tag.uid === createdTag.uid)).toBeTruthy()
+    })
+
     it('should retrieve previously created empty tag', async () => {
       const tag = await bee.createTag()
       const tag2 = await bee.retrieveTag(tag)
 
       expect(tag).toEqual(tag2)
+    })
+
+    it('should delete tag', async () => {
+      const createdTag = await bee.createTag()
+      const originalTags = await bee.getAllTags({ limit: 1000 })
+      expect(originalTags.find(tag => tag.uid === createdTag.uid)).toBeTruthy()
+
+      await bee.deleteTag(createdTag)
+      const updatedTags = await bee.getAllTags({ limit: 1000 })
+
+      expect(updatedTags.length - originalTags.length).toEqual(-1)
+      expect(updatedTags.find(tag => tag.uid === createdTag.uid)).toBeFalsy()
     })
   })
 
@@ -174,8 +249,7 @@ describe('Bee class', () => {
   })
 
   describe('reupload', () => {
-    // TODO: Is skipped until https://github.com/ethersphere/bee/issues/1897 is solved
-    it.skip('should reupload pinned data', async () => {
+    it('should reupload pinned data', async () => {
       const content = randomByteArray(16, Date.now())
 
       const hash = await bee.uploadData(getPostageBatch(), content, { pin: true })

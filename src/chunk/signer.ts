@@ -5,6 +5,7 @@ import { keccak256Hash } from '../utils/hash'
 import { hexToBytes, makeHexString } from '../utils/hex'
 import { EthAddress } from '../utils/eth'
 import { Data, PrivateKeyBytes, Signature, SIGNATURE_BYTES_LENGTH, SIGNATURE_HEX_LENGTH, Signer } from '../types'
+import { isStrictlyObject } from '../utils/type'
 
 type EllipticPublicKey = curve.base.BasePoint
 const UNCOMPRESSED_RECOVERY_ID = 27
@@ -89,8 +90,8 @@ export function makePrivateKeySigner(privateKey: PrivateKeyBytes): Signer {
 }
 
 export function assertSigner(signer: unknown): asserts signer is Signer {
-  if (typeof signer !== 'object' || signer === null || Array.isArray(signer)) {
-    throw new TypeError('Signer must be an object or string!')
+  if (!isStrictlyObject(signer)) {
+    throw new TypeError('Signer must be an object!')
   }
 
   const typedSigner = signer as Signer
