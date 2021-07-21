@@ -2,6 +2,7 @@
 
 ### [1.1.1](https://www.github.com/ethersphere/bee-js/compare/v1.1.0...v1.1.1) (2021-07-21)
 
+This is a small patch release that fixes missing headers in requests/responses returned using the hooks system.
 
 ### Bug Fixes
 
