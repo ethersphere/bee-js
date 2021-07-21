@@ -7,6 +7,7 @@ export const MOCK_SERVER_URL = 'http://localhost:12345/'
 
 // Endpoints
 const FEED_ENDPOINT = '/feeds'
+const BZZ_ENDPOINT = '/bzz'
 const BYTES_ENDPOINT = '/bytes'
 const POSTAGE_ENDPOINT = '/stamps'
 const CHEQUEBOOK_ENDPOINT = '/chequebook'
@@ -27,6 +28,33 @@ export function fetchFeedUpdateMock(
 
 export function downloadDataMock(reference: Reference | string): nock.Interceptor {
   return nock(MOCK_SERVER_URL).get(`${BYTES_ENDPOINT}/${reference}`)
+}
+
+interface UploadOptions {
+  name?: string
+  tag?: number
+  pin?: boolean
+  encrypt?: boolean
+  collection?: boolean
+  indexDocument?: string
+  errorDocument?: string
+}
+
+function camelCaseToDashCase(str: string) {
+  return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)
+}
+
+export function uploadFileMock(batchId: string, name?: string, options?: UploadOptions): nock.Interceptor {
+  // Prefixes the options with `swarm-` so the object can be used for required headers
+  const headers = Object.entries(options || {}).reduce<Record<string, string>>((prev, curr) => {
+    prev[`swarm-${camelCaseToDashCase(curr[0])}`] = curr[1]
+
+    return prev
+  }, {})
+
+  return nock(MOCK_SERVER_URL, { reqheaders: { 'swarm-postage-batch-id': batchId, ...headers } })
+    .post(`${BZZ_ENDPOINT}`)
+    .query({ name })
 }
 
 export function createPostageBatchMock(
