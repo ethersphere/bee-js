@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.1.1](https://www.github.com/ethersphere/bee-js/compare/v1.1.0...v1.1.1) (2021-07-21)
+
+
+### Bug Fixes
+
+* provide all request headers ([#370](https://www.github.com/ethersphere/bee-js/issues/370)) ([5b4c94b](https://www.github.com/ethersphere/bee-js/commit/5b4c94bfd43904623bd2c0a4427f74784f34a3e8))
+
 ## [1.1.0](https://www.github.com/ethersphere/bee-js/compare/v1.0.0...v1.1.0) (2021-07-16)
 
 This is a small incremental release that brings two new features.
