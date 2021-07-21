@@ -1,8 +1,9 @@
 /* eslint-disable */
 import { BeeArgumentError } from '../../src'
 import { makeBytes } from '../../src/utils/bytes'
+import { Readable } from 'stream'
 
-export function testBatchIdAssertion(executor: (input: unknown) => void): void {
+export function testBatchIdAssertion (executor: (input: unknown) => void): void {
   it('should throw exception for bad BatchId', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -14,17 +15,17 @@ export function testBatchIdAssertion(executor: (input: unknown) => void): void {
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Prefixed hexstring is not accepted
     await expect(() => executor('0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
   })
 }
 
-export function testDataAssertions(executor: (input: unknown) => void): void {
+export function testDataAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad Data', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -35,7 +36,7 @@ export function testDataAssertions(executor: (input: unknown) => void): void {
   })
 }
 
-export function testFileDataAssertions(executor: (input: unknown) => void): void {
+export function testFileDataAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad FileData', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -49,7 +50,7 @@ export function testFileDataAssertions(executor: (input: unknown) => void): void
   })
 }
 
-export function testUploadOptionsAssertions(executor: (input: unknown) => void): void {
+export function testUploadOptionsAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad UploadOptions', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -79,7 +80,7 @@ export function testUploadOptionsAssertions(executor: (input: unknown) => void):
   })
 }
 
-export function testFileUploadOptionsAssertions(executor: (input: unknown) => void): void {
+export function testFileUploadOptionsAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad FileUploadOptions', async () => {
     await expect(() => executor({ contentType: true })).rejects.toThrow(TypeError)
     await expect(() => executor({ contentType: 1 })).rejects.toThrow(TypeError)
@@ -94,7 +95,7 @@ export function testFileUploadOptionsAssertions(executor: (input: unknown) => vo
   })
 }
 
-export function testCollectionUploadOptionsAssertions(executor: (input: unknown) => void): void {
+export function testCollectionUploadOptionsAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad CollectionUploadOptions', async () => {
     await expect(() => executor({ indexDocument: true })).rejects.toThrow(TypeError)
     await expect(() => executor({ indexDocument: 1 })).rejects.toThrow(TypeError)
@@ -108,7 +109,38 @@ export function testCollectionUploadOptionsAssertions(executor: (input: unknown)
   })
 }
 
-export function testReferenceAssertions(executor: (input: unknown) => void): void {
+export function testCollectionAssertions (executor: (input: unknown) => void): void {
+  it('should throw exception for bad Collection', async () => {
+    await expect(() => executor('string')).rejects.toThrow(TypeError)
+    await expect(() => executor(true)).rejects.toThrow(TypeError)
+    await expect(() => executor({})).rejects.toThrow(TypeError)
+    await expect(() => executor(null)).rejects.toThrow(TypeError)
+    await expect(() => executor(undefined)).rejects.toThrow(TypeError)
+
+    await expect(() => executor([{ path: true, data: new Uint8Array([1, 2, 3]) }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 1, data: new Uint8Array([1, 2, 3]) }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: null, data: new Uint8Array([1, 2, 3]) }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: undefined, data: new Uint8Array([1, 2, 3]) }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: [], data: new Uint8Array([1, 2, 3]) }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: {}, data: new Uint8Array([1, 2, 3]) }])).rejects.toThrow(TypeError)
+
+    await expect(() => executor([{ path: 'some/path', data: null }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: true }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: 1 }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: 'string' }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: undefined }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: {} }])).rejects.toThrow(TypeError)
+
+    await expect(() => executor([{ path: 'some/path', data: Readable.from('hello-world') }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: Readable.from('hello-world'), length: '' }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: Readable.from('hello-world'), length: true }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: Readable.from('hello-world'), length: [] }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: Readable.from('hello-world'), length: {} }])).rejects.toThrow(TypeError)
+    await expect(() => executor([{ path: 'some/path', data: Readable.from('hello-world'), length: null }])).rejects.toThrow(TypeError)
+  })
+}
+
+export function testReferenceAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad Reference', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -120,22 +152,22 @@ export function testReferenceAssertions(executor: (input: unknown) => void): voi
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Prefixed hexstring is not accepted
     await expect(() => executor('0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Length mismatch
     await expect(() => executor('4fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
   })
 }
 
-export function testAddressPrefixAssertions(executor: (input: unknown) => void): void {
+export function testAddressPrefixAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad AddressPrefix', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -147,22 +179,22 @@ export function testAddressPrefixAssertions(executor: (input: unknown) => void):
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Prefixed hexstring is not accepted
     await expect(() => executor('0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Too long hexstring
     await expect(() => executor('123634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      BeeArgumentError,
+      BeeArgumentError
     )
   })
 }
 
-export function testPublicKeyAssertions(executor: (input: unknown) => void): void {
+export function testPublicKeyAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad PublicKey', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -171,22 +203,22 @@ export function testPublicKeyAssertions(executor: (input: unknown) => void): voi
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Prefixed hexstring is not accepted
     await expect(() => executor('0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Length mismatch
     await expect(() => executor('4fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
   })
 }
 
-export function testPssMessageHandlerAssertions(executor: (input: unknown) => void): void {
+export function testPssMessageHandlerAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad PssMessageHandler', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -197,48 +229,48 @@ export function testPssMessageHandlerAssertions(executor: (input: unknown) => vo
     await expect(() => executor('')).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onMessage() {} })
+      return executor({ onMessage () {} })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onMessage() {}, onError: '' })
+      return executor({ onMessage () {}, onError: '' })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onMessage() {}, onError: [] })
+      return executor({ onMessage () {}, onError: [] })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onMessage() {}, onError: {} })
+      return executor({ onMessage () {}, onError: {} })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onMessage() {}, onError: true })
+      return executor({ onMessage () {}, onError: true })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onError() {}, onMessage: true })
+      return executor({ onError () {}, onMessage: true })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onError() {}, onMessage: {} })
+      return executor({ onError () {}, onMessage: {} })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onError() {}, onMessage: [] })
+      return executor({ onError () {}, onMessage: [] })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onError() {}, onMessage: '' })
+      return executor({ onError () {}, onMessage: '' })
     }).rejects.toThrow(TypeError)
 
     await expect(() => {
-      return executor({ onError() {}, onMessage: 1 })
+      return executor({ onError () {}, onMessage: 1 })
     }).rejects.toThrow(TypeError)
   })
 }
 
-export function testTopicAssertions(executor: (input: unknown) => void): void {
+export function testTopicAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad Topic', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -249,7 +281,7 @@ export function testTopicAssertions(executor: (input: unknown) => void): void {
   })
 }
 
-export function testFeedTopicAssertions(executor: (input: unknown) => void): void {
+export function testFeedTopicAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad Topic', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -260,17 +292,17 @@ export function testFeedTopicAssertions(executor: (input: unknown) => void): voi
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Length mismatch
     await expect(() => executor('4fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
   })
 }
 
-export function testEthAddressAssertions(executor: (input: unknown) => void): void {
+export function testEthAddressAssertions (executor: (input: unknown) => void): void {
   it('should throw exception for bad EthAddress', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -281,12 +313,12 @@ export function testEthAddressAssertions(executor: (input: unknown) => void): vo
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Length mismatch
     await expect(() => executor('4fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Bytes length mismatch
@@ -294,7 +326,7 @@ export function testEthAddressAssertions(executor: (input: unknown) => void): vo
   })
 }
 
-export function testMakeSignerAssertions(executor: (input: unknown) => void, optionals = true): void {
+export function testMakeSignerAssertions (executor: (input: unknown) => void, optionals = true): void {
   it('should throw exception for bad Signer', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -308,12 +340,12 @@ export function testMakeSignerAssertions(executor: (input: unknown) => void, opt
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Hex Length mismatch
     await expect(() => executor('4fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Bytes Length mismatch
@@ -333,7 +365,7 @@ export function testMakeSignerAssertions(executor: (input: unknown) => void, opt
   })
 }
 
-export function testFeedTypeAssertions(executor: (input: unknown) => void, optionals = true): void {
+export function testFeedTypeAssertions (executor: (input: unknown) => void, optionals = true): void {
   it('should throw exception for bad FeedType', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -349,7 +381,7 @@ export function testFeedTypeAssertions(executor: (input: unknown) => void, optio
   })
 }
 
-export function testAddressAssertions(executor: (input: unknown) => void, optionals = true): void {
+export function testAddressAssertions (executor: (input: unknown) => void, optionals = true): void {
   it('should throw exception for bad Address', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
@@ -359,12 +391,12 @@ export function testAddressAssertions(executor: (input: unknown) => void, option
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     // Hex Length mismatch
     await expect(() => executor('4fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
+      TypeError
     )
 
     if (optionals) {

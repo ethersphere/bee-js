@@ -1,10 +1,11 @@
-import { Collection } from '../types'
-import { Readable } from 'stream'
+import { Collection, Readable } from '../types'
 import * as tar from 'tar-stream'
 import { Pack } from 'tar-stream'
 import { assertNonNegativeInteger, isReadable } from './type'
+import type { Readable as NodeReadable } from 'stream'
+import { ReadableWebToNodeStream } from 'readable-web-to-node-stream'
 
-type FileInfo = { name: string; size: number; stream: Readable }
+type FileInfo = { name: string; size: number; stream: NodeReadable }
 
 /**
  * Helper class for tar-stream as found at https://github.com/mafintosh/tar-stream/issues/24#issuecomment-579797456
@@ -17,7 +18,7 @@ export class TarArchive {
   private streamQueue: FileInfo[] = []
   private size = 0
 
-  addBuffer(name: string, buffer: Buffer) {
+  addBuffer(name: string, buffer: Buffer): void {
     this.size += buffer.length
     this.pack.entry(
       {
@@ -27,11 +28,11 @@ export class TarArchive {
     )
   }
 
-  addStream(name: string, size: number, stream: Readable) {
+  addStream(name: string, size: number, stream: Readable): void {
     this.streamQueue.push({
       name,
       size,
-      stream,
+      stream: this.normalizeStream(stream),
     })
   }
 
@@ -45,6 +46,24 @@ export class TarArchive {
         }
       })
     })
+  }
+
+  private normalizeStream(stream: Readable): NodeReadable {
+    const browserReadable = stream as ReadableStream
+
+    if (
+      typeof browserReadable.getReader === 'function' &&
+      browserReadable.locked !== undefined &&
+      typeof browserReadable.cancel === 'function' &&
+      typeof browserReadable.pipeTo === 'function' &&
+      typeof browserReadable.pipeThrough === 'function'
+    ) {
+      // The typings for `readable-stream` is implementing old version of streams
+      // so I am re-typing this to use the native typings from `stream` package.
+      return new ReadableWebToNodeStream(stream as ReadableStream) as unknown as NodeReadable
+    }
+
+    return stream as NodeReadable
   }
 
   private nextEntry(callback: (err?: Error) => void) {
@@ -78,7 +97,7 @@ export async function makeTar(data: Collection<Uint8Array | Readable>): Promise<
 
   for (const entry of data) {
     if (isReadable(entry.data)) {
-      assertNonNegativeInteger(entry.length, 'entry.length')
+      assertNonNegativeInteger(entry.length, "Collection's entry.length")
 
       tar.addStream(entry.path, entry.length, entry.data)
     } else if (entry.data instanceof Uint8Array) {

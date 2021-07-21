@@ -7,16 +7,17 @@ import {
   FileUploadOptions,
   Reference,
   UploadHeaders,
+  Readable,
 } from '../types'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { safeAxios } from '../utils/safe-axios'
 import { prepareData } from '../utils/data'
 import { BeeArgumentError } from '../utils/error'
 import { makeTar } from '../utils/tar'
-import { assertCollection } from '../utils/collection'
 import { AxiosRequestConfig } from 'axios'
 import { wrapBytesWithHelpers } from '../utils/bytes'
-import { Readable } from 'stream'
+import type { Readable as NodeReadable } from 'stream'
+import { assertCollection } from '../utils/type'
 
 const bzzEndpoint = '/bzz'
 
@@ -111,8 +112,8 @@ export async function downloadFileReadable(
   hash: string,
   path = '',
   axiosOptions?: AxiosRequestConfig,
-): Promise<FileData<Readable>> {
-  const response = await safeAxios<Readable>({
+): Promise<FileData<NodeReadable>> {
+  const response = await safeAxios<NodeReadable>({
     ...axiosOptions,
     method: 'GET',
     responseType: 'stream',

@@ -1,4 +1,3 @@
-import { Readable } from 'stream'
 import {
   Address,
   AddressPrefix,
@@ -19,18 +18,44 @@ import {
   AllTagsOptions,
   TAGS_LIMIT_MIN,
   TAGS_LIMIT_MAX,
+  Readable,
+  Collection,
+  CollectionEntry,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { assertHexString } from './hex'
+import type { Readable as NodeReadable } from 'stream'
 
+/**
+ * Validates if passed object is either browser's ReadableStream
+ * or Node's Readable.
+ *
+ * @param entry
+ */
 export function isReadable(entry: unknown): entry is Readable {
-  return (
-    typeof entry === 'object' &&
-    entry !== null &&
-    typeof (entry as Readable).pipe === 'function' &&
-    (entry as Readable).readable &&
-    typeof (entry as Readable)._read === 'function'
-  )
+  if (!isStrictlyObject(entry)) {
+    return false
+  }
+
+  const nodeReadable = entry as NodeReadable
+
+  if (typeof nodeReadable.pipe === 'function' && nodeReadable.readable && typeof nodeReadable._read === 'function') {
+    return true
+  }
+
+  const browserReadable = entry as ReadableStream
+
+  if (
+    typeof browserReadable.getReader === 'function' &&
+    browserReadable.locked !== undefined &&
+    typeof browserReadable.cancel === 'function' &&
+    typeof browserReadable.pipeTo === 'function' &&
+    typeof browserReadable.pipeThrough === 'function'
+  ) {
+    return true
+  }
+
+  return false
 }
 
 export function isFile(file: unknown): file is File {
@@ -67,7 +92,17 @@ export function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object'
 }
 
-export function isStrictlyObject(value: unknown): value is Record<string, unknown> {
+/**
+ * Generally it is discouraged to use `object` type, but in this case I think
+ * it is best to do so as it is possible to easily convert from `object`to other
+ * types, which will be usually the case after asserting that the object is
+ * strictly object. With for examlpe Record<string, unknown> you have to first
+ * cast it to `unknown` which I think bit defeat the purpose.
+ *
+ * @param value
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isStrictlyObject(value: unknown): value is object {
   return isObject(value) && !Array.isArray(value)
 }
 
@@ -75,12 +110,12 @@ export function assertBoolean(value: unknown): asserts value is boolean {
   if (value !== true && value !== false) throw new TypeError('value is not boolean')
 }
 
-export function assertInteger(value: unknown): asserts value is number | NumberString {
-  if (!isInteger(value)) throw new TypeError('value is not integer')
+export function assertInteger(value: unknown, name = 'value'): asserts value is number | NumberString {
+  if (!isInteger(value)) throw new TypeError(`${name} is not integer`)
 }
 
 export function assertNonNegativeInteger(value: unknown, name = 'Value'): asserts value is number | NumberString {
-  assertInteger(value)
+  assertInteger(value, name)
 
   if (Number(value) < 0) throw new BeeArgumentError(`${name} has to be bigger or equal to zero`, value)
 }
@@ -144,6 +179,32 @@ export function assertFileUploadOptions(value: unknown): asserts value is FileUp
 
   if (options.contentType && typeof options.contentType !== 'string') {
     throw new TypeError('contentType property in FileUploadOptions has to be string or undefined!')
+  }
+}
+
+export function assertCollection(data: unknown): asserts data is Collection<Uint8Array | Readable> {
+  if (!Array.isArray(data)) {
+    throw new TypeError('Collection must be an array!')
+  }
+
+  for (const el of data) {
+    if (!isStrictlyObject(el)) {
+      throw new TypeError("Collection's entry must be an object!")
+    }
+
+    const entry = el as CollectionEntry<Uint8Array | Readable>
+
+    if (!entry.path || typeof entry.path !== 'string') {
+      throw new TypeError("Collection's entry must have string property path!")
+    }
+
+    if (!isUint8Array(entry.data) && !isReadable(entry.data)) {
+      throw new TypeError("Collection's entry data must be either Uint8Array or Readable!")
+    }
+
+    if (isReadable(entry.data) && typeof entry.length !== 'number') {
+      throw new TypeError('When collections entry uses Readable it has to also specify its length!')
+    }
   }
 }
 
@@ -267,22 +328,24 @@ export function assertAllTagsOptions(options: unknown): asserts options is AllTa
     throw new TypeError('options has to be an object or undefined!')
   }
 
-  if (options?.limit !== undefined) {
-    if (typeof options.limit !== 'number') {
+  const tagOptions = options as AllTagsOptions
+
+  if (tagOptions?.limit !== undefined) {
+    if (typeof tagOptions.limit !== 'number') {
       throw new TypeError('options.limit has to be a number or undefined!')
     }
 
-    if (options.limit < TAGS_LIMIT_MIN) {
-      throw new BeeArgumentError(`options.limit has to be at least ${TAGS_LIMIT_MIN}`, options.limit)
+    if (tagOptions.limit < TAGS_LIMIT_MIN) {
+      throw new BeeArgumentError(`options.limit has to be at least ${TAGS_LIMIT_MIN}`, tagOptions.limit)
     }
 
-    if (options.limit > TAGS_LIMIT_MAX) {
-      throw new BeeArgumentError(`options.limit has to be at most ${TAGS_LIMIT_MAX}`, options.limit)
+    if (tagOptions.limit > TAGS_LIMIT_MAX) {
+      throw new BeeArgumentError(`options.limit has to be at most ${TAGS_LIMIT_MAX}`, tagOptions.limit)
     }
   }
 
-  if (options?.offset !== undefined) {
-    assertNonNegativeInteger(options.offset, 'options.offset')
+  if (tagOptions?.offset !== undefined) {
+    assertNonNegativeInteger(tagOptions.offset, 'options.offset')
   }
 }
 

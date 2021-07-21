@@ -24,6 +24,22 @@ describe('modules/bzz', () => {
       expect(file.data).toEqual(directoryStructure[0].data)
     })
 
+    it('should store and retrieve collection with readable', async () => {
+      const directoryStructure: Collection<Readable> = [
+        {
+          path: '0',
+          data: Readable.from('hello-world'),
+          length: 11,
+        },
+      ]
+
+      const hash = await bzz.uploadCollection(BEE_URL, directoryStructure, getPostageBatch())
+      const file = await bzz.downloadFile(BEE_URL, hash, directoryStructure[0].path)
+
+      expect(file.name).toEqual(directoryStructure[0].path)
+      expect(file.data.text()).toEqual('hello-world')
+    })
+
     it('should retrieve the filename but not the complete path', async () => {
       const path = 'a/b/c/d/'
       const name = '0'

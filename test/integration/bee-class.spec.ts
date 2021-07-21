@@ -19,6 +19,7 @@ import {
   PSS_TIMEOUT,
   randomByteArray,
   sleep,
+  streamToString,
   testChunkPayload,
   testIdentity,
   testJsonHash,
@@ -72,11 +73,11 @@ describe('Bee class', () => {
     })
 
     it('should work with file object', async () => {
-      const content = new Uint8Array([1, 2, 3])
+      const content = 'hello world'
       const name = 'hello.txt'
       const type = 'text/plain'
       const file = {
-        arrayBuffer: () => content,
+        stream: () => Readable.from(content),
         name,
         type,
       } as unknown as File
@@ -84,16 +85,16 @@ describe('Bee class', () => {
       const hash = await bee.uploadFile(getPostageBatch(), file)
       const downloadedFile = await bee.downloadFile(hash)
 
-      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.data.text()).toEqual(content)
       expect(downloadedFile.name).toEqual(name)
       expect(downloadedFile.contentType).toEqual(type)
     })
 
     it('should work with file object and name overridden', async () => {
-      const content = new Uint8Array([1, 2, 3])
+      const content = 'hello world'
       const name = 'hello.txt'
       const file = {
-        arrayBuffer: () => content,
+        stream: () => Readable.from(content),
         name,
       } as unknown as File
       const nameOverride = 'hello-override.txt'
@@ -101,14 +102,14 @@ describe('Bee class', () => {
       const hash = await bee.uploadFile(getPostageBatch(), file, nameOverride)
       const downloadedFile = await bee.downloadFile(hash)
 
-      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.data.text()).toEqual(content)
       expect(downloadedFile.name).toEqual(nameOverride)
     })
 
     it('should work with file object and content-type overridden', async () => {
-      const content = new Uint8Array([1, 2, 3])
+      const content = 'hello world'
       const file = {
-        arrayBuffer: () => content,
+        stream: () => Readable.from(content),
         name: 'hello.txt',
         type: 'text/plain',
       } as unknown as File
@@ -117,11 +118,11 @@ describe('Bee class', () => {
       const hash = await bee.uploadFile(getPostageBatch(), file, undefined, { contentType: contentTypeOverride })
       const downloadedFile = await bee.downloadFile(hash)
 
-      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.data.text()).toEqual(content)
       expect(downloadedFile.contentType).toEqual(contentTypeOverride)
     })
 
-    it('should work with readable', async () => {
+    it('should work with readable upload', async () => {
       const readable = Readable.from(['hello world'])
       const name = 'hello.txt'
       const contentType = 'text/plain'
@@ -131,6 +132,18 @@ describe('Bee class', () => {
 
       expect(file.name).toEqual(name)
       expect(file.data.text()).toEqual('hello world')
+    })
+
+    it('should work with readable download', async () => {
+      const readable = Readable.from(['hello world'])
+      const name = 'hello.txt'
+      const contentType = 'text/plain'
+
+      const hash = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
+      const readableFileData = await bee.downloadReadableFile(hash)
+
+      expect(readableFileData.name).toEqual(name)
+      expect(await streamToString(readableFileData.data)).toEqual('hello world')
     })
 
     it('should work with readable and tags', async () => {
@@ -160,6 +173,25 @@ describe('Bee class', () => {
       const hash = await bee.uploadFilesFromDirectory(getPostageBatch(), './test/data')
 
       expect(hash.length).toEqual(REFERENCE_HEX_LENGTH)
+
+      const file = await bee.downloadFile(hash, '1.txt')
+      expect(file.data.text()).toEqual('1\n')
+    })
+
+    it('should upload collection', async () => {
+      const directoryStructure: Collection<Readable> = [
+        {
+          path: '0',
+          data: Readable.from('hello-world'),
+          length: 11,
+        },
+      ]
+
+      const hash = await bee.uploadCollection(getPostageBatch(), directoryStructure)
+      const file = await bee.downloadFile(hash, directoryStructure[0].path)
+
+      expect(file.name).toEqual(directoryStructure[0].path)
+      expect(file.data.text()).toEqual('hello-world')
     })
   })
 

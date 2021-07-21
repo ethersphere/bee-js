@@ -7,8 +7,8 @@ import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { EthAddress, HexEthAddress } from '../utils/eth'
 import { HexString } from '../utils/hex'
-import { Readable as NativeReadable } from 'stream'
-import { Readable as CompatibilityReadable } from 'readable-stream'
+import type { Readable as NativeReadable } from 'stream'
+import type { Readable as CompatibilityReadable } from 'readable-stream'
 
 export * from './debug'
 
@@ -52,7 +52,7 @@ export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
 
 /**
  * Type representing Readable stream that abstracts away implementation especially the difference between
- * browser and NodeJS versions
+ * browser and NodeJS versions as both are supported.
  */
 export type Readable = NativeReadable | CompatibilityReadable | ReadableStream
 
