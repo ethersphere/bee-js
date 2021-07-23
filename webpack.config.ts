@@ -77,6 +77,8 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
         path: false,
         fs: false,
         stream: false,
+        util: require.resolve("util/"),
+        constants: require.resolve("constants-browserify")
       },
     },
     optimization: {
