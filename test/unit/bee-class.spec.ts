@@ -3,6 +3,7 @@ import {
   BatchId,
   Bee,
   BeeArgumentError,
+  Collection,
   CollectionUploadOptions,
   PssMessageHandler,
   ReferenceResponse,
@@ -26,8 +27,10 @@ import {
   testFeedTopicAssertions,
   testEthAddressAssertions,
   testMakeSignerAssertions,
+  testCollectionAssertions,
 } from './assertions'
 import { FeedType } from '../../src/feed/type'
+import { Readable } from 'stream'
 
 const TOPIC = 'some=very%nice#topic'
 const HASHED_TOPIC = makeTopicFromString(TOPIC)
@@ -158,6 +161,39 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       return bee.uploadFiles(testBatchId, files, input as UploadOptions)
+    })
+  })
+
+  describe('uploadCollection', () => {
+    const collection: Collection<Uint8Array> = [
+      {
+        path: 'some/path',
+        data: new Uint8Array([1, 2, 3]),
+      },
+    ]
+
+    testBatchIdAssertion(async (input: unknown) => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      return bee.uploadCollection(input as BatchId, collection)
+    })
+
+    testUploadOptionsAssertions(async (input: unknown) => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      return bee.uploadCollection(testBatchId, collection, input as UploadOptions)
+    })
+
+    testCollectionUploadOptionsAssertions(async (input: unknown) => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      return bee.uploadCollection(testBatchId, collection, input as UploadOptions)
+    })
+
+    testCollectionAssertions(async (input: unknown) => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      return bee.uploadCollection(testBatchId, input as Collection<Uint8Array | Readable>)
     })
   })
 

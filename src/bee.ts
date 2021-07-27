@@ -1,4 +1,4 @@
-import type { Readable } from 'stream'
+import type { Readable as NodeReadable } from 'stream'
 import * as bzz from './modules/bzz'
 import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
@@ -9,7 +9,6 @@ import * as stamps from './modules/stamps'
 
 import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
-import { fileArrayBuffer, isFile } from './utils/file'
 import { AxiosRequestConfig } from 'axios'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
@@ -25,6 +24,7 @@ import {
   assertAllTagsOptions,
   assertBatchId,
   assertBoolean,
+  assertCollection,
   assertCollectionUploadOptions,
   assertData,
   assertFileData,
@@ -34,12 +34,21 @@ import {
   assertPublicKey,
   assertReference,
   assertUploadOptions,
+  isFile,
   isReadable,
   makeTagUid,
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
-import { AllTagsOptions, NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+import {
+  AllTagsOptions,
+  NumberString,
+  PostageBatchOptions,
+  STAMPS_DEPTH_MAX,
+  STAMPS_DEPTH_MIN,
+  Readable,
+  Collection,
+} from './types'
 
 import type {
   Tag,
@@ -104,6 +113,9 @@ export class Bee {
   /**
    * Upload data to a Bee node
    *
+   * **To make sure that you won't loose critical data it is highly recommended to also
+   * locally pin the data with `options.pin = true`**
+   *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data to be uploaded
    * @param options Additional options like tag, encryption, pinning, content-type
@@ -141,12 +153,14 @@ export class Bee {
   /**
    * Download data as a Readable stream
    *
+   * TODO: Test this in browser scope
+   *
    * @param reference Bee data reference
    * @param axiosOptions optional - alter default options of axios HTTP client
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
-  async downloadReadableData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
+  async downloadReadableData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<NodeReadable> {
     assertReference(reference)
 
     return bytes.downloadReadable(this.url, reference, axiosOptions)
@@ -184,12 +198,11 @@ export class Bee {
     }
 
     if (isFile(data)) {
-      const fileData = await fileArrayBuffer(data)
       const fileName = name ?? data.name
       const contentType = data.type
       const fileOptions = { contentType, ...options }
 
-      return bzz.uploadFile(this.url, fileData, postageBatchId, fileName, fileOptions)
+      return bzz.uploadFile(this.url, data.stream(), postageBatchId, fileName, fileOptions)
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
       const reference = await bzz.uploadFile(this.url, data, postageBatchId, name, options)
@@ -226,16 +239,32 @@ export class Bee {
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
    */
-  async downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<Readable>> {
+  async downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<NodeReadable>> {
     assertReference(reference)
 
     return bzz.downloadFileReadable(this.url, reference, path)
+  }
+
+  async uploadCollection(
+    postageBatchId: string | BatchId,
+    collection: Collection<Uint8Array | Readable>,
+    options?: CollectionUploadOptions,
+  ): Promise<Reference> {
+    assertBatchId(postageBatchId)
+    assertCollection(collection)
+
+    if (options) assertCollectionUploadOptions(options)
+
+    return bzz.uploadCollection(this.url, collection, postageBatchId, options)
   }
 
   /**
    * Upload collection of files to a Bee node
    *
    * Uses the FileList API from the browser.
+   *
+   * **To make sure that you won't loose critical data it is highly recommended to also
+   * locally pin the data with `options.pin = true`**
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param fileList list of files to be uploaded
@@ -254,7 +283,7 @@ export class Bee {
 
     if (options) assertCollectionUploadOptions(options)
 
-    const data = await makeCollectionFromFileList(fileList)
+    const data = makeCollectionFromFileList(fileList)
 
     return bzz.uploadCollection(this.url, data, postageBatchId, options)
   }
@@ -263,6 +292,9 @@ export class Bee {
    * Upload collection of files.
    *
    * Available only in Node.js as it uses the `fs` module.
+   *
+   * **To make sure that you won't loose critical data it is highly recommended to also
+   * locally pin the data with `options.pin = true`**
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param dir the path of the files to be uploaded

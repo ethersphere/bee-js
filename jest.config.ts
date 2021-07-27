@@ -6,7 +6,8 @@
 import type { Config } from '@jest/types'
 import { glob } from 'glob'
 import * as Path from 'path'
-import { createPostageBatch } from './src/modules/stamps'
+import { createPostageBatch, getPostageBatch } from './src/modules/stamps'
+import type { BatchId } from './src'
 
 /**
  * Get 'alias' configuration of Jest and Webpack for browser testing and compilation.
@@ -36,19 +37,66 @@ export async function getBrowserPathMapping(): Promise<{ [aliasNodeReference: st
 
 export default async (): Promise<Config.InitialOptions> => {
   try {
-    console.log('Creating postage stamps...')
     const beeUrl = process.env.BEE_API_URL || 'http://localhost:1633'
     const beePeerUrl = process.env.BEE_PEER_API_URL || 'http://localhost:11633'
-    const stamps = await Promise.all([createPostageBatch(beeUrl, '1', 20), createPostageBatch(beePeerUrl, '1', 20)])
-    process.env.BEE_POSTAGE = stamps[0]
-    console.log('Queen stamp: ', process.env.BEE_POSTAGE)
-    process.env.BEE_PEER_POSTAGE = stamps[1]
-    console.log('Peer stamp: ', process.env.BEE_PEER_POSTAGE)
-    // sleep for 11 seconds (10 blocks with ganache block time = 1s)
-    // needed for postage batches to become usable
-    // FIXME: sleep should be imported for this, but then we fail with
-    //        Could not find a declaration file for module 'tar-js'
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 11_000))
+
+    if (process.env.BEE_POSTAGE) {
+      try {
+        if (!(await getPostageBatch(beeUrl, process.env.BEE_POSTAGE as BatchId)).usable) {
+          delete process.env.BEE_POSTAGE
+          console.log('BEE_POSTAGE stamp was found but is not usable')
+        } else {
+          console.log('Using configured BEE_POSTAGE stamp.')
+        }
+      } catch (e) {
+        delete process.env.BEE_POSTAGE
+        console.log('BEE_POSTAGE stamp was not found')
+      }
+    }
+
+    if (process.env.BEE_PEER_POSTAGE) {
+      try {
+        if (!(await getPostageBatch(beePeerUrl, process.env.BEE_PEER_POSTAGE as BatchId)).usable) {
+          delete process.env.BEE_PEER_POSTAGE
+          console.log('BEE_PEER_POSTAGE stamp was found but is not usable')
+        } else {
+          console.log('Using configured BEE_PEER_POSTAGE stamp.')
+        }
+      } catch (e) {
+        delete process.env.BEE_PEER_POSTAGE
+        console.log('BEE_PEER_POSTAGE stamp was not found')
+      }
+    }
+
+    if (!process.env.BEE_POSTAGE || !process.env.BEE_PEER_POSTAGE) {
+      console.log('Creating postage stamps...')
+
+      const stampsPromises: Promise<BatchId>[] = []
+      const stampsEnv = []
+
+      if (!process.env.BEE_POSTAGE) {
+        stampsPromises.push(createPostageBatch(beeUrl, '1', 20))
+        stampsEnv.push('BEE_POSTAGE')
+      }
+
+      if (!process.env.BEE_PEER_POSTAGE) {
+        stampsPromises.push(createPostageBatch(beePeerUrl, '1', 20))
+        stampsEnv.push('BEE_PEER_POSTAGE')
+      }
+
+      const stamps = await Promise.all(stampsPromises)
+
+      for (let i = 0; i < stamps.length; i++) {
+        process.env[stampsEnv[i]] = stamps[i]
+        console.log(`${stampsEnv[i]}: ${stamps[i]}`)
+      }
+
+      // sleep for 11 seconds (10 blocks with ganache block time = 1s)
+      // needed for postage batches to become usable
+      // FIXME: sleep should be imported for this, but then we fail with
+      //        Could not find a declaration file for module 'tar-js'
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 11_000))
+    }
   } catch (e) {
     // It is possible that for unit tests the Bee nodes does not run
     // so we are only logging errors and not leaving them to propagate
@@ -72,7 +120,7 @@ export default async (): Promise<Config.InitialOptions> => {
     moduleDirectories: ['node_modules'],
 
     // Run tests from one or more projects
-    projects: ([
+    projects: [
       // We don't have any DOM specific tests atm.
       // {
       //   displayName: 'dom:unit',
@@ -96,7 +144,7 @@ export default async (): Promise<Config.InitialOptions> => {
         testEnvironment: 'node',
         testRegex: 'test/integration/((?!\\.browser).)*\\.spec\\.ts',
       },
-    ] as unknown[]) as string[], // bad types
+    ] as unknown[] as string[], // bad types
 
     // The root directory that Jest should scan for tests and modules within
     rootDir: 'test',

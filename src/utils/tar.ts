@@ -1,30 +1,111 @@
-import { Collection } from '../types'
-import Tar from 'tar-js'
+import { Collection, Readable } from '../types'
+import * as tar from 'tar-stream'
+import { Pack } from 'tar-stream'
+import { assertNonNegativeInteger, isReadable } from './type'
+import type { Readable as NodeReadable } from 'stream'
+import { ReadableWebToNodeStream } from 'readable-web-to-node-stream'
 
-// this is a workaround type so that we are able to pass in Uint8Arrays
-// as string to `tar.append`
-interface StringLike {
-  readonly length: number
-  charCodeAt: (index: number) => number
-}
+type FileInfo = { name: string; size: number; stream: NodeReadable }
 
-// converts a string to utf8 Uint8Array and returns it as a string-like
-// object that `tar.append` accepts as path
-function fixUnicodePath(path: string): StringLike {
-  const codes = new TextEncoder().encode(path)
+/**
+ * Helper class for tar-stream as found at https://github.com/mafintosh/tar-stream/issues/24#issuecomment-579797456
+ * Modified for better readability.
+ *
+ * Credit to https://github.com/dominicbartl
+ */
+export class TarArchive {
+  private pack = tar.pack()
+  private streamQueue: FileInfo[] = []
+  private size = 0
 
-  return {
-    length: codes.length,
-    charCodeAt: index => codes[index],
+  addBuffer(name: string, buffer: Buffer): void {
+    this.size += buffer.length
+    this.pack.entry(
+      {
+        name: name,
+      },
+      buffer,
+    )
+  }
+
+  addStream(name: string, size: number, stream: Readable): void {
+    this.streamQueue.push({
+      name,
+      size,
+      stream: this.normalizeStream(stream),
+    })
+  }
+
+  async write(): Promise<Pack> {
+    return new Promise((resolve, reject) => {
+      this.nextEntry(err => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(this.pack)
+        }
+      })
+    })
+  }
+
+  private normalizeStream(stream: Readable): NodeReadable {
+    const browserReadable = stream as ReadableStream
+
+    if (
+      typeof browserReadable.getReader === 'function' &&
+      browserReadable.locked !== undefined &&
+      typeof browserReadable.cancel === 'function' &&
+      typeof browserReadable.pipeTo === 'function' &&
+      typeof browserReadable.pipeThrough === 'function'
+    ) {
+      // The typings for `readable-stream` is implementing old version of streams
+      // so I am re-typing this to use the native typings from `stream` package.
+      return new ReadableWebToNodeStream(stream as ReadableStream) as unknown as NodeReadable
+    }
+
+    return stream as NodeReadable
+  }
+
+  private nextEntry(callback: (err?: Error) => void) {
+    const file = this.streamQueue.shift()
+
+    if (file) {
+      const writeEntryStream = this.pack.entry(
+        {
+          name: file.name,
+          size: file.size,
+        },
+        err => {
+          if (err) {
+            callback(err)
+          } else {
+            this.size += file.size
+            this.nextEntry(callback)
+          }
+        },
+      )
+      file.stream.pipe(writeEntryStream)
+    } else {
+      this.pack.finalize()
+      callback()
+    }
   }
 }
 
-export function makeTar(data: Collection<Uint8Array>): Uint8Array {
-  const tar = new Tar()
+export async function makeTar(data: Collection<Uint8Array | Readable>): Promise<NodeReadable> {
+  const tar = new TarArchive()
+
   for (const entry of data) {
-    const path = fixUnicodePath(entry.path)
-    tar.append(path, entry.data)
+    if (isReadable(entry.data)) {
+      assertNonNegativeInteger(entry.length, "Collection's entry.length")
+
+      tar.addStream(entry.path, entry.length, entry.data)
+    } else if (entry.data instanceof Uint8Array) {
+      tar.addBuffer(entry.path, Buffer.from(entry.data))
+    } else {
+      throw new TypeError('Unknown data type!')
+    }
   }
 
-  return tar.out
+  return tar.write()
 }

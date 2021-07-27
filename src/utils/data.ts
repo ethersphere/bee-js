@@ -1,5 +1,6 @@
-import { Readable } from 'stream'
 import type { Data } from 'ws'
+import { Readable } from '../types'
+import { isReadable } from './type'
 
 /**
  * Validates input and converts to Uint8Array or Readable
@@ -11,7 +12,7 @@ export function prepareData(data: string | ArrayBuffer | Uint8Array | Readable):
 
   if (data instanceof ArrayBuffer) return new Uint8Array(data)
 
-  if (data instanceof Uint8Array || data instanceof Readable) return data
+  if (data instanceof Uint8Array || isReadable(data)) return data
 
   throw new TypeError('unknown data type')
 }

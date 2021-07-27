@@ -254,6 +254,16 @@ export function shorten(inputStr: unknown, len = 17): string {
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
 }
 
+export async function streamToString(stream: Readable): Promise<string> {
+  const chunks: Uint8Array[] = []
+
+  return new Promise((resolve, reject) => {
+    stream.on('data', chunk => chunks.push(Buffer.from(chunk)))
+    stream.on('error', err => reject(err))
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
+  })
+}
+
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000' as Reference
 
 export const okResponse: BeeGenericResponse = {
