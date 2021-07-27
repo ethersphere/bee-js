@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import Path from 'path'
-import { DefinePlugin, Configuration, WebpackPluginInstance, NormalModuleReplacementPlugin } from 'webpack'
+import { ProvidePlugin, DefinePlugin, Configuration, WebpackPluginInstance, NormalModuleReplacementPlugin } from 'webpack'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import TerserPlugin from 'terser-webpack-plugin'
 import PackageJson from './package.json'
@@ -27,6 +27,10 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       'process.env.ENV': env?.mode || 'development',
       'process.env.IS_WEBPACK_BUILD': 'true',
     }),
+    new ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+      process: ['process'],
+    })
   ]
 
   if (target === 'web') {
@@ -77,8 +81,8 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
         path: false,
         fs: false,
         stream: false,
-        util: require.resolve("util/"),
-        constants: require.resolve("constants-browserify")
+        buffer: require.resolve('buffer'),
+        constants: require.resolve('constants-browserify')
       },
     },
     optimization: {

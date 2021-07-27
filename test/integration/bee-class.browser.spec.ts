@@ -65,7 +65,11 @@ describe('Bee class - in browser', () => {
     const fileHash = await page.evaluate(
       async (BEE_URL, batchId) => {
         const bee = new window.BeeJs.Bee(BEE_URL)
-        const files: File[] = [new File(['hello'], 'hello')]
+        const files: File[] = [
+          new File(['hello'], 'hello', {
+            type: 'text/plain',
+          }),
+        ]
 
         return await bee.uploadFiles(batchId, files)
       },
@@ -126,7 +130,7 @@ describe('Bee class - in browser', () => {
     expect(uploadEvent).toEqual({ loaded: 4, total: 4 })
   })
 
-  describe.skip('pss', () => {
+  describe('pss', () => {
     it(
       'should send and receive pss message',
       done => {

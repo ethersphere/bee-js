@@ -92,7 +92,7 @@ export class TarArchive {
   }
 }
 
-export async function makeTar(data: Collection<Uint8Array | Readable>): Promise<Readable> {
+export async function makeTar(data: Collection<Uint8Array | Readable>): Promise<NodeReadable> {
   const tar = new TarArchive()
 
   for (const entry of data) {

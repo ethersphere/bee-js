@@ -27,6 +27,7 @@ import {
   tryDeleteChunkFromLocalStorage,
 } from '../utils'
 import { Readable } from 'stream'
+import { File } from 'web-file-polyfill'
 
 commonMatchers()
 
@@ -192,6 +193,20 @@ describe('Bee class', () => {
 
       expect(file.name).toEqual(directoryStructure[0].path)
       expect(file.data.text()).toEqual('hello-world')
+    })
+
+    it('should upload browser files', async () => {
+      const bee = new Bee('http://localhost:7777')
+      const files = [
+        new File(['hello'], 'hello.txt', {
+          type: 'text/plain',
+        }),
+      ]
+
+      const reference = await bee.uploadFiles(getPostageBatch(), files)
+
+      const file = await bee.downloadFile(reference, 'hello.txt')
+      expect(file.data.text()).toEqual('hello')
     })
   })
 

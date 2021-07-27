@@ -54,7 +54,7 @@
     "js-sha3": "^0.8.0",
     "readable-web-to-node-stream": "^3.0.2",
     "tar-js": "^0.3.0",
-    "tar-stream": "^2.2.0",
+    "tar-stream": "auhau/tar-stream#feat/inherits",
     "ws": "^7.5.0"
   },
   "devDependencies": {
@@ -85,6 +85,7 @@
     "@typescript-eslint/parser": "^4.28.0",
     "babel-jest": "^27.0.5",
     "babel-loader": "^8.2.2",
+    "buffer": "^5.7.1",
     "bufferutil": "^4.0.3",
     "constants-browserify": "^1.0.0",
     "debug": "^4.3.1",
@@ -100,6 +101,7 @@
     "jest-puppeteer": "^5.0.4",
     "nock": "^13.1.0",
     "prettier": "^2.3.1",
+    "process": "^0.11.10",
     "puppeteer": "^9.1.1",
     "readable-stream": "^3.6.0",
     "rimraf": "^3.0.2",
@@ -109,7 +111,7 @@
     "typedoc-plugin-markdown": "^3.10.0",
     "typescript": "^4.3.4",
     "utf-8-validate": "^5.0.5",
-    "util": "^0.12.4",
+    "web-file-polyfill": "^1.0.2",
     "webpack": "^5.40.0",
     "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^4.7.2"
