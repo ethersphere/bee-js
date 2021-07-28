@@ -52,7 +52,10 @@
     "elliptic": "^6.5.4",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
+    "ky": "^0.28.5",
+    "ky-universal": "^0.9.1",
     "tar-js": "^0.3.0",
+    "web-streams-polyfill": "^3.1.0",
     "ws": "^7.5.0"
   },
   "devDependencies": {

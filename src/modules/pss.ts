@@ -2,7 +2,7 @@ import WebSocket from 'isomorphic-ws'
 
 import type { BatchId, BeeGenericResponse, PublicKey } from '../types'
 import { prepareData } from '../utils/data'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 import { extractUploadHeaders } from '../utils/headers'
 
 const endpoint = '/pss'
@@ -19,14 +19,14 @@ const endpoint = '/pss'
  *
  */
 export async function send(
-  url: string,
+  ky: Ky,
   topic: string,
   target: string,
   data: string | Uint8Array,
   postageBatchId: BatchId,
   recipient?: PublicKey,
 ): Promise<void> {
-  await safeAxios<BeeGenericResponse>({
+  await http<BeeGenericResponse>({
     method: 'post',
     url: `${url}${endpoint}/send/${topic}/${target.slice(0, 4)}`,
     data: await prepareData(data),
@@ -41,7 +41,7 @@ export async function send(
  *
  * @param topic Topic name
  */
-export function subscribe(url: string, topic: string): WebSocket {
+export function subscribe(ky: Ky, topic: string): WebSocket {
   const wsUrl = url.replace(/^http/i, 'ws')
 
   return new WebSocket(`${wsUrl}${endpoint}/subscribe/${topic}`)

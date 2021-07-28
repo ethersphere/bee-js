@@ -1,5 +1,5 @@
 import { BatchId, Dictionary, Reference, ReferenceResponse, Topic } from '../types'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'
@@ -37,13 +37,13 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
  * @param options         Additional options, like type (default: 'sequence')
  */
 export async function createFeedManifest(
-  url: string,
+  ky: Ky,
   owner: HexEthAddress,
   topic: Topic,
   postageBatchId: BatchId,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
-  const response = await safeAxios<ReferenceResponse>({
+  const response = await http<ReferenceResponse>({
     method: 'post',
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
     params: options,
@@ -74,12 +74,12 @@ function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
  * @param options     Additional options, like index, at, type
  */
 export async function fetchFeedUpdate(
-  url: string,
+  ky: Ky,
   owner: HexEthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<FetchFeedUpdateResponse> {
-  const response = await safeAxios<ReferenceResponse>({
+  const response = await http<ReferenceResponse>({
     url: `${url}${feedEndpoint}/${owner}/${topic}`,
     params: options,
   })

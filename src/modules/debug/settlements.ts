@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safe-axios'
+import { http } from '../../utils/http'
 import { Settlements, AllSettlements } from '../../types'
 
 const settlementsEndpoint = '/settlements'
@@ -9,8 +9,8 @@ const settlementsEndpoint = '/settlements'
  * @param url   Bee debug url
  * @param peer  Swarm address of peer
  */
-export async function getSettlements(url: string, peer: string): Promise<Settlements> {
-  const response = await safeAxios<Settlements>({
+export async function getSettlements(ky: Ky, peer: string): Promise<Settlements> {
+  const response = await http<Settlements>({
     url: url + `${settlementsEndpoint}/${peer}`,
     responseType: 'json',
   })
@@ -23,8 +23,8 @@ export async function getSettlements(url: string, peer: string): Promise<Settlem
  *
  * @param url   Bee debug url
  */
-export async function getAllSettlements(url: string): Promise<AllSettlements> {
-  const response = await safeAxios<AllSettlements>({
+export async function getAllSettlements(ky: Ky): Promise<AllSettlements> {
+  const response = await http<AllSettlements>({
     url: url + settlementsEndpoint,
     responseType: 'json',
   })

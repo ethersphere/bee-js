@@ -1,13 +1,15 @@
-import type { AxiosRequestConfig } from 'axios'
-import { Identifier, SingleOwnerChunk } from '../chunk/soc'
-import { ChunkReference, FeedUploadOptions } from '../feed'
-import { FeedType } from '../feed/type'
-import { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
-import { Bytes } from '../utils/bytes'
-import { BeeError } from '../utils/error'
-import { EthAddress, HexEthAddress } from '../utils/eth'
-import { HexString } from '../utils/hex'
+import type { Identifier, SingleOwnerChunk } from '../chunk/soc'
+import type { ChunkReference, FeedUploadOptions } from '../feed'
+import type { FeedType } from '../feed/type'
+import type { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
+import type { Bytes } from '../utils/bytes'
+import type { BeeError } from '../utils/error'
+import type { EthAddress, HexEthAddress } from '../utils/eth'
+import type { HexString } from '../utils/hex'
+import type ky from 'ky-universal'
 export * from './debug'
+
+export type Ky = typeof ky
 
 export interface Dictionary<T> {
   [Key: string]: T

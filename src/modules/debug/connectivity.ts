@@ -1,8 +1,8 @@
-import { safeAxios } from '../../utils/safe-axios'
+import { http } from '../../utils/http'
 import type { NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
 
-export async function getNodeAddresses(url: string): Promise<NodeAddresses> {
-  const response = await safeAxios<NodeAddresses>({
+export async function getNodeAddresses(ky: Ky): Promise<NodeAddresses> {
+  const response = await http<NodeAddresses>({
     url: url + '/addresses',
     responseType: 'json',
   })
@@ -13,8 +13,8 @@ interface Peers {
   peers: Peer[]
 }
 
-export async function getPeers(url: string): Promise<Peer[]> {
-  const response = await safeAxios<Peers>({
+export async function getPeers(ky: Ky): Promise<Peer[]> {
+  const response = await http<Peers>({
     url: url + '/peers',
     responseType: 'json',
   })
@@ -22,8 +22,8 @@ export async function getPeers(url: string): Promise<Peer[]> {
   return response.data.peers || []
 }
 
-export async function getBlocklist(url: string): Promise<Peer[]> {
-  const response = await safeAxios<Peers>({
+export async function getBlocklist(ky: Ky): Promise<Peer[]> {
+  const response = await http<Peers>({
     url: url + '/blocklist',
     responseType: 'json',
   })
@@ -31,8 +31,8 @@ export async function getBlocklist(url: string): Promise<Peer[]> {
   return response.data.peers || []
 }
 
-export async function removePeer(url: string, peer: string): Promise<RemovePeerResponse> {
-  const response = await safeAxios<RemovePeerResponse>({
+export async function removePeer(ky: Ky, peer: string): Promise<RemovePeerResponse> {
+  const response = await http<RemovePeerResponse>({
     url: `${url}/peers/${peer}`,
     responseType: 'json',
     method: 'DELETE',
@@ -41,8 +41,8 @@ export async function removePeer(url: string, peer: string): Promise<RemovePeerR
   return response.data
 }
 
-export async function getTopology(url: string): Promise<Topology> {
-  const response = await safeAxios<Topology>({
+export async function getTopology(ky: Ky): Promise<Topology> {
+  const response = await http<Topology>({
     url: `${url}/topology`,
     responseType: 'json',
   })
@@ -50,8 +50,8 @@ export async function getTopology(url: string): Promise<Topology> {
   return response.data
 }
 
-export async function pingPeer(url: string, peer: string): Promise<PingResponse> {
-  const response = await safeAxios<PingResponse>({
+export async function pingPeer(ky: Ky, peer: string): Promise<PingResponse> {
+  const response = await http<PingResponse>({
     url: `${url}/pingpong/${peer}`,
     responseType: 'json',
     method: 'POST',

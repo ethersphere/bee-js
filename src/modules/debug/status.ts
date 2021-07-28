@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safe-axios'
+import { http } from '../../utils/http'
 import type { Health } from '../../types/debug'
 import { engines } from '../../../package.json'
 export const SUPPORTED_BEE_VERSION_EXACT = engines.bee
@@ -9,8 +9,8 @@ export const SUPPORTED_BEE_VERSION = engines.bee.substr(0, engines.bee.indexOf('
  *
  * @param url Bee debug URL
  */
-export async function getHealth(url: string): Promise<Health> | never {
-  const response = await safeAxios<Health>({
+export async function getHealth(ky: Ky): Promise<Health> | never {
+  const response = await http<Health>({
     method: 'get',
     url: `${url}/health`,
     responseType: 'json',
@@ -26,7 +26,7 @@ export async function getHealth(url: string): Promise<Health> | never {
  *
  * @returns true if the Bee node version is supported
  */
-export async function isSupportedVersion(url: string): Promise<boolean> | never {
+export async function isSupportedVersion(ky: Ky): Promise<boolean> | never {
   const { version } = await getHealth(url)
 
   return version === SUPPORTED_BEE_VERSION_EXACT

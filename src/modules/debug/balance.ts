@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safe-axios'
+import { http } from '../../utils/http'
 import { PeerBalance, BalanceResponse } from '../../types'
 
 const balancesEndpoint = '/balances'
@@ -9,8 +9,8 @@ const consumedEndpoint = '/consumed'
  *
  * @param url Bee debug url
  */
-export async function getAllBalances(url: string): Promise<BalanceResponse> {
-  const response = await safeAxios<BalanceResponse>({
+export async function getAllBalances(ky: Ky): Promise<BalanceResponse> {
+  const response = await http<BalanceResponse>({
     url: url + balancesEndpoint,
     responseType: 'json',
   })
@@ -24,8 +24,8 @@ export async function getAllBalances(url: string): Promise<BalanceResponse> {
  * @param url     Bee debug url
  * @param address Swarm address of peer
  */
-export async function getPeerBalance(url: string, address: string): Promise<PeerBalance> {
-  const response = await safeAxios<PeerBalance>({
+export async function getPeerBalance(ky: Ky, address: string): Promise<PeerBalance> {
+  const response = await http<PeerBalance>({
     url: url + `${balancesEndpoint}/${address}`,
     responseType: 'json',
   })
@@ -38,8 +38,8 @@ export async function getPeerBalance(url: string, address: string): Promise<Peer
  *
  * @param url Bee debug url
  */
-export async function getPastDueConsumptionBalances(url: string): Promise<BalanceResponse> {
-  const response = await safeAxios<BalanceResponse>({
+export async function getPastDueConsumptionBalances(ky: Ky): Promise<BalanceResponse> {
+  const response = await http<BalanceResponse>({
     url: url + consumedEndpoint,
     responseType: 'json',
   })
@@ -53,8 +53,8 @@ export async function getPastDueConsumptionBalances(url: string): Promise<Balanc
  * @param url     Bee debug url
  * @param address Swarm address of peer
  */
-export async function getPastDueConsumptionPeerBalance(url: string, address: string): Promise<PeerBalance> {
-  const response = await safeAxios<PeerBalance>({
+export async function getPastDueConsumptionPeerBalance(ky: Ky, address: string): Promise<PeerBalance> {
+  const response = await http<PeerBalance>({
     url: url + `${consumedEndpoint}/${address}`,
     responseType: 'json',
   })

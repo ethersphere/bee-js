@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safe-axios'
+import { http } from '../../utils/http'
 import type {
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
@@ -17,8 +17,8 @@ const chequebookEndpoint = '/chequebook'
  *
  * @param url Bee debug url
  */
-export async function getChequebookAddress(url: string): Promise<ChequebookAddressResponse> {
-  const response = await safeAxios<ChequebookAddressResponse>({
+export async function getChequebookAddress(ky: Ky): Promise<ChequebookAddressResponse> {
+  const response = await http<ChequebookAddressResponse>({
     url: url + chequebookEndpoint + '/address',
     responseType: 'json',
   })
@@ -31,8 +31,8 @@ export async function getChequebookAddress(url: string): Promise<ChequebookAddre
  *
  * @param url Bee debug url
  */
-export async function getChequebookBalance(url: string): Promise<ChequebookBalanceResponse> {
-  const response = await safeAxios<ChequebookBalanceResponse>({
+export async function getChequebookBalance(ky: Ky): Promise<ChequebookBalanceResponse> {
+  const response = await http<ChequebookBalanceResponse>({
     url: url + chequebookEndpoint + '/balance',
     responseType: 'json',
   })
@@ -46,8 +46,8 @@ export async function getChequebookBalance(url: string): Promise<ChequebookBalan
  * @param url   Bee debug url
  * @param peer  Swarm address of peer
  */
-export async function getLastCashoutAction(url: string, peer: string): Promise<LastCashoutActionResponse> {
-  const response = await safeAxios<LastCashoutActionResponse>({
+export async function getLastCashoutAction(ky: Ky, peer: string): Promise<LastCashoutActionResponse> {
+  const response = await http<LastCashoutActionResponse>({
     url: url + chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
   })
@@ -62,7 +62,7 @@ export async function getLastCashoutAction(url: string, peer: string): Promise<L
  * @param peer  Swarm address of peer
  * @param options
  */
-export async function cashoutLastCheque(url: string, peer: string, options?: CashoutOptions): Promise<string> {
+export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutOptions): Promise<string> {
   const headers: Record<string, string> = {}
 
   if (options?.gasPrice) {
@@ -73,7 +73,7 @@ export async function cashoutLastCheque(url: string, peer: string, options?: Cas
     headers['gas-limit'] = options.gasLimit.toString()
   }
 
-  const response = await safeAxios<TransactionResponse>({
+  const response = await http<TransactionResponse>({
     method: 'post',
     url: url + chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
@@ -89,8 +89,8 @@ export async function cashoutLastCheque(url: string, peer: string, options?: Cas
  * @param url   Bee debug url
  * @param peer  Swarm address of peer
  */
-export async function getLastChequesForPeer(url: string, peer: string): Promise<LastChequesForPeerResponse> {
-  const response = await safeAxios<LastChequesForPeerResponse>({
+export async function getLastChequesForPeer(ky: Ky, peer: string): Promise<LastChequesForPeerResponse> {
+  const response = await http<LastChequesForPeerResponse>({
     url: url + chequebookEndpoint + `/cheque/${peer}`,
     responseType: 'json',
   })
@@ -103,8 +103,8 @@ export async function getLastChequesForPeer(url: string, peer: string): Promise<
  *
  * @param url   Bee debug url
  */
-export async function getLastCheques(url: string): Promise<LastChequesResponse> {
-  const response = await safeAxios<LastChequesResponse>({
+export async function getLastCheques(ky: Ky): Promise<LastChequesResponse> {
+  const response = await http<LastChequesResponse>({
     url: url + chequebookEndpoint + '/cheque',
     responseType: 'json',
   })
@@ -120,18 +120,14 @@ export async function getLastCheques(url: string): Promise<LastChequesResponse> 
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
  */
-export async function depositTokens(
-  url: string,
-  amount: number | NumberString,
-  gasPrice?: NumberString,
-): Promise<string> {
+export async function depositTokens(ky: Ky, amount: number | NumberString, gasPrice?: NumberString): Promise<string> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await safeAxios<TransactionResponse>({
+  const response = await http<TransactionResponse>({
     method: 'post',
     url: url + chequebookEndpoint + '/deposit',
     responseType: 'json',
@@ -150,18 +146,14 @@ export async function depositTokens(
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
  */
-export async function withdrawTokens(
-  url: string,
-  amount: number | NumberString,
-  gasPrice?: NumberString,
-): Promise<string> {
+export async function withdrawTokens(ky: Ky, amount: number | NumberString, gasPrice?: NumberString): Promise<string> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await safeAxios<TransactionResponse>({
+  const response = await http<TransactionResponse>({
     method: 'post',
     url: url + chequebookEndpoint + '/withdraw',
     responseType: 'json',

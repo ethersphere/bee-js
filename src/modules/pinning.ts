@@ -1,5 +1,5 @@
 import type { BeeGenericResponse, Pin, Reference } from '../types'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 
 const PINNING_ENDPOINT = '/pins'
 
@@ -13,8 +13,8 @@ export interface GetAllPinResponse {
  * @param url  Bee URL
  * @param reference Bee data reference
  */
-export async function pin(url: string, reference: Reference): Promise<void> {
-  await safeAxios<BeeGenericResponse>({
+export async function pin(ky: Ky, reference: Reference): Promise<void> {
+  await http<BeeGenericResponse>({
     method: 'post',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,
@@ -27,8 +27,8 @@ export async function pin(url: string, reference: Reference): Promise<void> {
  * @param url  Bee URL
  * @param reference Bee data reference
  */
-export async function unpin(url: string, reference: Reference): Promise<void> {
-  await safeAxios<BeeGenericResponse>({
+export async function unpin(ky: Ky, reference: Reference): Promise<void> {
+  await http<BeeGenericResponse>({
     method: 'delete',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,
@@ -42,8 +42,8 @@ export async function unpin(url: string, reference: Reference): Promise<void> {
  * @param reference
  * @throws Error if given address is not pinned
  */
-export async function getPin(url: string, reference: Reference): Promise<Pin> {
-  const response = await safeAxios<Pin>({
+export async function getPin(ky: Ky, reference: Reference): Promise<Pin> {
+  const response = await http<Pin>({
     method: 'get',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}/${reference}`,
@@ -57,8 +57,8 @@ export async function getPin(url: string, reference: Reference): Promise<Pin> {
  *
  * @param url     Bee URL
  */
-export async function getAllPins(url: string): Promise<Reference[]> {
-  const response = await safeAxios<GetAllPinResponse>({
+export async function getAllPins(ky: Ky): Promise<Reference[]> {
+  const response = await http<GetAllPinResponse>({
     method: 'get',
     responseType: 'json',
     url: `${url}${PINNING_ENDPOINT}`,

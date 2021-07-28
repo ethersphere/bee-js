@@ -9,7 +9,7 @@ import {
   UploadHeaders,
 } from '../types'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 import { prepareData } from '../utils/data'
 import { BeeArgumentError } from '../utils/error'
 import { makeTar } from '../utils/tar'
@@ -45,7 +45,7 @@ function extractFileUploadHeaders(postageBatchId: BatchId, options?: FileUploadO
  * @param options
  */
 export async function uploadFile(
-  url: string,
+  ky: Ky,
   data: string | Uint8Array | Readable | ArrayBuffer,
   postageBatchId: BatchId,
   name?: string,
@@ -55,7 +55,7 @@ export async function uploadFile(
     throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
 
-  const response = await safeAxios<{ reference: Reference }>({
+  const response = await http<{ reference: Reference }>({
     ...options?.axiosOptions,
     method: 'post',
     url: url + bzzEndpoint,
@@ -79,12 +79,12 @@ export async function uploadFile(
  * @param axiosOptions optional - alter default options of axios HTTP client
  */
 export async function downloadFile(
-  url: string,
+  ky: Ky,
   hash: string,
   path = '',
   axiosOptions?: AxiosRequestConfig,
 ): Promise<FileData<Data>> {
-  const response = await safeAxios<ArrayBuffer>({
+  const response = await http<ArrayBuffer>({
     ...axiosOptions,
     method: 'GET',
     responseType: 'arraybuffer',
@@ -107,12 +107,12 @@ export async function downloadFile(
  * @param axiosOptions optional - alter default options of axios HTTP client
  */
 export async function downloadFileReadable(
-  url: string,
+  ky: Ky,
   hash: string,
   path = '',
   axiosOptions?: AxiosRequestConfig,
 ): Promise<FileData<Readable>> {
-  const response = await safeAxios<Readable>({
+  const response = await http<Readable>({
     ...axiosOptions,
     method: 'GET',
     responseType: 'stream',
@@ -155,7 +155,7 @@ function extractCollectionUploadHeaders(
  * @param options
  */
 export async function uploadCollection(
-  url: string,
+  ky: Ky,
   collection: Collection<Uint8Array>,
   postageBatchId: BatchId,
   options?: CollectionUploadOptions,
@@ -167,7 +167,7 @@ export async function uploadCollection(
   assertCollection(collection)
   const tarData = makeTar(collection)
 
-  const response = await safeAxios<{ reference: Reference }>({
+  const response = await http<{ reference: Reference }>({
     ...options?.axiosOptions,
     method: 'post',
     url: url + bzzEndpoint,

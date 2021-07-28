@@ -2,7 +2,7 @@ import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
 import type { BatchId, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 import { Reference } from '../types'
 
 const endpoint = '/chunks'
@@ -20,12 +20,12 @@ const endpoint = '/chunks'
  * @param options Additional options like tag, encryption, pinning
  */
 export async function upload(
-  url: string,
+  ky: Ky,
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await safeAxios<ReferenceResponse>({
+  const response = await http<ReferenceResponse>({
     ...options?.axiosOptions,
     method: 'post',
     url: `${url}${endpoint}`,
@@ -47,8 +47,8 @@ export async function upload(
  * @param hash Bee content reference
  *
  */
-export async function download(url: string, hash: string): Promise<Uint8Array> {
-  const response = await safeAxios<ArrayBuffer>({
+export async function download(ky: Ky, hash: string): Promise<Uint8Array> {
+  const response = await http<ArrayBuffer>({
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`,
   })
@@ -63,8 +63,8 @@ export async function download(url: string, hash: string): Promise<Uint8Array> {
  * @param hash Bee content reference
  * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(url: string, hash: string, axiosOptions: AxiosRequestConfig): Promise<Readable> {
-  const response = await safeAxios<Readable>({
+export async function downloadReadable(ky: Ky, hash: string, axiosOptions: AxiosRequestConfig): Promise<Readable> {
+  const response = await http<Readable>({
     ...axiosOptions,
     method: 'GET',
     responseType: 'stream',

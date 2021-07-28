@@ -11,7 +11,7 @@ const stewardshipEndpoint = '/stewardship'
  * @param options
  * @throws BeeResponseError if not locally pinned or invalid data
  */
-export async function reupload(url: string, reference: Reference, options?: AxiosRequestConfig): Promise<void> {
+export async function reupload(ky: Ky, reference: Reference, options?: AxiosRequestConfig): Promise<void> {
   await safeAxios({
     ...options,
     method: 'put',

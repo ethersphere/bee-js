@@ -1,4 +1,4 @@
-import { safeAxios } from '../../utils/safe-axios'
+import { http } from '../../utils/http'
 import { ChainState, ReserveState } from '../../types'
 
 const RESERVE_STATE_ENDPOINT = '/reservestate'
@@ -9,8 +9,8 @@ const CHAIN_STATE_ENDPOINT = '/chainstate'
  *
  * @param url Bee debug URL
  */
-export async function getReserveState(url: string): Promise<ReserveState> {
-  const response = await safeAxios<ReserveState>({
+export async function getReserveState(ky: Ky): Promise<ReserveState> {
+  const response = await http<ReserveState>({
     method: 'get',
     url: `${url}${RESERVE_STATE_ENDPOINT}`,
     responseType: 'json',
@@ -24,8 +24,8 @@ export async function getReserveState(url: string): Promise<ReserveState> {
  *
  * @param url Bee debug URL
  */
-export async function getChainState(url: string): Promise<ChainState> {
-  const response = await safeAxios<ChainState>({
+export async function getChainState(ky: Ky): Promise<ChainState> {
+  const response = await http<ChainState>({
     method: 'get',
     url: `${url}${CHAIN_STATE_ENDPOINT}`,
     responseType: 'json',

@@ -1,6 +1,6 @@
 import { BatchId, Reference, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 
 const socEndpoint = '/soc'
 
@@ -16,7 +16,7 @@ const socEndpoint = '/soc'
  * @param options         Additional options like tag, encryption, pinning
  */
 export async function upload(
-  url: string,
+  ky: Ky,
   owner: string,
   identifier: string,
   signature: string,
@@ -24,7 +24,7 @@ export async function upload(
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await safeAxios<ReferenceResponse>({
+  const response = await http<ReferenceResponse>({
     ...options?.axiosOptions,
     method: 'post',
     url: `${url}${socEndpoint}/${owner}/${identifier}`,

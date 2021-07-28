@@ -1,9 +1,9 @@
 import type { AxiosRequestConfig } from 'axios'
 import type { Readable } from 'stream'
-import { BatchId, Data, Reference, UploadOptions } from '../types'
+import { BatchId, Data, Ky, Reference, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 
 const endpoint = '/bytes'
@@ -17,16 +17,13 @@ const endpoint = '/bytes'
  * @param options         Additional options like tag, encryption, pinning
  */
 export async function upload(
-  url: string,
+  ky: Ky,
   data: string | Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await safeAxios<{ reference: Reference }>({
-    ...options?.axiosOptions,
-    method: 'post',
-    url: url + endpoint,
-    data: await prepareData(data),
+  const response = ky.post(endpoint, {
+    body: await prepareData(data),
     headers: {
       'content-type': 'application/octet-stream',
       ...extractUploadHeaders(postageBatchId, options),
@@ -34,7 +31,7 @@ export async function upload(
     responseType: 'json',
   })
 
-  return response.data.reference
+  return (await response.json<{ reference: Reference }>()).reference
 }
 
 /**
@@ -43,8 +40,8 @@ export async function upload(
  * @param url  Bee URL
  * @param hash Bee content reference
  */
-export async function download(url: string, hash: Reference): Promise<Data> {
-  const response = await safeAxios<ArrayBuffer>({
+export async function download(ky: Ky, hash: Reference): Promise<Data> {
+  const response = await http<ArrayBuffer>({
     responseType: 'arraybuffer',
     url: `${url}${endpoint}/${hash}`,
   })
@@ -59,12 +56,8 @@ export async function download(url: string, hash: Reference): Promise<Data> {
  * @param hash Bee content reference
  * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(
-  url: string,
-  hash: Reference,
-  axiosOptions?: AxiosRequestConfig,
-): Promise<Readable> {
-  const response = await safeAxios<Readable>({
+export async function downloadReadable(ky: Ky, hash: Reference, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
+  const response = await http<Readable>({
     ...axiosOptions,
     method: 'GET',
     responseType: 'stream',

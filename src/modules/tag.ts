@@ -1,5 +1,5 @@
 import { Reference, Tag } from '../types'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 
 const endpoint = '/tags'
 
@@ -12,8 +12,8 @@ interface GetAllTagsResponse {
  *
  * @param url Bee tag URL
  */
-export async function createTag(url: string): Promise<Tag> {
-  const response = await safeAxios<Tag>({
+export async function createTag(ky: Ky): Promise<Tag> {
+  const response = await http<Tag>({
     method: 'post',
     url: url + endpoint,
     responseType: 'json',
@@ -28,8 +28,8 @@ export async function createTag(url: string): Promise<Tag> {
  * @param url Bee tag URL
  * @param uid UID of tag to be retrieved
  */
-export async function retrieveTag(url: string, uid: number): Promise<Tag> {
-  const response = await safeAxios<Tag>({
+export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
+  const response = await http<Tag>({
     url: `${url}${endpoint}/${uid}`,
     responseType: 'json',
   })
@@ -44,8 +44,8 @@ export async function retrieveTag(url: string, uid: number): Promise<Tag> {
  * @param offset
  * @param limit
  */
-export async function getAllTags(url: string, offset?: number, limit?: number): Promise<Tag[]> {
-  const response = await safeAxios<GetAllTagsResponse>({
+export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promise<Tag[]> {
+  const response = await http<GetAllTagsResponse>({
     url: `${url}${endpoint}`,
     params: { offset, limit },
     responseType: 'json',
@@ -59,8 +59,8 @@ export async function getAllTags(url: string, offset?: number, limit?: number): 
  * @param url
  * @param uid
  */
-export async function deleteTag(url: string, uid: number): Promise<void> {
-  await safeAxios<void>({
+export async function deleteTag(ky: Ky, uid: number): Promise<void> {
+  await http<void>({
     method: 'delete',
     url: `${url}${endpoint}/${uid}`,
   })
@@ -72,8 +72,8 @@ export async function deleteTag(url: string, uid: number): Promise<void> {
  * @param uid
  * @param reference
  */
-export async function updateTag(url: string, uid: number, reference: Reference): Promise<void> {
-  await safeAxios<void>({
+export async function updateTag(ky: Ky, uid: number, reference: Reference): Promise<void> {
+  await http<void>({
     method: 'patch',
     url: `${url}${endpoint}/${uid}`,
     data: {

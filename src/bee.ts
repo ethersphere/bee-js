@@ -11,7 +11,6 @@ import * as stamps from './modules/stamps'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
-import { AxiosRequestConfig } from 'axios'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
 import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
@@ -40,7 +39,9 @@ import {
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
-import { AllTagsOptions, NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+import { AllTagsOptions, Ky, NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+
+import ky from 'ky-universal'
 
 import type {
   Tag,
@@ -85,6 +86,8 @@ export class Bee {
    */
   public readonly signer?: Signer
 
+  private readonly ky: Ky
+
   /**
    * @param url URL on which is the main API of Bee node exposed
    * @param options
@@ -100,6 +103,8 @@ export class Bee {
     if (options?.signer) {
       this.signer = makeSigner(options.signer)
     }
+
+    this.ky = ky.create({ prefixUrl: url })
   }
 
   /**
@@ -123,7 +128,7 @@ export class Bee {
 
     if (options) assertUploadOptions(options)
 
-    return bytes.upload(this.url, data, postageBatchId, options)
+    return bytes.upload(this.ky, data, postageBatchId, options)
   }
 
   /**
@@ -136,7 +141,7 @@ export class Bee {
   async downloadData(reference: Reference | string): Promise<Data> {
     assertReference(reference)
 
-    return bytes.download(this.url, reference)
+    return bytes.download(this.ky, reference)
   }
 
   /**
@@ -150,7 +155,7 @@ export class Bee {
   async downloadReadableData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
     assertReference(reference)
 
-    return bytes.downloadReadable(this.url, reference, axiosOptions)
+    return bytes.downloadReadable(this.ky, reference, axiosOptions)
   }
 
   /**
@@ -190,15 +195,15 @@ export class Bee {
       const contentType = data.type
       const fileOptions = { contentType, ...options }
 
-      return bzz.uploadFile(this.url, fileData, postageBatchId, fileName, fileOptions)
+      return bzz.uploadFile(this.ky, fileData, postageBatchId, fileName, fileOptions)
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
-      const reference = await bzz.uploadFile(this.url, data, postageBatchId, name, options)
+      const reference = await bzz.uploadFile(this.ky, data, postageBatchId, name, options)
       await this.updateTag(options.tag, reference)
 
       return reference
     } else {
-      return bzz.uploadFile(this.url, data, postageBatchId, name, options)
+      return bzz.uploadFile(this.ky, data, postageBatchId, name, options)
     }
   }
 
@@ -215,7 +220,7 @@ export class Bee {
   async downloadFile(reference: Reference | string, path = ''): Promise<FileData<Data>> {
     assertReference(reference)
 
-    return bzz.downloadFile(this.url, reference, path)
+    return bzz.downloadFile(this.ky, reference, path)
   }
 
   /**
@@ -230,7 +235,7 @@ export class Bee {
   async downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<Readable>> {
     assertReference(reference)
 
-    return bzz.downloadFileReadable(this.url, reference, path)
+    return bzz.downloadFileReadable(this.ky, reference, path)
   }
 
   /**
@@ -257,7 +262,7 @@ export class Bee {
 
     const data = await makeCollectionFromFileList(fileList)
 
-    return bzz.uploadCollection(this.url, data, postageBatchId, options)
+    return bzz.uploadCollection(this.ky, data, postageBatchId, options)
   }
 
   /**
@@ -283,7 +288,7 @@ export class Bee {
     if (options) assertCollectionUploadOptions(options)
     const data = await makeCollectionFromFS(dir)
 
-    return bzz.uploadCollection(this.url, data, postageBatchId, options)
+    return bzz.uploadCollection(this.ky, data, postageBatchId, options)
   }
 
   /**
@@ -295,7 +300,7 @@ export class Bee {
    * @see [Bee API reference - `POST /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)
    */
   async createTag(): Promise<Tag> {
-    return tag.createTag(this.url)
+    return tag.createTag(this.ky)
   }
 
   /**
@@ -315,7 +320,7 @@ export class Bee {
   async getAllTags(options?: AllTagsOptions): Promise<Tag[]> {
     assertAllTagsOptions(options)
 
-    return tag.getAllTags(this.url, options?.offset, options?.limit)
+    return tag.getAllTags(this.ky, options?.offset, options?.limit)
   }
 
   /**
@@ -333,7 +338,7 @@ export class Bee {
   async retrieveTag(tagUid: number | Tag): Promise<Tag> {
     tagUid = makeTagUid(tagUid)
 
-    return tag.retrieveTag(this.url, tagUid)
+    return tag.retrieveTag(this.ky, tagUid)
   }
 
   /**
@@ -351,7 +356,7 @@ export class Bee {
   async deleteTag(tagUid: number | Tag): Promise<void> {
     tagUid = makeTagUid(tagUid)
 
-    return tag.deleteTag(this.url, tagUid)
+    return tag.deleteTag(this.ky, tagUid)
   }
 
   /**
@@ -374,7 +379,7 @@ export class Bee {
     assertReference(reference)
     tagUid = makeTagUid(tagUid)
 
-    return tag.updateTag(this.url, tagUid, reference)
+    return tag.updateTag(this.ky, tagUid, reference)
   }
 
   /**
@@ -390,7 +395,7 @@ export class Bee {
   async pin(reference: Reference | string): Promise<void> {
     assertReference(reference)
 
-    return pinning.pin(this.url, reference)
+    return pinning.pin(this.ky, reference)
   }
 
   /**
@@ -406,7 +411,7 @@ export class Bee {
   async unpin(reference: Reference | string): Promise<void> {
     assertReference(reference)
 
-    return pinning.unpin(this.url, reference)
+    return pinning.unpin(this.ky, reference)
   }
 
   /**
@@ -417,7 +422,7 @@ export class Bee {
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    */
   async getAllPins(): Promise<Reference[]> {
-    return pinning.getAllPins(this.url)
+    return pinning.getAllPins(this.ky)
   }
 
   /**
@@ -433,7 +438,7 @@ export class Bee {
   async getPin(reference: Reference | string): Promise<Pin> {
     assertReference(reference)
 
-    return pinning.getPin(this.url, reference)
+    return pinning.getPin(this.ky, reference)
   }
 
   /**
@@ -457,7 +462,7 @@ export class Bee {
       }
     }
 
-    await stewardship.reupload(this.url, reference, axiosOptions)
+    await stewardship.reupload(this.ky, reference, axiosOptions)
   }
 
   /**
@@ -501,9 +506,9 @@ export class Bee {
     if (recipient) {
       assertPublicKey(recipient)
 
-      return pss.send(this.url, topic, target, data, postageBatchId, recipient)
+      return pss.send(this.ky, topic, target, data, postageBatchId, recipient)
     } else {
-      return pss.send(this.url, topic, target, data, postageBatchId)
+      return pss.send(this.ky, topic, target, data, postageBatchId)
     }
   }
 
@@ -530,7 +535,7 @@ export class Bee {
       throw new TypeError('topic has to be an string!')
     }
 
-    const ws = pss.subscribe(this.url, topic)
+    const ws = pss.subscribe(this.ky, topic)
 
     let cancelled = false
     const cancel = () => {
@@ -654,7 +659,7 @@ export class Bee {
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
 
-    return createFeedManifest(this.url, canonicalOwner, canonicalTopic, postageBatchId, { type })
+    return createFeedManifest(this.ky, canonicalOwner, canonicalTopic, postageBatchId, { type })
   }
 
   /**
@@ -676,7 +681,7 @@ export class Bee {
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
 
-    return makeFeedReader(this.url, type, canonicalTopic, canonicalOwner)
+    return makeFeedReader(this.ky, type, canonicalTopic, canonicalOwner)
   }
 
   /**
@@ -698,7 +703,7 @@ export class Bee {
     const canonicalTopic = makeTopic(topic)
     const canonicalSigner = this.resolveSigner(signer)
 
-    return makeFeedWriter(this.url, type, canonicalTopic, canonicalSigner)
+    return makeFeedWriter(this.ky, type, canonicalTopic, canonicalSigner)
   }
 
   /**
@@ -805,7 +810,7 @@ export class Bee {
     const canonicalOwner = makeEthAddress(ownerAddress)
 
     return {
-      download: downloadSingleOwnerChunk.bind(null, this.url, canonicalOwner),
+      download: downloadSingleOwnerChunk.bind(null, this.ky, canonicalOwner),
     }
   }
 
@@ -822,7 +827,7 @@ export class Bee {
     return {
       ...this.makeSOCReader(canonicalSigner.address),
 
-      upload: uploadSingleOwnerChunkData.bind(null, this.url, canonicalSigner),
+      upload: uploadSingleOwnerChunkData.bind(null, this.ky, canonicalSigner),
     }
   }
 
@@ -865,7 +870,7 @@ export class Bee {
       assertBoolean(options.immutableFlag)
     }
 
-    return stamps.createPostageBatch(this.url, amount, depth, options)
+    return stamps.createPostageBatch(this.ky, amount, depth, options)
   }
 
   /**
@@ -882,7 +887,7 @@ export class Bee {
   async getPostageBatch(postageBatchId: BatchId | string): Promise<PostageBatch> {
     assertBatchId(postageBatchId)
 
-    return stamps.getPostageBatch(this.url, postageBatchId)
+    return stamps.getPostageBatch(this.ky, postageBatchId)
   }
 
   /**
@@ -895,7 +900,7 @@ export class Bee {
    * @deprecated Use DebugBee for postage batch management
    */
   async getAllPostageBatch(): Promise<PostageBatch[]> {
-    return stamps.getAllPostageBatches(this.url)
+    return stamps.getAllPostageBatches(this.ky)
   }
 
   /**
@@ -904,7 +909,7 @@ export class Bee {
    * @throws If connection was not successful throw error
    */
   async checkConnection(): Promise<void> | never {
-    return status.checkConnection(this.url)
+    return status.checkConnection(this.ky)
   }
 
   /**
@@ -914,7 +919,7 @@ export class Bee {
    */
   async isConnected(): Promise<boolean> {
     try {
-      await status.checkConnection(this.url)
+      await status.checkConnection(this.ky)
     } catch (e) {
       return false
     }

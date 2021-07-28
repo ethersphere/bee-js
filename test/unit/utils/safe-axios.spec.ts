@@ -1,6 +1,6 @@
 import nock from 'nock'
 import { Bee } from '../../../src'
-import { setDefaultHeaders } from '../../../src/utils/safe-axios'
+import { setDefaultHeaders } from '../../../src/utils/http'
 
 describe('safeAxios', () => {
   describe('setDefaultHeaders', () => {
