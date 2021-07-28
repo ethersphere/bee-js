@@ -71,31 +71,46 @@ export default async (): Promise<Config.InitialOptions> => {
     if (!process.env.BEE_POSTAGE || !process.env.BEE_PEER_POSTAGE) {
       console.log('Creating postage stamps...')
 
-      const stampsPromises: Promise<BatchId>[] = []
-      const stampsEnv = []
+      const stampsOrder: { url: string; env: string }[] = []
 
       if (!process.env.BEE_POSTAGE) {
-        stampsPromises.push(createPostageBatch(beeUrl, '1', 20))
-        stampsEnv.push('BEE_POSTAGE')
+        stampsOrder.push({ url: beeUrl, env: 'BEE_POSTAGE' })
       }
 
       if (!process.env.BEE_PEER_POSTAGE) {
-        stampsPromises.push(createPostageBatch(beePeerUrl, '1', 20))
-        stampsEnv.push('BEE_PEER_POSTAGE')
+        stampsOrder.push({ url: beePeerUrl, env: 'BEE_PEER_POSTAGE' })
       }
 
-      const stamps = await Promise.all(stampsPromises)
+      const stamps = await Promise.all(stampsOrder.map(async order => createPostageBatch(order.url, '1', 20)))
 
       for (let i = 0; i < stamps.length; i++) {
-        process.env[stampsEnv[i]] = stamps[i]
-        console.log(`${stampsEnv[i]}: ${stamps[i]}`)
+        process.env[stampsOrder[i].env] = stamps[i]
+        console.log(`${stampsOrder[i].env}: ${stamps[i]}`)
       }
 
-      // sleep for 11 seconds (10 blocks with ganache block time = 1s)
-      // needed for postage batches to become usable
-      // FIXME: sleep should be imported for this, but then we fail with
-      //        Could not find a declaration file for module 'tar-js'
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 11_000))
+      console.log('Waiting for the stamps to be usable')
+      let allUsable = true
+      do {
+        for (let i = 0; i < stamps.length; i++) {
+          // eslint-disable-next-line max-depth
+          try {
+            // eslint-disable-next-line max-depth
+            if (!(await getPostageBatch(stampsOrder[i].url, stamps[i] as BatchId)).usable) {
+              allUsable = false
+              break
+            } else {
+              allUsable = true
+            }
+          } catch (e) {
+            allUsable = false
+            break
+          }
+        }
+
+        // eslint-disable-next-line no-loop-func
+        await new Promise<void>(resolve => setTimeout(() => resolve(), 1_000))
+      } while (!allUsable)
+      console.log('Usable, yey!')
     }
   } catch (e) {
     // It is possible that for unit tests the Bee nodes does not run
