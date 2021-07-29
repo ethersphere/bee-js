@@ -41,11 +41,6 @@ describe('feed', () => {
   const signer = makePrivateKeySigner(hexToBytes(testIdentity.privateKey) as PrivateKeyBytes)
   const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
 
-  beforeAll(async () => {
-    // This will create the default batch if it is was not created before
-    getPostageBatch(url)
-  }, 60000)
-
   test(
     'empty feed update',
     async () => {

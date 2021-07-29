@@ -379,6 +379,27 @@ export interface PostageBatch {
   immutableFlag: boolean
 }
 
+export interface DebugPostageBatch extends PostageBatch {
+  /**
+   * The time (in seconds) remaining until the batch expires; -1 signals that the batch never expires; 0 signals that the batch has already expired.
+   */
+  batchTTL: number
+
+  exists: boolean
+}
+
+export interface BatchBucket {
+  bucketID: number
+  collisions: number
+}
+
+export interface PostageBatchBuckets {
+  depth: number
+  bucketDepth: number
+  bucketUpperBound: number
+  buckets?: BatchBucket[]
+}
+
 /**
  * Options for creation of postage batch
  */

@@ -181,14 +181,14 @@ export function beePeerUrl(): string {
  * There is semaphore mechanism that allows only creation of one batch across all the
  * parallel running tests that have to wait until it is created.
  */
-export function getPostageBatch(url = beeUrl()): BatchId {
+export function getPostageBatch(url = beeDebugUrl()): BatchId {
   let stamp: BatchId
 
   switch (url) {
-    case beeUrl():
+    case beeDebugUrl():
       stamp = process.env.BEE_POSTAGE as BatchId
       break
-    case beePeerUrl():
+    case beePeerDebugUrl():
       stamp = process.env.BEE_PEER_POSTAGE as BatchId
       break
     default:

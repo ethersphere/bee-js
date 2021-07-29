@@ -842,6 +842,7 @@ export class Bee {
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee API reference - `POST /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1{amount}~1{depth}/post)
+   * @deprecated Use DebugBee for postage batch management
    */
   async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
     assertNonNegativeInteger(amount)
@@ -875,6 +876,7 @@ export class Bee {
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
+   * @deprecated Use DebugBee for postage batch management
    */
   async getPostageBatch(postageBatchId: BatchId | string): Promise<PostageBatch> {
     assertBatchId(postageBatchId)
@@ -889,6 +891,7 @@ export class Bee {
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
+   * @deprecated Use DebugBee for postage batch management
    */
   async getAllPostageBatch(): Promise<PostageBatch[]> {
     return stamps.getAllPostageBatches(this.url)

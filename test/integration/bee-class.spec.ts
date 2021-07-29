@@ -32,6 +32,7 @@ commonMatchers()
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
   const BEE_PEER_URL = beePeerUrl()
+  const BEE_DEBUG_PEER_URL = beeDebugUrl()
   const bee = new Bee(BEE_URL)
   const beePeer = new Bee(BEE_PEER_URL)
 
@@ -282,7 +283,7 @@ describe('Bee class', () => {
           })
 
           const { overlay } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+          await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
         })()
       },
       PSS_TIMEOUT,
@@ -303,7 +304,7 @@ describe('Bee class', () => {
           })
 
           const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message, pssPublicKey)
+          await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message, pssPublicKey)
         })()
       },
       PSS_TIMEOUT,
@@ -332,7 +333,7 @@ describe('Bee class', () => {
           })
 
           const { overlay } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, overlay, message)
+          await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
         })()
       },
       PSS_TIMEOUT,
