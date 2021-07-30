@@ -317,7 +317,6 @@ export class BeeDebug {
    * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
    *
    * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
    * @param depth Logarithm of the number of chunks that can be stamped with the batch.
