@@ -9,6 +9,7 @@ import { makeEthAddress } from '../../src/utils/eth'
 import { bytesToHex, HexString } from '../../src/utils/hex'
 import {
   beeDebugUrl,
+  beePeerDebugUrl,
   beePeerUrl,
   beeUrl,
   commonMatchers,
@@ -32,7 +33,7 @@ commonMatchers()
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
   const BEE_PEER_URL = beePeerUrl()
-  const BEE_DEBUG_PEER_URL = beeDebugUrl()
+  const BEE_DEBUG_PEER_URL = beePeerDebugUrl()
   const bee = new Bee(BEE_URL)
   const beePeer = new Bee(BEE_PEER_URL)
 
@@ -270,71 +271,75 @@ describe('Bee class', () => {
   describe('pss', () => {
     it(
       'should send and receive data',
-      done => {
-        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
-        ;(async () => {
-          const topic = 'bee-class-topic'
-          const message = new Uint8Array([1, 2, 3])
-          const beeDebug = new BeeDebug(beeDebugUrl())
+      async () => {
+        return new Promise<void>((resolve, reject) => {
+          ;(async () => {
+            const topic = 'bee-class-topic'
+            const message = new Uint8Array([1, 2, 3])
+            const beeDebug = new BeeDebug(beeDebugUrl())
 
-          bee.pssReceive(topic).then(receivedMessage => {
-            expect(receivedMessage).toEqual(message)
-            done()
-          })
+            bee.pssReceive(topic).then(receivedMessage => {
+              expect(receivedMessage).toEqual(message)
+              resolve()
+            })
 
-          const { overlay } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
-        })()
+            const { overlay } = await beeDebug.getNodeAddresses()
+            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
+          })().catch(reject)
+        })
       },
       PSS_TIMEOUT,
     )
 
     it(
       'should send and receive data with public key',
-      done => {
-        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
-        ;(async () => {
-          const topic = 'bee-class-topic-publickey'
-          const message = new Uint8Array([1, 2, 3])
-          const beeDebug = new BeeDebug(beeDebugUrl())
+      async () => {
+        return new Promise<void>((resolve, reject) => {
+          // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
+          ;(async () => {
+            const topic = 'bee-class-topic-publickey'
+            const message = new Uint8Array([1, 2, 3])
+            const beeDebug = new BeeDebug(beeDebugUrl())
 
-          bee.pssReceive(topic).then(receivedMessage => {
-            expect(receivedMessage).toEqual(message)
-            done()
-          })
+            bee.pssReceive(topic).then(receivedMessage => {
+              expect(receivedMessage).toEqual(message)
+              resolve()
+            })
 
-          const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message, pssPublicKey)
-        })()
+            const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
+            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message, pssPublicKey)
+          })().catch(reject)
+        })
       },
       PSS_TIMEOUT,
     )
 
     it(
       'should subscribe to topic',
-      done => {
-        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
-        ;(async () => {
-          const topic = 'bee-class-subscribe-topic'
-          const message = new Uint8Array([1, 2, 3])
-          const beeDebug = new BeeDebug(beeDebugUrl())
+      async () => {
+        return new Promise<void>((resolve, reject) => {
+          ;(async () => {
+            const topic = 'bee-class-subscribe-topic'
+            const message = new Uint8Array([1, 2, 3])
+            const beeDebug = new BeeDebug(beeDebugUrl())
 
-          const subscription = bee.pssSubscribe(topic, {
-            onMessage: receivedMessage => {
-              // without cancel jest complains for leaking handles and may hang
-              subscription.cancel()
+            const subscription = bee.pssSubscribe(topic, {
+              onMessage: receivedMessage => {
+                // without cancel jest complains for leaking handles and may hang
+                subscription.cancel()
 
-              expect(receivedMessage).toEqual(message)
-              done()
-            },
-            onError: e => {
-              throw e
-            },
-          })
+                expect(receivedMessage).toEqual(message)
+                resolve()
+              },
+              onError: e => {
+                throw e
+              },
+            })
 
-          const { overlay } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
-        })()
+            const { overlay } = await beeDebug.getNodeAddresses()
+            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
+          })().catch(reject)
+        })
       },
       PSS_TIMEOUT,
     )
