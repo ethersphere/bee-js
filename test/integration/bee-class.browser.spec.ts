@@ -1,5 +1,13 @@
 import { join } from 'path'
-import { beeDebugUrl, beePeerUrl, beeUrl, commonMatchers, getPostageBatch, PSS_TIMEOUT } from '../utils'
+import {
+  beeDebugUrl,
+  beePeerDebugUrl,
+  beePeerUrl,
+  beeUrl,
+  commonMatchers,
+  getPostageBatch,
+  PSS_TIMEOUT,
+} from '../utils'
 import '../../src'
 import type { Address } from '../../src/types'
 
@@ -16,9 +24,8 @@ describe('Bee class - in browser', () => {
     const testPage = join(__dirname, '..', 'testpage', 'testpage.html')
     await page.goto(`file://${testPage}`)
 
-    // This will create the default batch if it is was not created before
     batchId = await getPostageBatch()
-    batchIdPeer = await getPostageBatch(BEE_PEER_URL)
+    batchIdPeer = await getPostageBatch(beePeerDebugUrl())
   })
 
   it('should create a new Bee instance in browser', async () => {
