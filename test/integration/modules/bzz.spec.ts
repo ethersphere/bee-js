@@ -197,19 +197,6 @@ describe('modules/bzz', () => {
       expect(file1.name).toEqual(fileName)
       expect(file1.data).toEqual(data)
     })
-
-    // TODO: Is skipped until https://github.com/ethersphere/bee/issues/1897 is solved
-    it.skip('should reupload directory', async () => {
-      const directoryStructure: Collection<Uint8Array> = [
-        {
-          path: '0',
-          data: Uint8Array.from([0]),
-        },
-      ]
-
-      const hash = await bzz.uploadCollection(BEE_URL, directoryStructure, getPostageBatch(), { pin: true })
-      await bzz.reupload(BEE_URL, hash) // Does not return anything, but will throw error if something is wrong
-    })
   })
 
   describe('file', () => {
@@ -279,14 +266,5 @@ describe('modules/bzz', () => {
       },
       BIG_FILE_TIMEOUT,
     )
-
-    // TODO: Is skipped until https://github.com/ethersphere/bee/issues/1897 is solved
-    it.skip('should reupload file', async () => {
-      const data = 'hello world'
-      const filename = 'hello.txt'
-
-      const hash = await bzz.uploadFile(BEE_URL, data, getPostageBatch(), filename, { pin: true })
-      await bzz.reupload(BEE_URL, hash) // Does not return anything, but will throw error if something is wrong
-    })
   })
 })
