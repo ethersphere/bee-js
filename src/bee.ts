@@ -1,5 +1,6 @@
 import type { Readable } from 'stream'
 import * as bzz from './modules/bzz'
+import * as stewardship from './modules/stewardship'
 import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
@@ -456,7 +457,7 @@ export class Bee {
       }
     }
 
-    await bzz.reupload(this.url, reference, axiosOptions)
+    await stewardship.reupload(this.url, reference, axiosOptions)
   }
 
   /**
