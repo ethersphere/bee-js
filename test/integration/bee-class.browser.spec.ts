@@ -203,7 +203,7 @@ describe('Bee class - in browser', () => {
               const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
 
               const receive = bee.pssReceive(topic)
-              await beePeer.pssSend(batchIdPeer, topic, overlay, message)
+              await beePeer.pssSend(batchIdPeer, topic, overlay.slice(0, 4), message)
 
               const msg = await receive
 
@@ -242,7 +242,7 @@ describe('Bee class - in browser', () => {
               const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
 
               const receive = bee.pssReceive(topic)
-              await beePeer.pssSend(batchIdPeer, topic, overlay, message, pssPublicKey)
+              await beePeer.pssSend(batchIdPeer, topic, overlay.slice(0, 4), message, pssPublicKey)
 
               const msg = await receive
 

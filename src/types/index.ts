@@ -21,6 +21,7 @@ export interface Dictionary<T> {
 }
 
 export const ADDRESS_HEX_LENGTH = 64
+export const PSS_TARGET_HEX_LENGTH = 4
 export const PUBKEY_HEX_LENGTH = 66
 export const BATCH_ID_HEX_LENGTH = 64
 export const REFERENCE_HEX_LENGTH = 64
