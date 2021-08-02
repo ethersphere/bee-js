@@ -25,11 +25,15 @@ import type {
   ChainState,
   NumberString,
   ExtendedTag,
+  PostageBatchBuckets,
+  DebugPostageBatch,
 } from './types'
+import { BeeArgumentError } from './utils/error'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { assertAddress, assertNonNegativeInteger, isTag } from './utils/type'
-import { CashoutOptions, Tag } from './types'
+import { assertAddress, assertBatchId, assertBoolean, assertNonNegativeInteger, isTag } from './utils/type'
+import { BatchId, CashoutOptions, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN, Tag } from './types'
 import * as tag from './modules/debug/tag'
+import * as stamps from './modules/debug/stamps'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -297,5 +301,83 @@ export class BeeDebug {
    */
   async getChainState(): Promise<ChainState> {
     return states.getChainState(this.url)
+  }
+
+  /**
+   * Creates new postage batch from the funds that the node has available in its Ethereum account.
+   *
+   * For better understanding what each parameter means and what are the optimal values please see
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
+   *
+   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
+   *
+   * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
+   * @param depth Logarithm of the number of chunks that can be stamped with the batch.
+   * @param options Options for creation of postage batch
+   * @throws BeeArgumentError when negative amount or depth is specified
+   * @throws TypeError if non-integer value is passed to amount or depth
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee Debug API reference - `POST /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{amount}~1{depth}/post)
+   */
+  async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
+    assertNonNegativeInteger(amount)
+    assertNonNegativeInteger(depth)
+
+    if (depth < STAMPS_DEPTH_MIN) {
+      throw new BeeArgumentError(`Depth has to be at least ${STAMPS_DEPTH_MIN}`, depth)
+    }
+
+    if (depth > STAMPS_DEPTH_MAX) {
+      throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
+    }
+
+    if (options?.gasPrice) {
+      assertNonNegativeInteger(options.gasPrice)
+    }
+
+    if (options?.immutableFlag !== undefined) {
+      assertBoolean(options.immutableFlag)
+    }
+
+    return stamps.createPostageBatch(this.url, amount, depth, options)
+  }
+
+  /**
+   * Return details for specific postage batch.
+   *
+   * @param postageBatchId Batch ID
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
+   */
+  async getPostageBatch(postageBatchId: BatchId | string): Promise<DebugPostageBatch> {
+    assertBatchId(postageBatchId)
+
+    return stamps.getPostageBatch(this.url, postageBatchId)
+  }
+
+  /**
+   * Return detailed information related to buckets for specific postage batch.
+   *
+   * @param postageBatchId Batch ID
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee Debug API reference - `GET /stamps/${id}/buckets`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}~1buckets/get)
+   */
+  async getPostageBatchBuckets(postageBatchId: BatchId | string): Promise<PostageBatchBuckets> {
+    assertBatchId(postageBatchId)
+
+    return stamps.getPostageBatchBuckets(this.url, postageBatchId)
+  }
+
+  /**
+   * Return all postage batches that has the node available.
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps/get)
+   */
+  async getAllPostageBatch(): Promise<DebugPostageBatch[]> {
+    return stamps.getAllPostageBatches(this.url)
   }
 }

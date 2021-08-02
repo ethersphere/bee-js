@@ -37,12 +37,12 @@ export async function getBrowserPathMapping(): Promise<{ [aliasNodeReference: st
 
 export default async (): Promise<Config.InitialOptions> => {
   try {
-    const beeUrl = process.env.BEE_API_URL || 'http://localhost:1633'
-    const beePeerUrl = process.env.BEE_PEER_API_URL || 'http://localhost:11633'
+    const beeDebugUrl = process.env.BEE_DEBUG_API_URL || 'http://localhost:1635'
+    const beeDebugPeerUrl = process.env.BEE_PEER_DEBUG_API_URL || 'http://localhost:11635'
 
     if (process.env.BEE_POSTAGE) {
       try {
-        if (!(await getPostageBatch(beeUrl, process.env.BEE_POSTAGE as BatchId)).usable) {
+        if (!(await getPostageBatch(beeDebugUrl, process.env.BEE_POSTAGE as BatchId)).usable) {
           delete process.env.BEE_POSTAGE
           console.log('BEE_POSTAGE stamp was found but is not usable')
         } else {
@@ -56,7 +56,7 @@ export default async (): Promise<Config.InitialOptions> => {
 
     if (process.env.BEE_PEER_POSTAGE) {
       try {
-        if (!(await getPostageBatch(beePeerUrl, process.env.BEE_PEER_POSTAGE as BatchId)).usable) {
+        if (!(await getPostageBatch(beeDebugPeerUrl, process.env.BEE_PEER_POSTAGE as BatchId)).usable) {
           delete process.env.BEE_PEER_POSTAGE
           console.log('BEE_PEER_POSTAGE stamp was found but is not usable')
         } else {
@@ -74,11 +74,11 @@ export default async (): Promise<Config.InitialOptions> => {
       const stampsOrder: { url: string; env: string }[] = []
 
       if (!process.env.BEE_POSTAGE) {
-        stampsOrder.push({ url: beeUrl, env: 'BEE_POSTAGE' })
+        stampsOrder.push({ url: beeDebugUrl, env: 'BEE_POSTAGE' })
       }
 
       if (!process.env.BEE_PEER_POSTAGE) {
-        stampsOrder.push({ url: beePeerUrl, env: 'BEE_PEER_POSTAGE' })
+        stampsOrder.push({ url: beeDebugPeerUrl, env: 'BEE_PEER_POSTAGE' })
       }
 
       const stamps = await Promise.all(stampsOrder.map(async order => createPostageBatch(order.url, '1', 20)))
