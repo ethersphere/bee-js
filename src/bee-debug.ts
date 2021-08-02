@@ -26,19 +26,12 @@ import type {
   NumberString,
   ExtendedTag,
   PostageBatchBuckets,
+  DebugPostageBatch,
 } from './types'
 import { BeeArgumentError } from './utils/error'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertAddress, assertBatchId, assertBoolean, assertNonNegativeInteger, isTag } from './utils/type'
-import {
-  BatchId,
-  CashoutOptions,
-  PostageBatch,
-  PostageBatchOptions,
-  STAMPS_DEPTH_MAX,
-  STAMPS_DEPTH_MIN,
-  Tag,
-} from './types'
+import { BatchId, CashoutOptions, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN, Tag } from './types'
 import * as tag from './modules/debug/tag'
 import * as stamps from './modules/debug/stamps'
 
@@ -358,7 +351,7 @@ export class BeeDebug {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
    */
-  async getPostageBatch(postageBatchId: BatchId | string): Promise<PostageBatch> {
+  async getPostageBatch(postageBatchId: BatchId | string): Promise<DebugPostageBatch> {
     assertBatchId(postageBatchId)
 
     return stamps.getPostageBatch(this.url, postageBatchId)
@@ -384,7 +377,7 @@ export class BeeDebug {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps/get)
    */
-  async getAllPostageBatch(): Promise<PostageBatch[]> {
+  async getAllPostageBatch(): Promise<DebugPostageBatch[]> {
     return stamps.getAllPostageBatches(this.url)
   }
 }
