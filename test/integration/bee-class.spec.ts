@@ -30,6 +30,7 @@ import {
 } from '../utils'
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
+import { makeMaxTarget } from '../../src/utils/pss'
 
 commonMatchers()
 
@@ -300,7 +301,7 @@ describe('Bee class', () => {
             })
 
             const { overlay } = await beeDebug.getNodeAddresses()
-            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
+            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeMaxTarget(overlay), message)
           })().catch(reject)
         })
       },
@@ -323,7 +324,13 @@ describe('Bee class', () => {
             })
 
             const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message, pssPublicKey)
+            await beePeer.pssSend(
+              getPostageBatch(BEE_DEBUG_PEER_URL),
+              topic,
+              makeMaxTarget(overlay),
+              message,
+              pssPublicKey,
+            )
           })().catch(reject)
         })
       },

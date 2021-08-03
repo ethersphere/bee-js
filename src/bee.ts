@@ -511,7 +511,7 @@ export class Bee {
    *
    * @param postageBatchId Postage BatchId that will be assigned to sent message
    * @param topic Topic name
-   * @param target Target message address prefix
+   * @param target Target message address prefix. Has a limit on length. Recommend to use `Utils.Pss.makeMaxTarget()` to get the most specific target that Bee node will accept.
    * @param data Message to be sent
    * @param recipient Recipient public key
    * @throws TypeError if `data`, `batchId`, `target` or `recipient` are in invalid format

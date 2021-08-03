@@ -10,6 +10,7 @@ import {
   PSS_TIMEOUT,
 } from '../utils'
 import '../../src'
+import { makeMaxTarget } from '../../src/utils/pss'
 import type { Address, Reference } from '../../src/types'
 import * as bzz from '../../src/modules/bzz'
 
@@ -203,7 +204,7 @@ describe('Bee class - in browser', () => {
               const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
 
               const receive = bee.pssReceive(topic)
-              await beePeer.pssSend(batchIdPeer, topic, overlay.slice(0, 4), message)
+              await beePeer.pssSend(batchIdPeer, topic, makeMaxTarget(overlay), message)
 
               const msg = await receive
 
@@ -242,7 +243,7 @@ describe('Bee class - in browser', () => {
               const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
 
               const receive = bee.pssReceive(topic)
-              await beePeer.pssSend(batchIdPeer, topic, overlay.slice(0, 4), message, pssPublicKey)
+              await beePeer.pssSend(batchIdPeer, topic, makeMaxTarget(overlay), message, pssPublicKey)
 
               const msg = await receive
 
