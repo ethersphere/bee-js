@@ -1,26 +1,32 @@
-import axios, { AxiosResponse } from 'axios'
 import { BeeError, BeeRequestError, BeeResponseError } from './error'
-import { Options as KyOptions } from 'ky-universal'
 
+import { Options as KyOptions } from 'ky-universal'
 import { Ky } from '../types'
-axios.defaults.adapter = require('axios/lib/adapters/http') // https://stackoverflow.com/a/57320262
 
 /**
  * Utility function that sets passed headers to ALL axios calls without distinction of Bee URLs.
  *
  * @param headers
  */
-export function setDefaultHeaders(headers: Record<string, string>): void {
-  axios.defaults.headers.common = headers
+// export function setDefaultHeaders(headers: Record<string, string>): void {
+//   axios.defaults.headers.common = headers
+// }
+
+interface HttpOptions extends KyOptions {
+  url: string
 }
 
-export async function http<T>(ky: Ky, url: string, config: KyOptions): Promise<AxiosResponse<T>> {
-  try {
-    const response = await ky(url, {
-      ...config,
-    })
+interface KyResponse extends Response {
+  json: <T>() => Promise<T>
+}
 
-    return response
+export async function http(ky: Ky, config: HttpOptions): Promise<KyResponse> {
+  try {
+    const { url, ...kyConfig } = config
+
+    return await ky(url, {
+      ...kyConfig,
+    })
   } catch (e) {
     if (e.response) {
       if (e.response.data?.message) {

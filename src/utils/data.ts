@@ -6,12 +6,12 @@ import type { Data } from 'ws'
  *
  * @param data any string, ArrayBuffer, Uint8Array or Readable
  */
-export function prepareData(data: string | ArrayBuffer | Uint8Array | Readable): Uint8Array | Readable | never {
-  if (typeof data === 'string') return new TextEncoder().encode(data)
+export function prepareData(
+  data: string | ArrayBuffer | Uint8Array | Readable | ReadableStream<Uint8Array>,
+): Blob | ReadableStream<Uint8Array> | never {
+  if (typeof data === 'string' || data instanceof Uint8Array || data instanceof ArrayBuffer) return new Blob([data])
 
-  if (data instanceof ArrayBuffer) return new Uint8Array(data)
-
-  if (data instanceof Uint8Array || data instanceof Readable) return data
+  if (data instanceof Blob || data instanceof ReadableStream) return data
 
   throw new TypeError('unknown data type')
 }

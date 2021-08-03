@@ -11,7 +11,7 @@ const endpoint = '/bytes'
 /**
  * Upload data to a Bee node
  *
- * @param url             Bee URL
+ * @param ky              Ky instance
  * @param data            Data to be uploaded
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options         Additional options like tag, encryption, pinning
@@ -22,16 +22,19 @@ export async function upload(
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = ky.post(endpoint, {
+  const response = await http(ky, {
+    url: endpoint,
+    method: 'post',
     body: await prepareData(data),
     headers: {
       'content-type': 'application/octet-stream',
       ...extractUploadHeaders(postageBatchId, options),
     },
-    responseType: 'json',
   })
 
-  return (await response.json<{ reference: Reference }>()).reference
+  const responseData = await response.json<{ reference: Reference }>()
+
+  return responseData.reference
 }
 
 /**
