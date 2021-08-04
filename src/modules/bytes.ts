@@ -1,6 +1,5 @@
 import type { AxiosRequestConfig } from 'axios'
-import type { Readable } from 'stream'
-import { BatchId, Data, Ky, Reference, UploadOptions } from '../types'
+import type { BatchId, Data, Ky, Reference, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
@@ -39,7 +38,7 @@ export async function upload(
 /**
  * Download data as a byte array
  *
- * @param url  Bee URL
+ * @param ky
  * @param hash Bee content reference
  */
 export async function download(ky: Ky, hash: Reference): Promise<Data> {
@@ -54,12 +53,16 @@ export async function download(ky: Ky, hash: Reference): Promise<Data> {
 /**
  * Download data as a readable stream
  *
- * @param url  Bee URL
+ * @param ky
  * @param hash Bee content reference
  * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(ky: Ky, hash: Reference, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
-  const response = await http<Readable>(ky, {
+export async function downloadReadable(
+  ky: Ky,
+  hash: Reference,
+  axiosOptions?: AxiosRequestConfig,
+): Promise<ReadableStream<Uint8Array>> {
+  const response = await http<ReadableStream<Uint8Array>>(ky, {
     ...axiosOptions,
     responseType: 'stream',
     url: `${endpoint}/${hash}`,

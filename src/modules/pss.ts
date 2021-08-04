@@ -10,7 +10,7 @@ const endpoint = '/pss'
 /**
  * Send to recipient or target with Postal Service for Swarm
  *
- * @param url Bee url
+ * @param ky Ky instance for given Bee class instance
  * @param topic Topic name
  * @param target Target message address prefix
  * @param data

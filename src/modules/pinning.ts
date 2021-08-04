@@ -10,7 +10,7 @@ export interface GetAllPinResponse {
 /**
  * Pin data with given reference
  *
- * @param url  Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param reference Bee data reference
  */
 export async function pin(ky: Ky, reference: Reference): Promise<void> {
@@ -24,7 +24,7 @@ export async function pin(ky: Ky, reference: Reference): Promise<void> {
 /**
  * Unpin data with given reference
  *
- * @param url  Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param reference Bee data reference
  */
 export async function unpin(ky: Ky, reference: Reference): Promise<void> {

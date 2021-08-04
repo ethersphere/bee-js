@@ -43,7 +43,7 @@ export async function upload(
 /**
  * Download chunk data as a byte array
  *
- * @param url  Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param hash Bee content reference
  *
  */
@@ -59,7 +59,7 @@ export async function download(ky: Ky, hash: string): Promise<Uint8Array> {
 /**
  * Download chunk data as a readable stream
  *
- * @param url  Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param hash Bee content reference
  * @param axiosOptions optional - alter default options of axios HTTP client
  */

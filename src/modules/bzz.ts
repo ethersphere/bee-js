@@ -5,6 +5,7 @@ import {
   Data,
   FileData,
   FileUploadOptions,
+  Ky,
   Reference,
   UploadHeaders,
 } from '../types'
@@ -38,7 +39,7 @@ function extractFileUploadHeaders(postageBatchId: BatchId, options?: FileUploadO
 /**
  * Upload single file
  *
- * @param url Bee URL
+ * @param ky
  * @param data Files data
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param name Name that will be attached to the uploaded file. Wraps the data into manifest with set index document.
@@ -55,7 +56,7 @@ export async function uploadFile(
     throw new BeeArgumentError('url parameter is required and cannot be empty', url)
   }
 
-  const response = await http<{ reference: Reference }>({
+  const response = await http<{ reference: Reference }>(ky, {
     ...options?.axiosOptions,
     method: 'post',
     url: url + bzzEndpoint,
@@ -73,7 +74,7 @@ export async function uploadFile(
 /**
  * Download single file as a buffer
  *
- * @param url  Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
  * @param axiosOptions optional - alter default options of axios HTTP client
@@ -101,7 +102,7 @@ export async function downloadFile(
 /**
  * Download single file as a readable stream
  *
- * @param url  Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
  * @param axiosOptions optional - alter default options of axios HTTP client
@@ -149,7 +150,7 @@ function extractCollectionUploadHeaders(
 
 /**
  * Upload collection
- * @param url Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param collection Collection of Uint8Array buffers to upload
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options
