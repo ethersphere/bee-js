@@ -22,9 +22,10 @@ export async function upload(
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await http(ky, {
+  const response = await http<{ reference: Reference }>(ky, {
     url: endpoint,
     method: 'post',
+    responseType: 'json',
     body: await prepareData(data),
     headers: {
       'content-type': 'application/octet-stream',
@@ -32,9 +33,7 @@ export async function upload(
     },
   })
 
-  const responseData = await response.json<{ reference: Reference }>()
-
-  return responseData.reference
+  return response.data.reference
 }
 
 /**
@@ -44,9 +43,9 @@ export async function upload(
  * @param hash Bee content reference
  */
 export async function download(ky: Ky, hash: Reference): Promise<Data> {
-  const response = await http<ArrayBuffer>({
+  const response = await http<ArrayBuffer>(ky, {
     responseType: 'arraybuffer',
-    url: `${url}${endpoint}/${hash}`,
+    url: `${endpoint}/${hash}`,
   })
 
   return wrapBytesWithHelpers(new Uint8Array(response.data))
@@ -60,11 +59,10 @@ export async function download(ky: Ky, hash: Reference): Promise<Data> {
  * @param axiosOptions optional - alter default options of axios HTTP client
  */
 export async function downloadReadable(ky: Ky, hash: Reference, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
-  const response = await http<Readable>({
+  const response = await http<Readable>(ky, {
     ...axiosOptions,
-    method: 'GET',
     responseType: 'stream',
-    url: `${url}${endpoint}/${hash}`,
+    url: `${endpoint}/${hash}`,
   })
 
   return response.data

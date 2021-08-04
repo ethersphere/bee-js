@@ -14,19 +14,34 @@ import { Ky } from '../types'
 
 interface HttpOptions extends KyOptions {
   url: string
+  responseType: 'json' | 'arraybuffer' | 'stream'
 }
 
-interface KyResponse extends Response {
-  json: <T>() => Promise<T>
+interface KyResponse<T> extends Response {
+  data: T
 }
 
-export async function http(ky: Ky, config: HttpOptions): Promise<KyResponse> {
+export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T>> {
   try {
-    const { url, ...kyConfig } = config
+    const { url, responseType, ...kyConfig } = config
 
-    return await ky(url, {
+    const response = (await ky(url, {
       ...kyConfig,
-    })
+    })) as KyResponse<T>
+
+    switch (responseType) {
+      case 'stream':
+        break
+      case 'arraybuffer':
+        response.data = (await response.arrayBuffer()) as unknown as T
+        break
+      case 'json':
+      default:
+        response.data = (await response.json()) as unknown as T
+        break
+    }
+
+    return response
   } catch (e) {
     if (e.response) {
       if (e.response.data?.message) {

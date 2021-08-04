@@ -52,7 +52,17 @@ export function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object'
 }
 
-export function isStrictlyObject(value: unknown): value is Record<string, unknown> {
+/**
+ * Generally it is discouraged to use `object` type, but in this case I think
+ * it is best to do so as it is possible to easily convert from `object`to other
+ * types, which will be usually the case after asserting that the object is
+ * strictly object. With for example Record<string, unknown> you have to first
+ * cast it to `unknown` which I think bit defeat the purpose.
+ *
+ * @param value
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isStrictlyObject(value: unknown): value is object {
   return isObject(value) && !Array.isArray(value)
 }
 

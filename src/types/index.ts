@@ -7,6 +7,10 @@ import type { BeeError } from '../utils/error'
 import type { EthAddress, HexEthAddress } from '../utils/eth'
 import type { HexString } from '../utils/hex'
 import type ky from 'ky-universal'
+
+import type { Readable as NativeReadable } from 'stream'
+import type { Readable as CompatibilityReadable } from 'readable-stream'
+
 export * from './debug'
 
 export type Ky = typeof ky
@@ -48,6 +52,12 @@ export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeo
 export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 
 export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
+
+/**
+ * Type representing Readable stream that abstracts away implementation especially the difference between
+ * browser and NodeJS versions as both are supported.
+ */
+export type Readable = NativeReadable | CompatibilityReadable | ReadableStream
 
 /**
  * BatchId is result of keccak256 hash so 64 hex string without prefix.
@@ -99,9 +109,6 @@ export interface UploadOptions {
    * @link Tag
    */
   tag?: number
-
-  /** Alter default options of axios HTTP client */
-  axiosOptions?: AxiosRequestConfig
 }
 
 export interface FileUploadOptions extends UploadOptions {
