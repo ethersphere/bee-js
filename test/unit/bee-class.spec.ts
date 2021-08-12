@@ -1,4 +1,11 @@
-import { assertAllIsDone, createPostageBatchMock, downloadDataMock, fetchFeedUpdateMock, MOCK_SERVER_URL } from './nock'
+import {
+  assertAllIsDone,
+  createPostageBatchMock,
+  downloadDataMock,
+  fetchFeedUpdateMock,
+  MOCK_SERVER_URL,
+  uploadFileMock,
+} from './nock'
 import {
   BatchId,
   Bee,
@@ -680,6 +687,97 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       return bee.getPostageBatch(input as BatchId)
+    })
+  })
+
+  describe('hooks', () => {
+    it('should call with request', async () => {
+      jest.setTimeout(1000000)
+      const requestSpy = jest.fn()
+      const responseSpy = jest.fn()
+
+      const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
+
+      const topic = bee.makeFeedTopic('some-topic')
+      fetchFeedUpdateMock(testIdentity.address, topic).reply(200, {
+        reference: testJsonHash,
+      } as ReferenceResponse)
+
+      const feedReader = await bee.makeFeedReader('sequence', topic, testIdentity.address)
+      const feedUpdate = await feedReader.download()
+
+      expect(feedUpdate.reference).toEqual(testJsonHash)
+
+      expect(requestSpy.mock.calls.length).toEqual(1)
+      expect(requestSpy.mock.calls[0].length).toEqual(1)
+      expect(requestSpy.mock.calls[0][0]).toMatchObject({
+        url: `${MOCK_SERVER_URL}feeds/${testIdentity.address}/${topic}?type=sequence`,
+        method: 'GET',
+        headers: { accept: 'application/json, text/plain, */*' },
+      })
+
+      expect(responseSpy.mock.calls.length).toEqual(1)
+      expect(responseSpy.mock.calls[0].length).toEqual(1)
+      expect(responseSpy.mock.calls[0][0]).toMatchObject({
+        status: 200,
+        statusText: '',
+        headers: {
+          'content-type': 'application/json',
+        },
+        request: {
+          url: `${MOCK_SERVER_URL}feeds/${testIdentity.address}/${topic}?type=sequence`,
+          method: 'GET',
+          headers: { accept: 'application/json, text/plain, */*' },
+        },
+      })
+      assertAllIsDone()
+    })
+
+    it('should call with request with correct headers', async () => {
+      const requestSpy = jest.fn()
+      const responseSpy = jest.fn()
+      const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
+
+      uploadFileMock(testBatchId, 'nice.txt', { encrypt: true }).reply(200, {
+        reference: testJsonHash,
+      } as ReferenceResponse)
+
+      const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt', { encrypt: true })
+
+      expect(reference).toEqual(testJsonHash)
+
+      expect(requestSpy.mock.calls.length).toEqual(1)
+      expect(requestSpy.mock.calls[0].length).toEqual(1)
+      expect(requestSpy.mock.calls[0][0]).toMatchObject({
+        url: `${MOCK_SERVER_URL}bzz?name=nice.txt`,
+        method: 'POST',
+        headers: {
+          accept: 'application/json, text/plain, */*',
+          'swarm-encrypt': 'true',
+          'swarm-postage-batch-id': testBatchId,
+        },
+      })
+
+      expect(responseSpy.mock.calls.length).toEqual(1)
+      expect(responseSpy.mock.calls[0].length).toEqual(1)
+      expect(responseSpy.mock.calls[0][0]).toMatchObject({
+        status: 200,
+        statusText: '',
+        headers: {
+          'content-type': 'application/json',
+        },
+        request: {
+          url: `${MOCK_SERVER_URL}bzz?name=nice.txt`,
+          method: 'POST',
+          headers: {
+            accept: 'application/json, text/plain, */*',
+            'swarm-encrypt': 'true',
+            'swarm-postage-batch-id': testBatchId,
+          },
+        },
+      })
+
+      assertAllIsDone()
     })
   })
 })

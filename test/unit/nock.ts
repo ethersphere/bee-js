@@ -23,7 +23,12 @@ export function fetchFeedUpdateMock(
   hashedTopic: string,
   type: FeedType = DEFAULT_FEED_TYPE,
 ): nock.Interceptor {
-  return nock(MOCK_SERVER_URL).get(`${FEED_ENDPOINT}/${address}/${hashedTopic}?type=${type}`)
+  return nock(MOCK_SERVER_URL)
+    .defaultReplyHeaders({
+      'swarm-feed-index': '1',
+      'swarm-feed-index-next': '2',
+    })
+    .get(`${FEED_ENDPOINT}/${address}/${hashedTopic}?type=${type}`)
 }
 
 export function downloadDataMock(reference: Reference | string): nock.Interceptor {

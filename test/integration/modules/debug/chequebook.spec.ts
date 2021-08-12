@@ -7,20 +7,20 @@ import {
 } from '../../../../src/modules/debug/chequebook'
 import { NumberString } from '../../../../src/types'
 import { isPrefixedHexString } from '../../../../src/utils/hex'
-import { beeDebugUrl, commonMatchers, sleep } from '../../../utils'
+import { beeDebugKy, commonMatchers, sleep } from '../../../utils'
 
 if (process.env.BEE_TEST_CHEQUEBOOK) {
   commonMatchers()
 
   describe('swap enabled chequebook', () => {
     test('address', async () => {
-      const response = await getChequebookAddress(beeDebugUrl())
+      const response = await getChequebookAddress(beeDebugKy())
 
       expect(isPrefixedHexString(response.chequebookAddress)).toBeTruthy()
     })
 
     test('balance', async () => {
-      const response = await getChequebookBalance(beeDebugUrl())
+      const response = await getChequebookBalance(beeDebugKy())
 
       expect(response.availableBalance).toBeNumberString()
       expect(response.totalBalance).toBeNumberString()
@@ -29,14 +29,14 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     const TRANSACTION_TIMEOUT = 20 * 1000
 
     const withDrawDepositTest = (amount: number | NumberString) => async () => {
-      const withdrawResponse = await withdrawTokens(beeDebugUrl(), amount)
+      const withdrawResponse = await withdrawTokens(beeDebugKy(), amount)
       expect(withdrawResponse).toBeType('string')
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
       await sleep(TRANSACTION_TIMEOUT)
 
-      const depositResponse = await depositTokens(beeDebugUrl(), amount)
+      const depositResponse = await depositTokens(beeDebugKy(), amount)
 
       expect(depositResponse).toBeType('string')
 
@@ -49,7 +49,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     test('withdraw and deposit integer', async () => await withDrawDepositTest(5), 3 * TRANSACTION_TIMEOUT)
 
     test('get last cheques for all peers', async () => {
-      const response = await getLastCheques(beeDebugUrl())
+      const response = await getLastCheques(beeDebugKy())
 
       expect(Array.isArray(response.lastcheques)).toBeTruthy()
     })

@@ -1,17 +1,17 @@
 import { http } from '../../utils/http'
-import { PeerBalance, BalanceResponse } from '../../types'
+import type { PeerBalance, BalanceResponse, Ky } from '../../types'
 
-const balancesEndpoint = '/balances'
-const consumedEndpoint = '/consumed'
+const balancesEndpoint = 'balances'
+const consumedEndpoint = 'consumed'
 
 /**
  * Get the balances with all known peers including prepaid services
  *
- * @param url Bee debug url
+ * @param ky Ky debug instance
  */
 export async function getAllBalances(ky: Ky): Promise<BalanceResponse> {
-  const response = await http<BalanceResponse>({
-    url: url + balancesEndpoint,
+  const response = await http<BalanceResponse>(ky, {
+    url: balancesEndpoint,
     responseType: 'json',
   })
 
@@ -21,12 +21,12 @@ export async function getAllBalances(ky: Ky): Promise<BalanceResponse> {
 /**
  * Get the balances with a specific peer including prepaid services
  *
- * @param url     Bee debug url
+ * @param ky Ky debug instance
  * @param address Swarm address of peer
  */
 export async function getPeerBalance(ky: Ky, address: string): Promise<PeerBalance> {
-  const response = await http<PeerBalance>({
-    url: url + `${balancesEndpoint}/${address}`,
+  const response = await http<PeerBalance>(ky, {
+    url: `${balancesEndpoint}/${address}`,
     responseType: 'json',
   })
 
@@ -36,11 +36,11 @@ export async function getPeerBalance(ky: Ky, address: string): Promise<PeerBalan
 /**
  * Get the past due consumption balances with all known peers
  *
- * @param url Bee debug url
+ * @param ky Ky debug instance
  */
 export async function getPastDueConsumptionBalances(ky: Ky): Promise<BalanceResponse> {
-  const response = await http<BalanceResponse>({
-    url: url + consumedEndpoint,
+  const response = await http<BalanceResponse>(ky, {
+    url: consumedEndpoint,
     responseType: 'json',
   })
 
@@ -50,12 +50,12 @@ export async function getPastDueConsumptionBalances(ky: Ky): Promise<BalanceResp
 /**
  * Get the past due consumption balance with a specific peer
  *
- * @param url     Bee debug url
+ * @param ky Ky debug instance
  * @param address Swarm address of peer
  */
 export async function getPastDueConsumptionPeerBalance(ky: Ky, address: string): Promise<PeerBalance> {
-  const response = await http<PeerBalance>({
-    url: url + `${consumedEndpoint}/${address}`,
+  const response = await http<PeerBalance>(ky, {
+    url: `${consumedEndpoint}/${address}`,
     responseType: 'json',
   })
 

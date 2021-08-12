@@ -5,11 +5,11 @@ import {
   getNodeAddresses,
   pingPeer,
 } from '../../../../src/modules/debug/connectivity'
-import { beeDebugUrl } from '../../../utils'
+import { beeDebugKy } from '../../../utils'
 
 describe('modules/debug/connectivity', () => {
   test('getPeers', async () => {
-    const peers = await getPeers(beeDebugUrl())
+    const peers = await getPeers(beeDebugKy())
 
     expect(Array.isArray(peers)).toBeTruthy()
     expect(peers.length).toBeGreaterThan(0)
@@ -21,7 +21,7 @@ describe('modules/debug/connectivity', () => {
   })
 
   test('getBlocklist', async () => {
-    const peers = await getBlocklist(beeDebugUrl())
+    const peers = await getBlocklist(beeDebugKy())
 
     expect(Array.isArray(peers)).toBeTruthy()
 
@@ -32,7 +32,7 @@ describe('modules/debug/connectivity', () => {
   })
 
   test('getTopology', async () => {
-    const topology = await getTopology(beeDebugUrl())
+    const topology = await getTopology(beeDebugKy())
 
     expect(topology.baseAddr).toMatch(/^[0-9a-f]{64}$/i)
     expect(topology.population).toBeGreaterThanOrEqual(0)
@@ -51,7 +51,7 @@ describe('modules/debug/connectivity', () => {
   })
 
   test('getNodeAddresses', async () => {
-    const addresses = await getNodeAddresses(beeDebugUrl())
+    const addresses = await getNodeAddresses(beeDebugKy())
 
     expect(addresses.overlay).toMatch(/^[0-9a-f]{64}$/)
     expect(Array.isArray(addresses.underlay)).toBeTruthy()
@@ -61,8 +61,8 @@ describe('modules/debug/connectivity', () => {
   })
 
   test('pingPeer', async () => {
-    const peers = await getPeers(beeDebugUrl())
-    const res = await pingPeer(beeDebugUrl(), peers[0].address)
+    const peers = await getPeers(beeDebugKy())
+    const res = await pingPeer(beeDebugKy(), peers[0].address)
 
     expect(res.rtt).toMatch(/^\d+(\.\d+)[mnpµ]?s$/)
   })

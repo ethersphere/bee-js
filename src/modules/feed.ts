@@ -1,10 +1,12 @@
-import { BatchId, Dictionary, Reference, ReferenceResponse, Topic } from '../types'
+import { BatchId, Ky, Reference, ReferenceResponse, Topic } from '../types'
 import { http } from '../utils/http'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'
+import { filterUndefined } from '../utils/type'
+import { BeeError } from '../utils/error'
 
-const feedEndpoint = '/feeds'
+const feedEndpoint = 'feeds'
 
 export interface CreateFeedOptions {
   type?: FeedType
@@ -30,7 +32,7 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
 /**
  * Create an initial feed root manifest
  *
- * @param url             Bee URL
+ * @param ky Ky instance
  * @param owner           Owner's ethereum address in hex
  * @param topic           Topic in hex
  * @param postageBatchId  Postage BatchId to be used to create the Feed Manifest
@@ -43,20 +45,32 @@ export async function createFeedManifest(
   postageBatchId: BatchId,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
-  const response = await http<ReferenceResponse>({
+  const response = await http<ReferenceResponse>(ky, {
     method: 'post',
-    url: `${url}${feedEndpoint}/${owner}/${topic}`,
-    params: options,
+    responseType: 'json',
+    url: `${feedEndpoint}/${owner}/${topic}`,
+    searchParams: filterUndefined(options),
     headers: extractUploadHeaders(postageBatchId),
   })
 
   return response.data.reference
 }
 
-function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
+function readFeedUpdateHeaders(headers: Headers): FeedUpdateHeaders {
+  const feedIndex = headers.get('swarm-feed-index')
+  const feedIndexNext = headers.get('swarm-feed-index-next')
+
+  if (!feedIndex) {
+    throw new BeeError('Response did not contain expected swarm-feed-index!')
+  }
+
+  if (!feedIndexNext) {
+    throw new BeeError('Response did not contain expected swarm-feed-index-next!')
+  }
+
   return {
-    feedIndex: headers['swarm-feed-index'],
-    feedIndexNext: headers['swarm-feed-index-next'],
+    feedIndex,
+    feedIndexNext,
   }
 }
 
@@ -68,7 +82,7 @@ function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
  * the reference it contains along with its index and the
  * index of the subsequent update.
  *
- * @param url         Bee URL
+ * @param ky Ky instance
  * @param owner       Owner's ethereum address in hex
  * @param topic       Topic in hex
  * @param options     Additional options, like index, at, type
@@ -79,14 +93,14 @@ export async function fetchFeedUpdate(
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<FetchFeedUpdateResponse> {
-  const response = await http<ReferenceResponse>({
-    url: `${url}${feedEndpoint}/${owner}/${topic}`,
-    params: options,
+  const response = await http<ReferenceResponse>(ky, {
+    responseType: 'json',
+    url: `${feedEndpoint}/${owner}/${topic}`,
+    searchParams: filterUndefined(options),
   })
-  const findFeedUpdateResponse = {
+
+  return {
     ...response.data,
     ...readFeedUpdateHeaders(response.headers),
   }
-
-  return findFeedUpdateResponse
 }

@@ -1,7 +1,7 @@
-import { BatchId, NumberString, PostageBatch, PostageBatchOptions } from '../types'
+import type { BatchId, Ky, NumberString, PostageBatch, PostageBatchOptions } from '../types'
 import { http } from '../utils/http'
 
-const STAMPS_ENDPOINT = '/stamps'
+const STAMPS_ENDPOINT = 'stamps'
 
 interface GetAllStampsResponse {
   stamps: PostageBatch[]
@@ -12,9 +12,9 @@ interface CreateStampResponse {
 }
 
 export async function getAllPostageBatches(ky: Ky): Promise<PostageBatch[]> {
-  const response = await http<GetAllStampsResponse>({
+  const response = await http<GetAllStampsResponse>(ky, {
     method: 'get',
-    url: `${url}${STAMPS_ENDPOINT}`,
+    url: `${STAMPS_ENDPOINT}`,
     responseType: 'json',
   })
 
@@ -22,9 +22,9 @@ export async function getAllPostageBatches(ky: Ky): Promise<PostageBatch[]> {
 }
 
 export async function getPostageBatch(ky: Ky, postageBatchId: BatchId): Promise<PostageBatch> {
-  const response = await http<PostageBatch>({
+  const response = await http<PostageBatch>(ky, {
     method: 'get',
-    url: `${url}${STAMPS_ENDPOINT}/${postageBatchId}`,
+    url: `${STAMPS_ENDPOINT}/${postageBatchId}`,
     responseType: 'json',
   })
 
@@ -47,11 +47,11 @@ export async function createPostageBatch(
     headers.immutable = String(options.immutableFlag)
   }
 
-  const response = await http<CreateStampResponse>({
+  const response = await http<CreateStampResponse>(ky, {
     method: 'post',
-    url: `${url}${STAMPS_ENDPOINT}/${amount}/${depth}`,
+    url: `${STAMPS_ENDPOINT}/${amount}/${depth}`,
     responseType: 'json',
-    params: { label: options?.label },
+    searchParams: { label: options?.label },
     headers,
   })
 

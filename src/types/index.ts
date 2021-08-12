@@ -75,6 +75,16 @@ export interface BeeOptions {
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   signer?: Signer | Uint8Array | string
+
+  /**
+   * Function that registers listener callback for all outgoing HTTP requests that Bee instance makes.
+   */
+  onRequest?: HookCallback<BeeRequest>
+
+  /**
+   * Function that registers listener callback for all incoming HTTP responses that Bee instance made.
+   */
+  onResponse?: HookCallback<BeeResponse>
 }
 
 export interface UploadOptions {
@@ -263,19 +273,19 @@ export interface ReferenceResponse {
   reference: Reference
 }
 
-export type HttpMethod = 'get' | 'GET' | 'delete' | 'DELETE' | 'post' | 'POST' | 'patch' | 'PATCH'
+export type HttpMethod = 'GET' | 'DELETE' | 'POST' | 'PATCH' | 'PUT'
+
+export type HookCallback<V> = (value: V) => void | Promise<void>
 
 export interface BeeRequest {
   url: string
   method: HttpMethod
   headers?: Record<string, string>
   params?: Record<string, unknown>
-  data?: unknown
 }
 
 export interface BeeResponse {
   headers: Record<string, string>
-  data: unknown
   status: number
   statusText?: string
   request: BeeRequest

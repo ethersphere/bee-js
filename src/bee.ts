@@ -41,7 +41,7 @@ import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 import { AllTagsOptions, Ky, NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
 
-import ky from 'ky-universal'
+import type { Options as KyOptions } from 'ky-universal'
 
 import type {
   Tag,
@@ -68,13 +68,8 @@ import type {
   PostageBatch,
   BatchId,
 } from './types'
+import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 
-/**
- * The main component that abstracts operations available on the main Bee API.
- *
- * Not all methods are always available as it depends in what mode is Bee node launched in.
- * For example gateway mode and light node mode has only limited set of endpoints enabled.
- */
 export class Bee {
   /**
    * URL on which is the main API of Bee node exposed
@@ -104,7 +99,24 @@ export class Bee {
       this.signer = makeSigner(options.signer)
     }
 
-    this.ky = ky.create({ prefixUrl: url })
+    const kyOptions: KyOptions = {
+      prefixUrl: this.url,
+      timeout: false,
+      hooks: {
+        beforeRequest: [],
+        afterResponse: [],
+      },
+    }
+
+    if (options?.onRequest) {
+      kyOptions.hooks?.beforeRequest?.push(wrapRequestClosure(options.onRequest))
+    }
+
+    if (options?.onResponse) {
+      kyOptions.hooks?.afterResponse?.push(wrapResponseClosure(options.onResponse))
+    }
+
+    this.ky = makeDefaultKy(kyOptions)
   }
 
   /**
@@ -148,14 +160,13 @@ export class Bee {
    * Download data as a Readable stream
    *
    * @param reference Bee data reference
-   * @param axiosOptions optional - alter default options of axios HTTP client
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
-  async downloadReadableData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<Readable> {
+  async downloadReadableData(reference: Reference | string): Promise<ReadableStream<Uint8Array>> {
     assertReference(reference)
 
-    return bytes.downloadReadable(this.ky, reference, axiosOptions)
+    return bytes.downloadReadable(this.ky, reference)
   }
 
   /**
@@ -176,7 +187,7 @@ export class Bee {
    */
   async uploadFile(
     postageBatchId: string | BatchId,
-    data: string | Uint8Array | Readable | File,
+    data: string | Uint8Array | Readable | ReadableStream<Uint8Array> | File,
     name?: string,
     options?: FileUploadOptions,
   ): Promise<Reference> {
@@ -232,7 +243,7 @@ export class Bee {
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
    */
-  async downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<Readable>> {
+  async downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<ReadableStream<Uint8Array>>> {
     assertReference(reference)
 
     return bzz.downloadFileReadable(this.ky, reference, path)
@@ -445,11 +456,10 @@ export class Bee {
    * Instructs the Bee node to reupload a locally pinned data into the network.
    *
    * @param reference
-   * @param axiosOptions
    * @throws BeeArgumentError if the reference is not locally pinned
    * @throws TypeError if reference is in not correct format
    */
-  async reuploadPinnedData(reference: Reference | string, axiosOptions?: AxiosRequestConfig): Promise<void> {
+  async reuploadPinnedData(reference: Reference | string): Promise<void> {
     assertReference(reference)
 
     try {
@@ -462,7 +472,7 @@ export class Bee {
       }
     }
 
-    await stewardship.reupload(this.ky, reference, axiosOptions)
+    await stewardship.reupload(this.ky, reference)
   }
 
   /**
@@ -535,7 +545,7 @@ export class Bee {
       throw new TypeError('topic has to be an string!')
     }
 
-    const ws = pss.subscribe(this.ky, topic)
+    const ws = pss.subscribe(this.url, topic)
 
     let cancelled = false
     const cancel = () => {

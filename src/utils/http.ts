@@ -1,25 +1,63 @@
 import { BeeError, BeeRequestError, BeeResponseError } from './error'
-
-import { Options as KyOptions } from 'ky-universal'
-import { Ky } from '../types'
+import type { Ky, BeeRequest, BeeResponse, HttpMethod, HookCallback } from '../types'
+import kyFactory, { Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
+import { filterUndefined } from './type'
+import { deepMerge } from './merge'
 
-/**
- * Utility function that sets passed headers to ALL axios calls without distinction of Bee URLs.
- *
- * @param headers
- */
-// export function setDefaultHeaders(headers: Record<string, string>): void {
-//   axios.defaults.headers.common = headers
-// }
+const DEFAULT_KY_CONFIG: KyOptions = {
+  headers: {
+    accept: 'application/json, text/plain, */*',
+  },
+}
 
-interface HttpOptions extends KyOptions {
+interface HttpOptions extends Omit<KyOptions, 'searchParams'> {
   url: string
-  responseType: 'json' | 'arraybuffer' | 'stream'
+  responseType?: 'json' | 'arraybuffer' | 'stream'
+
+  /**
+   * Overridden parameter that allows undefined as a value.
+   */
+  searchParams?: Record<string, string | number | boolean | undefined>
 }
 
 interface KyResponse<T> extends Response {
   data: T
+}
+
+function headersToObject(header: Headers) {
+  return [...header.entries()].reduce<Record<string, string>>((obj, [key, val]) => {
+    obj[key] = val
+
+    return obj
+  }, {})
+}
+
+function wrapRequest(request: Request): BeeRequest {
+  return {
+    url: request.url,
+    method: request.method.toUpperCase() as HttpMethod,
+    headers: headersToObject(request.headers),
+  }
+}
+
+export function wrapRequestClosure(cb: HookCallback<BeeRequest>): (request: Request) => Promise<void> {
+  return async (request: Request) => {
+    await cb(wrapRequest(request))
+  }
+}
+
+export function wrapResponseClosure(
+  cb: HookCallback<BeeResponse>,
+): (request: Request, options: unknown, response: Response) => Promise<void> {
+  return async (request: Request, options: unknown, response: Response) => {
+    await cb({
+      headers: headersToObject(response.headers),
+      status: response.status,
+      statusText: response.statusText,
+      request: wrapRequest(request),
+    })
+  }
 }
 
 export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T>> {
@@ -28,6 +66,7 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
 
     const response = (await ky(url, {
       ...kyConfig,
+      searchParams: kyConfig.searchParams ? filterUndefined(kyConfig.searchParams) : undefined,
     })) as KyResponse<T>
 
     switch (responseType) {
@@ -64,4 +103,8 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
       throw new BeeError(e.message)
     }
   }
+}
+
+export function makeDefaultKy(kyConfig: KyOptions): Ky {
+  return kyFactory.create(deepMerge(DEFAULT_KY_CONFIG, kyConfig))
 }

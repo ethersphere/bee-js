@@ -1,10 +1,11 @@
 import { Readable } from 'stream'
-import type { BeeGenericResponse, Reference, Address, BatchId } from '../src/types'
+import type { Ky, BeeGenericResponse, Reference, Address, BatchId } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
+import ky from 'ky-universal'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -169,11 +170,19 @@ export function beeUrl(): string {
   return process.env.BEE_API_URL || 'http://localhost:1633'
 }
 
+export function beeKy(): Ky {
+  return ky.create({ prefixUrl: beeUrl(), timeout: false })
+}
+
 /**
  * Returns a url of another peer for testing the Bee public API
  */
 export function beePeerUrl(): string {
   return process.env.BEE_PEER_API_URL || 'http://localhost:11633'
+}
+
+export function beePeerKy(): Ky {
+  return ky.create({ prefixUrl: beePeerUrl(), timeout: false })
 }
 
 /**
@@ -209,11 +218,19 @@ export function beeDebugUrl(): string {
   return process.env.BEE_DEBUG_API_URL || 'http://localhost:1635'
 }
 
+export function beeDebugKy(): Ky {
+  return ky.create({ prefixUrl: beeDebugUrl() })
+}
+
 /**
  * Returns a url for testing the Bee Debug API
  */
 export function beePeerDebugUrl(): string {
   return process.env.BEE_PEER_DEBUG_API_URL || 'http://localhost:11635'
+}
+
+export function beePeerDebugKy(): Ky {
+  return ky.create({ prefixUrl: beePeerDebugUrl() })
 }
 
 /**
@@ -228,7 +245,7 @@ export async function tryDeleteChunkFromLocalStorage(address: string | ChunkAddr
   }
 
   try {
-    await deleteChunkFromLocalStorage(beeDebugUrl(), address)
+    await deleteChunkFromLocalStorage(beeDebugKy(), address)
   } catch (e) {
     // ignore not found errors
     if (e instanceof BeeResponseError && e.status === 404) {

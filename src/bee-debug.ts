@@ -27,13 +27,24 @@ import type {
   ExtendedTag,
   PostageBatchBuckets,
   DebugPostageBatch,
+  Ky,
 } from './types'
 import { BeeArgumentError } from './utils/error'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { assertAddress, assertBatchId, assertBoolean, assertNonNegativeInteger, isTag } from './utils/type'
-import { BatchId, CashoutOptions, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN, Tag } from './types'
+import {
+  BatchId,
+  BeeOptions,
+  CashoutOptions,
+  PostageBatchOptions,
+  STAMPS_DEPTH_MAX,
+  STAMPS_DEPTH_MIN,
+  Tag,
+} from './types'
 import * as tag from './modules/debug/tag'
 import * as stamps from './modules/debug/stamps'
+import type { Options as KyOptions } from 'ky-universal'
+import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 
 /**
  * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
@@ -43,21 +54,42 @@ import * as stamps from './modules/debug/stamps'
 export class BeeDebug {
   public readonly url: string
 
-  constructor(url: string) {
+  private readonly ky: Ky
+
+  constructor(url: string, options?: BeeOptions) {
     assertBeeUrl(url)
 
     // Remove last slash if present, as our endpoint strings starts with `/...`
     // which could lead to double slash in URL to which Bee responds with
     // unnecessary redirects.
     this.url = stripLastSlash(url)
+
+    const kyOptions: KyOptions = {
+      prefixUrl: this.url,
+      timeout: false,
+      hooks: {
+        beforeRequest: [],
+        afterResponse: [],
+      },
+    }
+
+    if (options?.onRequest) {
+      kyOptions.hooks?.beforeRequest?.push(wrapRequestClosure(options.onRequest))
+    }
+
+    if (options?.onResponse) {
+      kyOptions.hooks?.afterResponse?.push(wrapResponseClosure(options.onResponse))
+    }
+
+    this.ky = makeDefaultKy(kyOptions)
   }
 
   async getNodeAddresses(): Promise<NodeAddresses> {
-    return connectivity.getNodeAddresses(this.url)
+    return connectivity.getNodeAddresses(this.ky)
   }
 
   async getBlocklist(): Promise<Peer[]> {
-    return connectivity.getBlocklist(this.url)
+    return connectivity.getBlocklist(this.ky)
   }
 
   /**
@@ -79,30 +111,30 @@ export class BeeDebug {
       throw new TypeError('tagUid has to be either Tag or a number (UID)!')
     }
 
-    return tag.retrieveExtendedTag(this.url, tagUid)
+    return tag.retrieveExtendedTag(this.ky, tagUid)
   }
 
   /**
    * Get list of peers for this node
    */
   async getPeers(): Promise<Peer[]> {
-    return connectivity.getPeers(this.url)
+    return connectivity.getPeers(this.ky)
   }
 
   async removePeer(peer: string | Address): Promise<RemovePeerResponse> {
     assertAddress(peer)
 
-    return connectivity.removePeer(this.url, peer)
+    return connectivity.removePeer(this.ky, peer)
   }
 
   async getTopology(): Promise<Topology> {
-    return connectivity.getTopology(this.url)
+    return connectivity.getTopology(this.ky)
   }
 
   async pingPeer(peer: string | Address): Promise<PingResponse> {
     assertAddress(peer)
 
-    return connectivity.pingPeer(this.url, peer)
+    return connectivity.pingPeer(this.ky, peer)
   }
 
   /*
@@ -113,7 +145,7 @@ export class BeeDebug {
    * Get the balances with all known peers including prepaid services
    */
   async getAllBalances(): Promise<BalanceResponse> {
-    return balance.getAllBalances(this.url)
+    return balance.getAllBalances(this.ky)
   }
 
   /**
@@ -124,14 +156,14 @@ export class BeeDebug {
   async getPeerBalance(address: Address | string): Promise<PeerBalance> {
     assertAddress(address)
 
-    return balance.getPeerBalance(this.url, address)
+    return balance.getPeerBalance(this.ky, address)
   }
 
   /**
    * Get the past due consumption balances with all known peers
    */
   async getPastDueConsumptionBalances(): Promise<BalanceResponse> {
-    return balance.getPastDueConsumptionBalances(this.url)
+    return balance.getPastDueConsumptionBalances(this.ky)
   }
 
   /**
@@ -142,7 +174,7 @@ export class BeeDebug {
   async getPastDueConsumptionPeerBalance(address: Address | string): Promise<PeerBalance> {
     assertAddress(address)
 
-    return balance.getPastDueConsumptionPeerBalance(this.url, address)
+    return balance.getPastDueConsumptionPeerBalance(this.ky, address)
   }
 
   /*
@@ -156,21 +188,21 @@ export class BeeDebug {
    * https://github.com/ethersphere/bee/issues/1443
    */
   async getChequebookAddress(): Promise<ChequebookAddressResponse> {
-    return chequebook.getChequebookAddress(this.url)
+    return chequebook.getChequebookAddress(this.ky)
   }
 
   /**
    * Get the balance of the chequebook
    */
   async getChequebookBalance(): Promise<ChequebookBalanceResponse> {
-    return chequebook.getChequebookBalance(this.url)
+    return chequebook.getChequebookBalance(this.ky)
   }
 
   /**
    * Get last cheques for all peers
    */
   async getLastCheques(): Promise<LastChequesResponse> {
-    return chequebook.getLastCheques(this.url)
+    return chequebook.getLastCheques(this.ky)
   }
 
   /**
@@ -181,7 +213,7 @@ export class BeeDebug {
   async getLastChequesForPeer(address: Address | string): Promise<LastChequesForPeerResponse> {
     assertAddress(address)
 
-    return chequebook.getLastChequesForPeer(this.url, address)
+    return chequebook.getLastChequesForPeer(this.ky, address)
   }
 
   /**
@@ -192,7 +224,7 @@ export class BeeDebug {
   async getLastCashoutAction(address: Address | string): Promise<LastCashoutActionResponse> {
     assertAddress(address)
 
-    return chequebook.getLastCashoutAction(this.url, address)
+    return chequebook.getLastCashoutAction(this.ky, address)
   }
 
   /**
@@ -214,7 +246,7 @@ export class BeeDebug {
       assertNonNegativeInteger(options.gasPrice)
     }
 
-    return chequebook.cashoutLastCheque(this.url, address, options)
+    return chequebook.cashoutLastCheque(this.ky, address, options)
   }
 
   /**
@@ -231,7 +263,7 @@ export class BeeDebug {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return chequebook.depositTokens(this.url, amount, gasPrice)
+    return chequebook.depositTokens(this.ky, amount, gasPrice)
   }
 
   /**
@@ -248,7 +280,7 @@ export class BeeDebug {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return chequebook.withdrawTokens(this.url, amount, gasPrice)
+    return chequebook.withdrawTokens(this.ky, amount, gasPrice)
   }
 
   /*
@@ -263,21 +295,21 @@ export class BeeDebug {
   async getSettlements(address: Address | string): Promise<Settlements> {
     assertAddress(address)
 
-    return settlements.getSettlements(this.url, address)
+    return settlements.getSettlements(this.ky, address)
   }
 
   /**
    * Get settlements with all known peers and total amount sent or received
    */
   async getAllSettlements(): Promise<AllSettlements> {
-    return settlements.getAllSettlements(this.url)
+    return settlements.getAllSettlements(this.ky)
   }
 
   /**
    * Get health of node
    */
   async getHealth(): Promise<Health> {
-    return status.getHealth(this.url)
+    return status.getHealth(this.ky)
   }
 
   /**
@@ -286,21 +318,21 @@ export class BeeDebug {
    * @returns true if the Bee node version is supported
    */
   async isSupportedVersion(): Promise<boolean> | never {
-    return status.isSupportedVersion(this.url)
+    return status.isSupportedVersion(this.ky)
   }
 
   /**
    * Get reserve state
    */
   async getReserveState(): Promise<ReserveState> {
-    return states.getReserveState(this.url)
+    return states.getReserveState(this.ky)
   }
 
   /**
    * Get chain state
    */
   async getChainState(): Promise<ChainState> {
-    return states.getChainState(this.url)
+    return states.getChainState(this.ky)
   }
 
   /**
@@ -340,7 +372,7 @@ export class BeeDebug {
       assertBoolean(options.immutableFlag)
     }
 
-    return stamps.createPostageBatch(this.url, amount, depth, options)
+    return stamps.createPostageBatch(this.ky, amount, depth, options)
   }
 
   /**
@@ -354,7 +386,7 @@ export class BeeDebug {
   async getPostageBatch(postageBatchId: BatchId | string): Promise<DebugPostageBatch> {
     assertBatchId(postageBatchId)
 
-    return stamps.getPostageBatch(this.url, postageBatchId)
+    return stamps.getPostageBatch(this.ky, postageBatchId)
   }
 
   /**
@@ -368,7 +400,7 @@ export class BeeDebug {
   async getPostageBatchBuckets(postageBatchId: BatchId | string): Promise<PostageBatchBuckets> {
     assertBatchId(postageBatchId)
 
-    return stamps.getPostageBatchBuckets(this.url, postageBatchId)
+    return stamps.getPostageBatchBuckets(this.ky, postageBatchId)
   }
 
   /**
@@ -378,6 +410,6 @@ export class BeeDebug {
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps/get)
    */
   async getAllPostageBatch(): Promise<DebugPostageBatch[]> {
-    return stamps.getAllPostageBatches(this.url)
+    return stamps.getAllPostageBatches(this.ky)
   }
 }

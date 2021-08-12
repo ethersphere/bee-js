@@ -48,12 +48,12 @@
     "depcheck": "depcheck ."
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "cross-blob": "^2.0.1",
     "elliptic": "^6.5.4",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
-    "ky": "^0.28.5",
-    "ky-universal": "^0.9.1",
+    "ky": "^0.25.1",
+    "ky-universal": "^0.8.2",
     "tar-js": "^0.3.0",
     "web-streams-polyfill": "^3.1.0",
     "ws": "^7.5.0"
@@ -78,6 +78,7 @@
     "@types/jest-environment-puppeteer": "^4.4.1",
     "@types/node": "^15.12.4",
     "@types/puppeteer": "^5.4.3",
+    "@types/readable-stream": "^2.3.11",
     "@types/tar-stream": "^2.2.0",
     "@types/terser-webpack-plugin": "^5.0.3",
     "@types/ws": "^7.4.5",

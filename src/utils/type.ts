@@ -118,10 +118,6 @@ export function assertUploadOptions(value: unknown, name = 'UploadOptions'): ass
 
     assertNonNegativeInteger(options.tag, 'options.tag')
   }
-
-  if (options.axiosOptions && !isStrictlyObject(options.axiosOptions)) {
-    throw new TypeError(`options.axiosOptions property in ${name} has to be object or undefined!`)
-  }
 }
 
 export function assertFileUploadOptions(value: unknown): asserts value is FileUploadOptions {
@@ -257,10 +253,12 @@ export function assertFileData(value: unknown): asserts value is string | Uint8A
  * Checks whether optional options for AllTags query are valid
  * @param options
  */
-export function assertAllTagsOptions(options: unknown): asserts options is AllTagsOptions {
-  if (options !== undefined && !isStrictlyObject(options)) {
+export function assertAllTagsOptions(entry: unknown): asserts entry is AllTagsOptions {
+  if (entry !== undefined && !isStrictlyObject(entry)) {
     throw new TypeError('options has to be an object or undefined!')
   }
+
+  const options = entry as AllTagsOptions
 
   if (options?.limit !== undefined) {
     if (typeof options.limit !== 'number') {
@@ -295,4 +293,31 @@ export function makeTagUid(tagUid: number | Tag): number {
   }
 
   throw new TypeError('tagUid has to be either Tag or a number (UID)!')
+}
+
+/**
+ * Filters out object those entries that has undefined value.
+ * Modifies the original object!
+ *
+ * @param obj
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function filterUndefined(obj?: object): Record<string, string> | undefined {
+  if (!obj) {
+    return {}
+  }
+
+  const typedObj = obj as Record<string, string>
+
+  for (const key in typedObj) {
+    if (typedObj[key] === undefined) {
+      delete typedObj[key]
+    }
+  }
+
+  if (Object.keys(typedObj).length === 0) {
+    return undefined
+  }
+
+  return typedObj
 }

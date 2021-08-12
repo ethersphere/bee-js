@@ -13,7 +13,7 @@ import {
   MIN_PAYLOAD_SIZE,
   assertValidChunkData,
 } from './cac'
-import { UploadOptions, Signature, Signer, BatchId, Reference } from '../types'
+import { UploadOptions, Signature, Signer, BatchId, Reference, Ky } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
@@ -127,13 +127,13 @@ export async function makeSingleOwnerChunk(
  *
  * It uses the Chunk API and calculates the address before uploading.
  *
- * @param url             The url of the Bee service
+ * @param ky              Ky instance
  * @param chunk           A chunk object
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options         Upload options
  */
 export async function uploadSingleOwnerChunk(
-  url: string,
+  ky: Ky,
   chunk: SingleOwnerChunk,
   postageBatchId: BatchId,
   options?: UploadOptions,
@@ -143,13 +143,13 @@ export async function uploadSingleOwnerChunk(
   const signature = bytesToHex(chunk.signature())
   const data = serializeBytes(chunk.span(), chunk.payload())
 
-  return socAPI.upload(url, owner, identifier, signature, data, postageBatchId, options)
+  return socAPI.upload(ky, owner, identifier, signature, data, postageBatchId, options)
 }
 
 /**
  * Helper function to create and upload SOC.
  *
- * @param url             The url of the Bee service
+ * @param ky              Ky instance
  * @param signer          The singer interface for signing the chunk
  * @param postageBatchId
  * @param identifier      The identifier of the chunk
@@ -157,7 +157,7 @@ export async function uploadSingleOwnerChunk(
  * @param options
  */
 export async function uploadSingleOwnerChunkData(
-  url: string,
+  ky: Ky,
   signer: Signer,
   postageBatchId: BatchId | string,
   identifier: Identifier,
@@ -168,7 +168,7 @@ export async function uploadSingleOwnerChunkData(
   const cac = makeContentAddressedChunk(data)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
 
-  return uploadSingleOwnerChunk(url, soc, postageBatchId, options)
+  return uploadSingleOwnerChunk(ky, soc, postageBatchId, options)
 }
 
 /**
@@ -179,12 +179,12 @@ export async function uploadSingleOwnerChunkData(
  * @param identifier    The identifier of the chunk
  */
 export async function downloadSingleOwnerChunk(
-  url: string,
+  ky: Ky,
   ownerAddress: EthAddress,
   identifier: Identifier,
 ): Promise<SingleOwnerChunk> {
   const address = makeSOCAddress(identifier, ownerAddress)
-  const data = await chunkAPI.download(url, bytesToHex(address))
+  const data = await chunkAPI.download(ky, bytesToHex(address))
 
   return makeSingleOwnerChunkFromData(data, address)
 }

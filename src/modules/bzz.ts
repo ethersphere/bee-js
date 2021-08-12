@@ -12,14 +12,13 @@ import {
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { prepareData } from '../utils/data'
-import { BeeArgumentError } from '../utils/error'
 import { makeTar } from '../utils/tar'
 import { assertCollection } from '../utils/collection'
 import { AxiosRequestConfig } from 'axios'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { Readable } from 'stream'
 
-const bzzEndpoint = '/bzz'
+const bzzEndpoint = 'bzz'
 
 interface FileUploadHeaders extends UploadHeaders {
   'content-length'?: string
@@ -52,19 +51,20 @@ export async function uploadFile(
   name?: string,
   options?: FileUploadOptions,
 ): Promise<Reference> {
-  if (!url) {
-    throw new BeeArgumentError('url parameter is required and cannot be empty', url)
+  const searchParams: Record<string, string> = {}
+
+  if (name) {
+    searchParams.name = name
   }
 
   const response = await http<{ reference: Reference }>(ky, {
-    ...options?.axiosOptions,
     method: 'post',
-    url: url + bzzEndpoint,
-    data: prepareData(data),
+    url: bzzEndpoint,
+    body: prepareData(data),
     headers: {
       ...extractFileUploadHeaders(postageBatchId, options),
     },
-    params: { name },
+    searchParams,
     responseType: 'json',
   })
 
@@ -85,11 +85,11 @@ export async function downloadFile(
   path = '',
   axiosOptions?: AxiosRequestConfig,
 ): Promise<FileData<Data>> {
-  const response = await http<ArrayBuffer>({
+  const response = await http<ArrayBuffer>(ky, {
     ...axiosOptions,
     method: 'GET',
     responseType: 'arraybuffer',
-    url: `${url}${bzzEndpoint}/${hash}/${path}`,
+    url: `${bzzEndpoint}/${hash}/${path}`,
   })
   const file = {
     ...readFileHeaders(response.headers),
@@ -112,12 +112,12 @@ export async function downloadFileReadable(
   hash: string,
   path = '',
   axiosOptions?: AxiosRequestConfig,
-): Promise<FileData<Readable>> {
-  const response = await http<Readable>({
+): Promise<FileData<ReadableStream<Uint8Array>>> {
+  const response = await http<ReadableStream<Uint8Array>>(ky, {
     ...axiosOptions,
     method: 'GET',
     responseType: 'stream',
-    url: `${url}${bzzEndpoint}/${hash}/${path}`,
+    url: `${bzzEndpoint}/${hash}/${path}`,
   })
   const file = {
     ...readFileHeaders(response.headers),
@@ -161,18 +161,13 @@ export async function uploadCollection(
   postageBatchId: BatchId,
   options?: CollectionUploadOptions,
 ): Promise<Reference> {
-  if (!url) {
-    throw new BeeArgumentError('url parameter is required and cannot be empty', url)
-  }
-
   assertCollection(collection)
   const tarData = makeTar(collection)
 
-  const response = await http<{ reference: Reference }>({
-    ...options?.axiosOptions,
+  const response = await http<{ reference: Reference }>(ky, {
     method: 'post',
-    url: url + bzzEndpoint,
-    data: tarData,
+    url: bzzEndpoint,
+    body: tarData,
     responseType: 'json',
     headers: {
       'content-type': 'application/x-tar',

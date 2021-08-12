@@ -103,35 +103,35 @@ describe('Bee class - in browser', () => {
     )
   })
 
-  it('should get state of uploading on uploading file', async () => {
-    const uploadEvent = await page.evaluate(
-      async (BEE_URL, batchId) => {
-        const bee = new window.BeeJs.Bee(BEE_URL)
-        const filename = 'hello.txt'
-        const data = new Uint8Array([1, 2, 3, 4])
-
-        let uploadEvent: { loaded: number; total: number } = {
-          loaded: 0,
-          total: 4,
-        }
-
-        await bee.uploadFile(batchId, data, filename, {
-          contentType: 'text/html',
-          axiosOptions: {
-            onUploadProgress: ({ loaded, total }) => {
-              uploadEvent = { loaded, total }
-            },
-          },
-        })
-
-        return uploadEvent
-      },
-      BEE_URL,
-      batchId,
-    )
-
-    expect(uploadEvent).toEqual({ loaded: 4, total: 4 })
-  })
+  // it('should get state of uploading on uploading file', async () => {
+  //   const uploadEvent = await page.evaluate(
+  //     async (BEE_URL, batchId) => {
+  //       const bee = new window.BeeJs.Bee(BEE_URL)
+  //       const filename = 'hello.txt'
+  //       const data = new Uint8Array([1, 2, 3, 4])
+  //
+  //       let uploadEvent: { loaded: number; total: number } = {
+  //         loaded: 0,
+  //         total: 4,
+  //       }
+  //
+  //       await bee.uploadFile(batchId, data, filename, {
+  //         contentType: 'text/html',
+  //         axiosOptions: {
+  //           onUploadProgress: ({ loaded, total }) => {
+  //             uploadEvent = { loaded, total }
+  //           },
+  //         },
+  //       })
+  //
+  //       return uploadEvent
+  //     },
+  //     BEE_URL,
+  //     batchId,
+  //   )
+  //
+  //   expect(uploadEvent).toEqual({ loaded: 4, total: 4 })
+  // })
 
   describe('pss', () => {
     it(

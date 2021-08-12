@@ -1,11 +1,11 @@
 import WebSocket from 'isomorphic-ws'
 
-import type { BatchId, BeeGenericResponse, PublicKey } from '../types'
+import type { BatchId, BeeGenericResponse, Ky, PublicKey } from '../types'
 import { prepareData } from '../utils/data'
 import { http } from '../utils/http'
 import { extractUploadHeaders } from '../utils/headers'
 
-const endpoint = '/pss'
+const endpoint = 'pss'
 
 /**
  * Send to recipient or target with Postal Service for Swarm
@@ -26,12 +26,12 @@ export async function send(
   postageBatchId: BatchId,
   recipient?: PublicKey,
 ): Promise<void> {
-  await http<BeeGenericResponse>({
+  await http<BeeGenericResponse>(ky, {
     method: 'post',
-    url: `${url}${endpoint}/send/${topic}/${target.slice(0, 4)}`,
-    data: await prepareData(data),
+    url: `${endpoint}/send/${topic}/${target.slice(0, 4)}`,
+    body: await prepareData(data),
     responseType: 'json',
-    params: { recipient },
+    searchParams: { recipient },
     headers: extractUploadHeaders(postageBatchId),
   })
 }
@@ -39,10 +39,11 @@ export async function send(
 /**
  * Subscribe for messages on the given topic
  *
+ * @param url Bee node URL
  * @param topic Topic name
  */
-export function subscribe(ky: Ky, topic: string): WebSocket {
+export function subscribe(url: string, topic: string): WebSocket {
   const wsUrl = url.replace(/^http/i, 'ws')
 
-  return new WebSocket(`${wsUrl}${endpoint}/subscribe/${topic}`)
+  return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${topic}`)
 }

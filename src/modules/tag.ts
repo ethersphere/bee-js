@@ -1,7 +1,7 @@
-import { Reference, Tag } from '../types'
+import { Ky, Reference, Tag } from '../types'
 import { http } from '../utils/http'
 
-const endpoint = '/tags'
+const endpoint = 'tags'
 
 interface GetAllTagsResponse {
   tags: Tag[]
@@ -13,9 +13,9 @@ interface GetAllTagsResponse {
  * @param url Bee tag URL
  */
 export async function createTag(ky: Ky): Promise<Tag> {
-  const response = await http<Tag>({
+  const response = await http<Tag>(ky, {
     method: 'post',
-    url: url + endpoint,
+    url: endpoint,
     responseType: 'json',
   })
 
@@ -29,8 +29,8 @@ export async function createTag(ky: Ky): Promise<Tag> {
  * @param uid UID of tag to be retrieved
  */
 export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
-  const response = await http<Tag>({
-    url: `${url}${endpoint}/${uid}`,
+  const response = await http<Tag>(ky, {
+    url: `${endpoint}/${uid}`,
     responseType: 'json',
   })
 
@@ -45,9 +45,9 @@ export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
  * @param limit
  */
 export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promise<Tag[]> {
-  const response = await http<GetAllTagsResponse>({
-    url: `${url}${endpoint}`,
-    params: { offset, limit },
+  const response = await http<GetAllTagsResponse>(ky, {
+    url: `${endpoint}`,
+    searchParams: { offset, limit },
     responseType: 'json',
   })
 
@@ -60,9 +60,9 @@ export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promi
  * @param uid
  */
 export async function deleteTag(ky: Ky, uid: number): Promise<void> {
-  await http<void>({
+  await http<void>(ky, {
     method: 'delete',
-    url: `${url}${endpoint}/${uid}`,
+    url: `${endpoint}/${uid}`,
   })
 }
 
@@ -73,10 +73,10 @@ export async function deleteTag(ky: Ky, uid: number): Promise<void> {
  * @param reference
  */
 export async function updateTag(ky: Ky, uid: number, reference: Reference): Promise<void> {
-  await http<void>({
+  await http<void>(ky, {
     method: 'patch',
-    url: `${url}${endpoint}/${uid}`,
-    data: {
+    url: `${endpoint}/${uid}`,
+    json: {
       reference,
     },
   })

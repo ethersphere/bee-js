@@ -1,18 +1,18 @@
 import { http } from '../../utils/http'
-import { ChainState, ReserveState } from '../../types'
+import { ChainState, Ky, ReserveState } from '../../types'
 
-const RESERVE_STATE_ENDPOINT = '/reservestate'
-const CHAIN_STATE_ENDPOINT = '/chainstate'
+const RESERVE_STATE_ENDPOINT = 'reservestate'
+const CHAIN_STATE_ENDPOINT = 'chainstate'
 
 /**
  * Get state of reserve
  *
- * @param url Bee debug URL
+ * @param ky Ky debug instance
  */
 export async function getReserveState(ky: Ky): Promise<ReserveState> {
-  const response = await http<ReserveState>({
+  const response = await http<ReserveState>(ky, {
     method: 'get',
-    url: `${url}${RESERVE_STATE_ENDPOINT}`,
+    url: `${RESERVE_STATE_ENDPOINT}`,
     responseType: 'json',
   })
 
@@ -22,12 +22,12 @@ export async function getReserveState(ky: Ky): Promise<ReserveState> {
 /**
  * Get state of reserve
  *
- * @param url Bee debug URL
+ * @param ky Ky debug instance
  */
 export async function getChainState(ky: Ky): Promise<ChainState> {
-  const response = await http<ChainState>({
+  const response = await http<ChainState>(ky, {
     method: 'get',
-    url: `${url}${CHAIN_STATE_ENDPOINT}`,
+    url: `${CHAIN_STATE_ENDPOINT}`,
     responseType: 'json',
   })
 

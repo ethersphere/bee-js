@@ -1,11 +1,10 @@
-import type { AxiosRequestConfig } from 'axios'
 import type { BatchId, Data, Ky, Reference, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 
-const endpoint = '/bytes'
+const endpoint = 'bytes'
 
 /**
  * Upload data to a Bee node
@@ -55,15 +54,9 @@ export async function download(ky: Ky, hash: Reference): Promise<Data> {
  *
  * @param ky
  * @param hash Bee content reference
- * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(
-  ky: Ky,
-  hash: Reference,
-  axiosOptions?: AxiosRequestConfig,
-): Promise<ReadableStream<Uint8Array>> {
+export async function downloadReadable(ky: Ky, hash: Reference): Promise<ReadableStream<Uint8Array>> {
   const response = await http<ReadableStream<Uint8Array>>(ky, {
-    ...axiosOptions,
     responseType: 'stream',
     url: `${endpoint}/${hash}`,
   })

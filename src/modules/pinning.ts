@@ -1,7 +1,7 @@
-import type { BeeGenericResponse, Pin, Reference } from '../types'
+import type { BeeGenericResponse, Ky, Pin, Reference } from '../types'
 import { http } from '../utils/http'
 
-const PINNING_ENDPOINT = '/pins'
+const PINNING_ENDPOINT = 'pins'
 
 export interface GetAllPinResponse {
   references: Reference[] | null
@@ -14,10 +14,10 @@ export interface GetAllPinResponse {
  * @param reference Bee data reference
  */
 export async function pin(ky: Ky, reference: Reference): Promise<void> {
-  await http<BeeGenericResponse>({
+  await http<BeeGenericResponse>(ky, {
     method: 'post',
     responseType: 'json',
-    url: `${url}${PINNING_ENDPOINT}/${reference}`,
+    url: `${PINNING_ENDPOINT}/${reference}`,
   })
 }
 
@@ -28,25 +28,25 @@ export async function pin(ky: Ky, reference: Reference): Promise<void> {
  * @param reference Bee data reference
  */
 export async function unpin(ky: Ky, reference: Reference): Promise<void> {
-  await http<BeeGenericResponse>({
+  await http<BeeGenericResponse>(ky, {
     method: 'delete',
     responseType: 'json',
-    url: `${url}${PINNING_ENDPOINT}/${reference}`,
+    url: `${PINNING_ENDPOINT}/${reference}`,
   })
 }
 
 /**
  * Get pin status for specific address.
  *
- * @param url     Bee URL
+ * @param ky Ky instance
  * @param reference
  * @throws Error if given address is not pinned
  */
 export async function getPin(ky: Ky, reference: Reference): Promise<Pin> {
-  const response = await http<Pin>({
+  const response = await http<Pin>(ky, {
     method: 'get',
     responseType: 'json',
-    url: `${url}${PINNING_ENDPOINT}/${reference}`,
+    url: `${PINNING_ENDPOINT}/${reference}`,
   })
 
   return response.data
@@ -55,13 +55,13 @@ export async function getPin(ky: Ky, reference: Reference): Promise<Pin> {
 /**
  * Get list of all pins
  *
- * @param url     Bee URL
+ * @param ky Ky instance
  */
 export async function getAllPins(ky: Ky): Promise<Reference[]> {
-  const response = await http<GetAllPinResponse>({
+  const response = await http<GetAllPinResponse>(ky, {
     method: 'get',
     responseType: 'json',
-    url: `${url}${PINNING_ENDPOINT}`,
+    url: `${PINNING_ENDPOINT}`,
   })
 
   const result = response.data.references

@@ -7,19 +7,20 @@ import type {
   LastChequesForPeerResponse,
   LastChequesResponse,
   NumberString,
+  Ky,
+  CashoutOptions,
 } from '../../types'
-import { CashoutOptions } from '../../types'
 
-const chequebookEndpoint = '/chequebook'
+const chequebookEndpoint = 'chequebook'
 
 /**
  * Get the address of the chequebook contract used
  *
- * @param url Bee debug url
+ * @param ky Ky debug instance
  */
 export async function getChequebookAddress(ky: Ky): Promise<ChequebookAddressResponse> {
-  const response = await http<ChequebookAddressResponse>({
-    url: url + chequebookEndpoint + '/address',
+  const response = await http<ChequebookAddressResponse>(ky, {
+    url: chequebookEndpoint + '/address',
     responseType: 'json',
   })
 
@@ -29,11 +30,11 @@ export async function getChequebookAddress(ky: Ky): Promise<ChequebookAddressRes
 /**
  * Get the balance of the chequebook
  *
- * @param url Bee debug url
+ * @param ky Ky debug instance
  */
 export async function getChequebookBalance(ky: Ky): Promise<ChequebookBalanceResponse> {
-  const response = await http<ChequebookBalanceResponse>({
-    url: url + chequebookEndpoint + '/balance',
+  const response = await http<ChequebookBalanceResponse>(ky, {
+    url: chequebookEndpoint + '/balance',
     responseType: 'json',
   })
 
@@ -43,12 +44,12 @@ export async function getChequebookBalance(ky: Ky): Promise<ChequebookBalanceRes
 /**
  * Get last cashout action for the peer
  *
- * @param url   Bee debug url
+ * @param ky Ky debug instance
  * @param peer  Swarm address of peer
  */
 export async function getLastCashoutAction(ky: Ky, peer: string): Promise<LastCashoutActionResponse> {
-  const response = await http<LastCashoutActionResponse>({
-    url: url + chequebookEndpoint + `/cashout/${peer}`,
+  const response = await http<LastCashoutActionResponse>(ky, {
+    url: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
   })
 
@@ -58,7 +59,7 @@ export async function getLastCashoutAction(ky: Ky, peer: string): Promise<LastCa
 /**
  * Cashout the last cheque for the peer
  *
- * @param url   Bee debug url
+ * @param ky Ky debug instance
  * @param peer  Swarm address of peer
  * @param options
  */
@@ -73,9 +74,9 @@ export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutO
     headers['gas-limit'] = options.gasLimit.toString()
   }
 
-  const response = await http<TransactionResponse>({
+  const response = await http<TransactionResponse>(ky, {
     method: 'post',
-    url: url + chequebookEndpoint + `/cashout/${peer}`,
+    url: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
     headers,
   })
@@ -86,12 +87,12 @@ export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutO
 /**
  * Get last cheques for the peer
  *
- * @param url   Bee debug url
+ * @param ky Ky debug instance
  * @param peer  Swarm address of peer
  */
 export async function getLastChequesForPeer(ky: Ky, peer: string): Promise<LastChequesForPeerResponse> {
-  const response = await http<LastChequesForPeerResponse>({
-    url: url + chequebookEndpoint + `/cheque/${peer}`,
+  const response = await http<LastChequesForPeerResponse>(ky, {
+    url: chequebookEndpoint + `/cheque/${peer}`,
     responseType: 'json',
   })
 
@@ -101,11 +102,11 @@ export async function getLastChequesForPeer(ky: Ky, peer: string): Promise<LastC
 /**
  * Get last cheques for all peers
  *
- * @param url   Bee debug url
+ * @param ky Ky debug instance
  */
 export async function getLastCheques(ky: Ky): Promise<LastChequesResponse> {
-  const response = await http<LastChequesResponse>({
-    url: url + chequebookEndpoint + '/cheque',
+  const response = await http<LastChequesResponse>(ky, {
+    url: chequebookEndpoint + '/cheque',
     responseType: 'json',
   })
 
@@ -115,7 +116,7 @@ export async function getLastCheques(ky: Ky): Promise<LastChequesResponse> {
 /**
  * Deposit tokens from overlay address into chequebook
  *
- * @param url      Bee debug url
+ * @param ky Ky debug instance
  * @param amount   Amount of tokens to deposit
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
@@ -127,11 +128,11 @@ export async function depositTokens(ky: Ky, amount: number | NumberString, gasPr
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await http<TransactionResponse>({
+  const response = await http<TransactionResponse>(ky, {
     method: 'post',
-    url: url + chequebookEndpoint + '/deposit',
+    url: chequebookEndpoint + '/deposit',
     responseType: 'json',
-    params: { amount: amount.toString(10) },
+    searchParams: { amount: amount.toString(10) },
     headers,
   })
 
@@ -141,7 +142,7 @@ export async function depositTokens(ky: Ky, amount: number | NumberString, gasPr
 /**
  * Withdraw tokens from the chequebook to the overlay address
  *
- * @param url      Bee debug url
+ * @param ky Ky debug instance
  * @param amount   Amount of tokens to withdraw
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
@@ -153,11 +154,11 @@ export async function withdrawTokens(ky: Ky, amount: number | NumberString, gasP
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await http<TransactionResponse>({
+  const response = await http<TransactionResponse>(ky, {
     method: 'post',
-    url: url + chequebookEndpoint + '/withdraw',
+    url: chequebookEndpoint + '/withdraw',
     responseType: 'json',
-    params: { amount: amount.toString(10) },
+    searchParams: { amount: amount.toString(10) },
     headers,
   })
 

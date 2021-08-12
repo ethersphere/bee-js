@@ -15,6 +15,7 @@ import {
   Topic,
   Address,
   BatchId,
+  Ky,
 } from '../types'
 import { Bytes, makeBytes, bytesAtOffset } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
@@ -86,7 +87,7 @@ export function makeFeedIdentifier(topic: Topic, index: Index): Identifier {
 }
 
 export async function uploadFeedUpdate(
-  url: string,
+  ky: Ky,
   signer: Signer,
   topic: Topic,
   index: Index,
@@ -99,17 +100,17 @@ export async function uploadFeedUpdate(
   const timestamp = writeUint64BigEndian(at)
   const payloadBytes = serializeBytes(timestamp, reference)
 
-  return uploadSingleOwnerChunkData(url, signer, postageBatchId, identifier, payloadBytes, options)
+  return uploadSingleOwnerChunkData(ky, signer, postageBatchId, identifier, payloadBytes, options)
 }
 
 export async function findNextIndex(
-  url: string,
+  ky: Ky,
   owner: HexEthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<HexString<typeof INDEX_HEX_LENGTH>> {
   try {
-    const feedUpdate = await fetchFeedUpdate(url, owner, topic, options)
+    const feedUpdate = await fetchFeedUpdate(ky, owner, topic, options)
 
     return makeHexString(feedUpdate.feedIndexNext, INDEX_HEX_LENGTH)
   } catch (e) {
@@ -121,7 +122,7 @@ export async function findNextIndex(
 }
 
 export async function updateFeed(
-  url: string,
+  ky: Ky,
   signer: Signer,
   topic: Topic,
   reference: ChunkReference,
@@ -129,9 +130,9 @@ export async function updateFeed(
   options?: FeedUploadOptions,
 ): Promise<Reference> {
   const ownerHex = makeHexEthAddress(signer.address)
-  const nextIndex = await findNextIndex(url, ownerHex, topic, options)
+  const nextIndex = await findNextIndex(ky, ownerHex, topic, options)
 
-  return uploadFeedUpdate(url, signer, topic, nextIndex, reference, postageBatchId, options)
+  return uploadFeedUpdate(ky, signer, topic, nextIndex, reference, postageBatchId, options)
 }
 
 function verifyChunkReferenceAtOffset(offset: number, data: Uint8Array): ChunkReference {
@@ -146,16 +147,11 @@ export function verifyChunkReference(data: Uint8Array): ChunkReference {
   return verifyChunkReferenceAtOffset(0, data)
 }
 
-export async function downloadFeedUpdate(
-  url: string,
-  owner: EthAddress,
-  topic: Topic,
-  index: Index,
-): Promise<FeedUpdate> {
+export async function downloadFeedUpdate(ky: Ky, owner: EthAddress, topic: Topic, index: Index): Promise<FeedUpdate> {
   const identifier = makeFeedIdentifier(topic, index)
   const address = keccak256Hash(identifier, owner)
   const addressHex = bytesToHex(address)
-  const data = await chunkAPI.download(url, addressHex)
+  const data = await chunkAPI.download(ky, addressHex)
   const soc = makeSingleOwnerChunkFromData(data, address)
   const payload = soc.payload()
   const timestampBytes = bytesAtOffset(payload, TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
@@ -168,8 +164,8 @@ export async function downloadFeedUpdate(
   }
 }
 
-export function makeFeedReader(url: string, type: FeedType, topic: Topic, owner: HexEthAddress): FeedReader {
-  const download = async (options?: FeedUpdateOptions) => fetchFeedUpdate(url, owner, topic, { ...options, type })
+export function makeFeedReader(ky: Ky, type: FeedType, topic: Topic, owner: HexEthAddress): FeedReader {
+  const download = async (options?: FeedUpdateOptions) => fetchFeedUpdate(ky, owner, topic, { ...options, type })
 
   return {
     type,
@@ -202,7 +198,7 @@ function makeChunkReference(reference: ChunkReference | Reference): ChunkReferen
   throw new TypeError('invalid chunk reference')
 }
 
-export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
+export function makeFeedWriter(ky: Ky, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
   const upload = async (
     postageBatchId: string | Address,
     reference: ChunkReference | Reference,
@@ -211,11 +207,11 @@ export function makeFeedWriter(url: string, type: FeedType, topic: Topic, signer
     assertAddress(postageBatchId)
     const canonicalReference = makeChunkReference(reference)
 
-    return updateFeed(url, signer, topic, canonicalReference, postageBatchId, { ...options, type })
+    return updateFeed(ky, signer, topic, canonicalReference, postageBatchId, { ...options, type })
   }
 
   return {
-    ...makeFeedReader(url, type, topic, makeHexEthAddress(signer.address)),
+    ...makeFeedReader(ky, type, topic, makeHexEthAddress(signer.address)),
     upload,
   }
 }

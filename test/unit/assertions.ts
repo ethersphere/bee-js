@@ -71,11 +71,6 @@ export function testUploadOptionsAssertions(executor: (input: unknown) => void):
     await expect(() => executor({ tag: {} })).rejects.toThrow(TypeError)
     await expect(() => executor({ tag: [] })).rejects.toThrow(TypeError)
     await expect(() => executor({ tag: -1 })).rejects.toThrow(BeeArgumentError)
-
-    await expect(() => executor({ axiosOptions: 'plur' })).rejects.toThrow(TypeError)
-    await expect(() => executor({ axiosOptions: true })).rejects.toThrow(TypeError)
-    await expect(() => executor({ axiosOptions: [] })).rejects.toThrow(TypeError)
-    await expect(() => executor({ axiosOptions: -1 })).rejects.toThrow(TypeError)
   })
 }
 
