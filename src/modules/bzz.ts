@@ -15,7 +15,6 @@ import { http } from '../utils/http'
 import { prepareData } from '../utils/data'
 import { makeTar } from '../utils/tar'
 import { assertCollection } from '../utils/collection'
-import { AxiosRequestConfig } from 'axios'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { isReadable } from '../utils/stream'
 
@@ -84,16 +83,9 @@ export async function uploadFile(
  * @param ky Ky instance for given Bee class instance
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
- * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadFile(
-  ky: Ky,
-  hash: string,
-  path = '',
-  axiosOptions?: AxiosRequestConfig,
-): Promise<FileData<Data>> {
+export async function downloadFile(ky: Ky, hash: string, path = ''): Promise<FileData<Data>> {
   const response = await http<ArrayBuffer>(ky, {
-    ...axiosOptions,
     method: 'GET',
     responseType: 'arraybuffer',
     url: `${bzzEndpoint}/${hash}/${path}`,
@@ -112,16 +104,13 @@ export async function downloadFile(
  * @param ky Ky instance for given Bee class instance
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
- * @param axiosOptions optional - alter default options of axios HTTP client
  */
 export async function downloadFileReadable(
   ky: Ky,
   hash: string,
   path = '',
-  axiosOptions?: AxiosRequestConfig,
 ): Promise<FileData<ReadableStream<Uint8Array>>> {
   const response = await http<ReadableStream<Uint8Array>>(ky, {
-    ...axiosOptions,
     method: 'GET',
     responseType: 'stream',
     url: `${bzzEndpoint}/${hash}/${path}`,
