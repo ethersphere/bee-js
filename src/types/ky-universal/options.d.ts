@@ -1,3 +1,10 @@
+/**
+ * Types extracted from Ky as a backport for older Ky non-ESM version
+ *
+ * @author https://github.com/sindresorhus
+ * @licence MIT https://github.com/sindresorhus/ky/blob/main/license
+ */
+
 import type { LiteralUnion, Required } from './common.js'
 import type { Hooks } from './hooks.js'
 import type { RetryOptions } from './retry.js'

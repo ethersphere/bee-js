@@ -18,9 +18,11 @@ describe('stream', () => {
     const nodeJsReadable = Readable.from(input)
 
     const readableStream = readableNodeToWeb(nodeJsReadable)
-    const nodeJsRevertedReadable = readableWebToNode(readableStream)
+    const nodeJsRevertedReadable = readableWebToNode(readableStream, { highWaterMark: 1 })
 
     const result = await getAllReadable(nodeJsRevertedReadable)
+    expect(result.length).toEqual(input.length)
+
     for (let i = 0; i < input.length; i++) {
       expect(bytesEqual(result[i], input[i])).toBeTruthy()
     }

@@ -1,3 +1,10 @@
+/**
+ * Types extracted from Ky as a backport for older Ky non-ESM version
+ *
+ * @author https://github.com/sindresorhus
+ * @licence MIT https://github.com/sindresorhus/ky/blob/main/license
+ */
+
 import type { NormalizedOptions } from './options.js'
 
 export declare const stop: unique symbol

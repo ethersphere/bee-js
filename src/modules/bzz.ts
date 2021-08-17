@@ -51,12 +51,6 @@ export async function uploadFile(
   name?: string,
   options?: FileUploadOptions,
 ): Promise<Reference> {
-  const searchParams: Record<string, string> = {}
-
-  if (name) {
-    searchParams.name = name
-  }
-
   if (isReadable(data) && !options?.contentType) {
     if (!options) options = {}
 
@@ -70,7 +64,7 @@ export async function uploadFile(
     headers: {
       ...extractFileUploadHeaders(postageBatchId, options),
     },
-    searchParams,
+    searchParams: { name },
     responseType: 'json',
   })
 
@@ -124,6 +118,7 @@ export async function downloadFileReadable(
 }
 
 /*******************************************************************************************************************/
+
 // Collections
 
 interface CollectionUploadHeaders extends UploadHeaders {

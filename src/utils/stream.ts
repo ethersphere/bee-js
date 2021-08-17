@@ -131,8 +131,8 @@ class NodeReadableWrapper extends NodeReadable {
  * @licence Apache License 2.0 https://github.com/gwicke/node-web-streams/blob/master/LICENSE
  * @param webStream
  */
-export function readableWebToNode(webStream: ReadableStream): NodeReadableType {
-  return new NodeReadableWrapper(webStream) as unknown as NodeReadableType
+export function readableWebToNode(webStream: ReadableStream, options?: NodeReadableOptions): NodeReadableType {
+  return new NodeReadableWrapper(webStream, options) as unknown as NodeReadableType
 }
 
 export function normalizeToReadableStream(stream: Readable): ReadableStream {

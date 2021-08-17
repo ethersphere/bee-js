@@ -1,3 +1,10 @@
+/**
+ * Types extracted from Ky as a backport for older Ky non-ESM version
+ *
+ * @author https://github.com/sindresorhus
+ * @licence MIT https://github.com/sindresorhus/ky/blob/main/license
+ */
+
 export interface RetryOptions {
   /**
    The number of times to retry failed requests.
