@@ -73,6 +73,10 @@ export class BeeDebug {
       },
     }
 
+    if (options?.defaultHeaders) {
+      kyOptions.headers = options.defaultHeaders
+    }
+
     if (options?.onRequest) {
       kyOptions.hooks?.beforeRequest?.push(wrapRequestClosure(options.onRequest))
     }

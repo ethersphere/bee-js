@@ -6,6 +6,7 @@ import {
   FileData,
   FileUploadOptions,
   Ky,
+  Readable,
   Reference,
   UploadHeaders,
 } from '../types'
@@ -16,7 +17,7 @@ import { makeTar } from '../utils/tar'
 import { assertCollection } from '../utils/collection'
 import { AxiosRequestConfig } from 'axios'
 import { wrapBytesWithHelpers } from '../utils/bytes'
-import { Readable } from 'stream'
+import { isReadable } from '../utils/stream'
 
 const bzzEndpoint = 'bzz'
 
@@ -57,10 +58,16 @@ export async function uploadFile(
     searchParams.name = name
   }
 
+  if (isReadable(data) && !options?.contentType) {
+    if (!options) options = {}
+
+    options.contentType = 'application/octet-stream'
+  }
+
   const response = await http<{ reference: Reference }>(ky, {
     method: 'post',
     url: bzzEndpoint,
-    body: prepareData(data),
+    body: await prepareData(data),
     headers: {
       ...extractFileUploadHeaders(postageBatchId, options),
     },

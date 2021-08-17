@@ -10,6 +10,7 @@ import type ky from 'ky-universal'
 
 import type { Readable as NativeReadable } from 'stream'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
+import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill/ponyfill'
 
 export * from './debug'
 
@@ -57,7 +58,7 @@ export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
  * Type representing Readable stream that abstracts away implementation especially the difference between
  * browser and NodeJS versions as both are supported.
  */
-export type Readable = NativeReadable | CompatibilityReadable | ReadableStream
+export type Readable = NativeReadable | CompatibilityReadable | ReadableStream | ReadableStreamPonyfill
 
 /**
  * BatchId is result of keccak256 hash so 64 hex string without prefix.
@@ -75,6 +76,12 @@ export interface BeeOptions {
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   signer?: Signer | Uint8Array | string
+
+  /**
+   * Object that contains default headers that will be present
+   * in all outgoing bee-js requests for instance of Bee class.
+   */
+  defaultHeaders?: Record<string, string>
 
   /**
    * Function that registers listener callback for all outgoing HTTP requests that Bee instance makes.

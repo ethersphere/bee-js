@@ -1,6 +1,8 @@
-import { Readable as NodeReadable, ReadableOptions as NodeReadableOptions } from 'stream'
+import type { Readable as NodeReadableType } from 'stream'
 import { isStrictlyObject } from './type'
 import { ReadableStream } from 'web-streams-polyfill/ponyfill'
+import { Readable as NodeReadable, ReadableOptions as NodeReadableOptions } from 'readable-stream'
+
 import { Readable } from '../types'
 
 /**
@@ -9,7 +11,7 @@ import { Readable } from '../types'
  *
  * @param entry
  */
-export function isReadable(entry: unknown): entry is NodeReadable {
+export function isReadable(entry: unknown): entry is NodeReadableType {
   return isReadableStream(entry) || isNodeReadable(entry)
 }
 
@@ -33,12 +35,12 @@ export function isReadableStream(entry: unknown): entry is ReadableStream {
   return false
 }
 
-export function isNodeReadable(entry: unknown): entry is NodeReadable {
+export function isNodeReadable(entry: unknown): entry is NodeReadableType {
   if (!isStrictlyObject(entry)) {
     return false
   }
 
-  const nodeReadable = entry as NodeReadable
+  const nodeReadable = entry as NodeReadableType
 
   if (typeof nodeReadable.pipe === 'function' && nodeReadable.readable && typeof nodeReadable._read === 'function') {
     return true
@@ -57,7 +59,7 @@ export function isNodeReadable(entry: unknown): entry is NodeReadable {
  * @licence Apache License 2.0 https://github.com/gwicke/node-web-streams/blob/master/LICENSE
  * @param nodeStream
  */
-export function readableNodeToWeb(nodeStream: NodeReadable): ReadableStream<Uint8Array> {
+export function readableNodeToWeb(nodeStream: NodeReadableType): ReadableStream<Uint8Array> {
   return new ReadableStream({
     start(controller) {
       nodeStream.pause()
@@ -129,8 +131,8 @@ class NodeReadableWrapper extends NodeReadable {
  * @licence Apache License 2.0 https://github.com/gwicke/node-web-streams/blob/master/LICENSE
  * @param webStream
  */
-export function readableWebToNode(webStream: ReadableStream): NodeReadable {
-  return new NodeReadableWrapper(webStream)
+export function readableWebToNode(webStream: ReadableStream): NodeReadableType {
+  return new NodeReadableWrapper(webStream) as unknown as NodeReadableType
 }
 
 export function normalizeToReadableStream(stream: Readable): ReadableStream {

@@ -14,7 +14,8 @@ import {
   beePeerUrl,
   beeUrl,
   commonMatchers,
-  createRandomReadable,
+  createRandomNodeReadable,
+  createReadableStream,
   FEED_TIMEOUT,
   getPostageBatch,
   POSTAGE_BATCH_TIMEOUT,
@@ -28,6 +29,7 @@ import {
   tryDeleteChunkFromLocalStorage,
 } from '../utils'
 import { Readable } from 'stream'
+import { TextEncoder } from 'util'
 
 commonMatchers()
 
@@ -125,8 +127,8 @@ describe('Bee class', () => {
       expect(downloadedFile.contentType).toEqual(contentTypeOverride)
     })
 
-    it('should work with readable', async () => {
-      const readable = Readable.from(['hello world'])
+    it('should work with NodeJS readable', async () => {
+      const readable = Readable.from([new TextEncoder().encode('hello '), new TextEncoder().encode('world')])
       const name = 'hello.txt'
       const contentType = 'text/plain'
 
@@ -137,10 +139,22 @@ describe('Bee class', () => {
       expect(file.data.text()).toEqual('hello world')
     })
 
+    it('should work with WHATWG readable-stream', async () => {
+      const readable = createReadableStream([new TextEncoder().encode('hello '), new TextEncoder().encode('world')])
+      const name = 'hello.txt'
+      const contentType = 'text/plain'
+
+      const hash = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
+      const file = await bee.downloadFile(hash)
+
+      expect(file.name).toEqual(name)
+      expect(file.data.text()).toEqual('hello world')
+    }, 1000000)
+
     it('should work with readable and tags', async () => {
       const tag = await bee.createTag()
 
-      const readable = createRandomReadable(13000)
+      const readable = createRandomNodeReadable(13000)
       const name = 'hello.txt'
       const contentType = 'text/plain'
 

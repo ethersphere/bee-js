@@ -206,7 +206,7 @@ describe('modules/bzz', () => {
     })
 
     it('should store readable file', async () => {
-      const data = randomByteArray(5000, 0)
+      const data = randomByteArray(5000, 1)
       const filename = 'hello.txt'
 
       const hash = await bzz.uploadFile(BEE_KY, Readable.from([data]), getPostageBatch(), filename, {
@@ -222,7 +222,7 @@ describe('modules/bzz', () => {
       // https://github.com/ethersphere/bee/pull/1501#discussion_r611385602
       const EXPECTED_TAGS_COUNT = 6
 
-      const data = randomByteArray(5000, 1)
+      const data = randomByteArray(5000, 2)
       const filename = 'hello.txt'
 
       const tag1 = await tag.createTag(BEE_KY)

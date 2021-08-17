@@ -1,4 +1,3 @@
-import { Readable } from 'stream'
 import {
   Address,
   AddressPrefix,
@@ -19,20 +18,12 @@ import {
   AllTagsOptions,
   TAGS_LIMIT_MIN,
   TAGS_LIMIT_MAX,
+  Readable,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
 import { assertHexString } from './hex'
-
-export function isReadable(entry: unknown): entry is Readable {
-  return (
-    typeof entry === 'object' &&
-    entry !== null &&
-    typeof (entry as Readable).pipe === 'function' &&
-    (entry as Readable).readable &&
-    typeof (entry as Readable)._read === 'function'
-  )
-}
+import { isReadable } from './stream'
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
   return obj instanceof Uint8Array

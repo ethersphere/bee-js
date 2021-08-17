@@ -1,4 +1,3 @@
-import type { Readable } from 'stream'
 import * as bzz from './modules/bzz'
 import * as stewardship from './modules/stewardship'
 import * as tag from './modules/tag'
@@ -34,12 +33,19 @@ import {
   assertPublicKey,
   assertReference,
   assertUploadOptions,
-  isReadable,
   makeTagUid,
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
-import { AllTagsOptions, Ky, NumberString, PostageBatchOptions, STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from './types'
+import {
+  AllTagsOptions,
+  Ky,
+  NumberString,
+  PostageBatchOptions,
+  Readable,
+  STAMPS_DEPTH_MAX,
+  STAMPS_DEPTH_MIN,
+} from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
 
@@ -69,6 +75,7 @@ import type {
   BatchId,
 } from './types'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
+import { isReadable } from './utils/stream'
 
 export class Bee {
   /**
@@ -106,6 +113,10 @@ export class Bee {
         beforeRequest: [],
         afterResponse: [],
       },
+    }
+
+    if (options?.defaultHeaders) {
+      kyOptions.headers = options.defaultHeaders
     }
 
     if (options?.onRequest) {
@@ -187,7 +198,7 @@ export class Bee {
    */
   async uploadFile(
     postageBatchId: string | BatchId,
-    data: string | Uint8Array | Readable | ReadableStream<Uint8Array> | File,
+    data: string | Uint8Array | Readable | File,
     name?: string,
     options?: FileUploadOptions,
   ): Promise<Reference> {

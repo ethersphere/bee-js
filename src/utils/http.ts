@@ -4,10 +4,12 @@ import kyFactory, { Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
 import { filterUndefined } from './type'
 import { deepMerge } from './merge'
+import { version as beeJsVersion } from '../../package.json'
 
 const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {
     accept: 'application/json, text/plain, */*',
+    'user-agent': `bee-js/${beeJsVersion}`,
   },
 }
 

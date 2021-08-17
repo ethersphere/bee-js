@@ -6,6 +6,7 @@ import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
 import ky from 'ky-universal'
+import { ReadableStream } from 'web-streams-polyfill/ponyfill'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -116,7 +117,7 @@ export async function sleep(ms: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 }
 
-export function createRandomReadable(totalSize: number, chunkSize = 1000): Readable {
+export function createRandomNodeReadable(totalSize: number, chunkSize = 1000): Readable {
   if (totalSize % chunkSize !== 0) {
     throw new Error(`totalSize ${totalSize} is not dividable without remainder by chunkSize ${chunkSize}`)
   }
@@ -132,6 +133,24 @@ export function createRandomReadable(totalSize: number, chunkSize = 1000): Reada
   stream.push(null)
 
   return stream
+}
+
+export function createReadableStream(iterable: Iterable<Uint8Array>): ReadableStream {
+  const iter = iterable[Symbol.iterator]()
+
+  return new ReadableStream({
+    async pull(controller) {
+      const result = iter.next()
+
+      if (result.done) {
+        controller.close()
+
+        return
+      }
+
+      controller.enqueue(result.value)
+    },
+  })
 }
 
 /**

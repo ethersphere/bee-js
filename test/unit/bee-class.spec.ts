@@ -67,6 +67,17 @@ describe('Bee class', () => {
   testUrl('javascript:console.log()')
   testUrl('ws://localhost:1633')
 
+  it('should set default headers and use them if specified', async () => {
+    uploadFileMock(testBatchId, 'nice.txt', {}, { 'X-Awesome-Header': '123' }).reply(200, {
+      reference: testJsonHash,
+    } as ReferenceResponse)
+
+    const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders: { 'X-Awesome-Header': '123' } })
+    const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
+
+    expect(reference).toEqual(testJsonHash)
+  })
+
   describe('uploadData', () => {
     testBatchIdAssertion(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
@@ -692,7 +703,6 @@ describe('Bee class', () => {
 
   describe('hooks', () => {
     it('should call with request', async () => {
-      jest.setTimeout(1000000)
       const requestSpy = jest.fn()
       const responseSpy = jest.fn()
 
