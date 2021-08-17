@@ -1,4 +1,3 @@
-import type { AxiosRequestConfig } from 'axios'
 import type { BatchId, Ky, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
@@ -59,15 +58,9 @@ export async function download(ky: Ky, hash: string): Promise<Uint8Array> {
  *
  * @param ky Ky instance for given Bee class instance
  * @param hash Bee content reference
- * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(
-  ky: Ky,
-  hash: string,
-  axiosOptions: AxiosRequestConfig,
-): Promise<ReadableStream<Uint8Array>> {
+export async function downloadReadable(ky: Ky, hash: string): Promise<ReadableStream<Uint8Array>> {
   const response = await http<ReadableStream<Uint8Array>>(ky, {
-    ...axiosOptions,
     responseType: 'stream',
     url: `${endpoint}/${hash}`,
   })
