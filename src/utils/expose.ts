@@ -1,9 +1,47 @@
-export * as Collections from './collection'
-export * as Bytes from './bytes'
-export * as Data from './data'
-export * as File from './file'
-export * as Hex from './hex'
-export * as Tar from './tar'
-export * as Eth from './eth'
-export * as Stream from './stream'
+export { getCollectionSize, getFolderSize } from './collection'
+
+export {
+  Bytes,
+  FlexBytes,
+  isBytes,
+  assertBytes,
+  isFlexBytes,
+  assertFlexBytes,
+  bytesAtOffset,
+  flexBytesAtOffset,
+  bytesEqual,
+} from './bytes'
+
+export {
+  HexString,
+  PrefixedHexString,
+  makeHexString,
+  hexToBytes,
+  bytesToHex,
+  intToHex,
+  isHexString,
+  assertHexString,
+  assertPrefixedHexString,
+} from './hex'
+
+export {
+  EthAddress,
+  makeEthAddress,
+  makeHexEthAddress,
+  isHexEthAddress,
+  ethToSwarmAddress,
+  toLittleEndian,
+  fromLittleEndian,
+  makeEthereumWalletSigner,
+} from './eth'
+
+export {
+  readableWebToNode,
+  readableNodeToWeb,
+  isReadableStream,
+  isNodeReadable,
+  normalizeToReadableStream,
+  isReadable,
+} from './stream'
+
 export { keccak256Hash } from './hash'
