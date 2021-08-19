@@ -714,7 +714,7 @@ describe('Bee class', () => {
         reference: testJsonHash,
       } as ReferenceResponse)
 
-      const feedReader = await bee.makeFeedReader('sequence', topic, testIdentity.address)
+      const feedReader = bee.makeFeedReader('sequence', topic, testIdentity.address)
       const feedUpdate = await feedReader.download()
 
       expect(feedUpdate.reference).toEqual(testJsonHash)

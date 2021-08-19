@@ -11,7 +11,7 @@ const endpoint = 'tags'
  */
 export async function retrieveExtendedTag(ky: Ky, uid: number): Promise<ExtendedTag> {
   const response = await http<ExtendedTag>(ky, {
-    url: `${endpoint}/${uid}`,
+    path: `${endpoint}/${uid}`,
     responseType: 'json',
   })
 

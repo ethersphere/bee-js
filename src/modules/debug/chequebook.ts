@@ -20,7 +20,7 @@ const chequebookEndpoint = 'chequebook'
  */
 export async function getChequebookAddress(ky: Ky): Promise<ChequebookAddressResponse> {
   const response = await http<ChequebookAddressResponse>(ky, {
-    url: chequebookEndpoint + '/address',
+    path: chequebookEndpoint + '/address',
     responseType: 'json',
   })
 
@@ -34,7 +34,7 @@ export async function getChequebookAddress(ky: Ky): Promise<ChequebookAddressRes
  */
 export async function getChequebookBalance(ky: Ky): Promise<ChequebookBalanceResponse> {
   const response = await http<ChequebookBalanceResponse>(ky, {
-    url: chequebookEndpoint + '/balance',
+    path: chequebookEndpoint + '/balance',
     responseType: 'json',
   })
 
@@ -49,7 +49,7 @@ export async function getChequebookBalance(ky: Ky): Promise<ChequebookBalanceRes
  */
 export async function getLastCashoutAction(ky: Ky, peer: string): Promise<LastCashoutActionResponse> {
   const response = await http<LastCashoutActionResponse>(ky, {
-    url: chequebookEndpoint + `/cashout/${peer}`,
+    path: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
   })
 
@@ -76,7 +76,7 @@ export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutO
 
   const response = await http<TransactionResponse>(ky, {
     method: 'post',
-    url: chequebookEndpoint + `/cashout/${peer}`,
+    path: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
     headers,
   })
@@ -92,7 +92,7 @@ export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutO
  */
 export async function getLastChequesForPeer(ky: Ky, peer: string): Promise<LastChequesForPeerResponse> {
   const response = await http<LastChequesForPeerResponse>(ky, {
-    url: chequebookEndpoint + `/cheque/${peer}`,
+    path: chequebookEndpoint + `/cheque/${peer}`,
     responseType: 'json',
   })
 
@@ -106,7 +106,7 @@ export async function getLastChequesForPeer(ky: Ky, peer: string): Promise<LastC
  */
 export async function getLastCheques(ky: Ky): Promise<LastChequesResponse> {
   const response = await http<LastChequesResponse>(ky, {
-    url: chequebookEndpoint + '/cheque',
+    path: chequebookEndpoint + '/cheque',
     responseType: 'json',
   })
 
@@ -130,7 +130,7 @@ export async function depositTokens(ky: Ky, amount: number | NumberString, gasPr
 
   const response = await http<TransactionResponse>(ky, {
     method: 'post',
-    url: chequebookEndpoint + '/deposit',
+    path: chequebookEndpoint + '/deposit',
     responseType: 'json',
     searchParams: { amount: amount.toString(10) },
     headers,
@@ -156,7 +156,7 @@ export async function withdrawTokens(ky: Ky, amount: number | NumberString, gasP
 
   const response = await http<TransactionResponse>(ky, {
     method: 'post',
-    url: chequebookEndpoint + '/withdraw',
+    path: chequebookEndpoint + '/withdraw',
     responseType: 'json',
     searchParams: { amount: amount.toString(10) },
     headers,

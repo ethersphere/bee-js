@@ -3,7 +3,7 @@ import type { Ky, NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topolog
 
 export async function getNodeAddresses(ky: Ky): Promise<NodeAddresses> {
   const response = await http<NodeAddresses>(ky, {
-    url: 'addresses',
+    path: 'addresses',
     responseType: 'json',
   })
 
@@ -15,7 +15,7 @@ interface Peers {
 
 export async function getPeers(ky: Ky): Promise<Peer[]> {
   const response = await http<Peers>(ky, {
-    url: 'peers',
+    path: 'peers',
     responseType: 'json',
   })
 
@@ -24,7 +24,7 @@ export async function getPeers(ky: Ky): Promise<Peer[]> {
 
 export async function getBlocklist(ky: Ky): Promise<Peer[]> {
   const response = await http<Peers>(ky, {
-    url: 'blocklist',
+    path: 'blocklist',
     responseType: 'json',
   })
 
@@ -33,7 +33,7 @@ export async function getBlocklist(ky: Ky): Promise<Peer[]> {
 
 export async function removePeer(ky: Ky, peer: string): Promise<RemovePeerResponse> {
   const response = await http<RemovePeerResponse>(ky, {
-    url: `peers/${peer}`,
+    path: `peers/${peer}`,
     responseType: 'json',
     method: 'DELETE',
   })
@@ -43,7 +43,7 @@ export async function removePeer(ky: Ky, peer: string): Promise<RemovePeerRespon
 
 export async function getTopology(ky: Ky): Promise<Topology> {
   const response = await http<Topology>(ky, {
-    url: `topology`,
+    path: `topology`,
     responseType: 'json',
   })
 
@@ -52,7 +52,7 @@ export async function getTopology(ky: Ky): Promise<Topology> {
 
 export async function pingPeer(ky: Ky, peer: string): Promise<PingResponse> {
   const response = await http<PingResponse>(ky, {
-    url: `pingpong/${peer}`,
+    path: `pingpong/${peer}`,
     responseType: 'json',
     method: 'POST',
   })

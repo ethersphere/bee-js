@@ -14,7 +14,7 @@ interface CreateStampResponse {
 export async function getAllPostageBatches(ky: Ky): Promise<PostageBatch[]> {
   const response = await http<GetAllStampsResponse>(ky, {
     method: 'get',
-    url: `${STAMPS_ENDPOINT}`,
+    path: `${STAMPS_ENDPOINT}`,
     responseType: 'json',
   })
 
@@ -24,7 +24,7 @@ export async function getAllPostageBatches(ky: Ky): Promise<PostageBatch[]> {
 export async function getPostageBatch(ky: Ky, postageBatchId: BatchId): Promise<PostageBatch> {
   const response = await http<PostageBatch>(ky, {
     method: 'get',
-    url: `${STAMPS_ENDPOINT}/${postageBatchId}`,
+    path: `${STAMPS_ENDPOINT}/${postageBatchId}`,
     responseType: 'json',
   })
 
@@ -49,7 +49,7 @@ export async function createPostageBatch(
 
   const response = await http<CreateStampResponse>(ky, {
     method: 'post',
-    url: `${STAMPS_ENDPOINT}/${amount}/${depth}`,
+    path: `${STAMPS_ENDPOINT}/${amount}/${depth}`,
     responseType: 'json',
     searchParams: { label: options?.label },
     headers,

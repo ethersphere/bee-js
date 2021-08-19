@@ -12,7 +12,7 @@ const CHAIN_STATE_ENDPOINT = 'chainstate'
 export async function getReserveState(ky: Ky): Promise<ReserveState> {
   const response = await http<ReserveState>(ky, {
     method: 'get',
-    url: `${RESERVE_STATE_ENDPOINT}`,
+    path: `${RESERVE_STATE_ENDPOINT}`,
     responseType: 'json',
   })
 
@@ -27,7 +27,7 @@ export async function getReserveState(ky: Ky): Promise<ReserveState> {
 export async function getChainState(ky: Ky): Promise<ChainState> {
   const response = await http<ChainState>(ky, {
     method: 'get',
-    url: `${CHAIN_STATE_ENDPOINT}`,
+    path: `${CHAIN_STATE_ENDPOINT}`,
     responseType: 'json',
   })
 

@@ -77,6 +77,12 @@ import type {
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { isReadable } from './utils/stream'
 
+/**
+ * The main component that abstracts operations available on the main Bee API.
+ *
+ * Not all methods are always available as it depends in what mode is Bee node launched in.
+ * For example gateway mode and light node mode has only limited set of endpoints enabled.
+ */
 export class Bee {
   /**
    * URL on which is the main API of Bee node exposed
@@ -88,6 +94,10 @@ export class Bee {
    */
   public readonly signer?: Signer
 
+  /**
+   * Ky instance that defines connection to Bee node
+   * @private
+   */
   private readonly ky: Ky
 
   /**

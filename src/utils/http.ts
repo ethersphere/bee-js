@@ -1,10 +1,10 @@
 import { BeeError, BeeRequestError, BeeResponseError } from './error'
-import type { Ky, BeeRequest, BeeResponse, HttpMethod, HookCallback } from '../types'
+import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
 import kyFactory, { Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
-import { filterUndefined } from './type'
 import { deepMerge } from './merge'
 import { version as beeJsVersion } from '../../package.json'
+import { isStrictlyObject } from './type'
 
 const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {
@@ -14,7 +14,7 @@ const DEFAULT_KY_CONFIG: KyOptions = {
 }
 
 interface HttpOptions extends Omit<KyOptions, 'searchParams'> {
-  url: string
+  path: string
   responseType?: 'json' | 'arraybuffer' | 'stream'
 
   /**
@@ -62,13 +62,42 @@ export function wrapResponseClosure(
   }
 }
 
+/**
+ * Filters out entries that has undefined value from headers object.
+ * Modifies the original object!
+ *
+ * @param obj
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function filterHeaders(obj?: object): Record<string, string> | undefined {
+  if (obj === undefined) {
+    return undefined
+  }
+
+  isStrictlyObject(obj)
+
+  const typedObj = obj as Record<string, string>
+
+  for (const key in typedObj) {
+    if (typedObj[key] === undefined) {
+      delete typedObj[key]
+    }
+  }
+
+  if (Object.keys(typedObj).length === 0) {
+    return undefined
+  }
+
+  return typedObj
+}
+
 export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T>> {
   try {
-    const { url, responseType, ...kyConfig } = config
+    const { path, responseType, ...kyConfig } = config
 
-    const response = (await ky(url, {
+    const response = (await ky(path, {
       ...kyConfig,
-      searchParams: kyConfig.searchParams ? filterUndefined(kyConfig.searchParams) : undefined,
+      searchParams: filterHeaders(kyConfig.searchParams),
     })) as KyResponse<T>
 
     switch (responseType) {

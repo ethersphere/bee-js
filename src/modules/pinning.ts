@@ -17,7 +17,7 @@ export async function pin(ky: Ky, reference: Reference): Promise<void> {
   await http<BeeGenericResponse>(ky, {
     method: 'post',
     responseType: 'json',
-    url: `${PINNING_ENDPOINT}/${reference}`,
+    path: `${PINNING_ENDPOINT}/${reference}`,
   })
 }
 
@@ -31,7 +31,7 @@ export async function unpin(ky: Ky, reference: Reference): Promise<void> {
   await http<BeeGenericResponse>(ky, {
     method: 'delete',
     responseType: 'json',
-    url: `${PINNING_ENDPOINT}/${reference}`,
+    path: `${PINNING_ENDPOINT}/${reference}`,
   })
 }
 
@@ -46,7 +46,7 @@ export async function getPin(ky: Ky, reference: Reference): Promise<Pin> {
   const response = await http<Pin>(ky, {
     method: 'get',
     responseType: 'json',
-    url: `${PINNING_ENDPOINT}/${reference}`,
+    path: `${PINNING_ENDPOINT}/${reference}`,
   })
 
   return response.data
@@ -61,7 +61,7 @@ export async function getAllPins(ky: Ky): Promise<Reference[]> {
   const response = await http<GetAllPinResponse>(ky, {
     method: 'get',
     responseType: 'json',
-    url: `${PINNING_ENDPOINT}`,
+    path: `${PINNING_ENDPOINT}`,
   })
 
   const result = response.data.references

@@ -25,7 +25,7 @@ export async function upload(
 ): Promise<Reference> {
   const response = await http<ReferenceResponse>(ky, {
     method: 'post',
-    url: `${endpoint}`,
+    path: `${endpoint}`,
     body: data,
     headers: {
       'content-type': 'application/octet-stream',
@@ -47,7 +47,7 @@ export async function upload(
 export async function download(ky: Ky, hash: string): Promise<Uint8Array> {
   const response = await http<ArrayBuffer>(ky, {
     responseType: 'arraybuffer',
-    url: `${endpoint}/${hash}`,
+    path: `${endpoint}/${hash}`,
   })
 
   return new Uint8Array(response.data)
@@ -62,7 +62,7 @@ export async function download(ky: Ky, hash: string): Promise<Uint8Array> {
 export async function downloadReadable(ky: Ky, hash: string): Promise<ReadableStream<Uint8Array>> {
   const response = await http<ReadableStream<Uint8Array>>(ky, {
     responseType: 'stream',
-    url: `${endpoint}/${hash}`,
+    path: `${endpoint}/${hash}`,
   })
 
   return response.data

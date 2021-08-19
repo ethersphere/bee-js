@@ -21,7 +21,7 @@ export async function upload(
   options?: UploadOptions,
 ): Promise<Reference> {
   const response = await http<{ reference: Reference }>(ky, {
-    url: endpoint,
+    path: endpoint,
     method: 'post',
     responseType: 'json',
     body: await prepareData(data),
@@ -43,7 +43,7 @@ export async function upload(
 export async function download(ky: Ky, hash: Reference): Promise<Data> {
   const response = await http<ArrayBuffer>(ky, {
     responseType: 'arraybuffer',
-    url: `${endpoint}/${hash}`,
+    path: `${endpoint}/${hash}`,
   })
 
   return wrapBytesWithHelpers(new Uint8Array(response.data))
@@ -58,7 +58,7 @@ export async function download(ky: Ky, hash: Reference): Promise<Data> {
 export async function downloadReadable(ky: Ky, hash: Reference): Promise<ReadableStream<Uint8Array>> {
   const response = await http<ReadableStream<Uint8Array>>(ky, {
     responseType: 'stream',
-    url: `${endpoint}/${hash}`,
+    path: `${endpoint}/${hash}`,
   })
 
   return response.data

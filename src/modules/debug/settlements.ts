@@ -11,7 +11,7 @@ const settlementsEndpoint = 'settlements'
  */
 export async function getSettlements(ky: Ky, peer: string): Promise<Settlements> {
   const response = await http<Settlements>(ky, {
-    url: `${settlementsEndpoint}/${peer}`,
+    path: `${settlementsEndpoint}/${peer}`,
     responseType: 'json',
   })
 
@@ -25,7 +25,7 @@ export async function getSettlements(ky: Ky, peer: string): Promise<Settlements>
  */
 export async function getAllSettlements(ky: Ky): Promise<AllSettlements> {
   const response = await http<AllSettlements>(ky, {
-    url: settlementsEndpoint,
+    path: settlementsEndpoint,
     responseType: 'json',
   })
 

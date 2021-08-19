@@ -13,7 +13,7 @@ export const SUPPORTED_BEE_VERSION = engines.bee.substr(0, engines.bee.indexOf('
 export async function getHealth(ky: Ky): Promise<Health> | never {
   const response = await http<Health>(ky, {
     method: 'get',
-    url: `health`,
+    path: `health`,
     responseType: 'json',
   })
 

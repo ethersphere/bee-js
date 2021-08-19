@@ -26,7 +26,7 @@ export async function upload(
 ): Promise<Reference> {
   const response = await http<ReferenceResponse>(ky, {
     method: 'post',
-    url: `${socEndpoint}/${owner}/${identifier}`,
+    path: `${socEndpoint}/${owner}/${identifier}`,
     body: data,
     headers: {
       'content-type': 'application/octet-stream',

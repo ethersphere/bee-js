@@ -8,6 +8,6 @@ import { Ky } from '../types'
  */
 export async function checkConnection(ky: Ky): Promise<void> | never {
   await http<string>(ky, {
-    url: '',
+    path: '',
   })
 }

@@ -28,7 +28,7 @@ export async function send(
 ): Promise<void> {
   await http<BeeGenericResponse>(ky, {
     method: 'post',
-    url: `${endpoint}/send/${topic}/${target.slice(0, 4)}`,
+    path: `${endpoint}/send/${topic}/${target.slice(0, 4)}`,
     body: await prepareData(data),
     responseType: 'json',
     searchParams: { recipient },

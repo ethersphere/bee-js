@@ -59,7 +59,7 @@ export async function uploadFile(
 
   const response = await http<{ reference: Reference }>(ky, {
     method: 'post',
-    url: bzzEndpoint,
+    path: bzzEndpoint,
     body: await prepareData(data),
     headers: {
       ...extractFileUploadHeaders(postageBatchId, options),
@@ -82,7 +82,7 @@ export async function downloadFile(ky: Ky, hash: string, path = ''): Promise<Fil
   const response = await http<ArrayBuffer>(ky, {
     method: 'GET',
     responseType: 'arraybuffer',
-    url: `${bzzEndpoint}/${hash}/${path}`,
+    path: `${bzzEndpoint}/${hash}/${path}`,
   })
   const file = {
     ...readFileHeaders(response.headers),
@@ -107,7 +107,7 @@ export async function downloadFileReadable(
   const response = await http<ReadableStream<Uint8Array>>(ky, {
     method: 'GET',
     responseType: 'stream',
-    url: `${bzzEndpoint}/${hash}/${path}`,
+    path: `${bzzEndpoint}/${hash}/${path}`,
   })
   const file = {
     ...readFileHeaders(response.headers),
@@ -157,7 +157,7 @@ export async function uploadCollection(
 
   const response = await http<{ reference: Reference }>(ky, {
     method: 'post',
-    url: bzzEndpoint,
+    path: bzzEndpoint,
     body: tarData,
     responseType: 'json',
     headers: {

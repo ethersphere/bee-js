@@ -13,7 +13,7 @@ const endpoint = 'chunks'
  */
 export async function checkIfChunkExistsLocally(ky: Ky, address: string): Promise<BeeGenericResponse> {
   const response = await http<BeeGenericResponse>(ky, {
-    url: endpoint + `/${address}`,
+    path: endpoint + `/${address}`,
     responseType: 'json',
   })
 
@@ -31,7 +31,7 @@ export async function checkIfChunkExistsLocally(ky: Ky, address: string): Promis
 export async function deleteChunkFromLocalStorage(ky: Ky, address: string): Promise<BeeGenericResponse> {
   const response = await http<BeeGenericResponse>(ky, {
     method: 'delete',
-    url: endpoint + `/${address}`,
+    path: endpoint + `/${address}`,
     responseType: 'json',
   })
 

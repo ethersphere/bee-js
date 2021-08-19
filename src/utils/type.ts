@@ -1,9 +1,10 @@
 import {
   Address,
-  AddressPrefix,
   ADDRESS_HEX_LENGTH,
-  BatchId,
+  AddressPrefix,
+  AllTagsOptions,
   BATCH_ID_HEX_LENGTH,
+  BatchId,
   CollectionUploadOptions,
   ENCRYPTED_REFERENCE_HEX_LENGTH,
   FileUploadOptions,
@@ -11,14 +12,13 @@ import {
   PssMessageHandler,
   PUBKEY_HEX_LENGTH,
   PublicKey,
+  Readable,
   Reference,
   REFERENCE_HEX_LENGTH,
   Tag,
-  UploadOptions,
-  AllTagsOptions,
-  TAGS_LIMIT_MIN,
   TAGS_LIMIT_MAX,
-  Readable,
+  TAGS_LIMIT_MIN,
+  UploadOptions,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
@@ -284,31 +284,4 @@ export function makeTagUid(tagUid: number | Tag): number {
   }
 
   throw new TypeError('tagUid has to be either Tag or a number (UID)!')
-}
-
-/**
- * Filters out object those entries that has undefined value.
- * Modifies the original object!
- *
- * @param obj
- */
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function filterUndefined(obj?: object): Record<string, string> | undefined {
-  if (!obj) {
-    return {}
-  }
-
-  const typedObj = obj as Record<string, string>
-
-  for (const key in typedObj) {
-    if (typedObj[key] === undefined) {
-      delete typedObj[key]
-    }
-  }
-
-  if (Object.keys(typedObj).length === 0) {
-    return undefined
-  }
-
-  return typedObj
 }

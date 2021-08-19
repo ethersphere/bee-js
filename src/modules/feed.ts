@@ -1,9 +1,8 @@
 import { BatchId, Ky, Reference, ReferenceResponse, Topic } from '../types'
-import { http } from '../utils/http'
+import { filterHeaders, http } from '../utils/http'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'
-import { filterUndefined } from '../utils/type'
 import { BeeError } from '../utils/error'
 
 const feedEndpoint = 'feeds'
@@ -48,8 +47,8 @@ export async function createFeedManifest(
   const response = await http<ReferenceResponse>(ky, {
     method: 'post',
     responseType: 'json',
-    url: `${feedEndpoint}/${owner}/${topic}`,
-    searchParams: filterUndefined(options),
+    path: `${feedEndpoint}/${owner}/${topic}`,
+    searchParams: filterHeaders(options),
     headers: extractUploadHeaders(postageBatchId),
   })
 
@@ -95,8 +94,8 @@ export async function fetchFeedUpdate(
 ): Promise<FetchFeedUpdateResponse> {
   const response = await http<ReferenceResponse>(ky, {
     responseType: 'json',
-    url: `${feedEndpoint}/${owner}/${topic}`,
-    searchParams: filterUndefined(options),
+    path: `${feedEndpoint}/${owner}/${topic}`,
+    searchParams: filterHeaders(options),
   })
 
   return {

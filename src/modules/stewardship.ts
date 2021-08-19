@@ -13,6 +13,6 @@ const stewardshipEndpoint = 'stewardship'
 export async function reupload(ky: Ky, reference: Reference): Promise<void> {
   await http(ky, {
     method: 'put',
-    url: `${stewardshipEndpoint}/${reference}`,
+    path: `${stewardshipEndpoint}/${reference}`,
   })
 }

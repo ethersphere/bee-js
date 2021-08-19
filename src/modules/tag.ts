@@ -15,7 +15,7 @@ interface GetAllTagsResponse {
 export async function createTag(ky: Ky): Promise<Tag> {
   const response = await http<Tag>(ky, {
     method: 'post',
-    url: endpoint,
+    path: endpoint,
     responseType: 'json',
   })
 
@@ -30,7 +30,7 @@ export async function createTag(ky: Ky): Promise<Tag> {
  */
 export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
   const response = await http<Tag>(ky, {
-    url: `${endpoint}/${uid}`,
+    path: `${endpoint}/${uid}`,
     responseType: 'json',
   })
 
@@ -46,7 +46,7 @@ export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
  */
 export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promise<Tag[]> {
   const response = await http<GetAllTagsResponse>(ky, {
-    url: `${endpoint}`,
+    path: `${endpoint}`,
     searchParams: { offset, limit },
     responseType: 'json',
   })
@@ -62,7 +62,7 @@ export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promi
 export async function deleteTag(ky: Ky, uid: number): Promise<void> {
   await http<void>(ky, {
     method: 'delete',
-    url: `${endpoint}/${uid}`,
+    path: `${endpoint}/${uid}`,
   })
 }
 
@@ -75,7 +75,7 @@ export async function deleteTag(ky: Ky, uid: number): Promise<void> {
 export async function updateTag(ky: Ky, uid: number, reference: Reference): Promise<void> {
   await http<void>(ky, {
     method: 'patch',
-    url: `${endpoint}/${uid}`,
+    path: `${endpoint}/${uid}`,
     json: {
       reference,
     },

@@ -52,8 +52,15 @@ import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/
  * @param url URL of a running Bee node
  */
 export class BeeDebug {
+  /**
+   * URL on which is the Debug API of Bee node exposed
+   */
   public readonly url: string
 
+  /**
+   * Ky instance that defines connection to Bee node
+   * @private
+   */
   private readonly ky: Ky
 
   constructor(url: string, options?: BeeOptions) {

@@ -11,7 +11,7 @@ const consumedEndpoint = 'consumed'
  */
 export async function getAllBalances(ky: Ky): Promise<BalanceResponse> {
   const response = await http<BalanceResponse>(ky, {
-    url: balancesEndpoint,
+    path: balancesEndpoint,
     responseType: 'json',
   })
 
@@ -26,7 +26,7 @@ export async function getAllBalances(ky: Ky): Promise<BalanceResponse> {
  */
 export async function getPeerBalance(ky: Ky, address: string): Promise<PeerBalance> {
   const response = await http<PeerBalance>(ky, {
-    url: `${balancesEndpoint}/${address}`,
+    path: `${balancesEndpoint}/${address}`,
     responseType: 'json',
   })
 
@@ -40,7 +40,7 @@ export async function getPeerBalance(ky: Ky, address: string): Promise<PeerBalan
  */
 export async function getPastDueConsumptionBalances(ky: Ky): Promise<BalanceResponse> {
   const response = await http<BalanceResponse>(ky, {
-    url: consumedEndpoint,
+    path: consumedEndpoint,
     responseType: 'json',
   })
 
@@ -55,7 +55,7 @@ export async function getPastDueConsumptionBalances(ky: Ky): Promise<BalanceResp
  */
 export async function getPastDueConsumptionPeerBalance(ky: Ky, address: string): Promise<PeerBalance> {
   const response = await http<PeerBalance>(ky, {
-    url: `${consumedEndpoint}/${address}`,
+    path: `${consumedEndpoint}/${address}`,
     responseType: 'json',
   })
 
