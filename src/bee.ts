@@ -45,6 +45,7 @@ import {
   Readable,
   STAMPS_DEPTH_MAX,
   STAMPS_DEPTH_MIN,
+  UploadResult,
 } from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
@@ -155,7 +156,7 @@ export class Bee {
     postageBatchId: string | BatchId,
     data: string | Uint8Array,
     options?: UploadOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
     assertData(data)
 
@@ -211,7 +212,7 @@ export class Bee {
     data: string | Uint8Array | Readable | File,
     name?: string,
     options?: FileUploadOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
     assertFileData(data)
 
@@ -287,7 +288,7 @@ export class Bee {
     postageBatchId: string | BatchId,
     fileList: FileList | File[],
     options?: CollectionUploadOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
 
     if (options) assertCollectionUploadOptions(options)
@@ -314,7 +315,7 @@ export class Bee {
     postageBatchId: string | BatchId,
     dir: string,
     options?: CollectionUploadOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
 
     if (options) assertCollectionUploadOptions(options)

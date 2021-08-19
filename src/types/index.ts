@@ -94,6 +94,21 @@ export interface BeeOptions {
   onResponse?: HookCallback<BeeResponse>
 }
 
+/**
+ * Result of upload calls.
+ */
+export interface UploadResult {
+  /**
+   * Reference of the uploaded data
+   */
+  reference: Reference
+
+  /**
+   * Automatically created tag's UID
+   */
+  tagUid: number
+}
+
 export interface UploadOptions {
   /**
    * Will pin the data locally in the Bee node as well.
