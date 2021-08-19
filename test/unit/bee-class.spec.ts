@@ -68,11 +68,12 @@ describe('Bee class', () => {
   testUrl('ws://localhost:1633')
 
   it('should set default headers and use them if specified', async () => {
-    uploadFileMock(testBatchId, 'nice.txt', {}, { 'X-Awesome-Header': '123' }).reply(200, {
+    const defaultHeaders = { 'X-Awesome-Header': '123' }
+    uploadFileMock(testBatchId, 'nice.txt', {}, defaultHeaders).reply(200, {
       reference: testJsonHash,
     } as ReferenceResponse)
 
-    const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders: { 'X-Awesome-Header': '123' } })
+    const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders })
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
     expect(reference).toEqual(testJsonHash)

@@ -8,6 +8,7 @@ import { isObject } from './type'
  * @param sources
  */
 export function deepMerge<T>(...sources: Array<Partial<T> | undefined>): T {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let returnValue: any = {}
 
   for (const source of sources) {
