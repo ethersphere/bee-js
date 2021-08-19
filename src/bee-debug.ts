@@ -78,11 +78,11 @@ export class BeeDebug {
     }
 
     if (options?.onRequest) {
-      kyOptions.hooks?.beforeRequest?.push(wrapRequestClosure(options.onRequest))
+      kyOptions.hooks!.beforeRequest!.push(wrapRequestClosure(options.onRequest))
     }
 
     if (options?.onResponse) {
-      kyOptions.hooks?.afterResponse?.push(wrapResponseClosure(options.onResponse))
+      kyOptions.hooks!.afterResponse!.push(wrapResponseClosure(options.onResponse))
     }
 
     this.ky = makeDefaultKy(kyOptions)
