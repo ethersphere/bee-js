@@ -7,6 +7,7 @@ import type {
   LastChequesForPeerResponse,
   LastChequesResponse,
   NumberString,
+  TransactionHash,
 } from '../../types'
 import { CashoutOptions } from '../../types'
 
@@ -62,7 +63,7 @@ export async function getLastCashoutAction(url: string, peer: string): Promise<L
  * @param peer  Swarm address of peer
  * @param options
  */
-export async function cashoutLastCheque(url: string, peer: string, options?: CashoutOptions): Promise<string> {
+export async function cashoutLastCheque(url: string, peer: string, options?: CashoutOptions): Promise<TransactionHash> {
   const headers: Record<string, string> = {}
 
   if (options?.gasPrice) {
@@ -124,7 +125,7 @@ export async function depositTokens(
   url: string,
   amount: number | NumberString,
   gasPrice?: NumberString,
-): Promise<string> {
+): Promise<TransactionHash> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {
@@ -154,7 +155,7 @@ export async function withdrawTokens(
   url: string,
   amount: number | NumberString,
   gasPrice?: NumberString,
-): Promise<string> {
+): Promise<TransactionHash> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {

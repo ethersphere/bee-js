@@ -1,4 +1,4 @@
-import { PublicKey, NumberString, Reference } from './index'
+import { PublicKey, NumberString, Reference, TransactionHash } from './index'
 import { HexEthAddress } from '../utils/eth'
 
 /**
@@ -113,7 +113,7 @@ export interface LastCashoutActionResponse {
 }
 
 export interface TransactionResponse {
-  transactionHash: string
+  transactionHash: TransactionHash
 }
 
 export interface Cheque {
