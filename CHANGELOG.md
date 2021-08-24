@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://www.github.com/ethersphere/bee-js/compare/v1.1.1...v1.2.0) (2021-08-24)
+
+
+### Features
+
+* new debug postage api ([#381](https://www.github.com/ethersphere/bee-js/issues/381)) ([dcd6dd3](https://www.github.com/ethersphere/bee-js/commit/dcd6dd34893e961fd5716683c113927bb21b588f))
+* pending transactions management ([#399](https://www.github.com/ethersphere/bee-js/issues/399)) ([144440b](https://www.github.com/ethersphere/bee-js/commit/144440b4b3c5d5d8b52638b2e502b307089baec3))
+
 ### [1.1.1](https://www.github.com/ethersphere/bee-js/compare/v1.1.0...v1.1.1) (2021-07-21)
 
 This is a small patch release that fixes missing headers in requests/responses returned using the hooks system.
