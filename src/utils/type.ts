@@ -19,10 +19,11 @@ import {
   AllTagsOptions,
   TAGS_LIMIT_MIN,
   TAGS_LIMIT_MAX,
+  TransactionHash,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
-import { assertHexString } from './hex'
+import { assertHexString, assertPrefixedHexString } from './hex'
 
 export function isReadable(entry: unknown): entry is Readable {
   return (
@@ -285,4 +286,17 @@ export function makeTagUid(tagUid: number | Tag): number {
   }
 
   throw new TypeError('tagUid has to be either Tag or a number (UID)!')
+}
+
+export function assertTransactionHash(transactionHash: unknown): asserts transactionHash is TransactionHash {
+  if (typeof transactionHash !== 'string') {
+    throw new TypeError('TransactionHash has to be a string!')
+  }
+
+  assertPrefixedHexString(transactionHash, 'TransactionHash')
+
+  // Hash is 64 long + '0x' prefix = 66
+  if (transactionHash.length !== 66) {
+    throw new TypeError('TransactionHash has to be prefixed hex string with total length 66 (prefix including)')
+  }
 }
