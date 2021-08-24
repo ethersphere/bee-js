@@ -409,7 +409,9 @@ export class BeeDebug {
   }
 
   /**
-   * Rebroadcast already created transaction
+   * Rebroadcast already created transaction.
+   * This is mainly needed when your transaction fall off mempool from other reason is not incorporated into block.
+   *
    * @param transactionHash
    */
   async rebroadcastPendingTransaction(transactionHash: TransactionHash | string): Promise<TransactionHash> {
