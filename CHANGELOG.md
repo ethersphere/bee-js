@@ -1,7 +1,19 @@
 # Changelog
-
 ## [1.2.0](https://www.github.com/ethersphere/bee-js/compare/v1.1.1...v1.2.0) (2021-08-24)
 
+This is mainly a compatibility release with [Bee 1.1.0](https://github.com/ethersphere/bee/releases/tag/v1.1.0) release.
+
+### 🏷 Stamps API move and deprecation
+
+The Stamps API was moved to Debug API and on normal API it is now deprecated. Moreover, Bee provides more information on Debug API with for example `batchTtl` that gives an estimation for how long the batch will be valid.
+
+### ⛓ Pending transaction management supports
+
+New Debug API was added that allows you to manage pending transactions and do things like:
+
+- list pending transactions
+- rebroadcast already created (pending) transaction
+- cancel a pending transaction
 
 ### Features
 
