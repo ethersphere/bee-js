@@ -3,6 +3,7 @@ import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
 import * as settlements from './modules/debug/settlements'
 import * as status from './modules/debug/status'
+import * as transactions from './modules/debug/transactions'
 import * as states from './modules/debug/states'
 import type {
   Address,
@@ -28,10 +29,19 @@ import type {
   PostageBatchBuckets,
   DebugPostageBatch,
   Ky,
+  TransactionInfo,
+  TransactionHash,
 } from './types'
 import { BeeArgumentError } from './utils/error'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { assertAddress, assertBatchId, assertBoolean, assertNonNegativeInteger, isTag } from './utils/type'
+import {
+  assertAddress,
+  assertBatchId,
+  assertBoolean,
+  assertNonNegativeInteger,
+  assertTransactionHash,
+  isTag,
+} from './utils/type'
 import {
   BatchId,
   BeeOptions,
@@ -422,5 +432,52 @@ export class BeeDebug {
    */
   async getAllPostageBatch(): Promise<DebugPostageBatch[]> {
     return stamps.getAllPostageBatches(this.ky)
+  }
+
+  /**
+   * Return lists of all current pending transactions that the Bee made
+   */
+  async getAllPendingTransactions(): Promise<TransactionInfo[]> {
+    return transactions.getAllTransactions(this.url)
+  }
+
+  /**
+   * Return transaction information for specific transaction
+   * @param transactionHash
+   */
+  async getPendingTransaction(transactionHash: TransactionHash | string): Promise<TransactionInfo> {
+    assertTransactionHash(transactionHash)
+
+    return transactions.getTransaction(this.url, transactionHash)
+  }
+
+  /**
+   * Rebroadcast already created transaction.
+   * This is mainly needed when your transaction fall off mempool from other reason is not incorporated into block.
+   *
+   * @param transactionHash
+   */
+  async rebroadcastPendingTransaction(transactionHash: TransactionHash | string): Promise<TransactionHash> {
+    assertTransactionHash(transactionHash)
+
+    return transactions.rebroadcastTransaction(this.url, transactionHash)
+  }
+
+  /**
+   * Cancel currently pending transaction
+   * @param transactionHash
+   * @param gasPrice
+   */
+  async cancelPendingTransaction(
+    transactionHash: TransactionHash | string,
+    gasPrice?: NumberString,
+  ): Promise<TransactionHash> {
+    assertTransactionHash(transactionHash)
+
+    if (gasPrice) {
+      assertNonNegativeInteger(gasPrice)
+    }
+
+    return transactions.cancelTransaction(this.url, transactionHash, gasPrice)
   }
 }

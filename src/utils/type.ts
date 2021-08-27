@@ -19,10 +19,11 @@ import {
   TAGS_LIMIT_MAX,
   TAGS_LIMIT_MIN,
   UploadOptions,
+  TransactionHash,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
-import { assertHexString } from './hex'
+import { assertHexString, assertPrefixedHexString } from './hex'
 import { isReadable } from './stream'
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
@@ -284,4 +285,17 @@ export function makeTagUid(tagUid: number | Tag): number {
   }
 
   throw new TypeError('tagUid has to be either Tag or a number (UID)!')
+}
+
+export function assertTransactionHash(transactionHash: unknown): asserts transactionHash is TransactionHash {
+  if (typeof transactionHash !== 'string') {
+    throw new TypeError('TransactionHash has to be a string!')
+  }
+
+  assertPrefixedHexString(transactionHash, 'TransactionHash')
+
+  // Hash is 64 long + '0x' prefix = 66
+  if (transactionHash.length !== 66) {
+    throw new TypeError('TransactionHash has to be prefixed hex string with total length 66 (prefix including)')
+  }
 }

@@ -9,6 +9,7 @@ import type {
   NumberString,
   Ky,
   CashoutOptions,
+  TransactionHash,
 } from '../../types'
 
 const chequebookEndpoint = 'chequebook'
@@ -63,7 +64,7 @@ export async function getLastCashoutAction(ky: Ky, peer: string): Promise<LastCa
  * @param peer  Swarm address of peer
  * @param options
  */
-export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutOptions): Promise<string> {
+export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutOptions): Promise<TransactionHash> {
   const headers: Record<string, string> = {}
 
   if (options?.gasPrice) {
@@ -121,7 +122,11 @@ export async function getLastCheques(ky: Ky): Promise<LastChequesResponse> {
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
  */
-export async function depositTokens(ky: Ky, amount: number | NumberString, gasPrice?: NumberString): Promise<string> {
+export async function depositTokens(
+  ky: Ky,
+  amount: number | NumberString,
+  gasPrice?: NumberString,
+): Promise<TransactionHash> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {
@@ -147,7 +152,11 @@ export async function depositTokens(ky: Ky, amount: number | NumberString, gasPr
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
  */
-export async function withdrawTokens(ky: Ky, amount: number | NumberString, gasPrice?: NumberString): Promise<string> {
+export async function withdrawTokens(
+  ky: Ky,
+  amount: number | NumberString,
+  gasPrice?: NumberString,
+): Promise<TransactionHash> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {

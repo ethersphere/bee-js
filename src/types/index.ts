@@ -426,6 +426,20 @@ export interface PostageBatchBuckets {
   buckets?: BatchBucket[]
 }
 
+export type TransactionHash = BrandedString<'TransactionHash'>
+
+export interface TransactionInfo {
+  transactionHash: TransactionHash
+  to: HexEthAddress
+  nonce: number
+  gasPrice: NumberString
+  gasLimit: number
+  data: string
+  created: string
+  description: string
+  value: string
+}
+
 /**
  * Options for creation of postage batch
  */
