@@ -1,4 +1,11 @@
 # Changelog
+### [1.2.1](https://www.github.com/ethersphere/bee-js/compare/v1.2.0...v1.2.1) (2021-08-27)
+
+
+### Bug Fixes
+
+* bee 1.1.0 version reporting workaround ([#401](https://www.github.com/ethersphere/bee-js/issues/401)) ([687e431](https://www.github.com/ethersphere/bee-js/commit/687e4318b0ae6ed62dc23d6d1ce1abad3938e20b))
+
 ## [1.2.0](https://www.github.com/ethersphere/bee-js/compare/v1.1.1...v1.2.0) (2021-08-24)
 
 This is mainly a compatibility release with [Bee 1.1.0](https://github.com/ethersphere/bee/releases/tag/v1.1.0) release.
