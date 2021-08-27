@@ -29,5 +29,6 @@ export async function getHealth(url: string): Promise<Health> | never {
 export async function isSupportedVersion(url: string): Promise<boolean> | never {
   const { version } = await getHealth(url)
 
-  return version === SUPPORTED_BEE_VERSION_EXACT
+  // TODO: Remove this workaround when new Bee version is out https://github.com/ethersphere/bee-js/issues/400
+  return version === SUPPORTED_BEE_VERSION_EXACT || version === '1.1.0-dev'
 }
