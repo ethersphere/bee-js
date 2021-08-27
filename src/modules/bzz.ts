@@ -9,6 +9,7 @@ import {
   Readable,
   Reference,
   UploadHeaders,
+  UploadResult,
 } from '../types'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { http } from '../utils/http'
@@ -17,6 +18,7 @@ import { makeTar } from '../utils/tar'
 import { assertCollection } from '../utils/collection'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { isReadable } from '../utils/stream'
+import { makeTagUid } from '../utils/type'
 
 const bzzEndpoint = 'bzz'
 
@@ -50,7 +52,7 @@ export async function uploadFile(
   postageBatchId: BatchId,
   name?: string,
   options?: FileUploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   if (isReadable(data) && !options?.contentType) {
     if (!options) options = {}
 
@@ -68,7 +70,10 @@ export async function uploadFile(
     responseType: 'json',
   })
 
-  return response.data.reference
+  return {
+    reference: response.data.reference,
+    tagUid: makeTagUid(response.headers.get('swarm-tag')),
+  }
 }
 
 /**
@@ -151,7 +156,7 @@ export async function uploadCollection(
   collection: Collection<Uint8Array>,
   postageBatchId: BatchId,
   options?: CollectionUploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   assertCollection(collection)
   const tarData = makeTar(collection)
 
@@ -167,5 +172,8 @@ export async function uploadCollection(
     },
   })
 
-  return response.data.reference
+  return {
+    reference: response.data.reference,
+    tagUid: makeTagUid(response.headers.get('swarm-tag')),
+  }
 }

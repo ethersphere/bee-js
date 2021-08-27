@@ -30,6 +30,7 @@ import {
 } from '../utils'
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
+import { File } from '@web-std/file'
 
 commonMatchers()
 
@@ -52,8 +53,8 @@ describe('Bee class', () => {
       const name = 'hello.txt'
       const contentType = 'text/html'
 
-      const hash = await bee.uploadFile(getPostageBatch(), content, name, { contentType })
-      const file = await bee.downloadFile(hash)
+      const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType })
+      const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
       expect(file.data).toEqual(content)
@@ -67,8 +68,8 @@ describe('Bee class', () => {
       const name = 'hello.txt'
       const contentType = 'text/html'
 
-      const hash = await bee.uploadFile(getPostageBatch(), content, name, { contentType, tag: tag.uid })
-      const file = await bee.downloadFile(hash)
+      const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType, tag: tag.uid })
+      const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
       expect(file.data).toEqual(content)
@@ -87,8 +88,8 @@ describe('Bee class', () => {
         type,
       } as unknown as File
 
-      const hash = await bee.uploadFile(getPostageBatch(), file)
-      const downloadedFile = await bee.downloadFile(hash)
+      const result = await bee.uploadFile(getPostageBatch(), file)
+      const downloadedFile = await bee.downloadFile(result.reference)
 
       expect(downloadedFile.data).toEqual(content)
       expect(downloadedFile.name).toEqual(name)
@@ -104,8 +105,8 @@ describe('Bee class', () => {
       } as unknown as File
       const nameOverride = 'hello-override.txt'
 
-      const hash = await bee.uploadFile(getPostageBatch(), file, nameOverride)
-      const downloadedFile = await bee.downloadFile(hash)
+      const result = await bee.uploadFile(getPostageBatch(), file, nameOverride)
+      const downloadedFile = await bee.downloadFile(result.reference)
 
       expect(downloadedFile.data).toEqual(content)
       expect(downloadedFile.name).toEqual(nameOverride)
@@ -120,8 +121,8 @@ describe('Bee class', () => {
       } as unknown as File
       const contentTypeOverride = 'text/plain+override'
 
-      const hash = await bee.uploadFile(getPostageBatch(), file, undefined, { contentType: contentTypeOverride })
-      const downloadedFile = await bee.downloadFile(hash)
+      const result = await bee.uploadFile(getPostageBatch(), file, undefined, { contentType: contentTypeOverride })
+      const downloadedFile = await bee.downloadFile(result.reference)
 
       expect(downloadedFile.data).toEqual(content)
       expect(downloadedFile.contentType).toEqual(contentTypeOverride)
@@ -132,8 +133,8 @@ describe('Bee class', () => {
       const name = 'hello.txt'
       const contentType = 'text/plain'
 
-      const hash = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
-      const file = await bee.downloadFile(hash)
+      const result = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
+      const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
       expect(file.data.text()).toEqual('hello world')
@@ -144,8 +145,8 @@ describe('Bee class', () => {
       const name = 'hello.txt'
       const contentType = 'text/plain'
 
-      const hash = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
-      const file = await bee.downloadFile(hash)
+      const result = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
+      const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
       expect(file.data.text()).toEqual('hello world')
@@ -158,12 +159,12 @@ describe('Bee class', () => {
       const name = 'hello.txt'
       const contentType = 'text/plain'
 
-      const hash = await bee.uploadFile(getPostageBatch(), readable, name, {
+      const result = await bee.uploadFile(getPostageBatch(), readable, name, {
         contentType,
         tag: tag.uid,
       })
 
-      const file = await bee.downloadFile(hash)
+      const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
       expect(file.data.length).toEqual(13000)
@@ -175,9 +176,9 @@ describe('Bee class', () => {
 
   describe('collections', () => {
     it('should work with directory with unicode filenames', async () => {
-      const hash = await bee.uploadFilesFromDirectory(getPostageBatch(), './test/data')
+      const result = await bee.uploadFilesFromDirectory(getPostageBatch(), './test/data')
 
-      expect(hash.length).toEqual(REFERENCE_HEX_LENGTH)
+      expect(result.reference.length).toEqual(REFERENCE_HEX_LENGTH)
     })
   })
 
@@ -215,54 +216,62 @@ describe('Bee class', () => {
   describe('pinning', () => {
     it('should list all pins', async () => {
       const content = new Uint8Array([1, 2, 3])
-      const hash = await bee.uploadFile(getPostageBatch(), content)
+      const result = await bee.uploadFile(getPostageBatch(), content)
 
-      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.pin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
 
       const pinnedChunks = await bee.getAllPins()
       expect(pinnedChunks).toBeType('array')
-      expect(pinnedChunks.includes(hash)).toBeTruthy()
+      expect(pinnedChunks.includes(result.reference)).toBeTruthy()
     })
 
     it('should get pinning status', async () => {
       const content = randomByteArray(16, Date.now())
-      const hash = await bee.uploadFile(getPostageBatch(), content, 'test', {
+      const result = await bee.uploadFile(getPostageBatch(), content, 'test', {
         pin: false,
       })
 
-      const statusBeforePinning = bee.getPin(hash)
+      const statusBeforePinning = bee.getPin(result.reference)
       await expect(statusBeforePinning).rejects.toThrowError('Not Found')
 
-      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.pin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
 
-      const statusAfterPinning = await bee.getPin(hash)
-      expect(statusAfterPinning).toHaveProperty('reference', hash)
+      const statusAfterPinning = await bee.getPin(result.reference)
+      expect(statusAfterPinning).toHaveProperty('reference', result.reference)
     })
 
     it('should pin and unpin files', async () => {
       const content = new Uint8Array([1, 2, 3])
 
-      const hash = await bee.uploadFile(getPostageBatch(), content)
+      const result = await bee.uploadFile(getPostageBatch(), content)
 
-      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
-      await bee.unpin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.pin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.unpin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
-    it('should pin and unpin collection', async () => {
+    it('should pin and unpin collection from directory', async () => {
       const path = './test/data/'
-      const hash = await bee.uploadFilesFromDirectory(getPostageBatch(), path)
+      const result = await bee.uploadFilesFromDirectory(getPostageBatch(), path)
 
-      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
-      await bee.unpin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.pin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.unpin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+    })
+
+    it('should pin and unpin collection from files', async () => {
+      const files: File[] = [new File(['hello'], 'hello')]
+      const result = await bee.uploadFiles(getPostageBatch(), files)
+
+      await bee.pin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.unpin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should pin and unpin data', async () => {
       const content = new Uint8Array([1, 2, 3])
 
-      const hash = await bee.uploadData(getPostageBatch(), content)
+      const result = await bee.uploadData(getPostageBatch(), content)
 
-      await bee.pin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
-      await bee.unpin(hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.pin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await bee.unpin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
   })
 
@@ -270,17 +279,17 @@ describe('Bee class', () => {
     it('should reupload pinned data', async () => {
       const content = randomByteArray(16, Date.now())
 
-      const hash = await bee.uploadData(getPostageBatch(), content, { pin: true })
+      const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
 
       await sleep(10)
-      await bee.reuploadPinnedData(hash) // Does not return anything, but will throw exception if something is going wrong
+      await bee.reuploadPinnedData(result.reference) // Does not return anything, but will throw exception if something is going wrong
     })
 
     it('should throw error if data is not pinned', async () => {
       const content = randomByteArray(16, Date.now())
 
-      const hash = await bee.uploadData(getPostageBatch(), content)
-      await expect(bee.reuploadPinnedData(hash)).rejects.toThrowError(BeeArgumentError)
+      const result = await bee.uploadData(getPostageBatch(), content)
+      await expect(bee.reuploadPinnedData(result.reference)).rejects.toThrowError(BeeArgumentError)
     })
   })
 
@@ -407,10 +416,10 @@ describe('Bee class', () => {
             data: new TextEncoder().encode('some data'),
           },
         ]
-        const cacHash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
+        const cacResult = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
 
         const feed = bee.makeFeedWriter('sequence', topic, signer)
-        await feed.upload(getPostageBatch(), cacHash)
+        await feed.upload(getPostageBatch(), cacResult.reference)
         const manifestReference = await bee.createFeedManifest(getPostageBatch(), 'sequence', topic, owner)
 
         expect(typeof manifestReference).toBe('string')
@@ -532,8 +541,8 @@ describe('Bee class', () => {
 
         const hashedTopic = bee.makeFeedTopic(TOPIC)
         const writer = bee.makeFeedWriter('sequence', hashedTopic, testIdentity.privateKey)
-        const dataChunkReference = await bee.uploadData(getPostageBatch(), JSON.stringify(data))
-        await writer.upload(getPostageBatch(), dataChunkReference)
+        const dataChunkResult = await bee.uploadData(getPostageBatch(), JSON.stringify(data))
+        await writer.upload(getPostageBatch(), dataChunkResult.reference)
 
         const fetchedData = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
         expect(fetchedData).toEqual(data)
@@ -547,8 +556,8 @@ describe('Bee class', () => {
 
         const hashedTopic = bee.makeFeedTopic(TOPIC)
         const writer = bee.makeFeedWriter('sequence', hashedTopic, testIdentity.privateKey)
-        const dataChunkReference = await bee.uploadData(getPostageBatch(), JSON.stringify(data))
-        await writer.upload(getPostageBatch(), dataChunkReference)
+        const dataChunkResult = await bee.uploadData(getPostageBatch(), JSON.stringify(data))
+        await writer.upload(getPostageBatch(), dataChunkResult.reference)
 
         const fetchedData = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
         expect(fetchedData).toEqual(data)

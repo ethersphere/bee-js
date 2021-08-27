@@ -7,8 +7,8 @@ describe('modules/bytes', () => {
   it('should store and retrieve data', async () => {
     const data = 'hello world'
 
-    const hash = await bytes.upload(BEE_KY, data, getPostageBatch())
-    const downloadedData = await bytes.download(BEE_KY, hash)
+    const result = await bytes.upload(BEE_KY, data, getPostageBatch())
+    const downloadedData = await bytes.download(BEE_KY, result.reference)
 
     expect(Buffer.from(downloadedData).toString()).toEqual(data)
   })

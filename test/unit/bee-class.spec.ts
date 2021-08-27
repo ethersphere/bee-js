@@ -76,7 +76,10 @@ describe('Bee class', () => {
     const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders })
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
-    expect(reference).toEqual(testJsonHash)
+    expect(reference).toEqual({
+      reference: testJsonHash,
+      tagUid: 123,
+    })
   })
 
   describe('uploadData', () => {
@@ -755,7 +758,10 @@ describe('Bee class', () => {
 
       const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt', { encrypt: true })
 
-      expect(reference).toEqual(testJsonHash)
+      expect(reference).toEqual({
+        reference: testJsonHash,
+        tagUid: 123,
+      })
 
       expect(requestSpy.mock.calls.length).toEqual(1)
       expect(requestSpy.mock.calls[0].length).toEqual(1)

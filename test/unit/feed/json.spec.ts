@@ -20,7 +20,7 @@ describe('JsonFeed', () => {
   function testSet(data: unknown, expectedBytes: Uint8Array): void {
     it(`should set feed for data: ${data}`, async () => {
       const bee = Substitute.for<Bee>()
-      bee.uploadData(Arg.all()).resolves(DATA_REFERENCE)
+      bee.uploadData(Arg.all()).resolves({ reference: DATA_REFERENCE, tagUid: 0 })
 
       const writer = Substitute.for<FeedWriter>()
       writer.upload(Arg.all()).resolves(FEED_REFERENCE_HASH)

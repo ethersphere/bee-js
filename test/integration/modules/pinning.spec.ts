@@ -22,13 +22,13 @@ describe('modules/pin', () => {
     const randomData = randomByteArray(5000)
 
     it('should pin an existing file', async () => {
-      const hash = await bzz.uploadFile(BEE_KY, randomData, getPostageBatch())
-      await pinning.pin(BEE_KY, hash)
+      const result = await bzz.uploadFile(BEE_KY, randomData, getPostageBatch())
+      await pinning.pin(BEE_KY, result.reference)
     })
 
     it('should unpin an existing file', async () => {
-      const hash = await bzz.uploadFile(BEE_KY, randomData, getPostageBatch())
-      await pinning.unpin(BEE_KY, hash)
+      const result = await bzz.uploadFile(BEE_KY, randomData, getPostageBatch())
+      await pinning.unpin(BEE_KY, result.reference)
     })
 
     it(
@@ -57,13 +57,13 @@ describe('modules/pin', () => {
     ]
 
     it('should pin an existing collection', async () => {
-      const hash = await bzz.uploadCollection(BEE_KY, testCollection, getPostageBatch())
-      await pinning.pin(BEE_KY, hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const result = await bzz.uploadCollection(BEE_KY, testCollection, getPostageBatch())
+      await pinning.pin(BEE_KY, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin an existing collections', async () => {
-      const hash = await bzz.uploadCollection(BEE_KY, testCollection, getPostageBatch())
-      await pinning.unpin(BEE_KY, hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const result = await bzz.uploadCollection(BEE_KY, testCollection, getPostageBatch())
+      await pinning.unpin(BEE_KY, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it(
@@ -83,13 +83,13 @@ describe('modules/pin', () => {
     const randomData = randomByteArray(5000)
 
     it('should pin existing data', async () => {
-      const hash = await bytes.upload(BEE_KY, randomData, getPostageBatch())
-      await pinning.pin(BEE_KY, hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const result = await bytes.upload(BEE_KY, randomData, getPostageBatch())
+      await pinning.pin(BEE_KY, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin existing data', async () => {
-      const hash = await bytes.upload(BEE_KY, randomData, getPostageBatch())
-      await pinning.pin(BEE_KY, hash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const result = await bytes.upload(BEE_KY, randomData, getPostageBatch())
+      await pinning.pin(BEE_KY, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it(

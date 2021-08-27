@@ -36,9 +36,10 @@ import {
   makeTagUid,
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
-import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
+import { makeCollectionFromFS, makeCollectionFromFileList, assertCollection } from './utils/collection'
 import {
   AllTagsOptions,
+  Collection,
   Ky,
   NumberString,
   PostageBatchOptions,
@@ -231,10 +232,10 @@ export class Bee {
       return bzz.uploadFile(this.ky, fileData, postageBatchId, fileName, fileOptions)
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
-      const reference = await bzz.uploadFile(this.ky, data, postageBatchId, name, options)
-      await this.updateTag(options.tag, reference)
+      const result = await bzz.uploadFile(this.ky, data, postageBatchId, name, options)
+      await this.updateTag(options.tag, result.reference)
 
-      return reference
+      return result
     } else {
       return bzz.uploadFile(this.ky, data, postageBatchId, name, options)
     }
@@ -296,6 +297,19 @@ export class Bee {
     const data = await makeCollectionFromFileList(fileList)
 
     return bzz.uploadCollection(this.ky, data, postageBatchId, options)
+  }
+
+  async uploadCollection(
+    postageBatchId: string | BatchId,
+    collection: Collection<Uint8Array | Readable>,
+    options?: CollectionUploadOptions,
+  ): Promise<UploadResult> {
+    assertBatchId(postageBatchId)
+    assertCollection(collection)
+
+    if (options) assertCollectionUploadOptions(options)
+
+    return bzz.uploadCollection(this.ky, collection, postageBatchId, options)
   }
 
   /**

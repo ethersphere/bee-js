@@ -97,6 +97,7 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
 
     const response = (await ky(path, {
       ...kyConfig,
+      mode: 'cors',
       searchParams: filterHeaders(kyConfig.searchParams),
     })) as KyResponse<T>
 

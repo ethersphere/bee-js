@@ -15,8 +15,8 @@ describe('modules/stewardship', () => {
         },
       ]
 
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), { pin: true })
-      await stewardship.reupload(BEE_KY, hash) // Does not return anything, but will throw error if something is wrong
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), { pin: true })
+      await stewardship.reupload(BEE_KY, result.reference) // Does not return anything, but will throw error if something is wrong
     })
   })
 
@@ -25,8 +25,8 @@ describe('modules/stewardship', () => {
       const data = 'hello world'
       const filename = 'hello.txt'
 
-      const hash = await bzz.uploadFile(BEE_KY, data, getPostageBatch(), filename, { pin: true })
-      await stewardship.reupload(BEE_KY, hash) // Does not return anything, but will throw error if something is wrong
+      const result = await bzz.uploadFile(BEE_KY, data, getPostageBatch(), filename, { pin: true })
+      await stewardship.reupload(BEE_KY, result.reference) // Does not return anything, but will throw error if something is wrong
     })
   })
 })
