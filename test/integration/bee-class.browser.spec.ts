@@ -1,6 +1,7 @@
 import { join } from 'path'
 import {
   beeDebugUrl,
+  beeKy,
   beePeerDebugUrl,
   beePeerUrl,
   beeUrl,
@@ -9,7 +10,8 @@ import {
   PSS_TIMEOUT,
 } from '../utils'
 import '../../src'
-import type { Address } from '../../src/types'
+import type { Address, Reference } from '../../src/types'
+import * as bzz from '../../src/modules/bzz'
 
 commonMatchers()
 
@@ -29,11 +31,11 @@ describe('Bee class - in browser', () => {
   })
 
   it('should create a new Bee instance in browser', async () => {
-    const testBeeInstance = await page.evaluate(BEE_URL => {
-      return new window.BeeJs.Bee(BEE_URL)
+    const beeUrl = await page.evaluate(BEE_URL => {
+      return new window.BeeJs.Bee(BEE_URL).url
     }, BEE_URL)
 
-    expect(testBeeInstance.url).toBe(BEE_URL)
+    expect(beeUrl).toBe(BEE_URL)
   })
 
   function testUrl(url: unknown): void {
@@ -103,34 +105,83 @@ describe('Bee class - in browser', () => {
     )
   })
 
-  it('should get state of uploading on uploading file', async () => {
-    const uploadEvent = await page.evaluate(
-      async (BEE_URL, batchId) => {
-        const bee = new window.BeeJs.Bee(BEE_URL)
-        const filename = 'hello.txt'
-        const data = new Uint8Array([1, 2, 3, 4])
+  describe('streams', () => {
+    it('should upload file with stream', async () => {
+      const ref = (await page.evaluate(
+        async (BEE_URL, batchId) => {
+          // @ts-ignore: This is evaluated in browser context - no TS support
+          function createReadableStream(iterable) {
+            const iter = iterable[Symbol.iterator]()
 
-        let uploadEvent: { loaded: number; total: number } = {
-          loaded: 0,
-          total: 4,
-        }
+            return new ReadableStream({
+              async pull(controller) {
+                const result = iter.next()
 
-        await bee.uploadFile(batchId, data, filename, {
-          contentType: 'text/html',
-          axiosOptions: {
-            onUploadProgress: ({ loaded, total }) => {
-              uploadEvent = { loaded, total }
-            },
-          },
-        })
+                if (result.done) {
+                  controller.close()
 
-        return uploadEvent
-      },
-      BEE_URL,
-      batchId,
-    )
+                  return
+                }
 
-    expect(uploadEvent).toEqual({ loaded: 4, total: 4 })
+                controller.enqueue(result.value)
+              },
+            })
+          }
+
+          const bee = new window.BeeJs.Bee(BEE_URL)
+          const filename = 'hello.txt'
+          const readable = createReadableStream([
+            new TextEncoder().encode('hello '),
+            new TextEncoder().encode('another world'),
+          ])
+
+          const reference = await bee.uploadFile(batchId, readable, filename, {
+            contentType: 'text/plain',
+          })
+
+          return reference
+        },
+        BEE_URL,
+        batchId,
+      )) as Reference
+
+      const file = await bzz.downloadFile(beeKy(), ref)
+
+      expect(file.name).toEqual('hello.txt')
+      expect(file.data.text()).toEqual('hello another world')
+    })
+
+    it('should download file with stream', async () => {
+      const reference = await bzz.uploadFile(beeKy(), 'hello awesome world', batchId)
+
+      const content = (await page.evaluate(
+        async (BEE_URL, reference) => {
+          const bee = new window.BeeJs.Bee(BEE_URL)
+          const readable = await bee.downloadReadableFile(reference)
+
+          const reader = readable.data.getReader()
+          const buffers = []
+
+          let done, value
+          do {
+            ;({ done, value } = await reader.read())
+
+            if (!done) {
+              buffers.push(value)
+            }
+          } while (!done)
+
+          // @ts-ignore: Browser context - no TS
+          const blob = new Blob(buffers, { type: 'application/octet-stream' })
+
+          return new TextDecoder().decode(await blob.arrayBuffer())
+        },
+        BEE_URL,
+        reference,
+      )) as string
+
+      expect(content).toEqual('hello awesome world')
+    })
   })
 
   describe('pss', () => {

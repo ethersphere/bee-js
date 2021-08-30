@@ -5,7 +5,7 @@ import {
   SUPPORTED_BEE_VERSION,
   SUPPORTED_BEE_VERSION_EXACT,
 } from '../../../../src/modules/debug/status'
-import { beeDebugUrl } from '../../../utils'
+import { beeDebugKy } from '../../../utils'
 
 /**
  * Matches these:
@@ -34,7 +34,7 @@ const expectValidVersion = (string: string): void => {
   }
 }
 
-const BEE_DEBUG_URL = beeDebugUrl()
+const BEE_DEBUG_URL = beeDebugKy()
 
 describe('modules/status', () => {
   test('getHealth', async () => {

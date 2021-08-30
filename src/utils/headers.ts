@@ -1,4 +1,4 @@
-import { BatchId, Dictionary, FileHeaders, UploadHeaders, UploadOptions } from '../types'
+import { BatchId, FileHeaders, UploadOptions } from '../types'
 import { BeeError } from './error'
 
 /**
@@ -9,7 +9,7 @@ import { BeeError } from './error'
  *
  * @returns the filename
  */
-function readContentDispositionFilename(header?: string): string {
+function readContentDispositionFilename(header: string | null): string {
   if (!header) {
     throw new BeeError('missing content-disposition header')
   }
@@ -24,7 +24,7 @@ function readContentDispositionFilename(header?: string): string {
   throw new BeeError('invalid content-disposition header')
 }
 
-function readTagUid(header?: string): number | undefined {
+function readTagUid(header: string | null): number | undefined {
   if (!header) {
     return undefined
   }
@@ -32,10 +32,10 @@ function readTagUid(header?: string): number | undefined {
   return parseInt(header, 10)
 }
 
-export function readFileHeaders(headers: Dictionary<string>): FileHeaders {
-  const name = readContentDispositionFilename(headers['content-disposition'])
-  const tagUid = readTagUid(headers['swarm-tag-uid'])
-  const contentType = headers['content-type']
+export function readFileHeaders(headers: Headers): FileHeaders {
+  const name = readContentDispositionFilename(headers.get('content-disposition'))
+  const tagUid = readTagUid(headers.get('swarm-tag-uid'))
+  const contentType = headers.get('content-type') || undefined
 
   return {
     name,
@@ -44,12 +44,12 @@ export function readFileHeaders(headers: Dictionary<string>): FileHeaders {
   }
 }
 
-export function extractUploadHeaders(postageBatchId: BatchId, options?: UploadOptions): UploadHeaders {
+export function extractUploadHeaders(postageBatchId: BatchId, options?: UploadOptions): Record<string, string> {
   if (!postageBatchId) {
     throw new BeeError('Postage BatchID has to be specified!')
   }
 
-  const headers: UploadHeaders = {
+  const headers: Record<string, string> = {
     'swarm-postage-batch-id': postageBatchId,
   }
 

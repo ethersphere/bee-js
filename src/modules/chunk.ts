@@ -1,11 +1,9 @@
-import type { AxiosRequestConfig } from 'axios'
-import type { Readable } from 'stream'
-import type { BatchId, ReferenceResponse, UploadOptions } from '../types'
+import type { BatchId, Ky, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 import { Reference } from '../types'
 
-const endpoint = '/chunks'
+const endpoint = 'chunks'
 
 /**
  * Upload chunk to a Bee node
@@ -14,22 +12,21 @@ const endpoint = '/chunks'
  * The span stores the length of the payload in uint64 little endian encoding.
  * Upload expects the chuck data to be set accordingly.
  *
- * @param url     Bee URL
+ * @param ky Ky instance
  * @param data    Chunk data to be uploaded
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options Additional options like tag, encryption, pinning
  */
 export async function upload(
-  url: string,
+  ky: Ky,
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await safeAxios<ReferenceResponse>({
-    ...options?.axiosOptions,
+  const response = await http<ReferenceResponse>(ky, {
     method: 'post',
-    url: `${url}${endpoint}`,
-    data,
+    path: `${endpoint}`,
+    body: data,
     headers: {
       'content-type': 'application/octet-stream',
       ...extractUploadHeaders(postageBatchId, options),
@@ -43,14 +40,14 @@ export async function upload(
 /**
  * Download chunk data as a byte array
  *
- * @param url  Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param hash Bee content reference
  *
  */
-export async function download(url: string, hash: string): Promise<Uint8Array> {
-  const response = await safeAxios<ArrayBuffer>({
+export async function download(ky: Ky, hash: string): Promise<Uint8Array> {
+  const response = await http<ArrayBuffer>(ky, {
     responseType: 'arraybuffer',
-    url: `${url}${endpoint}/${hash}`,
+    path: `${endpoint}/${hash}`,
   })
 
   return new Uint8Array(response.data)
@@ -59,16 +56,13 @@ export async function download(url: string, hash: string): Promise<Uint8Array> {
 /**
  * Download chunk data as a readable stream
  *
- * @param url  Bee URL
+ * @param ky Ky instance for given Bee class instance
  * @param hash Bee content reference
- * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(url: string, hash: string, axiosOptions: AxiosRequestConfig): Promise<Readable> {
-  const response = await safeAxios<Readable>({
-    ...axiosOptions,
-    method: 'GET',
+export async function downloadReadable(ky: Ky, hash: string): Promise<ReadableStream<Uint8Array>> {
+  const response = await http<ReadableStream<Uint8Array>>(ky, {
     responseType: 'stream',
-    url: `${url}${endpoint}/${hash}`,
+    path: `${endpoint}/${hash}`,
   })
 
   return response.data

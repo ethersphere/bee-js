@@ -1,14 +1,14 @@
 import * as beeTag from '../../../../src/modules/tag'
 import * as beeDebugTag from '../../../../src/modules/debug/tag'
-import { beeDebugUrl, beeUrl } from '../../../utils'
+import { beeDebugKy, beeKy } from '../../../utils'
 
-const BEE_URL = beeUrl()
-const BEE_DEBUG_URL = beeDebugUrl()
+const BEE_URL = beeKy()
+const BEE_DEBUG_KY = beeDebugKy()
 
 describe('modules/tag', () => {
   it('should retrieve extended tag', async () => {
     const tag1 = await beeTag.createTag(BEE_URL)
-    const tag2 = await beeDebugTag.retrieveExtendedTag(BEE_DEBUG_URL, tag1.uid)
+    const tag2 = await beeDebugTag.retrieveExtendedTag(BEE_DEBUG_KY, tag1.uid)
 
     expect(tag2).toEqual(
       expect.objectContaining({

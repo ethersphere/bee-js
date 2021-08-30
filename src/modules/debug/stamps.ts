@@ -1,7 +1,14 @@
-import { BatchId, DebugPostageBatch, NumberString, PostageBatchBuckets, PostageBatchOptions } from '../../types'
-import { safeAxios } from '../../utils/safe-axios'
+import type {
+  BatchId,
+  DebugPostageBatch,
+  Ky,
+  NumberString,
+  PostageBatchBuckets,
+  PostageBatchOptions,
+} from '../../types'
+import { http } from '../../utils/http'
 
-const STAMPS_ENDPOINT = '/stamps'
+const STAMPS_ENDPOINT = 'stamps'
 
 interface GetAllStampsResponse {
   stamps: DebugPostageBatch[]
@@ -11,30 +18,30 @@ interface CreateStampResponse {
   batchID: BatchId
 }
 
-export async function getAllPostageBatches(url: string): Promise<DebugPostageBatch[]> {
-  const response = await safeAxios<GetAllStampsResponse>({
+export async function getAllPostageBatches(ky: Ky): Promise<DebugPostageBatch[]> {
+  const response = await http<GetAllStampsResponse>(ky, {
     method: 'get',
-    url: `${url}${STAMPS_ENDPOINT}`,
+    path: `${STAMPS_ENDPOINT}`,
     responseType: 'json',
   })
 
   return response.data.stamps || []
 }
 
-export async function getPostageBatch(url: string, postageBatchId: BatchId): Promise<DebugPostageBatch> {
-  const response = await safeAxios<DebugPostageBatch>({
+export async function getPostageBatch(ky: Ky, postageBatchId: BatchId): Promise<DebugPostageBatch> {
+  const response = await http<DebugPostageBatch>(ky, {
     method: 'get',
-    url: `${url}${STAMPS_ENDPOINT}/${postageBatchId}`,
+    path: `${STAMPS_ENDPOINT}/${postageBatchId}`,
     responseType: 'json',
   })
 
   return response.data
 }
 
-export async function getPostageBatchBuckets(url: string, postageBatchId: BatchId): Promise<PostageBatchBuckets> {
-  const response = await safeAxios<PostageBatchBuckets>({
+export async function getPostageBatchBuckets(ky: Ky, postageBatchId: BatchId): Promise<PostageBatchBuckets> {
+  const response = await http<PostageBatchBuckets>(ky, {
     method: 'get',
-    url: `${url}${STAMPS_ENDPOINT}/${postageBatchId}/buckets`,
+    path: `${STAMPS_ENDPOINT}/${postageBatchId}/buckets`,
     responseType: 'json',
   })
 
@@ -42,7 +49,7 @@ export async function getPostageBatchBuckets(url: string, postageBatchId: BatchI
 }
 
 export async function createPostageBatch(
-  url: string,
+  ky: Ky,
   amount: NumberString,
   depth: number,
   options?: PostageBatchOptions,
@@ -57,11 +64,11 @@ export async function createPostageBatch(
     headers.immutable = String(options.immutableFlag)
   }
 
-  const response = await safeAxios<CreateStampResponse>({
+  const response = await http<CreateStampResponse>(ky, {
     method: 'post',
-    url: `${url}${STAMPS_ENDPOINT}/${amount}/${depth}`,
+    path: `${STAMPS_ENDPOINT}/${amount}/${depth}`,
     responseType: 'json',
-    params: { label: options?.label },
+    searchParams: { label: options?.label },
     headers,
   })
 

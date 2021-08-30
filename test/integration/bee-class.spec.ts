@@ -9,11 +9,13 @@ import { makeEthAddress } from '../../src/utils/eth'
 import { bytesToHex, HexString } from '../../src/utils/hex'
 import {
   beeDebugUrl,
+  beeKy,
   beePeerDebugUrl,
   beePeerUrl,
   beeUrl,
   commonMatchers,
-  createRandomReadable,
+  createRandomNodeReadable,
+  createReadableStream,
   FEED_TIMEOUT,
   getPostageBatch,
   POSTAGE_BATCH_TIMEOUT,
@@ -27,11 +29,13 @@ import {
   tryDeleteChunkFromLocalStorage,
 } from '../utils'
 import { Readable } from 'stream'
+import { TextEncoder } from 'util'
 
 commonMatchers()
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
+  const BEE_KY = beeKy()
   const BEE_PEER_URL = beePeerUrl()
   const BEE_DEBUG_PEER_URL = beePeerDebugUrl()
   const bee = new Bee(BEE_URL)
@@ -123,8 +127,8 @@ describe('Bee class', () => {
       expect(downloadedFile.contentType).toEqual(contentTypeOverride)
     })
 
-    it('should work with readable', async () => {
-      const readable = Readable.from(['hello world'])
+    it('should work with NodeJS readable', async () => {
+      const readable = Readable.from([new TextEncoder().encode('hello '), new TextEncoder().encode('world')])
       const name = 'hello.txt'
       const contentType = 'text/plain'
 
@@ -135,10 +139,22 @@ describe('Bee class', () => {
       expect(file.data.text()).toEqual('hello world')
     })
 
+    it('should work with WHATWG readable-stream', async () => {
+      const readable = createReadableStream([new TextEncoder().encode('hello '), new TextEncoder().encode('world')])
+      const name = 'hello.txt'
+      const contentType = 'text/plain'
+
+      const hash = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
+      const file = await bee.downloadFile(hash)
+
+      expect(file.name).toEqual(name)
+      expect(file.data.text()).toEqual('hello world')
+    }, 1000000)
+
     it('should work with readable and tags', async () => {
       const tag = await bee.createTag()
 
-      const readable = createRandomReadable(13000)
+      const readable = createRandomNodeReadable(13000)
       const name = 'hello.txt'
       const contentType = 'text/plain'
 
@@ -391,7 +407,7 @@ describe('Bee class', () => {
             data: new TextEncoder().encode('some data'),
           },
         ]
-        const cacHash = await bzz.uploadCollection(BEE_URL, directoryStructure, getPostageBatch())
+        const cacHash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
 
         const feed = bee.makeFeedWriter('sequence', topic, signer)
         await feed.upload(getPostageBatch(), cacHash)
@@ -442,7 +458,7 @@ describe('Bee class', () => {
         const identifier = makeBytes(32) // all zeroes
         const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
         await tryDeleteChunkFromLocalStorage(socAddress)
-        await uploadSingleOwnerChunkData(BEE_URL, signer, getPostageBatch(), identifier, testChunkPayload)
+        await uploadSingleOwnerChunkData(BEE_KY, signer, getPostageBatch(), identifier, testChunkPayload)
 
         const socReader = bee.makeSOCReader(testIdentity.address)
         const soc = await socReader.download(identifier)

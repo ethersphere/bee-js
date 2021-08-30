@@ -1,13 +1,13 @@
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
+import { Ky } from '../types'
 
 /**
  * Ping the base bee URL. If connection was not successful throw error
  *
- * @param url Bee URL
+ * @param ky Ky instance for given Bee class instance
  */
-export async function checkConnection(url: string): Promise<void> | never {
-  await safeAxios<string>({
-    url: url,
-    responseType: 'json',
+export async function checkConnection(ky: Ky): Promise<void> | never {
+  await http<string>(ky, {
+    path: '',
   })
 }

@@ -1,37 +1,34 @@
-import type { AxiosRequestConfig } from 'axios'
-import type { Readable } from 'stream'
-import { BatchId, Data, Reference, UploadOptions } from '../types'
+import type { BatchId, Data, Ky, Reference, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 
-const endpoint = '/bytes'
+const endpoint = 'bytes'
 
 /**
  * Upload data to a Bee node
  *
- * @param url             Bee URL
+ * @param ky              Ky instance
  * @param data            Data to be uploaded
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options         Additional options like tag, encryption, pinning
  */
 export async function upload(
-  url: string,
+  ky: Ky,
   data: string | Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await safeAxios<{ reference: Reference }>({
-    ...options?.axiosOptions,
+  const response = await http<{ reference: Reference }>(ky, {
+    path: endpoint,
     method: 'post',
-    url: url + endpoint,
-    data: await prepareData(data),
+    responseType: 'json',
+    body: await prepareData(data),
     headers: {
       'content-type': 'application/octet-stream',
       ...extractUploadHeaders(postageBatchId, options),
     },
-    responseType: 'json',
   })
 
   return response.data.reference
@@ -40,13 +37,13 @@ export async function upload(
 /**
  * Download data as a byte array
  *
- * @param url  Bee URL
+ * @param ky
  * @param hash Bee content reference
  */
-export async function download(url: string, hash: Reference): Promise<Data> {
-  const response = await safeAxios<ArrayBuffer>({
+export async function download(ky: Ky, hash: Reference): Promise<Data> {
+  const response = await http<ArrayBuffer>(ky, {
     responseType: 'arraybuffer',
-    url: `${url}${endpoint}/${hash}`,
+    path: `${endpoint}/${hash}`,
   })
 
   return wrapBytesWithHelpers(new Uint8Array(response.data))
@@ -55,20 +52,13 @@ export async function download(url: string, hash: Reference): Promise<Data> {
 /**
  * Download data as a readable stream
  *
- * @param url  Bee URL
+ * @param ky
  * @param hash Bee content reference
- * @param axiosOptions optional - alter default options of axios HTTP client
  */
-export async function downloadReadable(
-  url: string,
-  hash: Reference,
-  axiosOptions?: AxiosRequestConfig,
-): Promise<Readable> {
-  const response = await safeAxios<Readable>({
-    ...axiosOptions,
-    method: 'GET',
+export async function downloadReadable(ky: Ky, hash: Reference): Promise<ReadableStream<Uint8Array>> {
+  const response = await http<ReadableStream<Uint8Array>>(ky, {
     responseType: 'stream',
-    url: `${url}${endpoint}/${hash}`,
+    path: `${endpoint}/${hash}`,
   })
 
   return response.data

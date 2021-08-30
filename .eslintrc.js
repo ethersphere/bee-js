@@ -3,7 +3,7 @@ module.exports = {
   parserOptions: {
     sourceType: 'module',
     ecmaVersion: 2018,
-    project: './tsconfig.test.json'
+    project: './tsconfig.test.json',
   },
   env: {
     jest: true,
@@ -87,15 +87,16 @@ module.exports = {
         minimumDescriptionLength: 6,
       },
     ],
-    "require-await": "off",
-    "@typescript-eslint/promise-function-async": "error",
-    "@typescript-eslint/require-await": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "unused-imports/no-unused-imports": "error",
-    "unused-imports/no-unused-vars": [
-      "warn",
-      { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
-    ]
+    'require-await': 'off',
+    '@typescript-eslint/promise-function-async': 'error',
+    '@typescript-eslint/require-await': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    'unused-imports/no-unused-imports': 'error',
+    'unused-imports/no-unused-vars': [
+      'warn',
+      { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
+    ],
   },
   overrides: [
     {

@@ -1,13 +1,13 @@
-import { BatchId, Reference, ReferenceResponse, UploadOptions } from '../types'
+import { BatchId, Ky, Reference, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
-import { safeAxios } from '../utils/safe-axios'
+import { http } from '../utils/http'
 
-const socEndpoint = '/soc'
+const socEndpoint = 'soc'
 
 /**
  * Upload single owner chunk (SOC) to a Bee node
  *
- * @param url             Bee URL
+ * @param ky Ky instance
  * @param owner           Owner's ethereum address in hex
  * @param identifier      Arbitrary identifier in hex
  * @param signature       Signature in hex
@@ -16,7 +16,7 @@ const socEndpoint = '/soc'
  * @param options         Additional options like tag, encryption, pinning
  */
 export async function upload(
-  url: string,
+  ky: Ky,
   owner: string,
   identifier: string,
   signature: string,
@@ -24,17 +24,16 @@ export async function upload(
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await safeAxios<ReferenceResponse>({
-    ...options?.axiosOptions,
+  const response = await http<ReferenceResponse>(ky, {
     method: 'post',
-    url: `${url}${socEndpoint}/${owner}/${identifier}`,
-    data,
+    path: `${socEndpoint}/${owner}/${identifier}`,
+    body: data,
     headers: {
       'content-type': 'application/octet-stream',
       ...extractUploadHeaders(postageBatchId, options),
     },
     responseType: 'json',
-    params: { sig: signature },
+    searchParams: { sig: signature },
   })
 
   return response.data.reference

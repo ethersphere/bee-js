@@ -1,17 +1,17 @@
-import { safeAxios } from '../../utils/safe-axios'
-import { Settlements, AllSettlements } from '../../types'
+import { http } from '../../utils/http'
+import type { Settlements, AllSettlements, Ky } from '../../types'
 
-const settlementsEndpoint = '/settlements'
+const settlementsEndpoint = 'settlements'
 
 /**
  * Get amount of sent and received from settlements with a peer
  *
- * @param url   Bee debug url
+ * @param ky Ky debug instance
  * @param peer  Swarm address of peer
  */
-export async function getSettlements(url: string, peer: string): Promise<Settlements> {
-  const response = await safeAxios<Settlements>({
-    url: url + `${settlementsEndpoint}/${peer}`,
+export async function getSettlements(ky: Ky, peer: string): Promise<Settlements> {
+  const response = await http<Settlements>(ky, {
+    path: `${settlementsEndpoint}/${peer}`,
     responseType: 'json',
   })
 
@@ -21,11 +21,11 @@ export async function getSettlements(url: string, peer: string): Promise<Settlem
 /**
  * Get settlements with all known peers and total amount sent or received
  *
- * @param url   Bee debug url
+ * @param ky Ky debug instance
  */
-export async function getAllSettlements(url: string): Promise<AllSettlements> {
-  const response = await safeAxios<AllSettlements>({
-    url: url + settlementsEndpoint,
+export async function getAllSettlements(ky: Ky): Promise<AllSettlements> {
+  const response = await http<AllSettlements>(ky, {
+    path: settlementsEndpoint,
     responseType: 'json',
   })
 

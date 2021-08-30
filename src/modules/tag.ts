@@ -1,7 +1,7 @@
-import { Reference, Tag } from '../types'
-import { safeAxios } from '../utils/safe-axios'
+import { Ky, Reference, Tag } from '../types'
+import { http } from '../utils/http'
 
-const endpoint = '/tags'
+const endpoint = 'tags'
 
 interface GetAllTagsResponse {
   tags: Tag[]
@@ -12,10 +12,10 @@ interface GetAllTagsResponse {
  *
  * @param url Bee tag URL
  */
-export async function createTag(url: string): Promise<Tag> {
-  const response = await safeAxios<Tag>({
+export async function createTag(ky: Ky): Promise<Tag> {
+  const response = await http<Tag>(ky, {
     method: 'post',
-    url: url + endpoint,
+    path: endpoint,
     responseType: 'json',
   })
 
@@ -28,9 +28,9 @@ export async function createTag(url: string): Promise<Tag> {
  * @param url Bee tag URL
  * @param uid UID of tag to be retrieved
  */
-export async function retrieveTag(url: string, uid: number): Promise<Tag> {
-  const response = await safeAxios<Tag>({
-    url: `${url}${endpoint}/${uid}`,
+export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
+  const response = await http<Tag>(ky, {
+    path: `${endpoint}/${uid}`,
     responseType: 'json',
   })
 
@@ -44,10 +44,10 @@ export async function retrieveTag(url: string, uid: number): Promise<Tag> {
  * @param offset
  * @param limit
  */
-export async function getAllTags(url: string, offset?: number, limit?: number): Promise<Tag[]> {
-  const response = await safeAxios<GetAllTagsResponse>({
-    url: `${url}${endpoint}`,
-    params: { offset, limit },
+export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promise<Tag[]> {
+  const response = await http<GetAllTagsResponse>(ky, {
+    path: `${endpoint}`,
+    searchParams: { offset, limit },
     responseType: 'json',
   })
 
@@ -59,10 +59,10 @@ export async function getAllTags(url: string, offset?: number, limit?: number): 
  * @param url
  * @param uid
  */
-export async function deleteTag(url: string, uid: number): Promise<void> {
-  await safeAxios<void>({
+export async function deleteTag(ky: Ky, uid: number): Promise<void> {
+  await http<void>(ky, {
     method: 'delete',
-    url: `${url}${endpoint}/${uid}`,
+    path: `${endpoint}/${uid}`,
   })
 }
 
@@ -72,11 +72,11 @@ export async function deleteTag(url: string, uid: number): Promise<void> {
  * @param uid
  * @param reference
  */
-export async function updateTag(url: string, uid: number, reference: Reference): Promise<void> {
-  await safeAxios<void>({
+export async function updateTag(ky: Ky, uid: number, reference: Reference): Promise<void> {
+  await http<void>(ky, {
     method: 'patch',
-    url: `${url}${endpoint}/${uid}`,
-    data: {
+    path: `${endpoint}/${uid}`,
+    json: {
       reference,
     },
   })

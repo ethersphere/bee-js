@@ -1,17 +1,17 @@
-import { ExtendedTag } from '../../types'
-import { safeAxios } from '../../utils/safe-axios'
+import { ExtendedTag, Ky } from '../../types'
+import { http } from '../../utils/http'
 
-const endpoint = '/tags'
+const endpoint = 'tags'
 
 /**
  * Retrieve tag with extended information from Bee node
  *
- * @param url Bee tag URL
+ * @param ky Ky debug instance
  * @param uid UID of tag to be retrieved
  */
-export async function retrieveExtendedTag(url: string, uid: number): Promise<ExtendedTag> {
-  const response = await safeAxios<ExtendedTag>({
-    url: `${url}${endpoint}/${uid}`,
+export async function retrieveExtendedTag(ky: Ky, uid: number): Promise<ExtendedTag> {
+  const response = await http<ExtendedTag>(ky, {
+    path: `${endpoint}/${uid}`,
     responseType: 'json',
   })
 

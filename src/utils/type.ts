@@ -1,10 +1,10 @@
-import { Readable } from 'stream'
 import {
   Address,
-  AddressPrefix,
   ADDRESS_HEX_LENGTH,
-  BatchId,
+  AddressPrefix,
+  AllTagsOptions,
   BATCH_ID_HEX_LENGTH,
+  BatchId,
   CollectionUploadOptions,
   ENCRYPTED_REFERENCE_HEX_LENGTH,
   FileUploadOptions,
@@ -12,28 +12,19 @@ import {
   PssMessageHandler,
   PUBKEY_HEX_LENGTH,
   PublicKey,
+  Readable,
   Reference,
   REFERENCE_HEX_LENGTH,
   Tag,
-  UploadOptions,
-  AllTagsOptions,
-  TAGS_LIMIT_MIN,
   TAGS_LIMIT_MAX,
+  TAGS_LIMIT_MIN,
+  UploadOptions,
   TransactionHash,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
 import { assertHexString, assertPrefixedHexString } from './hex'
-
-export function isReadable(entry: unknown): entry is Readable {
-  return (
-    typeof entry === 'object' &&
-    entry !== null &&
-    typeof (entry as Readable).pipe === 'function' &&
-    (entry as Readable).readable &&
-    typeof (entry as Readable)._read === 'function'
-  )
-}
+import { isReadable } from './stream'
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
   return obj instanceof Uint8Array
@@ -53,7 +44,17 @@ export function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object'
 }
 
-export function isStrictlyObject(value: unknown): value is Record<string, unknown> {
+/**
+ * Generally it is discouraged to use `object` type, but in this case I think
+ * it is best to do so as it is possible to easily convert from `object`to other
+ * types, which will be usually the case after asserting that the object is
+ * strictly object. With for example Record<string, unknown> you have to first
+ * cast it to `unknown` which I think bit defeat the purpose.
+ *
+ * @param value
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isStrictlyObject(value: unknown): value is object {
   return isObject(value) && !Array.isArray(value)
 }
 
@@ -108,10 +109,6 @@ export function assertUploadOptions(value: unknown, name = 'UploadOptions'): ass
     }
 
     assertNonNegativeInteger(options.tag, 'options.tag')
-  }
-
-  if (options.axiosOptions && !isStrictlyObject(options.axiosOptions)) {
-    throw new TypeError(`options.axiosOptions property in ${name} has to be object or undefined!`)
   }
 }
 
@@ -248,10 +245,12 @@ export function assertFileData(value: unknown): asserts value is string | Uint8A
  * Checks whether optional options for AllTags query are valid
  * @param options
  */
-export function assertAllTagsOptions(options: unknown): asserts options is AllTagsOptions {
-  if (options !== undefined && !isStrictlyObject(options)) {
+export function assertAllTagsOptions(entry: unknown): asserts entry is AllTagsOptions {
+  if (entry !== undefined && !isStrictlyObject(entry)) {
     throw new TypeError('options has to be an object or undefined!')
   }
+
+  const options = entry as AllTagsOptions
 
   if (options?.limit !== undefined) {
     if (typeof options.limit !== 'number') {

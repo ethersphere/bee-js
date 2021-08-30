@@ -1,5 +1,5 @@
 import { bmtHash } from '../../../src/chunk/bmt'
-import { beeUrl, getPostageBatch, randomByteArray } from '../../utils'
+import { beeKy, getPostageBatch, randomByteArray } from '../../utils'
 import * as chunk from '../../../src/modules/chunk'
 import { makeSpan } from '../../../src/chunk/span'
 import { bytesToHex } from '../../../src/utils/hex'
@@ -16,7 +16,7 @@ describe('bmt', () => {
       const data = new Uint8Array([...span, ...payload])
 
       const reference = bytesToHex(bmtHash(data))
-      const response = await chunk.upload(beeUrl(), data, getPostageBatch())
+      const response = await chunk.upload(beeKy(), data, getPostageBatch())
       expect(response).toEqual(reference)
     }
   })
@@ -27,7 +27,7 @@ describe('bmt', () => {
     const data = new Uint8Array([...span, ...payload])
 
     const reference = bytesToHex(bmtHash(data))
-    const response = await chunk.upload(beeUrl(), data, getPostageBatch())
+    const response = await chunk.upload(beeKy(), data, getPostageBatch())
     expect(response).toEqual(reference)
   })
 })

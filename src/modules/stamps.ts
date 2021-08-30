@@ -1,7 +1,7 @@
-import { BatchId, NumberString, PostageBatch, PostageBatchOptions } from '../types'
-import { safeAxios } from '../utils/safe-axios'
+import type { BatchId, Ky, NumberString, PostageBatch, PostageBatchOptions } from '../types'
+import { http } from '../utils/http'
 
-const STAMPS_ENDPOINT = '/stamps'
+const STAMPS_ENDPOINT = 'stamps'
 
 interface GetAllStampsResponse {
   stamps: PostageBatch[]
@@ -11,20 +11,20 @@ interface CreateStampResponse {
   batchID: BatchId
 }
 
-export async function getAllPostageBatches(url: string): Promise<PostageBatch[]> {
-  const response = await safeAxios<GetAllStampsResponse>({
+export async function getAllPostageBatches(ky: Ky): Promise<PostageBatch[]> {
+  const response = await http<GetAllStampsResponse>(ky, {
     method: 'get',
-    url: `${url}${STAMPS_ENDPOINT}`,
+    path: `${STAMPS_ENDPOINT}`,
     responseType: 'json',
   })
 
   return response.data.stamps || []
 }
 
-export async function getPostageBatch(url: string, postageBatchId: BatchId): Promise<PostageBatch> {
-  const response = await safeAxios<PostageBatch>({
+export async function getPostageBatch(ky: Ky, postageBatchId: BatchId): Promise<PostageBatch> {
+  const response = await http<PostageBatch>(ky, {
     method: 'get',
-    url: `${url}${STAMPS_ENDPOINT}/${postageBatchId}`,
+    path: `${STAMPS_ENDPOINT}/${postageBatchId}`,
     responseType: 'json',
   })
 
@@ -32,7 +32,7 @@ export async function getPostageBatch(url: string, postageBatchId: BatchId): Pro
 }
 
 export async function createPostageBatch(
-  url: string,
+  ky: Ky,
   amount: NumberString,
   depth: number,
   options?: PostageBatchOptions,
@@ -47,11 +47,11 @@ export async function createPostageBatch(
     headers.immutable = String(options.immutableFlag)
   }
 
-  const response = await safeAxios<CreateStampResponse>({
+  const response = await http<CreateStampResponse>(ky, {
     method: 'post',
-    url: `${url}${STAMPS_ENDPOINT}/${amount}/${depth}`,
+    path: `${STAMPS_ENDPOINT}/${amount}/${depth}`,
     responseType: 'json',
-    params: { label: options?.label },
+    searchParams: { label: options?.label },
     headers,
   })
 

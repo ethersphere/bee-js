@@ -1,14 +1,14 @@
 import * as bytes from '../../../src/modules/bytes'
-import { beeUrl, invalidReference, ERR_TIMEOUT, getPostageBatch } from '../../utils'
+import { invalidReference, ERR_TIMEOUT, getPostageBatch, beeKy } from '../../utils'
 
-const BEE_URL = beeUrl()
+const BEE_KY = beeKy()
 
 describe('modules/bytes', () => {
   it('should store and retrieve data', async () => {
     const data = 'hello world'
 
-    const hash = await bytes.upload(BEE_URL, data, getPostageBatch())
-    const downloadedData = await bytes.download(BEE_URL, hash)
+    const hash = await bytes.upload(BEE_KY, data, getPostageBatch())
+    const downloadedData = await bytes.download(BEE_KY, hash)
 
     expect(Buffer.from(downloadedData).toString()).toEqual(data)
   })
@@ -16,7 +16,7 @@ describe('modules/bytes', () => {
   it(
     'should catch error',
     async () => {
-      await expect(bytes.download(BEE_URL, invalidReference)).rejects.toThrow('Not Found')
+      await expect(bytes.download(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
     },
     ERR_TIMEOUT,
   )

@@ -1,10 +1,11 @@
-import { BatchId, Dictionary, Reference, ReferenceResponse, Topic } from '../types'
-import { safeAxios } from '../utils/safe-axios'
+import { BatchId, Ky, Reference, ReferenceResponse, Topic } from '../types'
+import { filterHeaders, http } from '../utils/http'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'
+import { BeeError } from '../utils/error'
 
-const feedEndpoint = '/feeds'
+const feedEndpoint = 'feeds'
 
 export interface CreateFeedOptions {
   type?: FeedType
@@ -30,33 +31,45 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
 /**
  * Create an initial feed root manifest
  *
- * @param url             Bee URL
+ * @param ky Ky instance
  * @param owner           Owner's ethereum address in hex
  * @param topic           Topic in hex
  * @param postageBatchId  Postage BatchId to be used to create the Feed Manifest
  * @param options         Additional options, like type (default: 'sequence')
  */
 export async function createFeedManifest(
-  url: string,
+  ky: Ky,
   owner: HexEthAddress,
   topic: Topic,
   postageBatchId: BatchId,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
-  const response = await safeAxios<ReferenceResponse>({
+  const response = await http<ReferenceResponse>(ky, {
     method: 'post',
-    url: `${url}${feedEndpoint}/${owner}/${topic}`,
-    params: options,
+    responseType: 'json',
+    path: `${feedEndpoint}/${owner}/${topic}`,
+    searchParams: filterHeaders(options),
     headers: extractUploadHeaders(postageBatchId),
   })
 
   return response.data.reference
 }
 
-function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
+function readFeedUpdateHeaders(headers: Headers): FeedUpdateHeaders {
+  const feedIndex = headers.get('swarm-feed-index')
+  const feedIndexNext = headers.get('swarm-feed-index-next')
+
+  if (!feedIndex) {
+    throw new BeeError('Response did not contain expected swarm-feed-index!')
+  }
+
+  if (!feedIndexNext) {
+    throw new BeeError('Response did not contain expected swarm-feed-index-next!')
+  }
+
   return {
-    feedIndex: headers['swarm-feed-index'],
-    feedIndexNext: headers['swarm-feed-index-next'],
+    feedIndex,
+    feedIndexNext,
   }
 }
 
@@ -68,25 +81,25 @@ function readFeedUpdateHeaders(headers: Dictionary<string>): FeedUpdateHeaders {
  * the reference it contains along with its index and the
  * index of the subsequent update.
  *
- * @param url         Bee URL
+ * @param ky Ky instance
  * @param owner       Owner's ethereum address in hex
  * @param topic       Topic in hex
  * @param options     Additional options, like index, at, type
  */
 export async function fetchFeedUpdate(
-  url: string,
+  ky: Ky,
   owner: HexEthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<FetchFeedUpdateResponse> {
-  const response = await safeAxios<ReferenceResponse>({
-    url: `${url}${feedEndpoint}/${owner}/${topic}`,
-    params: options,
+  const response = await http<ReferenceResponse>(ky, {
+    responseType: 'json',
+    path: `${feedEndpoint}/${owner}/${topic}`,
+    searchParams: filterHeaders(options),
   })
-  const findFeedUpdateResponse = {
+
+  return {
     ...response.data,
     ...readFeedUpdateHeaders(response.headers),
   }
-
-  return findFeedUpdateResponse
 }

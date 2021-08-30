@@ -1,19 +1,19 @@
-import { BeeGenericResponse } from '../../types'
-import { safeAxios } from '../../utils/safe-axios'
+import type { BeeGenericResponse, Ky } from '../../types'
+import { http } from '../../utils/http'
 
-const endpoint = '/chunks'
+const endpoint = 'chunks'
 
 /**
  * Check if chunk at address exists locally
  *
- * @param url      Bee debug url
+ * @param ky Ky debug instance
  * @param address  Swarm address of chunk
  *
  * @returns BeeGenericResponse if chunk is found or throws an exception
  */
-export async function checkIfChunkExistsLocally(url: string, address: string): Promise<BeeGenericResponse> {
-  const response = await safeAxios<BeeGenericResponse>({
-    url: url + endpoint + `/${address}`,
+export async function checkIfChunkExistsLocally(ky: Ky, address: string): Promise<BeeGenericResponse> {
+  const response = await http<BeeGenericResponse>(ky, {
+    path: endpoint + `/${address}`,
     responseType: 'json',
   })
 
@@ -23,15 +23,15 @@ export async function checkIfChunkExistsLocally(url: string, address: string): P
 /**
  * Delete a chunk from local storage
  *
- * @param url      Bee debug url
+ * @param ky Ky debug instance
  * @param address  Swarm address of chunk
  *
  * @returns BeeGenericResponse if chunk was deleted or throws an exception
  */
-export async function deleteChunkFromLocalStorage(url: string, address: string): Promise<BeeGenericResponse> {
-  const response = await safeAxios<BeeGenericResponse>({
+export async function deleteChunkFromLocalStorage(ky: Ky, address: string): Promise<BeeGenericResponse> {
+  const response = await http<BeeGenericResponse>(ky, {
     method: 'delete',
-    url: url + endpoint + `/${address}`,
+    path: endpoint + `/${address}`,
     responseType: 'json',
   })
 

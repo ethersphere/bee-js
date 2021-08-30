@@ -23,7 +23,12 @@ export function fetchFeedUpdateMock(
   hashedTopic: string,
   type: FeedType = DEFAULT_FEED_TYPE,
 ): nock.Interceptor {
-  return nock(MOCK_SERVER_URL).get(`${FEED_ENDPOINT}/${address}/${hashedTopic}?type=${type}`)
+  return nock(MOCK_SERVER_URL)
+    .defaultReplyHeaders({
+      'swarm-feed-index': '1',
+      'swarm-feed-index-next': '2',
+    })
+    .get(`${FEED_ENDPOINT}/${address}/${hashedTopic}?type=${type}`)
 }
 
 export function downloadDataMock(reference: Reference | string): nock.Interceptor {
@@ -44,7 +49,12 @@ function camelCaseToDashCase(str: string) {
   return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)
 }
 
-export function uploadFileMock(batchId: string, name?: string, options?: UploadOptions): nock.Interceptor {
+export function uploadFileMock(
+  batchId: string,
+  name?: string,
+  options?: UploadOptions,
+  extraHeaders?: Record<string, string>,
+): nock.Interceptor {
   // Prefixes the options with `swarm-` so the object can be used for required headers
   const headers = Object.entries(options || {}).reduce<Record<string, string>>((prev, curr) => {
     prev[`swarm-${camelCaseToDashCase(curr[0])}`] = curr[1]
@@ -52,7 +62,7 @@ export function uploadFileMock(batchId: string, name?: string, options?: UploadO
     return prev
   }, {})
 
-  return nock(MOCK_SERVER_URL, { reqheaders: { 'swarm-postage-batch-id': batchId, ...headers } })
+  return nock(MOCK_SERVER_URL, { reqheaders: { 'swarm-postage-batch-id': batchId, ...headers, ...extraHeaders } })
     .post(`${BZZ_ENDPOINT}`)
     .query({ name })
 }
@@ -109,7 +119,11 @@ export function cashoutLastChequeMock(peer: string, gasPrice?: string, gasLimit?
   }).post(`${CHEQUEBOOK_ENDPOINT}/cashout/${peer}`)
 }
 
-export function depositTokensMock(amount: string, gasPrice?: string): nock.Interceptor {
+export function depositTokensMock(
+  amount: string,
+  gasPrice?: string,
+  extraHeaders?: Record<string, string>,
+): nock.Interceptor {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {
@@ -117,7 +131,7 @@ export function depositTokensMock(amount: string, gasPrice?: string): nock.Inter
   }
 
   return nock(MOCK_SERVER_URL, {
-    reqheaders: headers,
+    reqheaders: { ...headers, ...extraHeaders },
   }).post(`${CHEQUEBOOK_ENDPOINT}/deposit?amount=${amount}`)
 }
 

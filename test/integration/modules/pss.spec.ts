@@ -1,9 +1,11 @@
 import * as pss from '../../../src/modules/pss'
 import * as connectivity from '../../../src/modules/debug/connectivity'
-import { beeDebugUrl, beePeerDebugUrl, beePeerUrl, beeUrl, getPostageBatch, PSS_TIMEOUT } from '../../utils'
+import { beeDebugKy, beeKy, beePeerDebugUrl, beePeerKy, beeUrl, getPostageBatch, PSS_TIMEOUT } from '../../utils'
 
+const BEE_KY = beeKy()
 const BEE_URL = beeUrl()
-const BEE_PEER_URL = beePeerUrl()
+const BEE_PEER_KY = beePeerKy()
+const BEE_DEBUG_KY = beeDebugKy()
 const BEE_DEBUG_PEER_URL = beePeerDebugUrl()
 
 // these tests only work when there is at least one peer connected
@@ -14,12 +16,11 @@ describe('modules/pss', () => {
       const topic = 'send-pss-message'
       const message = 'hello'
 
-      const debugUrl = beeDebugUrl()
-      const peers = await connectivity.getPeers(debugUrl)
+      const peers = await connectivity.getPeers(BEE_DEBUG_KY)
       expect(peers.length).toBeGreaterThan(0)
 
       const target = peers[0].address
-      await pss.send(BEE_URL, topic, target, message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await pss.send(BEE_KY, topic, target, message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     },
     PSS_TIMEOUT,
   )
@@ -45,11 +46,9 @@ describe('modules/pss', () => {
             resolve()
           }
 
-          const debugUrl = beeDebugUrl()
-
-          const addresses = await connectivity.getNodeAddresses(debugUrl)
+          const addresses = await connectivity.getNodeAddresses(BEE_DEBUG_KY)
           const target = addresses.overlay
-          await pss.send(BEE_PEER_URL, topic, target, message, getPostageBatch(BEE_DEBUG_PEER_URL))
+          await pss.send(BEE_PEER_KY, topic, target, message, getPostageBatch(BEE_DEBUG_PEER_URL))
         })().catch(reject)
       })
     },
@@ -78,12 +77,10 @@ describe('modules/pss', () => {
             resolve()
           }
 
-          const debugUrl = beeDebugUrl()
-
-          const addresses = await connectivity.getNodeAddresses(debugUrl)
+          const addresses = await connectivity.getNodeAddresses(BEE_DEBUG_KY)
           const target = addresses.overlay
           const recipient = addresses.pssPublicKey
-          await pss.send(BEE_PEER_URL, topic, target, message, getPostageBatch(BEE_DEBUG_PEER_URL), recipient)
+          await pss.send(BEE_PEER_KY, topic, target, message, getPostageBatch(BEE_DEBUG_PEER_URL), recipient)
         })().catch(reject)
       })
     },

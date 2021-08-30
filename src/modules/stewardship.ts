@@ -1,21 +1,18 @@
-import { Reference } from '../types'
-import { safeAxios } from '../utils/safe-axios'
-import { AxiosRequestConfig } from 'axios'
+import type { Ky, Reference } from '../types'
+import { http } from '../utils/http'
 
-const stewardshipEndpoint = '/stewardship'
+const stewardshipEndpoint = 'stewardship'
 
 /**
  * Reupload locally pinned data
- * @param url
+ * @param ky Ky instance
  * @param reference
  * @param options
  * @throws BeeResponseError if not locally pinned or invalid data
  */
-export async function reupload(url: string, reference: Reference, options?: AxiosRequestConfig): Promise<void> {
-  await safeAxios({
-    ...options,
+export async function reupload(ky: Ky, reference: Reference): Promise<void> {
+  await http(ky, {
     method: 'put',
-    url: `${url}${stewardshipEndpoint}/${reference}`,
-    responseType: 'json',
+    path: `${stewardshipEndpoint}/${reference}`,
   })
 }

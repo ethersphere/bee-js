@@ -1,13 +1,20 @@
-import type { AxiosRequestConfig } from 'axios'
-import { Identifier, SingleOwnerChunk } from '../chunk/soc'
-import { ChunkReference, FeedUploadOptions } from '../feed'
-import { FeedType } from '../feed/type'
-import { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
-import { Bytes } from '../utils/bytes'
-import { BeeError } from '../utils/error'
-import { EthAddress, HexEthAddress } from '../utils/eth'
-import { HexString } from '../utils/hex'
+import type { Identifier, SingleOwnerChunk } from '../chunk/soc'
+import type { ChunkReference, FeedUploadOptions } from '../feed'
+import type { FeedType } from '../feed/type'
+import type { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
+import type { Bytes } from '../utils/bytes'
+import type { BeeError } from '../utils/error'
+import type { EthAddress, HexEthAddress } from '../utils/eth'
+import type { HexString } from '../utils/hex'
+import type ky from 'ky-universal'
+
+import type { Readable as NativeReadable } from 'stream'
+import type { Readable as CompatibilityReadable } from 'readable-stream'
+import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill/ponyfill'
+
 export * from './debug'
+
+export type Ky = typeof ky
 
 export interface Dictionary<T> {
   [Key: string]: T
@@ -48,6 +55,12 @@ export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
 
 /**
+ * Type representing Readable stream that abstracts away implementation especially the difference between
+ * browser and NodeJS versions as both are supported.
+ */
+export type Readable = NativeReadable | CompatibilityReadable | ReadableStream | ReadableStreamPonyfill
+
+/**
  * BatchId is result of keccak256 hash so 64 hex string without prefix.
  */
 export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
@@ -63,6 +76,22 @@ export interface BeeOptions {
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   signer?: Signer | Uint8Array | string
+
+  /**
+   * Object that contains default headers that will be present
+   * in all outgoing bee-js requests for instance of Bee class.
+   */
+  defaultHeaders?: Record<string, string>
+
+  /**
+   * Function that registers listener callback for all outgoing HTTP requests that Bee instance makes.
+   */
+  onRequest?: HookCallback<BeeRequest>
+
+  /**
+   * Function that registers listener callback for all incoming HTTP responses that Bee instance made.
+   */
+  onResponse?: HookCallback<BeeResponse>
 }
 
 export interface UploadOptions {
@@ -97,9 +126,6 @@ export interface UploadOptions {
    * @link Tag
    */
   tag?: number
-
-  /** Alter default options of axios HTTP client */
-  axiosOptions?: AxiosRequestConfig
 }
 
 export interface FileUploadOptions extends UploadOptions {
@@ -254,19 +280,19 @@ export interface ReferenceResponse {
   reference: Reference
 }
 
-export type HttpMethod = 'get' | 'GET' | 'delete' | 'DELETE' | 'post' | 'POST' | 'patch' | 'PATCH'
+export type HttpMethod = 'GET' | 'DELETE' | 'POST' | 'PATCH' | 'PUT'
+
+export type HookCallback<V> = (value: V) => void | Promise<void>
 
 export interface BeeRequest {
   url: string
   method: HttpMethod
   headers?: Record<string, string>
   params?: Record<string, unknown>
-  data?: unknown
 }
 
 export interface BeeResponse {
   headers: Record<string, string>
-  data: unknown
   status: number
   statusText?: string
   request: BeeRequest

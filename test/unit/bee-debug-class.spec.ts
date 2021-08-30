@@ -10,6 +10,11 @@ import { BatchId, BeeArgumentError, BeeDebug } from '../../src'
 import { testAddress } from '../utils'
 import { testAddressAssertions, testBatchIdAssertion } from './assertions'
 
+const TRANSACTION_HASH = '36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f'
+const CASHOUT_RESPONSE = {
+  transactionHash: TRANSACTION_HASH,
+}
+
 describe('BeeDebug class', () => {
   function testUrl(url: unknown): void {
     it(`should not accept invalid url '${url}'`, () => {
@@ -37,6 +42,15 @@ describe('BeeDebug class', () => {
   // eslint-disable-next-line no-script-url
   testUrl('javascript:console.log()')
   testUrl('ws://localhost:1633')
+
+  it('should set default headers and use them if specified', async () => {
+    depositTokensMock('10', undefined, { 'X-Awesome-Header': '123' }).reply(201, CASHOUT_RESPONSE)
+
+    const bee = new BeeDebug(MOCK_SERVER_URL, { defaultHeaders: { 'X-Awesome-Header': '123' } })
+    await expect(bee.depositTokens('10')).resolves.toEqual(TRANSACTION_HASH)
+
+    assertAllIsDone()
+  })
 
   describe('removePeer', () => {
     testAddressAssertions(async (input: unknown) => {
@@ -95,11 +109,6 @@ describe('BeeDebug class', () => {
   })
 
   describe('cashoutLastCheque', () => {
-    const TRANSACTION_HASH = '36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f'
-    const CASHOUT_RESPONSE = {
-      transactionHash: TRANSACTION_HASH,
-    }
-
     it('should not pass headers if no gas price is specified', async () => {
       cashoutLastChequeMock(testAddress).reply(201, CASHOUT_RESPONSE)
 

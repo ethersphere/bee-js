@@ -1,7 +1,7 @@
 import { Bytes, assertBytes } from '../../../src/utils/bytes'
 import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
-import { beeUrl, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
+import { beeKy, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import * as chunkAPI from '../../../src/modules/chunk'
 import { HexString, hexToBytes, bytesToHex } from '../../../src/utils/hex'
@@ -21,13 +21,13 @@ describe('soc', () => {
 
     await tryDeleteChunkFromLocalStorage(socHash)
 
-    const response = await uploadSingleOwnerChunk(beeUrl(), soc, getPostageBatch())
+    const response = await uploadSingleOwnerChunk(beeKy(), soc, getPostageBatch())
 
     expect(response).toEqual(socAddress)
   })
 
   test('download single owner chunk', async () => {
-    const data = await chunkAPI.download(beeUrl(), socHash)
+    const data = await chunkAPI.download(beeKy(), socHash)
     const address = hexToBytes(socHash)
     assertBytes(address, 32)
     const soc = makeSingleOwnerChunkFromData(data, address)
