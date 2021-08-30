@@ -438,7 +438,7 @@ export class BeeDebug {
    * Return lists of all current pending transactions that the Bee made
    */
   async getAllPendingTransactions(): Promise<TransactionInfo[]> {
-    return transactions.getAllTransactions(this.url)
+    return transactions.getAllTransactions(this.ky)
   }
 
   /**
@@ -448,7 +448,7 @@ export class BeeDebug {
   async getPendingTransaction(transactionHash: TransactionHash | string): Promise<TransactionInfo> {
     assertTransactionHash(transactionHash)
 
-    return transactions.getTransaction(this.url, transactionHash)
+    return transactions.getTransaction(this.ky, transactionHash)
   }
 
   /**
@@ -460,7 +460,7 @@ export class BeeDebug {
   async rebroadcastPendingTransaction(transactionHash: TransactionHash | string): Promise<TransactionHash> {
     assertTransactionHash(transactionHash)
 
-    return transactions.rebroadcastTransaction(this.url, transactionHash)
+    return transactions.rebroadcastTransaction(this.ky, transactionHash)
   }
 
   /**
@@ -478,6 +478,6 @@ export class BeeDebug {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return transactions.cancelTransaction(this.url, transactionHash, gasPrice)
+    return transactions.cancelTransaction(this.ky, transactionHash, gasPrice)
   }
 }
