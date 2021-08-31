@@ -180,6 +180,34 @@ describe('Bee class', () => {
 
       expect(result.reference.length).toEqual(REFERENCE_HEX_LENGTH)
     })
+
+    it('should upload collection', async () => {
+      const directoryStructure: Collection<Uint8Array> = [
+        {
+          path: '0',
+          data: new TextEncoder().encode('hello-world'),
+        },
+      ]
+
+      const result = await bee.uploadCollection(getPostageBatch(), directoryStructure)
+      const file = await bee.downloadFile(result.reference, directoryStructure[0].path)
+
+      expect(file.name).toEqual(directoryStructure[0].path)
+      expect(file.data.text()).toEqual('hello-world')
+    })
+
+    it('should upload browser files', async () => {
+      const files = [
+        new File(['hello'], 'hello.txt', {
+          type: 'text/plain',
+        }),
+      ]
+
+      const result = await bee.uploadFiles(getPostageBatch(), files)
+
+      const file = await bee.downloadFile(result.reference, 'hello.txt')
+      expect(file.data.text()).toEqual('hello')
+    })
   })
 
   describe('tags', () => {

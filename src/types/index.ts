@@ -104,9 +104,14 @@ export interface UploadResult {
   reference: Reference
 
   /**
-   * Automatically created tag's UID
+   * Automatically created tag's UID.
+   *
+   * There is bug in Bee, that does not return correct CORS header (Access-Control-Expose-Headers) for the `Swarm-Tag` to be exposed
+   * in browser when uploading collection. Thanks to that we have to mark `tagUid` as optional even though in 99% of results
+   * it is present. The Optional mark will be removed with next Bee release.
+   * TODO: Remove Optional with next Bee release: https://github.com/ethersphere/bee-js/issues/406
    */
-  tagUid: number
+  tagUid?: number
 }
 
 export interface UploadOptions {

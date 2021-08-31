@@ -277,6 +277,9 @@ export class Bee {
    *
    * Uses the FileList API from the browser.
    *
+   * The returned `UploadResult.tag` might be undefined if called in CORS-enabled environment.
+   * This will be fixed upon next Bee release. https://github.com/ethersphere/bee-js/issues/406
+   *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param fileList list of files to be uploaded
    * @param options Additional options like tag, encryption, pinning
@@ -299,6 +302,16 @@ export class Bee {
     return bzz.uploadCollection(this.ky, data, postageBatchId, options)
   }
 
+  /**
+   * Upload Collection that you can assembly yourself.
+   *
+   * The returned `UploadResult.tag` might be undefined if called in CORS-enabled environment.
+   * This will be fixed upon next Bee release. https://github.com/ethersphere/bee-js/issues/406
+   *
+   * @param postageBatchId
+   * @param collection
+   * @param options
+   */
   async uploadCollection(
     postageBatchId: string | BatchId,
     collection: Collection<Uint8Array | Readable>,
@@ -316,6 +329,9 @@ export class Bee {
    * Upload collection of files.
    *
    * Available only in Node.js as it uses the `fs` module.
+   *
+   * The returned `UploadResult.tag` might be undefined if called in CORS-enabled environment.
+   * This will be fixed upon next Bee release. https://github.com/ethersphere/bee-js/issues/406
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param dir the path of the files to be uploaded
