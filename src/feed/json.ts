@@ -26,7 +26,7 @@ export async function setJsonData(
   data: AnyJson,
 ): Promise<Reference> {
   const serializedData = serializeJson(data)
-  const reference = await bee.uploadData(postageBatchId, serializedData)
+  const { reference } = await bee.uploadData(postageBatchId, serializedData)
 
-  return writer.upload(postageBatchId, reference.reference)
+  return writer.upload(postageBatchId, reference)
 }
