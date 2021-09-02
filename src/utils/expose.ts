@@ -45,3 +45,4 @@ export {
 } from './stream'
 
 export { keccak256Hash } from './hash'
+export { makeMaxTarget } from './pss'

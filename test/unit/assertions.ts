@@ -141,19 +141,13 @@ export function testAddressPrefixAssertions(executor: (input: unknown) => void):
     await expect(() => executor('')).rejects.toThrow(TypeError)
 
     // Not an valid hexstring (ZZZ)
-    await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
-    )
+    await expect(() => executor('ZZZf')).rejects.toThrow(TypeError)
 
     // Prefixed hexstring is not accepted
-    await expect(() => executor('0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      TypeError,
-    )
+    await expect(() => executor('0x634f')).rejects.toThrow(TypeError)
 
     // Too long hexstring
-    await expect(() => executor('123634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
-      BeeArgumentError,
-    )
+    await expect(() => executor('12364')).rejects.toThrow(BeeArgumentError)
   })
 }
 

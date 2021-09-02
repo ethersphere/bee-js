@@ -1,4 +1,4 @@
-import { Bee, BeeArgumentError, BeeDebug, Collection } from '../../src'
+import { Bee, BeeArgumentError, BeeDebug, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import { ChunkReference } from '../../src/feed'
@@ -30,6 +30,7 @@ import {
 } from '../utils'
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
+import { makeMaxTarget } from '../../src/utils/pss'
 
 commonMatchers()
 
@@ -300,7 +301,7 @@ describe('Bee class', () => {
             })
 
             const { overlay } = await beeDebug.getNodeAddresses()
-            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
+            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeMaxTarget(overlay), message)
           })().catch(reject)
         })
       },
@@ -323,7 +324,13 @@ describe('Bee class', () => {
             })
 
             const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message, pssPublicKey)
+            await beePeer.pssSend(
+              getPostageBatch(BEE_DEBUG_PEER_URL),
+              topic,
+              makeMaxTarget(overlay),
+              message,
+              pssPublicKey,
+            )
           })().catch(reject)
         })
       },
@@ -334,15 +341,16 @@ describe('Bee class', () => {
       'should subscribe to topic',
       async () => {
         return new Promise<void>((resolve, reject) => {
+          let subscription: PssSubscription
           ;(async () => {
             const topic = 'bee-class-subscribe-topic'
             const message = new Uint8Array([1, 2, 3])
             const beeDebug = new BeeDebug(beeDebugUrl())
 
-            const subscription = bee.pssSubscribe(topic, {
+            subscription = bee.pssSubscribe(topic, {
               onMessage: receivedMessage => {
                 // without cancel jest complains for leaking handles and may hang
-                subscription.cancel()
+                subscription?.cancel()
 
                 expect(receivedMessage).toEqual(message)
                 resolve()
@@ -353,8 +361,12 @@ describe('Bee class', () => {
             })
 
             const { overlay } = await beeDebug.getNodeAddresses()
-            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, overlay, message)
-          })().catch(reject)
+            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeMaxTarget(overlay), message)
+          })().catch(e => {
+            // without cancel jest complains for leaking handles and may hang
+            subscription?.cancel()
+            reject(e)
+          })
         })
       },
       PSS_TIMEOUT,
