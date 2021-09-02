@@ -30,7 +30,6 @@ import {
 } from '../utils'
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
-import { File } from '@web-std/file'
 
 commonMatchers()
 
@@ -194,19 +193,6 @@ describe('Bee class', () => {
 
       expect(file.name).toEqual(directoryStructure[0].path)
       expect(file.data.text()).toEqual('hello-world')
-    })
-
-    it('should upload browser files', async () => {
-      const files = [
-        new File(['hello'], 'hello.txt', {
-          type: 'text/plain',
-        }),
-      ]
-
-      const result = await bee.uploadFiles(getPostageBatch(), files)
-
-      const file = await bee.downloadFile(result.reference, 'hello.txt')
-      expect(file.data.text()).toEqual('hello')
     })
   })
 
