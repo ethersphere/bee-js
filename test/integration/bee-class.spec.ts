@@ -271,14 +271,6 @@ describe('Bee class', () => {
       await bee.unpin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
-    it('should pin and unpin collection from files', async () => {
-      const files: File[] = [new File(['hello'], 'hello')]
-      const result = await bee.uploadFiles(getPostageBatch(), files)
-
-      await bee.pin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
-      await bee.unpin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
-    })
-
     it('should pin and unpin data', async () => {
       const content = new Uint8Array([1, 2, 3])
 
