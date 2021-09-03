@@ -3,6 +3,8 @@ import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { wrapBytesWithHelpers } from '../utils/bytes'
+import { UploadResult } from '../types'
+import { makeTagUid } from '../utils/type'
 
 const endpoint = 'bytes'
 
@@ -19,7 +21,7 @@ export async function upload(
   data: string | Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const response = await http<{ reference: Reference }>(ky, {
     path: endpoint,
     method: 'post',
@@ -31,7 +33,10 @@ export async function upload(
     },
   })
 
-  return response.data.reference
+  return {
+    reference: response.data.reference,
+    tagUid: makeTagUid(response.headers.get('swarm-tag')),
+  }
 }
 
 /**

@@ -276,13 +276,29 @@ export function assertAllTagsOptions(entry: unknown): asserts entry is AllTagsOp
  * Utility functions that return Tag UID
  * @param tagUid
  */
-export function makeTagUid(tagUid: number | Tag): number {
+export function makeTagUid(tagUid: number | Tag | string | null | undefined): number {
+  if (tagUid === undefined || tagUid === null) {
+    throw new TypeError('TagUid was expected but got undefined or null instead!')
+  }
+
   if (isTag(tagUid)) {
     return tagUid.uid
   } else if (typeof tagUid === 'number') {
     assertNonNegativeInteger(tagUid, 'UID')
 
     return tagUid
+  } else if (typeof tagUid === 'string') {
+    const int = parseInt(tagUid)
+
+    if (isNaN(int)) {
+      throw new TypeError('Passed tagUid string is not valid integer!')
+    }
+
+    if (int < 0) {
+      throw new TypeError(`TagUid was expected to be positive non-negative integer! Got ${int}`)
+    }
+
+    return int
   }
 
   throw new TypeError('tagUid has to be either Tag or a number (UID)!')

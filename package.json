@@ -38,7 +38,7 @@
     "test": "npm run compile:browser && jest --verbose --selectProjects=node:unit node:integration dom:integration --config=jest.config.ts",
     "test:integration:browser": "npm run compile:browser && jest --verbose --selectProjects=dom:integration --config=jest.config.ts",
     "test:integration:node": "jest --verbose --selectProjects=node:integration --config=jest.config.ts",
-    "test:integration": "npm run compile:browser && jest --verbose --selectProjects=node:integration dom:integration --config=jest.config.ts ",
+    "test:integration": "npm run compile:browser && jest --verbose --selectProjects=node:integration dom:integration --config=jest.config.ts",
     "test:unit": "jest --verbose --selectProjects=node:unit --config=jest.config.ts ",
     "test:node": "jest --verbose --selectProjects=node:unit node:integration --config=jest.config.ts",
     "test:browser": "npm run test:integration:browser",

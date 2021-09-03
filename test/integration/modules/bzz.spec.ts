@@ -17,8 +17,8 @@ describe('modules/bzz', () => {
         },
       ]
 
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
-      const file = await bzz.downloadFile(BEE_KY, hash, directoryStructure[0].path)
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
+      const file = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
 
       expect(file.name).toEqual(directoryStructure[0].path)
       expect(file.data).toEqual(directoryStructure[0].data)
@@ -34,8 +34,8 @@ describe('modules/bzz', () => {
         },
       ]
 
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
-      const file = await bzz.downloadFile(BEE_KY, hash, directoryStructure[0].path)
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
+      const file = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
 
       expect(file.name).toEqual(name)
       expect(file.data).toEqual(directoryStructure[0].data)
@@ -49,8 +49,8 @@ describe('modules/bzz', () => {
         },
       ]
 
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), { pin: true })
-      const file = await bzz.downloadFile(BEE_KY, hash, directoryStructure[0].path)
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), { pin: true })
+      const file = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
 
       expect(file.name).toEqual(directoryStructure[0].path)
       expect(file.data).toEqual(directoryStructure[0].data)
@@ -64,12 +64,12 @@ describe('modules/bzz', () => {
         },
       ]
 
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), { encrypt: true })
-      const file = await bzz.downloadFile(BEE_KY, hash, directoryStructure[0].path)
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), { encrypt: true })
+      const file = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
 
       expect(file.name).toEqual(directoryStructure[0].path)
       expect(file.data).toEqual(directoryStructure[0].data)
-      expect(hash.length).toEqual(ENCRYPTED_REFERENCE_HEX_LENGTH)
+      expect(result.reference.length).toEqual(ENCRYPTED_REFERENCE_HEX_LENGTH)
     })
 
     it(
@@ -84,7 +84,12 @@ describe('modules/bzz', () => {
 
         const response = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
 
-        expect(typeof response).toEqual('string')
+        expect(response).toEqual(
+          expect.objectContaining({
+            reference: expect.any(String),
+            tagUid: expect.any(Number),
+          }),
+        )
       },
       BIG_FILE_TIMEOUT,
     )
@@ -101,13 +106,13 @@ describe('modules/bzz', () => {
         },
       ]
 
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
 
-      const file0 = await bzz.downloadFile(BEE_KY, hash, directoryStructure[0].path)
+      const file0 = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
       expect(file0.name).toEqual(directoryStructure[0].path)
       expect(file0.data).toEqual(directoryStructure[0].data)
 
-      const file1 = await bzz.downloadFile(BEE_KY, hash, directoryStructure[1].path)
+      const file1 = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[1].path)
       expect(file1.name).toEqual(directoryStructure[1].path)
       expect(file1.data).toEqual(directoryStructure[1].data)
     })
@@ -124,11 +129,11 @@ describe('modules/bzz', () => {
         },
       ]
 
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), {
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), {
         indexDocument: '0',
       })
 
-      const indexFile = await bzz.downloadFile(BEE_KY, hash)
+      const indexFile = await bzz.downloadFile(BEE_KY, result.reference)
       expect(indexFile.name).toEqual(directoryStructure[0].path)
       expect(indexFile.data).toEqual(directoryStructure[0].data)
     })
@@ -145,11 +150,11 @@ describe('modules/bzz', () => {
         },
       ]
 
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), {
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), {
         errorDocument: '0',
       })
 
-      const errorFile = await bzz.downloadFile(BEE_KY, hash, 'error')
+      const errorFile = await bzz.downloadFile(BEE_KY, result.reference, 'error')
       expect(errorFile.name).toEqual(directoryStructure[0].path)
       expect(errorFile.data).toEqual(directoryStructure[0].data)
     })
@@ -161,9 +166,9 @@ describe('modules/bzz', () => {
       const subDir = 'sub/'
       const data = Uint8Array.from([51, 10])
       const directoryStructure = await makeCollectionFromFS(dir)
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
 
-      const file3 = await bzz.downloadFile(BEE_KY, hash, `${subDir}${file3Name}`)
+      const file3 = await bzz.downloadFile(BEE_KY, result.reference, `${subDir}${file3Name}`)
       expect(file3.name).toEqual(file3Name)
       expect(file3.data).toEqual(data)
     })
@@ -174,11 +179,11 @@ describe('modules/bzz', () => {
       const fileName = '1.txt'
       const data = Uint8Array.from([49, 10])
       const directoryStructure = await makeCollectionFromFS(dir)
-      const hash = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), {
+      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), {
         indexDocument: `${fileName}`,
       })
 
-      const file1 = await bzz.downloadFile(BEE_KY, hash)
+      const file1 = await bzz.downloadFile(BEE_KY, result.reference)
       expect(file1.name).toEqual(fileName)
       expect(file1.data).toEqual(data)
     })
@@ -189,8 +194,8 @@ describe('modules/bzz', () => {
       const data = 'hello world'
       const filename = 'hello.txt'
 
-      const hash = await bzz.uploadFile(BEE_KY, data, getPostageBatch(), filename)
-      const fileData = await bzz.downloadFile(BEE_KY, hash)
+      const result = await bzz.uploadFile(BEE_KY, data, getPostageBatch(), filename)
+      const fileData = await bzz.downloadFile(BEE_KY, result.reference)
 
       expect(Buffer.from(fileData.data).toString()).toEqual(data)
       expect(fileData.name).toEqual(filename)
@@ -199,8 +204,8 @@ describe('modules/bzz', () => {
     it('should store file without filename', async () => {
       const data = 'hello world'
 
-      const hash = await bzz.uploadFile(BEE_KY, data, getPostageBatch())
-      const fileData = await bzz.downloadFile(BEE_KY, hash)
+      const result = await bzz.uploadFile(BEE_KY, data, getPostageBatch())
+      const fileData = await bzz.downloadFile(BEE_KY, result.reference)
 
       expect(Buffer.from(fileData.data).toString()).toEqual(data)
     })
@@ -209,10 +214,10 @@ describe('modules/bzz', () => {
       const data = randomByteArray(5000, 1)
       const filename = 'hello.txt'
 
-      const hash = await bzz.uploadFile(BEE_KY, Readable.from([data]), getPostageBatch(), filename, {
+      const result = await bzz.uploadFile(BEE_KY, Readable.from([data]), getPostageBatch(), filename, {
         size: data.length,
       })
-      const fileData = await bzz.downloadFile(BEE_KY, hash)
+      const fileData = await bzz.downloadFile(BEE_KY, result.reference)
 
       expect(fileData.data).toEqual(data)
     })
@@ -247,7 +252,12 @@ describe('modules/bzz', () => {
         const data = new Uint8Array(32 * 1024 * 1024)
         const response = await bzz.uploadFile(BEE_KY, data, getPostageBatch())
 
-        expect(typeof response).toEqual('string')
+        expect(response).toEqual(
+          expect.objectContaining({
+            reference: expect.any(String),
+            tagUid: expect.any(Number),
+          }),
+        )
       },
       BIG_FILE_TIMEOUT,
     )

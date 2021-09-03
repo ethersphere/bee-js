@@ -36,15 +36,17 @@ import {
   makeTagUid,
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
-import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
+import { makeCollectionFromFS, makeCollectionFromFileList, assertCollection } from './utils/collection'
 import {
   AllTagsOptions,
+  Collection,
   Ky,
   NumberString,
   PostageBatchOptions,
   Readable,
   STAMPS_DEPTH_MAX,
   STAMPS_DEPTH_MIN,
+  UploadResult,
 } from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
@@ -155,7 +157,7 @@ export class Bee {
     postageBatchId: string | BatchId,
     data: string | Uint8Array,
     options?: UploadOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
     assertData(data)
 
@@ -211,7 +213,7 @@ export class Bee {
     data: string | Uint8Array | Readable | File,
     name?: string,
     options?: FileUploadOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
     assertFileData(data)
 
@@ -230,10 +232,10 @@ export class Bee {
       return bzz.uploadFile(this.ky, fileData, postageBatchId, fileName, fileOptions)
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
-      const reference = await bzz.uploadFile(this.ky, data, postageBatchId, name, options)
-      await this.updateTag(options.tag, reference)
+      const result = await bzz.uploadFile(this.ky, data, postageBatchId, name, options)
+      await this.updateTag(options.tag, result.reference)
 
-      return reference
+      return result
     } else {
       return bzz.uploadFile(this.ky, data, postageBatchId, name, options)
     }
@@ -275,6 +277,9 @@ export class Bee {
    *
    * Uses the FileList API from the browser.
    *
+   * The returned `UploadResult.tag` might be undefined if called in CORS-enabled environment.
+   * This will be fixed upon next Bee release. https://github.com/ethersphere/bee-js/issues/406
+   *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param fileList list of files to be uploaded
    * @param options Additional options like tag, encryption, pinning
@@ -287,7 +292,7 @@ export class Bee {
     postageBatchId: string | BatchId,
     fileList: FileList | File[],
     options?: CollectionUploadOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
 
     if (options) assertCollectionUploadOptions(options)
@@ -298,9 +303,35 @@ export class Bee {
   }
 
   /**
+   * Upload Collection that you can assembly yourself.
+   *
+   * The returned `UploadResult.tag` might be undefined if called in CORS-enabled environment.
+   * This will be fixed upon next Bee release. https://github.com/ethersphere/bee-js/issues/406
+   *
+   * @param postageBatchId
+   * @param collection
+   * @param options
+   */
+  async uploadCollection(
+    postageBatchId: string | BatchId,
+    collection: Collection<Uint8Array | Readable>,
+    options?: CollectionUploadOptions,
+  ): Promise<UploadResult> {
+    assertBatchId(postageBatchId)
+    assertCollection(collection)
+
+    if (options) assertCollectionUploadOptions(options)
+
+    return bzz.uploadCollection(this.ky, collection, postageBatchId, options)
+  }
+
+  /**
    * Upload collection of files.
    *
    * Available only in Node.js as it uses the `fs` module.
+   *
+   * The returned `UploadResult.tag` might be undefined if called in CORS-enabled environment.
+   * This will be fixed upon next Bee release. https://github.com/ethersphere/bee-js/issues/406
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param dir the path of the files to be uploaded
@@ -314,7 +345,7 @@ export class Bee {
     postageBatchId: string | BatchId,
     dir: string,
     options?: CollectionUploadOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
 
     if (options) assertCollectionUploadOptions(options)

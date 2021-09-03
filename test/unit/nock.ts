@@ -63,6 +63,9 @@ export function uploadFileMock(
   }, {})
 
   return nock(MOCK_SERVER_URL, { reqheaders: { 'swarm-postage-batch-id': batchId, ...headers, ...extraHeaders } })
+    .defaultReplyHeaders({
+      'swarm-tag': '123',
+    })
     .post(`${BZZ_ENDPOINT}`)
     .query({ name })
 }
