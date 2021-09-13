@@ -1,4 +1,4 @@
-import { PublicKey, NumberString, Reference, TransactionHash } from './index'
+import { PublicKey, NumberString, Reference, TransactionHash, RequestOptions } from './index'
 import { HexEthAddress } from '../utils/eth'
 
 /**
@@ -86,7 +86,7 @@ export interface ChequebookBalanceResponse {
   availableBalance: NumberString
 }
 
-export interface CashoutOptions {
+export interface CashoutOptions extends RequestOptions {
   /**
    * Gas price for the cashout transaction in WEI
    */

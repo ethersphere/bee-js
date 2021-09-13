@@ -74,6 +74,34 @@ export function testUploadOptionsAssertions(executor: (input: unknown) => void):
   })
 }
 
+export function testRequestOptionsAssertions(executor: (input: unknown) => void): void {
+  it('should throw exception for bad RequestOptions', async () => {
+    await expect(() => executor(1)).rejects.toThrow(TypeError)
+    await expect(() => executor(true)).rejects.toThrow(TypeError)
+    await expect(() => executor([])).rejects.toThrow(TypeError)
+    await expect(() => executor('string')).rejects.toThrow(TypeError)
+
+    await expect(() => executor({ timeout: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ timeout: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ timeout: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ timeout: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ timeout: -1 })).rejects.toThrow(BeeArgumentError)
+
+    await expect(() => executor({ retry: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ retry: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ retry: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ retry: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ retry: -1 })).rejects.toThrow(BeeArgumentError)
+
+    await expect(() => executor({ fetch: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: -1 })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: 1 })).rejects.toThrow(TypeError)
+  })
+}
+
 export function testFileUploadOptionsAssertions(executor: (input: unknown) => void): void {
   it('should throw exception for bad FileUploadOptions', async () => {
     await expect(() => executor({ contentType: true })).rejects.toThrow(TypeError)

@@ -21,6 +21,7 @@ import {
   PSS_TARGET_HEX_LENGTH_MAX,
   UploadOptions,
   TransactionHash,
+  RequestOptions,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
@@ -59,16 +60,16 @@ export function isStrictlyObject(value: unknown): value is object {
   return isObject(value) && !Array.isArray(value)
 }
 
-export function assertBoolean(value: unknown): asserts value is boolean {
-  if (value !== true && value !== false) throw new TypeError('value is not boolean')
+export function assertBoolean(value: unknown, name = 'value'): asserts value is boolean {
+  if (value !== true && value !== false) throw new TypeError(`${name} is not boolean`)
 }
 
-export function assertInteger(value: unknown): asserts value is number | NumberString {
-  if (!isInteger(value)) throw new TypeError('value is not integer')
+export function assertInteger(value: unknown, name = 'value'): asserts value is number | NumberString {
+  if (!isInteger(value)) throw new TypeError(`${name} is not integer`)
 }
 
 export function assertNonNegativeInteger(value: unknown, name = 'Value'): asserts value is number | NumberString {
-  assertInteger(value)
+  assertInteger(value, name)
 
   if (Number(value) < 0) throw new BeeArgumentError(`${name} has to be bigger or equal to zero`, value)
 }
@@ -89,10 +90,36 @@ export function assertBatchId(value: unknown): asserts value is BatchId {
   assertHexString(value, BATCH_ID_HEX_LENGTH, 'BatchId')
 }
 
+export function assertRequestOptions(value: unknown, name = 'RequestOptions'): asserts value is RequestOptions {
+  if (value === undefined) {
+    return
+  }
+
+  if (!isStrictlyObject(value)) {
+    throw new TypeError(`${name} has to be an object!`)
+  }
+
+  const options = value as RequestOptions
+
+  if (options.retry) {
+    assertNonNegativeInteger(options.retry, `${name}.retry`)
+  }
+
+  if (options.timeout) {
+    assertNonNegativeInteger(options.timeout, `${name}.timeout`)
+  }
+
+  if (options.fetch && typeof options.fetch !== 'function') {
+    throw new TypeError(`${name}.fetch has to be a function or undefined!`)
+  }
+}
+
 export function assertUploadOptions(value: unknown, name = 'UploadOptions'): asserts value is UploadOptions {
   if (!isStrictlyObject(value)) {
     throw new TypeError(`${name} has to be an object!`)
   }
+
+  assertRequestOptions(value, name)
 
   const options = value as UploadOptions
 
@@ -251,24 +278,26 @@ export function assertAllTagsOptions(entry: unknown): asserts entry is AllTagsOp
     throw new TypeError('options has to be an object or undefined!')
   }
 
+  assertRequestOptions(entry, 'AllTagsOptions')
+
   const options = entry as AllTagsOptions
 
   if (options?.limit !== undefined) {
     if (typeof options.limit !== 'number') {
-      throw new TypeError('options.limit has to be a number or undefined!')
+      throw new TypeError('AllTagsOptions.limit has to be a number or undefined!')
     }
 
     if (options.limit < TAGS_LIMIT_MIN) {
-      throw new BeeArgumentError(`options.limit has to be at least ${TAGS_LIMIT_MIN}`, options.limit)
+      throw new BeeArgumentError(`AllTagsOptions.limit has to be at least ${TAGS_LIMIT_MIN}`, options.limit)
     }
 
     if (options.limit > TAGS_LIMIT_MAX) {
-      throw new BeeArgumentError(`options.limit has to be at most ${TAGS_LIMIT_MAX}`, options.limit)
+      throw new BeeArgumentError(`AllTagsOptions.limit has to be at most ${TAGS_LIMIT_MAX}`, options.limit)
     }
   }
 
   if (options?.offset !== undefined) {
-    assertNonNegativeInteger(options.offset, 'options.offset')
+    assertNonNegativeInteger(options.offset, 'AllTagsOptions.offset')
   }
 }
 

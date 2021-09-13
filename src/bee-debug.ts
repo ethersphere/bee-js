@@ -39,6 +39,7 @@ import {
   assertBatchId,
   assertBoolean,
   assertNonNegativeInteger,
+  assertRequestOptions,
   assertTransactionHash,
   isTag,
 } from './utils/type'
@@ -47,6 +48,7 @@ import {
   BeeOptions,
   CashoutOptions,
   PostageBatchOptions,
+  RequestOptions,
   STAMPS_DEPTH_MAX,
   STAMPS_DEPTH_MIN,
   Tag,
@@ -105,12 +107,16 @@ export class BeeDebug {
     this.ky = makeDefaultKy(kyOptions)
   }
 
-  async getNodeAddresses(): Promise<NodeAddresses> {
-    return connectivity.getNodeAddresses(this.ky)
+  async getNodeAddresses(options?: RequestOptions): Promise<NodeAddresses> {
+    assertRequestOptions(options)
+
+    return connectivity.getNodeAddresses(this.getKy(options))
   }
 
-  async getBlocklist(): Promise<Peer[]> {
-    return connectivity.getBlocklist(this.ky)
+  async getBlocklist(options?: RequestOptions): Promise<Peer[]> {
+    assertRequestOptions(options)
+
+    return connectivity.getBlocklist(this.getKy(options))
   }
 
   /**
@@ -123,7 +129,9 @@ export class BeeDebug {
    * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/debug-api/#tag/Tag)
    *
    */
-  async retrieveExtendedTag(tagUid: number | Tag): Promise<ExtendedTag> {
+  async retrieveExtendedTag(tagUid: number | Tag, options?: RequestOptions): Promise<ExtendedTag> {
+    assertRequestOptions(options)
+
     if (isTag(tagUid)) {
       tagUid = tagUid.uid
     } else if (typeof tagUid === 'number') {
@@ -132,30 +140,36 @@ export class BeeDebug {
       throw new TypeError('tagUid has to be either Tag or a number (UID)!')
     }
 
-    return tag.retrieveExtendedTag(this.ky, tagUid)
+    return tag.retrieveExtendedTag(this.getKy(options), tagUid)
   }
 
   /**
    * Get list of peers for this node
    */
-  async getPeers(): Promise<Peer[]> {
-    return connectivity.getPeers(this.ky)
+  async getPeers(options?: RequestOptions): Promise<Peer[]> {
+    assertRequestOptions(options)
+
+    return connectivity.getPeers(this.getKy(options))
   }
 
-  async removePeer(peer: string | Address): Promise<RemovePeerResponse> {
+  async removePeer(peer: string | Address, options?: RequestOptions): Promise<RemovePeerResponse> {
+    assertRequestOptions(options)
     assertAddress(peer)
 
-    return connectivity.removePeer(this.ky, peer)
+    return connectivity.removePeer(this.getKy(options), peer)
   }
 
-  async getTopology(): Promise<Topology> {
-    return connectivity.getTopology(this.ky)
+  async getTopology(options?: RequestOptions): Promise<Topology> {
+    assertRequestOptions(options)
+
+    return connectivity.getTopology(this.getKy(options))
   }
 
-  async pingPeer(peer: string | Address): Promise<PingResponse> {
+  async pingPeer(peer: string | Address, options?: RequestOptions): Promise<PingResponse> {
+    assertRequestOptions(options)
     assertAddress(peer)
 
-    return connectivity.pingPeer(this.ky, peer)
+    return connectivity.pingPeer(this.getKy(options), peer)
   }
 
   /*
@@ -165,8 +179,10 @@ export class BeeDebug {
   /**
    * Get the balances with all known peers including prepaid services
    */
-  async getAllBalances(): Promise<BalanceResponse> {
-    return balance.getAllBalances(this.ky)
+  async getAllBalances(options?: RequestOptions): Promise<BalanceResponse> {
+    assertRequestOptions(options)
+
+    return balance.getAllBalances(this.getKy(options))
   }
 
   /**
@@ -174,17 +190,20 @@ export class BeeDebug {
    *
    * @param address Swarm address of peer
    */
-  async getPeerBalance(address: Address | string): Promise<PeerBalance> {
+  async getPeerBalance(address: Address | string, options?: RequestOptions): Promise<PeerBalance> {
+    assertRequestOptions(options)
     assertAddress(address)
 
-    return balance.getPeerBalance(this.ky, address)
+    return balance.getPeerBalance(this.getKy(options), address)
   }
 
   /**
    * Get the past due consumption balances with all known peers
    */
-  async getPastDueConsumptionBalances(): Promise<BalanceResponse> {
-    return balance.getPastDueConsumptionBalances(this.ky)
+  async getPastDueConsumptionBalances(options?: RequestOptions): Promise<BalanceResponse> {
+    assertRequestOptions(options)
+
+    return balance.getPastDueConsumptionBalances(this.getKy(options))
   }
 
   /**
@@ -192,10 +211,11 @@ export class BeeDebug {
    *
    * @param address Swarm address of peer
    */
-  async getPastDueConsumptionPeerBalance(address: Address | string): Promise<PeerBalance> {
+  async getPastDueConsumptionPeerBalance(address: Address | string, options?: RequestOptions): Promise<PeerBalance> {
+    assertRequestOptions(options)
     assertAddress(address)
 
-    return balance.getPastDueConsumptionPeerBalance(this.ky, address)
+    return balance.getPastDueConsumptionPeerBalance(this.getKy(options), address)
   }
 
   /*
@@ -208,22 +228,28 @@ export class BeeDebug {
    * **Warning:** The address is returned with 0x prefix unlike all other calls.
    * https://github.com/ethersphere/bee/issues/1443
    */
-  async getChequebookAddress(): Promise<ChequebookAddressResponse> {
-    return chequebook.getChequebookAddress(this.ky)
+  async getChequebookAddress(options?: RequestOptions): Promise<ChequebookAddressResponse> {
+    assertRequestOptions(options)
+
+    return chequebook.getChequebookAddress(this.getKy(options))
   }
 
   /**
    * Get the balance of the chequebook
    */
-  async getChequebookBalance(): Promise<ChequebookBalanceResponse> {
-    return chequebook.getChequebookBalance(this.ky)
+  async getChequebookBalance(options?: RequestOptions): Promise<ChequebookBalanceResponse> {
+    assertRequestOptions(options)
+
+    return chequebook.getChequebookBalance(this.getKy(options))
   }
 
   /**
    * Get last cheques for all peers
    */
-  async getLastCheques(): Promise<LastChequesResponse> {
-    return chequebook.getLastCheques(this.ky)
+  async getLastCheques(options?: RequestOptions): Promise<LastChequesResponse> {
+    assertRequestOptions(options)
+
+    return chequebook.getLastCheques(this.getKy(options))
   }
 
   /**
@@ -231,10 +257,14 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  async getLastChequesForPeer(address: Address | string): Promise<LastChequesForPeerResponse> {
+  async getLastChequesForPeer(
+    address: Address | string,
+    options?: RequestOptions,
+  ): Promise<LastChequesForPeerResponse> {
+    assertRequestOptions(options)
     assertAddress(address)
 
-    return chequebook.getLastChequesForPeer(this.ky, address)
+    return chequebook.getLastChequesForPeer(this.getKy(options), address)
   }
 
   /**
@@ -242,10 +272,11 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  async getLastCashoutAction(address: Address | string): Promise<LastCashoutActionResponse> {
+  async getLastCashoutAction(address: Address | string, options?: RequestOptions): Promise<LastCashoutActionResponse> {
+    assertRequestOptions(options)
     assertAddress(address)
 
-    return chequebook.getLastCashoutAction(this.ky, address)
+    return chequebook.getLastCashoutAction(this.getKy(options), address)
   }
 
   /**
@@ -257,6 +288,7 @@ export class BeeDebug {
    * @param options.gasLimit Gas limit for the cashout transaction in WEI
    */
   async cashoutLastCheque(address: string | Address, options?: CashoutOptions): Promise<string> {
+    assertRequestOptions(options)
     assertAddress(address)
 
     if (options?.gasLimit) {
@@ -267,7 +299,7 @@ export class BeeDebug {
       assertNonNegativeInteger(options.gasPrice)
     }
 
-    return chequebook.cashoutLastCheque(this.ky, address, options)
+    return chequebook.cashoutLastCheque(this.getKy(options), address, options)
   }
 
   /**
@@ -277,14 +309,19 @@ export class BeeDebug {
    * @param gasPrice Gas Price in WEI for the transaction call
    * @return string  Hash of the transaction
    */
-  async depositTokens(amount: number | NumberString, gasPrice?: NumberString): Promise<string> {
+  async depositTokens(
+    amount: number | NumberString,
+    gasPrice?: NumberString,
+    options?: RequestOptions,
+  ): Promise<string> {
+    assertRequestOptions(options)
     assertNonNegativeInteger(amount)
 
     if (gasPrice) {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return chequebook.depositTokens(this.ky, amount, gasPrice)
+    return chequebook.depositTokens(this.getKy(options), amount, gasPrice)
   }
 
   /**
@@ -294,14 +331,19 @@ export class BeeDebug {
    * @param gasPrice Gas Price in WEI for the transaction call
    * @return string  Hash of the transaction
    */
-  async withdrawTokens(amount: number | NumberString, gasPrice?: NumberString): Promise<string> {
+  async withdrawTokens(
+    amount: number | NumberString,
+    gasPrice?: NumberString,
+    options?: RequestOptions,
+  ): Promise<string> {
+    assertRequestOptions(options)
     assertNonNegativeInteger(amount)
 
     if (gasPrice) {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return chequebook.withdrawTokens(this.ky, amount, gasPrice)
+    return chequebook.withdrawTokens(this.getKy(options), amount, gasPrice)
   }
 
   /*
@@ -313,24 +355,29 @@ export class BeeDebug {
    *
    * @param address  Swarm address of peer
    */
-  async getSettlements(address: Address | string): Promise<Settlements> {
+  async getSettlements(address: Address | string, options?: RequestOptions): Promise<Settlements> {
+    assertRequestOptions(options)
     assertAddress(address)
 
-    return settlements.getSettlements(this.ky, address)
+    return settlements.getSettlements(this.getKy(options), address)
   }
 
   /**
    * Get settlements with all known peers and total amount sent or received
    */
-  async getAllSettlements(): Promise<AllSettlements> {
-    return settlements.getAllSettlements(this.ky)
+  async getAllSettlements(options?: RequestOptions): Promise<AllSettlements> {
+    assertRequestOptions(options)
+
+    return settlements.getAllSettlements(this.getKy(options))
   }
 
   /**
    * Get health of node
    */
-  async getHealth(): Promise<Health> {
-    return status.getHealth(this.ky)
+  async getHealth(options?: RequestOptions): Promise<Health> {
+    assertRequestOptions(options)
+
+    return status.getHealth(this.getKy(options))
   }
 
   /**
@@ -338,22 +385,28 @@ export class BeeDebug {
    *
    * @returns true if the Bee node version is supported
    */
-  async isSupportedVersion(): Promise<boolean> | never {
-    return status.isSupportedVersion(this.ky)
+  async isSupportedVersion(options?: RequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return status.isSupportedVersion(this.getKy(options))
   }
 
   /**
    * Get reserve state
    */
-  async getReserveState(): Promise<ReserveState> {
-    return states.getReserveState(this.ky)
+  async getReserveState(options?: RequestOptions): Promise<ReserveState> {
+    assertRequestOptions(options)
+
+    return states.getReserveState(this.getKy(options))
   }
 
   /**
    * Get chain state
    */
-  async getChainState(): Promise<ChainState> {
-    return states.getChainState(this.ky)
+  async getChainState(options?: RequestOptions): Promise<ChainState> {
+    assertRequestOptions(options)
+
+    return states.getChainState(this.getKy(options))
   }
 
   /**
@@ -374,6 +427,7 @@ export class BeeDebug {
    * @see [Bee Debug API reference - `POST /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{amount}~1{depth}/post)
    */
   async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
+    assertRequestOptions(options)
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
 
@@ -393,7 +447,7 @@ export class BeeDebug {
       assertBoolean(options.immutableFlag)
     }
 
-    return stamps.createPostageBatch(this.ky, amount, depth, options)
+    return stamps.createPostageBatch(this.getKy(options), amount, depth, options)
   }
 
   /**
@@ -404,10 +458,11 @@ export class BeeDebug {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
    */
-  async getPostageBatch(postageBatchId: BatchId | string): Promise<DebugPostageBatch> {
+  async getPostageBatch(postageBatchId: BatchId | string, options?: RequestOptions): Promise<DebugPostageBatch> {
+    assertRequestOptions(options)
     assertBatchId(postageBatchId)
 
-    return stamps.getPostageBatch(this.ky, postageBatchId)
+    return stamps.getPostageBatch(this.getKy(options), postageBatchId)
   }
 
   /**
@@ -418,10 +473,14 @@ export class BeeDebug {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}/buckets`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}~1buckets/get)
    */
-  async getPostageBatchBuckets(postageBatchId: BatchId | string): Promise<PostageBatchBuckets> {
+  async getPostageBatchBuckets(
+    postageBatchId: BatchId | string,
+    options?: RequestOptions,
+  ): Promise<PostageBatchBuckets> {
+    assertRequestOptions(options)
     assertBatchId(postageBatchId)
 
-    return stamps.getPostageBatchBuckets(this.ky, postageBatchId)
+    return stamps.getPostageBatchBuckets(this.getKy(options), postageBatchId)
   }
 
   /**
@@ -430,25 +489,33 @@ export class BeeDebug {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps/get)
    */
-  async getAllPostageBatch(): Promise<DebugPostageBatch[]> {
-    return stamps.getAllPostageBatches(this.ky)
+  async getAllPostageBatch(options?: RequestOptions): Promise<DebugPostageBatch[]> {
+    assertRequestOptions(options)
+
+    return stamps.getAllPostageBatches(this.getKy(options))
   }
 
   /**
    * Return lists of all current pending transactions that the Bee made
    */
-  async getAllPendingTransactions(): Promise<TransactionInfo[]> {
-    return transactions.getAllTransactions(this.ky)
+  async getAllPendingTransactions(options?: RequestOptions): Promise<TransactionInfo[]> {
+    assertRequestOptions(options)
+
+    return transactions.getAllTransactions(this.getKy(options))
   }
 
   /**
    * Return transaction information for specific transaction
    * @param transactionHash
    */
-  async getPendingTransaction(transactionHash: TransactionHash | string): Promise<TransactionInfo> {
+  async getPendingTransaction(
+    transactionHash: TransactionHash | string,
+    options?: RequestOptions,
+  ): Promise<TransactionInfo> {
+    assertRequestOptions(options)
     assertTransactionHash(transactionHash)
 
-    return transactions.getTransaction(this.ky, transactionHash)
+    return transactions.getTransaction(this.getKy(options), transactionHash)
   }
 
   /**
@@ -457,10 +524,14 @@ export class BeeDebug {
    *
    * @param transactionHash
    */
-  async rebroadcastPendingTransaction(transactionHash: TransactionHash | string): Promise<TransactionHash> {
+  async rebroadcastPendingTransaction(
+    transactionHash: TransactionHash | string,
+    options?: RequestOptions,
+  ): Promise<TransactionHash> {
+    assertRequestOptions(options)
     assertTransactionHash(transactionHash)
 
-    return transactions.rebroadcastTransaction(this.ky, transactionHash)
+    return transactions.rebroadcastTransaction(this.getKy(options), transactionHash)
   }
 
   /**
@@ -471,13 +542,23 @@ export class BeeDebug {
   async cancelPendingTransaction(
     transactionHash: TransactionHash | string,
     gasPrice?: NumberString,
+    options?: RequestOptions,
   ): Promise<TransactionHash> {
+    assertRequestOptions(options)
     assertTransactionHash(transactionHash)
 
     if (gasPrice) {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return transactions.cancelTransaction(this.ky, transactionHash, gasPrice)
+    return transactions.cancelTransaction(this.getKy(options), transactionHash, gasPrice)
+  }
+
+  private getKy(options?: RequestOptions): Ky {
+    if (!options) {
+      return this.ky
+    }
+
+    return this.ky.extend(options)
   }
 }
