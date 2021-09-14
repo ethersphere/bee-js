@@ -291,13 +291,6 @@ describe('Bee class', () => {
       await sleep(10)
       await bee.reuploadPinnedData(result.reference) // Does not return anything, but will throw exception if something is going wrong
     })
-
-    it('should throw error if data is not pinned', async () => {
-      const content = randomByteArray(16, Date.now())
-
-      const result = await bee.uploadData(getPostageBatch(), content)
-      await expect(bee.reuploadPinnedData(result.reference)).rejects.toThrowError(BeeArgumentError)
-    })
   })
 
   describe('pss', () => {
