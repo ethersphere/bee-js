@@ -15,6 +15,7 @@ import {
   ReferenceResponse,
   UploadOptions,
   RequestOptions,
+  PostageBatchOptions,
 } from '../../src'
 import { testBatchId, testIdentity, testJsonHash, testJsonPayload, testJsonStringPayload } from '../utils'
 import { makeTopicFromString } from '../../src/feed/topic'
@@ -35,6 +36,7 @@ import {
   testEthAddressAssertions,
   testMakeSignerAssertions,
   testRequestOptionsAssertions,
+  testPostageBatchOptionsAssertions,
 } from './assertions'
 import { FeedType } from '../../src/feed/type'
 
@@ -772,6 +774,12 @@ describe('Bee class', () => {
     const BATCH_RESPONSE = {
       batchID: BATCH_ID,
     }
+
+    testPostageBatchOptionsAssertions(async (input: unknown) => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      return bee.createPostageBatch('10', 17, input as PostageBatchOptions)
+    })
 
     it('should not pass headers if no gas price is specified', async () => {
       createPostageBatchMock('10', '17').reply(201, BATCH_RESPONSE)

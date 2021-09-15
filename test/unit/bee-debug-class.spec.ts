@@ -6,9 +6,15 @@ import {
   MOCK_SERVER_URL,
   withdrawTokensMock,
 } from './nock'
-import { BatchId, BeeArgumentError, BeeDebug, RequestOptions } from '../../src'
+import { BatchId, BeeArgumentError, BeeDebug, CashoutOptions, PostageBatchOptions, RequestOptions } from '../../src'
 import { testAddress, testBatchId } from '../utils'
-import { testAddressAssertions, testBatchIdAssertion, testRequestOptionsAssertions } from './assertions'
+import {
+  testAddressAssertions,
+  testBatchIdAssertion,
+  testCashoutOptionsAssertions,
+  testPostageBatchOptionsAssertions,
+  testRequestOptionsAssertions,
+} from './assertions'
 
 const TRANSACTION_HASH = '36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f'
 const CASHOUT_RESPONSE = {
@@ -157,6 +163,12 @@ describe('BeeDebug class', () => {
       return bee.cashoutLastCheque('', input as RequestOptions)
     })
 
+    testCashoutOptionsAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.cashoutLastCheque('', input as CashoutOptions)
+    })
+
     it('should not pass headers if no gas price is specified', async () => {
       cashoutLastChequeMock(testAddress).reply(201, CASHOUT_RESPONSE)
 
@@ -185,28 +197,6 @@ describe('BeeDebug class', () => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       return bee.cashoutLastCheque(input as string)
-    })
-
-    it('should throw error if passed wrong gas price input', async () => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
-
-      // @ts-ignore: Input testing
-      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: 'asd' })).rejects.toThrow(TypeError)
-
-      // @ts-ignore: Input testing
-      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: true })).rejects.toThrow(TypeError)
-      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: '-1' })).rejects.toThrow(BeeArgumentError)
-    })
-
-    it('should throw error if passed wrong gas limit input', async () => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
-
-      // @ts-ignore: Input testing
-      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: 'asd' })).rejects.toThrow(TypeError)
-
-      // @ts-ignore: Input testing
-      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: true })).rejects.toThrow(TypeError)
-      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: '-1' })).rejects.toThrow(BeeArgumentError)
     })
   })
 
@@ -360,6 +350,12 @@ describe('BeeDebug class', () => {
       batchID: BATCH_ID,
     }
 
+    testPostageBatchOptionsAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.createPostageBatch('10', 17, input as PostageBatchOptions)
+    })
+
     testRequestOptionsAssertions(async (input: unknown) => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
@@ -380,25 +376,6 @@ describe('BeeDebug class', () => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
       await expect(bee.createPostageBatch('10', 17, { gasPrice: '100' })).resolves.toEqual(BATCH_ID)
       assertAllIsDone()
-    })
-
-    it('should pass headers if immutable flag is specified', async () => {
-      createPostageBatchMock('10', '17', undefined, undefined, 'true').reply(201, BATCH_RESPONSE)
-
-      const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.createPostageBatch('10', 17, { immutableFlag: true })).resolves.toEqual(BATCH_ID)
-      assertAllIsDone()
-    })
-
-    it('should throw error if passed wrong gas price input', async () => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
-
-      // @ts-ignore: Input testing
-      await expect(bee.createPostageBatch('10', 17, { gasPrice: 'asd' })).rejects.toThrow(TypeError)
-
-      // @ts-ignore: Input testing
-      await expect(bee.createPostageBatch('10', 17, { gasPrice: true })).rejects.toThrow(TypeError)
-      await expect(bee.createPostageBatch('10', 17, { gasPrice: '-1' })).rejects.toThrow(BeeArgumentError)
     })
 
     it('should throw error if passed wrong immutable input', async () => {

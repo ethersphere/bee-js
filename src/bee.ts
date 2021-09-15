@@ -23,12 +23,12 @@ import {
   assertAddressPrefix,
   assertAllTagsOptions,
   assertBatchId,
-  assertBoolean,
   assertCollectionUploadOptions,
   assertData,
   assertFileData,
   assertFileUploadOptions,
   assertNonNegativeInteger,
+  assertPostageBatchOptions,
   assertPssMessageHandler,
   assertPublicKey,
   assertReference,
@@ -149,7 +149,7 @@ export class Bee {
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data to be uploaded
-   * @param options Additional options like tag, encryption, pinning, content-type
+   * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
    * @returns reference is a content hash of the data
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
@@ -172,6 +172,7 @@ export class Bee {
    * Download data as a byte array
    *
    * @param reference Bee data reference
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
@@ -186,6 +187,7 @@ export class Bee {
    * Download data as a Readable stream
    *
    * @param reference Bee data reference
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
@@ -208,7 +210,7 @@ export class Bee {
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data or file to be uploaded
    * @param name    Optional name of the uploaded file
-   * @param options Additional options like tag, encryption, pinning, content-type
+   * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
@@ -253,6 +255,7 @@ export class Bee {
    *
    * @param reference Bee file reference
    * @param path If reference points to manifest, then this parameter defines path to the file
+   * @param options Options that affects the request behavior
    *
    * @see Data
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
@@ -270,6 +273,7 @@ export class Bee {
    *
    * @param reference Hash reference to file
    * @param path If reference points to manifest / collections, then this parameter defines path to the file
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
@@ -295,7 +299,7 @@ export class Bee {
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param fileList list of files to be uploaded
-   * @param options Additional options like tag, encryption, pinning
+   * @param options Additional options like tag, encryption, pinning and request options
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory/)
@@ -323,7 +327,7 @@ export class Bee {
    *
    * @param postageBatchId
    * @param collection
-   * @param options
+   * @param options Collections and request options
    */
   async uploadCollection(
     postageBatchId: string | BatchId,
@@ -348,7 +352,7 @@ export class Bee {
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param dir the path of the files to be uploaded
-   * @param options Additional options like tag, encryption, pinning
+   * @param options Additional options like tag, encryption, pinning and request options
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory/)
@@ -372,6 +376,7 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
    * @see [Bee API reference - `POST /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)
    */
@@ -388,7 +393,7 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
-   * @param options
+   * @param options Options that affects the request behavior
    * @throws TypeError if limit or offset are not numbers or undefined
    * @throws BeeArgumentError if limit or offset have invalid options
    *
@@ -408,6 +413,7 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
+   * @param options Options that affects the request behavior
    * @throws TypeError if tagUid is in not correct format
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
@@ -428,6 +434,7 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
+   * @param options Options that affects the request behavior
    * @throws TypeError if tagUid is in not correct format
    * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
    *
@@ -452,6 +459,7 @@ export class Bee {
    *
    * @param tagUid UID or tag object to be retrieved
    * @param reference The root reference that contains all the chunks to be counted
+   * @param options Options that affects the request behavior
    * @throws TypeError if tagUid is in not correct format
    * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
    *
@@ -473,6 +481,7 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Data reference
+   * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
@@ -490,6 +499,7 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Data reference
+   * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
@@ -506,6 +516,7 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    */
   async getAllPins(options?: RequestOptions): Promise<Reference[]> {
@@ -520,6 +531,7 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Bee data reference
+   * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
@@ -535,6 +547,7 @@ export class Bee {
    * Instructs the Bee node to reupload a locally pinned data into the network.
    *
    * @param reference
+   * @param options Options that affects the request behavior
    * @throws BeeArgumentError if the reference is not locally pinned
    * @throws TypeError if reference is in not correct format
    */
@@ -573,6 +586,7 @@ export class Bee {
    * @param target Target message address prefix. Has a limit on length. Recommend to use `Utils.Pss.makeMaxTarget()` to get the most specific target that Bee node will accept.
    * @param data Message to be sent
    * @param recipient Recipient public key
+   * @param options Options that affects the request behavior
    * @throws TypeError if `data`, `batchId`, `target` or `recipient` are in invalid format
    *
    * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
@@ -735,6 +749,7 @@ export class Bee {
    * @param type            The type of the feed, can be 'epoch' or 'sequence'
    * @param topic           Topic in hex or bytes
    * @param owner           Owner's ethereum address in hex or bytes
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    * @see [Bee API reference - `POST /feeds`](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1{owner}~1{topic}/post)
@@ -762,6 +777,7 @@ export class Bee {
    * @param type    The type of the feed, can be 'epoch' or 'sequence'
    * @param topic   Topic in hex or bytes
    * @param owner   Owner's ethereum address in hex or bytes
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    */
@@ -786,6 +802,7 @@ export class Bee {
    * @param type    The type of the feed, can be 'epoch' or 'sequence'
    * @param topic   Topic in hex or bytes
    * @param signer  The signer's private key or a Signer instance that can sign data
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    */
@@ -904,7 +921,7 @@ export class Bee {
    * Returns an object for reading single owner chunks
    *
    * @param ownerAddress The ethereum address of the owner
-   *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/dapps-on-swarm/chunk-types#single-owner-chunks)
    */
   makeSOCReader(ownerAddress: EthAddress | Uint8Array | string, options?: RequestOptions): SOCReader {
@@ -920,7 +937,7 @@ export class Bee {
    * Returns an object for reading and writing single owner chunks
    *
    * @param signer The signer's private key or a Signer instance that can sign data
-   *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/dapps-on-swarm/chunk-types#single-owner-chunks)
    */
   makeSOCWriter(signer?: Signer | Uint8Array | string, options?: RequestOptions): SOCWriter {
@@ -945,7 +962,7 @@ export class Bee {
    *
    * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
    * @param depth Logarithm of the number of chunks that can be stamped with the batch.
-   * @param options Options for creation of postage batch
+   * @param options Options for creation of postage batch and request options
    * @throws BeeArgumentError when negative amount or depth is specified
    * @throws TypeError if non-integer value is passed to amount or depth
    *
@@ -954,7 +971,7 @@ export class Bee {
    * @deprecated Use DebugBee for postage batch management
    */
   async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
-    assertRequestOptions(options, 'PostageBatchOptions')
+    assertPostageBatchOptions(options)
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
 
@@ -966,14 +983,6 @@ export class Bee {
       throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
     }
 
-    if (options?.gasPrice) {
-      assertNonNegativeInteger(options.gasPrice)
-    }
-
-    if (options?.immutableFlag !== undefined) {
-      assertBoolean(options.immutableFlag)
-    }
-
     return stamps.createPostageBatch(this.getKy(options), amount, depth, options)
   }
 
@@ -983,12 +992,14 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param postageBatchId Batch ID
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
    * @deprecated Use DebugBee for postage batch management
    */
   async getPostageBatch(postageBatchId: BatchId | string, options?: RequestOptions): Promise<PostageBatch> {
+    assertRequestOptions(options, 'PostageBatchOptions')
     assertBatchId(postageBatchId)
 
     return stamps.getPostageBatch(this.getKy(options), postageBatchId)
@@ -999,29 +1010,38 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
    * @deprecated Use DebugBee for postage batch management
    */
   async getAllPostageBatch(options?: RequestOptions): Promise<PostageBatch[]> {
+    assertRequestOptions(options, 'PostageBatchOptions')
+
     return stamps.getAllPostageBatches(this.getKy(options))
   }
 
   /**
    * Ping the Bee node to see if there is a live Bee node on the given URL.
    *
+   * @param options Options that affects the request behavior
    * @throws If connection was not successful throw error
    */
   async checkConnection(options?: RequestOptions): Promise<void> | never {
+    assertRequestOptions(options, 'PostageBatchOptions')
+
     return status.checkConnection(this.getKy(options))
   }
 
   /**
    * Ping the Bee node to see if there is a live Bee node on the given URL.
    *
+   * @param options Options that affects the request behavior
    * @returns true if successful, false on error
    */
   async isConnected(options?: RequestOptions): Promise<boolean> {
+    assertRequestOptions(options, 'PostageBatchOptions')
+
     try {
       await status.checkConnection(this.getKy(options))
     } catch (e) {

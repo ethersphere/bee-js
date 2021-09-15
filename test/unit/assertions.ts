@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { BeeArgumentError } from '../../src'
 import { makeBytes } from '../../src/utils/bytes'
+import { assertCashoutOptions } from '../../src/utils/type'
 
 export function testBatchIdAssertion(executor: (input: unknown) => void): void {
   it('should throw exception for bad BatchId', async () => {
@@ -99,6 +100,48 @@ export function testRequestOptionsAssertions(executor: (input: unknown) => void)
     await expect(() => executor({ fetch: [] })).rejects.toThrow(TypeError)
     await expect(() => executor({ fetch: -1 })).rejects.toThrow(TypeError)
     await expect(() => executor({ fetch: 1 })).rejects.toThrow(TypeError)
+  })
+}
+
+export function testPostageBatchOptionsAssertions(executor: (input: unknown) => void): void {
+  it('should throw exception for bad PostageBatch', async () => {
+    await expect(() => executor(1)).rejects.toThrow(TypeError)
+    await expect(() => executor(true)).rejects.toThrow(TypeError)
+    await expect(() => executor([])).rejects.toThrow(TypeError)
+    await expect(() => executor('string')).rejects.toThrow(TypeError)
+
+    await expect(() => executor({ gasPrice: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: -1 })).rejects.toThrow(BeeArgumentError)
+
+    await expect(() => executor({ immutableFlag: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ immutableFlag: 1 })).rejects.toThrow(TypeError)
+    await expect(() => executor({ immutableFlag: null })).rejects.toThrow(TypeError)
+    await expect(() => executor({ immutableFlag: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ immutableFlag: [] })).rejects.toThrow(TypeError)
+  })
+}
+
+export function testCashoutOptionsAssertions(executor: (input: unknown) => void): void {
+  it('should throw exception for bad CashoutOptions', async () => {
+    await expect(() => executor(1)).rejects.toThrow(TypeError)
+    await expect(() => executor(true)).rejects.toThrow(TypeError)
+    await expect(() => executor([])).rejects.toThrow(TypeError)
+    await expect(() => executor('string')).rejects.toThrow(TypeError)
+
+    await expect(() => executor({ gasPrice: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: -1 })).rejects.toThrow(BeeArgumentError)
+
+    await expect(() => executor({ gasLimit: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasLimit: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasLimit: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasLimit: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasLimit: -1 })).rejects.toThrow(BeeArgumentError)
   })
 }
 

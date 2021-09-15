@@ -22,6 +22,8 @@ import {
   UploadOptions,
   TransactionHash,
   RequestOptions,
+  PostageBatchOptions,
+  CashoutOptions,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
@@ -58,6 +60,13 @@ export function isObject(value: unknown): value is Record<string, unknown> {
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function isStrictlyObject(value: unknown): value is object {
   return isObject(value) && !Array.isArray(value)
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function assertStrictlyObject(value: unknown, name = 'value'): asserts value is object {
+  if (!isStrictlyObject(value)) {
+    throw new TypeError(`${name} has to be an object that is not null nor array!`)
+  }
 }
 
 export function assertBoolean(value: unknown, name = 'value'): asserts value is boolean {
@@ -245,6 +254,44 @@ export function assertPssMessageHandler(value: unknown): asserts value is PssMes
 
 export function assertPublicKey(value: unknown): asserts value is PublicKey {
   assertHexString(value, PUBKEY_HEX_LENGTH, 'PublicKey')
+}
+
+export function assertPostageBatchOptions(value: unknown): asserts value is PostageBatchOptions {
+  if (value === undefined) {
+    return
+  }
+
+  assertStrictlyObject(value)
+
+  const options = value as PostageBatchOptions
+  assertRequestOptions(options, 'PostageBatchOptions')
+
+  if (options?.gasPrice) {
+    assertNonNegativeInteger(options.gasPrice)
+  }
+
+  if (options?.immutableFlag !== undefined) {
+    assertBoolean(options.immutableFlag)
+  }
+}
+
+export function assertCashoutOptions(value: unknown): asserts value is CashoutOptions {
+  if (value === undefined) {
+    return
+  }
+
+  assertStrictlyObject(value)
+
+  const options = value as CashoutOptions
+  assertRequestOptions(options, 'PostageBatchOptions')
+
+  if (options?.gasLimit) {
+    assertNonNegativeInteger(options.gasLimit)
+  }
+
+  if (options?.gasPrice) {
+    assertNonNegativeInteger(options.gasPrice)
+  }
 }
 
 /**

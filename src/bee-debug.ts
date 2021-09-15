@@ -38,6 +38,7 @@ import {
   assertAddress,
   assertBatchId,
   assertBoolean,
+  assertCashoutOptions,
   assertNonNegativeInteger,
   assertRequestOptions,
   assertTransactionHash,
@@ -289,15 +290,8 @@ export class BeeDebug {
    */
   async cashoutLastCheque(address: string | Address, options?: CashoutOptions): Promise<string> {
     assertRequestOptions(options)
+    assertCashoutOptions(options)
     assertAddress(address)
-
-    if (options?.gasLimit) {
-      assertNonNegativeInteger(options.gasLimit)
-    }
-
-    if (options?.gasPrice) {
-      assertNonNegativeInteger(options.gasPrice)
-    }
 
     return chequebook.cashoutLastCheque(this.getKy(options), address, options)
   }
