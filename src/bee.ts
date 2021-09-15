@@ -514,16 +514,6 @@ export class Bee {
   async reuploadPinnedData(reference: Reference | string): Promise<void> {
     assertReference(reference)
 
-    try {
-      // TODO: This should be detected by Bee, but until https://github.com/ethersphere/bee/issues/1803 is resolved
-      //  it is good idea to do some input validation on our side.
-      await this.getPin(reference)
-    } catch (e) {
-      if (e.status === 404) {
-        throw new BeeArgumentError('The passed reference is not locally pinned!', reference)
-      }
-    }
-
     await stewardship.reupload(this.ky, reference)
   }
 
