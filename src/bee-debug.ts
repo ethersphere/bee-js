@@ -86,7 +86,9 @@ export class BeeDebug {
 
     const kyOptions: KyOptions = {
       prefixUrl: this.url,
-      timeout: false,
+      timeout: options?.timeout ?? false,
+      retry: options?.retry,
+      fetch: options?.fetch,
       hooks: {
         beforeRequest: [],
         afterResponse: [],
@@ -289,7 +291,6 @@ export class BeeDebug {
    * @param options.gasLimit Gas limit for the cashout transaction in WEI
    */
   async cashoutLastCheque(address: string | Address, options?: CashoutOptions): Promise<string> {
-    assertRequestOptions(options)
     assertCashoutOptions(options)
     assertAddress(address)
 

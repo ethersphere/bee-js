@@ -122,7 +122,9 @@ export class Bee {
 
     const kyOptions: KyOptions = {
       prefixUrl: this.url,
-      timeout: false,
+      timeout: options?.timeout ?? false,
+      retry: options?.retry,
+      fetch: options?.fetch,
       hooks: {
         beforeRequest: [],
         afterResponse: [],

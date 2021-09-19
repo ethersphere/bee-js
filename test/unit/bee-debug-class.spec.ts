@@ -59,10 +59,10 @@ describe('BeeDebug class', () => {
   })
 
   describe('removePeer', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.removePeer('', input as RequestOptions)
+      return bee.removePeer(testAddress, input as RequestOptions)
     })
 
     testAddressAssertions(async (input: unknown) => {
@@ -73,10 +73,10 @@ describe('BeeDebug class', () => {
   })
 
   describe('pingPeer', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.pingPeer('', input as RequestOptions)
+      return bee.pingPeer(testAddress, input as RequestOptions)
     })
 
     testAddressAssertions(async (input: unknown) => {
@@ -87,10 +87,10 @@ describe('BeeDebug class', () => {
   })
 
   describe('getPeerBalance', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.getPeerBalance('', input as RequestOptions)
+      return bee.getPeerBalance(testAddress, input as RequestOptions)
     })
 
     testAddressAssertions(async (input: unknown) => {
@@ -101,10 +101,10 @@ describe('BeeDebug class', () => {
   })
 
   describe('getPastDueConsumptionPeerBalance', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.getPastDueConsumptionPeerBalance('', input as RequestOptions)
+      return bee.getPastDueConsumptionPeerBalance(testAddress, input as RequestOptions)
     })
 
     testAddressAssertions(async (input: unknown) => {
@@ -115,10 +115,10 @@ describe('BeeDebug class', () => {
   })
 
   describe('getLastChequesForPeer', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.getLastChequesForPeer('', input as RequestOptions)
+      return bee.getLastChequesForPeer(testAddress, input as RequestOptions)
     })
 
     testAddressAssertions(async (input: unknown) => {
@@ -129,10 +129,10 @@ describe('BeeDebug class', () => {
   })
 
   describe('getLastCashoutAction', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.getLastCashoutAction('', input as RequestOptions)
+      return bee.getLastCashoutAction(testAddress, input as RequestOptions)
     })
 
     testAddressAssertions(async (input: unknown) => {
@@ -143,10 +143,10 @@ describe('BeeDebug class', () => {
   })
 
   describe('getSettlements', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.getSettlements('', input as RequestOptions)
+      return bee.getSettlements(testAddress, input as RequestOptions)
     })
 
     testAddressAssertions(async (input: unknown) => {
@@ -157,10 +157,10 @@ describe('BeeDebug class', () => {
   })
 
   describe('cashoutLastCheque', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.cashoutLastCheque('', input as RequestOptions)
+      return bee.cashoutLastCheque(testAddress, input as RequestOptions)
     })
 
     testCashoutOptionsAssertions(async (input: unknown) => {
@@ -206,8 +206,8 @@ describe('BeeDebug class', () => {
       transactionHash: TRANSACTION_HASH,
     }
 
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
       return bee.withdrawTokens('1', '0', input as RequestOptions)
     })
@@ -261,8 +261,8 @@ describe('BeeDebug class', () => {
       transactionHash: TRANSACTION_HASH,
     }
 
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
       return bee.depositTokens('1', '0', input as RequestOptions)
     })
@@ -311,8 +311,8 @@ describe('BeeDebug class', () => {
   })
 
   describe('retrieveExtendedTag', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
       return bee.retrieveExtendedTag(0, input as RequestOptions)
     })
@@ -356,10 +356,10 @@ describe('BeeDebug class', () => {
       return bee.createPostageBatch('10', 17, input as PostageBatchOptions)
     })
 
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
-      return bee.createPostageBatch('10', 10, input as RequestOptions)
+      return bee.createPostageBatch('10', 17, input as RequestOptions)
     })
 
     it('should not pass headers if no gas price is specified', async () => {
@@ -406,8 +406,8 @@ describe('BeeDebug class', () => {
   })
 
   describe('getPostageBatch', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
       return bee.getPostageBatch(testBatchId, input as RequestOptions)
     })
@@ -420,8 +420,8 @@ describe('BeeDebug class', () => {
   })
 
   describe('getPostageBatchBuckets', () => {
-    testRequestOptionsAssertions(async (input: unknown) => {
-      const bee = new BeeDebug(MOCK_SERVER_URL)
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
 
       return bee.getPostageBatchBuckets(testBatchId, input as RequestOptions)
     })
