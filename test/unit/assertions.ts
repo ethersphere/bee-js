@@ -119,7 +119,7 @@ export function testRequestOptionsAssertions (executor: (input: unknown, beeOpti
       await expect(() => executor({ fetch: callFetch }, { retry: 0, fetch: instanceFetch })).rejects.toThrow(callMessage)
       expect(instanceFetch.mock.calls.length).toEqual(1) // The count did not change from last call
       expect(callFetch.mock.calls.length).toEqual(1)
-    }, 1000000)
+    })
   }
 }
 
