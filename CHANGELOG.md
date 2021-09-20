@@ -1,4 +1,31 @@
 # Changelog
+## [2.0.0](https://www.github.com/ethersphere/bee-js/compare/v1.2.1...v2.0.0) (2021-09-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* return tags for uploads (#408)
+* pss target length verification (#384)
+* utility module flatting and limiting (#395)
+* ky replaces axios (#390)
+
+### Features
+
+* request options ([#411](https://www.github.com/ethersphere/bee-js/issues/411)) ([9eac5cd](https://www.github.com/ethersphere/bee-js/commit/9eac5cd1a75277566b7d48255467afcd0d478f23))
+* return tags for uploads ([#408](https://www.github.com/ethersphere/bee-js/issues/408)) ([e58b8e8](https://www.github.com/ethersphere/bee-js/commit/e58b8e8629159cdcea23b9b3327813b459f2bf76))
+
+
+### Bug Fixes
+
+* pss target length verification ([#384](https://www.github.com/ethersphere/bee-js/issues/384)) ([fd032a8](https://www.github.com/ethersphere/bee-js/commit/fd032a826a39cd48d5c2030baabc58970cd4af91))
+* remove check for pinned content in reupload ([#412](https://www.github.com/ethersphere/bee-js/issues/412)) ([6032a22](https://www.github.com/ethersphere/bee-js/commit/6032a220a8a572421cac0200197843470ab50858))
+
+
+### Code Refactoring
+
+* ky replaces axios ([#390](https://www.github.com/ethersphere/bee-js/issues/390)) ([5f08d1e](https://www.github.com/ethersphere/bee-js/commit/5f08d1e799d5338ed9ac935805e7d9a1f7939fa6))
+* utility module flatting and limiting ([#395](https://www.github.com/ethersphere/bee-js/issues/395)) ([ee68ed2](https://www.github.com/ethersphere/bee-js/commit/ee68ed2a10892d53826535d85dcf5d0b734f45fb))
+
 ### [1.2.1](https://www.github.com/ethersphere/bee-js/compare/v1.2.0...v1.2.1) (2021-08-27)
 
 
