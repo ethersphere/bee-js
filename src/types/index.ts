@@ -72,7 +72,27 @@ export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
  */
 export type AddressPrefix = HexString
 
-export interface BeeOptions {
+export interface RequestOptions {
+  /**
+   * Timeout of requests in milliseconds
+   */
+  timeout?: number
+
+  /**
+   * Configure backoff mechanism for requests retries.
+   * Specifies how many retries will be performed before failing a request.
+   * Retries are performed for GET, PUT, HEAD, DELETE, OPTIONS and TRACE requests.
+   * Default is 2.
+   */
+  retry?: number
+
+  /**
+   * User defined Fetch compatible function
+   */
+  fetch?: Fetch
+}
+
+export interface BeeOptions extends RequestOptions {
   /**
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
@@ -115,7 +135,7 @@ export interface UploadResult {
   tagUid?: number
 }
 
-export interface UploadOptions {
+export interface UploadOptions extends RequestOptions {
   /**
    * Will pin the data locally in the Bee node as well.
    *
@@ -222,7 +242,7 @@ export interface Tag {
   startedAt: string
 }
 
-export interface AllTagsOptions {
+export interface AllTagsOptions extends RequestOptions {
   limit?: number
   offset?: number
 }
@@ -344,7 +364,7 @@ export interface FeedReader {
   download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
 }
 
-export interface JsonFeedOptions {
+export interface JsonFeedOptions extends RequestOptions {
   /**
    * Valid only for `get` action, where either this `address` or `signer` has
    * to be specified.
@@ -464,7 +484,7 @@ export interface TransactionInfo {
 /**
  * Options for creation of postage batch
  */
-export interface PostageBatchOptions {
+export interface PostageBatchOptions extends RequestOptions {
   /**
    * Sets label for the postage batch
    */
@@ -542,3 +562,5 @@ interface JsonMap {
   [key: string]: AnyJson
 }
 type JsonArray = Array<AnyJson>
+
+type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>

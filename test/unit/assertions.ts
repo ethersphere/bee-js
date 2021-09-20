@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { BeeArgumentError } from '../../src'
+import { BeeArgumentError, BeeOptions } from '../../src'
 import { makeBytes } from '../../src/utils/bytes'
 
 export function testBatchIdAssertion(executor: (input: unknown) => void): void {
@@ -71,6 +71,101 @@ export function testUploadOptionsAssertions(executor: (input: unknown) => void):
     await expect(() => executor({ tag: {} })).rejects.toThrow(TypeError)
     await expect(() => executor({ tag: [] })).rejects.toThrow(TypeError)
     await expect(() => executor({ tag: -1 })).rejects.toThrow(BeeArgumentError)
+  })
+}
+
+export function testRequestOptionsAssertions(
+  executor: (input: unknown, beeOptions?: BeeOptions) => void,
+  testFetch = true,
+): void {
+  it('should throw exception for bad RequestOptions', async () => {
+    await expect(() => executor(1)).rejects.toThrow(TypeError)
+    await expect(() => executor(true)).rejects.toThrow(TypeError)
+    await expect(() => executor([])).rejects.toThrow(TypeError)
+    await expect(() => executor(() => {})).rejects.toThrow(TypeError)
+    await expect(() => executor('string')).rejects.toThrow(TypeError)
+
+    await expect(() => executor({ timeout: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ timeout: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ timeout: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ timeout: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ timeout: -1 })).rejects.toThrow(BeeArgumentError)
+
+    await expect(() => executor({ retry: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ retry: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ retry: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ retry: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ retry: -1 })).rejects.toThrow(BeeArgumentError)
+
+    await expect(() => executor({ fetch: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: -1 })).rejects.toThrow(TypeError)
+    await expect(() => executor({ fetch: 1 })).rejects.toThrow(TypeError)
+  })
+
+  if (testFetch) {
+    it('should use per-call request options instead of instance request options', async () => {
+      const instanceFetch = jest.fn()
+      const instanceMessage = 'instance error'
+      const instanceError = { message: instanceMessage }
+      instanceFetch.mockRejectedValue(instanceError)
+      await expect(() => executor({}, { retry: 0, fetch: instanceFetch })).rejects.toThrow(instanceMessage)
+      expect(instanceFetch.mock.calls.length).toEqual(1)
+
+      const callFetch = jest.fn()
+      const callMessage = 'call error'
+      const callError = { message: callMessage }
+      callFetch.mockRejectedValue(callError)
+      await expect(() => executor({ fetch: callFetch }, { retry: 0, fetch: instanceFetch })).rejects.toThrow(
+        callMessage,
+      )
+      expect(instanceFetch.mock.calls.length).toEqual(1) // The count did not change from last call
+      expect(callFetch.mock.calls.length).toEqual(1)
+    })
+  }
+}
+
+export function testPostageBatchOptionsAssertions(executor: (input: unknown) => void): void {
+  it('should throw exception for bad PostageBatch', async () => {
+    await expect(() => executor(1)).rejects.toThrow(TypeError)
+    await expect(() => executor(true)).rejects.toThrow(TypeError)
+    await expect(() => executor([])).rejects.toThrow(TypeError)
+    await expect(() => executor('string')).rejects.toThrow(TypeError)
+
+    await expect(() => executor({ gasPrice: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: -1 })).rejects.toThrow(BeeArgumentError)
+
+    await expect(() => executor({ immutableFlag: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ immutableFlag: 1 })).rejects.toThrow(TypeError)
+    await expect(() => executor({ immutableFlag: null })).rejects.toThrow(TypeError)
+    await expect(() => executor({ immutableFlag: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ immutableFlag: [] })).rejects.toThrow(TypeError)
+  })
+}
+
+export function testCashoutOptionsAssertions(executor: (input: unknown) => void): void {
+  it('should throw exception for bad CashoutOptions', async () => {
+    await expect(() => executor(1)).rejects.toThrow(TypeError)
+    await expect(() => executor(true)).rejects.toThrow(TypeError)
+    await expect(() => executor([])).rejects.toThrow(TypeError)
+    await expect(() => executor('string')).rejects.toThrow(TypeError)
+
+    await expect(() => executor({ gasPrice: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasPrice: -1 })).rejects.toThrow(BeeArgumentError)
+
+    await expect(() => executor({ gasLimit: 'plur' })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasLimit: true })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasLimit: {} })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasLimit: [] })).rejects.toThrow(TypeError)
+    await expect(() => executor({ gasLimit: -1 })).rejects.toThrow(BeeArgumentError)
   })
 }
 

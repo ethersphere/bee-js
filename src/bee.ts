@@ -23,15 +23,16 @@ import {
   assertAddressPrefix,
   assertAllTagsOptions,
   assertBatchId,
-  assertBoolean,
   assertCollectionUploadOptions,
   assertData,
   assertFileData,
   assertFileUploadOptions,
   assertNonNegativeInteger,
+  assertPostageBatchOptions,
   assertPssMessageHandler,
   assertPublicKey,
   assertReference,
+  assertRequestOptions,
   assertUploadOptions,
   makeTagUid,
 } from './utils/type'
@@ -44,6 +45,7 @@ import {
   NumberString,
   PostageBatchOptions,
   Readable,
+  RequestOptions,
   STAMPS_DEPTH_MAX,
   STAMPS_DEPTH_MIN,
   UploadResult,
@@ -120,7 +122,9 @@ export class Bee {
 
     const kyOptions: KyOptions = {
       prefixUrl: this.url,
-      timeout: false,
+      timeout: options?.timeout ?? false,
+      retry: options?.retry,
+      fetch: options?.fetch,
       hooks: {
         beforeRequest: [],
         afterResponse: [],
@@ -147,7 +151,7 @@ export class Bee {
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data to be uploaded
-   * @param options Additional options like tag, encryption, pinning, content-type
+   * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
    * @returns reference is a content hash of the data
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
@@ -163,33 +167,40 @@ export class Bee {
 
     if (options) assertUploadOptions(options)
 
-    return bytes.upload(this.ky, data, postageBatchId, options)
+    return bytes.upload(this.getKy(options), data, postageBatchId, options)
   }
 
   /**
    * Download data as a byte array
    *
    * @param reference Bee data reference
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
-  async downloadData(reference: Reference | string): Promise<Data> {
+  async downloadData(reference: Reference | string, options?: RequestOptions): Promise<Data> {
+    assertRequestOptions(options)
     assertReference(reference)
 
-    return bytes.download(this.ky, reference)
+    return bytes.download(this.getKy(options), reference)
   }
 
   /**
    * Download data as a Readable stream
    *
    * @param reference Bee data reference
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
-  async downloadReadableData(reference: Reference | string): Promise<ReadableStream<Uint8Array>> {
+  async downloadReadableData(
+    reference: Reference | string,
+    options?: RequestOptions,
+  ): Promise<ReadableStream<Uint8Array>> {
+    assertRequestOptions(options)
     assertReference(reference)
 
-    return bytes.downloadReadable(this.ky, reference)
+    return bytes.downloadReadable(this.getKy(options), reference)
   }
 
   /**
@@ -201,7 +212,7 @@ export class Bee {
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data or file to be uploaded
    * @param name    Optional name of the uploaded file
-   * @param options Additional options like tag, encryption, pinning, content-type
+   * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
@@ -229,15 +240,15 @@ export class Bee {
       const contentType = data.type
       const fileOptions = { contentType, ...options }
 
-      return bzz.uploadFile(this.ky, fileData, postageBatchId, fileName, fileOptions)
+      return bzz.uploadFile(this.getKy(options), fileData, postageBatchId, fileName, fileOptions)
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
-      const result = await bzz.uploadFile(this.ky, data, postageBatchId, name, options)
+      const result = await bzz.uploadFile(this.getKy(options), data, postageBatchId, name, options)
       await this.updateTag(options.tag, result.reference)
 
       return result
     } else {
-      return bzz.uploadFile(this.ky, data, postageBatchId, name, options)
+      return bzz.uploadFile(this.getKy(options), data, postageBatchId, name, options)
     }
   }
 
@@ -246,15 +257,17 @@ export class Bee {
    *
    * @param reference Bee file reference
    * @param path If reference points to manifest, then this parameter defines path to the file
+   * @param options Options that affects the request behavior
    *
    * @see Data
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
    */
-  async downloadFile(reference: Reference | string, path = ''): Promise<FileData<Data>> {
+  async downloadFile(reference: Reference | string, path = '', options?: RequestOptions): Promise<FileData<Data>> {
+    assertRequestOptions(options)
     assertReference(reference)
 
-    return bzz.downloadFile(this.ky, reference, path)
+    return bzz.downloadFile(this.getKy(options), reference, path)
   }
 
   /**
@@ -262,14 +275,20 @@ export class Bee {
    *
    * @param reference Hash reference to file
    * @param path If reference points to manifest / collections, then this parameter defines path to the file
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
    */
-  async downloadReadableFile(reference: Reference | string, path = ''): Promise<FileData<ReadableStream<Uint8Array>>> {
+  async downloadReadableFile(
+    reference: Reference | string,
+    path = '',
+    options?: RequestOptions,
+  ): Promise<FileData<ReadableStream<Uint8Array>>> {
+    assertRequestOptions(options)
     assertReference(reference)
 
-    return bzz.downloadFileReadable(this.ky, reference, path)
+    return bzz.downloadFileReadable(this.getKy(options), reference, path)
   }
 
   /**
@@ -282,7 +301,7 @@ export class Bee {
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param fileList list of files to be uploaded
-   * @param options Additional options like tag, encryption, pinning
+   * @param options Additional options like tag, encryption, pinning and request options
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory/)
@@ -299,7 +318,7 @@ export class Bee {
 
     const data = await makeCollectionFromFileList(fileList)
 
-    return bzz.uploadCollection(this.ky, data, postageBatchId, options)
+    return bzz.uploadCollection(this.getKy(options), data, postageBatchId, options)
   }
 
   /**
@@ -310,7 +329,7 @@ export class Bee {
    *
    * @param postageBatchId
    * @param collection
-   * @param options
+   * @param options Collections and request options
    */
   async uploadCollection(
     postageBatchId: string | BatchId,
@@ -335,7 +354,7 @@ export class Bee {
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param dir the path of the files to be uploaded
-   * @param options Additional options like tag, encryption, pinning
+   * @param options Additional options like tag, encryption, pinning and request options
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory/)
@@ -351,7 +370,7 @@ export class Bee {
     if (options) assertCollectionUploadOptions(options)
     const data = await makeCollectionFromFS(dir)
 
-    return bzz.uploadCollection(this.ky, data, postageBatchId, options)
+    return bzz.uploadCollection(this.getKy(options), data, postageBatchId, options)
   }
 
   /**
@@ -359,11 +378,14 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
    * @see [Bee API reference - `POST /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)
    */
-  async createTag(): Promise<Tag> {
-    return tag.createTag(this.ky)
+  async createTag(options?: RequestOptions): Promise<Tag> {
+    assertRequestOptions(options)
+
+    return tag.createTag(this.getKy(options))
   }
 
   /**
@@ -373,7 +395,7 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
-   * @param options
+   * @param options Options that affects the request behavior
    * @throws TypeError if limit or offset are not numbers or undefined
    * @throws BeeArgumentError if limit or offset have invalid options
    *
@@ -381,9 +403,10 @@ export class Bee {
    * @see [Bee API reference - `GET /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)
    */
   async getAllTags(options?: AllTagsOptions): Promise<Tag[]> {
+    assertRequestOptions(options)
     assertAllTagsOptions(options)
 
-    return tag.getAllTags(this.ky, options?.offset, options?.limit)
+    return tag.getAllTags(this.getKy(options), options?.offset, options?.limit)
   }
 
   /**
@@ -392,16 +415,19 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
+   * @param options Options that affects the request behavior
    * @throws TypeError if tagUid is in not correct format
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/get)
    *
    */
-  async retrieveTag(tagUid: number | Tag): Promise<Tag> {
+  async retrieveTag(tagUid: number | Tag, options?: RequestOptions): Promise<Tag> {
+    assertRequestOptions(options)
+
     tagUid = makeTagUid(tagUid)
 
-    return tag.retrieveTag(this.ky, tagUid)
+    return tag.retrieveTag(this.getKy(options), tagUid)
   }
 
   /**
@@ -410,16 +436,19 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
+   * @param options Options that affects the request behavior
    * @throws TypeError if tagUid is in not correct format
    * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
    * @see [Bee API reference - `DELETE /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/delete)
    */
-  async deleteTag(tagUid: number | Tag): Promise<void> {
+  async deleteTag(tagUid: number | Tag, options?: RequestOptions): Promise<void> {
+    assertRequestOptions(options)
+
     tagUid = makeTagUid(tagUid)
 
-    return tag.deleteTag(this.ky, tagUid)
+    return tag.deleteTag(this.getKy(options), tagUid)
   }
 
   /**
@@ -432,17 +461,20 @@ export class Bee {
    *
    * @param tagUid UID or tag object to be retrieved
    * @param reference The root reference that contains all the chunks to be counted
+   * @param options Options that affects the request behavior
    * @throws TypeError if tagUid is in not correct format
    * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
    * @see [Bee API reference - `PATCH /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/patch)
    */
-  async updateTag(tagUid: number | Tag, reference: Reference | string): Promise<void> {
+  async updateTag(tagUid: number | Tag, reference: Reference | string, options?: RequestOptions): Promise<void> {
     assertReference(reference)
+    assertRequestOptions(options)
+
     tagUid = makeTagUid(tagUid)
 
-    return tag.updateTag(this.ky, tagUid, reference)
+    return tag.updateTag(this.getKy(options), tagUid, reference)
   }
 
   /**
@@ -451,14 +483,16 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Data reference
+   * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    */
-  async pin(reference: Reference | string): Promise<void> {
+  async pin(reference: Reference | string, options?: RequestOptions): Promise<void> {
+    assertRequestOptions(options)
     assertReference(reference)
 
-    return pinning.pin(this.ky, reference)
+    return pinning.pin(this.getKy(options), reference)
   }
 
   /**
@@ -467,14 +501,16 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Data reference
+   * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    */
-  async unpin(reference: Reference | string): Promise<void> {
+  async unpin(reference: Reference | string, options?: RequestOptions): Promise<void> {
+    assertRequestOptions(options)
     assertReference(reference)
 
-    return pinning.unpin(this.ky, reference)
+    return pinning.unpin(this.getKy(options), reference)
   }
 
   /**
@@ -482,10 +518,13 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    */
-  async getAllPins(): Promise<Reference[]> {
-    return pinning.getAllPins(this.ky)
+  async getAllPins(options?: RequestOptions): Promise<Reference[]> {
+    assertRequestOptions(options)
+
+    return pinning.getAllPins(this.getKy(options))
   }
 
   /**
@@ -494,27 +533,31 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Bee data reference
+   * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    */
-  async getPin(reference: Reference | string): Promise<Pin> {
+  async getPin(reference: Reference | string, options?: RequestOptions): Promise<Pin> {
+    assertRequestOptions(options)
     assertReference(reference)
 
-    return pinning.getPin(this.ky, reference)
+    return pinning.getPin(this.getKy(options), reference)
   }
 
   /**
    * Instructs the Bee node to reupload a locally pinned data into the network.
    *
    * @param reference
+   * @param options Options that affects the request behavior
    * @throws BeeArgumentError if the reference is not locally pinned
    * @throws TypeError if reference is in not correct format
    */
-  async reuploadPinnedData(reference: Reference | string): Promise<void> {
+  async reuploadPinnedData(reference: Reference | string, options?: RequestOptions): Promise<void> {
+    assertRequestOptions(options)
     assertReference(reference)
 
-    await stewardship.reupload(this.ky, reference)
+    await stewardship.reupload(this.getKy(options), reference)
   }
 
   /**
@@ -535,6 +578,7 @@ export class Bee {
    * @param target Target message address prefix. Has a limit on length. Recommend to use `Utils.Pss.makeMaxTarget()` to get the most specific target that Bee node will accept.
    * @param data Message to be sent
    * @param recipient Recipient public key
+   * @param options Options that affects the request behavior
    * @throws TypeError if `data`, `batchId`, `target` or `recipient` are in invalid format
    *
    * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
@@ -546,7 +590,9 @@ export class Bee {
     target: AddressPrefix,
     data: string | Uint8Array,
     recipient?: string | PublicKey,
+    options?: RequestOptions,
   ): Promise<void> {
+    assertRequestOptions(options)
     assertData(data)
     assertBatchId(postageBatchId)
     assertAddressPrefix(target)
@@ -558,9 +604,9 @@ export class Bee {
     if (recipient) {
       assertPublicKey(recipient)
 
-      return pss.send(this.ky, topic, target, data, postageBatchId, recipient)
+      return pss.send(this.getKy(options), topic, target, data, postageBatchId, recipient)
     } else {
-      return pss.send(this.ky, topic, target, data, postageBatchId)
+      return pss.send(this.getKy(options), topic, target, data, postageBatchId)
     }
   }
 
@@ -695,6 +741,7 @@ export class Bee {
    * @param type            The type of the feed, can be 'epoch' or 'sequence'
    * @param topic           Topic in hex or bytes
    * @param owner           Owner's ethereum address in hex or bytes
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    * @see [Bee API reference - `POST /feeds`](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1{owner}~1{topic}/post)
@@ -704,14 +751,16 @@ export class Bee {
     type: FeedType,
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
+    options?: RequestOptions,
   ): Promise<Reference> {
+    assertRequestOptions(options)
     assertFeedType(type)
     assertBatchId(postageBatchId)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
 
-    return createFeedManifest(this.ky, canonicalOwner, canonicalTopic, postageBatchId, { type })
+    return createFeedManifest(this.getKy(options), canonicalOwner, canonicalTopic, postageBatchId, { type })
   }
 
   /**
@@ -720,6 +769,7 @@ export class Bee {
    * @param type    The type of the feed, can be 'epoch' or 'sequence'
    * @param topic   Topic in hex or bytes
    * @param owner   Owner's ethereum address in hex or bytes
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    */
@@ -727,13 +777,15 @@ export class Bee {
     type: FeedType,
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
+    options?: RequestOptions,
   ): FeedReader {
+    assertRequestOptions(options)
     assertFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
 
-    return makeFeedReader(this.ky, type, canonicalTopic, canonicalOwner)
+    return makeFeedReader(this.getKy(options), type, canonicalTopic, canonicalOwner)
   }
 
   /**
@@ -742,6 +794,7 @@ export class Bee {
    * @param type    The type of the feed, can be 'epoch' or 'sequence'
    * @param topic   Topic in hex or bytes
    * @param signer  The signer's private key or a Signer instance that can sign data
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    */
@@ -749,13 +802,15 @@ export class Bee {
     type: FeedType,
     topic: Topic | Uint8Array | string,
     signer?: Signer | Uint8Array | string,
+    options?: RequestOptions,
   ): FeedWriter {
+    assertRequestOptions(options)
     assertFeedType(type)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalSigner = this.resolveSigner(signer)
 
-    return makeFeedWriter(this.ky, type, canonicalTopic, canonicalSigner)
+    return makeFeedWriter(this.getKy(options), type, canonicalTopic, canonicalSigner)
   }
 
   /**
@@ -782,13 +837,14 @@ export class Bee {
     data: T,
     options?: JsonFeedOptions,
   ): Promise<Reference> {
+    assertRequestOptions(options, 'JsonFeedOptions')
     assertBatchId(postageBatchId)
 
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
-    const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer)
+    const writer = this.makeFeedWriter(feedType, hashedTopic, options?.signer, options)
 
-    return setJsonData(this, writer, postageBatchId, data)
+    return setJsonData(this, writer, postageBatchId, data, options)
   }
 
   /**
@@ -811,6 +867,8 @@ export class Bee {
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    */
   async getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
+    assertRequestOptions(options, 'JsonFeedOptions')
+
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
 
@@ -834,7 +892,7 @@ export class Bee {
       }
     }
 
-    const reader = this.makeFeedReader(feedType, hashedTopic, address)
+    const reader = this.makeFeedReader(feedType, hashedTopic, address, options)
 
     return getJsonData(this, reader)
   }
@@ -855,14 +913,15 @@ export class Bee {
    * Returns an object for reading single owner chunks
    *
    * @param ownerAddress The ethereum address of the owner
-   *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/dapps-on-swarm/chunk-types#single-owner-chunks)
    */
-  makeSOCReader(ownerAddress: EthAddress | Uint8Array | string): SOCReader {
+  makeSOCReader(ownerAddress: EthAddress | Uint8Array | string, options?: RequestOptions): SOCReader {
+    assertRequestOptions(options)
     const canonicalOwner = makeEthAddress(ownerAddress)
 
     return {
-      download: downloadSingleOwnerChunk.bind(null, this.ky, canonicalOwner),
+      download: downloadSingleOwnerChunk.bind(null, this.getKy(options), canonicalOwner),
     }
   }
 
@@ -870,16 +929,17 @@ export class Bee {
    * Returns an object for reading and writing single owner chunks
    *
    * @param signer The signer's private key or a Signer instance that can sign data
-   *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/dapps-on-swarm/chunk-types#single-owner-chunks)
    */
-  makeSOCWriter(signer?: Signer | Uint8Array | string): SOCWriter {
+  makeSOCWriter(signer?: Signer | Uint8Array | string, options?: RequestOptions): SOCWriter {
+    assertRequestOptions(options)
     const canonicalSigner = this.resolveSigner(signer)
 
     return {
-      ...this.makeSOCReader(canonicalSigner.address),
+      ...this.makeSOCReader(canonicalSigner.address, options),
 
-      upload: uploadSingleOwnerChunkData.bind(null, this.ky, canonicalSigner),
+      upload: uploadSingleOwnerChunkData.bind(null, this.getKy(options), canonicalSigner),
     }
   }
 
@@ -894,7 +954,7 @@ export class Bee {
    *
    * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
    * @param depth Logarithm of the number of chunks that can be stamped with the batch.
-   * @param options Options for creation of postage batch
+   * @param options Options for creation of postage batch and request options
    * @throws BeeArgumentError when negative amount or depth is specified
    * @throws TypeError if non-integer value is passed to amount or depth
    *
@@ -903,6 +963,7 @@ export class Bee {
    * @deprecated Use DebugBee for postage batch management
    */
   async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
+    assertPostageBatchOptions(options)
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
 
@@ -914,15 +975,7 @@ export class Bee {
       throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
     }
 
-    if (options?.gasPrice) {
-      assertNonNegativeInteger(options.gasPrice)
-    }
-
-    if (options?.immutableFlag !== undefined) {
-      assertBoolean(options.immutableFlag)
-    }
-
-    return stamps.createPostageBatch(this.ky, amount, depth, options)
+    return stamps.createPostageBatch(this.getKy(options), amount, depth, options)
   }
 
   /**
@@ -931,15 +984,17 @@ export class Bee {
    * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param postageBatchId Batch ID
+   * @param options Options that affects the request behavior
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
    * @deprecated Use DebugBee for postage batch management
    */
-  async getPostageBatch(postageBatchId: BatchId | string): Promise<PostageBatch> {
+  async getPostageBatch(postageBatchId: BatchId | string, options?: RequestOptions): Promise<PostageBatch> {
+    assertRequestOptions(options, 'PostageBatchOptions')
     assertBatchId(postageBatchId)
 
-    return stamps.getPostageBatch(this.ky, postageBatchId)
+    return stamps.getPostageBatch(this.getKy(options), postageBatchId)
   }
 
   /**
@@ -947,31 +1002,40 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
+   * @param options Options that affects the request behavior
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
    * @deprecated Use DebugBee for postage batch management
    */
-  async getAllPostageBatch(): Promise<PostageBatch[]> {
-    return stamps.getAllPostageBatches(this.ky)
+  async getAllPostageBatch(options?: RequestOptions): Promise<PostageBatch[]> {
+    assertRequestOptions(options, 'PostageBatchOptions')
+
+    return stamps.getAllPostageBatches(this.getKy(options))
   }
 
   /**
    * Ping the Bee node to see if there is a live Bee node on the given URL.
    *
+   * @param options Options that affects the request behavior
    * @throws If connection was not successful throw error
    */
-  async checkConnection(): Promise<void> | never {
-    return status.checkConnection(this.ky)
+  async checkConnection(options?: RequestOptions): Promise<void> | never {
+    assertRequestOptions(options, 'PostageBatchOptions')
+
+    return status.checkConnection(this.getKy(options))
   }
 
   /**
    * Ping the Bee node to see if there is a live Bee node on the given URL.
    *
+   * @param options Options that affects the request behavior
    * @returns true if successful, false on error
    */
-  async isConnected(): Promise<boolean> {
+  async isConnected(options?: RequestOptions): Promise<boolean> {
+    assertRequestOptions(options, 'PostageBatchOptions')
+
     try {
-      await status.checkConnection(this.ky)
+      await status.checkConnection(this.getKy(options))
     } catch (e) {
       return false
     }
@@ -994,5 +1058,13 @@ export class Bee {
     }
 
     throw new BeeError('You have to pass Signer as property to either the method call or constructor! Non found.')
+  }
+
+  private getKy(options?: RequestOptions): Ky {
+    if (!options) {
+      return this.ky
+    }
+
+    return this.ky.extend(options)
   }
 }
