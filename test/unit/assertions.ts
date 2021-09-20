@@ -1,7 +1,6 @@
 /* eslint-disable */
 import { BeeArgumentError, BeeOptions } from '../../src'
 import { makeBytes } from '../../src/utils/bytes'
-import { assertCashoutOptions } from '../../src/utils/type'
 
 export function testBatchIdAssertion(executor: (input: unknown) => void): void {
   it('should throw exception for bad BatchId', async () => {
