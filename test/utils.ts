@@ -290,6 +290,10 @@ export function shorten(inputStr: unknown, len = 17): string {
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
 }
 
+export function makeTestTarget(target: string): string {
+  return target.slice(0, 2)
+}
+
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000' as Reference
 
 export const okResponse: BeeGenericResponse = {

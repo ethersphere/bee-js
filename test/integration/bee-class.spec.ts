@@ -18,6 +18,7 @@ import {
   createReadableStream,
   FEED_TIMEOUT,
   getPostageBatch,
+  makeTestTarget,
   POSTAGE_BATCH_TIMEOUT,
   PSS_TIMEOUT,
   randomByteArray,
@@ -30,7 +31,6 @@ import {
 } from '../utils'
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
-import { makeMaxTarget } from '../../src/utils/pss'
 
 commonMatchers()
 
@@ -309,7 +309,7 @@ describe('Bee class', () => {
             })
 
             const { overlay } = await beeDebug.getNodeAddresses()
-            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeMaxTarget(overlay), message)
+            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeTestTarget(overlay), message)
           })().catch(reject)
         })
       },
@@ -335,7 +335,7 @@ describe('Bee class', () => {
             await beePeer.pssSend(
               getPostageBatch(BEE_DEBUG_PEER_URL),
               topic,
-              makeMaxTarget(overlay),
+              makeTestTarget(overlay),
               message,
               pssPublicKey,
             )
@@ -369,7 +369,7 @@ describe('Bee class', () => {
             })
 
             const { overlay } = await beeDebug.getNodeAddresses()
-            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeMaxTarget(overlay), message)
+            await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeTestTarget(overlay), message)
           })().catch(e => {
             // without cancel jest complains for leaking handles and may hang
             subscription?.cancel()
