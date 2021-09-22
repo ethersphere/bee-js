@@ -1,6 +1,8 @@
-import { isNodeReadable, isReadableStream } from './stream'
-import { Readable } from '../types'
+import { bufferReadable, isReadable } from './stream'
+import { Collection, Readable } from '../types'
 import Blob from 'cross-blob'
+import { FormData } from 'formdata-node'
+import { BeeError } from './error'
 
 /**
  * Validates input and converts to Uint8Array
@@ -24,34 +26,8 @@ export async function prepareData(
   // there are already first experiments on this field (Chromium)
   // but till it is fully implemented across browsers-land we have to
   // buffer the data before sending the requests.
-  if (isNodeReadable(data)) {
-    return new Promise(resolve => {
-      const buffers: Array<Uint8Array> = []
-      data.on('data', d => {
-        buffers.push(d)
-      })
-      data.on('end', () => {
-        resolve(new Blob(buffers, { type: 'application/octet-stream' }))
-      })
-    })
-  }
-
-  if (isReadableStream(data)) {
-    return new Promise(async resolve => {
-      const reader = data.getReader()
-      const buffers: Array<Uint8Array> = []
-
-      let done, value
-      do {
-        ;({ done, value } = await reader.read())
-
-        if (!done) {
-          buffers.push(value)
-        }
-      } while (!done)
-
-      resolve(new Blob(buffers, { type: 'application/octet-stream' }))
-    })
+  if (isReadable(data)) {
+    return bufferReadable(data)
   }
 
   throw new TypeError('unknown data type')
@@ -65,4 +41,22 @@ export async function prepareWebsocketData(data: string | ArrayBuffer | Blob): P
   if (data instanceof Blob) return new Uint8Array(await new Response(data as Blob).arrayBuffer())
 
   throw new TypeError('unknown websocket data type')
+}
+
+export async function prepareCollection(data: Collection<Uint8Array | Readable>): Promise<FormData> {
+  const form = new FormData()
+
+  for (const el of data) {
+    if (el.data instanceof Uint8Array) {
+      form.set(el.path, el.data)
+    } else if (isReadable(el.data)) {
+      if (!el.length) {
+        throw new BeeError(`Collection entry '${el.path}' is a stream, but does not have required length!`)
+      }
+
+      form.set(el.path, await bufferReadable(el.data))
+    }
+  }
+
+  return form
 }

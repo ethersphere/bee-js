@@ -1,16 +1,12 @@
 import type { Data } from 'ws'
 import Blob from 'cross-blob'
-import { isNodeReadable, isReadableStream, readableWebToNode } from './stream'
-import { Readable } from '../types'
+import FormData from 'form-data'
+import { Buffer } from 'buffer'
 
-/**
- * Prepare data for valid input for node-fetch.
- *
- * node-fetch is not using WHATWG ReadableStream but NodeJS Readable so we need to convert in case of ReadableStream,
- * but the typings are set to use ReadableStream so hence why type conversion here.
- *
- * @param data any string, ArrayBuffer, Uint8Array or Readable
- */
+import { isNodeReadable, isReadableStream, readableWebToNode } from './stream'
+import { Collection, Readable } from '../types'
+import { isUint8Array } from './type'
+
 export async function prepareData(
   data: string | ArrayBuffer | Uint8Array | Readable,
 ): Promise<Blob | ReadableStream<Uint8Array> | never> {
@@ -45,4 +41,33 @@ export async function prepareWebsocketData(data: Data | Blob): Promise<Uint8Arra
   if (isBufferArray(data)) return new Uint8Array(Buffer.concat(data))
 
   throw new TypeError('unknown websocket data type')
+}
+
+export async function prepareCollection(data: Collection<Uint8Array | Readable>): Promise<FormData> {
+  const form = new FormData()
+
+  for (const el of data) {
+    let resolvedData, length
+
+    if (isReadableStream(el.data)) {
+      length = el.length
+      resolvedData = readableWebToNode(el.data)
+    } else if (isUint8Array(el.data)) {
+      resolvedData = Buffer.from(el.data)
+      length = resolvedData.length
+    } else {
+      resolvedData = el.data
+      length = el.length
+    }
+
+    form.append(el.path, resolvedData, {
+      filepath: el.path,
+      knownLength: length,
+      header: {
+        'Content-Length': length,
+      },
+    })
+  }
+
+  return form
 }

@@ -21,9 +21,9 @@ import {
   PSS_TARGET_HEX_LENGTH_MAX,
   UploadOptions,
   TransactionHash,
+  Collection,
 } from '../types'
 import { BeeArgumentError } from './error'
-import { isFile } from './file'
 import { assertHexString, assertPrefixedHexString } from './hex'
 import { isReadable } from './stream'
 
@@ -71,6 +71,45 @@ export function assertNonNegativeInteger(value: unknown, name = 'Value'): assert
   assertInteger(value)
 
   if (Number(value) < 0) throw new BeeArgumentError(`${name} has to be bigger or equal to zero`, value)
+}
+
+export function isCollection(data: unknown): data is Collection<Uint8Array | Readable> {
+  if (!Array.isArray(data)) {
+    return false
+  }
+
+  return data.every(
+    entry =>
+      typeof entry === 'object' && entry.data && entry.path && (isUint8Array(entry.data) || isReadable(entry.data)),
+  )
+}
+
+export function assertCollection(data: unknown): asserts data is Collection<Uint8Array | Readable> {
+  if (!isCollection(data)) {
+    throw new BeeArgumentError('invalid collection', data)
+  }
+}
+
+/**
+ * Compatibility functions for working with File API objects
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/File
+ */
+
+export function isFile(file: unknown): file is File {
+  // browser
+  if (typeof File === 'function') {
+    return file instanceof File
+  }
+
+  // node.js
+  const f = file as File
+
+  return (
+    typeof f === 'object' &&
+    typeof f.name === 'string' &&
+    (typeof f.stream === 'function' || typeof f.arrayBuffer === 'function')
+  )
 }
 
 export function assertReference(value: unknown): asserts value is Reference {

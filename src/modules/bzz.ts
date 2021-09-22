@@ -13,12 +13,10 @@ import {
 } from '../types'
 import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { prepareData } from '../utils/data'
-import { makeTar } from '../utils/tar'
-import { assertCollection } from '../utils/collection'
+import { prepareCollection, prepareData } from '../utils/data'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { isReadable } from '../utils/stream'
-import { makeTagUid } from '../utils/type'
+import { assertCollection, makeTagUid } from '../utils/type'
 
 const bzzEndpoint = 'bzz'
 
@@ -153,20 +151,18 @@ function extractCollectionUploadHeaders(
  */
 export async function uploadCollection(
   ky: Ky,
-  collection: Collection<Uint8Array>,
+  collection: Collection<Uint8Array | Readable>,
   postageBatchId: BatchId,
   options?: CollectionUploadOptions,
 ): Promise<UploadResult> {
   assertCollection(collection)
-  const tarData = makeTar(collection)
 
   const response = await http<{ reference: Reference }>(ky, {
     method: 'post',
     path: bzzEndpoint,
-    body: tarData,
+    body: await prepareCollection(collection),
     responseType: 'json',
     headers: {
-      'content-type': 'application/x-tar',
       'swarm-collection': 'true',
       ...extractCollectionUploadHeaders(postageBatchId, options),
     },

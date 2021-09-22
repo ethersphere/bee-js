@@ -50,6 +50,7 @@
   "dependencies": {
     "cross-blob": "^2.0.1",
     "elliptic": "^6.5.4",
+    "form-data": "^3.0.1",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
     "ky": "^0.25.1",

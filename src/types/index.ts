@@ -57,7 +57,7 @@ export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
 
 /**
  * Type representing Readable stream that abstracts away implementation especially the difference between
- * browser and NodeJS versions as both are supported.
+ * browser (WHATWG) and NodeJS versions as both are supported.
  */
 export type Readable = NativeReadable | CompatibilityReadable | ReadableStream | ReadableStreamPonyfill
 
@@ -272,9 +272,14 @@ export interface CollectionEntry<T> {
   data: T
 
   /**
-   *
+   * Path in the directory structure
    */
   path: string
+
+  /**
+   * If data is Readable then length has to be specified as well!
+   */
+  length?: number
 }
 
 /**

@@ -9,7 +9,6 @@ import * as stamps from './modules/stamps'
 
 import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
-import { fileArrayBuffer, isFile } from './utils/file'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
 import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
@@ -33,10 +32,12 @@ import {
   assertPublicKey,
   assertReference,
   assertUploadOptions,
+  assertCollection,
+  isFile,
   makeTagUid,
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
-import { makeCollectionFromFS, makeCollectionFromFileList, assertCollection } from './utils/collection'
+import { makeCollectionFromFS, makeCollectionFromFileList } from './utils/collection'
 import {
   AllTagsOptions,
   Collection,
@@ -224,12 +225,11 @@ export class Bee {
     }
 
     if (isFile(data)) {
-      const fileData = await fileArrayBuffer(data)
       const fileName = name ?? data.name
       const contentType = data.type
       const fileOptions = { contentType, ...options }
 
-      return bzz.uploadFile(this.ky, fileData, postageBatchId, fileName, fileOptions)
+      return bzz.uploadFile(this.ky, data.stream(), postageBatchId, fileName, fileOptions)
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
       const result = await bzz.uploadFile(this.ky, data, postageBatchId, name, options)
@@ -297,7 +297,7 @@ export class Bee {
 
     if (options) assertCollectionUploadOptions(options)
 
-    const data = await makeCollectionFromFileList(fileList)
+    const data = makeCollectionFromFileList(fileList)
 
     return bzz.uploadCollection(this.ky, data, postageBatchId, options)
   }

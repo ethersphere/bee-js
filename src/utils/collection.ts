@@ -1,31 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { Collection } from '../types'
-import { BeeArgumentError } from './error'
-import { fileArrayBuffer } from './file'
-import { isUint8Array } from './type'
+import { Collection, Readable } from '../types'
+import { Readable as NodeReadable } from 'stream'
 
-export function isCollection(data: unknown): data is Collection<Uint8Array> {
-  if (!Array.isArray(data)) {
-    return false
-  }
-
-  return data.every(entry => typeof entry === 'object' && entry.data && entry.path && isUint8Array(entry.data))
-}
-
-export function assertCollection(data: unknown): asserts data is Collection<Uint8Array> {
-  if (!isCollection(data)) {
-    throw new BeeArgumentError('invalid collection', data)
-  }
-}
-
-/**
- * Creates array in the format of Collection with data loaded from directory on filesystem.
- * The function loads all the data into memory!
- *
- * @param dir path to the directory
- */
-export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint8Array>> {
+export async function makeCollectionFromFS(dir: string): Promise<Collection<NodeReadable>> {
   if (typeof dir !== 'string') {
     throw new TypeError('dir has to be string!')
   }
@@ -37,11 +15,11 @@ export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint
   return buildCollectionRelative(dir, '')
 }
 
-async function buildCollectionRelative(dir: string, relativePath: string): Promise<Collection<Uint8Array>> {
+async function buildCollectionRelative(dir: string, relativePath: string): Promise<Collection<NodeReadable>> {
   // Handles case when the dir is not existing or it is a file ==> throws an error
   const dirname = path.join(dir, relativePath)
   const entries = await fs.promises.opendir(dirname)
-  let collection: Collection<Uint8Array> = []
+  let collection: Collection<NodeReadable> = []
 
   for await (const entry of entries) {
     const fullPath = path.join(dir, relativePath, entry.name)
@@ -50,7 +28,8 @@ async function buildCollectionRelative(dir: string, relativePath: string): Promi
     if (entry.isFile()) {
       collection.push({
         path: entryPath,
-        data: new Uint8Array(await fs.promises.readFile(fullPath)),
+        data: fs.createReadStream(fullPath),
+        length: (await fs.promises.stat(fullPath)).size,
       })
     } else if (entry.isDirectory()) {
       collection = [...(await buildCollectionRelative(dir, entryPath)), ...collection]
@@ -83,8 +62,8 @@ function makeFilePath(file: WebkitFile) {
   throw new TypeError('file is not valid File object')
 }
 
-export async function makeCollectionFromFileList(fileList: FileList | File[]): Promise<Collection<Uint8Array>> {
-  const collection: Collection<Uint8Array> = []
+export function makeCollectionFromFileList(fileList: FileList | File[]): Collection<Readable> {
+  const collection: Collection<Readable> = []
 
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList[i] as WebkitFile
@@ -92,7 +71,8 @@ export async function makeCollectionFromFileList(fileList: FileList | File[]): P
     if (file) {
       collection.push({
         path: makeFilePath(file),
-        data: new Uint8Array(await fileArrayBuffer(file)),
+        data: file.stream(),
+        length: file.size,
       })
     }
   }

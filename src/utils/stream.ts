@@ -4,6 +4,7 @@ import { ReadableStream } from 'web-streams-polyfill/ponyfill'
 import { Readable as NodeReadable, ReadableOptions as NodeReadableOptions } from 'readable-stream'
 
 import { Readable } from '../types'
+import Blob from 'cross-blob'
 
 /**
  * Validates if passed object is either browser's ReadableStream
@@ -143,4 +144,38 @@ export function normalizeToReadableStream(stream: Readable): ReadableStream {
   }
 
   throw new TypeError('Passed stream is not Node Readable nor ReadableStream!')
+}
+
+export async function bufferReadable(stream: Readable): Promise<Blob> {
+  if (isNodeReadable(stream)) {
+    return new Promise(resolve => {
+      const buffers: Array<Uint8Array> = []
+      stream.on('data', d => {
+        buffers.push(d)
+      })
+      stream.on('end', () => {
+        resolve(new Blob(buffers, { type: 'application/octet-stream' }))
+      })
+    })
+  }
+
+  if (isReadableStream(stream)) {
+    return new Promise(async resolve => {
+      const reader = stream.getReader()
+      const buffers: Array<Uint8Array> = []
+
+      let done, value
+      do {
+        ;({ done, value } = await reader.read())
+
+        if (!done) {
+          buffers.push(value)
+        }
+      } while (!done)
+
+      resolve(new Blob(buffers, { type: 'application/octet-stream' }))
+    })
+  }
+
+  throw new TypeError('Passed data is nor Node Readable nor WHATWG ReadableStream')
 }

@@ -79,11 +79,11 @@ describe('Bee class', () => {
     })
 
     it('should work with file object', async () => {
-      const content = new Uint8Array([1, 2, 3])
+      const content = 'hello world'
       const name = 'hello.txt'
       const type = 'text/plain'
       const file = {
-        arrayBuffer: () => content,
+        stream: () => Readable.from(content),
         name,
         type,
       } as unknown as File
@@ -91,16 +91,16 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file)
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.data.text()).toEqual(content)
       expect(downloadedFile.name).toEqual(name)
       expect(downloadedFile.contentType).toEqual(type)
     })
 
     it('should work with file object and name overridden', async () => {
-      const content = new Uint8Array([1, 2, 3])
+      const content = 'hello world'
       const name = 'hello.txt'
       const file = {
-        arrayBuffer: () => content,
+        stream: () => Readable.from(content),
         name,
       } as unknown as File
       const nameOverride = 'hello-override.txt'
@@ -108,14 +108,14 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file, nameOverride)
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.data.text()).toEqual(content)
       expect(downloadedFile.name).toEqual(nameOverride)
     })
 
     it('should work with file object and content-type overridden', async () => {
-      const content = new Uint8Array([1, 2, 3])
+      const content = 'hello world'
       const file = {
-        arrayBuffer: () => content,
+        stream: () => Readable.from(content),
         name: 'hello.txt',
         type: 'text/plain',
       } as unknown as File
@@ -124,7 +124,7 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file, undefined, { contentType: contentTypeOverride })
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data).toEqual(content)
+      expect(downloadedFile.data.text()).toEqual(content)
       expect(downloadedFile.contentType).toEqual(contentTypeOverride)
     })
 
@@ -182,18 +182,27 @@ describe('Bee class', () => {
     })
 
     it('should upload collection', async () => {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection<Uint8Array | Readable> = [
         {
-          path: '0',
+          path: 'folder/file',
           data: new TextEncoder().encode('hello-world'),
+        },
+        {
+          path: 'root-file',
+          data: Readable.from('hello-readable-world'),
+          length: 20,
         },
       ]
 
       const result = await bee.uploadCollection(getPostageBatch(), directoryStructure)
-      const file = await bee.downloadFile(result.reference, directoryStructure[0].path)
+      const file0 = await bee.downloadFile(result.reference, directoryStructure[0].path)
 
-      expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data.text()).toEqual('hello-world')
+      expect(file0.name).toEqual(directoryStructure[0].path)
+      expect(file0.data.text()).toEqual('hello-world')
+
+      const file1 = await bee.downloadFile(result.reference, directoryStructure[1].path)
+      expect(file1.name).toEqual(directoryStructure[1].path)
+      expect(file1.data.text()).toEqual('hello-readable-world')
     })
   })
 
