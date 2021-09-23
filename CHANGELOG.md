@@ -1,32 +1,75 @@
 # Changelog
+
 ## [2.0.0](https://www.github.com/ethersphere/bee-js/compare/v1.2.1...v2.0.0) (2021-09-20)
 
+This is our first major version bump as we did a big revamp of `bee-js` internals and fixed a few things and shortcomings that required breaking changes.
+
+### 🤖 HTTP client swap (timeout and retries support)
+
+In the JS browser ecosystem, there are two main HTTP clients: old XMLHttpRequest (XHR) API and new modern `fetch` API.
+
+We originally used `axios` library that employs the XHR client, but XHR is old and will not get any new features as it is superseded with `fetch` API that is actively developed by the WHATWG group, and hence it has its limitations. Many limitations can be overcome using polyfills etc. but a hard stop is networking that only browsers decide what to allow (usually based on the specification). In the case of XHR the limitation is streaming support.
+
+We have therefore decided to use `fetch` based library `ky` that supports streaming downloads and hopefully in close future will support also streaming uploads (see [whatwg/fetch#966](https://github.com/whatwg/fetch/issues/966), there is also already functional experiment that [enables this in Chrome](https://www.chromestatus.com/feature/5274139738767360)). `fetch` is also more future-proof.
+
+This change, unfortunately, does not come without a cost and that is support for tracking upload progress, that `fetch` still does not have (if interested please comment on the relevant [whatwg/fetch#607](https://github.com/whatwg/fetch/issues/607) issue to raise importance).
+If this feature is crucial for you, we have devised a workaround thanks to @mattiaz9, which is demonstrated in our [example `upload-progress`](https://github.com/ethersphere/examples-js/tree/master/upload-progress).
+
+This change unfortunately is breaking as we originally exposed `AxiosOptions` on our API. We have refactored this into more generic HTTP options that should be more future-proof. Thanks to `ky` we also now have support for retries of failed requests (only for non-`POST` requests, defaults are seen [here](https://github.com/sindresorhus/ky#retry)) and timeouts. Both are possible to set generally for the `Bee` instance and/or override it for each method call.
+
+### 🎏 Streaming revamp
+
+As part of the HTTP client revamp, we had a deeper look at how we handle streams. In the JS land, there are two main types of streams the NodeJS [`Readable`](https://nodejs.org/api/stream.html#stream_class_stream_readable) and the browser WHATWG [`ReadableStream`](http://developer.mozilla.org/en-US/docs/Web/API/ReadableStream). As our design mindset is browser-first and polyfill the rest in NodeJs, we have unified all returned streams into the WHATWG `ReadableStream` no matter what platform you are on. Most probably you will want to use NodeJs `Readable` on NodeJs platform, so we have included utility function [`readableWebToNode`](https://bee-js.ethswarm.org/docs/api/functions/utils.readableWebToNode/) that converts WHATWG stream into NodeJs. There are also more stream-related utility functions that you can check out.
+
+For stream inputs, we accept both types of streams and convert them internally.
+
+### ⏎ Upload results refactor
+
+One of our short-coming was dropping the returned object from upload methods in favor of the simple string `Reference`. Later on, we discovered that there is actually a need to return more information from upload operations because [Bee automatically creates a Tag for each upload](https://docs.ethswarm.org/docs/access-the-swarm/syncing#generate-the-tag-automatically) that we could return. Hence we have introduced back [`UploadResult`](https://bee-js.ethswarm.org/docs/api/interfaces/uploadresult/) interface that all the upload methods will now return.
+
+### 🫓 Utility namespace flatting and filtering
+
+We have merged all the `Utils.*` namespaces directly into `Utils` and we have filtered out the functions only to those that make sense to expose in order to minimize the public API and possible future breaking changes.
+
+### 🗾 `uploadCollection()` method
+
+We have introduced new `uploadCollection` method that is more flexible in uploading collection if you do not want to use our convenience methods like `uploadFilesFromDirectory()` or `uploadFiles`. This new method accepts the [`Collection<Uint8Array | Readable>`](https://bee-js.ethswarm.org/docs/api/interfaces/collection/) interface.
 
 ### ⚠ BREAKING CHANGES
 
-* return tags for uploads (#408)
-* pss target length verification (#384)
-* utility module flatting and limiting (#395)
-* ky replaces axios (#390)
+- Requests made by `bee-js` are now reported with `User-Agent: bee-js/<<bee-js's version>>` (#390)
+- `Utils.setDefaultHeaders()` was removed in favor of `Bee`/`BeeDebug` instance's option `defaultHeaders` (#390)
+- Hooks (#390)
+  - `Utils.hooks.*` was removed in favor of `Bee`/`BeeDebug` instance's options `onRequest` and `onResponse`
+  - Hooks now pass only metadata of the requests and not the payload
+- All returned streams are now of [`WHATWG ReadableStream`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream). If you need NodeJS's Readable you can use `Utils.readableWebToNode()` utility function. (#390)
+- All `axiosOptions` were removed from those methods that supported it (for example `bee.downloadReadableData()`, `bee.reuploadPinnedData()`, `UploadOptions` does not have `axiosOptions` property anymore) (#390)
+- Unfortunately `fetch` does not support tracking of upload progress (like XHR/axios supported with the `onUploadProgress`). Please see our [example `upload-progress`](https://github.com/ethersphere/examples-js/tree/master/upload-progress) for work-around. (#390)
+- All upload methods now returns `UploadResult` interface (#408)
+- `bee.pssSend()` now throws error if the specified target exceeds maximal value. Use `Utils.makeMaxTarget()` that will give you the max target that Bee accepts. (#384)
+- `Utils` namespace is flattened and limited on the functions (#395)
+
+### Other changes:
+
+- All upload methods that used to accept NodeJS's Readable now accept both NodeJS and WHATWG Readable(Stream).
+- Usage of ReadableStreams in a browser is now possible. Be aware that real support for streaming browsers has only for download, but not upload. When Readable is passed to upload methods it is first fully buffered before making the request.
 
 ### Features
 
-* request options ([#411](https://www.github.com/ethersphere/bee-js/issues/411)) ([9eac5cd](https://www.github.com/ethersphere/bee-js/commit/9eac5cd1a75277566b7d48255467afcd0d478f23))
-* return tags for uploads ([#408](https://www.github.com/ethersphere/bee-js/issues/408)) ([e58b8e8](https://www.github.com/ethersphere/bee-js/commit/e58b8e8629159cdcea23b9b3327813b459f2bf76))
-
+* HTTP request options is possible to override per method call ([#411](https://www.github.com/ethersphere/bee-js/issues/411)) ([9eac5cd](https://www.github.com/ethersphere/bee-js/commit/9eac5cd1a75277566b7d48255467afcd0d478f23))
+* return `UploadResult` for upload methods ([#408](https://www.github.com/ethersphere/bee-js/issues/408)) ([e58b8e8](https://www.github.com/ethersphere/bee-js/commit/e58b8e8629159cdcea23b9b3327813b459f2bf76))
 
 ### Bug Fixes
 
 * pss target length verification ([#384](https://www.github.com/ethersphere/bee-js/issues/384)) ([fd032a8](https://www.github.com/ethersphere/bee-js/commit/fd032a826a39cd48d5c2030baabc58970cd4af91))
 * remove check for pinned content in reupload ([#412](https://www.github.com/ethersphere/bee-js/issues/412)) ([6032a22](https://www.github.com/ethersphere/bee-js/commit/6032a220a8a572421cac0200197843470ab50858))
 
-
 ### Code Refactoring
 
 * ky replaces axios ([#390](https://www.github.com/ethersphere/bee-js/issues/390)) ([5f08d1e](https://www.github.com/ethersphere/bee-js/commit/5f08d1e799d5338ed9ac935805e7d9a1f7939fa6))
 * utility module flatting and limiting ([#395](https://www.github.com/ethersphere/bee-js/issues/395)) ([ee68ed2](https://www.github.com/ethersphere/bee-js/commit/ee68ed2a10892d53826535d85dcf5d0b734f45fb))
 
-### [1.2.1](https://www.github.com/ethersphere/bee-js/compare/v1.2.0...v1.2.1) (2021-08-27)
+## [1.2.1](https://www.github.com/ethersphere/bee-js/compare/v1.2.0...v1.2.1) (2021-08-27)
 
 
 ### Bug Fixes
@@ -54,7 +97,7 @@ New Debug API was added that allows you to manage pending transactions and do th
 * new debug postage api ([#381](https://www.github.com/ethersphere/bee-js/issues/381)) ([dcd6dd3](https://www.github.com/ethersphere/bee-js/commit/dcd6dd34893e961fd5716683c113927bb21b588f))
 * pending transactions management ([#399](https://www.github.com/ethersphere/bee-js/issues/399)) ([144440b](https://www.github.com/ethersphere/bee-js/commit/144440b4b3c5d5d8b52638b2e502b307089baec3))
 
-### [1.1.1](https://www.github.com/ethersphere/bee-js/compare/v1.1.0...v1.1.1) (2021-07-21)
+## [1.1.1](https://www.github.com/ethersphere/bee-js/compare/v1.1.0...v1.1.1) (2021-07-21)
 
 This is a small patch release that fixes missing headers in requests/responses returned using the hooks system.
 
