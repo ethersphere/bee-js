@@ -31,6 +31,7 @@ import {
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
 import { makeMaxTarget } from '../../src/utils/pss'
+import { blockchainSemaphoreWrapper } from '../blockchain-semaphore'
 
 commonMatchers()
 
@@ -580,25 +581,25 @@ describe('Bee class', () => {
   describe('PostageBatch', () => {
     it(
       'should create a new postage batch with zero amount',
-      async () => {
+      blockchainSemaphoreWrapper(async () => {
         const batchId = await bee.createPostageBatch('0', 17)
         const allBatches = await bee.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
-      },
+      }),
       POSTAGE_BATCH_TIMEOUT,
     )
 
     it(
       'should have both immutable true and false',
-      async () => {
+      blockchainSemaphoreWrapper(async () => {
         await bee.createPostageBatch('1', 17, { immutableFlag: true })
         await bee.createPostageBatch('1', 17, { immutableFlag: false })
         const allBatches = await bee.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
-      },
+      }),
       POSTAGE_BATCH_TIMEOUT * 2,
     )
 

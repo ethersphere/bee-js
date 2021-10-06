@@ -1,5 +1,6 @@
 import { BeeArgumentError, BeeDebug } from '../../src'
-import { beeDebugUrl, commonMatchers, POSTAGE_BATCH_TIMEOUT } from '../utils'
+import { beeDebugUrl, commonMatchers, getOrCreatePostageBatch, POSTAGE_BATCH_TIMEOUT } from '../utils'
+import { blockchainSemaphoreWrapper } from '../blockchain-semaphore'
 
 commonMatchers()
 
@@ -10,25 +11,51 @@ describe('Bee Debug class', () => {
   describe('PostageBatch', () => {
     it(
       'should create a new postage batch with zero amount',
-      async () => {
+      blockchainSemaphoreWrapper(async () => {
         const batchId = await beeDebug.createPostageBatch('0', 17)
         const allBatches = await beeDebug.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
-      },
+      }),
       POSTAGE_BATCH_TIMEOUT,
     )
 
     it(
+      'should topup postage batch',
+      blockchainSemaphoreWrapper(async () => {
+        const batch = await getOrCreatePostageBatch()
+
+        await beeDebug.topUpBatch(batch.batchID, '10')
+
+        const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
+        const newAmount = (parseInt(batch.amount) + 10).toString()
+        expect(batchDetails.amount).toEqual(newAmount)
+      }),
+      POSTAGE_BATCH_TIMEOUT * 2,
+    )
+
+    it(
+      'should dilute postage batch',
+      blockchainSemaphoreWrapper(async () => {
+        const batch = await getOrCreatePostageBatch()
+        await beeDebug.diluteBatch(batch.batchID, batch.depth + 2)
+
+        const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
+        expect(batchDetails.depth).toEqual(batch.depth + 2)
+      }),
+      POSTAGE_BATCH_TIMEOUT * 2,
+    )
+
+    it(
       'should have both immutable true and false',
-      async () => {
+      blockchainSemaphoreWrapper(async () => {
         await beeDebug.createPostageBatch('1', 17, { immutableFlag: true })
         await beeDebug.createPostageBatch('1', 17, { immutableFlag: false })
         const allBatches = await beeDebug.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
-      },
+      }),
       POSTAGE_BATCH_TIMEOUT * 2,
     )
 

@@ -1,12 +1,14 @@
 import { Readable } from 'stream'
-import type { Ky, BeeGenericResponse, Reference, Address, BatchId } from '../src/types'
+import ky from 'ky-universal'
+import { ReadableStream } from 'web-streams-polyfill/ponyfill'
+
+import type { Ky, BeeGenericResponse, Reference, Address, BatchId, DebugPostageBatch } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
-import ky from 'ky-universal'
-import { ReadableStream } from 'web-streams-polyfill/ponyfill'
+import * as stamps from '../src/modules/debug/stamps'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -288,6 +290,26 @@ export function shorten(inputStr: unknown, len = 17): string {
   }
 
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
+}
+
+/**
+ * Returns already existing batch or will create one.
+ *
+ * There are no guarantees on what parameters the postage batch has, only its existence.
+ *
+ * @param amount
+ * @param depth
+ */
+export async function getOrCreatePostageBatch(amount = '1', depth = 17): Promise<DebugPostageBatch> {
+  const allStamps = await stamps.getAllPostageBatches(beeDebugKy())
+
+  if (allStamps.length === 0) {
+    const batchId = await stamps.createPostageBatch(beeDebugKy(), amount, depth)
+
+    return stamps.getPostageBatch(beeDebugKy(), batchId)
+  }
+
+  return allStamps[0]
 }
 
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000' as Reference
