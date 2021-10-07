@@ -23,7 +23,6 @@ import {
   PSS_TIMEOUT,
   randomByteArray,
   sleep,
-  testChunkHash,
   testChunkPayload,
   testIdentity,
   testJsonHash,
@@ -302,8 +301,10 @@ describe('Bee class', () => {
         await sleep(10)
         await expect(bee.isReferenceRetrievable(result.reference)).resolves.toEqual(true)
 
-        // testChunkHash has correct form, but should not exist on the network
-        await expect(bee.isReferenceRetrievable(testChunkHash)).resolves.toEqual(false)
+        // Reference that has correct form, but should not exist on the network
+        await expect(
+          bee.isReferenceRetrievable('ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4332'),
+        ).resolves.toEqual(false)
       },
       ERR_TIMEOUT,
     )
