@@ -16,12 +16,14 @@ import {
   commonMatchers,
   createRandomNodeReadable,
   createReadableStream,
+  ERR_TIMEOUT,
   FEED_TIMEOUT,
   getPostageBatch,
   POSTAGE_BATCH_TIMEOUT,
   PSS_TIMEOUT,
   randomByteArray,
   sleep,
+  testChunkHash,
   testChunkPayload,
   testIdentity,
   testJsonHash,
@@ -282,15 +284,29 @@ describe('Bee class', () => {
     })
   })
 
-  describe('reupload', () => {
+  describe('stewardship', () => {
     it('should reupload pinned data', async () => {
       const content = randomByteArray(16, Date.now())
-
       const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
 
       await sleep(10)
       await bee.reuploadPinnedData(result.reference) // Does not return anything, but will throw exception if something is going wrong
     })
+
+    it(
+      'should check if reference is retrievable',
+      async () => {
+        const content = randomByteArray(16, Date.now())
+        const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
+
+        await sleep(10)
+        await expect(bee.isReferenceRetrievable(result.reference)).resolves.toEqual(true)
+
+        // testChunkHash has correct form, but should not exist on the network
+        await expect(bee.isReferenceRetrievable(testChunkHash)).resolves.toEqual(false)
+      },
+      ERR_TIMEOUT,
+    )
   })
 
   describe('pss', () => {

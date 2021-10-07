@@ -552,12 +552,23 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws BeeArgumentError if the reference is not locally pinned
    * @throws TypeError if reference is in not correct format
+   *
+   * TODO: Correct links
+   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
+   * @see [Bee API reference - `POST /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1send~1{topic}~1{targets}/post)
    */
   async reuploadPinnedData(reference: Reference | string, options?: RequestOptions): Promise<void> {
     assertRequestOptions(options)
     assertReference(reference)
 
     await stewardship.reupload(this.getKy(options), reference)
+  }
+
+  async isReferenceRetrievable(reference: Reference | string, options?: RequestOptions): Promise<boolean> {
+    assertRequestOptions(options)
+    assertReference(reference)
+
+    return await stewardship.isRetrievable(this.getKy(options), reference)
   }
 
   /**
