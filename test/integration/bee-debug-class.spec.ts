@@ -1,5 +1,5 @@
 import { BeeArgumentError, BeeDebug } from '../../src'
-import { beeDebugUrl, commonMatchers, getOrCreatePostageBatch, POSTAGE_BATCH_TIMEOUT } from '../utils'
+import { beeDebugUrl, commonMatchers, getOrCreatePostageBatch, POSTAGE_BATCH_TIMEOUT, sleep } from '../utils'
 import { blockchainSemaphoreWrapper } from '../blockchain-semaphore'
 
 commonMatchers()
@@ -23,10 +23,11 @@ describe('Bee Debug class', () => {
     it(
       'should topup postage batch',
       blockchainSemaphoreWrapper(async () => {
-        const batch = await getOrCreatePostageBatch()
+        const batch = await getOrCreatePostageBatch(undefined, undefined, false)
 
         await beeDebug.topUpBatch(batch.batchID, '10')
 
+        await sleep(4000)
         const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
         const newAmount = (parseInt(batch.amount) + 10).toString()
         expect(batchDetails.amount).toEqual(newAmount)
@@ -37,7 +38,7 @@ describe('Bee Debug class', () => {
     it(
       'should dilute postage batch',
       blockchainSemaphoreWrapper(async () => {
-        const batch = await getOrCreatePostageBatch(undefined, 17)
+        const batch = await getOrCreatePostageBatch(undefined, 17, false)
         await beeDebug.diluteBatch(batch.batchID, batch.depth + 2)
 
         const batchDetails = await beeDebug.getPostageBatch(batch.batchID)

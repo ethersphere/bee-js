@@ -292,6 +292,15 @@ export function shorten(inputStr: unknown, len = 17): string {
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
 }
 
+export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 200): Promise<void> {
+  let stamp
+
+  do {
+    await sleep(pollingInterval)
+    stamp = await stamps.getPostageBatch(beeDebugKy(), batchId as BatchId)
+  } while (!stamp.usable)
+}
+
 const DEFAULT_BATCH_AMOUNT = '1'
 const DEFAULT_BATCH_DEPTH = 17
 
@@ -303,26 +312,32 @@ const DEFAULT_BATCH_DEPTH = 17
  * @param amount
  * @param depth
  */
-export async function getOrCreatePostageBatch(amount?: string, depth?: number): Promise<DebugPostageBatch> {
-  const allStamps = await stamps.getAllPostageBatches(beeDebugKy())
+export async function getOrCreatePostageBatch(
+  amount?: string,
+  depth?: number,
+  immutable?: boolean,
+): Promise<DebugPostageBatch> {
+  const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKy())).filter(stamp => stamp.usable)
 
-  if (allStamps.length === 0) {
+  if (allUsableStamps.length === 0) {
     const batchId = await stamps.createPostageBatch(
       beeDebugKy(),
       amount ?? DEFAULT_BATCH_AMOUNT,
       depth ?? DEFAULT_BATCH_DEPTH,
     )
 
+    await waitForBatchToBeUsable(batchId)
+
     return stamps.getPostageBatch(beeDebugKy(), batchId)
   }
 
   // User does not want any specific batch, lets give him the first one
   if (amount === undefined && depth === undefined) {
-    return allStamps[0]
+    return allUsableStamps[0]
   }
 
   // User wants some specific batch
-  for (const stamp of allStamps) {
+  for (const stamp of allUsableStamps) {
     let meetingAllCriteria = false
 
     if (amount !== undefined) {
@@ -333,6 +348,10 @@ export async function getOrCreatePostageBatch(amount?: string, depth?: number): 
 
     if (depth !== undefined) {
       meetingAllCriteria = meetingAllCriteria && depth === stamp.depth
+    }
+
+    if (immutable !== undefined) {
+      meetingAllCriteria = meetingAllCriteria && immutable === stamp.immutableFlag
     }
 
     if (meetingAllCriteria) {
@@ -346,6 +365,8 @@ export async function getOrCreatePostageBatch(amount?: string, depth?: number): 
     amount ?? DEFAULT_BATCH_AMOUNT,
     depth ?? DEFAULT_BATCH_DEPTH,
   )
+
+  await waitForBatchToBeUsable(batchId)
 
   return stamps.getPostageBatch(beeDebugKy(), batchId)
 }
