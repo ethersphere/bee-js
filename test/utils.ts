@@ -292,24 +292,62 @@ export function shorten(inputStr: unknown, len = 17): string {
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
 }
 
+const DEFAULT_BATCH_AMOUNT = '1'
+const DEFAULT_BATCH_DEPTH = 17
+
 /**
  * Returns already existing batch or will create one.
  *
- * There are no guarantees on what parameters the postage batch has, only its existence.
+ * If some specification is passed then it is quaranteed that the batch will have this property(ies)
  *
  * @param amount
  * @param depth
  */
-export async function getOrCreatePostageBatch(amount = '1', depth = 17): Promise<DebugPostageBatch> {
+export async function getOrCreatePostageBatch(amount?: string, depth?: number): Promise<DebugPostageBatch> {
   const allStamps = await stamps.getAllPostageBatches(beeDebugKy())
 
   if (allStamps.length === 0) {
-    const batchId = await stamps.createPostageBatch(beeDebugKy(), amount, depth)
+    const batchId = await stamps.createPostageBatch(
+      beeDebugKy(),
+      amount ?? DEFAULT_BATCH_AMOUNT,
+      depth ?? DEFAULT_BATCH_DEPTH,
+    )
 
     return stamps.getPostageBatch(beeDebugKy(), batchId)
   }
 
-  return allStamps[0]
+  // User does not want any specific batch, lets give him the first one
+  if (amount === undefined && depth === undefined) {
+    return allStamps[0]
+  }
+
+  // User wants some specific batch
+  for (const stamp of allStamps) {
+    let meetingAllCriteria = false
+
+    if (amount !== undefined) {
+      meetingAllCriteria = amount === stamp.amount
+    } else {
+      meetingAllCriteria = true
+    }
+
+    if (depth !== undefined) {
+      meetingAllCriteria = meetingAllCriteria && depth === stamp.depth
+    }
+
+    if (meetingAllCriteria) {
+      return stamp
+    }
+  }
+
+  // No stamp meeting the criteria was found ==> we need to create a new one
+  const batchId = await stamps.createPostageBatch(
+    beeDebugKy(),
+    amount ?? DEFAULT_BATCH_AMOUNT,
+    depth ?? DEFAULT_BATCH_DEPTH,
+  )
+
+  return stamps.getPostageBatch(beeDebugKy(), batchId)
 }
 
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000' as Reference

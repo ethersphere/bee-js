@@ -37,7 +37,7 @@ describe('Bee Debug class', () => {
     it(
       'should dilute postage batch',
       blockchainSemaphoreWrapper(async () => {
-        const batch = await getOrCreatePostageBatch()
+        const batch = await getOrCreatePostageBatch(undefined, 17)
         await beeDebug.diluteBatch(batch.batchID, batch.depth + 2)
 
         const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
