@@ -574,7 +574,7 @@ export class Bee {
     assertRequestOptions(options)
     assertReference(reference)
 
-    return await stewardship.isRetrievable(this.getKy(options), reference)
+    return stewardship.isRetrievable(this.getKy(options), reference)
   }
 
   /**
