@@ -174,6 +174,6 @@ export async function uploadCollection(
 
   return {
     reference: response.data.reference,
-    tagUid: response.headers.get('swarm-tag') ? makeTagUid(response.headers.get('swarm-tag')) : undefined,
+    tagUid: makeTagUid(response.headers.get('swarm-tag')),
   }
 }
