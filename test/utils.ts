@@ -240,7 +240,7 @@ export function beeDebugUrl(): string {
 }
 
 export function beeDebugKy(): Ky {
-  return ky.create({ prefixUrl: beeDebugUrl() })
+  return ky.create({ prefixUrl: beeDebugUrl(), timeout: false })
 }
 
 /**
@@ -251,7 +251,7 @@ export function beePeerDebugUrl(): string {
 }
 
 export function beePeerDebugKy(): Ky {
-  return ky.create({ prefixUrl: beePeerDebugUrl() })
+  return ky.create({ prefixUrl: beePeerDebugUrl(), timeout: false })
 }
 
 /**
@@ -307,16 +307,18 @@ const DEFAULT_BATCH_DEPTH = 17
 /**
  * Returns already existing batch or will create one.
  *
- * If some specification is passed then it is quaranteed that the batch will have this property(ies)
+ * If some specification is passed then it is guaranteed that the batch will have this property(ies)
  *
  * @param amount
  * @param depth
+ * @param immutable
  */
 export async function getOrCreatePostageBatch(
   amount?: string,
   depth?: number,
   immutable?: boolean,
 ): Promise<DebugPostageBatch> {
+  // Non-usable stamps are ignored by Bee
   const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKy())).filter(stamp => stamp.usable)
 
   if (allUsableStamps.length === 0) {
@@ -332,7 +334,7 @@ export async function getOrCreatePostageBatch(
   }
 
   // User does not want any specific batch, lets give him the first one
-  if (amount === undefined && depth === undefined) {
+  if (amount === undefined && depth === undefined && immutable === undefined) {
     return allUsableStamps[0]
   }
 
@@ -387,7 +389,8 @@ export const ERR_TIMEOUT = 40000
 export const BIG_FILE_TIMEOUT = 100000
 export const PSS_TIMEOUT = 120000
 export const FEED_TIMEOUT = 120000
-export const POSTAGE_BATCH_TIMEOUT = 40000
+export const BLOCKCHAIN_TRANSACTION_TIMEOUT = 40000
+export const DISABLE_TIMEOUT = 2147483647 // setTimeout support only signed 32 bit number
 
 export const testChunkPayload = new Uint8Array([1, 2, 3])
 // span is the payload length encoded as uint64 little endian

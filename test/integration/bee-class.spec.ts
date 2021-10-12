@@ -18,7 +18,7 @@ import {
   createReadableStream,
   FEED_TIMEOUT,
   getPostageBatch,
-  POSTAGE_BATCH_TIMEOUT,
+  BLOCKCHAIN_TRANSACTION_TIMEOUT,
   PSS_TIMEOUT,
   randomByteArray,
   sleep,
@@ -27,6 +27,7 @@ import {
   testJsonHash,
   testJsonPayload,
   tryDeleteChunkFromLocalStorage,
+  DISABLE_TIMEOUT,
 } from '../utils'
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
@@ -587,7 +588,7 @@ describe('Bee class', () => {
 
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
       }),
-      POSTAGE_BATCH_TIMEOUT,
+      DISABLE_TIMEOUT,
     )
 
     it(
@@ -599,8 +600,8 @@ describe('Bee class', () => {
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
-      }),
-      POSTAGE_BATCH_TIMEOUT * 2,
+      }, BLOCKCHAIN_TRANSACTION_TIMEOUT * 2),
+      DISABLE_TIMEOUT,
     )
 
     it('should have all properties', async () => {
