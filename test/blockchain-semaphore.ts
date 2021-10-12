@@ -5,7 +5,7 @@ export const blockchainSemaphore = new Sema(1)
 
 type TestFunction = () => Promise<void>
 
-async function timeout (ms: number): Promise<Error> {
+async function timeout(ms: number): Promise<Error> {
   await sleep(ms)
   throw new Error('Execution of tests reached timeout!')
 }
@@ -18,7 +18,7 @@ async function timeout (ms: number): Promise<Error> {
  * @param fn function that executes the test
  * @param timeoutMs Timeout that is measured for the test execution and not the time the tests awaits for being run. By default set for timeout of one blockchain transaction.
  */
-export function blockchainSemaphoreWrapper (fn: TestFunction, timeoutMs = BLOCKCHAIN_TRANSACTION_TIMEOUT): TestFunction {
+export function blockchainSemaphoreWrapper(fn: TestFunction, timeoutMs = BLOCKCHAIN_TRANSACTION_TIMEOUT): TestFunction {
   return async () => {
     try {
       await blockchainSemaphore.acquire()
