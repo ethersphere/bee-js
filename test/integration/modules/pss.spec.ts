@@ -1,7 +1,15 @@
 import * as pss from '../../../src/modules/pss'
 import * as connectivity from '../../../src/modules/debug/connectivity'
-import { beeDebugKy, beeKy, beePeerDebugUrl, beePeerKy, beeUrl, getPostageBatch, PSS_TIMEOUT } from '../../utils'
-import { makeMaxTarget } from '../../../src/utils/pss'
+import {
+  beeDebugKy,
+  beeKy,
+  beePeerDebugUrl,
+  beePeerKy,
+  beeUrl,
+  getPostageBatch,
+  makeTestTarget,
+  PSS_TIMEOUT,
+} from '../../utils'
 
 const BEE_KY = beeKy()
 const BEE_URL = beeUrl()
@@ -21,7 +29,7 @@ describe('modules/pss', () => {
       expect(peers.length).toBeGreaterThan(0)
 
       const target = peers[0].address
-      await pss.send(BEE_KY, topic, makeMaxTarget(target), message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await pss.send(BEE_KY, topic, makeTestTarget(target), message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     },
     PSS_TIMEOUT,
   )
@@ -49,7 +57,7 @@ describe('modules/pss', () => {
 
           const addresses = await connectivity.getNodeAddresses(BEE_DEBUG_KY)
           const target = addresses.overlay
-          await pss.send(BEE_PEER_KY, topic, makeMaxTarget(target), message, getPostageBatch(BEE_DEBUG_PEER_URL))
+          await pss.send(BEE_PEER_KY, topic, makeTestTarget(target), message, getPostageBatch(BEE_DEBUG_PEER_URL))
         })().catch(reject)
       })
     },
@@ -84,7 +92,7 @@ describe('modules/pss', () => {
           await pss.send(
             BEE_PEER_KY,
             topic,
-            makeMaxTarget(target),
+            makeTestTarget(target),
             message,
             getPostageBatch(BEE_DEBUG_PEER_URL),
             recipient,
