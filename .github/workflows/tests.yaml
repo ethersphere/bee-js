@@ -9,8 +9,8 @@ on:
       - '**'
 
 env:
-  BEE_VERSION: '1.1.0-stateful'
-  BLOCKCHAIN_VERSION: '1.2.0-for-1.1.0-stateful'
+  BEE_VERSION: '1.2.0-29eb9414-stateful'
+  BLOCKCHAIN_VERSION: '1.2.0-for-1.2.0-29eb9414-stateful'
   BEE_ENV_PREFIX: 'swarm-test'
   BEE_IMAGE_PREFIX: 'docker.pkg.github.com/ethersphere/bee-factory'
   COMMIT_VERSION_TAG: 'false'
