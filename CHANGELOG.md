@@ -1,5 +1,17 @@
 # Changelog
 
+### [2.0.1](https://www.github.com/ethersphere/bee-js/compare/v2.0.0...v2.0.1) (2021-10-12)
+
+
+### Bug Fixes
+
+* tag-uid always present in upload progress ([#429](https://www.github.com/ethersphere/bee-js/issues/429)) ([bc76e79](https://www.github.com/ethersphere/bee-js/commit/bc76e7986706cac76d258de098d3f0712f23f38d))
+
+
+### Reverts
+
+* bee 1.1.0 version check workaround ([#428](https://www.github.com/ethersphere/bee-js/issues/428)) ([7d42eb7](https://www.github.com/ethersphere/bee-js/commit/7d42eb7d4eaca00cbae6aaf8ac740f311f8bcab5))
+
 ## [2.0.0](https://www.github.com/ethersphere/bee-js/compare/v1.2.1...v2.0.0) (2021-09-20)
 
 This is our first major version bump as we did a big revamp of `bee-js` internals and fixed a few things and shortcomings that required breaking changes.
