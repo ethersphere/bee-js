@@ -203,7 +203,7 @@ describe('Bee class - in browser', () => {
               const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
 
               const receive = bee.pssReceive(topic)
-              await beePeer.pssSend(batchIdPeer, topic, window.BeeJs.Utils.makeMaxTarget(overlay), message)
+              await beePeer.pssSend(batchIdPeer, topic, overlay.slice(0, 2), message) // We don't have the `makeTestTarget` utility available in this context
 
               const msg = await receive
 
@@ -245,7 +245,7 @@ describe('Bee class - in browser', () => {
               await beePeer.pssSend(
                 batchIdPeer,
                 topic,
-                window.BeeJs.Utils.makeMaxTarget(overlay),
+                overlay.slice(0, 2), // We don't have the `makeTestTarget` utility available in this context
                 message,
                 pssPublicKey,
               )
