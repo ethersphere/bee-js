@@ -552,12 +552,29 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws BeeArgumentError if the reference is not locally pinned
    * @throws TypeError if reference is in not correct format
+   *
+   * @see [Bee API reference - `PUT /stewardship`](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1{reference}/put)
    */
   async reuploadPinnedData(reference: Reference | string, options?: RequestOptions): Promise<void> {
     assertRequestOptions(options)
     assertReference(reference)
 
     await stewardship.reupload(this.getKy(options), reference)
+  }
+
+  /**
+   * Checks if content specified by reference is retrievable from the network.
+   *
+   * @param reference The checked content
+   * @param options Options that affects the request behavior
+   *
+   * @see [Bee API reference - `GET /stewardship`](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1{reference}/get)
+   */
+  async isReferenceRetrievable(reference: Reference | string, options?: RequestOptions): Promise<boolean> {
+    assertRequestOptions(options)
+    assertReference(reference)
+
+    return stewardship.isRetrievable(this.getKy(options), reference)
   }
 
   /**

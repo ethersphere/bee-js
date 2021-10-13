@@ -16,6 +16,7 @@ import {
   commonMatchers,
   createRandomNodeReadable,
   createReadableStream,
+  ERR_TIMEOUT,
   FEED_TIMEOUT,
   getPostageBatch,
   makeTestTarget,
@@ -282,15 +283,31 @@ describe('Bee class', () => {
     })
   })
 
-  describe('reupload', () => {
+  describe('stewardship', () => {
     it('should reupload pinned data', async () => {
       const content = randomByteArray(16, Date.now())
-
       const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
 
       await sleep(10)
       await bee.reuploadPinnedData(result.reference) // Does not return anything, but will throw exception if something is going wrong
     })
+
+    it(
+      'should check if reference is retrievable',
+      async () => {
+        const content = randomByteArray(16, Date.now())
+        const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
+
+        await sleep(10)
+        await expect(bee.isReferenceRetrievable(result.reference)).resolves.toEqual(true)
+
+        // Reference that has correct form, but should not exist on the network
+        await expect(
+          bee.isReferenceRetrievable('ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4332'),
+        ).resolves.toEqual(false)
+      },
+      ERR_TIMEOUT,
+    )
   })
 
   describe('pss', () => {
