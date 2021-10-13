@@ -1,7 +1,23 @@
 # Changelog
 
+
 ## [2.1.0](https://www.github.com/ethersphere/bee-js/compare/v2.0.0...v2.1.0) (2021-10-13)
 
+This release is a compatibility release with [Bee 1.2.0](https://github.com/ethersphere/bee/releases/tag/v1.2.0) release, which brings few new features.
+
+### Is retrievable? support
+
+The new method `bee.isReferenceRetrievable()` allows you to check whether the data represented by a reference is present in the network. This is part of the Stewardship endpoint, which also allows you to reupload the data that you have locally available (pinned).
+
+### 🏷 New Postage Batch methods
+
+There is a new method `beeDebug.topUpBatch()`, that allows you to top-up the amount of existing batch, effectively prolonging its lifetime.
+
+Moreover, there is also a new method `beeDebug.diluteBatch()` that increases the depth of a batch, effectively extending the number of chunks that the batch can stamp and lowering the lifetime of a batch.
+
+### 📨 PSS Target limit increase
+
+⚠️ **If you use the utility function `makeMaxTarget`, then the time of sending a PSS message will increase! Consider using your own criteria based on your use-case.**
 
 ### Features
 
@@ -12,12 +28,14 @@
 
 ### Bug Fixes
 
-* tag-uid always present in upload progress ([#429](https://www.github.com/ethersphere/bee-js/issues/429)) ([bc76e79](https://www.github.com/ethersphere/bee-js/commit/bc76e7986706cac76d258de098d3f0712f23f38d))
+* `uploadResult.tagUid` always present ([#429](https://www.github.com/ethersphere/bee-js/issues/429)) ([bc76e79](https://www.github.com/ethersphere/bee-js/commit/bc76e7986706cac76d258de098d3f0712f23f38d))
 
 
 ### Reverts
 
 * bee 1.1.0 version check workaround ([#428](https://www.github.com/ethersphere/bee-js/issues/428)) ([7d42eb7](https://www.github.com/ethersphere/bee-js/commit/7d42eb7d4eaca00cbae6aaf8ac740f311f8bcab5))
+
+---
 
 ## [2.0.0](https://www.github.com/ethersphere/bee-js/compare/v1.2.1...v2.0.0) (2021-09-20)
 
