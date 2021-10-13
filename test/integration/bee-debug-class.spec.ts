@@ -1,5 +1,5 @@
 import { BeeArgumentError, BeeDebug } from '../../src'
-import { beeDebugUrl, commonMatchers, POSTAGE_BATCH_TIMEOUT } from '../utils'
+import { beeDebugUrl, commonMatchers, getOrCreatePostageBatch, BLOCKCHAIN_TRANSACTION_TIMEOUT, sleep } from '../utils'
 
 commonMatchers()
 
@@ -16,7 +16,36 @@ describe('Bee Debug class', () => {
 
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
       },
-      POSTAGE_BATCH_TIMEOUT,
+      BLOCKCHAIN_TRANSACTION_TIMEOUT,
+    )
+
+    // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
+    it.skip(
+      'should topup postage batch',
+      async () => {
+        const batch = await getOrCreatePostageBatch(undefined, undefined, false)
+
+        await beeDebug.topUpBatch(batch.batchID, '10')
+
+        await sleep(4000)
+        const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
+        const newAmount = (parseInt(batch.amount) + 10).toString()
+        expect(batchDetails.amount).toEqual(newAmount)
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT * 3,
+    )
+
+    // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
+    it.skip(
+      'should dilute postage batch',
+      async () => {
+        const batch = await getOrCreatePostageBatch(undefined, 17, false)
+        await beeDebug.diluteBatch(batch.batchID, batch.depth + 2)
+
+        const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
+        expect(batchDetails.depth).toEqual(batch.depth + 2)
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
     )
 
     it(
@@ -29,7 +58,7 @@ describe('Bee Debug class', () => {
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
       },
-      POSTAGE_BATCH_TIMEOUT * 2,
+      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
     )
 
     it('should have all properties', async () => {

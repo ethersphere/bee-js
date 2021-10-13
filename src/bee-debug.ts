@@ -59,11 +59,6 @@ import * as stamps from './modules/debug/stamps'
 import type { Options as KyOptions } from 'ky-universal'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 
-/**
- * The BeeDebug class provides a way of interacting with the Bee debug APIs based on the provided url
- *
- * @param url URL of a running Bee node
- */
 export class BeeDebug {
   /**
    * URL on which is the Debug API of Bee node exposed
@@ -443,6 +438,53 @@ export class BeeDebug {
     }
 
     return stamps.createPostageBatch(this.getKy(options), amount, depth, options)
+  }
+
+  /**
+   * Topup a fresh amount of BZZ to given Postage Batch.
+   *
+   * For better understanding what each parameter means and what are the optimal values please see
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
+   *
+   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
+   *
+   * @param postageBatchId Batch ID
+   * @param amount Amount to be added to the batch
+   * @param options Request options
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{id}~1{amount}/patch)
+   */
+  async topUpBatch(postageBatchId: BatchId | string, amount: NumberString, options?: RequestOptions): Promise<void> {
+    assertRequestOptions(options)
+    assertNonNegativeInteger(amount, 'Amount')
+    assertBatchId(postageBatchId)
+
+    await stamps.topUpBatch(this.getKy(options), postageBatchId, amount)
+  }
+
+  /**
+   * Dilute given Postage Batch with new depth (that has to be bigger then the original depth), which allows
+   * the Postage Batch to be used for more chunks.
+   *
+   * For better understanding what each parameter means and what are the optimal values please see
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
+   *
+   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
+   *
+   * @param postageBatchId Batch ID
+   * @param depth Amount to be added to the batch
+   * @param options Request options
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{id}~1{amount}/patch)
+   */
+  async diluteBatch(postageBatchId: BatchId | string, depth: number, options?: RequestOptions): Promise<void> {
+    assertRequestOptions(options)
+    assertNonNegativeInteger(depth, 'Depth')
+    assertBatchId(postageBatchId)
+
+    await stamps.diluteBatch(this.getKy(options), postageBatchId, depth)
   }
 
   /**

@@ -1,12 +1,14 @@
 import { Readable } from 'stream'
-import type { Ky, BeeGenericResponse, Reference, Address, BatchId } from '../src/types'
+import ky from 'ky-universal'
+import { ReadableStream } from 'web-streams-polyfill/ponyfill'
+
+import type { Ky, BeeGenericResponse, Reference, Address, BatchId, DebugPostageBatch } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
 import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
-import ky from 'ky-universal'
-import { ReadableStream } from 'web-streams-polyfill/ponyfill'
+import * as stamps from '../src/modules/debug/stamps'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -238,7 +240,7 @@ export function beeDebugUrl(): string {
 }
 
 export function beeDebugKy(): Ky {
-  return ky.create({ prefixUrl: beeDebugUrl() })
+  return ky.create({ prefixUrl: beeDebugUrl(), timeout: false })
 }
 
 /**
@@ -249,7 +251,7 @@ export function beePeerDebugUrl(): string {
 }
 
 export function beePeerDebugKy(): Ky {
-  return ky.create({ prefixUrl: beePeerDebugUrl() })
+  return ky.create({ prefixUrl: beePeerDebugUrl(), timeout: false })
 }
 
 /**
@@ -290,6 +292,97 @@ export function shorten(inputStr: unknown, len = 17): string {
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
 }
 
+async function timeout(ms: number, message = 'Execution reached timeout!'): Promise<Error> {
+  await sleep(ms)
+  throw new Error(message)
+}
+
+export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 200): Promise<void> {
+  await Promise.race([
+    timeout(USABLE_TIMEOUT, 'Awaiting of usable postage batch timed out!'),
+    async () => {
+      let stamp
+
+      do {
+        await sleep(pollingInterval)
+        stamp = await stamps.getPostageBatch(beeDebugKy(), batchId as BatchId)
+      } while (!stamp.usable)
+    },
+  ])
+}
+
+const DEFAULT_BATCH_AMOUNT = '1'
+const DEFAULT_BATCH_DEPTH = 17
+
+/**
+ * Returns already existing batch or will create one.
+ *
+ * If some specification is passed then it is guaranteed that the batch will have this property(ies)
+ *
+ * @param amount
+ * @param depth
+ * @param immutable
+ */
+export async function getOrCreatePostageBatch(
+  amount?: string,
+  depth?: number,
+  immutable?: boolean,
+): Promise<DebugPostageBatch> {
+  // Non-usable stamps are ignored by Bee
+  const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKy())).filter(stamp => stamp.usable)
+
+  if (allUsableStamps.length === 0) {
+    const batchId = await stamps.createPostageBatch(
+      beeDebugKy(),
+      amount ?? DEFAULT_BATCH_AMOUNT,
+      depth ?? DEFAULT_BATCH_DEPTH,
+    )
+
+    await waitForBatchToBeUsable(batchId)
+
+    return stamps.getPostageBatch(beeDebugKy(), batchId)
+  }
+
+  // User does not want any specific batch, lets give him the first one
+  if (amount === undefined && depth === undefined && immutable === undefined) {
+    return allUsableStamps[0]
+  }
+
+  // User wants some specific batch
+  for (const stamp of allUsableStamps) {
+    let meetingAllCriteria = false
+
+    if (amount !== undefined) {
+      meetingAllCriteria = amount === stamp.amount
+    } else {
+      meetingAllCriteria = true
+    }
+
+    if (depth !== undefined) {
+      meetingAllCriteria = meetingAllCriteria && depth === stamp.depth
+    }
+
+    if (immutable !== undefined) {
+      meetingAllCriteria = meetingAllCriteria && immutable === stamp.immutableFlag
+    }
+
+    if (meetingAllCriteria) {
+      return stamp
+    }
+  }
+
+  // No stamp meeting the criteria was found ==> we need to create a new one
+  const batchId = await stamps.createPostageBatch(
+    beeDebugKy(),
+    amount ?? DEFAULT_BATCH_AMOUNT,
+    depth ?? DEFAULT_BATCH_DEPTH,
+  )
+
+  await waitForBatchToBeUsable(batchId)
+
+  return stamps.getPostageBatch(beeDebugKy(), batchId)
+}
+
 export function makeTestTarget(target: string): string {
   return target.slice(0, 2)
 }
@@ -306,11 +399,12 @@ export const createdResponse: BeeGenericResponse = {
   message: 'Created',
 }
 
-export const ERR_TIMEOUT = 40000
-export const BIG_FILE_TIMEOUT = 100000
-export const PSS_TIMEOUT = 120000
-export const FEED_TIMEOUT = 120000
-export const POSTAGE_BATCH_TIMEOUT = 40000
+const USABLE_TIMEOUT = 7_000
+export const ERR_TIMEOUT = 40_000
+export const BIG_FILE_TIMEOUT = 100_000
+export const PSS_TIMEOUT = 120_000
+export const FEED_TIMEOUT = 120_000
+export const BLOCKCHAIN_TRANSACTION_TIMEOUT = 40_000
 
 export const testChunkPayload = new Uint8Array([1, 2, 3])
 // span is the payload length encoded as uint64 little endian

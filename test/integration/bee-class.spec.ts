@@ -20,7 +20,7 @@ import {
   FEED_TIMEOUT,
   getPostageBatch,
   makeTestTarget,
-  POSTAGE_BATCH_TIMEOUT,
+  BLOCKCHAIN_TRANSACTION_TIMEOUT,
   PSS_TIMEOUT,
   randomByteArray,
   sleep,
@@ -603,7 +603,7 @@ describe('Bee class', () => {
 
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
       },
-      POSTAGE_BATCH_TIMEOUT,
+      BLOCKCHAIN_TRANSACTION_TIMEOUT,
     )
 
     it(
@@ -616,7 +616,7 @@ describe('Bee class', () => {
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
       },
-      POSTAGE_BATCH_TIMEOUT * 2,
+      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
     )
 
     it('should have all properties', async () => {

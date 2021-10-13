@@ -14,7 +14,7 @@ interface GetAllStampsResponse {
   stamps: DebugPostageBatch[]
 }
 
-interface CreateStampResponse {
+interface StampResponse {
   batchID: BatchId
 }
 
@@ -64,12 +64,32 @@ export async function createPostageBatch(
     headers.immutable = String(options.immutableFlag)
   }
 
-  const response = await http<CreateStampResponse>(ky, {
+  const response = await http<StampResponse>(ky, {
     method: 'post',
     path: `${STAMPS_ENDPOINT}/${amount}/${depth}`,
     responseType: 'json',
     searchParams: { label: options?.label },
     headers,
+  })
+
+  return response.data.batchID
+}
+
+export async function topUpBatch(ky: Ky, id: string, amount: NumberString): Promise<BatchId> {
+  const response = await http<StampResponse>(ky, {
+    method: 'patch',
+    path: `${STAMPS_ENDPOINT}/topup/${id}/${amount}`,
+    responseType: 'json',
+  })
+
+  return response.data.batchID
+}
+
+export async function diluteBatch(ky: Ky, id: string, depth: number): Promise<BatchId> {
+  const response = await http<StampResponse>(ky, {
+    method: 'patch',
+    path: `${STAMPS_ENDPOINT}/dilute/${id}/${depth}`,
+    responseType: 'json',
   })
 
   return response.data.batchID
