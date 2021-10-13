@@ -1,13 +1,5 @@
 import { BeeArgumentError, BeeDebug } from '../../src'
-import {
-  beeDebugUrl,
-  commonMatchers,
-  getOrCreatePostageBatch,
-  BLOCKCHAIN_TRANSACTION_TIMEOUT,
-  sleep,
-  DISABLE_TIMEOUT,
-} from '../utils'
-import { blockchainSemaphoreWrapper } from '../blockchain-semaphore'
+import { beeDebugUrl, commonMatchers, getOrCreatePostageBatch, BLOCKCHAIN_TRANSACTION_TIMEOUT, sleep } from '../utils'
 
 commonMatchers()
 
@@ -16,21 +8,17 @@ describe('Bee Debug class', () => {
   const beeDebug = new BeeDebug(BEE_DEBUG_URL)
 
   describe('PostageBatch', () => {
-    it(
-      'should create a new postage batch with zero amount',
-      blockchainSemaphoreWrapper(async () => {
-        const batchId = await beeDebug.createPostageBatch('0', 17)
-        const allBatches = await beeDebug.getAllPostageBatch()
+    it('should create a new postage batch with zero amount', async () => {
+      const batchId = await beeDebug.createPostageBatch('0', 17)
+      const allBatches = await beeDebug.getAllPostageBatch()
 
-        expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
-      }),
-      DISABLE_TIMEOUT, // We need to disable timeout on Jest level and have timeout as part of the Blockchain Semaphore
-    )
+      expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
+    })
 
     // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
     it.skip(
       'should topup postage batch',
-      blockchainSemaphoreWrapper(async () => {
+      async () => {
         const batch = await getOrCreatePostageBatch(undefined, undefined, false)
 
         await beeDebug.topUpBatch(batch.batchID, '10')
@@ -39,34 +27,34 @@ describe('Bee Debug class', () => {
         const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
         const newAmount = (parseInt(batch.amount) + 10).toString()
         expect(batchDetails.amount).toEqual(newAmount)
-      }, BLOCKCHAIN_TRANSACTION_TIMEOUT * 3),
-      DISABLE_TIMEOUT, // We need to disable timeout on Jest level and have timeout as part of the Blockchain Semaphore
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT * 3,
     )
 
     // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
     it.skip(
       'should dilute postage batch',
-      blockchainSemaphoreWrapper(async () => {
+      async () => {
         const batch = await getOrCreatePostageBatch(undefined, 17, false)
         await beeDebug.diluteBatch(batch.batchID, batch.depth + 2)
 
         const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
         expect(batchDetails.depth).toEqual(batch.depth + 2)
-      }, BLOCKCHAIN_TRANSACTION_TIMEOUT * 3),
-      DISABLE_TIMEOUT, // We need to disable timeout on Jest level and have timeout as part of the Blockchain Semaphore
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
     )
 
     it(
       'should have both immutable true and false',
-      blockchainSemaphoreWrapper(async () => {
+      async () => {
         await beeDebug.createPostageBatch('1', 17, { immutableFlag: true })
         await beeDebug.createPostageBatch('1', 17, { immutableFlag: false })
         const allBatches = await beeDebug.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
-      }, BLOCKCHAIN_TRANSACTION_TIMEOUT * 2),
-      DISABLE_TIMEOUT, // We need to disable timeout on Jest level and have timeout as part of the Blockchain Semaphore
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
     )
 
     it('should have all properties', async () => {

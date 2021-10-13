@@ -27,12 +27,10 @@ import {
   testJsonHash,
   testJsonPayload,
   tryDeleteChunkFromLocalStorage,
-  DISABLE_TIMEOUT,
 } from '../utils'
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
 import { makeMaxTarget } from '../../src/utils/pss'
-import { blockchainSemaphoreWrapper } from '../blockchain-semaphore'
 
 commonMatchers()
 
@@ -580,28 +578,24 @@ describe('Bee class', () => {
   })
 
   describe('PostageBatch', () => {
-    it(
-      'should create a new postage batch with zero amount',
-      blockchainSemaphoreWrapper(async () => {
-        const batchId = await bee.createPostageBatch('0', 17)
-        const allBatches = await bee.getAllPostageBatch()
+    it('should create a new postage batch with zero amount', async () => {
+      const batchId = await bee.createPostageBatch('0', 17)
+      const allBatches = await bee.getAllPostageBatch()
 
-        expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
-      }),
-      DISABLE_TIMEOUT,
-    )
+      expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
+    })
 
     it(
       'should have both immutable true and false',
-      blockchainSemaphoreWrapper(async () => {
+      async () => {
         await bee.createPostageBatch('1', 17, { immutableFlag: true })
         await bee.createPostageBatch('1', 17, { immutableFlag: false })
         const allBatches = await bee.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
         expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
-      }, BLOCKCHAIN_TRANSACTION_TIMEOUT * 2),
-      DISABLE_TIMEOUT,
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
     )
 
     it('should have all properties', async () => {

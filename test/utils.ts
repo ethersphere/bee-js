@@ -292,13 +292,23 @@ export function shorten(inputStr: unknown, len = 17): string {
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
 }
 
-export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 200): Promise<void> {
-  let stamp
+async function timeout(ms: number, message = 'Execution reached timeout!'): Promise<Error> {
+  await sleep(ms)
+  throw new Error(message)
+}
 
-  do {
-    await sleep(pollingInterval)
-    stamp = await stamps.getPostageBatch(beeDebugKy(), batchId as BatchId)
-  } while (!stamp.usable)
+export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 200): Promise<void> {
+  await Promise.race([
+    timeout(USABLE_TIMEOUT, 'Awaiting of usable postage batch timed out!'),
+    async () => {
+      let stamp
+
+      do {
+        await sleep(pollingInterval)
+        stamp = await stamps.getPostageBatch(beeDebugKy(), batchId as BatchId)
+      } while (!stamp.usable)
+    },
+  ])
 }
 
 const DEFAULT_BATCH_AMOUNT = '1'
@@ -385,12 +395,12 @@ export const createdResponse: BeeGenericResponse = {
   message: 'Created',
 }
 
-export const ERR_TIMEOUT = 40000
-export const BIG_FILE_TIMEOUT = 100000
-export const PSS_TIMEOUT = 120000
-export const FEED_TIMEOUT = 120000
-export const BLOCKCHAIN_TRANSACTION_TIMEOUT = 40000
-export const DISABLE_TIMEOUT = 2147483647 // setTimeout support only signed 32 bit number
+const USABLE_TIMEOUT = 7_000
+export const ERR_TIMEOUT = 40_000
+export const BIG_FILE_TIMEOUT = 100_000
+export const PSS_TIMEOUT = 120_000
+export const FEED_TIMEOUT = 120_000
+export const BLOCKCHAIN_TRANSACTION_TIMEOUT = 40_000
 
 export const testChunkPayload = new Uint8Array([1, 2, 3])
 // span is the payload length encoded as uint64 little endian
