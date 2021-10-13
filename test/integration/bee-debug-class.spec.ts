@@ -8,12 +8,16 @@ describe('Bee Debug class', () => {
   const beeDebug = new BeeDebug(BEE_DEBUG_URL)
 
   describe('PostageBatch', () => {
-    it('should create a new postage batch with zero amount', async () => {
-      const batchId = await beeDebug.createPostageBatch('0', 17)
-      const allBatches = await beeDebug.getAllPostageBatch()
+    it(
+      'should create a new postage batch with zero amount',
+      async () => {
+        const batchId = await beeDebug.createPostageBatch('0', 17)
+        const allBatches = await beeDebug.getAllPostageBatch()
 
-      expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
-    })
+        expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT,
+    )
 
     // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
     it.skip(
