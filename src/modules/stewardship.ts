@@ -16,3 +16,17 @@ export async function reupload(ky: Ky, reference: Reference): Promise<void> {
     path: `${stewardshipEndpoint}/${reference}`,
   })
 }
+
+interface IsRetrievableResponse {
+  isRetrievable: boolean
+}
+
+export async function isRetrievable(ky: Ky, reference: Reference): Promise<boolean> {
+  const response = await http<IsRetrievableResponse>(ky, {
+    method: 'get',
+    responseType: 'json',
+    path: `${stewardshipEndpoint}/${reference}`,
+  })
+
+  return response.data.isRetrievable
+}

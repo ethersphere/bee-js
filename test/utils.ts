@@ -383,6 +383,10 @@ export async function getOrCreatePostageBatch(
   return stamps.getPostageBatch(beeDebugKy(), batchId)
 }
 
+export function makeTestTarget(target: string): string {
+  return target.slice(0, 2)
+}
+
 export const invalidReference = '0000000000000000000000000000000000000000000000000000000000000000' as Reference
 
 export const okResponse: BeeGenericResponse = {
