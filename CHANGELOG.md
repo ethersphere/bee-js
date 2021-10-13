@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.1.0](https://www.github.com/ethersphere/bee-js/compare/v2.0.0...v2.1.0) (2021-10-13)
+
+
+### Features
+
+* increased max pss target limit ([#430](https://www.github.com/ethersphere/bee-js/issues/430)) ([3134c50](https://www.github.com/ethersphere/bee-js/commit/3134c50074e9694ff916fb356e1d36c8ab23b2d6))
+* is reference retrievable support ([#425](https://www.github.com/ethersphere/bee-js/issues/425)) ([76601f8](https://www.github.com/ethersphere/bee-js/commit/76601f82cbc6ccee72e92f488907933c98071410))
+* topup and dilute batch methods ([#424](https://www.github.com/ethersphere/bee-js/issues/424)) ([7bf2135](https://www.github.com/ethersphere/bee-js/commit/7bf213582bcb5a96a000790498d57d8ee2d19c92))
+
+
+### Bug Fixes
+
+* tag-uid always present in upload progress ([#429](https://www.github.com/ethersphere/bee-js/issues/429)) ([bc76e79](https://www.github.com/ethersphere/bee-js/commit/bc76e7986706cac76d258de098d3f0712f23f38d))
+
+
+### Reverts
+
+* bee 1.1.0 version check workaround ([#428](https://www.github.com/ethersphere/bee-js/issues/428)) ([7d42eb7](https://www.github.com/ethersphere/bee-js/commit/7d42eb7d4eaca00cbae6aaf8ac740f311f8bcab5))
+
 ## [2.0.0](https://www.github.com/ethersphere/bee-js/compare/v1.2.1...v2.0.0) (2021-09-20)
 
 This is our first major version bump as we did a big revamp of `bee-js` internals and fixed a few things and shortcomings that required breaking changes.
