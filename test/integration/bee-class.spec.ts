@@ -595,12 +595,16 @@ describe('Bee class', () => {
   })
 
   describe('PostageBatch', () => {
-    it('should create a new postage batch with zero amount', async () => {
-      const batchId = await bee.createPostageBatch('0', 17)
-      const allBatches = await bee.getAllPostageBatch()
+    it(
+      'should create a new postage batch with zero amount',
+      async () => {
+        const batchId = await bee.createPostageBatch('0', 17)
+        const allBatches = await bee.getAllPostageBatch()
 
-      expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
-    })
+        expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT,
+    )
 
     it(
       'should have both immutable true and false',
