@@ -241,8 +241,8 @@ export function testAddressPrefixAssertions(executor: (input: unknown) => void):
     // Prefixed hexstring is not accepted
     await expect(() => executor('0x634f')).rejects.toThrow(TypeError)
 
-    // Too long hexstring
-    await expect(() => executor('12364')).rejects.toThrow(BeeArgumentError)
+    // Does not allow longer string then the PSS_TARGET_HEX_LENGTH_MAX
+    await expect(() => executor('1236412')).rejects.toThrow(BeeArgumentError)
   })
 }
 
