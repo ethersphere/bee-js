@@ -26,7 +26,7 @@ export interface FlexBytes<Min extends number, Max extends number> extends Uint8
 }
 
 /**
- * Type guard for Bytes<T> type
+ * Type guard for `Bytes<T>` type
  *
  * @param b       The byte array
  * @param length  The length of the byte array
