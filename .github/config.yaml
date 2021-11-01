@@ -12,12 +12,12 @@ release:
 
      - [ ] Ensure the release works with the intended `bee` version
      - [ ] Verify all the example code works with the release code
-     - [ ] Verify all user documentation is up to date
+     - [ ] Verify [Bee JS Docs API update PR](https://github.com/ethersphere/bee-js-docs/pulls) passes and contains all needed documentation
      - [ ] Have two approval for this PR
      - [ ] Write small summary for the release and verify changelog
      - [ ] Verify that changes to release PR comment is synchronized to `CHANGELOG` with manual commit
 
     ### After release
 
-     - [ ] Update API docs
+     - [ ] Release new Bee JS Docs version
      - [ ] Update example's `bee-js` version
