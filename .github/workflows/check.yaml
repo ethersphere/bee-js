@@ -55,3 +55,11 @@ jobs:
 
       - name: Build docs
         run: npm run docs
+
+      - name: Trigger API Docs update PR
+        uses: peter-evans/repository-dispatch@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          token: ${{ secrets.REPO_GHA_PAT }}
+          repository: ethersphere/bee-js-docs
+          event-type: trigger-api-docs-pr
