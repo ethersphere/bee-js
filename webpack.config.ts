@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import Path from 'path'
-import { DefinePlugin, Configuration, WebpackPluginInstance, NormalModuleReplacementPlugin } from 'webpack'
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import TerserPlugin from 'terser-webpack-plugin'
-import PackageJson from './package.json'
+import { Configuration, DefinePlugin, NormalModuleReplacementPlugin, WebpackPluginInstance } from 'webpack'
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import { getBrowserPathMapping } from './jest.config'
+import PackageJson from './package.json'
 
 interface WebpackEnvParams {
   target: 'web' | 'node'
@@ -103,6 +103,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
               ecma: 5,
               comments: false,
             },
+            sourceMap: true,
           },
           // Use multi-process parallel running to improve the build speed
           // Default number of concurrent runs: os.cpus().length - 1
