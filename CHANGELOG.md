@@ -1,5 +1,14 @@
 # Changelog
 
+### [2.1.1](https://www.github.com/ethersphere/bee-js/compare/v2.1.0...v2.1.1) (2021-11-08)
+
+This is small release that fixes few small issues and mainly brings compatibility with the Bee 1.3.
+
+### Bug Fixes
+
+* **build:** sourcemap ([#440](https://www.github.com/ethersphere/bee-js/issues/440)) ([2bfb7c8](https://www.github.com/ethersphere/bee-js/commit/2bfb7c8cc2db00bc361cf14fcc766ac395dfce09))
+* readable-stream should be dependency ([#444](https://www.github.com/ethersphere/bee-js/issues/444)) ([fd39c46](https://www.github.com/ethersphere/bee-js/commit/fd39c460027a6578e8fc2cd8c27507e129f581bf))
+* **build:** limit the scope of files that are published to npm
 
 ## [2.1.0](https://www.github.com/ethersphere/bee-js/compare/v2.0.0...v2.1.0) (2021-10-13)
 
