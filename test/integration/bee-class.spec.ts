@@ -1,4 +1,4 @@
-import { Bee, BeeArgumentError, BeeDebug, Collection, PssSubscription } from '../../src'
+import { Bee, BeeDebug, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import { ChunkReference } from '../../src/feed'
@@ -20,7 +20,6 @@ import {
   FEED_TIMEOUT,
   getPostageBatch,
   makeTestTarget,
-  BLOCKCHAIN_TRANSACTION_TIMEOUT,
   PSS_TIMEOUT,
   randomByteArray,
   sleep,

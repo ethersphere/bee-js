@@ -1,11 +1,4 @@
-import {
-  assertAllIsDone,
-  createPostageBatchMock,
-  downloadDataMock,
-  fetchFeedUpdateMock,
-  MOCK_SERVER_URL,
-  uploadFileMock,
-} from './nock'
+import { assertAllIsDone, downloadDataMock, fetchFeedUpdateMock, MOCK_SERVER_URL, uploadFileMock } from './nock'
 import {
   BatchId,
   Bee,
@@ -15,7 +8,6 @@ import {
   ReferenceResponse,
   UploadOptions,
   RequestOptions,
-  PostageBatchOptions,
 } from '../../src'
 import {
   testBatchId,
@@ -43,7 +35,6 @@ import {
   testEthAddressAssertions,
   testMakeSignerAssertions,
   testRequestOptionsAssertions,
-  testPostageBatchOptionsAssertions,
 } from './assertions'
 import { FeedType } from '../../src/feed/type'
 import { isStrictlyObject } from '../../src/utils/type'

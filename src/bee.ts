@@ -6,7 +6,7 @@ import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
 
-import { BeeArgumentError, BeeError } from './utils/error'
+import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { makeFeedReader, makeFeedWriter } from './feed'
@@ -26,8 +26,6 @@ import {
   assertData,
   assertFileData,
   assertFileUploadOptions,
-  assertNonNegativeInteger,
-  assertPostageBatchOptions,
   assertPssMessageHandler,
   assertPublicKey,
   assertReference,
@@ -37,18 +35,7 @@ import {
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList, assertCollection } from './utils/collection'
-import {
-  AllTagsOptions,
-  Collection,
-  Ky,
-  NumberString,
-  PostageBatchOptions,
-  Readable,
-  RequestOptions,
-  STAMPS_DEPTH_MAX,
-  STAMPS_DEPTH_MIN,
-  UploadResult,
-} from './types'
+import { AllTagsOptions, Collection, Ky, Readable, RequestOptions, UploadResult } from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
 
@@ -74,7 +61,6 @@ import type {
   JsonFeedOptions,
   AnyJson,
   Pin,
-  PostageBatch,
   BatchId,
 } from './types'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
