@@ -144,6 +144,8 @@ export interface BalanceResponse {
 export interface Health {
   status: 'ok'
   version: string
+  apiVersion: string
+  debugApiVersion: string
 }
 
 export interface RemovePeerResponse {
