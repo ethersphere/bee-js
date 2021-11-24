@@ -5,9 +5,8 @@ import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
-import * as stamps from './modules/stamps'
 
-import { BeeArgumentError, BeeError } from './utils/error'
+import { BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { makeFeedReader, makeFeedWriter } from './feed'
@@ -27,8 +26,6 @@ import {
   assertData,
   assertFileData,
   assertFileUploadOptions,
-  assertNonNegativeInteger,
-  assertPostageBatchOptions,
   assertPssMessageHandler,
   assertPublicKey,
   assertReference,
@@ -38,18 +35,7 @@ import {
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList, assertCollection } from './utils/collection'
-import {
-  AllTagsOptions,
-  Collection,
-  Ky,
-  NumberString,
-  PostageBatchOptions,
-  Readable,
-  RequestOptions,
-  STAMPS_DEPTH_MAX,
-  STAMPS_DEPTH_MIN,
-  UploadResult,
-} from './types'
+import { AllTagsOptions, Collection, Ky, Readable, RequestOptions, UploadResult } from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
 
@@ -75,7 +61,6 @@ import type {
   JsonFeedOptions,
   AnyJson,
   Pin,
-  PostageBatch,
   BatchId,
 } from './types'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
@@ -958,76 +943,6 @@ export class Bee {
 
       upload: uploadSingleOwnerChunkData.bind(null, this.getKy(options), canonicalSigner),
     }
-  }
-
-  /**
-   * Creates new postage batch from the funds that the node has available in its Ethereum account.
-   *
-   * For better understanding what each parameter means and what are the optimal values please see
-   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
-   *
-   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
-   * **Warning! Not allowed when node is in Gateway mode!**
-   *
-   * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
-   * @param depth Logarithm of the number of chunks that can be stamped with the batch.
-   * @param options Options for creation of postage batch and request options
-   * @throws BeeArgumentError when negative amount or depth is specified
-   * @throws TypeError if non-integer value is passed to amount or depth
-   *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee API reference - `POST /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1{amount}~1{depth}/post)
-   * @deprecated Use DebugBee for postage batch management
-   */
-  async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
-    assertPostageBatchOptions(options)
-    assertNonNegativeInteger(amount)
-    assertNonNegativeInteger(depth)
-
-    if (depth < STAMPS_DEPTH_MIN) {
-      throw new BeeArgumentError(`Depth has to be at least ${STAMPS_DEPTH_MIN}`, depth)
-    }
-
-    if (depth > STAMPS_DEPTH_MAX) {
-      throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
-    }
-
-    return stamps.createPostageBatch(this.getKy(options), amount, depth, options)
-  }
-
-  /**
-   * Return details for specific postage batch.
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
-   *
-   * @param postageBatchId Batch ID
-   * @param options Options that affects the request behavior
-   *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
-   * @deprecated Use DebugBee for postage batch management
-   */
-  async getPostageBatch(postageBatchId: BatchId | string, options?: RequestOptions): Promise<PostageBatch> {
-    assertRequestOptions(options, 'PostageBatchOptions')
-    assertBatchId(postageBatchId)
-
-    return stamps.getPostageBatch(this.getKy(options), postageBatchId)
-  }
-
-  /**
-   * Return all postage batches that has the node available.
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
-   *
-   * @param options Options that affects the request behavior
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
-   * @deprecated Use DebugBee for postage batch management
-   */
-  async getAllPostageBatch(options?: RequestOptions): Promise<PostageBatch[]> {
-    assertRequestOptions(options, 'PostageBatchOptions')
-
-    return stamps.getAllPostageBatches(this.getKy(options))
   }
 
   /**
