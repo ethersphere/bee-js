@@ -54,7 +54,7 @@ jobs:
       - name: Create PR
         uses: gr2m/create-or-update-pull-request-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_V2_GHA_PAT }}
+          GITHUB_TOKEN: ${{ secrets.REPO_GHA_PAT }}
         with:
           title: "chore: update to bee ${{ env.BEE_VERSION }}"
           body: "Updated Bee version ${{ env.BEE_VERSION }}"
