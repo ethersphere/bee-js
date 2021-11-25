@@ -2,15 +2,18 @@
 
 ## [3.0.0](https://www.github.com/ethersphere/bee-js/compare/v2.1.1...v3.0.0) (2021-11-25)
 
+This is a small release in size, but big on impact. It is a breaking release thanks to breaking changes introduced in [Bee 1.4](https://github.com/ethersphere/bee/releases/tag/v1.4.0).
 
 ### ⚠ BREAKING CHANGES
 
-* dropping bee class postage stamps methods (#458)
+* dropping postage stamps methods from `Bee` class (#458)
 
 ### Features
 
 * dropping bee class postage stamps methods ([#458](https://www.github.com/ethersphere/bee-js/issues/458)) ([98afdcd](https://www.github.com/ethersphere/bee-js/commit/98afdcd3e4e930f5ea29b46f050c2b5966c850fe))
-* openapi versions in health ([#459](https://www.github.com/ethersphere/bee-js/issues/459)) ([98afdcd](https://www.github.com/ethersphere/bee-js/commit/98afdcd3e4e930f5ea29b46f050c2b5966c850fe))
+* openapi versions in `/health` endpoint and methods ([#459](https://www.github.com/ethersphere/bee-js/issues/459)) ([98afdcd](https://www.github.com/ethersphere/bee-js/commit/98afdcd3e4e930f5ea29b46f050c2b5966c850fe))
+
+---
 
 ### [2.1.1](https://www.github.com/ethersphere/bee-js/compare/v2.1.0...v2.1.1) (2021-11-08)
 
@@ -21,6 +24,8 @@ This is small release that fixes few small issues and mainly brings compatibilit
 * **build:** sourcemap ([#440](https://www.github.com/ethersphere/bee-js/issues/440)) ([2bfb7c8](https://www.github.com/ethersphere/bee-js/commit/2bfb7c8cc2db00bc361cf14fcc766ac395dfce09))
 * readable-stream should be dependency ([#444](https://www.github.com/ethersphere/bee-js/issues/444)) ([fd39c46](https://www.github.com/ethersphere/bee-js/commit/fd39c460027a6578e8fc2cd8c27507e129f581bf))
 * **build:** limit the scope of files that are published to npm
+
+---
 
 ## [2.1.0](https://www.github.com/ethersphere/bee-js/compare/v2.0.0...v2.1.0) (2021-10-13)
 
