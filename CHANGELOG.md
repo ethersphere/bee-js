@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.0](https://www.github.com/ethersphere/bee-js/compare/v2.1.1...v3.0.0) (2021-11-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* dropping bee class postage stamps methods (#458)
+
+### Features
+
+* dropping bee class postage stamps methods ([#458](https://www.github.com/ethersphere/bee-js/issues/458)) ([98afdcd](https://www.github.com/ethersphere/bee-js/commit/98afdcd3e4e930f5ea29b46f050c2b5966c850fe))
+* openapi versions in health ([#459](https://www.github.com/ethersphere/bee-js/issues/459)) ([98afdcd](https://www.github.com/ethersphere/bee-js/commit/98afdcd3e4e930f5ea29b46f050c2b5966c850fe))
+
 ### [2.1.1](https://www.github.com/ethersphere/bee-js/compare/v2.1.0...v2.1.1) (2021-11-08)
 
 This is small release that fixes few small issues and mainly brings compatibility with the Bee 1.3.

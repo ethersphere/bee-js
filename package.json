@@ -1,6 +1,6 @@
 {
   "name": "@ethersphere/bee-js",
-  "version": "2.1.1",
+  "version": "3.0.0",
   "description": "Javascript client for Bee",
   "keywords": [
     "bee",
@@ -27,7 +27,9 @@
     "./dist/index.min.js": "./dist/index.browser.min.js",
     "data": "data.browser"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "types": "dist/src/index.d.ts",
   "scripts": {
     "prepublishOnly": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production && npm run compile:node --env mode=production",
