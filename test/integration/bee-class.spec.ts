@@ -1,4 +1,4 @@
-import { Bee, BeeArgumentError, BeeDebug, Collection, PssSubscription } from '../../src'
+import { Bee, BeeDebug, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import { ChunkReference } from '../../src/feed'
@@ -20,7 +20,6 @@ import {
   FEED_TIMEOUT,
   getPostageBatch,
   makeTestTarget,
-  BLOCKCHAIN_TRANSACTION_TIMEOUT,
   PSS_TIMEOUT,
   randomByteArray,
   sleep,
@@ -592,57 +591,5 @@ describe('Bee class', () => {
       },
       FEED_TIMEOUT,
     )
-  })
-
-  describe('PostageBatch', () => {
-    it(
-      'should create a new postage batch with zero amount',
-      async () => {
-        const batchId = await bee.createPostageBatch('0', 17)
-        const allBatches = await bee.getAllPostageBatch()
-
-        expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
-      },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT,
-    )
-
-    it(
-      'should have both immutable true and false',
-      async () => {
-        await bee.createPostageBatch('1', 17, { immutableFlag: true })
-        await bee.createPostageBatch('1', 17, { immutableFlag: false })
-        const allBatches = await bee.getAllPostageBatch()
-
-        expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
-        expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
-      },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
-    )
-
-    it('should have all properties', async () => {
-      const allBatches = await bee.getAllPostageBatch()
-
-      expect(allBatches.length).toBeGreaterThan(0)
-
-      expect(allBatches).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            batchID: expect.any(String),
-            utilization: expect.any(Number),
-            usable: expect.any(Boolean),
-            label: expect.any(String),
-            depth: expect.any(Number),
-            amount: expect.any(String),
-            bucketDepth: expect.any(Number),
-            blockNumber: expect.any(Number),
-            immutableFlag: expect.any(Boolean),
-          }),
-        ]),
-      )
-    })
-
-    it('should error with negative amount', async () => {
-      await expect(bee.createPostageBatch('-1', 17)).rejects.toThrowError(BeeArgumentError)
-    })
   })
 })
