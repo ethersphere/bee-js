@@ -46,3 +46,4 @@ export {
 
 export { keccak256Hash } from './hash'
 export { makeMaxTarget } from './pss'
+export { getStampUsage } from './stamps'
