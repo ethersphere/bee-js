@@ -27,6 +27,7 @@ jobs:
 
           echo "IMAGE_VERSION=$image_version" >> $GITHUB_ENV
           echo "BEE_VERSION=${image_version/-stateful}" >> $GITHUB_ENV
+          echo "TARGET_BRANCH=${BEE_VERSION/-rc*}" >> $GITHUB_ENV
 
       - name: Replace Engine in package.json
         uses: jossef/action-set-json-field@v1
@@ -58,6 +59,27 @@ jobs:
         with:
           title: "chore: update to bee ${{ env.BEE_VERSION }}"
           body: "Updated Bee version ${{ env.BEE_VERSION }}"
-          branch: "chore/new-bee"
+          branch: "${{ env.TARGET_BRANCH }}"
           commit-message: "chore: update to bee"
           author: "bee-worker <bee-worker@ethswarm.org>"
+
+      - name: Find Release Notes comment
+        uses: peter-evans/find-comment@v1
+        id: comment
+        with:
+          token: ${{ secrets.REPO_GHA_PAT }}
+          comment-author: bee-worker
+          body-includes: search string 1
+
+      - name: Create or update preview comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.REPO_GHA_PAT }}
+          comment-id: ${{ steps.comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🐝 PR preview in Swarm
+            **Preview URL:** ${{ steps.upload.outputs.bzz-link }}
+            **Swarm Hash:** `${{ steps.upload.outputs.swarm-hash }}`
+            **Commit Hash:** ${{ steps.upload.outputs.git-hash }}
+            **Commit Message:** ${{ steps.upload.outputs.git-message }}
