@@ -125,6 +125,16 @@ describe('Bee class', () => {
     })
   })
 
+  describe('chunk', () => {
+    it('should fail for small data', async () => {
+      const content = new Uint8Array([1, 2, 3, 4, 5, 6, 7])
+
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      await expect(bee.uploadChunk(testBatchId, content)).rejects.toThrow(BeeArgumentError)
+    })
+  })
+
   describe('downloadReadableData', () => {
     testReferenceAssertions(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
