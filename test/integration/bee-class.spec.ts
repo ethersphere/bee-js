@@ -22,6 +22,7 @@ import {
   makeTestTarget,
   PSS_TIMEOUT,
   randomByteArray,
+  readWholeUint8ArrayReadableStream,
   sleep,
   testChunkPayload,
   testIdentity,
@@ -53,6 +54,16 @@ describe('Bee class', () => {
 
       const reference = await bee.uploadChunk(getPostageBatch(), content)
       const downloadedChunk = await bee.downloadChunk(reference)
+
+      expect(downloadedChunk).toEqual(content)
+    })
+
+    it('should download chunk with readable', async () => {
+      const content = randomByteArray(100)
+
+      const reference = await bee.uploadChunk(getPostageBatch(), content)
+      const readableStream = await bee.downloadReadableChunk(reference)
+      const downloadedChunk = await readWholeUint8ArrayReadableStream(readableStream)
 
       expect(downloadedChunk).toEqual(content)
     })

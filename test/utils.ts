@@ -1,6 +1,5 @@
 import { Readable } from 'stream'
 import ky from 'ky-universal'
-import { ReadableStream } from 'web-streams-polyfill/ponyfill'
 
 import type { Ky, BeeGenericResponse, Reference, Address, BatchId, DebugPostageBatch } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
@@ -117,6 +116,23 @@ export function commonMatchers(): void {
  */
 export async function sleep(ms: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(() => resolve(), ms))
+}
+
+/**
+ * Helper function that reads whole content of ReadableStream
+ * @param stream
+ */
+export async function readWholeUint8ArrayReadableStream(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
+  const reader = stream.getReader()
+  let buff: number[] = []
+  let readResult
+
+  do {
+    readResult = await reader.read()
+    buff = [...buff, ...(readResult.value as Uint8Array)]
+  } while (!readResult.done)
+
+  return new Uint8Array(buff)
 }
 
 export function createRandomNodeReadable(totalSize: number, chunkSize = 1000): Readable {
