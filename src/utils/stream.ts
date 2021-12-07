@@ -64,7 +64,11 @@ export function readableNodeToWeb(nodeStream: NodeReadableType): ReadableStream<
     start(controller) {
       nodeStream.pause()
       nodeStream.on('data', chunk => {
-        controller.enqueue(chunk)
+        if (Buffer.isBuffer(chunk)) {
+          controller.enqueue(new Uint8Array(chunk.buffer))
+        } else {
+          controller.enqueue(chunk)
+        }
         nodeStream.pause()
       })
       nodeStream.on('end', () => controller.close())
