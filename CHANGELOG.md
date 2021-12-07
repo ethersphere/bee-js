@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.0.1](https://www.github.com/ethersphere/bee-js/compare/v3.0.0...v3.0.1) (2021-12-07)
+
+
+### Bug Fixes
+
+* convert buffer to uint8array for readablestream ([#473](https://www.github.com/ethersphere/bee-js/issues/473)) ([7f34ea6](https://www.github.com/ethersphere/bee-js/commit/7f34ea6b8c62c75b8a0ab7b66983121388a5b34f))
+
 ## [3.0.0](https://www.github.com/ethersphere/bee-js/compare/v2.1.1...v3.0.0) (2021-11-25)
 
 This is a small release in size, but big on impact. It is a breaking release thanks to breaking changes introduced in [Bee 1.4](https://github.com/ethersphere/bee/releases/tag/v1.4.0).
