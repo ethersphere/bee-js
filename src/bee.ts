@@ -236,24 +236,6 @@ export class Bee {
   }
 
   /**
-   * Download chunk as a Readable stream
-   *
-   * @param reference Bee chunk reference
-   * @param options Options that affects the request behavior
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `GET /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1{reference}/get)
-   */
-  async downloadReadableChunk(
-    reference: Reference | string,
-    options?: RequestOptions,
-  ): Promise<ReadableStream<Uint8Array>> {
-    assertRequestOptions(options)
-    assertReference(reference)
-
-    return chunk.downloadReadable(this.getKy(options), reference)
-  }
-
-  /**
    * Upload single file to a Bee node.
    *
    * **To make sure that you won't loose critical data it is highly recommended to also
