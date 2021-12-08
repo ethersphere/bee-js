@@ -127,12 +127,12 @@ export async function sleep(ms: number): Promise<void> {
 export async function readWholeUint8ArrayReadableStream(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
   const reader = stream.getReader()
   let buff: number[] = []
-  let readResult
+  let readResult: ReadableStreamDefaultReadResult<Uint8Array>
 
   do {
     readResult = await reader.read()
 
-    if (readResult.value) buff = [...buff, ...(readResult.value as Uint8Array)]
+    if (readResult.value) buff = [...buff, ...readResult.value]
   } while (!readResult.done)
 
   return new Uint8Array(buff)
