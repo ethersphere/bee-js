@@ -1,7 +1,7 @@
-import type { BatchId, Ky, ReferenceResponse, UploadOptions } from '../types'
+import type { BatchId, Data, Ky, Reference, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { Reference } from '../types'
+import { wrapBytesWithHelpers } from '../utils/bytes'
 
 const endpoint = 'chunks'
 
@@ -44,13 +44,13 @@ export async function upload(
  * @param hash Bee content reference
  *
  */
-export async function download(ky: Ky, hash: string): Promise<Uint8Array> {
+export async function download(ky: Ky, hash: string): Promise<Data> {
   const response = await http<ArrayBuffer>(ky, {
     responseType: 'arraybuffer',
     path: `${endpoint}/${hash}`,
   })
 
-  return new Uint8Array(response.data)
+  return wrapBytesWithHelpers(new Uint8Array(response.data))
 }
 
 /**

@@ -1,6 +1,7 @@
 import { Readable } from 'stream'
+import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
+
 import ky from 'ky-universal'
-import { ReadableStream } from 'web-streams-polyfill/ponyfill'
 
 import type { Ky, BeeGenericResponse, Reference, Address, BatchId, DebugPostageBatch } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
@@ -119,6 +120,24 @@ export async function sleep(ms: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 }
 
+/**
+ * Helper function that reads whole content of ReadableStream
+ * @param stream
+ */
+export async function readWholeUint8ArrayReadableStream(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
+  const reader = stream.getReader()
+  let buff: number[] = []
+  let readResult: ReadableStreamDefaultReadResult<Uint8Array>
+
+  do {
+    readResult = await reader.read()
+
+    if (readResult.value) buff = [...buff, ...readResult.value]
+  } while (!readResult.done)
+
+  return new Uint8Array(buff)
+}
+
 export function createRandomNodeReadable(totalSize: number, chunkSize = 1000): Readable {
   if (totalSize % chunkSize !== 0) {
     throw new Error(`totalSize ${totalSize} is not dividable without remainder by chunkSize ${chunkSize}`)
@@ -140,7 +159,7 @@ export function createRandomNodeReadable(totalSize: number, chunkSize = 1000): R
 export function createReadableStream(iterable: Iterable<Uint8Array>): ReadableStream {
   const iter = iterable[Symbol.iterator]()
 
-  return new ReadableStream({
+  return new ReadableStreamPolyfill({
     async pull(controller) {
       const result = iter.next()
 
@@ -152,7 +171,7 @@ export function createReadableStream(iterable: Iterable<Uint8Array>): ReadableSt
 
       controller.enqueue(result.value)
     },
-  })
+  }) as ReadableStream
 }
 
 /**

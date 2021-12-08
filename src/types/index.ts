@@ -20,6 +20,11 @@ export interface Dictionary<T> {
   [Key: string]: T
 }
 
+export const SPAN_SIZE = 8
+export const SECTION_SIZE = 32
+export const BRANCHES = 128
+export const CHUNK_SIZE = SECTION_SIZE * BRANCHES
+
 export const ADDRESS_HEX_LENGTH = 64
 export const PSS_TARGET_HEX_LENGTH_MAX = 6
 export const PUBKEY_HEX_LENGTH = 66

@@ -47,6 +47,17 @@ describe('Bee class', () => {
     expect(bee.url).toEqual('http://localhost:1633')
   })
 
+  describe('chunk', () => {
+    it('should upload and download chunk', async () => {
+      const content = randomByteArray(100)
+
+      const reference = await bee.uploadChunk(getPostageBatch(), content)
+      const downloadedChunk = await bee.downloadChunk(reference)
+
+      expect(downloadedChunk).toEqual(content)
+    })
+  })
+
   describe('files', () => {
     it('should work with files', async () => {
       const content = new Uint8Array([1, 2, 3])

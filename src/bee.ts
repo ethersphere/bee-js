@@ -3,10 +3,11 @@ import * as stewardship from './modules/stewardship'
 import * as tag from './modules/tag'
 import * as pinning from './modules/pinning'
 import * as bytes from './modules/bytes'
+import * as chunk from './modules/chunk'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
 
-import { BeeError } from './utils/error'
+import { BeeArgumentError, BeeError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { makeFeedReader, makeFeedWriter } from './feed'
@@ -35,7 +36,7 @@ import {
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList, assertCollection } from './utils/collection'
-import { AllTagsOptions, Collection, Ky, Readable, RequestOptions, UploadResult } from './types'
+import { AllTagsOptions, CHUNK_SIZE, Collection, Ky, Readable, RequestOptions, SPAN_SIZE, UploadResult } from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
 
@@ -186,6 +187,52 @@ export class Bee {
     assertReference(reference)
 
     return bytes.downloadReadable(this.getKy(options), reference)
+  }
+
+  /**
+   * Upload chunk to a Bee node
+   *
+   * @param postageBatchId Postage BatchId to be used to upload the chunk with
+   * @param data    Raw chunk to be uploaded
+   * @param options Additional options like tag, encryption, pinning, content-type and request options
+   *
+   * @returns reference is a content hash of the data
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `POST /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)
+   */
+  async uploadChunk(postageBatchId: string | BatchId, data: Uint8Array, options?: UploadOptions): Promise<Reference> {
+    assertBatchId(postageBatchId)
+
+    if (!(data instanceof Uint8Array)) {
+      throw new TypeError('Data has to be Uint8Array instance!')
+    }
+
+    if (data.length < SPAN_SIZE) {
+      throw new BeeArgumentError(`Chunk has to have size of at least ${SPAN_SIZE}.`, data)
+    }
+
+    if (data.length > CHUNK_SIZE + SPAN_SIZE) {
+      throw new BeeArgumentError(`Chunk has to have size of at most ${CHUNK_SIZE}.`, data)
+    }
+
+    if (options) assertUploadOptions(options)
+
+    return chunk.upload(this.getKy(options), data, postageBatchId, options)
+  }
+
+  /**
+   * Download chunk as a byte array
+   *
+   * @param reference Bee chunk reference
+   * @param options Options that affects the request behavior
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `GET /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1{reference}/get)
+   */
+  async downloadChunk(reference: Reference | string, options?: RequestOptions): Promise<Data> {
+    assertRequestOptions(options)
+    assertReference(reference)
+
+    return chunk.download(this.getKy(options), reference)
   }
 
   /**
