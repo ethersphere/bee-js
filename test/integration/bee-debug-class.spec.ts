@@ -111,4 +111,15 @@ describe('Bee Debug class', () => {
       await expect(beeDebug.createPostageBatch('-1', 17)).rejects.toThrowError(BeeArgumentError)
     })
   })
+
+  describe('modes', () => {
+    it('should return modes', async () => {
+      expect(await beeDebug.getModes()).toEqual(
+        expect.objectContaining({
+          beeMode: expect.any(String),
+          gatewayMode: expect.any(Boolean),
+        }),
+      )
+    })
+  })
 })

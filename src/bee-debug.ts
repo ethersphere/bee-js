@@ -31,6 +31,7 @@ import type {
   Ky,
   TransactionInfo,
   TransactionHash,
+  Modes,
 } from './types'
 import { BeeArgumentError } from './utils/error'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
@@ -368,6 +369,15 @@ export class BeeDebug {
     assertRequestOptions(options)
 
     return status.getHealth(this.getKy(options))
+  }
+
+  /**
+   * Get mode information of node
+   */
+  async getModes(options?: RequestOptions): Promise<Modes> {
+    assertRequestOptions(options)
+
+    return status.getModes(this.getKy(options))
   }
 
   /**
