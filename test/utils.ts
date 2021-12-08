@@ -1,4 +1,6 @@
 import { Readable } from 'stream'
+import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
+
 import ky from 'ky-universal'
 
 import type { Ky, BeeGenericResponse, Reference, Address, BatchId, DebugPostageBatch } from '../src/types'
@@ -129,7 +131,8 @@ export async function readWholeUint8ArrayReadableStream(stream: ReadableStream<U
 
   do {
     readResult = await reader.read()
-    buff = [...buff, ...(readResult.value as Uint8Array)]
+
+    if (readResult.value) buff = [...buff, ...(readResult.value as Uint8Array)]
   } while (!readResult.done)
 
   return new Uint8Array(buff)
@@ -156,7 +159,7 @@ export function createRandomNodeReadable(totalSize: number, chunkSize = 1000): R
 export function createReadableStream(iterable: Iterable<Uint8Array>): ReadableStream {
   const iter = iterable[Symbol.iterator]()
 
-  return new ReadableStream({
+  return new ReadableStreamPolyfill({
     async pull(controller) {
       const result = iter.next()
 
@@ -168,7 +171,7 @@ export function createReadableStream(iterable: Iterable<Uint8Array>): ReadableSt
 
       controller.enqueue(result.value)
     },
-  })
+  }) as ReadableStream
 }
 
 /**

@@ -36,7 +36,7 @@ import {
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFS, makeCollectionFromFileList, assertCollection } from './utils/collection'
-import { AllTagsOptions, Collection, Ky, Readable, RequestOptions, SPAN_LENGTH, UploadResult } from './types'
+import { AllTagsOptions, CHUNK_SIZE, Collection, Ky, Readable, RequestOptions, SPAN_SIZE, UploadResult } from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
 
@@ -207,8 +207,12 @@ export class Bee {
       throw new TypeError('Data has to be Uint8Array instance!')
     }
 
-    if (data.length < SPAN_LENGTH) {
-      throw new BeeArgumentError(`Chunk has to have length of at least ${SPAN_LENGTH}.`, data)
+    if (data.length < SPAN_SIZE) {
+      throw new BeeArgumentError(`Chunk has to have size of at least ${SPAN_SIZE}.`, data)
+    }
+
+    if (data.length > CHUNK_SIZE) {
+      throw new BeeArgumentError(`Chunk has to have size of at most ${CHUNK_SIZE}.`, data)
     }
 
     if (options) assertUploadOptions(options)
