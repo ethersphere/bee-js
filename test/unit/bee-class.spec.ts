@@ -8,8 +8,11 @@ import {
   ReferenceResponse,
   UploadOptions,
   RequestOptions,
+  CHUNK_SIZE,
+  SPAN_SIZE,
 } from '../../src'
 import {
+  randomByteArray,
   testBatchId,
   testChunkHash,
   testIdentity,
@@ -132,6 +135,14 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       await expect(bee.uploadChunk(testBatchId, content)).rejects.toThrow(BeeArgumentError)
+    })
+
+    it('should fail for big data', async () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      await expect(bee.uploadChunk(testBatchId, randomByteArray(CHUNK_SIZE + SPAN_SIZE + 1))).rejects.toThrow(
+        BeeArgumentError,
+      )
     })
   })
 

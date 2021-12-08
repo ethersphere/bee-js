@@ -211,7 +211,7 @@ export class Bee {
       throw new BeeArgumentError(`Chunk has to have size of at least ${SPAN_SIZE}.`, data)
     }
 
-    if (data.length > CHUNK_SIZE) {
+    if (data.length > CHUNK_SIZE + SPAN_SIZE) {
       throw new BeeArgumentError(`Chunk has to have size of at most ${CHUNK_SIZE}.`, data)
     }
 
