@@ -52,18 +52,3 @@ export async function download(ky: Ky, hash: string): Promise<Data> {
 
   return wrapBytesWithHelpers(new Uint8Array(response.data))
 }
-
-/**
- * Download chunk data as a readable stream
- *
- * @param ky Ky instance for given Bee class instance
- * @param hash Bee content reference
- */
-export async function downloadReadable(ky: Ky, hash: string): Promise<ReadableStream<Uint8Array>> {
-  const response = await http<ReadableStream<Uint8Array>>(ky, {
-    responseType: 'stream',
-    path: `${endpoint}/${hash}`,
-  })
-
-  return response.data
-}

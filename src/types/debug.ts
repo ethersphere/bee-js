@@ -148,6 +148,17 @@ export interface Health {
   debugApiVersion: string
 }
 
+export enum BeeModes {
+  FULL = 'full',
+  LIGHT = 'light',
+  DEV = 'dev',
+}
+
+export interface NodesInfo {
+  gatewayMode: boolean
+  beeMode: BeeModes
+}
+
 export interface RemovePeerResponse {
   message: string
   code: 0
