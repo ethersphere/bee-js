@@ -1,5 +1,5 @@
 import { http } from '../../utils/http'
-import type { Health, Modes } from '../../types/debug'
+import type { Health, NodesInfo } from '../../types/debug'
 import { engines } from '../../../package.json'
 import { Ky } from '../../types'
 
@@ -25,12 +25,12 @@ export async function getHealth(ky: Ky): Promise<Health> {
 }
 
 /**
- * Get mode of Bee node
+ * Get information about Bee node
  *
  * @param ky Ky debug instance
  */
-export async function getModes(ky: Ky): Promise<Modes> {
-  const response = await http<Modes>(ky, {
+export async function getNodeInfo(ky: Ky): Promise<NodesInfo> {
+  const response = await http<NodesInfo>(ky, {
     method: 'get',
     path: MODES_URL,
     responseType: 'json',
@@ -40,7 +40,7 @@ export async function getModes(ky: Ky): Promise<Modes> {
 }
 
 /**
- * Connnects to a node and checks if it is a supported Bee version by the bee-js
+ * Connects to a node and checks if it is a supported Bee version by the bee-js
  *
  * @param ky Ky debug instance
  *

@@ -154,7 +154,7 @@ export enum BeeModes {
   DEV = 'dev',
 }
 
-export interface Modes {
+export interface NodesInfo {
   gatewayMode: boolean
   beeMode: BeeModes
 }

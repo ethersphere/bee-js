@@ -114,9 +114,9 @@ describe('Bee Debug class', () => {
 
   describe('modes', () => {
     it('should return modes', async () => {
-      expect(await beeDebug.getModes()).toEqual(
+      expect(await beeDebug.getNodeInfo()).toEqual(
         expect.objectContaining({
-          beeMode: expect.any(String),
+          beeMode: expect.stringMatching(/^(dev|light|full)$/),
           gatewayMode: expect.any(Boolean),
         }),
       )
