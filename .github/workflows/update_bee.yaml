@@ -27,6 +27,7 @@ jobs:
 
           echo "IMAGE_VERSION=$image_version" >> $GITHUB_ENV
           echo "BEE_VERSION=${image_version/-stateful}" >> $GITHUB_ENV
+          echo "TARGET_BRANCH=${BEE_VERSION/-rc*}" >> $GITHUB_ENV
 
       - name: Replace Engine in package.json
         uses: jossef/action-set-json-field@v1
@@ -51,13 +52,45 @@ jobs:
           include: ".github/workflows/tests.yaml"
           regex: true
 
-      - name: Create PR
+      - name: Create/update PR
+        id: pr
         uses: gr2m/create-or-update-pull-request-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_GHA_PAT }}
         with:
           title: "chore: update to bee ${{ env.BEE_VERSION }}"
           body: "Updated Bee version ${{ env.BEE_VERSION }}"
-          branch: "chore/new-bee"
+          branch: "${{ env.TARGET_BRANCH }}"
           commit-message: "chore: update to bee"
           author: "bee-worker <bee-worker@ethswarm.org>"
+
+      - uses: joutvhu/get-release@v1
+        id: release-notes
+        with:
+          owner: ethersphere
+          repo: bee
+          tag_name: v${{ env.BEE_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_GHA_PAT }}
+
+      - name: Find Release Notes comment
+        if: steps.pr.outputs.pull-request-number
+        uses: peter-evans/find-comment@v1
+        id: comment
+        with:
+          token: ${{ secrets.REPO_GHA_PAT }}
+          comment-author: bee-worker
+          issue-number: ${{ steps.pr.outputs.pull-request-number }}
+          body-includes: Release notes
+
+      - name: Create or update preview comment
+        uses: peter-evans/create-or-update-comment@v1
+        if: steps.pr.outputs.pull-request-number
+        with:
+          token: ${{ secrets.REPO_GHA_PAT }}
+          comment-id: ${{ steps.comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🗒 Bee ${{ env.BEE_VERSION }} Release notes
+
+            ${{ steps.release-notes.outputs.body}}
