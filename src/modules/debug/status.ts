@@ -6,7 +6,7 @@ import { Ky } from '../../types'
 export const SUPPORTED_BEE_VERSION_EXACT = engines.bee
 export const SUPPORTED_BEE_VERSION = engines.bee.substr(0, engines.bee.indexOf('-'))
 
-const MODES_URL = 'node'
+const NODE_INFO_URL = 'node'
 const HEALTH_URL = 'health'
 
 /**
@@ -32,7 +32,7 @@ export async function getHealth(ky: Ky): Promise<Health> {
 export async function getNodeInfo(ky: Ky): Promise<NodesInfo> {
   const response = await http<NodesInfo>(ky, {
     method: 'get',
-    path: MODES_URL,
+    path: NODE_INFO_URL,
     responseType: 'json',
   })
 
