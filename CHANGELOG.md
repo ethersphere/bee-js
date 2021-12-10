@@ -1,4 +1,32 @@
 # Changelog
+## [3.1.0](https://www.github.com/ethersphere/bee-js/compare/v3.0.0...v3.1.0) (2021-12-09)
+
+This is another small release that brings support for [Bee 1.4.1](https://github.com/ethersphere/bee/releases/tag/v1.4.1) and a few small improvements
+
+### 🔌 Node endpoint support
+
+The Bee 1.4.1 release brought a new endpoint on Debug API called `/node` which provides information about in what mode the Bee node runs (such as dev mode, light mode, or full mode or information about gateway mode).
+
+### 🔗 Chunk endpoint supports
+
+We used chunk endpoints internally in bee-js but now we have decided to expose them for your usage as well.
+
+### ∵ Stamp usage utility functions
+
+In order to calculate the usage of a postage stamp (eq. percentage in form of a number between 0 and 1) we have added a small utility function that calculates it called `getStampUsage()`.
+
+### Features
+
+* exposing chunk functionality ([#472](https://www.github.com/ethersphere/bee-js/issues/472)) ([b121dcb](https://www.github.com/ethersphere/bee-js/commit/b121dcb037ed77f20d7543e7b74a85f2dd97ae41))
+* node endpoint support ([#479](https://www.github.com/ethersphere/bee-js/issues/479)) ([11731d3](https://www.github.com/ethersphere/bee-js/commit/11731d32c8e83bbc0bd4e16367c86f27f8fd79cb))
+* stamp usage utility function ([#470](https://www.github.com/ethersphere/bee-js/issues/470)) ([b53edd1](https://www.github.com/ethersphere/bee-js/commit/b53edd12193ea60a9372ffaa7ae79001b7decfc5))
+
+
+### Bug Fixes
+
+* convert buffer to uint8array for readablestream ([#473](https://www.github.com/ethersphere/bee-js/issues/473)) ([7f34ea6](https://www.github.com/ethersphere/bee-js/commit/7f34ea6b8c62c75b8a0ab7b66983121388a5b34f))
+
+---
 
 ## [3.0.0](https://www.github.com/ethersphere/bee-js/compare/v2.1.1...v3.0.0) (2021-11-25)
 
