@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.REPO_GHA_PAT }}
+          persist-credentials: false
 
       - name: Set env. variables
         run: |
@@ -63,7 +63,7 @@ jobs:
         with:
           title: "chore: update to bee ${{ env.BEE_VERSION }}"
           body: "Updated Bee version ${{ env.BEE_VERSION }}"
-          branch: "${{ env.TARGET_BRANCH }}"
+          branch: "bee-${{ env.TARGET_BRANCH }}"
           commit-message: "chore: update to bee"
           author: "bee-worker <bee-worker@ethswarm.org>"
 
@@ -77,7 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_GHA_PAT }}
 
       - name: Find Release Notes comment
-        if: steps.pr.outputs.pull-request-number
+        if: steps.pr.outputs.pull-request-number && steps.release-notes.outputs.body
         uses: peter-evans/find-comment@v1
         id: comment
         with:
@@ -88,11 +88,11 @@ jobs:
 
       - name: Create or update preview comment
         uses: peter-evans/create-or-update-comment@v1
-        if: steps.pr.outputs.pull-request-number
+        if: steps.pr.outputs.pull-request-number && steps.release-notes.outputs.body
         with:
           token: ${{ secrets.REPO_GHA_PAT }}
           comment-id: ${{ steps.comment.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
+          issue-number: ${{ steps.pr.outputs.pull-request-number }}
           body: |
             ## 🗒 Bee ${{ env.BEE_VERSION }} Release notes
 
