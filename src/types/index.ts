@@ -444,9 +444,6 @@ export interface PostageBatch {
   bucketDepth: number
   blockNumber: number
   immutableFlag: boolean
-}
-
-export interface DebugPostageBatch extends PostageBatch {
   /**
    * The time (in seconds) remaining until the batch expires; -1 signals that the batch never expires; 0 signals that the batch has already expired.
    */
@@ -454,6 +451,11 @@ export interface DebugPostageBatch extends PostageBatch {
 
   exists: boolean
 }
+
+/**
+ * @deprecated Use PostageBatch instead.
+ */
+export type DebugPostageBatch = PostageBatch
 
 export interface BatchBucket {
   bucketID: number
