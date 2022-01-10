@@ -59,5 +59,7 @@ export function extractUploadHeaders(postageBatchId: BatchId, options?: UploadOp
 
   if (options?.tag) headers['swarm-tag'] = String(options.tag)
 
+  if (typeof options?.deferred === 'boolean') headers['swarm-deferred-upload'] = options.deferred.toString()
+
   return headers
 }

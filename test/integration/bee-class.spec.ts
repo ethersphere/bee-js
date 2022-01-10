@@ -56,6 +56,15 @@ describe('Bee class', () => {
 
       expect(downloadedChunk).toEqual(content)
     })
+
+    it('should upload and download chunk with direct upload', async () => {
+      const content = randomByteArray(100)
+
+      const reference = await bee.uploadChunk(getPostageBatch(), content, { deferred: false })
+      const downloadedChunk = await bee.downloadChunk(reference)
+
+      expect(downloadedChunk).toEqual(content)
+    })
   })
 
   describe('files', () => {
@@ -65,6 +74,18 @@ describe('Bee class', () => {
       const contentType = 'text/html'
 
       const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType })
+      const file = await bee.downloadFile(result.reference)
+
+      expect(file.name).toEqual(name)
+      expect(file.data).toEqual(content)
+    })
+
+    it('should work with files and direct upload', async () => {
+      const content = new Uint8Array([1, 2, 3])
+      const name = 'hello.txt'
+      const contentType = 'text/html'
+
+      const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType, deferred: false })
       const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
@@ -188,6 +209,12 @@ describe('Bee class', () => {
   describe('collections', () => {
     it('should work with directory with unicode filenames', async () => {
       const result = await bee.uploadFilesFromDirectory(getPostageBatch(), './test/data')
+
+      expect(result.reference.length).toEqual(REFERENCE_HEX_LENGTH)
+    })
+
+    it('should work with directory with unicode filenames and direct upload', async () => {
+      const result = await bee.uploadFilesFromDirectory(getPostageBatch(), './test/data', { deferred: false })
 
       expect(result.reference.length).toEqual(REFERENCE_HEX_LENGTH)
     })
