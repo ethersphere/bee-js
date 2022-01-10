@@ -1,5 +1,5 @@
 import { http } from '../../utils/http'
-import type { Health, NodesInfo } from '../../types/debug'
+import type { Health, NodeInfo } from '../../types/debug'
 import { engines } from '../../../package.json'
 import { Ky } from '../../types'
 
@@ -29,8 +29,8 @@ export async function getHealth(ky: Ky): Promise<Health> {
  *
  * @param ky Ky debug instance
  */
-export async function getNodeInfo(ky: Ky): Promise<NodesInfo> {
-  const response = await http<NodesInfo>(ky, {
+export async function getNodeInfo(ky: Ky): Promise<NodeInfo> {
+  const response = await http<NodeInfo>(ky, {
     method: 'get',
     path: NODE_INFO_URL,
     responseType: 'json',
