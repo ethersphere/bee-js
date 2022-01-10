@@ -156,8 +156,8 @@ or for Browsers
 
 ## Maintainers
 
-- [nugaon](https://github.com/nugaon)
 - [auhau](https://github.com/auhau)
+- [vojtechsimetka](https://github.com/vojtechsimetka)
 
 ## License
 
