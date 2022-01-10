@@ -154,10 +154,19 @@ export enum BeeModes {
   DEV = 'dev',
 }
 
-export interface NodesInfo {
+/**
+ * Information about Bee node and its configuration
+ */
+export interface NodeInfo {
   gatewayMode: boolean
   beeMode: BeeModes
 }
+
+/**
+ * Information about Bee node and its configuration
+ * @deprecated Use NodeInfo instead
+ */
+export type NodesInfo = NodeInfo
 
 export interface RemovePeerResponse {
   message: string
