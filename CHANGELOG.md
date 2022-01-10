@@ -1,4 +1,12 @@
 # Changelog
+### [3.1.1](https://www.github.com/ethersphere/bee-js/compare/v3.1.0...v3.1.1) (2022-01-10)
+
+
+### Bug Fixes
+
+* rename DebugPostageBatch into PostageBatch ([#495](https://www.github.com/ethersphere/bee-js/issues/495)) ([38f2758](https://www.github.com/ethersphere/bee-js/commit/38f27587a8291745cfa3821608931f71b256444a))
+* rename NodesInfo into NodeInfo ([#493](https://www.github.com/ethersphere/bee-js/issues/493)) ([9d1ec0a](https://www.github.com/ethersphere/bee-js/commit/9d1ec0a44691f5ffdb12e77402e0e112f0162398))
+
 ## [3.1.0](https://www.github.com/ethersphere/bee-js/compare/v3.0.0...v3.1.0) (2021-12-09)
 
 This is another small release that brings support for [Bee 1.4.1](https://github.com/ethersphere/bee/releases/tag/v1.4.1) and a few small improvements
