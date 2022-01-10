@@ -4,3 +4,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Always increase the version in package.json as well (for patch versions by default only package-lock.json i updated)
+    versioning-strategy: increase
