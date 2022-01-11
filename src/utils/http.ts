@@ -1,4 +1,4 @@
-import { BeeError, BeeRequestError, BeeResponseError } from './error'
+import { BeeError, BeeNotAJsonError, BeeRequestError, BeeResponseError } from './error'
 import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
 import kyFactory, { Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
@@ -112,7 +112,11 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
         response.data = (await response.arrayBuffer()) as unknown as T
         break
       case 'json':
-        response.data = (await response.json()) as unknown as T
+        try {
+          response.data = (await response.json()) as unknown as T
+        } catch (e) {
+          throw new BeeNotAJsonError()
+        }
         break
       default:
         break // If responseType is not set, then no data are expected
@@ -120,8 +124,18 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
 
     return response
   } catch (e) {
+    // Passthrough thrown errors
+    if (e instanceof BeeNotAJsonError) {
+      throw e
+    }
+
     if (e.response) {
-      const message = (await e.response.json()).message
+      let message
+
+      try {
+        // The response can be Bee's JSON with structure `{code, message}` lets try to parse it
+        message = (await e.response.json()).message
+      } catch (e) {}
 
       if (message) {
         throw new BeeResponseError(e.response.status, `${e.response.statusText}: ${message}`)
