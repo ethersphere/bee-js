@@ -167,6 +167,18 @@ export interface UploadOptions extends RequestOptions {
    * @link Tag
    */
   tag?: number
+
+  /**
+   * Determines if the uploaded data should be sent to the network immediately (eq. deferred=false) or in a deferred fashion (eq. deferred=true).
+   *
+   * With deferred style client uploads all the data to Bee node first and only then Bee node starts push the data to network itself. The progress of this upload can be tracked with tags.
+   * With non-deferred style client uploads the data to Bee which immediately starts pushing the data to network. The request is only finished once all the data was pushed through the Bee node to the network.
+   *
+   * In future there will be move to the non-deferred style and even the support for deferred upload will be removed from Bee itself.
+   *
+   * @default true
+   */
+  deferred?: boolean
 }
 
 export interface FileUploadOptions extends UploadOptions {
