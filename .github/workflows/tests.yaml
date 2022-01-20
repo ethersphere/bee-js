@@ -15,10 +15,10 @@ env:
   BEE_IMAGE_PREFIX: 'docker.pkg.github.com/ethersphere/bee-factory'
   COMMIT_VERSION_TAG: 'false'
   WORKERS: 4
-  BEE_API_URL: 'http://localhost:1633'
-  BEE_PEER_API_URL: 'http://localhost:11633'
-  BEE_DEBUG_API_URL: 'http://localhost:1635'
-  BEE_PEER_DEBUG_API_URL: 'http://localhost:11635'
+  BEE_API_URL: 'http://127.0.0.1:1633'
+  BEE_PEER_API_URL: 'http://127.0.0.1:11633'
+  BEE_DEBUG_API_URL: 'http://127.0.0.1:1635'
+  BEE_PEER_DEBUG_API_URL: 'http://127.0.0.1:11635'
   BEE_TEST_CHEQUEBOOK: true
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        node-version: [12.x, 14.x, 16.x, 17.x]
 
     steps:
       - name: Checkout
