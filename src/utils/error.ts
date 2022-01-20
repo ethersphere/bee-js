@@ -21,3 +21,9 @@ export class BeeResponseError extends BeeError {
     super(message)
   }
 }
+
+export class BeeUnauthorizedError extends BeeError {
+  public constructor() {
+    super("Bee is in restricted mode and there was no token passed or token's role is insufficient for the operation.")
+  }
+}

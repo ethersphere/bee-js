@@ -1,4 +1,4 @@
-import { BeeError, BeeRequestError, BeeResponseError } from './error'
+import { BeeError, BeeRequestError, BeeResponseError, BeeUnauthorizedError } from './error'
 import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
 import kyFactory, { Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
@@ -121,6 +121,10 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
     return response
   } catch (e) {
     if (e.response) {
+      if (e.response.status === 401) {
+        throw new BeeUnauthorizedError()
+      }
+
       const message = (await e.response.json()).message
 
       if (message) {
