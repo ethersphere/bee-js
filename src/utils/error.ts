@@ -21,3 +21,9 @@ export class BeeResponseError extends BeeError {
     super(message)
   }
 }
+
+export class BeeNotAJsonError extends BeeError {
+  public constructor() {
+    super(`Received response is not valid JSON.`)
+  }
+}
