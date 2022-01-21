@@ -99,7 +99,7 @@ export function getCollectionSize(fileList: FileList | File[]): number {
   let sum = 0
 
   for (let i = 0; i < fileList.length; i++) {
-    const file = fileList[i] as File
+    const file = fileList[i]
 
     if (file) {
       sum += file.size
