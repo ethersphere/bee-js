@@ -1,4 +1,13 @@
 import { BeeArgumentError } from './error'
+import { isObject } from './type'
+
+interface NodeJsError {
+  code: string
+}
+
+function isNodeJsError(e: unknown): e is NodeJsError {
+  return isObject(e) && typeof e.code === 'string'
+}
 
 /**
  * Validates that passed string is valid URL of Bee.
@@ -19,7 +28,7 @@ export function isValidBeeUrl(url: unknown): url is URL {
   } catch (e) {
     // URL constructor throws TypeError if not valid URL
     // TODO: Drop the `.code` hack for NodeJS environment: https://github.com/ethersphere/bee-js/issues/204
-    if (e instanceof TypeError || (e.code && e.code === 'ERR_INVALID_URL')) {
+    if (e instanceof TypeError || (isNodeJsError(e) && e.code === 'ERR_INVALID_URL')) {
       return false
     }
 

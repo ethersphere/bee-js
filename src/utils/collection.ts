@@ -60,18 +60,7 @@ async function buildCollectionRelative(dir: string, relativePath: string): Promi
   return collection
 }
 
-/*
- * This is a workaround for fixing the type definitions
- * regarding the missing `webkitRelativePath` property which is
- * provided on files if you specify the `webkitdirectory`
- * property on the HTML input element. This is a non-standard
- * functionality supported in all major browsers.
- */
-interface WebkitFile extends File {
-  readonly webkitRelativePath?: string
-}
-
-function makeFilePath(file: WebkitFile) {
+function makeFilePath(file: File) {
   if (file.webkitRelativePath && file.webkitRelativePath !== '') {
     return file.webkitRelativePath.replace(/.*?\//i, '')
   }
@@ -87,7 +76,7 @@ export async function makeCollectionFromFileList(fileList: FileList | File[]): P
   const collection: Collection<Uint8Array> = []
 
   for (let i = 0; i < fileList.length; i++) {
-    const file = fileList[i] as WebkitFile
+    const file = fileList[i] as File
 
     if (file) {
       collection.push({
@@ -110,7 +99,7 @@ export function getCollectionSize(fileList: FileList | File[]): number {
   let sum = 0
 
   for (let i = 0; i < fileList.length; i++) {
-    const file = fileList[i] as WebkitFile
+    const file = fileList[i] as File
 
     if (file) {
       sum += file.size

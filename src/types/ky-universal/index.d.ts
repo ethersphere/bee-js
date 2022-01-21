@@ -6,6 +6,11 @@
  */
 
 declare module 'ky-universal' {
+  export class HTTPError extends Error {
+    constructor(response: Response)
+    response: Response
+  }
+
   type Options = import('./options').Options
   type Input = import('./options').Input
   type ResponsePromise = import('./response').ResponsePromise

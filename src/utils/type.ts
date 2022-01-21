@@ -62,6 +62,15 @@ export function isStrictlyObject(value: unknown): value is object {
   return isObject(value) && !Array.isArray(value)
 }
 
+/**
+ * Asserts if object is Error
+ *
+ * @param e
+ */
+export function isError(e: unknown): e is Error {
+  return e instanceof Error
+}
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function assertStrictlyObject(value: unknown, name = 'value'): asserts value is object {
   if (!isStrictlyObject(value)) {
