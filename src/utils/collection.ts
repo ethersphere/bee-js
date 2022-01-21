@@ -76,7 +76,7 @@ export async function makeCollectionFromFileList(fileList: FileList | File[]): P
   const collection: Collection<Uint8Array> = []
 
   for (let i = 0; i < fileList.length; i++) {
-    const file = fileList[i] as File
+    const file = fileList[i]
 
     if (file) {
       collection.push({
