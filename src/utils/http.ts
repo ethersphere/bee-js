@@ -1,10 +1,10 @@
 import { BeeError, BeeNotAJsonError, BeeRequestError, BeeResponseError } from './error'
 import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
-import kyFactory, { Options as KyOptions } from 'ky-universal'
+import kyFactory, { HTTPError, Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
 import { deepMerge } from './merge'
 import { version as beeJsVersion } from '../../package.json'
-import { isStrictlyObject } from './type'
+import { isObject, isStrictlyObject } from './type'
 
 const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {
@@ -25,6 +25,14 @@ interface HttpOptions extends Omit<KyOptions, 'searchParams'> {
 
 interface KyResponse<T> extends Response {
   data: T
+}
+
+function isHttpError(e: unknown): e is HTTPError {
+  return isObject(e) && typeof e.response !== 'undefined'
+}
+
+function isHttpRequestError(e: unknown): e is Error {
+  return isObject(e) && typeof e.request !== 'undefined'
 }
 
 function headersToObject(header: Headers) {
@@ -129,7 +137,7 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
       throw e
     }
 
-    if (e.response) {
+    if (isHttpError(e)) {
       let message
 
       try {
@@ -142,10 +150,10 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
       } else {
         throw new BeeResponseError(e.response.status, e.response.statusText)
       }
-    } else if (e.request) {
+    } else if (isHttpRequestError(e)) {
       throw new BeeRequestError(e.message)
     } else {
-      throw new BeeError(e.message)
+      throw new BeeError((e as Error).message)
     }
   }
 }

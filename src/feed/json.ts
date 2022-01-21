@@ -1,5 +1,6 @@
 import { FeedWriter, FeedReader, AnyJson, BatchId, Reference, RequestOptions } from '../types'
 import { Bee } from '../bee'
+import { isError } from '../utils/type'
 
 function serializeJson(data: AnyJson): Uint8Array {
   try {
@@ -7,7 +8,9 @@ function serializeJson(data: AnyJson): Uint8Array {
 
     return new TextEncoder().encode(jsonString)
   } catch (e) {
-    e.message = `JsonFeed: ${e.message}`
+    if (isError(e)) {
+      e.message = `JsonFeed: ${e.message}`
+    }
     throw e
   }
 }
