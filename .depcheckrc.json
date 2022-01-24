@@ -20,6 +20,7 @@
     "jest-puppeteer",
     "puppeteer",
     "ts-node",
+    "typedoc",
     "typedoc-plugin-markdown",
     "webpack-cli"
   ]
