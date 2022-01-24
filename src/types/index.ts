@@ -11,6 +11,7 @@ import type ky from 'ky-universal'
 import type { Readable as NativeReadable } from 'stream'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
 import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill/ponyfill'
+import { Options as KyOptions } from 'ky-universal'
 
 export * from './debug'
 
@@ -76,6 +77,19 @@ export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
  * It represents PSS Address Prefix that is used to define address neighborhood that will receive the PSS message.
  */
 export type AddressPrefix = HexString
+
+/**
+ * Internal interface that represents configuration for creating a request with Ky
+ */
+export interface KyRequestOptions extends Omit<KyOptions, 'searchParams'> {
+  path: string
+  responseType?: 'json' | 'arraybuffer' | 'stream'
+
+  /**
+   * Overridden parameter that allows undefined as a value.
+   */
+  searchParams?: Record<string, string | number | boolean | undefined>
+}
 
 export interface RequestOptions {
   /**
