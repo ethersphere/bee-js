@@ -28,6 +28,7 @@ describe('eth', () => {
       { value: '0xE247A45C287191D435A8A5D72A7C8DC030451E9F', result: true },
       { value: '0XE247A45C287191D435A8A5D72A7C8DC030451E9F', result: true },
       { value: '1234567890123456789012345678901234567890', result: true },
+      // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
       { value: 1234567890123456789012345678901234567890, result: false },
     ]
 

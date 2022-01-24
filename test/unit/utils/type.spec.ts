@@ -15,6 +15,7 @@ describe('type', () => {
       NaN,
       [1],
     ]
+    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
     const correctValues = [5, 0, '10', 5.0000000000000001, '-1']
 
     wrongValues.forEach((v: unknown | NumberString) =>
