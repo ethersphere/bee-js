@@ -15,6 +15,7 @@
     "@types/puppeteer",
     "babel-jest",
     "babel-loader",
+    "bufferutil",
     "debug",
     "husky",
     "jest-puppeteer",
@@ -22,6 +23,7 @@
     "ts-node",
     "typedoc",
     "typedoc-plugin-markdown",
+    "utf-8-validate",
     "webpack-cli"
   ]
 }
