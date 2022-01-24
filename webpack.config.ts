@@ -103,11 +103,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
               ecma: 5,
               comments: false,
             },
-            sourceMap: true,
           },
-          // Use multi-process parallel running to improve the build speed
-          // Default number of concurrent runs: os.cpus().length - 1
-          parallel: true,
         }),
       ],
     },
