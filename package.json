@@ -53,7 +53,7 @@
   "dependencies": {
     "@types/readable-stream": "^2.3.11",
     "bufferutil": "^4.0.3",
-    "cross-blob": "^2.0.1",
+    "cross-blob": "^3.0.1",
     "elliptic": "^6.5.4",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
