@@ -207,7 +207,7 @@ export function randomByteArray(length: number, seed = 500): Uint8Array {
  * Returns a url for testing the Bee public API
  */
 export function beeUrl(): string {
-  return process.env.BEE_API_URL || 'http://localhost:1633'
+  return process.env.BEE_API_URL || 'http://127.0.0.1:1633'
 }
 
 export function beeKy(): Ky {
@@ -218,7 +218,7 @@ export function beeKy(): Ky {
  * Returns a url of another peer for testing the Bee public API
  */
 export function beePeerUrl(): string {
-  return process.env.BEE_PEER_API_URL || 'http://localhost:11633'
+  return process.env.BEE_PEER_API_URL || 'http://127.0.0.1:11633'
 }
 
 export function beePeerKy(): Ky {
@@ -255,7 +255,7 @@ export function getPostageBatch(url = beeDebugUrl()): BatchId {
  * Returns a url for testing the Bee Debug API
  */
 export function beeDebugUrl(): string {
-  return process.env.BEE_DEBUG_API_URL || 'http://localhost:1635'
+  return process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635'
 }
 
 export function beeDebugKy(): Ky {
@@ -266,7 +266,7 @@ export function beeDebugKy(): Ky {
  * Returns a url for testing the Bee Debug API
  */
 export function beePeerDebugUrl(): string {
-  return process.env.BEE_PEER_DEBUG_API_URL || 'http://localhost:11635'
+  return process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635'
 }
 
 export function beePeerDebugKy(): Ky {

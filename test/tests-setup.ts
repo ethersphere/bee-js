@@ -6,11 +6,11 @@ import { BatchId, Ky } from '../src'
 export default async function testsSetup(): Promise<void> {
   try {
     const beeDebugKy = ky.create({
-      prefixUrl: process.env.BEE_DEBUG_API_URL || 'http://localhost:1635',
+      prefixUrl: process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635',
       timeout: false,
     })
     const beeDebugPeerKy = ky.create({
-      prefixUrl: process.env.BEE_PEER_DEBUG_API_URL || 'http://localhost:11635',
+      prefixUrl: process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635',
       timeout: false,
     })
 
