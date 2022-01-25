@@ -5,22 +5,13 @@ import { normalizeToReadableStream } from './stream'
 import { deepMerge } from './merge'
 import { version as beeJsVersion } from '../../package.json'
 import { isObject, isStrictlyObject } from './type'
+import { KyRequestOptions } from '../types'
 
 const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {
     accept: 'application/json, text/plain, */*',
     'user-agent': `bee-js/${beeJsVersion}`,
   },
-}
-
-interface HttpOptions extends Omit<KyOptions, 'searchParams'> {
-  path: string
-  responseType?: 'json' | 'arraybuffer' | 'stream'
-
-  /**
-   * Overridden parameter that allows undefined as a value.
-   */
-  searchParams?: Record<string, string | number | boolean | undefined>
 }
 
 interface KyResponse<T> extends Response {
@@ -99,7 +90,12 @@ export function filterHeaders(obj?: object): Record<string, string> | undefined 
   return typedObj
 }
 
-export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T>> {
+/**
+ * Main utility function to make HTTP requests.
+ * @param ky
+ * @param config
+ */
+export async function http<T>(ky: Ky, config: KyRequestOptions): Promise<KyResponse<T>> {
   try {
     const { path, responseType, ...kyConfig } = config
 
@@ -140,18 +136,22 @@ export async function http<T>(ky: Ky, config: HttpOptions): Promise<KyResponse<T
     if (isHttpError(e)) {
       let message
 
+      // We store the response body here as it can be read only once in Response's lifecycle so to make it exposed
+      // to the user in the BeeResponseError, for further analysis.
+      const body = await e.response.text()
+
       try {
         // The response can be Bee's JSON with structure `{code, message}` lets try to parse it
-        message = (await e.response.json()).message
+        message = JSON.parse(body).message
       } catch (e) {}
 
       if (message) {
-        throw new BeeResponseError(e.response.status, `${e.response.statusText}: ${message}`)
+        throw new BeeResponseError(e.response.status, e.response, body, config, `${e.response.statusText}: ${message}`)
       } else {
-        throw new BeeResponseError(e.response.status, e.response.statusText)
+        throw new BeeResponseError(e.response.status, e.response, body, config, e.response.statusText)
       }
     } else if (isHttpRequestError(e)) {
-      throw new BeeRequestError(e.message)
+      throw new BeeRequestError(e.message, config)
     } else {
       throw new BeeError((e as Error).message)
     }
