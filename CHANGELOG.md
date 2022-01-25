@@ -1,4 +1,38 @@
 # Changelog
+
+## [3.2.0](https://www.github.com/ethersphere/bee-js/compare/v3.1.0...v3.2.0) (2022-01-25)
+
+This is after some time a bigger update that brings some new goodies from [Bee 1.4.1 version](https://github.com/ethersphere/bee/releases/tag/v1.4.1) and improved error handling and support.
+
+### ↔️ Direct upload support
+
+Bee introduced direct upload mode, where Bee directly pushes the data to the network instead of the intermediate step of locally saving the data and then syncing it with the network. You can enable this behavior by passing `deferred = false` into `UploadOptions` interface. When you enable this mode the `Promise` returned by the upload methods will resolve only once the data is uploaded and synchronized with the network so if you use timeouts you should adjust those base on the size of data you upload.
+
+**Currently, the direct upload mode is by default turned off, but it is a plan in the future to enable this behavior by default!**
+
+### ⁉️ Error handling
+
+Now `BeeResponseError` and `BeeRequestError` instances contain information about the request (and if applicable also response) that triggered the Error. Also, it has improved for non-JSON responses that were causing unclear errors.
+
+### ⚠️ Deprecations
+
+In this release, there are two changes in Interface's names that are non-breaking as there are backward compatible aliases, but these aliases will be removed with the next breaking change.
+
+- Interface `DebugPostageBatch` was renamed to `PostageBatch`
+- Interface `NodesInfo` was renamed to `NodeInfo`
+
+### Features
+
+* direct upload support ([#504](https://www.github.com/ethersphere/bee-js/issues/504)) ([e05fae7](https://www.github.com/ethersphere/bee-js/commit/e05fae76056339a7fdaa21a9382a23d69ed465b2))
+* exposing request and response configuration on BeeResponseError ([#517](https://www.github.com/ethersphere/bee-js/issues/517)) ([7448958](https://www.github.com/ethersphere/bee-js/commit/7448958e00ed3e26704bfb7833460c4a5221506c))
+* node 17 support ([#507](https://www.github.com/ethersphere/bee-js/issues/507)) ([c9e727a](https://www.github.com/ethersphere/bee-js/commit/c9e727a4b6b584044c371cf9f77d29676ebd5067))
+
+### Bug Fixes
+
+* handling of non-json responses when json is expected ([#508](https://www.github.com/ethersphere/bee-js/issues/508)) ([8e0962c](https://www.github.com/ethersphere/bee-js/commit/8e0962c992f04ed4212928556efb90937e30d6f2))
+* rename DebugPostageBatch into PostageBatch ([#495](https://www.github.com/ethersphere/bee-js/issues/495)) ([38f2758](https://www.github.com/ethersphere/bee-js/commit/38f27587a8291745cfa3821608931f71b256444a))
+* rename NodesInfo into NodeInfo ([#493](https://www.github.com/ethersphere/bee-js/issues/493)) ([9d1ec0a](https://www.github.com/ethersphere/bee-js/commit/9d1ec0a44691f5ffdb12e77402e0e112f0162398))
+
 ## [3.1.0](https://www.github.com/ethersphere/bee-js/compare/v3.0.0...v3.1.0) (2021-12-09)
 
 This is another small release that brings support for [Bee 1.4.1](https://github.com/ethersphere/bee/releases/tag/v1.4.1) and a few small improvements

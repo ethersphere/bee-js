@@ -43,8 +43,8 @@ describe('Bee class', () => {
   const beePeer = new Bee(BEE_PEER_URL)
 
   it('should strip trailing slash', () => {
-    const bee = new Bee('http://localhost:1633/')
-    expect(bee.url).toEqual('http://localhost:1633')
+    const bee = new Bee('http://127.0.0.1:1633/')
+    expect(bee.url).toEqual('http://127.0.0.1:1633')
   })
 
   describe('chunk', () => {

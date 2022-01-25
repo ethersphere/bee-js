@@ -64,6 +64,6 @@ describe('modules/debug/connectivity', () => {
     const peers = await getPeers(beeDebugKy())
     const res = await pingPeer(beeDebugKy(), peers[0].address)
 
-    expect(res.rtt).toMatch(/^\d+(\.\d+)[mnpµ]?s$/)
+    expect(res.rtt).toMatch(/^\d+(\.\d+)?[mnpµ]?s$/)
   })
 })
