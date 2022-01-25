@@ -57,7 +57,7 @@
     "elliptic": "^6.5.4",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
-    "ky": "^0.25.1",
+    "ky": "^0.28.7",
     "ky-universal": "^0.8.2",
     "readable-stream": "^3.6.0",
     "tar-js": "^0.3.0",
