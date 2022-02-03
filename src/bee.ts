@@ -970,6 +970,7 @@ export class Bee {
     const canonicalOwner = makeEthAddress(ownerAddress)
 
     return {
+      owner: makeHexEthAddress(canonicalOwner),
       download: downloadSingleOwnerChunk.bind(null, this.getKy(options), canonicalOwner),
     }
   }
