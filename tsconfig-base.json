@@ -10,6 +10,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "typeRoots": ["./src/types", "node_modules/@types"],
+    "target": "es2015",
     "rootDirs": ["src"],
   },
 }
