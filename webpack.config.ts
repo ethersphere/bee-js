@@ -83,7 +83,6 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       ],
     },
     plugins,
-    target,
     performance: {
       hints: false,
     },

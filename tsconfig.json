@@ -1,18 +1,8 @@
 {
-  "include": ["src"],
+  "extends": "./tsconfig-base.json",
   "compilerOptions": {
-    "alwaysStrict": true,
-    "target": "ES6",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
     "module": "commonjs",
-    "strict": true,
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "typeRoots": ["./src/types", "node_modules/@types"],
-    "rootDirs": ["src"],
-    "outDir": "dist"
-  },
+    "outDir": "dist/cjs",
+    "target": "es2015"
+  }
 }
