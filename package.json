@@ -30,9 +30,11 @@
       "require": "./dist/cjs/index.js"
     }
   },
-  "types": "dist/types/src/index.d.ts",
+  "types": "dist/types/index.d.ts",
   "browser": {
-    "data": "data.browser"
+    "data": "data.browser",
+    "./dist/cjs/utils/collection.node.js": "./dist/cjs/utils/collection.browser.js",
+    "./dist/mjs/utils/collection.node.js": "./dist/mjs/utils/collection.browser.js"
   },
   "files": [
     "dist"

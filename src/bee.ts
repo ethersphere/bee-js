@@ -35,7 +35,8 @@ import {
   makeTagUid,
 } from './utils/type'
 import { setJsonData, getJsonData } from './feed/json'
-import { makeCollectionFromFS, makeCollectionFromFileList, assertCollection } from './utils/collection'
+import { makeCollectionFromFileList, assertCollection } from './utils/collection'
+import { makeCollectionFromFS } from './utils/collection.node'
 import { AllTagsOptions, CHUNK_SIZE, Collection, Ky, Readable, RequestOptions, SPAN_SIZE, UploadResult } from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
