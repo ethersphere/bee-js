@@ -4,7 +4,7 @@ cat >dist/cjs/package.json <<!EOF
 {
     "type": "commonjs",
     "browser": {
-      "data": "data.browser",
+      "./utils/data.js": "./utils/data.browser.js",
       "./utils/collection.node.js": "./utils/collection.browser.js"
     }
 }
@@ -14,7 +14,7 @@ cat >dist/mjs/package.json <<!EOF
 {
     "type": "module",
     "browser": {
-      "data": "data.browser",
+      "./utils/data.js": "./utils/data.browser.js",
       "./utils/collection.node.js": "./utils/collection.browser.js"
     }
 }

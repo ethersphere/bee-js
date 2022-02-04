@@ -31,6 +31,14 @@
     }
   },
   "types": "dist/types/index.d.ts",
+  "browser": {
+    "./src/utils/data.ts": "./src/utils/data.browser.ts",
+    "./dist/cjs/utils/data.js": "./dist/cjs/utils/data.browser.js",
+    "./dist/mjs/utils/data.js": "./dist/mjs/utils/data.browser.js",
+    "./dist/cjs/utils/collection.node.js": "./dist/cjs/utils/collection.browser.js",
+    "./dist/mjs/utils/collection.node.js": "./dist/mjs/utils/collection.browser.js",
+    "./src/utils/collection.node.ts": "./src/utils/collection.browser.ts"
+  },
   "files": [
     "dist"
   ],
@@ -39,7 +47,7 @@
     "build": "rimraf dist && npm run build:node && npm run build:types && npm run build:browser",
     "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
-    "build:browser": "webpack --progress --env target=web",
+    "build:browser": "webpack --progress",
     "mock-ci": "npm run lint:check && npm run check:types && npm run test",
     "docs": "rimraf docs && typedoc",
     "test": "npm run build:browser && jest --verbose --selectProjects=node:unit node:integration dom:integration --config=jest.config.ts",
