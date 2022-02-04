@@ -1,7 +1,7 @@
 import * as bzz from '../../../src/modules/bzz'
 import * as tag from '../../../src/modules/tag'
 import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
-import { makeCollectionFromFS } from '../../../src/utils/collection'
+import { makeCollectionFromFS } from '../../../src/utils/collection.node'
 import { beeKy, BIG_FILE_TIMEOUT, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
 import { Readable } from 'stream'
 

@@ -2,12 +2,20 @@
 
 cat >dist/cjs/package.json <<!EOF
 {
-    "type": "commonjs"
+    "type": "commonjs",
+    "browser": {
+      "data": "data.browser",
+      "./utils/collection.node.js": "./utils/collection.browser.js"
+    }
 }
 !EOF
 
 cat >dist/mjs/package.json <<!EOF
 {
-    "type": "module"
+    "type": "module",
+    "browser": {
+      "data": "data.browser",
+      "./utils/collection.node.js": "./utils/collection.browser.js"
+    }
 }
 !EOF

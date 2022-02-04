@@ -31,11 +31,6 @@
     }
   },
   "types": "dist/types/index.d.ts",
-  "browser": {
-    "data": "data.browser",
-    "./dist/cjs/utils/collection.node.js": "./dist/cjs/utils/collection.browser.js",
-    "./dist/mjs/utils/collection.node.js": "./dist/mjs/utils/collection.browser.js"
-  },
   "files": [
     "dist"
   ],
