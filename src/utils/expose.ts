@@ -1,4 +1,5 @@
-export { getCollectionSize, getFolderSize } from './collection'
+export { getCollectionSize } from './collection'
+export { getFolderSize } from './collection.node'
 
 export {
   Bytes,

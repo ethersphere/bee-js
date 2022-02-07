@@ -18,30 +18,42 @@
     "url": "https://github.com/ethersphere/bee-js/issues/"
   },
   "license": "BSD-3-Clause",
-  "main": "dist/index.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ethersphere/bee-js.git"
   },
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "types": "dist/types/index.d.ts",
   "browser": {
-    "./dist/index.min.js": "./dist/index.browser.min.js",
-    "data": "data.browser"
+    "./src/utils/data.ts": "./src/utils/data.browser.ts",
+    "./dist/cjs/utils/data.js": "./dist/cjs/utils/data.browser.js",
+    "./dist/mjs/utils/data.js": "./dist/mjs/utils/data.browser.js",
+    "./dist/cjs/utils/collection.node.js": "./dist/cjs/utils/collection.browser.js",
+    "./dist/mjs/utils/collection.node.js": "./dist/mjs/utils/collection.browser.js",
+    "./src/utils/collection.node.ts": "./src/utils/collection.browser.ts"
   },
   "files": [
     "dist"
   ],
-  "types": "dist/src/index.d.ts",
   "scripts": {
-    "prepublishOnly": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production && npm run compile:node --env mode=production",
-    "compile:node": "webpack --progress --env target=node",
-    "compile:types": "tsc --emitDeclarationOnly --declaration",
-    "compile:browser": "webpack --progress --env target=web",
+    "prepublishOnly": "npm run build",
+    "build": "rimraf dist && npm run build:node && npm run build:types && npm run build:browser",
+    "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup",
+    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
+    "build:browser": "webpack --progress",
     "mock-ci": "npm run lint:check && npm run check:types && npm run test",
     "docs": "rimraf docs && typedoc",
-    "test": "npm run compile:browser && jest --verbose --selectProjects=node:unit node:integration dom:integration --config=jest.config.ts",
-    "test:integration:browser": "npm run compile:browser && jest --verbose --selectProjects=dom:integration --config=jest.config.ts",
+    "test": "npm run build:browser && jest --verbose --selectProjects=node:unit node:integration dom:integration --config=jest.config.ts",
+    "test:integration:browser": "npm run build:browser && jest --verbose --selectProjects=dom:integration --config=jest.config.ts",
     "test:integration:node": "jest --verbose --selectProjects=node:integration --config=jest.config.ts",
-    "test:integration": "npm run compile:browser && jest --verbose --selectProjects=node:integration dom:integration --config=jest.config.ts",
+    "test:integration": "npm run build:browser && jest --verbose --selectProjects=node:integration dom:integration --config=jest.config.ts",
     "test:unit": "jest --verbose --selectProjects=node:unit --config=jest.config.ts ",
     "test:node": "jest --verbose --selectProjects=node:unit node:integration --config=jest.config.ts",
     "test:browser": "npm run test:integration:browser",

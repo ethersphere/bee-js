@@ -3,14 +3,13 @@ import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../t
 import kyFactory, { HTTPError, Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
 import { deepMerge } from './merge'
-import { version as beeJsVersion } from '../../package.json'
 import { isObject, isStrictlyObject } from './type'
 import { KyRequestOptions } from '../types'
 
 const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {
     accept: 'application/json, text/plain, */*',
-    'user-agent': `bee-js/${beeJsVersion}`,
+    'user-agent': `bee-js`,
   },
 }
 

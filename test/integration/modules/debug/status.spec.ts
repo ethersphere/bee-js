@@ -1,4 +1,3 @@
-import { engines } from '../../../../package.json'
 import {
   getHealth,
   isSupportedVersion,
@@ -6,6 +5,9 @@ import {
   SUPPORTED_BEE_VERSION_EXACT,
 } from '../../../../src/modules/debug/status'
 import { beeDebugKy } from '../../../utils'
+import fs from 'fs'
+import path from 'path'
+import * as util from 'util'
 
 /**
  * Matches these:
@@ -59,7 +61,10 @@ describe('modules/status', () => {
     expectValidVersion(SUPPORTED_BEE_VERSION_EXACT)
   })
 
-  test('SUPPORTED_BEE_VERSION_EXACT should come from package.json', () => {
-    expect(SUPPORTED_BEE_VERSION_EXACT).toBe(engines.bee)
+  test('SUPPORTED_BEE_VERSION_EXACT should be same as in package.json', async () => {
+    const file = await util.promisify(fs.readFile)(path.join(__dirname, '../../../../package.json'))
+    const packageJson = JSON.parse(file.toString())
+
+    expect(SUPPORTED_BEE_VERSION_EXACT).toBe(packageJson.engines.bee)
   })
 })
