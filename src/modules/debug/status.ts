@@ -3,8 +3,10 @@ import type { Health, NodeInfo } from '../../types/debug'
 import { engines } from '../../../package.json'
 import { Ky } from '../../types'
 
-export const SUPPORTED_BEE_VERSION_EXACT = engines.bee
-export const SUPPORTED_BEE_VERSION = engines.bee.substr(0, engines.bee.indexOf('-'))
+// This line bellow is automatically updated with GitHub Action when Bee version is updated
+// so if you are changing anything about it change the `update_bee` action accordingly!
+export const SUPPORTED_BEE_VERSION_EXACT = '1.4.2-rc2-2a4574a0-stateful'
+export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.substring(0, SUPPORTED_BEE_VERSION_EXACT.indexOf('-'))
 
 const NODE_INFO_URL = 'node'
 const HEALTH_URL = 'health'
