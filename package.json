@@ -72,6 +72,7 @@
     "ky": "^0.25.1",
     "ky-universal": "^0.8.2",
     "readable-stream": "^3.6.0",
+    "semver": "^7.3.5",
     "tar-js": "^0.3.0",
     "utf-8-validate": "^5.0.8",
     "web-streams-polyfill": "^3.1.0",
@@ -97,6 +98,7 @@
     "@types/jest-environment-puppeteer": "^4.4.1",
     "@types/node": "^15.12.4",
     "@types/puppeteer": "^5.4.3",
+    "@types/semver": "^7.3.9",
     "@types/ws": "^7.4.5",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
@@ -129,6 +131,8 @@
   "engines": {
     "node": ">=12.0.0",
     "npm": ">=6.0.0",
-    "bee": "1.4.1-238867f1"
+    "beeApiVersion": "2.0.0",
+    "beeDebugApiVersion": "1.2.1",
+    "bee": "1.4.3-1213e063"
   }
 }

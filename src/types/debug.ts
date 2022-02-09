@@ -148,6 +148,15 @@ export interface Health {
   debugApiVersion: string
 }
 
+export interface BeeVersions {
+  supportedBeeVersion: string
+  supportedBeeApiVersion: string
+  supportedBeeDebugApiVersion: string
+  beeVersion: string
+  beeApiVersion: string
+  beeDebugApiVersion: string
+}
+
 export enum BeeModes {
   FULL = 'full',
   LIGHT = 'light',

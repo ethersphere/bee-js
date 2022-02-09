@@ -6,6 +6,12 @@ on:
       beeFactoryImageVersion:
         description: 'Bee Factory image version (eq. 1.3.0-fd09d1c4-stateful)'
         required: true
+      beeApiVersion:
+        description: 'Bee API version (eq. 1.3.0)'
+        required: true
+      beeDebugApiVersion:
+        description: 'Bee Debug API version (eq. 1.3.0)'
+        required: true
 
   repository_dispatch:
     types: [update-bee]
@@ -23,14 +29,20 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
             image_version="${{ github.event.client_payload.imageVersion }}"
+            bee_api_version="${{ github.event.client_payload.apiVersion }}"
+            bee_debug_api_version="${{ github.event.client_payload.debugApiVersion }}"
           else
             image_version="${{ github.event.inputs.beeFactoryImageVersion }}"
+            bee_api_version="${{ github.event.inputs.beeApiVersion }}"
+            bee_debug_api_version="${{ github.event.inputs.beeDebugApiVersion }}"
           fi
 
           bee_version=${image_version/-stateful}
           echo "IMAGE_VERSION=$image_version" >> $GITHUB_ENV
           echo "BEE_VERSION=$bee_version" >> $GITHUB_ENV
           echo "TARGET_BRANCH=${bee_version/-rc*}" >> $GITHUB_ENV
+          echo "API_VERSION=$bee_api_version" >> $GITHUB_ENV
+          echo "DEBUG_API_VERSION=$bee_debug_api_version" >> $GITHUB_ENV
 
       - name: Replace Engine in package.json
         uses: jossef/action-set-json-field@v1
@@ -39,20 +51,50 @@ jobs:
           field: engines.bee
           value: ${{ env.BEE_VERSION }}
 
+      - name: Replace API version in package.json
+        uses: jossef/action-set-json-field@v1
+        with:
+          file: package.json
+          field: engines.beeApiVersion
+          value: ${{ env.API_VERSION }}
+
+      - name: Replace Debug API version in package.json
+        uses: jossef/action-set-json-field@v1
+        with:
+          file: package.json
+          field: engines.beeDebugApiVersion
+          value: ${{ env.DEBUG_API_VERSION }}
+
+      - name: Replace SUPPORTED_BEE_VERSION_EXACT for Status module
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "export const SUPPORTED_BEE_VERSION_EXACT = '.*?'"
+          replace: "export const SUPPORTED_BEE_VERSION_EXACT = '${{ env.BEE_VERSION }}'"
+          include: "src/modules/debug/status.ts"
+          regex: true
+
+      - name: Replace SUPPORTED_API_VERSION for Status module
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "export const SUPPORTED_API_VERSION = '.*?'"
+          replace: "export const SUPPORTED_API_VERSION = '${{ env.API_VERSION }}'"
+          include: "src/modules/debug/status.ts"
+          regex: true
+
+      - name: Replace SUPPORTED_DEBUG_API_VERSION for Status module
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "export const SUPPORTED_DEBUG_API_VERSION = '.*?'"
+          replace: "export const SUPPORTED_DEBUG_API_VERSION = '${{ env.DEBUG_API_VERSION }}'"
+          include: "src/modules/debug/status.ts"
+          regex: true
+
       - name: Replace BEE_VERSION for CI
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: "BEE_VERSION: '.*?'"
           replace: "BEE_VERSION: '${{ env.IMAGE_VERSION }}'"
           include: ".github/workflows/tests.yaml"
-          regex: true
-
-      - name: Replace SUPPORTED_BEE_VERSION_EXACT for Status module
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          find: "export const SUPPORTED_BEE_VERSION_EXACT = '.*?'"
-          replace: "export const SUPPORTED_BEE_VERSION_EXACT = '${{ env.IMAGE_VERSION }}'"
-          include: "src/modules/debug/status.ts"
           regex: true
 
       - name: Replace BLOCKCHAIN_VERSION for CI

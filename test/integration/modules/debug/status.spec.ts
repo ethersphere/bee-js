@@ -1,40 +1,20 @@
 import {
   getHealth,
+  getVersions,
+  isSupportedApiVersion,
+  isSupportedDebugApiVersion,
+  isSupportedExactVersion,
+  isSupportedMainApiVersion,
   isSupportedVersion,
-  SUPPORTED_BEE_VERSION,
+  SUPPORTED_API_VERSION,
   SUPPORTED_BEE_VERSION_EXACT,
+  SUPPORTED_DEBUG_API_VERSION,
 } from '../../../../src/modules/debug/status'
 import { beeDebugKy } from '../../../utils'
 import fs from 'fs'
 import path from 'path'
 import * as util from 'util'
-
-/**
- * Matches these:
- * 0.5.3-c423a39c, 0.5.3-c423a39c-dirty, 0.5.3, 1.0.0-rc4, 1.0.0-rc4-02dd4346
- */
-const expectValidVersion = (string: string): void => {
-  const parts = string.split('-')
-  expect(parts.length).toBeGreaterThanOrEqual(1)
-  expect(parts.length).toBeLessThanOrEqual(3)
-  expect(parts[0]).toMatch(/^\d+\.\d+\.\d+$/)
-
-  if (parts[1]) {
-    if (parts[1].startsWith('rc')) {
-      expect(parts[1]).toMatch(/^rc\d+$/)
-
-      if (parts[2]) {
-        expect(parts[2]).toMatch(/^[0-9a-f]{7,8}$/)
-      }
-    } else {
-      expect(parts[1]).toMatch(/^[0-9a-f]{7,8}$/)
-
-      if (parts[2]) {
-        expect(parts[2]).toBe('dirty')
-      }
-    }
-  }
-}
+import semver from 'semver'
 
 const BEE_DEBUG_URL = beeDebugKy()
 
@@ -44,7 +24,7 @@ describe('modules/status', () => {
 
     expect(health.status).toBe('ok')
     // Matches both versions like 0.5.3-c423a39c, 0.5.3-c423a39c-dirty and 0.5.3
-    expectValidVersion(health.version)
+    expect(semver.valid(health.version)).not.toBeNull()
   })
 
   test('isSupportedVersion', async () => {
@@ -53,18 +33,58 @@ describe('modules/status', () => {
     expect(isSupported).toBe(true)
   })
 
-  test('format of supported bee version', () => {
-    // Matches semantic version e.g. 0.5.3
-    expect(SUPPORTED_BEE_VERSION).toMatch(/^\d+\.\d+\.\d+$/i)
+  test('isSupportedExactVersion', async () => {
+    const isSupported = await isSupportedExactVersion(BEE_DEBUG_URL)
 
-    // Matches semantic version with commit message e.g. 0.5.3-acbd0e2
-    expectValidVersion(SUPPORTED_BEE_VERSION_EXACT)
+    expect(isSupported).toBe(true)
   })
 
-  test('SUPPORTED_BEE_VERSION_EXACT should be same as in package.json', async () => {
+  test('isSupportedMainApiVersion', async () => {
+    const isSupported = await isSupportedMainApiVersion(BEE_DEBUG_URL)
+
+    expect(isSupported).toBe(true)
+  })
+
+  test('isSupportedDebugApiVersion', async () => {
+    const isSupported = await isSupportedDebugApiVersion(BEE_DEBUG_URL)
+
+    expect(isSupported).toBe(true)
+  })
+
+  test('isSupportedApiVersion', async () => {
+    const isSupported = await isSupportedApiVersion(BEE_DEBUG_URL)
+
+    expect(isSupported).toBe(true)
+  })
+
+  test('getVersions', async () => {
+    const versions = await getVersions(BEE_DEBUG_URL)
+
+    expect(versions).toEqual(
+      expect.objectContaining({
+        supportedBeeVersion: expect.any(String),
+        supportedBeeApiVersion: expect.any(String),
+        supportedBeeDebugApiVersion: expect.any(String),
+        beeVersion: expect.any(String),
+        beeApiVersion: expect.any(String),
+        beeDebugApiVersion: expect.any(String),
+      }),
+    )
+
+    expect(semver.valid(versions.beeVersion)).not.toBeNull()
+    expect(semver.valid(versions.beeApiVersion)).not.toBeNull()
+    expect(semver.valid(versions.beeDebugApiVersion)).not.toBeNull()
+    expect(semver.valid(versions.supportedBeeApiVersion)).not.toBeNull()
+    expect(semver.valid(versions.supportedBeeVersion)).not.toBeNull()
+    expect(semver.valid(versions.supportedBeeDebugApiVersion)).not.toBeNull()
+  })
+
+  test('SUPPORTED_BEE_* should be same as in package.json', async () => {
     const file = await util.promisify(fs.readFile)(path.join(__dirname, '../../../../package.json'))
     const packageJson = JSON.parse(file.toString())
 
     expect(SUPPORTED_BEE_VERSION_EXACT).toBe(packageJson.engines.bee)
+    expect(SUPPORTED_API_VERSION).toBe(packageJson.engines.beeApiVersion)
+    expect(SUPPORTED_DEBUG_API_VERSION).toBe(packageJson.engines.beeDebugApiVersion)
   })
 })

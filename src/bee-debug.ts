@@ -32,6 +32,7 @@ import type {
   TransactionInfo,
   TransactionHash,
   NodeInfo,
+  BeeVersions,
 } from './types'
 import { BeeArgumentError } from './utils/error'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
@@ -384,11 +385,82 @@ export class BeeDebug {
    * Connnects to a node and checks if it is a supported Bee version by the bee-js
    *
    * @returns true if the Bee node version is supported
+   * @deprecated Use `BeeDebug.isSupportedExactVersion()` instead
    */
   async isSupportedVersion(options?: RequestOptions): Promise<boolean> | never {
     assertRequestOptions(options)
 
     return status.isSupportedVersion(this.getKy(options))
+  }
+
+  /**
+   * Connects to a node and checks if its version matches with the one that bee-js supports.
+   *
+   * Be aware that this is the most strict version check and most probably
+   * you will want to use more relaxed API-versions based checks like
+   * `BeeDebug.isSupportedApiVersion()`, `BeeDebug.isSupportedMainApiVersion()` or `BeeDebug.isSupportedDebugApiVersion()`
+   * based on your use-case.
+   *
+   * @param options
+   */
+  async isSupportedExactVersion(options?: RequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return status.isSupportedExactVersion(this.getKy(options))
+  }
+
+  /**
+   * Connects to a node and checks if its main's API version matches with the one that bee-js supports.
+   *
+   * This is useful if you are not using `BeeDebug` class (for anything else then this check)
+   * and want to make sure about compatibility.
+   *
+   * @param options
+   */
+  async isSupportedMainApiVersion(options?: RequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return status.isSupportedMainApiVersion(this.getKy(options))
+  }
+
+  /**
+   * Connects to a node and checks if its Debug API version matches with the one that bee-js supports.
+   *
+   * This is useful if you are not using `Bee` class in your application and want to make sure
+   * about compatibility.
+   *
+   * @param options
+   */
+  async isSupportedDebugApiVersion(options?: RequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return status.isSupportedDebugApiVersion(this.getKy(options))
+  }
+
+  /**
+   *
+   * Connects to a node and checks if its Main and Debug API versions matches with the one that bee-js supports.
+   *
+   * This should be the main way how to check compatibility for your app and Bee node.
+   *
+   * @param options
+   */
+  async isSupportedApiVersion(options?: RequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return status.isSupportedDebugApiVersion(this.getKy(options))
+  }
+
+  /**
+   * Returns object with all versions specified by the connected Bee node (properties prefixed with `bee*`)
+   * and versions that bee-js supports (properties prefixed with `supported*`).
+   *
+   * @param options
+   */
+  async getVersions(options?: RequestOptions): Promise<BeeVersions> | never {
+    assertRequestOptions(options)
+
+    return status.getVersions(this.getKy(options))
   }
 
   /**
