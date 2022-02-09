@@ -63,7 +63,7 @@
     "depcheck": "depcheck ."
   },
   "dependencies": {
-    "@types/readable-stream": "^2.3.11",
+    "@types/readable-stream": "^2.3.13",
     "bufferutil": "^4.0.3",
     "cross-blob": "^2.0.1",
     "elliptic": "^6.5.4",
