@@ -65,19 +65,11 @@ jobs:
           field: engines.beeDebugApiVersion
           value: ${{ env.DEBUG_API_VERSION }}
 
-      - name: Replace BEE_VERSION for CI
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          find: "BEE_VERSION: '.*?'"
-          replace: "BEE_VERSION: '${{ env.IMAGE_VERSION }}'"
-          include: ".github/workflows/tests.yaml"
-          regex: true
-
       - name: Replace SUPPORTED_BEE_VERSION_EXACT for Status module
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: "export const SUPPORTED_BEE_VERSION_EXACT = '.*?'"
-          replace: "export const SUPPORTED_BEE_VERSION_EXACT = '${{ env.IMAGE_VERSION }}'"
+          replace: "export const SUPPORTED_BEE_VERSION_EXACT = '${{ env.BEE_VERSION }}'"
           include: "src/modules/debug/status.ts"
           regex: true
 
@@ -95,6 +87,14 @@ jobs:
           find: "export const SUPPORTED_DEBUG_API_VERSION = '.*?'"
           replace: "export const SUPPORTED_DEBUG_API_VERSION = '${{ env.DEBUG_API_VERSION }}'"
           include: "src/modules/debug/status.ts"
+          regex: true
+
+      - name: Replace BEE_VERSION for CI
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "BEE_VERSION: '.*?'"
+          replace: "BEE_VERSION: '${{ env.IMAGE_VERSION }}'"
+          include: ".github/workflows/tests.yaml"
           regex: true
 
       - name: Replace BLOCKCHAIN_VERSION for CI
