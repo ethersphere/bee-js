@@ -63,7 +63,7 @@
     "depcheck": "depcheck ."
   },
   "dependencies": {
-    "@types/readable-stream": "^2.3.11",
+    "@types/readable-stream": "^2.3.13",
     "bufferutil": "^4.0.3",
     "cross-blob": "^2.0.1",
     "elliptic": "^6.5.4",
@@ -75,7 +75,7 @@
     "tar-js": "^0.3.0",
     "utf-8-validate": "^5.0.8",
     "web-streams-polyfill": "^3.1.0",
-    "ws": "^7.5.0"
+    "ws": "^8.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
@@ -86,7 +86,7 @@
     "@commitlint/cli": "^12.1.1",
     "@commitlint/config-conventional": "^16.0.0",
     "@fluffy-spoon/substitute": "^1.208.0",
-    "@jest/test-sequencer": "^27.0.5",
+    "@jest/test-sequencer": "^27.5.0",
     "@jest/types": "^27.0.2",
     "@types/content-disposition": "^0.5.4",
     "@types/debug": "^4.1.7",
@@ -104,7 +104,7 @@
     "babel-loader": "^8.2.2",
     "debug": "^4.3.1",
     "depcheck": "^1.4.3",
-    "eslint": "^8.7.0",
+    "eslint": "^8.8.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jest": "^25.7.0",
     "eslint-plugin-prettier": "^4.0.0",
@@ -122,7 +122,7 @@
     "typedoc": "^0.22.11",
     "typedoc-plugin-markdown": "^3.11.12",
     "typescript": "^4.5.4",
-    "webpack": "^5.65.0",
+    "webpack": "^5.68.0",
     "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^4.9.2"
   },
