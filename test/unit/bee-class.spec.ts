@@ -795,6 +795,13 @@ describe('Bee class', () => {
 
       return bee.makeSOCReader(input as string)
     })
+
+    it('should set owner property', () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      const socReader = bee.makeSOCReader(testIdentity.address)
+      expect(socReader.owner).toEqual(testIdentity.address)
+    })
   })
 
   describe('makeSOCWriter', () => {
@@ -809,6 +816,13 @@ describe('Bee class', () => {
 
       return bee.makeSOCWriter(input as string)
     }, false)
+
+    it('should set owner property', () => {
+      const bee = new Bee(MOCK_SERVER_URL)
+
+      const socReader = bee.makeSOCWriter(testIdentity.privateKey)
+      expect(socReader.owner).toEqual(testIdentity.address)
+    })
   })
 
   describe('hooks', () => {

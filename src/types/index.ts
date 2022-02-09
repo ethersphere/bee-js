@@ -430,6 +430,7 @@ export interface FeedWriter extends FeedReader {
  * Interface for downloading single owner chunks
  */
 export interface SOCReader {
+  readonly owner: HexEthAddress
   /**
    * Downloads a single owner chunk
    *
