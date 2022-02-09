@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.3.0](https://www.github.com/ethersphere/bee-js/compare/v3.2.0...v3.3.0) (2022-02-09)
+
+
+### Features
+
+* add owner property to SOCReader interface ([#534](https://www.github.com/ethersphere/bee-js/issues/534)) ([15581ce](https://www.github.com/ethersphere/bee-js/commit/15581ce9af2e90dbb86aeb95d6f3b6c3edd374ee))
+* api versions support ([#543](https://www.github.com/ethersphere/bee-js/issues/543)) ([d9e5973](https://www.github.com/ethersphere/bee-js/commit/d9e597356f04790f621641c1824162883b34db37))
+* hybrid esm build ([#533](https://www.github.com/ethersphere/bee-js/issues/533)) ([2305fc6](https://www.github.com/ethersphere/bee-js/commit/2305fc6ebc5a4ba06b677e9c6cf00814ce3a6304))
+
 ## [3.2.0](https://www.github.com/ethersphere/bee-js/compare/v3.1.0...v3.2.0) (2022-01-25)
 
 This is after some time a bigger update that brings some new goodies from [Bee 1.4.1 version](https://github.com/ethersphere/bee/releases/tag/v1.4.1) and improved error handling and support.
