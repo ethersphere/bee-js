@@ -1,4 +1,6 @@
-import { keccak256 } from 'js-sha3'
+// For ESM compatibility
+import pkg from 'js-sha3'
+const { keccak256 } = pkg
 import { BeeArgumentError } from '../utils/error'
 import { Bytes } from '../utils/bytes'
 import { keccak256Hash } from '../utils/hash'

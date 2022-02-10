@@ -1,4 +1,9 @@
-import { ec, curve } from 'elliptic'
+import { curve } from 'elliptic'
+
+// For ESM compatibility
+import pkg from 'elliptic'
+const { ec } = pkg
+
 import { BeeError } from '../utils/error'
 import { Bytes, isBytes, assertBytes, wrapBytesWithHelpers } from '../utils/bytes'
 import { keccak256Hash } from '../utils/hash'
