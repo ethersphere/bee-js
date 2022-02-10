@@ -1,6 +1,9 @@
-import { keccak256, Message } from 'js-sha3'
+import { Message } from 'js-sha3'
 import { Bytes } from './bytes'
 
+// For ESM compatibility
+import pkg from 'js-sha3'
+const { keccak256 } = pkg
 /**
  * Helper function for calculating the keccak256 hash with
  * correct types.
