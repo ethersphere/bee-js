@@ -8,11 +8,11 @@ This is a smaller update with two main changes.
 
 We plan to migrate our bee-js package to ES Modules (see the [issue](https://github.com/ethersphere/bee-js/issues/394) for more info)  when Node v12 will reach its end-of-life (on 30th of April). With this release, we are starting a transition period by supporting both ES Modules and CommonJS builds. Please start migrating your applications to the ESM stack otherwise, you won't be able to upgrade bee-js after we drop support for CommonJS.
 
-###❓ Is supported version?
+### ❓ Is supported version?
 
-Since we are in a fast-paced environment where Bee's versions can be incompatible with each other, it is important that in your application you check where the Bee that you connect to has the correct version that you expect and support (through bee-js).
+Since we are in a fast-paced environment where Bee's versions can be incompatible with each other, it is important that in your application you check whether the Bee that you connect to has the correct version that you expect and support (through `bee-js`).
 
-Till now we had the [`isSupportedVersion()`](https://bee-js.ethswarm.org/docs/api/classes/BeeDebug/#issupportedversion) function that indicated if the Bee node version is not matching the one that `bee-js` was tested and built against. This implementation has its downside because it is very strict and if for example there is a small Bee's release that patches only something internal and does not touch the API, which means that the bee-js should be compatible, you will still get a `false` with this check.
+Untill now we had the [`isSupportedVersion()`](https://bee-js.ethswarm.org/docs/api/classes/BeeDebug/#issupportedversion) function that indicated if the Bee node version is not matching the one that `bee-js` was tested and built against. This implementation has its downside because it is very strict and if for example there is a small Bee's release that patches only something internal and does not touch the API, which means that the `bee-js` should be compatible, you will still get a `false` with this check.
 
 Except for Bee's version itself, there are two other versions that version the Bee endpoint's API and the Bee Debug endpoint's API. We have decided to implement methods that do compatibility checks using these versions and hence should be more relaxed towards Bee's small patches but might pose some risk if some change will be unnoticed and API versions not bumped accordingly.
 
