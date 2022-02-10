@@ -12,7 +12,7 @@ interface WebpackEnvParams {
 
 const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
   const isProduction = process.env['NODE_ENV'] === 'production'
-  const filename = env?.fileName || ['index', isProduction ? '.min' : null, '.js'].filter(Boolean).join('')
+  const filename = env?.fileName || ['index.browser', isProduction ? '.min' : null, '.js'].filter(Boolean).join('')
   const entry = Path.resolve(__dirname, 'src')
   const path = Path.resolve(__dirname, 'dist')
   const plugins: WebpackPluginInstance[] = [
