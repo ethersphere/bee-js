@@ -11,7 +11,7 @@ interface WebpackEnvParams {
 }
 
 const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
-  const isProduction = env?.mode === 'production'
+  const isProduction = process.env['NODE_ENV'] === 'production'
   const filename = env?.fileName || ['index', isProduction ? '.min' : null, '.js'].filter(Boolean).join('')
   const entry = Path.resolve(__dirname, 'src')
   const path = Path.resolve(__dirname, 'dist')
@@ -90,10 +90,9 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
 }
 
 export default async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
-  // eslint-disable-next-line no-console
-  console.log('env', env)
+  const nodeEnv = process.env['NODE_ENV'] || 'development'
 
-  if (env?.debug) {
+  if (nodeEnv == 'debug') {
     const config = {
       ...(await base(env)),
       plugins: [new BundleAnalyzerPlugin()],
