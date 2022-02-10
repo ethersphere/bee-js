@@ -11,7 +11,7 @@ import type ky from 'ky-universal'
 import type { Readable as NativeReadable } from 'stream'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
 import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill/ponyfill'
-import { Options as KyOptions } from 'ky-universal'
+import { Options as KyOptions } from './ky-options'
 
 export * from './debug'
 

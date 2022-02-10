@@ -5,9 +5,9 @@
  * @licence MIT https://github.com/sindresorhus/ky/blob/main/license
  */
 
-import type { LiteralUnion, Required } from './common.js'
-import type { Hooks } from './hooks.js'
-import type { RetryOptions } from './retry.js'
+import type { LiteralUnion, Required } from './ky-universal/common'
+import type { Hooks } from './ky-universal/hooks'
+import type { RetryOptions } from './ky-universal/retry'
 
 export declare type SearchParamsInit = string | string[][] | Record<string, string> | URLSearchParams | undefined
 export declare type SearchParamsOption =
