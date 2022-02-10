@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.3.0](https://www.github.com/ethersphere/bee-js/compare/v3.2.0...v3.3.0) (2022-02-09)
+
+This is a smaller update with two main changes.
+
+### 🧱 EcmaScript Modules support
+
+We plan to migrate our bee-js package to ES Modules (see the [issue](https://github.com/ethersphere/bee-js/issues/394) for more info)  when Node v12 will reach its end-of-life (on 30th of April). With this release, we are starting a transition period by supporting both ES Modules and CommonJS builds. Please start migrating your applications to the ESM stack otherwise, you won't be able to upgrade bee-js after we drop support for CommonJS.
+
+### ❓ Is supported version?
+
+Since we are in a fast-paced environment where Bee's versions can be incompatible with each other, it is important that in your application you check whether the Bee that you connect to has the correct version that you expect and support (through `bee-js`).
+
+Untill now we had the [`isSupportedVersion()`](https://bee-js.ethswarm.org/docs/api/classes/BeeDebug/#issupportedversion) function that indicated if the Bee node version is not matching the one that `bee-js` was tested and built against. This implementation has its downside because it is very strict and if for example there is a small Bee's release that patches only something internal and does not touch the API, which means that the `bee-js` should be compatible, you will still get a `false` with this check.
+
+Except for Bee's version itself, there are two other versions that version the Bee endpoint's API and the Bee Debug endpoint's API. We have decided to implement methods that do compatibility checks using these versions and hence should be more relaxed towards Bee's small patches but might pose some risk if some change will be unnoticed and API versions not bumped accordingly.
+
+These methods are:
+- `BeeDebug.isSupportedExactVersion()` - renamed `isSupportedVersion` which is now deprecated
+- `BeeDebug.isSupportedMainApiVersion()` which checks compatibility only for the main Bee endpoint
+- `BeeDebug.isSupportedDebugApiVersion()` which checks compatibility only for the Bee Debug endpoint
+- `BeeDebug.isSupportedApiVersion()` which checks compatibility for both endpoints
+
+The compatibility is checked using the major versions of the API. If you would like to make your own assertions you can get all the versions (both from Bee itself and the one that bee-js should support) using the method `BeeDebug.getVersions()`
+
+### Features
+
+* add owner property to SOCReader interface ([#534](https://www.github.com/ethersphere/bee-js/issues/534)) ([15581ce](https://www.github.com/ethersphere/bee-js/commit/15581ce9af2e90dbb86aeb95d6f3b6c3edd374ee))
+* api versions support ([#543](https://www.github.com/ethersphere/bee-js/issues/543)) ([d9e5973](https://www.github.com/ethersphere/bee-js/commit/d9e597356f04790f621641c1824162883b34db37))
+* hybrid esm build ([#533](https://www.github.com/ethersphere/bee-js/issues/533)) ([2305fc6](https://www.github.com/ethersphere/bee-js/commit/2305fc6ebc5a4ba06b677e9c6cf00814ce3a6304))
+
 ## [3.2.0](https://www.github.com/ethersphere/bee-js/compare/v3.1.0...v3.2.0) (2022-01-25)
 
 This is after some time a bigger update that brings some new goodies from [Bee 1.4.1 version](https://github.com/ethersphere/bee/releases/tag/v1.4.1) and improved error handling and support.
