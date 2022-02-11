@@ -6,25 +6,24 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 
 interface WebpackEnvParams {
   debug: boolean
-  mode: 'production' | 'development'
   fileName: string
 }
 
 const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => {
   const isProduction = process.env['NODE_ENV'] === 'production'
-  const filename = env?.fileName || ['index', isProduction ? '.min' : null, '.js'].filter(Boolean).join('')
+  const filename = env?.fileName || ['index.browser', isProduction ? '.min' : null, '.js'].filter(Boolean).join('')
   const entry = Path.resolve(__dirname, 'src')
   const path = Path.resolve(__dirname, 'dist')
   const plugins: WebpackPluginInstance[] = [
     new DefinePlugin({
-      'process.env.ENV': env?.mode || 'development',
+      'process.env.ENV': process.env['NODE_ENV'] || 'development',
       'process.env.IS_WEBPACK_BUILD': 'true',
     }),
   ]
 
   return {
     bail: Boolean(isProduction),
-    mode: env?.mode || 'development',
+    mode: (process.env['NODE_ENV'] as 'production') || 'development',
     devtool: isProduction ? 'source-map' : 'cheap-module-source-map',
     entry,
     output: {
