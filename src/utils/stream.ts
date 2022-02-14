@@ -142,9 +142,14 @@ class NodeReadableWrapper extends NodeReadable {
  * @param webStream
  * @param options
  */
-export function readableWebToNode(webStream: ReadableStream<unknown>, options?: NodeReadableOptions): NodeReadableNative {
+export function readableWebToNode(
+  webStream: ReadableStream<unknown>,
+  options?: NodeReadableOptions,
+): NodeReadableNative {
   if (!NodeReadableStream && !NodeReadableNative) {
-    throw new Error('The Node\'s Readable is not available! If you are running this in browser you have to install readable-stream package and polyfill process and buffer!')
+    throw new Error(
+      "The Node's Readable is not available! If you are running this in browser you have to install readable-stream package and polyfill process and buffer!",
+    )
   }
 
   return new NodeReadableWrapper(webStream, options) as unknown as NodeReadableNative
