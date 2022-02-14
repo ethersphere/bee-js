@@ -32,6 +32,8 @@
   },
   "types": "dist/types/index.d.ts",
   "browser": {
+    "readable-stream": false,
+    "stream": false,
     "./src/utils/data.ts": "./src/utils/data.browser.ts",
     "./dist/cjs/utils/data.js": "./dist/cjs/utils/data.browser.js",
     "./dist/mjs/utils/data.js": "./dist/mjs/utils/data.browser.js",
@@ -71,12 +73,19 @@
     "js-sha3": "^0.8.0",
     "ky": "^0.25.1",
     "ky-universal": "^0.8.2",
-    "readable-stream": "^3.6.0",
     "semver": "^7.3.5",
     "tar-js": "^0.3.0",
     "utf-8-validate": "^5.0.8",
     "web-streams-polyfill": "^3.1.0",
     "ws": "^8.5.0"
+  },
+  "peerDependencies": {
+    "readable-stream": "^3.6.0"
+  },
+  "peerDependenciesMeta": {
+    "readable-stream": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",

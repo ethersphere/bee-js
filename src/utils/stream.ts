@@ -1,9 +1,11 @@
-import type { Readable as NodeReadableType } from 'stream'
+import { Readable as NodeReadableNative, ReadableOptions as NodeReadableOptions } from 'stream'
 import { isStrictlyObject } from './type'
 import { ReadableStream } from 'web-streams-polyfill/ponyfill'
-import { Readable as NodeReadable, ReadableOptions as NodeReadableOptions } from 'readable-stream'
+import { Readable as NodeReadableStream } from 'readable-stream'
 
 import { Readable } from '../types'
+
+const NodeReadable = NodeReadableNative || NodeReadableStream || class {}
 
 /**
  * Validates if passed object is either browser's ReadableStream
@@ -11,7 +13,7 @@ import { Readable } from '../types'
  *
  * @param entry
  */
-export function isReadable(entry: unknown): entry is NodeReadableType {
+export function isReadable(entry: unknown): entry is Readable {
   return isReadableStream(entry) || isNodeReadable(entry)
 }
 
@@ -35,12 +37,12 @@ export function isReadableStream(entry: unknown): entry is ReadableStream {
   return false
 }
 
-export function isNodeReadable(entry: unknown): entry is NodeReadableType {
+export function isNodeReadable(entry: unknown): entry is NodeReadableNative {
   if (!isStrictlyObject(entry)) {
     return false
   }
 
-  const nodeReadable = entry as NodeReadableType
+  const nodeReadable = entry as NodeReadableNative
 
   if (typeof nodeReadable.pipe === 'function' && nodeReadable.readable && typeof nodeReadable._read === 'function') {
     return true
@@ -59,7 +61,7 @@ export function isNodeReadable(entry: unknown): entry is NodeReadableType {
  * @licence Apache License 2.0 https://github.com/gwicke/node-web-streams/blob/master/LICENSE
  * @param nodeStream
  */
-export function readableNodeToWeb(nodeStream: NodeReadableType): ReadableStream<Uint8Array> {
+export function readableNodeToWeb(nodeStream: NodeReadableNative): ReadableStream<Uint8Array> {
   return new ReadableStream({
     start(controller) {
       nodeStream.pause()
@@ -129,14 +131,28 @@ class NodeReadableWrapper extends NodeReadable {
  * Function that converts WHATWG ReadableStream into Node's Readable
  *
  * Taken over from https://github.com/gwicke/node-web-streams/blob/master/lib/conversions.js
- * Because it uses forked web-streams-polyfill that are outdated.
+ * Because it uses forked web-streams-polyfill that is outdated.
+ *
+ * **Warning!**
+ * If you want to use this function in browser you have to install readable-stream package and with your bundler
+ * polyfill `process` and `buffer` packages!
  *
  * @author https://github.com/gwicke
  * @licence Apache License 2.0 https://github.com/gwicke/node-web-streams/blob/master/LICENSE
  * @param webStream
+ * @param options
  */
-export function readableWebToNode(webStream: ReadableStream, options?: NodeReadableOptions): NodeReadableType {
-  return new NodeReadableWrapper(webStream, options) as unknown as NodeReadableType
+export function readableWebToNode(
+  webStream: ReadableStream<unknown>,
+  options?: NodeReadableOptions,
+): NodeReadableNative {
+  if (!NodeReadableStream && !NodeReadableNative) {
+    throw new Error(
+      "The Node's Readable is not available! If you are running this in browser you have to install readable-stream package and polyfill process and buffer!",
+    )
+  }
+
+  return new NodeReadableWrapper(webStream, options) as unknown as NodeReadableNative
 }
 
 export function normalizeToReadableStream(stream: Readable): ReadableStream {
