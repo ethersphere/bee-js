@@ -1,5 +1,6 @@
-import { Ky, NumberString, TransactionHash, TransactionInfo } from '../../types'
-import { http } from '../../utils/http'
+import { http } from '../../utils/http.js'
+
+import type { Ky, NumberString, TransactionHash, TransactionInfo } from '../../types/index.js'
 
 const transactionsEndpoint = 'transactions'
 

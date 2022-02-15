@@ -1,4 +1,13 @@
-import {
+import { extractUploadHeaders, readFileHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
+import { prepareData } from '../utils/data.js'
+import { makeTar } from '../utils/tar.js'
+import { assertCollection } from '../utils/collection.js'
+import { wrapBytesWithHelpers } from '../utils/bytes.js'
+import { isReadable } from '../utils/stream.js'
+import { makeTagUid } from '../utils/type.js'
+
+import type {
   BatchId,
   Collection,
   CollectionUploadOptions,
@@ -10,15 +19,7 @@ import {
   Reference,
   UploadHeaders,
   UploadResult,
-} from '../types'
-import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
-import { http } from '../utils/http'
-import { prepareData } from '../utils/data'
-import { makeTar } from '../utils/tar'
-import { assertCollection } from '../utils/collection'
-import { wrapBytesWithHelpers } from '../utils/bytes'
-import { isReadable } from '../utils/stream'
-import { makeTagUid } from '../utils/type'
+} from '../types/index.js'
 
 const bzzEndpoint = 'bzz'
 

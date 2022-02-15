@@ -1,24 +1,24 @@
-import * as bzz from './modules/bzz'
-import * as stewardship from './modules/stewardship'
-import * as tag from './modules/tag'
-import * as pinning from './modules/pinning'
-import * as bytes from './modules/bytes'
-import * as chunk from './modules/chunk'
-import * as pss from './modules/pss'
-import * as status from './modules/status'
+import * as bzz from './modules/bzz.js'
+import * as stewardship from './modules/stewardship.js'
+import * as tag from './modules/tag.js'
+import * as pinning from './modules/pinning.js'
+import * as bytes from './modules/bytes.js'
+import * as chunk from './modules/chunk.js'
+import * as pss from './modules/pss.js'
+import * as status from './modules/status.js'
 
-import { BeeArgumentError, BeeError } from './utils/error'
-import { prepareWebsocketData } from './utils/data'
-import { fileArrayBuffer, isFile } from './utils/file'
-import { makeFeedReader, makeFeedWriter } from './feed'
-import { makeSigner } from './chunk/signer'
-import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
-import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
-import { makeTopic, makeTopicFromString } from './feed/topic'
-import { createFeedManifest } from './modules/feed'
-import { assertBeeUrl, stripLastSlash } from './utils/url'
-import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
-import { wrapBytesWithHelpers } from './utils/bytes'
+import { BeeArgumentError, BeeError } from './utils/error.js'
+import { prepareWebsocketData } from './utils/data.js'
+import { fileArrayBuffer, isFile } from './utils/file.js'
+import { makeFeedReader, makeFeedWriter } from './feed/index.js'
+import { makeSigner } from './chunk/signer.js'
+import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type.js'
+import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc.js'
+import { makeTopic, makeTopicFromString } from './feed/topic.js'
+import { createFeedManifest } from './modules/feed.js'
+import { assertBeeUrl, stripLastSlash } from './utils/url.js'
+import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth.js'
+import { wrapBytesWithHelpers } from './utils/bytes.js'
 import {
   assertAddressPrefix,
   assertAllTagsOptions,
@@ -33,11 +33,20 @@ import {
   assertRequestOptions,
   assertUploadOptions,
   makeTagUid,
-} from './utils/type'
-import { setJsonData, getJsonData } from './feed/json'
-import { makeCollectionFromFileList, assertCollection } from './utils/collection'
-import { makeCollectionFromFS } from './utils/collection.node'
-import { AllTagsOptions, CHUNK_SIZE, Collection, Ky, Readable, RequestOptions, SPAN_SIZE, UploadResult } from './types'
+} from './utils/type.js'
+import { setJsonData, getJsonData } from './feed/json.js'
+import { makeCollectionFromFileList, assertCollection } from './utils/collection.js'
+import { makeCollectionFromFS } from './utils/collection.node.js'
+import {
+  AllTagsOptions,
+  CHUNK_SIZE,
+  Collection,
+  Ky,
+  Readable,
+  RequestOptions,
+  SPAN_SIZE,
+  UploadResult,
+} from './types/index.js'
 
 import type { Options as KyOptions } from 'ky-universal'
 
@@ -64,9 +73,9 @@ import type {
   AnyJson,
   Pin,
   BatchId,
-} from './types'
-import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
-import { isReadable } from './utils/stream'
+} from './types/index.js'
+import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http.js'
+import { isReadable } from './utils/stream.js'
 
 /**
  * The main component that abstracts operations available on the main Bee API.

@@ -1,10 +1,10 @@
-import { BeeError, BeeNotAJsonError, BeeRequestError, BeeResponseError } from './error'
-import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
 import kyFactory, { HTTPError, Options as KyOptions } from 'ky-universal'
-import { normalizeToReadableStream } from './stream'
-import { deepMerge } from './merge'
-import { isObject, isStrictlyObject } from './type'
-import { KyRequestOptions } from '../types'
+import { BeeError, BeeNotAJsonError, BeeRequestError, BeeResponseError } from './error.js'
+import { normalizeToReadableStream } from './stream.js'
+import { deepMerge } from './merge.js'
+import { isObject, isStrictlyObject } from './type.js'
+
+import type { KyRequestOptions, BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types/index.js'
 
 const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {

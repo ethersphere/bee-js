@@ -4,13 +4,20 @@ import { curve } from 'elliptic'
 import pkg from 'elliptic'
 const { ec } = pkg
 
-import { BeeError } from '../utils/error'
-import { Bytes, isBytes, assertBytes, wrapBytesWithHelpers } from '../utils/bytes'
-import { keccak256Hash } from '../utils/hash'
-import { hexToBytes, makeHexString } from '../utils/hex'
-import { EthAddress } from '../utils/eth'
-import { Data, PrivateKeyBytes, Signature, SIGNATURE_BYTES_LENGTH, SIGNATURE_HEX_LENGTH, Signer } from '../types'
-import { isStrictlyObject } from '../utils/type'
+import { BeeError } from '../utils/error.js'
+import { Bytes, isBytes, assertBytes, wrapBytesWithHelpers } from '../utils/bytes.js'
+import { keccak256Hash } from '../utils/hash.js'
+import { hexToBytes, makeHexString } from '../utils/hex.js'
+import { EthAddress } from '../utils/eth.js'
+import {
+  Data,
+  PrivateKeyBytes,
+  Signature,
+  SIGNATURE_BYTES_LENGTH,
+  SIGNATURE_HEX_LENGTH,
+  Signer,
+} from '../types/index.js'
+import { isStrictlyObject } from '../utils/type.js'
 
 type EllipticPublicKey = curve.base.BasePoint
 const UNCOMPRESSED_RECOVERY_ID = 27

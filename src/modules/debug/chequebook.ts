@@ -1,4 +1,5 @@
-import { http } from '../../utils/http'
+import { http } from '../../utils/http.js'
+
 import type {
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
@@ -10,7 +11,7 @@ import type {
   Ky,
   CashoutOptions,
   TransactionHash,
-} from '../../types'
+} from '../../types/index.js'
 
 const chequebookEndpoint = 'chequebook'
 

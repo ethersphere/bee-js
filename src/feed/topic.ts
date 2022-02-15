@@ -1,7 +1,7 @@
-import { keccak256Hash } from '../utils/hash'
-import { assertBytes } from '../utils/bytes'
-import { makeHexString, bytesToHex } from '../utils/hex'
-import { Topic, TOPIC_BYTES_LENGTH, TOPIC_HEX_LENGTH } from '../types'
+import { keccak256Hash } from '../utils/hash.js'
+import { assertBytes } from '../utils/bytes.js'
+import { makeHexString, bytesToHex } from '../utils/hex.js'
+import { Topic, TOPIC_BYTES_LENGTH, TOPIC_HEX_LENGTH } from '../types/index.js'
 
 export function makeTopic(topic: Uint8Array | string): Topic {
   if (typeof topic === 'string') {

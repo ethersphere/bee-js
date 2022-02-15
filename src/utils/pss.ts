@@ -1,4 +1,4 @@
-import { AddressPrefix, PSS_TARGET_HEX_LENGTH_MAX } from '../types'
+import { AddressPrefix, PSS_TARGET_HEX_LENGTH_MAX } from '../types/index.js'
 
 /**
  * Utility function that for given strings/reference takes the most specific

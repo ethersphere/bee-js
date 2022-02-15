@@ -1,7 +1,8 @@
-import type { BatchId, Data, Ky, Reference, ReferenceResponse, UploadOptions } from '../types'
-import { extractUploadHeaders } from '../utils/headers'
-import { http } from '../utils/http'
-import { wrapBytesWithHelpers } from '../utils/bytes'
+import { extractUploadHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
+import { wrapBytesWithHelpers } from '../utils/bytes.js'
+
+import type { BatchId, Data, Ky, Reference, ReferenceResponse, UploadOptions } from '../types/index.js'
 
 const endpoint = 'chunks'
 

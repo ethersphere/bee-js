@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = function (api) {
-  const targets = '>1% or node >=10 and not ie 11 and not dead'
+  const targets = '>1% and not ie 11 and not dead'
   api.cache(true)
   api.cacheDirectory = true
 
@@ -15,9 +15,9 @@ module.exports = function (api) {
           useBuiltIns: 'entry',
           modules: 'commonjs',
           bugfixes: true,
-          targets
-        }
-      ]
+          targets,
+        },
+      ],
     ],
     plugins: [
       '@babel/plugin-proposal-class-properties',
@@ -25,9 +25,9 @@ module.exports = function (api) {
         '@babel/plugin-transform-runtime',
         {
           helpers: false,
-          regenerator: true
-        }
-      ]
-    ]
+          regenerator: true,
+        },
+      ],
+    ],
   }
 }

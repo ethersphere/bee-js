@@ -1,7 +1,8 @@
-import { Collection } from '../types'
-import { BeeArgumentError } from './error'
-import { fileArrayBuffer } from './file'
-import { isUint8Array } from './type'
+import { BeeArgumentError } from './error.js'
+import { fileArrayBuffer } from './file.js'
+import { isUint8Array } from './type.js'
+
+import type { Collection } from '../types/index.js'
 
 export function isCollection(data: unknown): data is Collection<Uint8Array> {
   if (!Array.isArray(data)) {

@@ -1,10 +1,10 @@
-import type { BatchId, Data, Ky, Reference, UploadOptions } from '../types'
-import { prepareData } from '../utils/data'
-import { extractUploadHeaders } from '../utils/headers'
-import { http } from '../utils/http'
-import { wrapBytesWithHelpers } from '../utils/bytes'
-import { UploadResult } from '../types'
-import { makeTagUid } from '../utils/type'
+import { prepareData } from '../utils/data.js'
+import { extractUploadHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
+import { wrapBytesWithHelpers } from '../utils/bytes.js'
+import { makeTagUid } from '../utils/type.js'
+
+import type { UploadResult, BatchId, Data, Ky, Reference, UploadOptions } from '../types/index.js'
 
 const endpoint = 'bytes'
 

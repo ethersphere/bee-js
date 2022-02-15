@@ -1,10 +1,10 @@
-import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
-import { bmtHash } from './bmt'
-import { recoverAddress, sign } from './signer'
-import { keccak256Hash } from '../utils/hash'
-import { SPAN_SIZE } from './span'
-import { serializeBytes } from './serialize'
-import { BeeError } from '../utils/error'
+import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes.js'
+import { bmtHash } from './bmt.js'
+import { recoverAddress, sign } from './signer.js'
+import { keccak256Hash } from '../utils/hash.js'
+import { SPAN_SIZE } from './span.js'
+import { serializeBytes } from './serialize.js'
+import { BeeError } from '../utils/error.js'
 import {
   Chunk,
   ChunkAddress,
@@ -12,13 +12,13 @@ import {
   MAX_PAYLOAD_SIZE,
   MIN_PAYLOAD_SIZE,
   assertValidChunkData,
-} from './cac'
-import { UploadOptions, Signature, Signer, BatchId, Reference, Ky } from '../types'
-import { bytesToHex } from '../utils/hex'
-import * as socAPI from '../modules/soc'
-import * as chunkAPI from '../modules/chunk'
-import { EthAddress } from '../utils/eth'
-import { assertAddress } from '../utils/type'
+} from './cac.js'
+import { UploadOptions, Signature, Signer, BatchId, Reference, Ky } from '../types/index.js'
+import { bytesToHex } from '../utils/hex.js'
+import * as socAPI from '../modules/soc.js'
+import * as chunkAPI from '../modules/chunk.js'
+import { EthAddress } from '../utils/eth.js'
+import { assertAddress } from '../utils/type.js'
 
 const IDENTIFIER_SIZE = 32
 const SIGNATURE_SIZE = 65

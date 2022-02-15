@@ -1,4 +1,4 @@
-import { KyRequestOptions } from '../types'
+import type { KyRequestOptions } from '../types/index.js'
 
 export class BeeError extends Error {
   public constructor(message: string) {

@@ -5,8 +5,9 @@
  * generic `Length` type parameter which is runtime compatible with
  * the original, because it extends from the `number` type.
  */
-import { Data } from '../types'
-import { bytesToHex } from './hex'
+import { bytesToHex } from './hex.js'
+
+import type { Data } from '../types/index.js'
 
 export interface Bytes<Length extends number> extends Uint8Array {
   readonly length: Length

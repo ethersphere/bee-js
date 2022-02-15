@@ -1,5 +1,5 @@
-import { Bytes, makeBytes } from './bytes'
-import { BrandedType, FlavoredType } from '../types'
+import type { BrandedType, FlavoredType } from '../types/index.js'
+import { Bytes, makeBytes } from './bytes.js'
 
 /**
  * Nominal type to represent hex strings WITHOUT '0x' prefix.

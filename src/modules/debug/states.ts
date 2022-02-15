@@ -1,5 +1,6 @@
-import { http } from '../../utils/http'
-import { ChainState, Ky, ReserveState } from '../../types'
+import { http } from '../../utils/http.js'
+
+import type { ChainState, Ky, ReserveState } from '../../types/index.js'
 
 const RESERVE_STATE_ENDPOINT = 'reservestate'
 const CHAIN_STATE_ENDPOINT = 'chainstate'

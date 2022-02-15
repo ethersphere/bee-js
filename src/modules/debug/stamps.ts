@@ -1,3 +1,5 @@
+import { http } from '../../utils/http.js'
+
 import type {
   BatchId,
   DebugPostageBatch,
@@ -5,8 +7,7 @@ import type {
   NumberString,
   PostageBatchBuckets,
   PostageBatchOptions,
-} from '../../types'
-import { http } from '../../utils/http'
+} from '../../types/index.js'
 
 const STAMPS_ENDPOINT = 'stamps'
 

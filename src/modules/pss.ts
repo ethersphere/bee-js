@@ -1,9 +1,10 @@
 import WebSocket from 'isomorphic-ws'
 
-import type { BatchId, BeeGenericResponse, Ky, PublicKey } from '../types'
-import { prepareData } from '../utils/data'
-import { http } from '../utils/http'
-import { extractUploadHeaders } from '../utils/headers'
+import { prepareData } from '../utils/data.js'
+import { http } from '../utils/http.js'
+import { extractUploadHeaders } from '../utils/headers.js'
+
+import type { BatchId, BeeGenericResponse, Ky, PublicKey } from '../types/index.js'
 
 const endpoint = 'pss'
 

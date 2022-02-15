@@ -1,5 +1,6 @@
-import { http } from '../../utils/http'
-import type { PeerBalance, BalanceResponse, Ky } from '../../types'
+import { http } from '../../utils/http.js'
+
+import type { PeerBalance, BalanceResponse, Ky } from '../../types/index.js'
 
 const balancesEndpoint = 'balances'
 const consumedEndpoint = 'consumed'

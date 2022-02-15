@@ -1,4 +1,4 @@
-import { isObject } from './type'
+import { isObject } from './type.js'
 
 /**
  * Function that deep merges objects

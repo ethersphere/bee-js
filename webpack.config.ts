@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import Path from 'path'
 import TerserPlugin from 'terser-webpack-plugin'
+import ResolveTypeScriptPlugin from 'resolve-typescript-plugin'
 import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 
@@ -46,6 +47,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       ],
     },
     resolve: {
+      plugins: [new ResolveTypeScriptPlugin()],
       extensions: ['.ts', '.js'],
       fallback: {
         path: false,

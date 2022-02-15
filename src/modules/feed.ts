@@ -1,9 +1,10 @@
-import { BatchId, Ky, Reference, ReferenceResponse, Topic } from '../types'
-import { filterHeaders, http } from '../utils/http'
-import { FeedType } from '../feed/type'
-import { HexEthAddress } from '../utils/eth'
-import { extractUploadHeaders } from '../utils/headers'
-import { BeeError } from '../utils/error'
+import { filterHeaders, http } from '../utils/http.js'
+import { FeedType } from '../feed/type.js'
+import { HexEthAddress } from '../utils/eth.js'
+import { extractUploadHeaders } from '../utils/headers.js'
+import { BeeError } from '../utils/error.js'
+
+import type { BatchId, Ky, Reference, ReferenceResponse, Topic } from '../types/index.js'
 
 const feedEndpoint = 'feeds'
 

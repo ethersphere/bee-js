@@ -1,5 +1,5 @@
 import type { Identifier, SingleOwnerChunk } from '../chunk/soc'
-import type { ChunkReference, FeedUploadOptions } from '../feed'
+import type { ChunkReference, FeedUploadOptions } from '../feed/index.js'
 import type { FeedType } from '../feed/type'
 import type { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
 import type { Bytes } from '../utils/bytes'
@@ -11,9 +11,9 @@ import type ky from 'ky-universal'
 import type { Readable as NativeReadable } from 'stream'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
 import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill/ponyfill'
-import { Options as KyOptions } from 'ky-universal'
+import type { Options as KyOptions } from 'ky-universal'
 
-export * from './debug'
+export * from './debug.js'
 
 export type Ky = typeof ky
 

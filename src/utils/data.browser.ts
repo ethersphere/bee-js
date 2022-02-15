@@ -1,6 +1,7 @@
-import { isNodeReadable, isReadableStream } from './stream'
-import { Readable } from '../types'
+import { isNodeReadable, isReadableStream } from './stream.js'
 import Blob from 'cross-blob'
+
+import type { Readable } from '../types/index.js'
 
 /**
  * Validates input and converts to Uint8Array

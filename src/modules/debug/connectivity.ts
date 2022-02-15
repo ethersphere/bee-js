@@ -1,5 +1,6 @@
-import { http } from '../../utils/http'
-import type { Ky, NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
+import { http } from '../../utils/http.js'
+
+import type { Ky, NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types/index.js'
 
 export async function getNodeAddresses(ky: Ky): Promise<NodeAddresses> {
   const response = await http<NodeAddresses>(ky, {

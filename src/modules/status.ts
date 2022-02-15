@@ -1,5 +1,6 @@
-import { http } from '../utils/http'
-import { Ky } from '../types'
+import { http } from '../utils/http.js'
+
+import type { Ky } from '../types/index.js'
 
 /**
  * Ping the base bee URL. If connection was not successful throw error

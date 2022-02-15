@@ -1,5 +1,5 @@
-import { PublicKey, NumberString, Reference, TransactionHash, RequestOptions } from './index'
-import { HexEthAddress } from '../utils/eth'
+import { PublicKey, NumberString, Reference, TransactionHash, RequestOptions } from './index.js'
+import { HexEthAddress } from '../utils/eth.js'
 
 /**
  * Object that contains information about progress of upload of data to network.

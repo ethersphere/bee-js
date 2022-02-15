@@ -1,5 +1,6 @@
-import type { BeeGenericResponse, Ky, Pin, Reference } from '../types'
-import { http } from '../utils/http'
+import { http } from '../utils/http.js'
+
+import type { BeeGenericResponse, Ky, Pin, Reference } from '../types/index.js'
 
 const PINNING_ENDPOINT = 'pins'
 

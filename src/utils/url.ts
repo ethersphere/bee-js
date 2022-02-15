@@ -1,5 +1,5 @@
-import { BeeArgumentError } from './error'
-import { isObject } from './type'
+import { BeeArgumentError } from './error.js'
+import { isObject } from './type.js'
 
 interface NodeJsError {
   code: string

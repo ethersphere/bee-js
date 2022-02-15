@@ -1,7 +1,7 @@
-import { keccak256Hash } from '../utils/hash'
-import { serializeBytes } from '../chunk/serialize'
-import { Identifier, uploadSingleOwnerChunkData, makeSingleOwnerChunkFromData } from '../chunk/soc'
-import { FeedUpdateOptions, fetchFeedUpdate } from '../modules/feed'
+import { keccak256Hash } from '../utils/hash.js'
+import { serializeBytes } from '../chunk/serialize.js'
+import { Identifier, uploadSingleOwnerChunkData, makeSingleOwnerChunkFromData } from '../chunk/soc.js'
+import { FeedUpdateOptions, fetchFeedUpdate } from '../modules/feed.js'
 import {
   REFERENCE_HEX_LENGTH,
   Reference,
@@ -16,16 +16,16 @@ import {
   Address,
   BatchId,
   Ky,
-} from '../types'
-import { Bytes, makeBytes, bytesAtOffset } from '../utils/bytes'
-import { BeeResponseError } from '../utils/error'
-import { bytesToHex, HexString, hexToBytes, makeHexString } from '../utils/hex'
-import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
-import * as chunkAPI from '../modules/chunk'
-import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
+} from '../types/index.js'
+import { Bytes, makeBytes, bytesAtOffset } from '../utils/bytes.js'
+import { BeeResponseError } from '../utils/error.js'
+import { bytesToHex, HexString, hexToBytes, makeHexString } from '../utils/hex.js'
+import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64.js'
+import * as chunkAPI from '../modules/chunk.js'
+import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth.js'
 
 import type { FeedType } from './type'
-import { assertAddress } from '../utils/type'
+import { assertAddress } from '../utils/type.js'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8

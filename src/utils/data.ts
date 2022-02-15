@@ -1,7 +1,8 @@
-import type { Data } from 'ws'
 import Blob from 'cross-blob'
-import { isNodeReadable, isReadableStream, readableWebToNode } from './stream'
-import { Readable } from '../types'
+import { isNodeReadable, isReadableStream, readableWebToNode } from './stream.js'
+
+import type { Readable } from '../types/index.js'
+import type { Data } from 'ws'
 
 /**
  * Prepare data for valid input for node-fetch.

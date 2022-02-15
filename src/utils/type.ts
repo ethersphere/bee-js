@@ -24,11 +24,11 @@ import {
   RequestOptions,
   PostageBatchOptions,
   CashoutOptions,
-} from '../types'
-import { BeeArgumentError } from './error'
-import { isFile } from './file'
-import { assertHexString, assertPrefixedHexString } from './hex'
-import { isReadable } from './stream'
+} from '../types/index.js'
+import { BeeArgumentError } from './error.js'
+import { isFile } from './file.js'
+import { assertHexString, assertPrefixedHexString } from './hex.js'
+import { isReadable } from './stream.js'
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
   return obj instanceof Uint8Array

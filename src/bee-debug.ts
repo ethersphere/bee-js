@@ -1,10 +1,10 @@
-import * as connectivity from './modules/debug/connectivity'
-import * as balance from './modules/debug/balance'
-import * as chequebook from './modules/debug/chequebook'
-import * as settlements from './modules/debug/settlements'
-import * as status from './modules/debug/status'
-import * as transactions from './modules/debug/transactions'
-import * as states from './modules/debug/states'
+import * as connectivity from './modules/debug/connectivity.js'
+import * as balance from './modules/debug/balance.js'
+import * as chequebook from './modules/debug/chequebook.js'
+import * as settlements from './modules/debug/settlements.js'
+import * as status from './modules/debug/status.js'
+import * as transactions from './modules/debug/transactions.js'
+import * as states from './modules/debug/states.js'
 import type {
   Address,
   Peer,
@@ -33,9 +33,9 @@ import type {
   TransactionHash,
   NodeInfo,
   BeeVersions,
-} from './types'
-import { BeeArgumentError } from './utils/error'
-import { assertBeeUrl, stripLastSlash } from './utils/url'
+} from './types/index.js'
+import { BeeArgumentError } from './utils/error.js'
+import { assertBeeUrl, stripLastSlash } from './utils/url.js'
 import {
   assertAddress,
   assertBatchId,
@@ -45,7 +45,7 @@ import {
   assertRequestOptions,
   assertTransactionHash,
   isTag,
-} from './utils/type'
+} from './utils/type.js'
 import {
   BatchId,
   BeeOptions,
@@ -55,11 +55,11 @@ import {
   STAMPS_DEPTH_MAX,
   STAMPS_DEPTH_MIN,
   Tag,
-} from './types'
-import * as tag from './modules/debug/tag'
-import * as stamps from './modules/debug/stamps'
+} from './types/index.js'
+import * as tag from './modules/debug/tag.js'
+import * as stamps from './modules/debug/stamps.js'
 import type { Options as KyOptions } from 'ky-universal'
-import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
+import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http.js'
 
 export class BeeDebug {
   /**

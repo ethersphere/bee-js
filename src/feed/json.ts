@@ -1,6 +1,6 @@
-import { FeedWriter, FeedReader, AnyJson, BatchId, Reference, RequestOptions } from '../types'
-import { Bee } from '../bee'
-import { isError } from '../utils/type'
+import { FeedWriter, FeedReader, AnyJson, BatchId, Reference, RequestOptions } from '../types/index.js'
+import { Bee } from '../bee.js'
+import { isError } from '../utils/type.js'
 
 function serializeJson(data: AnyJson): Uint8Array {
   try {

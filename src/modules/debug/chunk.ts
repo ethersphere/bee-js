@@ -1,5 +1,6 @@
-import type { BeeGenericResponse, Ky } from '../../types'
-import { http } from '../../utils/http'
+import { http } from '../../utils/http.js'
+
+import type { BeeGenericResponse, Ky } from '../../types/index.js'
 
 const endpoint = 'chunks'
 

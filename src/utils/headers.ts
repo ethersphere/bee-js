@@ -1,5 +1,5 @@
-import { BatchId, FileHeaders, UploadOptions } from '../types'
-import { BeeError } from './error'
+import type { BatchId, FileHeaders, UploadOptions } from '../types/index.js'
+import { BeeError } from './error.js'
 
 /**
  * Read the filename from the content-disposition header

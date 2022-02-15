@@ -1,10 +1,14 @@
-import { Bee } from './bee'
-import { BeeDebug } from './bee-debug'
+import { Bee } from './bee.js'
+import { BeeDebug } from './bee-debug.js'
 
-export * as Utils from './utils/expose'
-export * from './types'
-export * from './utils/error'
-export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './modules/debug/status'
+export * as Utils from './utils/expose.js'
+export * from './types/index.js'
+export * from './utils/error.js'
+
+/**
+ * @deprecated Use BeeDebug.getVersions()
+ */
+export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './modules/debug/status.js'
 export { Bee, BeeDebug }
 
 // for requrie-like imports

@@ -1,9 +1,9 @@
-import { BrandedType } from '../types'
-import { BeeError } from '../utils/error'
-import { bmtHash } from './bmt'
-import { Bytes, bytesEqual, FlexBytes, flexBytesAtOffset, assertFlexBytes } from '../utils/bytes'
-import { serializeBytes } from './serialize'
-import { makeSpan, SPAN_SIZE } from './span'
+import { BrandedType } from '../types/index.js'
+import { BeeError } from '../utils/error.js'
+import { bmtHash } from './bmt.js'
+import { Bytes, bytesEqual, FlexBytes, flexBytesAtOffset, assertFlexBytes } from '../utils/bytes.js'
+import { serializeBytes } from './serialize.js'
+import { makeSpan, SPAN_SIZE } from './span.js'
 
 export const MIN_PAYLOAD_SIZE = 1
 export const MAX_PAYLOAD_SIZE = 4096

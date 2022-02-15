@@ -2,9 +2,10 @@
 import pkg from 'js-sha3'
 const { keccak256, sha3_256 } = pkg
 
-import { BrandedString, Data, Signer } from '../types'
-import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
-import { Bytes, assertBytes } from './bytes'
+import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex.js'
+import { Bytes, assertBytes } from './bytes.js'
+
+import type { BrandedString, Data, Signer } from '../types/index.js'
 
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 export type EthAddress = Bytes<20>

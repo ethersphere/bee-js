@@ -1,5 +1,6 @@
-import { Collection } from '../types'
 import Tar from 'tar-js'
+
+import type { Collection } from '../types/index.js'
 
 // this is a workaround type so that we are able to pass in Uint8Arrays
 // as string to `tar.append`

@@ -1,5 +1,5 @@
-export { getCollectionSize } from './collection'
-export { getFolderSize } from './collection.node'
+export { getCollectionSize } from './collection.js'
+export { getFolderSize } from './collection.node.js'
 
 export {
   Bytes,
@@ -11,7 +11,7 @@ export {
   bytesAtOffset,
   flexBytesAtOffset,
   bytesEqual,
-} from './bytes'
+} from './bytes.js'
 
 export {
   HexString,
@@ -23,7 +23,7 @@ export {
   isHexString,
   assertHexString,
   assertPrefixedHexString,
-} from './hex'
+} from './hex.js'
 
 export {
   EthAddress,
@@ -34,7 +34,7 @@ export {
   toLittleEndian,
   fromLittleEndian,
   makeEthereumWalletSigner,
-} from './eth'
+} from './eth.js'
 
 export {
   readableWebToNode,
@@ -43,8 +43,8 @@ export {
   isNodeReadable,
   normalizeToReadableStream,
   isReadable,
-} from './stream'
+} from './stream.js'
 
-export { keccak256Hash } from './hash'
-export { makeMaxTarget } from './pss'
-export { getStampUsage } from './stamps'
+export { keccak256Hash } from './hash.js'
+export { makeMaxTarget } from './pss.js'
+export { getStampUsage } from './stamps.js'

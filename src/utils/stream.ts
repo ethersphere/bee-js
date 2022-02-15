@@ -1,9 +1,9 @@
 import { Readable as NodeReadableNative, ReadableOptions as NodeReadableOptions } from 'stream'
-import { isStrictlyObject } from './type'
-import { ReadableStream } from 'web-streams-polyfill/ponyfill'
+import { isStrictlyObject } from './type.js'
+import { ReadableStream } from 'web-streams-polyfill/dist/ponyfill.js'
 import { Readable as NodeReadableStream } from 'readable-stream'
 
-import { Readable } from '../types'
+import type { Readable } from '../types/index.js'
 
 const NodeReadable = NodeReadableNative || NodeReadableStream || class {}
 

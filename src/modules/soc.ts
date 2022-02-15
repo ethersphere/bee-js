@@ -1,6 +1,7 @@
-import { BatchId, Ky, Reference, ReferenceResponse, UploadOptions } from '../types'
-import { extractUploadHeaders } from '../utils/headers'
-import { http } from '../utils/http'
+import { extractUploadHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
+
+import type { BatchId, Ky, Reference, ReferenceResponse, UploadOptions } from '../types/index.js'
 
 const socEndpoint = 'soc'
 

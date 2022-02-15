@@ -1,5 +1,6 @@
-import { ExtendedTag, Ky } from '../../types'
-import { http } from '../../utils/http'
+import { http } from '../../utils/http.js'
+
+import type { ExtendedTag, Ky } from '../../types/index.js'
 
 const endpoint = 'tags'
 

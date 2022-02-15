@@ -1,4 +1,4 @@
-import { DebugPostageBatch } from '../types'
+import { DebugPostageBatch } from '../types/index.js'
 
 /**
  * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.

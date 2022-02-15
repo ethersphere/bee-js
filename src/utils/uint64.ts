@@ -1,4 +1,4 @@
-import { Bytes, makeBytes } from './bytes'
+import { Bytes, makeBytes } from './bytes.js'
 
 // TODO handle bigger values than 32 bit
 // For now it's good enough because we only use these functions
