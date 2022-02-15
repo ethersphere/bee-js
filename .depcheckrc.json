@@ -2,6 +2,7 @@
   "ignores": [
     "@babel/core",
     "@babel/plugin-proposal-class-properties",
+    "babel-plugin-add-import-extension",
     "@babel/plugin-transform-runtime",
     "@babel/preset-env",
     "@babel/preset-typescript",
