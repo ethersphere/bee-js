@@ -5,7 +5,7 @@
  * @licence MIT https://github.com/sindresorhus/ky/blob/main/license
  */
 
-import type { NormalizedOptions } from './options.js'
+import type { NormalizedOptions } from '../ky-options'
 
 export declare const stop: unique symbol
 

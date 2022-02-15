@@ -11,8 +11,8 @@ declare module 'ky-universal' {
     response: Response
   }
 
-  type Options = import('./options').Options
-  type Input = import('./options').Input
+  type Options = import('../ky-options').Options
+  type Input = import('../ky-options').Input
   type ResponsePromise = import('./response').ResponsePromise
   const stop: unique symbol
 
