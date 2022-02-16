@@ -1,11 +1,10 @@
 import { Readable as NodeReadableNative, ReadableOptions as NodeReadableOptions } from 'stream'
 import { isStrictlyObject } from './type'
 import { ReadableStream } from 'web-streams-polyfill/dist/ponyfill.js'
-import { Readable as NodeReadableStream } from 'readable-stream'
 
 import { Readable } from '../types'
 
-const NodeReadable = NodeReadableNative || NodeReadableStream || class {}
+const NodeReadable = NodeReadableNative || class {}
 
 /**
  * Validates if passed object is either browser's ReadableStream
@@ -134,8 +133,7 @@ class NodeReadableWrapper extends NodeReadable {
  * Because it uses forked web-streams-polyfill that is outdated.
  *
  * **Warning!**
- * If you want to use this function in browser you have to install readable-stream package and with your bundler
- * polyfill `process` and `buffer` packages!
+ * If you want to use this function in browser you have to polyfill `stream` package with your bundler.
  *
  * @author https://github.com/gwicke
  * @licence Apache License 2.0 https://github.com/gwicke/node-web-streams/blob/master/LICENSE
@@ -146,9 +144,9 @@ export function readableWebToNode(
   webStream: ReadableStream<unknown>,
   options?: NodeReadableOptions,
 ): NodeReadableNative {
-  if (!NodeReadableStream && !NodeReadableNative) {
+  if (!NodeReadableNative) {
     throw new Error(
-      "The Node's Readable is not available! If you are running this in browser you have to install readable-stream package and polyfill process and buffer!",
+      "The Node's Readable is not available! If you are running this in browser you have to polyfill 'stream' package!",
     )
   }
 
