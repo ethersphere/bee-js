@@ -1,5 +1,18 @@
 # Changelog
 
+### [3.3.1](https://www.github.com/ethersphere/bee-js/compare/v3.3.0...v3.3.1) (2022-02-16)
+
+
+### Bug Fixes
+
+* add js suffix in imports for esm support with babel ([#562](https://www.github.com/ethersphere/bee-js/issues/562)) ([62489aa](https://www.github.com/ethersphere/bee-js/commit/62489aa2259a60c2e46caecbf56d98bbc12f93ed))
+* create minified browser bundle for release ([#549](https://www.github.com/ethersphere/bee-js/issues/549)) ([b92fdb0](https://www.github.com/ethersphere/bee-js/commit/b92fdb010f831faa50c1575829b42cdbf0730600))
+* drop readable stream ([#565](https://www.github.com/ethersphere/bee-js/issues/565)) ([3e36ccc](https://www.github.com/ethersphere/bee-js/commit/3e36cccdf18cf3dd9d87e317c644a3dd67e347db))
+* exposing ky options ([#553](https://www.github.com/ethersphere/bee-js/issues/553)) ([085c565](https://www.github.com/ethersphere/bee-js/commit/085c565775c1abfa36b160fd539f4b80a05299e5))
+* making readable-stream optional ([#556](https://www.github.com/ethersphere/bee-js/issues/556)) ([4983fdc](https://www.github.com/ethersphere/bee-js/commit/4983fdc1f92fc35129bf01b4a606c23f9ebffde3))
+* rename the browser bundle in order not to break unpkg.com ([#552](https://www.github.com/ethersphere/bee-js/issues/552)) ([7076d94](https://www.github.com/ethersphere/bee-js/commit/7076d9413382e1e4f0f7aec8563ec84729cf4524))
+* use default import styles for esm compatibility ([#550](https://www.github.com/ethersphere/bee-js/issues/550)) ([90aaf7b](https://www.github.com/ethersphere/bee-js/commit/90aaf7b0e800db3d94bb205bcd64bf1b3e17d939))
+
 ## [3.3.0](https://www.github.com/ethersphere/bee-js/compare/v3.2.0...v3.3.0) (2022-02-09)
 
 This is a smaller update with two main changes.
