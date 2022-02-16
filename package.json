@@ -106,6 +106,7 @@
     "babel-jest": "^27.0.5",
     "babel-loader": "^8.2.2",
     "babel-plugin-add-import-extension": "^1.6.0",
+    "cross-env": "^7.0.3",
     "debug": "^4.3.1",
     "depcheck": "^1.4.3",
     "eslint": "^8.8.0",
