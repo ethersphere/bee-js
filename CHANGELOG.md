@@ -2,6 +2,7 @@
 
 ### [3.3.1](https://www.github.com/ethersphere/bee-js/compare/v3.3.0...v3.3.1) (2022-02-16)
 
+This is a patching release that targets especially issues discovered thanks to the introduction of the ESM hybrid build. The main change is that if you want to use the function [`Utils.readableWebToNode()`](https://bee-js.ethswarm.org/docs/api/functions/Utils.readableWebToNode/) in **browser** then you have to polyfill `stream` package with your bundler.
 
 ### Bug Fixes
 
