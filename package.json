@@ -32,7 +32,6 @@
   },
   "types": "dist/types/index.d.ts",
   "browser": {
-    "readable-stream": false,
     "stream": false,
     "./src/utils/data.ts": "./src/utils/data.browser.ts",
     "./dist/cjs/utils/data.js": "./dist/cjs/utils/data.browser.js",
@@ -78,14 +77,6 @@
     "utf-8-validate": "^5.0.8",
     "web-streams-polyfill": "^3.1.0",
     "ws": "^8.5.0"
-  },
-  "peerDependencies": {
-    "readable-stream": "^3.6.0"
-  },
-  "peerDependenciesMeta": {
-    "readable-stream": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@babel/cli": "^7.17.0",
