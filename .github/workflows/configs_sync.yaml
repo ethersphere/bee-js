@@ -16,6 +16,8 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Check and update the Bee version
-        uses: ethersphere/repo-sync-action@master
+        uses: ethersphere/repo-sync-action@v1
         with:
           repo: ethersphere/configs-js
+          token: ${{ secrets.REPO_GHA_PAT }}
+          author: bee-worker <bee-worker@ethswarm.org>
