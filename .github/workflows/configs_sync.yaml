@@ -1,0 +1,21 @@
+name: Sync configuration files
+
+on:
+  schedule:
+    - cron:  "0 0 * * *"
+  push:
+    branches:
+      - 'master'
+      - 'ci/configs-sync'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check and update the Bee version
+        uses: ethersphere/repo-sync-action@master
+        with:
+          repo: ethersphere/configs-js
