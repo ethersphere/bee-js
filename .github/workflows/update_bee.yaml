@@ -32,9 +32,9 @@ jobs:
             bee_api_version="${{ github.event.client_payload.apiVersion }}"
             bee_debug_api_version="${{ github.event.client_payload.debugApiVersion }}"
           else
-            image_version="${{ github.event.inputs.beeFactoryImageVersion }}"
-            bee_api_version="${{ github.event.inputs.beeApiVersion }}"
-            bee_debug_api_version="${{ github.event.inputs.beeDebugApiVersion }}"
+            image_version=$(echo "${{ github.event.inputs.beeFactoryImageVersion }}" | xargs )
+            bee_api_version=$(echo "${{ github.event.inputs.beeApiVersion }}" | xargs )
+            bee_debug_api_version=$(echo "${{ github.event.inputs.beeDebugApiVersion }}" | xargs )
           fi
 
           bee_version=${image_version/-stateful}
