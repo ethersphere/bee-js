@@ -89,7 +89,7 @@
     "@commitlint/config-conventional": "^16.2.1",
     "@fluffy-spoon/substitute": "^1.208.0",
     "@jest/test-sequencer": "^27.5.0",
-    "@jest/types": "^27.0.2",
+    "@jest/types": "^27.5.1",
     "@types/content-disposition": "^0.5.4",
     "@types/debug": "^4.1.7",
     "@types/elliptic": "^6.4.14",
