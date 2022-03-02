@@ -41,6 +41,7 @@ jobs:
           echo "IMAGE_VERSION=$image_version" >> $GITHUB_ENV
           echo "BEE_VERSION=$bee_version" >> $GITHUB_ENV
           echo "TARGET_BRANCH=${bee_version/-rc*}" >> $GITHUB_ENV
+          echo "RELEASE_NAME=${bee_version%-*}" >> $GITHUB_ENV
           echo "API_VERSION=$bee_api_version" >> $GITHUB_ENV
           echo "DEBUG_API_VERSION=$bee_debug_api_version" >> $GITHUB_ENV
 
@@ -64,6 +65,9 @@ jobs:
           file: package.json
           field: engines.beeDebugApiVersion
           value: ${{ env.DEBUG_API_VERSION }}
+
+      - name: Add trailing new-line to package.json
+        run: printf "\n" >> package.json
 
       - name: Replace SUPPORTED_BEE_VERSION_EXACT for Status module
         uses: jacobtomlinson/gha-find-replace@v2
@@ -122,7 +126,7 @@ jobs:
         with:
           owner: ethersphere
           repo: bee
-          tag_name: v${{ env.BEE_VERSION }}
+          tag_name: v${{ env.RELEASE_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_GHA_PAT }}
 
