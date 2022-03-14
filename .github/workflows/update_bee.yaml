@@ -28,9 +28,9 @@ jobs:
       - name: Set env. variables
         run: |
           if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-            image_version="${{ github.event.client_payload.imageVersion }}"
-            bee_api_version="${{ github.event.client_payload.apiVersion }}"
-            bee_debug_api_version="${{ github.event.client_payload.debugApiVersion }}"
+            image_version=$(echo "${{ github.event.client_payload.imageVersion }}" | xargs )
+            bee_api_version=$(echo "${{ github.event.client_payload.apiVersion }}" | xargs )
+            bee_debug_api_version=$(echo "${{ github.event.client_payload.debugApiVersion }}" | xargs )
           else
             image_version=$(echo "${{ github.event.inputs.beeFactoryImageVersion }}" | xargs )
             bee_api_version=$(echo "${{ github.event.inputs.beeApiVersion }}" | xargs )
