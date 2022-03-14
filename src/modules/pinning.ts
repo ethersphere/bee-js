@@ -4,7 +4,7 @@ import { http } from '../utils/http'
 const PINNING_ENDPOINT = 'pins'
 
 export interface GetAllPinResponse {
-  references: Reference[] | null
+  references: Reference[]
 }
 
 /**
@@ -64,11 +64,5 @@ export async function getAllPins(ky: Ky): Promise<Reference[]> {
     path: `${PINNING_ENDPOINT}`,
   })
 
-  const result = response.data.references
-
-  if (result === null) {
-    return []
-  }
-
-  return result
+  return response.data.references
 }

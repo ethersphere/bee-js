@@ -19,7 +19,7 @@ export async function getPeers(ky: Ky): Promise<Peer[]> {
     responseType: 'json',
   })
 
-  return response.data.peers || []
+  return response.data.peers
 }
 
 export async function getBlocklist(ky: Ky): Promise<Peer[]> {
@@ -28,7 +28,7 @@ export async function getBlocklist(ky: Ky): Promise<Peer[]> {
     responseType: 'json',
   })
 
-  return response.data.peers || []
+  return response.data.peers
 }
 
 export async function removePeer(ky: Ky, peer: string): Promise<RemovePeerResponse> {
