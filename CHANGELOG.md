@@ -1,5 +1,15 @@
 # Changelog
 
+### [3.3.2](https://www.github.com/ethersphere/bee-js/compare/v3.3.1...v3.3.2) (2022-03-21)
+
+
+### Bug Fixes
+
+* add cross-env to devDeps ([c559535](https://www.github.com/ethersphere/bee-js/commit/c5595356d6aabe45307afc284dfc4439ca11ad00))
+* add ultra light bee mode ([#597](https://www.github.com/ethersphere/bee-js/issues/597)) ([4ac6bd8](https://www.github.com/ethersphere/bee-js/commit/4ac6bd8679657becbd7dd2305e1ba14ce784b98d))
+* replace deprecated type DebugPostageBatch with PostageBatch ([#594](https://www.github.com/ethersphere/bee-js/issues/594)) ([265557d](https://www.github.com/ethersphere/bee-js/commit/265557d9912e92133c847c90b8fbc065cbfa6405))
+* web-stream-polyfill typings ([#585](https://www.github.com/ethersphere/bee-js/issues/585)) ([3b18848](https://www.github.com/ethersphere/bee-js/commit/3b18848d07f8eb67b6f190fed09e12617105a933))
+
 ### [3.3.1](https://www.github.com/ethersphere/bee-js/compare/v3.3.0...v3.3.1) (2022-02-16)
 
 This is a patching release that targets especially issues discovered thanks to the introduction of the ESM hybrid build. The main change is that if you want to use the function [`Utils.readableWebToNode()`](https://bee-js.ethswarm.org/docs/api/functions/Utils.readableWebToNode/) in **browser** then you have to polyfill `stream` package with your bundler.
