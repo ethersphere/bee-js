@@ -27,7 +27,7 @@ import type {
   NumberString,
   ExtendedTag,
   PostageBatchBuckets,
-  DebugPostageBatch,
+  PostageBatch,
   Ky,
   TransactionInfo,
   TransactionHash,
@@ -577,7 +577,7 @@ export class BeeDebug {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
    */
-  async getPostageBatch(postageBatchId: BatchId | string, options?: RequestOptions): Promise<DebugPostageBatch> {
+  async getPostageBatch(postageBatchId: BatchId | string, options?: RequestOptions): Promise<PostageBatch> {
     assertRequestOptions(options)
     assertBatchId(postageBatchId)
 
@@ -608,7 +608,7 @@ export class BeeDebug {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps/get)
    */
-  async getAllPostageBatch(options?: RequestOptions): Promise<DebugPostageBatch[]> {
+  async getAllPostageBatch(options?: RequestOptions): Promise<PostageBatch[]> {
     assertRequestOptions(options)
 
     return stamps.getAllPostageBatches(this.getKy(options))

@@ -1,4 +1,4 @@
-import { DebugPostageBatch } from '../types'
+import { PostageBatch } from '../types'
 
 /**
  * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.
@@ -10,6 +10,6 @@ import { DebugPostageBatch } from '../types'
  * @param depth
  * @param bucketDepth
  */
-export function getStampUsage({ utilization, depth, bucketDepth }: DebugPostageBatch): number {
+export function getStampUsage({ utilization, depth, bucketDepth }: PostageBatch): number {
   return utilization / Math.pow(2, depth - bucketDepth)
 }
