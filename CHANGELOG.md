@@ -3,6 +3,16 @@
 ### [3.3.2](https://www.github.com/ethersphere/bee-js/compare/v3.3.1...v3.3.2) (2022-03-21)
 
 
+This is another small release that brings support for [Bee 1.5.0](https://github.com/ethersphere/bee/releases/tag/v1.5.0) and a few small improvements.
+
+### 🔌 Node endpoint
+
+The Bee 1.5.0 introduced new mode called ultra-light mode. This mode has been added to the existing `BeeModes`.
+
+### 🧱 EcmaScript Modules
+
+The bee-js v3.3.0 introduced support for ES Modules. In 3.3.2 we include several fixes to resolve some of the reported issues and broken builds.
+
 ### Bug Fixes
 
 * add cross-env to devDeps ([c559535](https://www.github.com/ethersphere/bee-js/commit/c5595356d6aabe45307afc284dfc4439ca11ad00))
