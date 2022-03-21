@@ -160,6 +160,7 @@ export interface BeeVersions {
 export enum BeeModes {
   FULL = 'full',
   LIGHT = 'light',
+  ULTRA_LIGHT = 'ultra-light',
   DEV = 'dev',
 }
 
