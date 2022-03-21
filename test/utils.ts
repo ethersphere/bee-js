@@ -3,7 +3,7 @@ import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
 
 import ky from 'ky-universal'
 
-import type { Ky, BeeGenericResponse, Reference, Address, BatchId, DebugPostageBatch } from '../src/types'
+import type { Ky, BeeGenericResponse, Reference, Address, BatchId, PostageBatch } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
@@ -346,7 +346,7 @@ export async function getOrCreatePostageBatch(
   amount?: string,
   depth?: number,
   immutable?: boolean,
-): Promise<DebugPostageBatch> {
+): Promise<PostageBatch> {
   // Non-usable stamps are ignored by Bee
   const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKy())).filter(stamp => stamp.usable)
 

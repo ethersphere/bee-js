@@ -1,6 +1,6 @@
 import type {
   BatchId,
-  DebugPostageBatch,
+  PostageBatch,
   Ky,
   NumberString,
   PostageBatchBuckets,
@@ -11,14 +11,14 @@ import { http } from '../../utils/http'
 const STAMPS_ENDPOINT = 'stamps'
 
 interface GetAllStampsResponse {
-  stamps: DebugPostageBatch[]
+  stamps: PostageBatch[]
 }
 
 interface StampResponse {
   batchID: BatchId
 }
 
-export async function getAllPostageBatches(ky: Ky): Promise<DebugPostageBatch[]> {
+export async function getAllPostageBatches(ky: Ky): Promise<PostageBatch[]> {
   const response = await http<GetAllStampsResponse>(ky, {
     method: 'get',
     path: `${STAMPS_ENDPOINT}`,
@@ -28,8 +28,8 @@ export async function getAllPostageBatches(ky: Ky): Promise<DebugPostageBatch[]>
   return response.data.stamps || []
 }
 
-export async function getPostageBatch(ky: Ky, postageBatchId: BatchId): Promise<DebugPostageBatch> {
-  const response = await http<DebugPostageBatch>(ky, {
+export async function getPostageBatch(ky: Ky, postageBatchId: BatchId): Promise<PostageBatch> {
+  const response = await http<PostageBatch>(ky, {
     method: 'get',
     path: `${STAMPS_ENDPOINT}/${postageBatchId}`,
     responseType: 'json',
