@@ -25,7 +25,7 @@ export async function getAllPostageBatches(ky: Ky): Promise<DebugPostageBatch[]>
     responseType: 'json',
   })
 
-  return response.data.stamps || []
+  return response.data.stamps
 }
 
 export async function getPostageBatch(ky: Ky, postageBatchId: BatchId): Promise<DebugPostageBatch> {
