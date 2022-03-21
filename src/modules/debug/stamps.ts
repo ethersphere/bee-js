@@ -1,11 +1,4 @@
-import type {
-  BatchId,
-  PostageBatch,
-  Ky,
-  NumberString,
-  PostageBatchBuckets,
-  PostageBatchOptions,
-} from '../../types'
+import type { BatchId, PostageBatch, Ky, NumberString, PostageBatchBuckets, PostageBatchOptions } from '../../types'
 import { http } from '../../utils/http'
 
 const STAMPS_ENDPOINT = 'stamps'
