@@ -2,6 +2,9 @@
 
 ### [3.3.3](https://www.github.com/ethersphere/bee-js/compare/v3.3.2...v3.3.3) (2022-03-25)
 
+### 🧱 EcmaScript Modules
+
+The bee-js v3.3.0 introduced support for ES Modules. In v3.3.3 we increase the compatibility with older versions of various build systems.
 
 ### Bug Fixes
 
