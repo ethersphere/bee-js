@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.3.3](https://www.github.com/ethersphere/bee-js/compare/v3.3.2...v3.3.3) (2022-03-25)
+
+
+### Bug Fixes
+
+* relax es version requirements ([#601](https://www.github.com/ethersphere/bee-js/issues/601)) ([af10012](https://www.github.com/ethersphere/bee-js/commit/af10012ed2dc0a1fca25f667ba53aae789b852f1))
+
 ### [3.3.2](https://www.github.com/ethersphere/bee-js/compare/v3.3.1...v3.3.2) (2022-03-21)
 
 
