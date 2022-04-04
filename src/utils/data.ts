@@ -1,5 +1,5 @@
 import type { Data } from 'ws'
-import Blob from 'cross-blob'
+import BlobPolyfill from 'fetch-blob'
 import { isNodeReadable, isReadableStream, readableWebToNode } from './stream'
 import { Readable } from '../types'
 
@@ -13,14 +13,14 @@ import { Readable } from '../types'
  */
 export async function prepareData(
   data: string | ArrayBuffer | Uint8Array | Readable,
-): Promise<Blob | ReadableStream<Uint8Array> | never> {
-  if (typeof data === 'string') return new Blob([data], { type: 'text/plain' })
+): Promise<BlobPolyfill | ReadableStream<Uint8Array> | never> {
+  if (typeof data === 'string') return new BlobPolyfill([data], { type: 'text/plain' })
 
   if (data instanceof Uint8Array || data instanceof ArrayBuffer) {
-    return new Blob([data], { type: 'application/octet-stream' })
+    return new BlobPolyfill([data], { type: 'application/octet-stream' })
   }
 
-  if (data instanceof Blob || isNodeReadable(data)) return data as ReadableStream<Uint8Array>
+  if (data instanceof BlobPolyfill || isNodeReadable(data)) return data as ReadableStream<Uint8Array>
 
   if (isReadableStream(data)) {
     return readableWebToNode(data) as unknown as ReadableStream<Uint8Array>
@@ -33,14 +33,12 @@ function isBufferArray(buffer: unknown): buffer is Buffer[] {
   return Array.isArray(buffer) && buffer.length > 0 && buffer.every(data => data instanceof Buffer)
 }
 
-export async function prepareWebsocketData(data: Data | Blob): Promise<Uint8Array> | never {
+export async function prepareWebsocketData(data: Data | BlobPolyfill): Promise<Uint8Array> | never {
   if (typeof data === 'string') return new TextEncoder().encode(data)
 
   if (data instanceof Buffer) return new Uint8Array(data)
 
   if (data instanceof ArrayBuffer) return new Uint8Array(data)
-
-  if (data instanceof Blob) return new Uint8Array(await new Response(data as Blob).arrayBuffer())
 
   if (isBufferArray(data)) return new Uint8Array(Buffer.concat(data))
 

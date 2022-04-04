@@ -1,6 +1,5 @@
 import { isNodeReadable, isReadableStream } from './stream'
 import { Readable } from '../types'
-import Blob from 'cross-blob'
 
 /**
  * Validates input and converts to Uint8Array
