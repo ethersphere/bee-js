@@ -118,7 +118,7 @@
     "husky": "^7.0.4",
     "jest": "^27.4.7",
     "jest-puppeteer": "^6.1.0",
-    "nock": "^13.2.2",
+    "nock": "^13.2.4",
     "prettier": "^2.5.1",
     "puppeteer": "^13.2.0",
     "rimraf": "^3.0.2",
