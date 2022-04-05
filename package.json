@@ -74,7 +74,7 @@
     "ky-universal": "^0.8.2",
     "semver": "^7.3.5",
     "tar-js": "^0.3.0",
-    "utf-8-validate": "^5.0.8",
+    "utf-8-validate": "^5.0.9",
     "web-streams-polyfill": "^4.0.0-beta.1",
     "ws": "^8.5.0"
   },
