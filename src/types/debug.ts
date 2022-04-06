@@ -168,8 +168,30 @@ export enum BeeModes {
  * Information about Bee node and its configuration
  */
 export interface NodeInfo {
+  /**
+   * Indicates whether the node is in a Gateway mode.
+   * Gateway mode is a restricted mode where some features are not available.
+   */
   gatewayMode: boolean
+
+  /**
+   * Indicates in what mode Bee is running.
+   */
   beeMode: BeeModes
+
+  /**
+   * Indicates whether the Bee node has its own deployed chequebook.
+   *
+   * @see [Bee docs - Chequebook](https://docs.ethswarm.org/docs/introduction/terminology#cheques--chequebook)
+   */
+  chequebookEnabled: boolean
+
+  /**
+   * Indicates whether SWAP is enabled for the Bee node.
+   *
+   * @see [Bee docs - SWAP](https://docs.ethswarm.org/docs/introduction/terminology#swap)
+   */
+  swapEnabled: boolean
 }
 
 /**
