@@ -66,8 +66,8 @@
   "dependencies": {
     "@types/readable-stream": "^2.3.13",
     "bufferutil": "^4.0.6",
-    "cross-blob": "^2.0.1",
     "elliptic": "^6.5.4",
+    "fetch-blob": "2.1.2",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
     "ky": "^0.25.1",
@@ -106,6 +106,7 @@
     "babel-jest": "^27.0.5",
     "babel-loader": "^8.2.3",
     "babel-plugin-add-import-extension": "^1.6.0",
+    "cross-blob": "^2.0.1",
     "cross-env": "^7.0.3",
     "debug": "^4.3.4",
     "depcheck": "^1.4.3",
