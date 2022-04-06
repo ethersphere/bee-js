@@ -13,11 +13,11 @@ import { Readable } from '../types'
  */
 export async function prepareData(
   data: string | ArrayBuffer | Uint8Array | Readable,
-): Promise<BlobPolyfill | ReadableStream<Uint8Array> | never> {
-  if (typeof data === 'string') return new BlobPolyfill([data], { type: 'text/plain' })
+): Promise<Blob | ReadableStream<Uint8Array> | never> {
+  if (typeof data === 'string') return new BlobPolyfill([data], { type: 'text/plain' }) as unknown as Blob
 
   if (data instanceof Uint8Array || data instanceof ArrayBuffer) {
-    return new BlobPolyfill([data], { type: 'application/octet-stream' })
+    return new BlobPolyfill([data], { type: 'application/octet-stream' }) as unknown as Blob
   }
 
   if (data instanceof BlobPolyfill || isNodeReadable(data)) return data as ReadableStream<Uint8Array>
