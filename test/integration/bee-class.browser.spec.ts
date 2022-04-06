@@ -152,11 +152,12 @@ describe('Bee class - in browser', () => {
     })
 
     it('should download file with stream', async () => {
-      const result = await bzz.uploadFile(beeKy(), 'hello awesome world', batchId)
-
       const content = (await page.evaluate(
-        async (BEE_URL, reference) => {
+        async (BEE_URL, batchId) => {
           const bee = new window.BeeJs.Bee(BEE_URL)
+
+          const { reference } = await bee.uploadFile(batchId, 'hello awesome world')
+
           const readable = await bee.downloadReadableFile(reference)
 
           const reader = readable.data.getReader()
@@ -177,7 +178,7 @@ describe('Bee class - in browser', () => {
           return new TextDecoder().decode(await blob.arrayBuffer())
         },
         BEE_URL,
-        result.reference,
+        batchId,
       )) as string
 
       expect(content).toEqual('hello awesome world')

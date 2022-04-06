@@ -17,6 +17,7 @@
     "babel-jest",
     "babel-loader",
     "bufferutil",
+    "cross-blob",
     "debug",
     "husky",
     "jest-puppeteer",
