@@ -18,3 +18,8 @@ jobs:
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - uses: apexskier/github-release-commenter@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.REPO_GHA_PAT }}
+          comment-template: |
+            Release {release_link} addresses this.
