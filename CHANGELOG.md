@@ -1,5 +1,14 @@
 # Changelog
 
+### [3.3.4](https://www.github.com/ethersphere/bee-js/compare/v3.3.3...v3.3.4) (2022-04-12)
+
+This is a small patch release that brings mainly support for the new Bee 1.5.1 and two small bug fixes.
+
+### Bug Fixes
+
+* nodeinfo interface ([#622](https://www.github.com/ethersphere/bee-js/issues/622)) ([6a70cad](https://www.github.com/ethersphere/bee-js/commit/6a70cade07007a20fe442ef62306f1a2b3a84733))
+* remove browser blob polyfill for service workers support ([#614](https://www.github.com/ethersphere/bee-js/issues/614)) ([7c5c78d](https://www.github.com/ethersphere/bee-js/commit/7c5c78ddb1598e43c39441b1f9108bd00e12dd3c))
+
 ### [3.3.3](https://www.github.com/ethersphere/bee-js/compare/v3.3.2...v3.3.3) (2022-03-25)
 
 ### 🧱 EcmaScript Modules
