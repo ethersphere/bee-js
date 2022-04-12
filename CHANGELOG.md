@@ -2,6 +2,7 @@
 
 ### [3.3.4](https://www.github.com/ethersphere/bee-js/compare/v3.3.3...v3.3.4) (2022-04-12)
 
+This is a small patch release that brings mainly support for the new Bee 1.5.1 and two small bug fixes.
 
 ### Bug Fixes
 
