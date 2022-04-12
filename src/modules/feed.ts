@@ -16,14 +16,28 @@ export interface FeedUpdateOptions {
    * Specifies the start date as unix time stamp
    */
   at?: number
+
   /**
    * Can be 'epoch' or 'sequence' (default: 'sequence')
    */
   type?: FeedType
+
+  /**
+   * Fetch specific previous Feed's update (default fetches latest update)
+   */
+  index?: string
 }
 
 interface FeedUpdateHeaders {
+  /**
+   * The current feed's index
+   */
   feedIndex: string
+
+  /**
+   * The feed's index for next update.
+   * Only set for the latest update. If update is fetched using previous index, then this is an empty string.
+   */
   feedIndexNext: string
 }
 export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
@@ -86,7 +100,7 @@ function readFeedUpdateHeaders(headers: Headers): FeedUpdateHeaders {
  * @param topic       Topic in hex
  * @param options     Additional options, like index, at, type
  */
-export async function fetchFeedUpdate(
+export async function fetchLatestFeedUpdate(
   ky: Ky,
   owner: HexEthAddress,
   topic: Topic,

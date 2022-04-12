@@ -1,4 +1,4 @@
-import { fetchFeedUpdate } from '../../../src/modules/feed'
+import { fetchLatestFeedUpdate } from '../../../src/modules/feed'
 import { hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeKy, ERR_TIMEOUT, getPostageBatch, testIdentity } from '../../utils'
 import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../../src/feed'
@@ -56,7 +56,7 @@ describe('feed', () => {
     const uploadedChunk = await uploadChunk(BEE_KY, 0)
     await tryUploadFeedUpdate(BEE_KY, signer, topic, 0, uploadedChunk)
 
-    const feedUpdate = await fetchFeedUpdate(BEE_KY, owner, topic)
+    const feedUpdate = await fetchLatestFeedUpdate(BEE_KY, owner, topic)
 
     expect(feedUpdate.feedIndex).toEqual('0000000000000000')
     expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
