@@ -1,31 +1,31 @@
 import { fetchLatestFeedUpdate } from '../../../src/modules/feed'
 import { hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeKy, ERR_TIMEOUT, getPostageBatch, testIdentity } from '../../utils'
-import { ChunkReference, downloadFeedUpdate, findNextIndex, Index, uploadFeedUpdate } from '../../../src/feed'
+import { downloadFeedUpdate, findNextIndex, Index, updateFeed } from '../../../src/feed'
 import { Bytes, assertBytes } from '../../../src/utils/bytes'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import * as chunkAPI from '../../../src/modules/chunk'
-import type { Ky, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
+import type { BytesReference, Ky, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
 import { BeeResponseError } from '../../../src'
 
 function makeChunk(index: number) {
   return makeContentAddressedChunk(new Uint8Array([index]))
 }
 
-async function uploadChunk(ky: Ky, index: number): Promise<ChunkReference> {
+async function uploadChunk(ky: Ky, index: number): Promise<BytesReference> {
   const chunk = makeChunk(index)
   const reference = await chunkAPI.upload(ky, chunk.data, getPostageBatch())
 
-  return hexToBytes(reference) as ChunkReference
+  return hexToBytes(reference) as BytesReference
 }
 
 // FIXME helper function for setting up test state for testing finding feed updates
 // it is not intended as a replacement in tests for `uploadFeedUpdate`
 // https://github.com/ethersphere/bee-js/issues/154
-async function tryUploadFeedUpdate(ky: Ky, signer: Signer, topic: Topic, index: Index, reference: ChunkReference) {
+async function tryUploadFeedUpdate(ky: Ky, signer: Signer, topic: Topic, index: Index, reference: BytesReference) {
   try {
-    await uploadFeedUpdate(ky, signer, topic, index, reference, getPostageBatch())
+    await updateFeed(ky, signer, topic, reference, getPostageBatch(), undefined, index)
   } catch (e) {
     if (e instanceof BeeResponseError && e.status === 409) {
       // ignore conflict errors when uploading the same feed update twice

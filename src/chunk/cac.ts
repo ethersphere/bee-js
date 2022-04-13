@@ -1,7 +1,7 @@
-import { BrandedType } from '../types'
+import { BrandedType, PlainBytesReference } from '../types'
 import { BeeError } from '../utils/error'
 import { bmtHash } from './bmt'
-import { Bytes, bytesEqual, FlexBytes, flexBytesAtOffset, assertFlexBytes } from '../utils/bytes'
+import { assertFlexBytes, Bytes, bytesEqual, FlexBytes, flexBytesAtOffset } from '../utils/bytes'
 import { serializeBytes } from './serialize'
 import { makeSpan, SPAN_SIZE } from './span'
 
@@ -10,8 +10,6 @@ export const MAX_PAYLOAD_SIZE = 4096
 
 const CAC_SPAN_OFFSET = 0
 const CAC_PAYLOAD_OFFSET = CAC_SPAN_OFFSET + SPAN_SIZE
-
-export type ChunkAddress = Bytes<32>
 
 /**
  * General chunk interface for Swarm
@@ -27,7 +25,7 @@ export interface Chunk {
   span(): Bytes<8>
   payload(): FlexBytes<1, 4096>
 
-  address(): ChunkAddress
+  address(): PlainBytesReference
 }
 
 type ValidChunkData = BrandedType<Uint8Array, 'ValidChunkData'>
@@ -56,7 +54,7 @@ export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
  * @param data          The chunk data
  * @param chunkAddress  The address of the chunk
  */
-export function isValidChunkData(data: unknown, chunkAddress: ChunkAddress): data is ValidChunkData {
+export function isValidChunkData(data: unknown, chunkAddress: PlainBytesReference): data is ValidChunkData {
   if (!(data instanceof Uint8Array)) return false
 
   const address = bmtHash(data)
@@ -72,7 +70,7 @@ export function isValidChunkData(data: unknown, chunkAddress: ChunkAddress): dat
  *
  * @returns a valid content addressed chunk or throws error
  */
-export function assertValidChunkData(data: unknown, chunkAddress: ChunkAddress): asserts data is ValidChunkData {
+export function assertValidChunkData(data: unknown, chunkAddress: PlainBytesReference): asserts data is ValidChunkData {
   if (!isValidChunkData(data, chunkAddress)) {
     throw new BeeError('Address of content address chunk does not match given data!')
   }

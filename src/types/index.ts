@@ -1,5 +1,5 @@
 import type { Identifier, SingleOwnerChunk } from '../chunk/soc'
-import type { ChunkReference, FeedUploadOptions } from '../feed'
+import type { FeedUploadOptions } from '../feed'
 import type { FeedType } from '../feed/type'
 import type { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
 import type { Bytes } from '../utils/bytes'
@@ -48,6 +48,8 @@ export const STAMPS_DEPTH_MAX = 255
 export const TAGS_LIMIT_MIN = 1
 export const TAGS_LIMIT_MAX = 1000
 
+export const FEED_INDEX_HEX_LENGTH = 16
+
 /**
  * Generic reference that can be either non-encrypted reference which is a hex string of length 64 or encrypted
  * reference which is a hex string of length 128.
@@ -57,6 +59,11 @@ export const TAGS_LIMIT_MAX = 1000
  * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
  */
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
+
+export type PlainBytesReference = Bytes<typeof REFERENCE_BYTES_LENGTH>
+export type EncryptedBytesReference = Bytes<typeof ENCRYPTED_REFERENCE_BYTES_LENGTH>
+export type BytesReference = PlainBytesReference | EncryptedBytesReference
+
 export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 
 export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
@@ -421,7 +428,7 @@ export interface FeedWriter extends FeedReader {
    */
   upload(
     postageBatchId: string | BatchId,
-    reference: ChunkReference | Reference,
+    reference: BytesReference | Reference,
     options?: FeedUploadOptions,
   ): Promise<Reference>
 }
