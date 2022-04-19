@@ -1,7 +1,7 @@
 import { keccak256Hash } from '../utils/hash'
 import { serializeBytes } from '../chunk/serialize'
 import { Identifier, uploadSingleOwnerChunkData, makeSingleOwnerChunkFromData } from '../chunk/soc'
-import { FeedUpdateOptions, fetchFeedUpdate } from '../modules/feed'
+import { FeedUpdateOptions, fetchLatestFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
 import {
   REFERENCE_HEX_LENGTH,
   Reference,
@@ -38,6 +38,7 @@ export interface Epoch {
   time: number
   level: number
 }
+
 export type IndexBytes = Bytes<8>
 export type Index = number | Epoch | IndexBytes | string
 
@@ -110,7 +111,7 @@ export async function findNextIndex(
   options?: FeedUpdateOptions,
 ): Promise<HexString<typeof INDEX_HEX_LENGTH>> {
   try {
-    const feedUpdate = await fetchFeedUpdate(ky, owner, topic, options)
+    const feedUpdate = await fetchLatestFeedUpdate(ky, owner, topic, options)
 
     return makeHexString(feedUpdate.feedIndexNext, INDEX_HEX_LENGTH)
   } catch (e) {
@@ -165,13 +166,23 @@ export async function downloadFeedUpdate(ky: Ky, owner: EthAddress, topic: Topic
 }
 
 export function makeFeedReader(ky: Ky, type: FeedType, topic: Topic, owner: HexEthAddress): FeedReader {
-  const download = async (options?: FeedUpdateOptions) => fetchFeedUpdate(ky, owner, topic, { ...options, type })
-
   return {
     type,
     owner,
     topic,
-    download,
+    async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
+      if (!options?.index) {
+        return fetchLatestFeedUpdate(ky, owner, topic, { ...options, type })
+      }
+
+      const update = await downloadFeedUpdate(ky, hexToBytes(owner), topic, options.index)
+
+      return {
+        reference: bytesToHex(update.reference),
+        feedIndex: options.index,
+        feedIndexNext: '',
+      }
+    },
   }
 }
 

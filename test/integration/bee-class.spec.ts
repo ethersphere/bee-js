@@ -1,4 +1,4 @@
-import { Bee, BeeDebug, Collection, PssSubscription } from '../../src'
+import { Bee, BeeDebug, BeeResponseError, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import { ChunkReference } from '../../src/feed'
@@ -444,11 +444,12 @@ describe('Bee class', () => {
   describe('feeds', () => {
     const owner = testIdentity.address
     const signer = testIdentity.privateKey
-    const topic = randomByteArray(32, Date.now())
 
     it(
-      'feed writer with two updates',
+      'should write two updates',
       async () => {
+        const topic = randomByteArray(32, Date.now())
+
         const feed = bee.makeFeedWriter('sequence', topic, signer)
         const referenceZero = makeBytes(32) // all zeroes
 
@@ -473,8 +474,74 @@ describe('Bee class', () => {
     )
 
     it(
+      'should get specific feed update',
+      async () => {
+        const topic = randomByteArray(32, Date.now())
+
+        const feed = bee.makeFeedWriter('sequence', topic, signer)
+        const referenceZero = makeBytes(32) // all zeroes
+
+        await feed.upload(getPostageBatch(), referenceZero)
+
+        const firstLatestUpdate = await feed.download()
+        expect(firstLatestUpdate.reference).toEqual(bytesToHex(referenceZero))
+        expect(firstLatestUpdate.feedIndex).toEqual('0000000000000000')
+
+        const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
+        await feed.upload(getPostageBatch(), referenceOne)
+
+        const secondLatestUpdate = await feed.download()
+        expect(secondLatestUpdate.reference).toEqual(bytesToHex(referenceOne))
+        expect(secondLatestUpdate.feedIndex).toEqual('0000000000000001')
+
+        const referenceTwo = new Uint8Array([
+          ...new Uint8Array([1]),
+          ...new Uint8Array([1]),
+          ...new Uint8Array(30),
+        ]) as ChunkReference
+        await feed.upload(getPostageBatch(), referenceTwo)
+
+        const thirdLatestUpdate = await feed.download()
+        expect(thirdLatestUpdate.reference).toEqual(bytesToHex(referenceTwo))
+        expect(thirdLatestUpdate.feedIndex).toEqual('0000000000000002')
+
+        const sendBackFetchedUpdate = await feed.download({ index: '0000000000000001' })
+        expect(sendBackFetchedUpdate.reference).toEqual(bytesToHex(referenceOne))
+        expect(sendBackFetchedUpdate.feedIndex).toEqual('0000000000000001')
+      },
+      FEED_TIMEOUT,
+    )
+    it(
+      'should fail fetching non-existing index',
+      async () => {
+        const topic = randomByteArray(32, Date.now())
+
+        const feed = bee.makeFeedWriter('sequence', topic, signer)
+        const referenceZero = makeBytes(32) // all zeroes
+        await feed.upload(getPostageBatch(), referenceZero)
+
+        const firstLatestUpdate = await feed.download()
+        expect(firstLatestUpdate.reference).toEqual(bytesToHex(referenceZero))
+        expect(firstLatestUpdate.feedIndex).toEqual('0000000000000000')
+
+        try {
+          await feed.download({ index: '0000000000000001' })
+          throw new Error('Should fail')
+        } catch (err) {
+          const e = err as BeeResponseError
+
+          expect(e.status).toEqual(404)
+          expect(e.responseBody).toContain('chunk not found')
+        }
+      },
+      FEED_TIMEOUT,
+    )
+
+    it(
       'create feeds manifest and retrieve the data',
       async () => {
+        const topic = randomByteArray(32, Date.now())
+
         const directoryStructure: Collection<Uint8Array> = [
           {
             path: 'index.html',
