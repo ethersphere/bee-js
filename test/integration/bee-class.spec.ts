@@ -562,6 +562,63 @@ describe('Bee class', () => {
       FEED_TIMEOUT,
     )
 
+    describe('isFeedRetrievable', () => {
+      const existingTopic = randomByteArray(32, Date.now())
+      const updates: { index: string; reference: BytesReference }[] = [
+        { index: '0000000000000000', reference: makeBytes(32) },
+        { index: '0000000000000001', reference: Uint8Array.from([1, ...makeBytes(31)]) as BytesReference },
+        { index: '0000000000000002', reference: Uint8Array.from([1, 1, ...makeBytes(30)]) as BytesReference },
+      ]
+
+      beforeAll(async () => {
+        const feed = bee.makeFeedWriter('sequence', existingTopic, signer)
+
+        await feed.upload(getPostageBatch(), updates[0].reference)
+        await feed.upload(getPostageBatch(), updates[1].reference)
+        await feed.upload(getPostageBatch(), updates[2].reference)
+      }, FEED_TIMEOUT)
+
+      it('should return false if no feed updates', async () => {
+        const nonExistingTopic = randomByteArray(32, Date.now())
+
+        await expect(bee.isFeedRetrievable('sequence', owner, nonExistingTopic)).resolves.toEqual(false)
+      })
+
+      it(
+        'should return true for latest query for existing topic',
+        async () => {
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic)).resolves.toEqual(true)
+        },
+        FEED_TIMEOUT,
+      )
+
+      it(
+        'should return true for index based query for existing topic',
+        async () => {
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000000')).resolves.toEqual(
+            true,
+          )
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000001')).resolves.toEqual(
+            true,
+          )
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000002')).resolves.toEqual(
+            true,
+          )
+        },
+        FEED_TIMEOUT,
+      )
+
+      it(
+        'should return false for index based query for existing topic but non-existing index',
+        async () => {
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000005')).resolves.toEqual(
+            false,
+          )
+        },
+        FEED_TIMEOUT,
+      )
+    })
+
     describe('topic', () => {
       it('create feed topic', () => {
         const topic = bee.makeFeedTopic('swarm.eth:application:handshake')

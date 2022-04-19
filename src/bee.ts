@@ -7,10 +7,10 @@ import * as chunk from './modules/chunk'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
 
-import { BeeArgumentError, BeeError } from './utils/error'
+import { BeeArgumentError, BeeError, BeeResponseError } from './utils/error'
 import { prepareWebsocketData } from './utils/data'
 import { fileArrayBuffer, isFile } from './utils/file'
-import { makeFeedReader, makeFeedWriter } from './feed'
+import { Index, IndexBytes, makeFeedReader, makeFeedWriter } from './feed'
 import { makeSigner } from './chunk/signer'
 import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
@@ -67,6 +67,7 @@ import type {
 } from './types'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { isReadable } from './utils/stream'
+import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
 
 /**
  * The main component that abstracts operations available on the main Bee API.
@@ -608,6 +609,55 @@ export class Bee {
     assertReference(reference)
 
     return stewardship.isRetrievable(this.getKy(options), reference)
+  }
+
+  /**
+   * Functions that validates if feed is retrievable in the network.
+   *
+   * If no index is passed then it check for "latest" update, which is a weaker guarantee as nobody can be really
+   * sure what is the "latest" update.
+   *
+   * If index is passed then it validates all previous sequence index chunks if they are available as they are required
+   * to correctly resolve the feed upto the given index update.
+   *
+   * @param type
+   * @param owner
+   * @param topic
+   * @param index
+   * @param options
+   */
+  async isFeedRetrievable(
+    type: FeedType,
+    owner: EthAddress | Uint8Array | string,
+    topic: Topic | Uint8Array | string,
+    index?: Index | number | IndexBytes | string,
+    options?: RequestOptions,
+  ): Promise<boolean> {
+    const canonicalOwner = makeEthAddress(owner)
+    const canonicalTopic = makeTopic(topic)
+
+    if (!index) {
+      try {
+        await this.makeFeedReader(type, canonicalTopic, canonicalOwner).download()
+
+        return true
+      } catch (e) {
+        const err = e as BeeResponseError
+
+        // Only if the error is "not-found" then we return false otherwise we re-throw the error
+        if (err?.status === 404) {
+          return false
+        }
+
+        throw e
+      }
+    }
+
+    if (type !== 'sequence') {
+      throw new BeeError('Only Sequence type of Feeds is supported at the moment')
+    }
+
+    return areAllSequentialFeedsUpdateRetrievable(this, canonicalOwner, canonicalTopic, index, options)
   }
 
   /**
