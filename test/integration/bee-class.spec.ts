@@ -1,7 +1,6 @@
-import { Bee, BeeDebug, BeeResponseError, Collection, PssSubscription } from '../../src'
+import { Bee, BeeDebug, BeeResponseError, BytesReference, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
-import { ChunkReference } from '../../src/feed'
 import * as bzz from '../../src/modules/bzz'
 import { REFERENCE_HEX_LENGTH } from '../../src/types'
 import { makeBytes } from '../../src/utils/bytes'
@@ -459,7 +458,7 @@ describe('Bee class', () => {
         expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceZero))
         expect(firstUpdateReferenceResponse.feedIndex).toEqual('0000000000000000')
 
-        const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
+        const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as BytesReference
 
         await feed.upload(getPostageBatch(), referenceOne)
         const secondUpdateReferenceResponse = await feed.download()
@@ -487,7 +486,7 @@ describe('Bee class', () => {
         expect(firstLatestUpdate.reference).toEqual(bytesToHex(referenceZero))
         expect(firstLatestUpdate.feedIndex).toEqual('0000000000000000')
 
-        const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as ChunkReference
+        const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as BytesReference
         await feed.upload(getPostageBatch(), referenceOne)
 
         const secondLatestUpdate = await feed.download()
@@ -498,7 +497,7 @@ describe('Bee class', () => {
           ...new Uint8Array([1]),
           ...new Uint8Array([1]),
           ...new Uint8Array(30),
-        ]) as ChunkReference
+        ]) as BytesReference
         await feed.upload(getPostageBatch(), referenceTwo)
 
         const thirdLatestUpdate = await feed.download()

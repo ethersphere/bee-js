@@ -3,11 +3,18 @@ import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
 
 import ky from 'ky-universal'
 
-import type { Ky, BeeGenericResponse, Reference, Address, BatchId, PostageBatch } from '../src/types'
+import type {
+  Ky,
+  BeeGenericResponse,
+  Reference,
+  Address,
+  BatchId,
+  PostageBatch,
+  PlainBytesReference,
+} from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
-import { ChunkAddress } from '../src/chunk/cac'
 import { assertBytes } from '../src/utils/bytes'
 import * as stamps from '../src/modules/debug/stamps'
 
@@ -278,7 +285,7 @@ export function beePeerDebugKy(): Ky {
  *
  * @param address  Swarm address of chunk
  */
-export async function tryDeleteChunkFromLocalStorage(address: string | ChunkAddress): Promise<void> {
+export async function tryDeleteChunkFromLocalStorage(address: string | PlainBytesReference): Promise<void> {
   if (typeof address !== 'string') {
     assertBytes(address, 32)
     address = bytesToHex(address)

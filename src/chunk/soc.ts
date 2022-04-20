@@ -5,15 +5,8 @@ import { keccak256Hash } from '../utils/hash'
 import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
 import { BeeError } from '../utils/error'
-import {
-  Chunk,
-  ChunkAddress,
-  makeContentAddressedChunk,
-  MAX_PAYLOAD_SIZE,
-  MIN_PAYLOAD_SIZE,
-  assertValidChunkData,
-} from './cac'
-import { UploadOptions, Signature, Signer, BatchId, Reference, Ky } from '../types'
+import { Chunk, makeContentAddressedChunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, assertValidChunkData } from './cac'
+import { UploadOptions, Signature, Signer, BatchId, Reference, Ky, PlainBytesReference } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
@@ -63,7 +56,7 @@ function recoverChunkOwner(data: Uint8Array): EthAddress {
  *
  * @returns a single owner chunk or throws error
  */
-export function makeSingleOwnerChunkFromData(data: Uint8Array, address: ChunkAddress): SingleOwnerChunk {
+export function makeSingleOwnerChunkFromData(data: Uint8Array, address: PlainBytesReference): SingleOwnerChunk {
   const ownerAddress = recoverChunkOwner(data)
   const identifier = bytesAtOffset(data, SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE)
   const socAddress = keccak256Hash(identifier, ownerAddress)
@@ -87,7 +80,7 @@ export function makeSingleOwnerChunkFromData(data: Uint8Array, address: ChunkAdd
   }
 }
 
-export function makeSOCAddress(identifier: Identifier, address: EthAddress): ChunkAddress {
+export function makeSOCAddress(identifier: Identifier, address: EthAddress): PlainBytesReference {
   return keccak256Hash(identifier, address)
 }
 
