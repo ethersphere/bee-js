@@ -6,7 +6,7 @@ import {
   REFERENCE_BYTES_LENGTH,
   REFERENCE_HEX_LENGTH,
 } from '../types'
-import { bytesAtOffset } from './bytes'
+import { bytesAtOffset, hasBytesAtOffset } from './bytes'
 import { hexToBytes, makeHexString } from './hex'
 
 export function makeBytesReference(reference: Uint8Array | BytesReference | Reference, offset = 0): BytesReference {
@@ -31,9 +31,9 @@ export function makeBytesReference(reference: Uint8Array | BytesReference | Refe
       return hexToBytes<typeof ENCRYPTED_REFERENCE_BYTES_LENGTH>(hexReference)
     }
   } else if (reference instanceof Uint8Array) {
-    try {
+    if (hasBytesAtOffset(reference, offset, ENCRYPTED_REFERENCE_BYTES_LENGTH)) {
       return bytesAtOffset(reference, offset, ENCRYPTED_REFERENCE_BYTES_LENGTH)
-    } catch (e) {
+    } else if (hasBytesAtOffset(reference, offset, REFERENCE_BYTES_LENGTH)) {
       return bytesAtOffset(reference, offset, REFERENCE_BYTES_LENGTH)
     }
   }

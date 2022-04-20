@@ -36,6 +36,22 @@ export function isBytes<Length extends number>(b: unknown, length: Length): b is
 }
 
 /**
+ * Function that verifies if passed data are Bytes and if the array has "length" number of bytes under given offset.
+ * @param data
+ * @param offset
+ * @param length
+ */
+export function hasBytesAtOffset(data: unknown, offset: number, length: number): boolean {
+  if (!(data instanceof Uint8Array)) {
+    throw new TypeError('Data has to an Uint8Array!')
+  }
+
+  const offsetBytes = data.slice(offset, offset + length)
+
+  return isBytes(offsetBytes, length)
+}
+
+/**
  * Verifies if a byte array has a certain length
  *
  * @param b       The byte array
