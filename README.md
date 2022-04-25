@@ -90,14 +90,6 @@ console.log(data.text()) // prints 'Bee is awesome!'
 
 You can find the full documentation [here](https://bee-js.ethswarm.org/docs). The API reference documentation can be found [here](https://bee-js.ethswarm.org/docs/api).
 
-You can generate API docs locally with:
-
-```sh
-npm run docs
-```
-
-The generated docs can be viewed in browser by opening `./docs/index.html`
-
 ## Contribute
 
 There are some ways you can make this module better:
