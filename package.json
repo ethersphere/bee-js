@@ -79,7 +79,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.17.0",
-    "@babel/core": "^7.14.6",
+    "@babel/core": "^7.17.9",
     "@babel/plugin-proposal-class-properties": "^7.16.7",
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
@@ -96,7 +96,7 @@
     "@types/glob": "^7.2.0",
     "@types/jest": "^26.0.23",
     "@types/jest-environment-puppeteer": "^4.4.1",
-    "@types/node": "^15.12.4",
+    "@types/node": "^17.0.29",
     "@types/puppeteer": "^5.4.5",
     "@types/semver": "^7.3.9",
     "@types/ws": "^7.4.5",
