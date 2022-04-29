@@ -37,6 +37,10 @@ export interface Epoch {
   level: number
 }
 
+/**
+ * Bytes of Feed's Index.
+ * For Sequential Feeds this is numeric value in big-endian.
+ */
 export type IndexBytes = Bytes<8>
 export type Index = number | Epoch | IndexBytes | string
 
