@@ -47,7 +47,11 @@ jobs:
       # Setup Bee environment
       - name: Start Bee Factory environment
         run: |
-          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
+          git clone --depth=2 https://github.com/ethersphere/bee-factory.git
+
+          # Temporary until we update the orchestration mechanism
+          cd bee-factory && git checkout 9ac5b11421982474e1fe0c23751f296b0f7113ee && cd ..
+
           chmod +x -R ./bee-factory/scripts
           ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 
@@ -97,7 +101,11 @@ jobs:
       # Setup Bee environment
       - name: Start Bee Factory environment
         run: |
-          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
+          git clone --depth=2 https://github.com/ethersphere/bee-factory.git
+
+          # Temporary until we update the orchestration mechanism
+          cd bee-factory && git checkout 9ac5b11421982474e1fe0c23751f296b0f7113ee && cd ..
+
           chmod +x -R ./bee-factory/scripts
           ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
 
