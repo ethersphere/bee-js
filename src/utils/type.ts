@@ -1,3 +1,5 @@
+import uts46 from 'idna-uts46-hx'
+
 import {
   Address,
   ADDRESS_HEX_LENGTH,
@@ -24,6 +26,7 @@ import {
   RequestOptions,
   PostageBatchOptions,
   CashoutOptions,
+  ReferenceOrEns,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
@@ -98,6 +101,31 @@ export function assertReference(value: unknown): asserts value is Reference {
   } catch (e) {
     assertHexString(value, ENCRYPTED_REFERENCE_HEX_LENGTH)
   }
+}
+
+export function assertReferenceOrEns(value: unknown): asserts value is ReferenceOrEns {
+  if (typeof value !== 'string') {
+    throw new TypeError('ReferenceOrEns has to be a string!')
+  }
+
+  if (value.endsWith('.eth')) {
+    // Validation of ENS names as described at https://docs.ens.domains/contract-api-reference/name-processing
+    // and also implemented at https://github.com/ensdomains/eth-ens-namehash
+    // The `idna-uts46-hx` package is used directly here as the `eth-ens-namehash` uses Buffer without support for browser.
+    // The bellow function will throw an error when invalid name is supplied (mainly because of invalid characters)
+    try {
+      uts46.toAscii(value, { useStd3ASCII: true, transitional: false, verifyDnsLength: true })
+    } catch (e) {
+      throw new BeeArgumentError(
+        'ReferenceOrEns seems to be an ENS domain that contains invalid characters! ' + e,
+        value,
+      )
+    }
+
+    return
+  }
+
+  assertReference(value)
 }
 
 export function assertAddress(value: unknown): asserts value is Address {

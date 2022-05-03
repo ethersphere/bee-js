@@ -68,6 +68,7 @@
     "bufferutil": "^4.0.6",
     "elliptic": "^6.5.4",
     "fetch-blob": "2.1.2",
+    "idna-uts46-hx": "^4.0.0",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
     "ky": "^0.25.1",
