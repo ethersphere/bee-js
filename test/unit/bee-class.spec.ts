@@ -129,11 +129,18 @@ describe('Bee class', () => {
       return bee.downloadData(testChunkHash, input as RequestOptions)
     })
 
-    it('should accept valid ENS', async () => {
+    it('should accept valid ENS domain', async () => {
       downloadDataMock(testJsonEns).reply(200, testJsonStringPayload)
 
       const bee = new Bee(MOCK_SERVER_URL)
       expect((await bee.downloadData(testJsonEns)).text()).toEqual(testJsonStringPayload)
+    })
+
+    it('should accept valid ENS subdomain', async () => {
+      downloadDataMock(`subdomain.${testJsonEns}`).reply(200, testJsonStringPayload)
+
+      const bee = new Bee(MOCK_SERVER_URL)
+      expect((await bee.downloadData(`subdomain.${testJsonEns}`)).text()).toEqual(testJsonStringPayload)
     })
   })
 

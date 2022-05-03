@@ -233,7 +233,6 @@ export function testReferenceOrEnsAssertions(executor: (input: unknown) => void)
     await expect(() => executor(null)).rejects.toThrow(TypeError)
     await expect(() => executor(undefined)).rejects.toThrow(TypeError)
     await expect(() => executor([])).rejects.toThrow(TypeError)
-    await expect(() => executor('')).rejects.toThrow(TypeError)
 
     // Not an valid hexstring (ZZZ)
     await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
@@ -251,10 +250,12 @@ export function testReferenceOrEnsAssertions(executor: (input: unknown) => void)
     )
 
     // ENS with invalid characters
-    await expect(() => executor('⶿.ß‍.eth')).rejects.toThrow(BeeArgumentError)
-
-    // ENS with invalid characters
-    await expect(() => executor('some space.eth')).rejects.toThrow(BeeArgumentError)
+    await expect(() => executor('')).rejects.toThrow(TypeError)
+    await expect(() => executor('⶿.ß‍.eth')).rejects.toThrow(TypeError)
+    await expect(() => executor('some space.eth')).rejects.toThrow(TypeError)
+    await expect(() => executor('-example.eth')).rejects.toThrow(TypeError)
+    await expect(() => executor('example-.eth')).rejects.toThrow(TypeError)
+    await expect(() => executor('http://example.eth')).rejects.toThrow(TypeError)
   })
 }
 

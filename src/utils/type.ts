@@ -30,7 +30,7 @@ import {
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
-import { assertHexString, assertPrefixedHexString } from './hex'
+import { assertHexString, assertPrefixedHexString, isHexString } from './hex'
 import { isReadable } from './stream'
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
@@ -108,24 +108,23 @@ export function assertReferenceOrEns(value: unknown): asserts value is Reference
     throw new TypeError('ReferenceOrEns has to be a string!')
   }
 
-  if (value.endsWith('.eth')) {
-    // Validation of ENS names as described at https://docs.ens.domains/contract-api-reference/name-processing
-    // and also implemented at https://github.com/ensdomains/eth-ens-namehash
-    // The `idna-uts46-hx` package is used directly here as the `eth-ens-namehash` uses Buffer without support for browser.
-    // The bellow function will throw an error when invalid name is supplied (mainly because of invalid characters)
-    try {
-      uts46.toAscii(value, { useStd3ASCII: true, transitional: false, verifyDnsLength: true })
-    } catch (e) {
-      throw new BeeArgumentError(
-        'ReferenceOrEns seems to be an ENS domain that contains invalid characters! ' + e,
-        value,
-      )
-    }
+  if (isHexString(value)) {
+    assertReference(value)
 
     return
   }
 
-  assertReference(value)
+  // Validation of ENS names as described at https://docs.ens.domains/contract-api-reference/name-processing
+  // and also implemented at https://github.com/ensdomains/eth-ens-namehash
+  // The `idna-uts46-hx` package is used directly here as the `eth-ens-namehash` uses Buffer without support for browser.
+  // The bellow function will throw an error when invalid name is supplied (mainly because of invalid characters)
+  try {
+    uts46.toAscii(value, { useStd3ASCII: true, transitional: false, verifyDnsLength: true })
+  } catch (e) {
+    throw new TypeError(
+      'ReferenceOrEns is not valid Reference, but also for ENS domain contains invalid characters: ' + e,
+    )
+  }
 }
 
 export function assertAddress(value: unknown): asserts value is Address {
