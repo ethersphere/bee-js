@@ -9,12 +9,6 @@ on:
       - '**'
 
 env:
-  BEE_VERSION: '1.5.1-d0a77598-stateful'
-  BLOCKCHAIN_VERSION: '1.2.0-for-1.5.1-d0a77598-stateful'
-  BEE_ENV_PREFIX: 'swarm-test'
-  BEE_IMAGE_PREFIX: 'docker.pkg.github.com/ethersphere/bee-factory'
-  COMMIT_VERSION_TAG: 'false'
-  WORKERS: 4
   BEE_API_URL: 'http://127.0.0.1:1633'
   BEE_PEER_API_URL: 'http://127.0.0.1:11633'
   BEE_DEBUG_API_URL: 'http://127.0.0.1:1635'
@@ -44,13 +38,6 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
 
-      # Setup Bee environment
-      - name: Start Bee Factory environment
-        run: |
-          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
-          chmod +x -R ./bee-factory/scripts
-          ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
-
       ## Try getting the node modules from cache, if failed npm ci
       - uses: actions/cache@v2
         id: cache-npm
@@ -64,6 +51,10 @@ jobs:
       - name: Install npm deps
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm ci
+
+      # Start Bee Factory environment
+      - name: Start Bee Factory environment
+        run: npm run bee -- --detach
 
       - name: Run unit and integration tests for node
         run: npm run test:node -- --detectOpenHandles
@@ -94,13 +85,6 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
 
-      # Setup Bee environment
-      - name: Start Bee Factory environment
-        run: |
-          git clone --depth=1 https://github.com/ethersphere/bee-factory.git
-          chmod +x -R ./bee-factory/scripts
-          ./bee-factory/scripts/environment.sh start --detach --workers=$WORKERS
-
       ## Try getting the node modules from cache, if failed npm ci
       - uses: actions/cache@v2
         id: cache-npm
@@ -114,6 +98,10 @@ jobs:
       - name: Install npm deps
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm ci
+
+      # Start Bee Factory environment
+      - name: Start Bee Factory environment
+        run: npm run bee -- --detach
 
       - name: Run browser tests
         run: npm run test:browser
