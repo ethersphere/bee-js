@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       beeFactoryImageVersion:
-        description: 'Bee Factory image version (eq. 1.3.0-fd09d1c4-stateful)'
+        description: 'Bee Factory image version (eq. 1.3.0)'
         required: true
       beeApiVersion:
         description: 'Bee API version (eq. 1.3.0)'
@@ -91,22 +91,6 @@ jobs:
           find: "export const SUPPORTED_DEBUG_API_VERSION = '.*?'"
           replace: "export const SUPPORTED_DEBUG_API_VERSION = '${{ env.DEBUG_API_VERSION }}'"
           include: "src/modules/debug/status.ts"
-          regex: true
-
-      - name: Replace BEE_VERSION for CI
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          find: "BEE_VERSION: '.*?'"
-          replace: "BEE_VERSION: '${{ env.IMAGE_VERSION }}'"
-          include: ".github/workflows/tests.yaml"
-          regex: true
-
-      - name: Replace BLOCKCHAIN_VERSION for CI
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          find: "BLOCKCHAIN_VERSION: '.*?'"
-          replace: "BLOCKCHAIN_VERSION: '1.2.0-for-${{ env.IMAGE_VERSION }}'"
-          include: ".github/workflows/tests.yaml"
           regex: true
 
       - name: Create/update PR
