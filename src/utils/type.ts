@@ -126,8 +126,11 @@ export function assertReferenceOrEns(value: unknown): asserts value is Reference
    * řš+ýí.šě+ř.čě - VALID
    * tsg.asg?asg - INVALID
    * tsg.asg:1599 - INVALID
+   * ethswarm.something- - INVALID
+   * ethswarm.-something - INVALID
+   * ethswarm.some-thing - VALID
    */
-  const DOMAIN_REGEX = /^(?:[^-.\/?:\s][^.\/?:\s]{0,62}\.)+[^.\/?:\s]{2,63}$/
+  const DOMAIN_REGEX = /^(?:(?!-)[^.\/?:\s]{1,63}(?<!-)\.)+(?!-)[^.\/?:\s]{2,63}(?<!-)$/
 
   // We are doing best-effort validation of domain here. The proper way would be to do validation using IDNA UTS64 standard
   // but that would give us high penalty to our dependencies as the library (idna-uts46-hx) that does this validation and translation
