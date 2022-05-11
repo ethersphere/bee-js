@@ -134,8 +134,8 @@
   "engines": {
     "node": ">=12.0.0",
     "npm": ">=6.0.0",
-    "beeApiVersion": "3.0.0",
-    "beeDebugApiVersion": "2.0.0",
-    "bee": "1.5.1-d0a77598"
+    "beeApiVersion": "3.0.1",
+    "beeDebugApiVersion": "2.0.1",
+    "bee": "1.6.0-rc3-207cc419"
   }
 }
