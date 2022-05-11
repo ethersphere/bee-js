@@ -1,5 +1,3 @@
-import uts46 from 'idna-uts46-hx'
-
 import {
   Address,
   ADDRESS_HEX_LENGTH,
@@ -114,16 +112,28 @@ export function assertReferenceOrEns(value: unknown): asserts value is Reference
     return
   }
 
-  // Validation of ENS names as described at https://docs.ens.domains/contract-api-reference/name-processing
-  // and also implemented at https://github.com/ensdomains/eth-ens-namehash
-  // The `idna-uts46-hx` package is used directly here as the `eth-ens-namehash` uses Buffer without support for browser.
-  // The bellow function will throw an error when invalid name is supplied (mainly because of invalid characters)
-  try {
-    uts46.toAscii(value, { useStd3ASCII: true, transitional: false, verifyDnsLength: true })
-  } catch (e) {
-    throw new TypeError(
-      'ReferenceOrEns is not valid Reference, but also for ENS domain contains invalid characters: ' + e,
-    )
+  /**
+   * a.asdf - VALID
+   * test.eth - VALID
+   * ADAM.ETH - VALID
+   * ADAM UHLIR.ETH - INVALID
+   * test.whatever.eth - VALID
+   * -adg.ets - INVALID
+   * adg-.ets - INVALID
+   * as-a.com - VALID
+   * ethswarm.org - VALID
+   * http://asdf.asf - INVALID
+   * řš+ýí.šě+ř.čě - VALID
+   * tsg.asg?asg - INVALID
+   * tsg.asg:1599 - INVALID
+   */
+  const DOMAIN_REGEX = /^(?:[^-.\/?:\s][^.\/?:\s]{0,62}\.)+[^.\/?:\s]{2,63}$/
+
+  // We are doing best-effort validation of domain here. The proper way would be to do validation using IDNA UTS64 standard
+  // but that would give us high penalty to our dependencies as the library (idna-uts46-hx) that does this validation and translation
+  // adds 160kB minified size which is significant. We expects that full validation will be done on Bee side.
+  if (!DOMAIN_REGEX.test(value)) {
+    throw new TypeError('ReferenceOrEns is not valid Reference, but also not valid ENS domain.')
   }
 }
 

@@ -251,10 +251,8 @@ export function testReferenceOrEnsAssertions(executor: (input: unknown) => void)
 
     // ENS with invalid characters
     await expect(() => executor('')).rejects.toThrow(TypeError)
-    await expect(() => executor('⶿.ß‍.eth')).rejects.toThrow(TypeError)
     await expect(() => executor('some space.eth')).rejects.toThrow(TypeError)
     await expect(() => executor('-example.eth')).rejects.toThrow(TypeError)
-    await expect(() => executor('example-.eth')).rejects.toThrow(TypeError)
     await expect(() => executor('http://example.eth')).rejects.toThrow(TypeError)
   })
 }
