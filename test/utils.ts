@@ -444,6 +444,7 @@ export const testBatchId = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da7
 export const testJsonPayload = [{ some: 'object' }]
 export const testJsonStringPayload = JSON.stringify(testJsonPayload)
 export const testJsonHash = '872a858115b8bee4408b1427b49e472883fdc2512d5a8f2d428b97ecc8f7ccfa'
+export const testJsonEns = 'testing.eth'
 
 export const testIdentity = {
   privateKey: '634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd' as HexString,

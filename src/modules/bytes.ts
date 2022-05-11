@@ -1,4 +1,4 @@
-import type { BatchId, Data, Ky, Reference, UploadOptions } from '../types'
+import type { BatchId, Data, Ky, Reference, ReferenceOrEns, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
@@ -45,7 +45,7 @@ export async function upload(
  * @param ky
  * @param hash Bee content reference
  */
-export async function download(ky: Ky, hash: Reference): Promise<Data> {
+export async function download(ky: Ky, hash: ReferenceOrEns): Promise<Data> {
   const response = await http<ArrayBuffer>(ky, {
     responseType: 'arraybuffer',
     path: `${endpoint}/${hash}`,
@@ -60,7 +60,7 @@ export async function download(ky: Ky, hash: Reference): Promise<Data> {
  * @param ky
  * @param hash Bee content reference
  */
-export async function downloadReadable(ky: Ky, hash: Reference): Promise<ReadableStream<Uint8Array>> {
+export async function downloadReadable(ky: Ky, hash: ReferenceOrEns): Promise<ReadableStream<Uint8Array>> {
   const response = await http<ReadableStream<Uint8Array>>(ky, {
     responseType: 'stream',
     path: `${endpoint}/${hash}`,

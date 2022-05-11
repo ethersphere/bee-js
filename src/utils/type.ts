@@ -24,10 +24,11 @@ import {
   RequestOptions,
   PostageBatchOptions,
   CashoutOptions,
+  ReferenceOrEns,
 } from '../types'
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
-import { assertHexString, assertPrefixedHexString } from './hex'
+import { assertHexString, assertPrefixedHexString, isHexString } from './hex'
 import { isReadable } from './stream'
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
@@ -97,6 +98,45 @@ export function assertReference(value: unknown): asserts value is Reference {
     assertHexString(value, REFERENCE_HEX_LENGTH)
   } catch (e) {
     assertHexString(value, ENCRYPTED_REFERENCE_HEX_LENGTH)
+  }
+}
+
+export function assertReferenceOrEns(value: unknown): asserts value is ReferenceOrEns {
+  if (typeof value !== 'string') {
+    throw new TypeError('ReferenceOrEns has to be a string!')
+  }
+
+  if (isHexString(value)) {
+    assertReference(value)
+
+    return
+  }
+
+  /**
+   * a.asdf - VALID
+   * test.eth - VALID
+   * ADAM.ETH - VALID
+   * ADAM UHLIR.ETH - INVALID
+   * test.whatever.eth - VALID
+   * -adg.ets - INVALID
+   * adg-.ets - INVALID
+   * as-a.com - VALID
+   * ethswarm.org - VALID
+   * http://asdf.asf - INVALID
+   * řš+ýí.šě+ř.čě - VALID
+   * tsg.asg?asg - INVALID
+   * tsg.asg:1599 - INVALID
+   * ethswarm.something- - INVALID
+   * ethswarm.-something - INVALID
+   * ethswarm.some-thing - VALID
+   */
+  const DOMAIN_REGEX = /^(?:(?!-)[^.\/?:\s]{1,63}(?<!-)\.)+(?!-)[^.\/?:\s]{2,63}(?<!-)$/
+
+  // We are doing best-effort validation of domain here. The proper way would be to do validation using IDNA UTS64 standard
+  // but that would give us high penalty to our dependencies as the library (idna-uts46-hx) that does this validation and translation
+  // adds 160kB minified size which is significant. We expects that full validation will be done on Bee side.
+  if (!DOMAIN_REGEX.test(value)) {
+    throw new TypeError('ReferenceOrEns is not valid Reference, but also not valid ENS domain.')
   }
 }
 

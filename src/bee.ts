@@ -30,6 +30,7 @@ import {
   assertPssMessageHandler,
   assertPublicKey,
   assertReference,
+  assertReferenceOrEns,
   assertRequestOptions,
   assertUploadOptions,
   makeTagUid,
@@ -37,7 +38,17 @@ import {
 import { setJsonData, getJsonData } from './feed/json'
 import { makeCollectionFromFileList, assertCollection } from './utils/collection'
 import { makeCollectionFromFS } from './utils/collection.node'
-import { AllTagsOptions, CHUNK_SIZE, Collection, Ky, Readable, RequestOptions, SPAN_SIZE, UploadResult } from './types'
+import {
+  AllTagsOptions,
+  CHUNK_SIZE,
+  Collection,
+  Ky,
+  Readable,
+  ReferenceOrEns,
+  RequestOptions,
+  SPAN_SIZE,
+  UploadResult,
+} from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
 
@@ -161,14 +172,16 @@ export class Bee {
   /**
    * Download data as a byte array
    *
-   * @param reference Bee data reference
+   * @param reference Bee data reference in hex string (either 64 or 128 chars long) or ENS domain.
    * @param options Options that affects the request behavior
+   * @throws TypeError if some of the input parameters is not expected type
+   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
-  async downloadData(reference: Reference | string, options?: RequestOptions): Promise<Data> {
+  async downloadData(reference: ReferenceOrEns | string, options?: RequestOptions): Promise<Data> {
     assertRequestOptions(options)
-    assertReference(reference)
+    assertReferenceOrEns(reference)
 
     return bytes.download(this.getKy(options), reference)
   }
@@ -176,17 +189,19 @@ export class Bee {
   /**
    * Download data as a Readable stream
    *
-   * @param reference Bee data reference
+   * @param reference Bee data reference in hex string (either 64 or 128 chars long) or ENS domain.
    * @param options Options that affects the request behavior
+   * @throws TypeError if some of the input parameters is not expected type
+   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
   async downloadReadableData(
-    reference: Reference | string,
+    reference: ReferenceOrEns | string,
     options?: RequestOptions,
   ): Promise<ReadableStream<Uint8Array>> {
     assertRequestOptions(options)
-    assertReference(reference)
+    assertReferenceOrEns(reference)
 
     return bytes.downloadReadable(this.getKy(options), reference)
   }
@@ -225,14 +240,16 @@ export class Bee {
   /**
    * Download chunk as a byte array
    *
-   * @param reference Bee chunk reference
+   * @param reference Bee chunk reference in hex string (either 64 or 128 chars long) or ENS domain.
    * @param options Options that affects the request behavior
+   * @throws TypeError if some of the input parameters is not expected type
+   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1{reference}/get)
    */
-  async downloadChunk(reference: Reference | string, options?: RequestOptions): Promise<Data> {
+  async downloadChunk(reference: ReferenceOrEns | string, options?: RequestOptions): Promise<Data> {
     assertRequestOptions(options)
-    assertReference(reference)
+    assertReferenceOrEns(reference)
 
     return chunk.download(this.getKy(options), reference)
   }
@@ -289,17 +306,18 @@ export class Bee {
   /**
    * Download single file.
    *
-   * @param reference Bee file reference
+   * @param reference Bee file reference in hex string (either 64 or 128 chars long) or ENS domain.
    * @param path If reference points to manifest, then this parameter defines path to the file
    * @param options Options that affects the request behavior
-   *
+   * @throws TypeError if some of the input parameters is not expected type
+   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    * @see Data
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
    */
-  async downloadFile(reference: Reference | string, path = '', options?: RequestOptions): Promise<FileData<Data>> {
+  async downloadFile(reference: ReferenceOrEns | string, path = '', options?: RequestOptions): Promise<FileData<Data>> {
     assertRequestOptions(options)
-    assertReference(reference)
+    assertReferenceOrEns(reference)
 
     return bzz.downloadFile(this.getKy(options), reference, path)
   }
@@ -307,20 +325,22 @@ export class Bee {
   /**
    * Download single file as a readable stream
    *
-   * @param reference Hash reference to file
+   * @param reference Bee file reference in hex string (either 64 or 128 chars long) or ENS domain.
    * @param path If reference points to manifest / collections, then this parameter defines path to the file
    * @param options Options that affects the request behavior
+   * @throws TypeError if some of the input parameters is not expected type
+   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    *
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
    */
   async downloadReadableFile(
-    reference: Reference | string,
+    reference: ReferenceOrEns | string,
     path = '',
     options?: RequestOptions,
   ): Promise<FileData<ReadableStream<Uint8Array>>> {
     assertRequestOptions(options)
-    assertReference(reference)
+    assertReferenceOrEns(reference)
 
     return bzz.downloadFileReadable(this.getKy(options), reference, path)
   }
@@ -566,9 +586,10 @@ export class Bee {
    *
    * **Warning! Not allowed when node is in Gateway mode!**
    *
-   * @param reference Bee data reference
+   * @param reference Bee data reference in hex string (either 64 or 128 chars long) or ENS domain.
    * @param options Options that affects the request behavior
-   * @throws TypeError if reference is in not correct format
+   * @throws TypeError if some of the input parameters is not expected type
+   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    */
@@ -582,16 +603,17 @@ export class Bee {
   /**
    * Instructs the Bee node to reupload a locally pinned data into the network.
    *
-   * @param reference
+   * @param reference Bee data reference to be re-uploaded in hex string (either 64 or 128 chars long) or ENS domain.
    * @param options Options that affects the request behavior
    * @throws BeeArgumentError if the reference is not locally pinned
-   * @throws TypeError if reference is in not correct format
+   * @throws TypeError if some of the input parameters is not expected type
+   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    *
    * @see [Bee API reference - `PUT /stewardship`](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1{reference}/put)
    */
-  async reuploadPinnedData(reference: Reference | string, options?: RequestOptions): Promise<void> {
+  async reuploadPinnedData(reference: ReferenceOrEns | string, options?: RequestOptions): Promise<void> {
     assertRequestOptions(options)
-    assertReference(reference)
+    assertReferenceOrEns(reference)
 
     await stewardship.reupload(this.getKy(options), reference)
   }
@@ -599,14 +621,16 @@ export class Bee {
   /**
    * Checks if content specified by reference is retrievable from the network.
    *
-   * @param reference The checked content
+   * @param reference Bee data reference to be checked in hex string (either 64 or 128 chars long) or ENS domain.
    * @param options Options that affects the request behavior
+   * @throws TypeError if some of the input parameters is not expected type
+   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    *
    * @see [Bee API reference - `GET /stewardship`](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1{reference}/get)
    */
-  async isReferenceRetrievable(reference: Reference | string, options?: RequestOptions): Promise<boolean> {
+  async isReferenceRetrievable(reference: ReferenceOrEns | string, options?: RequestOptions): Promise<boolean> {
     assertRequestOptions(options)
-    assertReference(reference)
+    assertReferenceOrEns(reference)
 
     return stewardship.isRetrievable(this.getKy(options), reference)
   }

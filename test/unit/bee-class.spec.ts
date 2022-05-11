@@ -16,6 +16,7 @@ import {
   testBatchId,
   testChunkHash,
   testIdentity,
+  testJsonEns,
   testJsonHash,
   testJsonPayload,
   testJsonStringPayload,
@@ -38,6 +39,7 @@ import {
   testEthAddressAssertions,
   testMakeSignerAssertions,
   testRequestOptionsAssertions,
+  testReferenceOrEnsAssertions,
 } from './assertions'
 import { FeedType } from '../../src/feed/type'
 import { isStrictlyObject } from '../../src/utils/type'
@@ -115,7 +117,7 @@ describe('Bee class', () => {
   })
 
   describe('downloadData', () => {
-    testReferenceAssertions(async (input: unknown) => {
+    testReferenceOrEnsAssertions(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       return bee.downloadData(input as string)
@@ -125,6 +127,20 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
       return bee.downloadData(testChunkHash, input as RequestOptions)
+    })
+
+    it('should accept valid ENS domain', async () => {
+      downloadDataMock(testJsonEns).reply(200, testJsonStringPayload)
+
+      const bee = new Bee(MOCK_SERVER_URL)
+      expect((await bee.downloadData(testJsonEns)).text()).toEqual(testJsonStringPayload)
+    })
+
+    it('should accept valid ENS subdomain', async () => {
+      downloadDataMock(`subdomain.${testJsonEns}`).reply(200, testJsonStringPayload)
+
+      const bee = new Bee(MOCK_SERVER_URL)
+      expect((await bee.downloadData(`subdomain.${testJsonEns}`)).text()).toEqual(testJsonStringPayload)
     })
   })
 
@@ -147,7 +163,7 @@ describe('Bee class', () => {
   })
 
   describe('downloadReadableData', () => {
-    testReferenceAssertions(async (input: unknown) => {
+    testReferenceOrEnsAssertions(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       return bee.downloadReadableData(input as string)
@@ -193,7 +209,7 @@ describe('Bee class', () => {
   })
 
   describe('downloadFile', () => {
-    testReferenceAssertions(async (input: unknown) => {
+    testReferenceOrEnsAssertions(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       return bee.downloadFile(input as string)
@@ -207,7 +223,7 @@ describe('Bee class', () => {
   })
 
   describe('downloadReadableFile', () => {
-    testReferenceAssertions(async (input: unknown) => {
+    testReferenceOrEnsAssertions(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       return bee.downloadReadableFile(input as string)
@@ -466,7 +482,7 @@ describe('Bee class', () => {
       return bee.reuploadPinnedData(testChunkHash, input as RequestOptions)
     })
 
-    testReferenceAssertions(async (input: unknown) => {
+    testReferenceOrEnsAssertions(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       return bee.reuploadPinnedData(input as string)

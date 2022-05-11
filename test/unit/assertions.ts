@@ -225,6 +225,38 @@ export function testReferenceAssertions(executor: (input: unknown) => void): voi
   })
 }
 
+export function testReferenceOrEnsAssertions(executor: (input: unknown) => void): void {
+  it('should throw exception for bad ReferenceOrEns', async () => {
+    await expect(() => executor(1)).rejects.toThrow(TypeError)
+    await expect(() => executor(true)).rejects.toThrow(TypeError)
+    await expect(() => executor({})).rejects.toThrow(TypeError)
+    await expect(() => executor(null)).rejects.toThrow(TypeError)
+    await expect(() => executor(undefined)).rejects.toThrow(TypeError)
+    await expect(() => executor([])).rejects.toThrow(TypeError)
+
+    // Not an valid hexstring (ZZZ)
+    await expect(() => executor('ZZZfb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
+      TypeError,
+    )
+
+    // Prefixed hexstring is not accepted
+    await expect(() => executor('0x634fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
+      TypeError,
+    )
+
+    // Length mismatch
+    await expect(() => executor('4fb5a872396d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd')).rejects.toThrow(
+      TypeError,
+    )
+
+    // ENS with invalid characters
+    await expect(() => executor('')).rejects.toThrow(TypeError)
+    await expect(() => executor('some space.eth')).rejects.toThrow(TypeError)
+    await expect(() => executor('-example.eth')).rejects.toThrow(TypeError)
+    await expect(() => executor('http://example.eth')).rejects.toThrow(TypeError)
+  })
+}
+
 export function testAddressPrefixAssertions(executor: (input: unknown) => void): void {
   it('should throw exception for bad AddressPrefix', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)

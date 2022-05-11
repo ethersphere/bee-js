@@ -1,4 +1,4 @@
-import type { Ky, Reference } from '../types'
+import type { Ky, ReferenceOrEns } from '../types'
 import { http } from '../utils/http'
 
 const stewardshipEndpoint = 'stewardship'
@@ -10,7 +10,7 @@ const stewardshipEndpoint = 'stewardship'
  * @param options
  * @throws BeeResponseError if not locally pinned or invalid data
  */
-export async function reupload(ky: Ky, reference: Reference): Promise<void> {
+export async function reupload(ky: Ky, reference: ReferenceOrEns): Promise<void> {
   await http(ky, {
     method: 'put',
     path: `${stewardshipEndpoint}/${reference}`,
@@ -21,7 +21,7 @@ interface IsRetrievableResponse {
   isRetrievable: boolean
 }
 
-export async function isRetrievable(ky: Ky, reference: Reference): Promise<boolean> {
+export async function isRetrievable(ky: Ky, reference: ReferenceOrEns): Promise<boolean> {
   const response = await http<IsRetrievableResponse>(ky, {
     method: 'get',
     responseType: 'json',

@@ -60,6 +60,12 @@ export const FEED_INDEX_HEX_LENGTH = 16
  */
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
 
+/**
+ * Type that represents either Swarm's reference in hex string or ESN domain (something.eth).
+ * This is the type used on all the download functions.
+ */
+export type ReferenceOrEns = Reference | string
+
 export type PlainBytesReference = Bytes<typeof REFERENCE_BYTES_LENGTH>
 export type EncryptedBytesReference = Bytes<typeof ENCRYPTED_REFERENCE_BYTES_LENGTH>
 export type BytesReference = PlainBytesReference | EncryptedBytesReference

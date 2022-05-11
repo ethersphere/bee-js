@@ -8,6 +8,7 @@ import {
   Ky,
   Readable,
   Reference,
+  ReferenceOrEns,
   UploadHeaders,
   UploadResult,
 } from '../types'
@@ -83,7 +84,7 @@ export async function uploadFile(
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
  */
-export async function downloadFile(ky: Ky, hash: string, path = ''): Promise<FileData<Data>> {
+export async function downloadFile(ky: Ky, hash: ReferenceOrEns, path = ''): Promise<FileData<Data>> {
   const response = await http<ArrayBuffer>(ky, {
     method: 'GET',
     responseType: 'arraybuffer',
@@ -106,7 +107,7 @@ export async function downloadFile(ky: Ky, hash: string, path = ''): Promise<Fil
  */
 export async function downloadFileReadable(
   ky: Ky,
-  hash: string,
+  hash: ReferenceOrEns,
   path = '',
 ): Promise<FileData<ReadableStream<Uint8Array>>> {
   const response = await http<ReadableStream<Uint8Array>>(ky, {
