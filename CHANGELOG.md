@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.0.0](https://github.com/ethersphere/bee-js/compare/v3.3.4...v4.0.0) (2022-05-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* reserve state update (#675)
+
+### Features
+
+* ens support for download methods ([#659](https://github.com/ethersphere/bee-js/issues/659)) ([e72c4b4](https://github.com/ethersphere/bee-js/commit/e72c4b4cd2dc593a3bae4d4ba9418800f9ccc195))
+* fetch specific feed index update ([#629](https://github.com/ethersphere/bee-js/issues/629)) ([a4672dc](https://github.com/ethersphere/bee-js/commit/a4672dc427206097fd3837b2b97c528a44f19418))
+* is feed retrievable support ([#641](https://github.com/ethersphere/bee-js/issues/641)) ([e1071b0](https://github.com/ethersphere/bee-js/commit/e1071b0549a6d40418572312f0a648d6923c5428))
+
+
+### Bug Fixes
+
+* reserve state update ([#675](https://github.com/ethersphere/bee-js/issues/675)) ([f8564e3](https://github.com/ethersphere/bee-js/commit/f8564e36371f75903d62562f7d800ba5645d6985))
+
 ### [3.3.4](https://www.github.com/ethersphere/bee-js/compare/v3.3.3...v3.3.4) (2022-04-12)
 
 This is a small patch release that brings mainly support for the new Bee 1.5.1 and two small bug fixes.
