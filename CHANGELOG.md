@@ -1,11 +1,27 @@
 # Changelog
 
+
 ## [4.0.0](https://github.com/ethersphere/bee-js/compare/v3.3.4...v4.0.0) (2022-05-18)
 
+This release brings several new features and one ad-hoc breaking fix that is passed on from the new [Bee version 1.6.0](https://github.com/ethersphere/bee/releases/tag/v1.6.0), but affects only the `BeeDebug.getReserveState()` method.
+
+### 💮  ENS support
+
+Bee supports ENS for resolution of ENS domains into Swarm references. `bee-js` was until now refusing ENS domains with the input validation. Now we are bringing support for all the `download*` methods and a few other ones as well.
+
+### 🗂. Get Feed's specific update
+
+The `FeedReader.download()` function now accepts an option `index` where you can specify which of the feed's updates you want to download.
+
+### ❓ Is Feed Retrievable?
+
+There is a new method `Bee.isFeedRetrievable()` that helps you to check whether a given feed is available.
+
+It operates in two modes. If you know the last index of the feed update then you can use it as an optional parameter and then be sure that this update is present in the network. If you won't specify the `index` parameter, then it will check for the "latest" update by traversing all the known updates from the start. This does not guarantee though that the found "latest" update is indeed the latest one though and hence provides a weaker guarantee.
 
 ### ⚠ BREAKING CHANGES
 
-* reserve state update (#675)
+* reserve state update response interface (#675)
 
 ### Features
 
@@ -13,10 +29,9 @@
 * fetch specific feed index update ([#629](https://github.com/ethersphere/bee-js/issues/629)) ([a4672dc](https://github.com/ethersphere/bee-js/commit/a4672dc427206097fd3837b2b97c528a44f19418))
 * is feed retrievable support ([#641](https://github.com/ethersphere/bee-js/issues/641)) ([e1071b0](https://github.com/ethersphere/bee-js/commit/e1071b0549a6d40418572312f0a648d6923c5428))
 
-
 ### Bug Fixes
 
-* reserve state update ([#675](https://github.com/ethersphere/bee-js/issues/675)) ([f8564e3](https://github.com/ethersphere/bee-js/commit/f8564e36371f75903d62562f7d800ba5645d6985))
+* reserve state update response interface ([#675](https://github.com/ethersphere/bee-js/issues/675)) ([f8564e3](https://github.com/ethersphere/bee-js/commit/f8564e36371f75903d62562f7d800ba5645d6985))
 
 ### [3.3.4](https://www.github.com/ethersphere/bee-js/compare/v3.3.3...v3.3.4) (2022-04-12)
 
