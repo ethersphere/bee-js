@@ -245,10 +245,8 @@ export interface PingResponse {
 
 export interface ReserveState {
   radius: number
+  commitment: number
   storageRadius: number
-  available: number
-  outer: NumberString
-  inner: NumberString
 }
 
 export interface ChainState {
