@@ -20,15 +20,12 @@ describe('modules/states', () => {
   describe('ReserveState', () => {
     it('should fetch the reserve state', async () => {
       const state = await states.getReserveState(BEE_DEBUG_URL)
-
+      expect(state).toHaveProperty('commitment')
       expect(state).toHaveProperty('radius')
-      expect(state).toHaveProperty('available')
-      expect(state).toHaveProperty('outer')
-      expect(state).toHaveProperty('inner')
+      expect(state).toHaveProperty('storageRadius')
       expect(state.radius).toBeType('number')
-      expect(state.available).toBeType('number')
-      expect(state.outer).toBeNumberString()
-      expect(state.inner).toBeNumberString()
+      expect(state.commitment).toBeType('number')
+      expect(state.storageRadius).toBeType('number')
     })
   })
 })
