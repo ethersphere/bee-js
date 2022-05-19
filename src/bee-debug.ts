@@ -42,6 +42,7 @@ import {
   assertBatchId,
   assertCashoutOptions,
   assertNonNegativeInteger,
+  assertPositiveInteger,
   assertPostageBatchOptions,
   assertRequestOptions,
   assertTransactionHash,
@@ -513,7 +514,7 @@ export class BeeDebug {
    */
   async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
     assertPostageBatchOptions(options)
-    assertNonNegativeInteger(amount)
+    assertPositiveInteger(amount)
     assertNonNegativeInteger(depth)
 
     if (depth < STAMPS_DEPTH_MIN) {
