@@ -33,6 +33,7 @@ import type {
   TransactionHash,
   NodeInfo,
   BeeVersions,
+  WalletBalance,
 } from './types'
 import { BeeArgumentError } from './utils/error'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
@@ -479,6 +480,17 @@ export class BeeDebug {
     assertRequestOptions(options)
 
     return states.getChainState(this.getKy(options))
+  }
+
+  /**
+   * Get wallet balances for xDai and BZZ of the Bee node
+   *
+   * @param options
+   */
+  async getWalletBalance(options?: RequestOptions): Promise<WalletBalance> {
+    assertRequestOptions(options)
+
+    return states.getWalletBalance(this.getKy(options))
   }
 
   /**

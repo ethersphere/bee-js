@@ -122,4 +122,17 @@ describe('Bee Debug class', () => {
       )
     })
   })
+
+  describe('Wallet', () => {
+    it('should return the nodes balances and other data', async () => {
+      expect(await beeDebug.getWalletBalance()).toEqual(
+        expect.objectContaining({
+          bzz: expect.stringMatching(/^[0-9]+$/),
+          xDai: expect.stringMatching(/^[0-9]+$/),
+          chainID: expect.any(Number),
+          contractAddress: expect.stringMatching(/^0x[0-9a-f]{40}$/),
+        }),
+      )
+    })
+  })
 })

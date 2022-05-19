@@ -254,3 +254,25 @@ export interface ChainState {
   totalAmount: NumberString
   currentPrice: NumberString
 }
+
+export interface WalletBalance {
+  /**
+   * Balance of BZZ tokens
+   */
+  bzz: NumberString
+
+  /**
+   * Balance of xDai
+   */
+  xDai: NumberString
+
+  /**
+   * Chain network ID to which the Bee node is connected
+   */
+  chainID: number
+
+  /**
+   * Chequebook contract address
+   */
+  contractAddress: string
+}
