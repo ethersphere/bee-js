@@ -431,6 +431,7 @@ export const BIG_FILE_TIMEOUT = 100_000
 export const PSS_TIMEOUT = 120_000
 export const FEED_TIMEOUT = 120_000
 export const BLOCKCHAIN_TRANSACTION_TIMEOUT = 40_000
+export const WAITING_USABLE_STAMP_TIMEOUT = 130_000
 
 export const testChunkPayload = new Uint8Array([1, 2, 3])
 // span is the payload length encoded as uint64 little endian

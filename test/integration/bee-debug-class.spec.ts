@@ -1,5 +1,12 @@
 import { BeeArgumentError, BeeDebug } from '../../src'
-import { beeDebugUrl, commonMatchers, getOrCreatePostageBatch, BLOCKCHAIN_TRANSACTION_TIMEOUT, sleep } from '../utils'
+import {
+  beeDebugUrl,
+  commonMatchers,
+  getOrCreatePostageBatch,
+  BLOCKCHAIN_TRANSACTION_TIMEOUT,
+  sleep,
+  WAITING_USABLE_STAMP_TIMEOUT,
+} from '../utils'
 
 commonMatchers()
 
@@ -9,14 +16,26 @@ describe('Bee Debug class', () => {
 
   describe('PostageBatch', () => {
     it(
-      'should create a new postage batch with zero amount',
+      'should create a new postage batch with zero amount and be un-usable',
       async () => {
         const batchId = await beeDebug.createPostageBatch('0', 17)
-        const allBatches = await beeDebug.getAllPostageBatch()
+        const stamp = await beeDebug.getPostageBatch(batchId)
+        expect(stamp.usable).toEqual(false)
 
+        const allBatches = await beeDebug.getAllPostageBatch()
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
       },
       BLOCKCHAIN_TRANSACTION_TIMEOUT,
+    )
+
+    it(
+      'should wait for the stamp to be usable',
+      async () => {
+        const batchId = await beeDebug.createPostageBatch('1000', 17, { waitForUsable: true })
+        const stamp = await beeDebug.getPostageBatch(batchId)
+        expect(stamp.usable).toEqual(true)
+      },
+      WAITING_USABLE_STAMP_TIMEOUT + BLOCKCHAIN_TRANSACTION_TIMEOUT,
     )
 
     // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427

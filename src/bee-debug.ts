@@ -34,14 +34,14 @@ import type {
   NodeInfo,
   BeeVersions,
 } from './types'
-import { BeeArgumentError } from './utils/error'
+import { BeeArgumentError, BeeError } from './utils/error'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 import {
   assertAddress,
   assertBatchId,
-  assertBoolean,
   assertCashoutOptions,
   assertNonNegativeInteger,
+  assertPostageBatchOptions,
   assertRequestOptions,
   assertTransactionHash,
   isTag,
@@ -60,6 +60,7 @@ import * as tag from './modules/debug/tag'
 import * as stamps from './modules/debug/stamps'
 import type { Options as KyOptions } from 'ky-universal'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
+import { sleep } from '../test/utils'
 
 export class BeeDebug {
   /**
@@ -499,7 +500,7 @@ export class BeeDebug {
    * @see [Bee Debug API reference - `POST /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{amount}~1{depth}/post)
    */
   async createPostageBatch(amount: NumberString, depth: number, options?: PostageBatchOptions): Promise<BatchId> {
-    assertRequestOptions(options)
+    assertPostageBatchOptions(options)
     assertNonNegativeInteger(amount)
     assertNonNegativeInteger(depth)
 
@@ -511,15 +512,13 @@ export class BeeDebug {
       throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
     }
 
-    if (options?.gasPrice) {
-      assertNonNegativeInteger(options.gasPrice)
+    const stamp = await stamps.createPostageBatch(this.getKy(options), amount, depth, options)
+
+    if (options?.waitForUsable) {
+      await this.waitForUsablePostageStamp(stamp, options?.waitForUsableTimeout)
     }
 
-    if (options?.immutableFlag !== undefined) {
-      assertBoolean(options.immutableFlag)
-    }
-
-    return stamps.createPostageBatch(this.getKy(options), amount, depth, options)
+    return stamp
   }
 
   /**
@@ -671,6 +670,21 @@ export class BeeDebug {
     }
 
     return transactions.cancelTransaction(this.getKy(options), transactionHash, gasPrice)
+  }
+
+  private async waitForUsablePostageStamp(id: BatchId, timeout = 120_000): Promise<void> {
+    const TIME_STEP = 1500
+    for (let time = 0; time < timeout; time += TIME_STEP) {
+      const stamp = await this.getPostageBatch(id)
+
+      if (stamp.usable) {
+        return
+      }
+
+      await sleep(TIME_STEP)
+    }
+
+    throw new BeeError('Timeout on waiting for postage stamp to become usable')
   }
 
   private getKy(options?: RequestOptions): Ky {
