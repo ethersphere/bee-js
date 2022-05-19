@@ -62,9 +62,13 @@ export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeo
 
 /**
  * Type that represents either Swarm's reference in hex string or ESN domain (something.eth).
- * This is the type used on all the download functions.
  */
 export type ReferenceOrEns = Reference | string
+
+/**
+ * Type that represents either Swarm's reference in hex string, ESN domain (something.eth) or CID using one of the Swarm's codecs.
+ */
+export type ReferenceCidOrEns = ReferenceOrEns | string
 
 export type PlainBytesReference = Bytes<typeof REFERENCE_BYTES_LENGTH>
 export type EncryptedBytesReference = Bytes<typeof ENCRYPTED_REFERENCE_BYTES_LENGTH>
@@ -145,6 +149,10 @@ export interface BeeOptions extends RequestOptions {
    * Function that registers listener callback for all incoming HTTP responses that Bee instance made.
    */
   onResponse?: HookCallback<BeeResponse>
+}
+
+export interface UploadResultWithCid extends UploadResult {
+  cid: string
 }
 
 /**
