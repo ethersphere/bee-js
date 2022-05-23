@@ -16,9 +16,9 @@ describe('Bee Debug class', () => {
 
   describe('PostageBatch', () => {
     it(
-      'should create a new postage batch with zero amount and be un-usable',
+      'should create a new postage batch with zero amount',
       async () => {
-        const batchId = await beeDebug.createPostageBatch('0', 17)
+        const batchId = await beeDebug.createPostageBatch('10', 17)
         const stamp = await beeDebug.getPostageBatch(batchId)
         expect(stamp.usable).toEqual(false)
 
