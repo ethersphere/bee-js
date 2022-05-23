@@ -109,24 +109,14 @@ npm i
 
 The tests run in both context: node and dom with Jest.
 
-To run the integration tests, you need to use our [`bee-factory`](https://github.com/ethersphere/bee-factory/) project. Clone the repo, you can use our prebuilt Docker images with setting env. variables like:
-
-```bash
-export BEE_VERSION="1.0.0-2572fa48"
-export BLOCKCHAIN_VERSION="1.2.0"
-export BEE_ENV_PREFIX="swarm-test"
-export BEE_IMAGE_PREFIX="docker.pkg.github.com/ethersphere/bee-factory"
-```
-
-Customize these values based on which Bee version you want to run. After the env. variables are set use the `./scripts/environment.sh` script with `start` parameter.
+To run the integration tests, you need to spin up local Bee cluster using our [`bee-factory`](https://github.com/ethersphere/bee-factory/) project.
+In order to do that you have to have locally Docker running on your machine, but afterwards you can just simply run `npm run bee`, which spins up the
+cluster and display Queen's logs. If you want to exit hit `CTRL+C`.
 
 If you want to skip creation of postage stamps every run of integration tests you can create stamps for both nodes and set them under env. variables `BEE_POSTAGE` and `BEE_PEER_POSTAGE`.
 
 By default, for integration tests two bee nodes are expected to run on localhost on addresses `http://localhost:1633` and `http://localhost:11633`. These are the default values for the `bee-factory` script.
 If you want to use custom setup, you can change the behavior of tests to different addresses using environment variables `BEE_API_URL`, `BEE_DEBUG_API_URL`, `BEE_PEER_DEBUG_API_URL` and `BEE_PEER_API_URL`.
-
-In Visual Studio environment, the tests have been set up to run against your local bee node on `http://localhost:1633`
-To run Jest tests, choose the `vscode-jest-tests` CI job under the Run tab.
 
 There are also browser tests by Puppeteer, which also provide integrity testing.
 ```sh
