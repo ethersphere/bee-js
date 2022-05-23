@@ -16,6 +16,7 @@ import {
   testBatchId,
   testChunkHash,
   testIdentity,
+  testJsonCid,
   testJsonEns,
   testJsonHash,
   testJsonPayload,
@@ -85,6 +86,7 @@ describe('Bee class', () => {
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
     expect(reference).toEqual({
+      cid: testJsonCid,
       reference: testJsonHash,
       tagUid: 123,
     })
@@ -895,6 +897,7 @@ describe('Bee class', () => {
       const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt', { encrypt: true })
 
       expect(reference).toEqual({
+        cid: testJsonCid,
         reference: testJsonHash,
         tagUid: 123,
       })

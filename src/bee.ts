@@ -20,6 +20,7 @@ import { assertBeeUrl, stripLastSlash } from './utils/url'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { wrapBytesWithHelpers } from './utils/bytes'
 import {
+  addCidConversionFunction,
   assertAddressPrefix,
   assertAllTagsOptions,
   assertBatchId,
@@ -33,17 +34,44 @@ import {
   assertReferenceOrEns,
   assertRequestOptions,
   assertUploadOptions,
+  makeReferenceOrEns,
   makeTagUid,
 } from './utils/type'
-import { setJsonData, getJsonData } from './feed/json'
-import { makeCollectionFromFileList, assertCollection } from './utils/collection'
+import { getJsonData, setJsonData } from './feed/json'
+import { assertCollection, makeCollectionFromFileList } from './utils/collection'
 import { makeCollectionFromFS } from './utils/collection.node'
+import type {
+  AddressPrefix,
+  AnyJson,
+  BatchId,
+  BeeOptions,
+  CollectionUploadOptions,
+  Data,
+  FeedReader,
+  FeedWriter,
+  FileData,
+  FileUploadOptions,
+  JsonFeedOptions,
+  Pin,
+  PssMessageHandler,
+  PssSubscription,
+  PublicKey,
+  Reference,
+  Signer,
+  SOCReader,
+  SOCWriter,
+  Tag,
+  Topic,
+  UploadOptions,
+  UploadResultWithCid,
+} from './types'
 import {
   AllTagsOptions,
   CHUNK_SIZE,
   Collection,
   Ky,
   Readable,
+  ReferenceCidOrEns,
   ReferenceOrEns,
   RequestOptions,
   SPAN_SIZE,
@@ -51,34 +79,10 @@ import {
 } from './types'
 
 import type { Options as KyOptions } from 'ky-universal'
-
-import type {
-  Tag,
-  FileData,
-  Reference,
-  UploadOptions,
-  PublicKey,
-  AddressPrefix,
-  PssMessageHandler,
-  PssSubscription,
-  CollectionUploadOptions,
-  FileUploadOptions,
-  Data,
-  Signer,
-  FeedReader,
-  FeedWriter,
-  SOCWriter,
-  SOCReader,
-  Topic,
-  BeeOptions,
-  JsonFeedOptions,
-  AnyJson,
-  Pin,
-  BatchId,
-} from './types'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { isReadable } from './utils/stream'
 import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
+import { ReferenceType } from '@ethersphere/swarm-cid'
 
 /**
  * The main component that abstracts operations available on the main Bee API.
@@ -275,7 +279,7 @@ export class Bee {
     data: string | Uint8Array | Readable | File,
     name?: string,
     options?: FileUploadOptions,
-  ): Promise<UploadResult> {
+  ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
     assertFileData(data)
 
@@ -291,22 +295,28 @@ export class Bee {
       const contentType = data.type
       const fileOptions = { contentType, ...options }
 
-      return bzz.uploadFile(this.getKy(options), fileData, postageBatchId, fileName, fileOptions)
+      return addCidConversionFunction(
+        await bzz.uploadFile(this.getKy(options), fileData, postageBatchId, fileName, fileOptions),
+        ReferenceType.MANIFEST,
+      )
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
       const result = await bzz.uploadFile(this.getKy(options), data, postageBatchId, name, options)
       await this.updateTag(options.tag, result.reference)
 
-      return result
+      return addCidConversionFunction(result, ReferenceType.MANIFEST)
     } else {
-      return bzz.uploadFile(this.getKy(options), data, postageBatchId, name, options)
+      return addCidConversionFunction(
+        await bzz.uploadFile(this.getKy(options), data, postageBatchId, name, options),
+        ReferenceType.MANIFEST,
+      )
     }
   }
 
   /**
    * Download single file.
    *
-   * @param reference Bee file reference in hex string (either 64 or 128 chars long) or ENS domain.
+   * @param reference Bee file reference in hex string (either 64 or 128 chars long), ENS domain or Swarm CID.
    * @param path If reference points to manifest, then this parameter defines path to the file
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
@@ -315,9 +325,13 @@ export class Bee {
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
    */
-  async downloadFile(reference: ReferenceOrEns | string, path = '', options?: RequestOptions): Promise<FileData<Data>> {
+  async downloadFile(
+    reference: ReferenceCidOrEns | string,
+    path = '',
+    options?: RequestOptions,
+  ): Promise<FileData<Data>> {
     assertRequestOptions(options)
-    assertReferenceOrEns(reference)
+    reference = makeReferenceOrEns(reference, ReferenceType.MANIFEST)
 
     return bzz.downloadFile(this.getKy(options), reference, path)
   }
@@ -325,7 +339,7 @@ export class Bee {
   /**
    * Download single file as a readable stream
    *
-   * @param reference Bee file reference in hex string (either 64 or 128 chars long) or ENS domain.
+   * @param reference Bee file reference in hex string (either 64 or 128 chars long), ENS domain or Swarm CID.
    * @param path If reference points to manifest / collections, then this parameter defines path to the file
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
@@ -335,12 +349,12 @@ export class Bee {
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
    */
   async downloadReadableFile(
-    reference: ReferenceOrEns | string,
+    reference: ReferenceCidOrEns | string,
     path = '',
     options?: RequestOptions,
   ): Promise<FileData<ReadableStream<Uint8Array>>> {
     assertRequestOptions(options)
-    assertReferenceOrEns(reference)
+    reference = makeReferenceOrEns(reference, ReferenceType.MANIFEST)
 
     return bzz.downloadFileReadable(this.getKy(options), reference, path)
   }
@@ -365,14 +379,17 @@ export class Bee {
     postageBatchId: string | BatchId,
     fileList: FileList | File[],
     options?: CollectionUploadOptions,
-  ): Promise<UploadResult> {
+  ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
 
     if (options) assertCollectionUploadOptions(options)
 
     const data = await makeCollectionFromFileList(fileList)
 
-    return bzz.uploadCollection(this.getKy(options), data, postageBatchId, options)
+    return addCidConversionFunction(
+      await bzz.uploadCollection(this.getKy(options), data, postageBatchId, options),
+      ReferenceType.MANIFEST,
+    )
   }
 
   /**
@@ -389,13 +406,16 @@ export class Bee {
     postageBatchId: string | BatchId,
     collection: Collection<Uint8Array | Readable>,
     options?: CollectionUploadOptions,
-  ): Promise<UploadResult> {
+  ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
     assertCollection(collection)
 
     if (options) assertCollectionUploadOptions(options)
 
-    return bzz.uploadCollection(this.ky, collection, postageBatchId, options)
+    return addCidConversionFunction(
+      await bzz.uploadCollection(this.ky, collection, postageBatchId, options),
+      ReferenceType.MANIFEST,
+    )
   }
 
   /**
@@ -418,13 +438,16 @@ export class Bee {
     postageBatchId: string | BatchId,
     dir: string,
     options?: CollectionUploadOptions,
-  ): Promise<UploadResult> {
+  ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
 
     if (options) assertCollectionUploadOptions(options)
     const data = await makeCollectionFromFS(dir)
 
-    return bzz.uploadCollection(this.getKy(options), data, postageBatchId, options)
+    return addCidConversionFunction(
+      await bzz.uploadCollection(this.getKy(options), data, postageBatchId, options),
+      ReferenceType.MANIFEST,
+    )
   }
 
   /**
@@ -869,6 +892,7 @@ export class Bee {
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    * @see [Bee API reference - `POST /feeds`](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1{owner}~1{topic}/post)
+   * TODO: Once breaking add support for Feed CID
    */
   async createFeedManifest(
     postageBatchId: string | BatchId,

@@ -79,6 +79,18 @@ describe('Bee class', () => {
       expect(file.data).toEqual(content)
     })
 
+    it('should work with files and CIDs', async () => {
+      const content = new Uint8Array([1, 2, 3])
+      const name = 'hello.txt'
+      const contentType = 'text/html'
+
+      const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType })
+      const file = await bee.downloadFile(result.cid)
+
+      expect(file.name).toEqual(name)
+      expect(file.data).toEqual(content)
+    })
+
     it('should work with files and direct upload', async () => {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
@@ -231,6 +243,21 @@ describe('Bee class', () => {
 
       expect(file.name).toEqual(directoryStructure[0].path)
       expect(file.data.text()).toEqual('hello-world')
+    })
+
+    it('should upload collection with CIDs support', async () => {
+      const directoryStructure: Collection<Uint8Array> = [
+        {
+          path: '0',
+          data: new TextEncoder().encode('hello-CID-world'),
+        },
+      ]
+
+      const result = await bee.uploadCollection(getPostageBatch(), directoryStructure)
+      const file = await bee.downloadFile(result.cid, directoryStructure[0].path)
+
+      expect(file.name).toEqual(directoryStructure[0].path)
+      expect(file.data.text()).toEqual('hello-CID-world')
     })
   })
 

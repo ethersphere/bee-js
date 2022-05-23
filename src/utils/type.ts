@@ -25,11 +25,14 @@ import {
   PostageBatchOptions,
   CashoutOptions,
   ReferenceOrEns,
+  UploadResult,
+  UploadResultWithCid,
 } from '../types'
-import { BeeArgumentError } from './error'
+import { BeeArgumentError, BeeError } from './error'
 import { isFile } from './file'
 import { assertHexString, assertPrefixedHexString, isHexString } from './hex'
 import { isReadable } from './stream'
+import { decodeCid, encodeReference, ReferenceType } from '@ethersphere/swarm-cid'
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
   return obj instanceof Uint8Array
@@ -137,6 +140,50 @@ export function assertReferenceOrEns(value: unknown): asserts value is Reference
   // adds 160kB minified size which is significant. We expects that full validation will be done on Bee side.
   if (!DOMAIN_REGEX.test(value)) {
     throw new TypeError('ReferenceOrEns is not valid Reference, but also not valid ENS domain.')
+  }
+}
+
+/**
+ * Function that mainly converts Swarm CID into hex encoded Swarm Reference
+ *
+ * @param value
+ * @param expectedCidType
+ */
+export function makeReferenceOrEns(value: unknown, expectedCidType: ReferenceType): ReferenceOrEns {
+  if (typeof value !== 'string') {
+    throw new TypeError('ReferenceCidOrEns has to be a string!')
+  }
+
+  try {
+    const result = decodeCid(value)
+
+    if (result.type !== expectedCidType) {
+      throw new BeeError(
+        `CID was expected to be of type ${expectedCidType}, but got instead ${result.type ?? 'non-Swarm CID'}`,
+      )
+    }
+
+    return result.reference
+  } catch (e) {
+    if (e instanceof BeeError) throw e
+  }
+
+  assertReferenceOrEns(value)
+
+  return value
+}
+
+/**
+ * Function that adds getter which converts the reference into CID base32 encoded string.
+ * @param result
+ * @param cidType Type as described in the @ethersphere/swarm-cids-js -> ReferenceType
+ */
+export function addCidConversionFunction(result: UploadResult, cidType: ReferenceType): UploadResultWithCid {
+  return {
+    ...result,
+    get cid() {
+      return encodeReference(result.reference, cidType).toString()
+    },
   }
 }
 
