@@ -96,6 +96,12 @@ export function assertNonNegativeInteger(value: unknown, name = 'Value'): assert
   if (Number(value) < 0) throw new BeeArgumentError(`${name} has to be bigger or equal to zero`, value)
 }
 
+export function assertPositiveInteger(value: unknown, name = 'Value'): asserts value is number | NumberString {
+  assertInteger(value, name)
+
+  if (Number(value) <= 0) throw new BeeArgumentError(`${name} has to be bigger then zero`, value)
+}
+
 export function assertReference(value: unknown): asserts value is Reference {
   try {
     assertHexString(value, REFERENCE_HEX_LENGTH)

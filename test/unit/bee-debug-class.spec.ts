@@ -398,6 +398,13 @@ describe('BeeDebug class', () => {
       await expect(bee.createPostageBatch('10', 15)).rejects.toThrow(BeeArgumentError)
     })
 
+    it('should throw error if too small amount', async () => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      await expect(bee.createPostageBatch('-10', 17)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.createPostageBatch('0', 17)).rejects.toThrow(BeeArgumentError)
+    })
+
     it('should throw error if too big depth', async () => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
