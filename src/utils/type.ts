@@ -369,6 +369,14 @@ export function assertPostageBatchOptions(value: unknown): asserts value is Post
   if (options?.immutableFlag !== undefined) {
     assertBoolean(options.immutableFlag)
   }
+
+  if (options?.waitForUsable !== undefined) {
+    assertBoolean(options.waitForUsable)
+  }
+
+  if (options?.waitForUsableTimeout !== undefined) {
+    assertNonNegativeInteger(options.waitForUsableTimeout, 'options.waitForUsableTimeout')
+  }
 }
 
 export function assertCashoutOptions(value: unknown): asserts value is CashoutOptions {
