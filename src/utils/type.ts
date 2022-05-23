@@ -138,8 +138,23 @@ export function assertReferenceOrEns(value: unknown): asserts value is Reference
    * ethswarm.something- - INVALID
    * ethswarm.-something - INVALID
    * ethswarm.some-thing - VALID
+   *
+   * The idea of this regex is to match strings that are 1 to 63 characters long and do not start or end with dash character
+   *
+   * This part matches 2-63 character string that does not start or end with -
+   * [^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]   <regexp1>
+   *
+   * For 1 character long string we use the part after |
+   * [^-.\/?:\s]   <regexp2>
+   *
+   * This is terminated in a group with . character an repeated at least once
+   * (<regexp1>|<regexp2>\.)+
+   *
+   * This covers everything but top level domain which is 2 to 63 characters long so we can just use the <regexp2> again
+   * ^(<regexp1>|<regexp2>\.)+<regexp1>$
    */
-  const DOMAIN_REGEX = /^(?:(?!-)[^.\/?:\s]{1,63}(?<!-)\.)+(?!-)[^.\/?:\s]{2,63}(?<!-)$/
+  const DOMAIN_REGEX =
+    /^(?:(?:[^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]|[^-.\/?:\s]{1,2})\.)+[^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]$/
 
   // We are doing best-effort validation of domain here. The proper way would be to do validation using IDNA UTS64 standard
   // but that would give us high penalty to our dependencies as the library (idna-uts46-hx) that does this validation and translation
