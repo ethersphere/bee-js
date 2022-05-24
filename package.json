@@ -104,7 +104,7 @@
     "@types/semver": "^7.3.9",
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
-    "@typescript-eslint/parser": "^5.13.0",
+    "@typescript-eslint/parser": "^5.26.0",
     "babel-jest": "^28.1.0",
     "babel-loader": "^8.2.5",
     "babel-plugin-add-import-extension": "^1.6.0",
