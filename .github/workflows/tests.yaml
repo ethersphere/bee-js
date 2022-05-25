@@ -60,7 +60,9 @@ jobs:
       # Start Bee Factory environment for Node 18
       - name: Start Bee Factory environment for Node 18
         if:  matrix.node-version == '18.x'
-        run: node --no-experimental-fetch ./node_modules/.bin/bee-factory start --verbose --detach
+        env:
+          NODE_OPTIONS: '--no-experimental-fetch'
+        run: npm run bee -- --verbose --detach
 
       - name: Run unit and integration tests for node
         run: npm run test:node -- --detectOpenHandles
