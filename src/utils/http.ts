@@ -13,6 +13,10 @@ const DEFAULT_KY_CONFIG: KyOptions = {
   },
 }
 
+interface UndiciError {
+  cause: Error
+}
+
 interface KyResponse<T> extends Response {
   data: T
 }
@@ -152,6 +156,13 @@ export async function http<T>(ky: Ky, config: KyRequestOptions): Promise<KyRespo
     } else if (isHttpRequestError(e)) {
       throw new BeeRequestError(e.message, config)
     } else {
+      // Node 18 has native `fetch` implementation called Undici. Errors from this implementation have top level generic
+      // message "fetch failed" with the more specific error placed into `cause` property. Instead of "fetch failed" we
+      // expose the underlying problem.
+      if ((e as UndiciError).cause) {
+        throw new BeeError((e as UndiciError).cause.message)
+      }
+
       throw new BeeError((e as Error).message)
     }
   }
