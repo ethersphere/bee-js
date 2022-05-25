@@ -1,6 +1,22 @@
 # Changelog
 
 
+## [4.1.0](https://github.com/ethersphere/bee-js/compare/v4.0.0...v4.1.0) (2022-05-25)
+
+
+### Features
+
+* cids support ([#681](https://github.com/ethersphere/bee-js/issues/681)) ([02d8f9c](https://github.com/ethersphere/bee-js/commit/02d8f9cf7476fe565dc0c6d7dd00865a10f263fd))
+* expose underlying undici error messages ([#694](https://github.com/ethersphere/bee-js/issues/694)) ([b164b70](https://github.com/ethersphere/bee-js/commit/b164b702dc4d1f6264428259f7b29c22250d3331))
+* support for waiting on stamp to be usable ([#678](https://github.com/ethersphere/bee-js/issues/678)) ([f675dc3](https://github.com/ethersphere/bee-js/commit/f675dc35dea60745983319751c6eaa1948adea99))
+* wallet endpoint support ([#683](https://github.com/ethersphere/bee-js/issues/683)) ([2af84c0](https://github.com/ethersphere/bee-js/commit/2af84c009bcdec32abea65d227ad4cf059a308fc))
+
+
+### Bug Fixes
+
+* modify the ENS validation to work in safari or older browsers ([#687](https://github.com/ethersphere/bee-js/issues/687)) ([2e172fb](https://github.com/ethersphere/bee-js/commit/2e172fb2e0e4cfba821f6a523ae4feb3dc785f5b))
+* no invalid amount for stamps ([#682](https://github.com/ethersphere/bee-js/issues/682)) ([b2697d5](https://github.com/ethersphere/bee-js/commit/b2697d5f299f47141caf5e5935bf6fa41fb2e5e4))
+
 ## [4.0.0](https://github.com/ethersphere/bee-js/compare/v3.3.4...v4.0.0) (2022-05-18)
 
 This release brings several new features and one ad-hoc breaking fix that is passed on from the new [Bee version 1.6.0](https://github.com/ethersphere/bee/releases/tag/v1.6.0), but affects only the `BeeDebug.getReserveState()` method.
