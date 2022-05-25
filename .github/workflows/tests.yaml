@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x, 17.x]
+        node-version: [12.x, 14.x, 16.x, 18.x]
 
     steps:
       - name: Checkout
@@ -54,7 +54,15 @@ jobs:
 
       # Start Bee Factory environment
       - name: Start Bee Factory environment
-        run: npm run bee -- --detach
+        if:  matrix.node-version != '18.x'
+        run: npm run bee -- --verbose --detach
+
+      # Start Bee Factory environment for Node 18
+      - name: Start Bee Factory environment for Node 18
+        if:  matrix.node-version == '18.x'
+        env:
+          NODE_OPTIONS: '--no-experimental-fetch'
+        run: npm run bee -- --verbose --detach
 
       - name: Run unit and integration tests for node
         run: npm run test:node -- --detectOpenHandles
