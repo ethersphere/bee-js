@@ -1,6 +1,41 @@
 # Changelog
 
 
+## [4.1.0](https://github.com/ethersphere/bee-js/compare/v4.0.0...v4.1.0) (2022-05-24)
+
+Shortly after the last release, we bring you another release that brings some nice improvements and new features together with some fixes.
+
+### ✅  Node 18
+
+We have verified the support for Node 18. It introduces a native implementation of [`fetch` API](https://nodejs.org/api/globals.html#fetch) that we use as HTTP client. This implementation wraps the errors that it throws into a nested Error object, so we unwrap these errors for better error handling.
+
+### ⏳  Waiting for postage stamps to be usable
+
+When a postage stamp is created the (`BeeDebug.createPostageStamp()` method is called), Bee creates an on-chain transaction that creates this transaction in the smart contract, but the stamp is not immediately "usable" as Bee waits for several blockchain blocks in order to be sure that the postage stamp won't disappear from the blockchain. During this period Bee won't accept this stamp and will return the error `stamp is not usable`. After this period Bee pronounces it as usable and the users can upload content using it.
+
+In most use cases, when you create the postage stamp you want to actually wait until the stamp is usable and only then return it to the user. For that, you had to implement your own waiting logic, **but no more!**
+
+The `BeeDebug.createPostageStamp()` method has a new option `waitForUsable` which if specified, then the Promise this method returns is resolved only after the Bee confirms the postage stamp to be usable. **Be aware that if used, then the call time of this method raises dramatically!**
+
+**In the next breaking release this option will be turned on, by default!**
+
+### 🔐  Wallet endpoint support
+
+The [Bee 1.6.0 release](https://github.com/ethersphere/bee/releases/tag/v1.6.0) introduced `/wallet` endpoint that exposes the balance of the node's wallet and some other related metrics. In this release we add support for this endpoint.
+
+### Features
+
+* cids support ([#681](https://github.com/ethersphere/bee-js/issues/681)) ([02d8f9c](https://github.com/ethersphere/bee-js/commit/02d8f9cf7476fe565dc0c6d7dd00865a10f263fd))
+* expose underlying undici error messages ([#694](https://github.com/ethersphere/bee-js/issues/694)) ([b164b70](https://github.com/ethersphere/bee-js/commit/b164b702dc4d1f6264428259f7b29c22250d3331))
+* support for waiting on stamp to be usable ([#678](https://github.com/ethersphere/bee-js/issues/678)) ([f675dc3](https://github.com/ethersphere/bee-js/commit/f675dc35dea60745983319751c6eaa1948adea99))
+* wallet endpoint support ([#683](https://github.com/ethersphere/bee-js/issues/683)) ([2af84c0](https://github.com/ethersphere/bee-js/commit/2af84c009bcdec32abea65d227ad4cf059a308fc))
+
+
+### Bug Fixes
+
+* modify the ENS validation to work in safari or older browsers ([#687](https://github.com/ethersphere/bee-js/issues/687)) ([2e172fb](https://github.com/ethersphere/bee-js/commit/2e172fb2e0e4cfba821f6a523ae4feb3dc785f5b))
+* no invalid amount for stamps ([#682](https://github.com/ethersphere/bee-js/issues/682)) ([b2697d5](https://github.com/ethersphere/bee-js/commit/b2697d5f299f47141caf5e5935bf6fa41fb2e5e4))
+
 ## [4.0.0](https://github.com/ethersphere/bee-js/compare/v3.3.4...v4.0.0) (2022-05-18)
 
 This release brings several new features and one ad-hoc breaking fix that is passed on from the new [Bee version 1.6.0](https://github.com/ethersphere/bee/releases/tag/v1.6.0), but affects only the `BeeDebug.getReserveState()` method.
