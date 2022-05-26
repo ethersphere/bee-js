@@ -3,6 +3,7 @@
 
 ### [4.1.1](https://github.com/ethersphere/bee-js/compare/v4.1.0...v4.1.1) (2022-05-26)
 
+This is a hotfix release to our build setup that published bee-js with a broken package structure.
 
 ### Bug Fixes
 
