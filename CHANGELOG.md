@@ -1,6 +1,14 @@
 # Changelog
 
 
+### [4.1.1](https://github.com/ethersphere/bee-js/compare/v4.1.0...v4.1.1) (2022-05-26)
+
+This is a hotfix release to our build setup that published bee-js with a broken package structure.
+
+### Bug Fixes
+
+* move sleep to have all code in src ([#696](https://github.com/ethersphere/bee-js/issues/696)) ([19171cc](https://github.com/ethersphere/bee-js/commit/19171cc3ccd3c3cce35abd1b2dfb6874e4fcb30d))
+
 ## [4.1.0](https://github.com/ethersphere/bee-js/compare/v4.0.0...v4.1.0) (2022-05-24)
 
 Shortly after the last release, we bring you another release that brings some nice improvements and new features together with some fixes.
