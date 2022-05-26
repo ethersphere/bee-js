@@ -62,7 +62,7 @@ import * as tag from './modules/debug/tag'
 import * as stamps from './modules/debug/stamps'
 import type { Options as KyOptions } from 'ky-universal'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
-import { sleep } from '../test/utils'
+import { sleep } from './utils/sleep'
 
 export class BeeDebug {
   /**

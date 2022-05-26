@@ -4,19 +4,20 @@ import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
 import ky from 'ky-universal'
 
 import type {
-  Ky,
-  BeeGenericResponse,
-  Reference,
   Address,
   BatchId,
-  PostageBatch,
+  BeeGenericResponse,
+  Ky,
   PlainBytesReference,
+  PostageBatch,
+  Reference,
 } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
 import { assertBytes } from '../src/utils/bytes'
 import * as stamps from '../src/modules/debug/stamps'
+import { sleep } from '../src/utils/sleep'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -116,15 +117,6 @@ export function commonMatchers(): void {
           }
     },
   })
-}
-
-/**
- * Sleep for N miliseconds
- *
- * @param ms Number of miliseconds to sleep
- */
-export async function sleep(ms: number): Promise<void> {
-  return new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 }
 
 /**

@@ -7,7 +7,8 @@ import {
 } from '../../../../src/modules/debug/chequebook'
 import { NumberString } from '../../../../src/types'
 import { isPrefixedHexString } from '../../../../src/utils/hex'
-import { beeDebugKy, commonMatchers, sleep } from '../../../utils'
+import { beeDebugKy, commonMatchers } from '../../../utils'
+import { sleep } from '../../../../src/utils/sleep'
 
 if (process.env.BEE_TEST_CHEQUEBOOK) {
   commonMatchers()

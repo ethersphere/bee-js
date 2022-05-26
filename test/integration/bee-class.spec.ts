@@ -21,7 +21,6 @@ import {
   makeTestTarget,
   PSS_TIMEOUT,
   randomByteArray,
-  sleep,
   testChunkPayload,
   testIdentity,
   testJsonHash,
@@ -30,6 +29,7 @@ import {
 } from '../utils'
 import { Readable } from 'stream'
 import { TextEncoder } from 'util'
+import { sleep } from '../../src/utils/sleep'
 
 commonMatchers()
 
