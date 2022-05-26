@@ -4,9 +4,9 @@ import {
   commonMatchers,
   getOrCreatePostageBatch,
   BLOCKCHAIN_TRANSACTION_TIMEOUT,
-  sleep,
   WAITING_USABLE_STAMP_TIMEOUT,
 } from '../utils'
+import { sleep } from '../../src/utils/sleep'
 
 commonMatchers()
 
