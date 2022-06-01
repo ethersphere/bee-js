@@ -6,7 +6,7 @@ import getMajorSemver from 'semver/functions/major.js'
 
 // Following lines bellow are automatically updated with GitHub Action when Bee version is updated
 // so if you are changing anything about them change the `update_bee` action accordingly!
-export const SUPPORTED_BEE_VERSION_EXACT = '1.6.0-6ceadd35'
+export const SUPPORTED_BEE_VERSION_EXACT = '1.6.1-364bf924'
 export const SUPPORTED_API_VERSION = '3.0.1'
 export const SUPPORTED_DEBUG_API_VERSION = '2.0.1'
 
