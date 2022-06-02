@@ -116,7 +116,7 @@ jobs:
 
       - name: Find Release Notes comment
         if: steps.pr.outputs.pull-request-number && steps.release-notes.outputs.body
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v2
         id: comment
         with:
           token: ${{ secrets.REPO_GHA_PAT }}
