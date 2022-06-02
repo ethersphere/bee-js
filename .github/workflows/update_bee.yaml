@@ -93,6 +93,14 @@ jobs:
           include: "src/modules/debug/status.ts"
           regex: true
 
+      - name: Replace README version
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "<!-- SUPPORTED_BEE_START -->.*?<!-- SUPPORTED_BEE_END -->"
+          replace: "<!-- SUPPORTED_BEE_START -->${{ env.TARGET_BRANCH }}<!-- SUPPORTED_BEE_END -->"
+          include: README.md
+          regex: true
+
       - name: Create/update PR
         id: pr
         uses: gr2m/create-or-update-pull-request-action@v1
