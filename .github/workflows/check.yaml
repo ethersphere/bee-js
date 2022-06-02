@@ -40,7 +40,7 @@ jobs:
         run: npm ci
 
       - name: Commit linting
-        uses: wagoid/commitlint-github-action@v2
+        uses: wagoid/commitlint-github-action@v4
 
       - name: Code linting
         run: npm run lint:check
