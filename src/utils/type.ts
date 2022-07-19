@@ -200,12 +200,13 @@ export function makeReferenceOrEns(value: unknown, expectedCidType: ReferenceTyp
  * @param cidType Type as described in the @ethersphere/swarm-cids-js -> ReferenceType
  */
 export function addCidConversionFunction(result: UploadResult, cidType: ReferenceType): UploadResultWithCid {
-  return {
-    ...result,
-    get cid() {
+  Object.defineProperty(result, 'cid', {
+    get: () => {
       return encodeReference(result.reference, cidType).toString()
     },
-  }
+  })
+
+  return result as UploadResultWithCid
 }
 
 export function assertAddress(value: unknown): asserts value is Address {
