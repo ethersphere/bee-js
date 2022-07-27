@@ -194,12 +194,6 @@ export interface NodeInfo {
   swapEnabled: boolean
 }
 
-/**
- * Information about Bee node and its configuration
- * @deprecated Use NodeInfo instead
- */
-export type NodesInfo = NodeInfo
-
 export interface RemovePeerResponse {
   message: string
   code: 0
