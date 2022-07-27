@@ -202,8 +202,8 @@ export interface RemovePeerResponse {
 export interface Bin {
   population: number
   connected: number
-  disconnectedPeers: Peer[] | null
-  connectedPeers: Peer[] | null
+  disconnectedPeers: Peer[]
+  connectedPeers: Peer[]
 }
 
 export interface Topology {
