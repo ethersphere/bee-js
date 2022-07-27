@@ -500,11 +500,6 @@ export interface PostageBatch {
   exists: boolean
 }
 
-/**
- * @deprecated Use PostageBatch instead.
- */
-export type DebugPostageBatch = PostageBatch
-
 export interface BatchBucket {
   bucketID: number
   collisions: number
