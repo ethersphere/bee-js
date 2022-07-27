@@ -202,7 +202,7 @@ export function makeReferenceOrEns(value: unknown, expectedCidType: ReferenceTyp
 export function addCidConversionFunction(result: UploadResult, cidType: ReferenceType): UploadResultWithCid {
   return {
     ...result,
-    get cid() {
+    cid() {
       return encodeReference(result.reference, cidType).toString()
     },
   }
