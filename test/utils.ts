@@ -431,6 +431,8 @@ export const testChunkSpan = new Uint8Array([testChunkPayload.length, 0, 0, 0, 0
 export const testChunkData = new Uint8Array([...testChunkSpan, ...testChunkPayload])
 // the hash is hardcoded because we would need the bmt hasher otherwise
 export const testChunkHash = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as Reference
+export const testChunkEncryptedReference =
+  'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as Reference
 export const testAddress = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as Address
 export const testBatchId = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338' as BatchId
 

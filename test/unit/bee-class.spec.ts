@@ -14,6 +14,7 @@ import {
 import {
   randomByteArray,
   testBatchId,
+  testChunkEncryptedReference,
   testChunkHash,
   testIdentity,
   testJsonCid,
@@ -85,11 +86,32 @@ describe('Bee class', () => {
     const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders })
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
-    expect(reference).toEqual({
-      cid: testJsonCid,
-      reference: testJsonHash,
-      tagUid: 123,
-    })
+    expect(reference).toEqual(
+      expect.objectContaining({
+        reference: testJsonHash,
+        tagUid: 123,
+      }),
+    )
+
+    expect(reference.cid()).toEqual(testJsonCid)
+  })
+
+  it('cid should throw for encrypted references', async () => {
+    uploadFileMock(testBatchId, 'nice.txt').reply(200, {
+      reference: testChunkEncryptedReference,
+    } as ReferenceResponse)
+
+    const bee = new Bee(MOCK_SERVER_URL)
+    const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
+
+    expect(reference).toEqual(
+      expect.objectContaining({
+        reference: testChunkEncryptedReference,
+        tagUid: 123,
+      }),
+    )
+
+    expect(() => reference.cid()).toThrow(TypeError)
   })
 
   describe('uploadData', () => {
@@ -896,11 +918,14 @@ describe('Bee class', () => {
 
       const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt', { encrypt: true })
 
-      expect(reference).toEqual({
-        cid: testJsonCid,
-        reference: testJsonHash,
-        tagUid: 123,
-      })
+      expect(reference).toEqual(
+        expect.objectContaining({
+          reference: testJsonHash,
+          tagUid: 123,
+        }),
+      )
+
+      expect(reference.cid()).toEqual(testJsonCid)
 
       expect(requestSpy.mock.calls.length).toEqual(1)
       expect(requestSpy.mock.calls[0].length).toEqual(1)

@@ -85,7 +85,7 @@ describe('Bee class', () => {
       const contentType = 'text/html'
 
       const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType })
-      const file = await bee.downloadFile(result.cid)
+      const file = await bee.downloadFile(result.cid())
 
       expect(file.name).toEqual(name)
       expect(file.data).toEqual(content)
@@ -254,7 +254,7 @@ describe('Bee class', () => {
       ]
 
       const result = await bee.uploadCollection(getPostageBatch(), directoryStructure)
-      const file = await bee.downloadFile(result.cid, directoryStructure[0].path)
+      const file = await bee.downloadFile(result.cid(), directoryStructure[0].path)
 
       expect(file.name).toEqual(directoryStructure[0].path)
       expect(file.data.text()).toEqual('hello-CID-world')
