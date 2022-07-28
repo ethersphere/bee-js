@@ -3,6 +3,12 @@
 
 ## [5.0.0](https://github.com/ethersphere/bee-js/compare/v4.1.1...v5.0.0) (2022-07-28)
 
+This is a breaking release that brings support for Bee 1.7 and cleans up some long awaiting breaking changes that we had lined up:
+
+- We have removed interfaces `DebugPostageBatch` (for `PostageBatch`) and `NodesInfo` (for `NodeInfo`).
+- We have changed the `cid` property of the `UploadResultWithCid` interface to be a function instead of getter as this property is not available for encrypted references which caused some troubles when serializing the whole object.
+- We have enabled by default waiting for the newly created postage batches to be usable (originally the `waitForUsable` property of the `BeeDebug.createPostageBatch()` defaulted to `false`, now it is `true`).
+- We have added support for the `Bee. createFeedManifest()` to return object instead of directly reference that also has support for getting CID with the `.cid()` function.
 
 ### ⚠ BREAKING CHANGES
 
