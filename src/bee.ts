@@ -69,6 +69,7 @@ import {
   AllTagsOptions,
   CHUNK_SIZE,
   Collection,
+  FeedManifestResult,
   Ky,
   Readable,
   ReferenceCidOrEns,
@@ -892,7 +893,6 @@ export class Bee {
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
    * @see [Bee API reference - `POST /feeds`](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1{owner}~1{topic}/post)
-   * TODO: Once breaking add support for Feed CID
    */
   async createFeedManifest(
     postageBatchId: string | BatchId,
@@ -900,7 +900,7 @@ export class Bee {
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
     options?: RequestOptions,
-  ): Promise<Reference> {
+  ): Promise<FeedManifestResult> {
     assertRequestOptions(options)
     assertFeedType(type)
     assertBatchId(postageBatchId)
@@ -908,7 +908,11 @@ export class Bee {
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
 
-    return createFeedManifest(this.getKy(options), canonicalOwner, canonicalTopic, postageBatchId, { type })
+    const reference = await createFeedManifest(this.getKy(options), canonicalOwner, canonicalTopic, postageBatchId, {
+      type,
+    })
+
+    return addCidConversionFunction({ reference }, ReferenceType.FEED)
   }
 
   /**

@@ -405,6 +405,23 @@ export const TOPIC_HEX_LENGTH = 64
 export type Topic = HexString<typeof TOPIC_HEX_LENGTH>
 
 /**
+ * Result of upload calls.
+ */
+export interface FeedManifestResult {
+  /**
+   * Reference of the uploaded data
+   */
+  reference: Reference
+
+  /**
+   * Function that converts the reference into Swarm Feed CID.
+   *
+   * @see https://github.com/ethersphere/swarm-cid-js
+   */
+  cid: () => string
+}
+
+/**
  * FeedReader is an interface for downloading feed updates
  */
 export interface FeedReader {

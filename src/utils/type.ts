@@ -25,8 +25,6 @@ import {
   PostageBatchOptions,
   CashoutOptions,
   ReferenceOrEns,
-  UploadResult,
-  UploadResultWithCid,
 } from '../types'
 import { BeeArgumentError, BeeError } from './error'
 import { isFile } from './file'
@@ -199,7 +197,10 @@ export function makeReferenceOrEns(value: unknown, expectedCidType: ReferenceTyp
  * @param result
  * @param cidType Type as described in the @ethersphere/swarm-cids-js -> ReferenceType
  */
-export function addCidConversionFunction(result: UploadResult, cidType: ReferenceType): UploadResultWithCid {
+export function addCidConversionFunction<T extends { reference: string }>(
+  result: T,
+  cidType: ReferenceType,
+): T & { cid: () => string } {
   return {
     ...result,
     cid() {

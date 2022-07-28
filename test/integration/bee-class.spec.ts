@@ -578,12 +578,17 @@ describe('Bee class', () => {
 
         const feed = bee.makeFeedWriter('sequence', topic, signer)
         await feed.upload(getPostageBatch(), cacResult.reference)
-        const manifestReference = await bee.createFeedManifest(getPostageBatch(), 'sequence', topic, owner)
+        const manifestResult = await bee.createFeedManifest(getPostageBatch(), 'sequence', topic, owner)
 
-        expect(typeof manifestReference).toBe('string')
+        expect(manifestResult).toEqual(
+          expect.objectContaining({
+            reference: expect.any(String),
+            cid: expect.any(Function),
+          }),
+        )
 
         // this calls /bzz endpoint that should resolve the manifest and the feed returning the latest feed's content
-        const file = await bee.downloadFile(manifestReference, 'index.html')
+        const file = await bee.downloadFile(manifestResult.reference, 'index.html')
         expect(new TextDecoder().decode(file.data)).toEqual('some data')
       },
       FEED_TIMEOUT,
