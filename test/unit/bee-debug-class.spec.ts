@@ -366,7 +366,7 @@ describe('BeeDebug class', () => {
       createPostageBatchMock('10', '17').reply(201, BATCH_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.createPostageBatch('10', 17)).resolves.toEqual(BATCH_ID)
+      await expect(bee.createPostageBatch('10', 17, { waitForUsable: false })).resolves.toEqual(BATCH_ID)
       assertAllIsDone()
     })
 
@@ -374,7 +374,9 @@ describe('BeeDebug class', () => {
       createPostageBatchMock('10', '17', '100').reply(201, BATCH_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.createPostageBatch('10', 17, { gasPrice: '100' })).resolves.toEqual(BATCH_ID)
+      await expect(bee.createPostageBatch('10', 17, { waitForUsable: false, gasPrice: '100' })).resolves.toEqual(
+        BATCH_ID,
+      )
       assertAllIsDone()
     })
 
