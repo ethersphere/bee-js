@@ -582,8 +582,8 @@ describe('Bee class', () => {
 
         expect(manifestResult).toEqual(
           expect.objectContaining({
-            reference: String,
-            cid: Function,
+            reference: expect.any(String),
+            cid: expect.any(Function),
           }),
         )
 
