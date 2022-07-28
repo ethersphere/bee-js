@@ -25,7 +25,7 @@ describe('Bee Debug class', () => {
         const allBatches = await beeDebug.getAllPostageBatch()
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
       },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT,
+      WAITING_USABLE_STAMP_TIMEOUT + BLOCKCHAIN_TRANSACTION_TIMEOUT,
     )
 
     it(
@@ -33,9 +33,9 @@ describe('Bee Debug class', () => {
       async () => {
         const batchId = await beeDebug.createPostageBatch('1000', 17, { waitForUsable: false })
         const stamp = await beeDebug.getPostageBatch(batchId)
-        expect(stamp.usable).toEqual(true)
+        expect(stamp.usable).toEqual(false)
       },
-      WAITING_USABLE_STAMP_TIMEOUT + BLOCKCHAIN_TRANSACTION_TIMEOUT,
+      BLOCKCHAIN_TRANSACTION_TIMEOUT,
     )
 
     // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
