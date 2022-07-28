@@ -567,12 +567,12 @@ export interface PostageBatchOptions extends RequestOptions {
   /**
    * The returned Promise will await until the purchased Postage Batch is usable.
    * In other word, it has to have enough block confirmations that Bee pronounce it usable.
-   * If turned on, this significantly prolong the creation of postage batch!
+   * When turned on, this significantly prolongs the creation of postage batch!
+   *
    * If you plan to use the stamp right away for some action with Bee (like uploading using this stamp) it is
    * highly recommended to use this option, otherwise you might get errors "stamp not usable" from Bee.
    *
-   * In next breaking release this option will be turned on by default.
-   * @default false
+   * @default true
    */
   waitForUsable?: boolean
 

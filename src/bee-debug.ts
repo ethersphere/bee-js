@@ -527,7 +527,7 @@ export class BeeDebug {
 
     const stamp = await stamps.createPostageBatch(this.getKy(options), amount, depth, options)
 
-    if (options?.waitForUsable) {
+    if (options?.waitForUsable !== false) {
       await this.waitForUsablePostageStamp(stamp, options?.waitForUsableTimeout)
     }
 

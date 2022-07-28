@@ -16,26 +16,26 @@ describe('Bee Debug class', () => {
 
   describe('PostageBatch', () => {
     it(
-      'should create a new postage batch with zero amount',
+      'should create a new postage batch with zero amount and be usable',
       async () => {
         const batchId = await beeDebug.createPostageBatch('10', 17)
         const stamp = await beeDebug.getPostageBatch(batchId)
-        expect(stamp.usable).toEqual(false)
+        expect(stamp.usable).toEqual(true)
 
         const allBatches = await beeDebug.getAllPostageBatch()
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
       },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT,
+      WAITING_USABLE_STAMP_TIMEOUT + BLOCKCHAIN_TRANSACTION_TIMEOUT,
     )
 
     it(
-      'should wait for the stamp to be usable',
+      'should not wait for the stamp to be usable if specified',
       async () => {
-        const batchId = await beeDebug.createPostageBatch('1000', 17, { waitForUsable: true })
+        const batchId = await beeDebug.createPostageBatch('1000', 17, { waitForUsable: false })
         const stamp = await beeDebug.getPostageBatch(batchId)
-        expect(stamp.usable).toEqual(true)
+        expect(stamp.usable).toEqual(false)
       },
-      WAITING_USABLE_STAMP_TIMEOUT + BLOCKCHAIN_TRANSACTION_TIMEOUT,
+      BLOCKCHAIN_TRANSACTION_TIMEOUT,
     )
 
     // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
@@ -70,8 +70,8 @@ describe('Bee Debug class', () => {
     it(
       'should have both immutable true and false',
       async () => {
-        await beeDebug.createPostageBatch('1', 17, { immutableFlag: true })
-        await beeDebug.createPostageBatch('1', 17, { immutableFlag: false })
+        await beeDebug.createPostageBatch('1', 17, { immutableFlag: true, waitForUsable: false })
+        await beeDebug.createPostageBatch('1', 17, { immutableFlag: false, waitForUsable: false })
         const allBatches = await beeDebug.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
