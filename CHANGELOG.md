@@ -1,6 +1,45 @@
 # Changelog
 
 
+## [5.0.0](https://github.com/ethersphere/bee-js/compare/v4.1.1...v5.0.0) (2022-07-28)
+
+This is a breaking release that brings support for Bee 1.7 and cleans up some long awaiting breaking changes that we had lined up:
+
+- We have removed interfaces `DebugPostageBatch` (for `PostageBatch`) and `NodesInfo` (for `NodeInfo`).
+- We have changed the `cid` property of the `UploadResultWithCid` interface to be a function instead of getter as this property is not available for encrypted references which caused some troubles when serializing the whole object.
+- We have enabled by default waiting for the newly created postage batches to be usable (originally the `waitForUsable` property of the `BeeDebug.createPostageBatch()` defaulted to `false`, now it is `true`).
+- We have added support for the `Bee. createFeedManifest()` to return object instead of directly reference that also has support for getting CID with the `.cid()` function.
+
+### ⚠ BREAKING CHANGES
+
+* enable waiting for postage batch to be usable by default (#746)
+* adds support for Feed Manifest CID (#745)
+* drop node 12 support (#741)
+* drop DebugPostageBatch in favor of PostageBatch inteface (#743)
+* drop NodesInfo in favor of NodeInfo inteface (#742)
+* convert cid getter to function (#740)
+
+### Features
+
+* adds support for Feed Manifest CID ([#745](https://github.com/ethersphere/bee-js/issues/745)) ([37c5b55](https://github.com/ethersphere/bee-js/commit/37c5b552544a7d239de934b064726c2861de83ff))
+* enable waiting for postage batch to be usable by default ([#746](https://github.com/ethersphere/bee-js/issues/746)) ([cb05d22](https://github.com/ethersphere/bee-js/commit/cb05d220998f39e214684cf9e24d0005c4adc96d))
+
+
+### Bug Fixes
+
+* convert cid getter to function ([#740](https://github.com/ethersphere/bee-js/issues/740)) ([0b46862](https://github.com/ethersphere/bee-js/commit/0b4686299b2de320220c5beafb2e4c13c64bad80))
+
+
+### Code Refactoring
+
+* drop DebugPostageBatch in favor of PostageBatch inteface ([#743](https://github.com/ethersphere/bee-js/issues/743)) ([3f66764](https://github.com/ethersphere/bee-js/commit/3f66764dcabd724c6a29612bcb7f9e0f5122d77f))
+* drop NodesInfo in favor of NodeInfo inteface ([#742](https://github.com/ethersphere/bee-js/issues/742)) ([acddb14](https://github.com/ethersphere/bee-js/commit/acddb14d85698a7dc26ea2ed183a13732b8c8d95))
+
+
+### Miscellaneous Chores
+
+* drop node 12 support ([#741](https://github.com/ethersphere/bee-js/issues/741)) ([f79eb3f](https://github.com/ethersphere/bee-js/commit/f79eb3fcc9d51fcc6cb57f89cb30b1377b07c5d4))
+
 ### [4.1.1](https://github.com/ethersphere/bee-js/compare/v4.1.0...v4.1.1) (2022-05-26)
 
 This is a hotfix release to our build setup that published bee-js with a broken package structure.
