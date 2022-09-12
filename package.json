@@ -72,7 +72,7 @@
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
     "ky": "^0.25.1",
-    "ky-universal": "^0.8.2",
+    "ky-universal": "^0.10.1",
     "semver": "^7.3.5",
     "tar-js": "^0.3.0",
     "utf-8-validate": "^5.0.9",
