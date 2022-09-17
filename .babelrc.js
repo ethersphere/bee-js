@@ -27,7 +27,9 @@ module.exports = function (api) {
           helpers: false,
           regenerator: true
         }
-      ]
+      ],
+      "@babel/plugin-proposal-nullish-coalescing-operator",
+      '@babel/plugin-proposal-optional-chaining',
     ]
   }
 }

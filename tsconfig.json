@@ -1,7 +1,18 @@
 {
-  "extends": "./tsconfig-base.json",
+  "include": ["src"],
   "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "dist/cjs",
-  }
+    "alwaysStrict": true,
+    "target": "ES2018",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "module": "CommonJS",
+    "strict": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": ["./src/types", "node_modules/@types"],
+    "rootDirs": ["src"],
+    "outDir": "dist"
+  },
 }

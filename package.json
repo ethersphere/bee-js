@@ -22,17 +22,10 @@
     "type": "git",
     "url": "https://github.com/ethersphere/bee-js.git"
   },
-  "main": "dist/cjs/index.js",
-  "module": "dist/mjs/index.js",
-  "exports": {
-    ".": {
-      "import": "./dist/mjs/index.js",
-      "require": "./dist/cjs/index.js"
-    }
-  },
+  "main": "dist/index.min.js",
   "types": "dist/types/index.d.ts",
   "browser": {
-    "stream": false,
+    "./dist/index.min.js": "./dist/index.browser.min.js",
     "./src/utils/data.ts": "./src/utils/data.browser.ts",
     "./dist/cjs/utils/data.js": "./dist/cjs/utils/data.browser.js",
     "./dist/mjs/utils/data.js": "./dist/mjs/utils/data.browser.js",
@@ -44,24 +37,23 @@
     "dist"
   ],
   "scripts": {
-    "prepublishOnly": "cross-env NODE_ENV=production npm run build",
-    "build": "rimraf dist && npm run build:node && npm run build:types && npm run build:browser",
-    "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup && babel --plugins \"babel-plugin-add-import-extension\" --out-dir dist/mjs/ dist/mjs/",
-    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
-    "build:browser": "webpack --progress",
+    "prepare": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production && npm run compile:node --env mode=production",
+    "compile:node": "webpack --progress --env target=node",
+    "compile:types": "tsc --emitDeclarationOnly --declaration",
+    "compile:browser": "webpack --progress --env target=web",
     "mock-ci": "npm run lint:check && npm run check:types && npm run test",
-    "test": "npm run build:browser && jest --verbose --selectProjects=node:unit node:integration dom:integration --config=jest.config.ts",
-    "test:integration:browser": "npm run build:browser && jest --verbose --selectProjects=dom:integration --config=jest.config.ts",
+    "docs": "rimraf docs && typedoc",
+    "test": "npm run compile:browser && jest --verbose --selectProjects=node:unit node:integration dom:integration --config=jest.config.ts",
+    "test:integration:browser": "npm run compile:browser && jest --verbose --selectProjects=dom:integration --config=jest.config.ts",
     "test:integration:node": "jest --verbose --selectProjects=node:integration --config=jest.config.ts",
-    "test:integration": "npm run build:browser && jest --verbose --selectProjects=node:integration dom:integration --config=jest.config.ts",
+    "test:integration": "npm run compile:browser && jest --verbose --selectProjects=node:integration dom:integration --config=jest.config.ts",
     "test:unit": "jest --verbose --selectProjects=node:unit --config=jest.config.ts ",
     "test:node": "jest --verbose --selectProjects=node:unit node:integration --config=jest.config.ts",
     "test:browser": "npm run test:integration:browser",
     "check:types": "tsc --project tsconfig.test.json",
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-    "depcheck": "depcheck .",
-    "bee": "bee-factory start"
+    "depcheck": "depcheck ."
   },
   "dependencies": {
     "@ethersphere/swarm-cid": "^0.1.0",
@@ -83,6 +75,8 @@
     "@babel/cli": "^7.17.10",
     "@babel/core": "^7.18.2",
     "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.18.6",
+    "@babel/plugin-proposal-optional-chaining": "^7.18.9",
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-typescript": "^7.14.5",
