@@ -23,7 +23,7 @@
     "url": "https://github.com/ethersphere/bee-js.git"
   },
   "main": "dist/index.min.js",
-  "types": "dist/types/index.d.ts",
+  "types": "dist/index.d.ts",
   "browser": {
     "./dist/index.min.js": "./dist/index.browser.min.js",
     "./src/utils/data.ts": "./src/utils/data.browser.ts",
@@ -37,7 +37,7 @@
     "dist"
   ],
   "scripts": {
-    "prepare": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production && npm run compile:node --env mode=production",
+    "prepare": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production",
     "compile:node": "webpack --progress --env target=node",
     "compile:types": "tsc --emitDeclarationOnly --declaration",
     "compile:browser": "webpack --progress --env target=web",
