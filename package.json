@@ -37,7 +37,7 @@
     "dist"
   ],
   "scripts": {
-    "prepare": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production",
+    "prepare": "rimraf dist && npm run compile:types && npm run compile:browser --env mode=production && npm run compile:node --env mode=production",
     "compile:node": "webpack --progress --env target=node14",
     "compile:types": "tsc --emitDeclarationOnly --declaration",
     "compile:browser": "webpack --progress --env target=web",
