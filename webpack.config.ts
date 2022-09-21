@@ -18,7 +18,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
   const isBrowser = env?.target === 'web'
   const filename =
     env?.fileName ||
-    ['index', isBrowser ? '.browser' : null, isProduction ? '.min' : null, '.js'].filter(Boolean).join('')
+    ['index', isBrowser ? '.browser' : null, isProduction ? '.min' : null, '.mjs'].filter(Boolean).join('')
   const entry = Path.resolve(__dirname, 'src')
   const path = Path.resolve(__dirname, 'dist')
   const target = env?.target || 'web' // 'node' or 'web'
@@ -29,6 +29,8 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       'process.env.IS_WEBPACK_BUILD': 'true',
     }),
   ]
+
+  // web-streams-polyfill/ponyfill/es2018
 
   if (target === 'web') {
     const browserPathMapping = await getBrowserPathMapping()
@@ -56,7 +58,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
     output: {
       path,
       filename,
-      sourceMapFilename: filename + '.map',
+      // sourceMapFilename: filename + isBrowser ? 'browser' : '' + '.map',
       // library: 'BeeJs',
       libraryTarget: 'module',
       globalObject: 'this',
@@ -77,7 +79,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
       fallback: {
         path: false,
         fs: false,
-        stream: false,
+        'web-streams-polyfill/ponyfill/es2018': require.resolve('web-streams-polyfill/ponyfill')
       },
     },
     optimization: {
