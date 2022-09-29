@@ -1,7 +1,7 @@
 import * as bzz from '../../../src/modules/bzz'
 import * as tag from '../../../src/modules/tag'
 import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
-import { makeCollectionFromFS } from '../../../src/utils/collection.node'
+import { makeCollectionFromFS } from '../../../src/utils/collection-node'
 import { beeKy, BIG_FILE_TIMEOUT, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
 import { Readable } from 'stream'
 
@@ -21,7 +21,7 @@ describe('modules/bzz', () => {
       const file = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
 
       expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data).toEqual(directoryStructure[0].data)
+      expect(file.data.array()).toEqual(directoryStructure[0].data)
     })
 
     it('should retrieve the filename but not the complete path', async () => {
@@ -38,7 +38,7 @@ describe('modules/bzz', () => {
       const file = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
 
       expect(file.name).toEqual(name)
-      expect(file.data).toEqual(directoryStructure[0].data)
+      expect(file.data.array()).toEqual(directoryStructure[0].data)
     })
 
     it('should work with pinning', async () => {
@@ -53,7 +53,7 @@ describe('modules/bzz', () => {
       const file = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
 
       expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data).toEqual(directoryStructure[0].data)
+      expect(file.data.array()).toEqual(directoryStructure[0].data)
     })
 
     it('should work with encryption', async () => {
@@ -68,7 +68,7 @@ describe('modules/bzz', () => {
       const file = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
 
       expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data).toEqual(directoryStructure[0].data)
+      expect(file.data.array()).toEqual(directoryStructure[0].data)
       expect(result.reference.length).toEqual(ENCRYPTED_REFERENCE_HEX_LENGTH)
     })
 
@@ -110,11 +110,11 @@ describe('modules/bzz', () => {
 
       const file0 = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[0].path)
       expect(file0.name).toEqual(directoryStructure[0].path)
-      expect(file0.data).toEqual(directoryStructure[0].data)
+      expect(file0.data.array()).toEqual(directoryStructure[0].data)
 
       const file1 = await bzz.downloadFile(BEE_KY, result.reference, directoryStructure[1].path)
       expect(file1.name).toEqual(directoryStructure[1].path)
-      expect(file1.data).toEqual(directoryStructure[1].data)
+      expect(file1.data.array()).toEqual(directoryStructure[1].data)
     })
 
     it('should store and retrieve collection with index document', async () => {
@@ -135,7 +135,7 @@ describe('modules/bzz', () => {
 
       const indexFile = await bzz.downloadFile(BEE_KY, result.reference)
       expect(indexFile.name).toEqual(directoryStructure[0].path)
-      expect(indexFile.data).toEqual(directoryStructure[0].data)
+      expect(indexFile.data.array()).toEqual(directoryStructure[0].data)
     })
 
     it('should store and retrieve collection with error document', async () => {
@@ -156,7 +156,7 @@ describe('modules/bzz', () => {
 
       const errorFile = await bzz.downloadFile(BEE_KY, result.reference, 'error')
       expect(errorFile.name).toEqual(directoryStructure[0].path)
-      expect(errorFile.data).toEqual(directoryStructure[0].data)
+      expect(errorFile.data.array()).toEqual(directoryStructure[0].data)
     })
 
     it('should store and retrieve actual directory', async () => {
@@ -170,7 +170,7 @@ describe('modules/bzz', () => {
 
       const file3 = await bzz.downloadFile(BEE_KY, result.reference, `${subDir}${file3Name}`)
       expect(file3.name).toEqual(file3Name)
-      expect(file3.data).toEqual(data)
+      expect(file3.data.array()).toEqual(data)
     })
 
     it('should store and retrieve actual directory with index document', async () => {
@@ -185,7 +185,7 @@ describe('modules/bzz', () => {
 
       const file1 = await bzz.downloadFile(BEE_KY, result.reference)
       expect(file1.name).toEqual(fileName)
-      expect(file1.data).toEqual(data)
+      expect(file1.data.array()).toEqual(data)
     })
   })
 
@@ -197,7 +197,7 @@ describe('modules/bzz', () => {
       const result = await bzz.uploadFile(BEE_KY, data, getPostageBatch(), filename)
       const fileData = await bzz.downloadFile(BEE_KY, result.reference)
 
-      expect(Buffer.from(fileData.data).toString()).toEqual(data)
+      expect(fileData.data.text()).toEqual(data)
       expect(fileData.name).toEqual(filename)
     })
 
@@ -207,7 +207,7 @@ describe('modules/bzz', () => {
       const result = await bzz.uploadFile(BEE_KY, data, getPostageBatch())
       const fileData = await bzz.downloadFile(BEE_KY, result.reference)
 
-      expect(Buffer.from(fileData.data).toString()).toEqual(data)
+      expect(fileData.data.text()).toEqual(data)
     })
 
     it('should store readable file', async () => {
@@ -219,7 +219,7 @@ describe('modules/bzz', () => {
       })
       const fileData = await bzz.downloadFile(BEE_KY, result.reference)
 
-      expect(fileData.data).toEqual(data)
+      expect(fileData.data.array()).toEqual(data)
     })
 
     it('should store file with a tag', async () => {

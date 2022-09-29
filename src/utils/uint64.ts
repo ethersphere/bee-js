@@ -1,4 +1,5 @@
-import { Bytes, makeBytes } from './bytes'
+import { makeBytes } from './bytes'
+import type { Bytes } from '../utils/bytes'
 
 // TODO handle bigger values than 32 bit
 // For now it's good enough because we only use these functions

@@ -1,5 +1,6 @@
-import { Bytes, assertBytes } from '../../../src/utils/bytes'
 import { makeSingleOwnerChunk } from '../../../src/chunk/soc'
+import { assertBytes } from '../../../src/utils/bytes'
+import type { Bytes } from '../../../src/utils/bytes'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { testIdentity } from '../../utils'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'

@@ -1,10 +1,14 @@
 // For ESM compatibility
 import pkg from 'js-sha3'
+
 const { keccak256, sha3_256 } = pkg
 
-import { BrandedString, Data, Signer } from '../types'
-import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
-import { Bytes, assertBytes } from './bytes'
+import { hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
+import { assertBytes } from './bytes'
+
+import type { HexString } from './hex'
+import type { Bytes } from '../utils/bytes'
+import type { BrandedString, Data, Signer } from '../types'
 
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 export type EthAddress = Bytes<20>

@@ -321,7 +321,12 @@ export interface Pin {
  *
  * Concretely: text(), hex(), json()
  */
-export interface Data extends Uint8Array {
+export interface Data {
+  /**
+   * The raw binary data in form of Uint8Array
+   */
+  array(): Uint8Array
+
   /**
    * Converts the binary data using UTF-8 decoding into string.
    */
@@ -649,4 +654,4 @@ interface JsonMap {
 }
 type JsonArray = Array<AnyJson>
 
-type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>
+export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>

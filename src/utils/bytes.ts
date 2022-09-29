@@ -152,9 +152,10 @@ export function makeBytes<Length extends number>(length: Length): Bytes<Length> 
 }
 
 export function wrapBytesWithHelpers(data: Uint8Array): Data {
-  return Object.assign(data, {
+  return {
+    array: () => data,
     text: () => new TextDecoder('utf-8').decode(data),
     json: () => JSON.parse(new TextDecoder('utf-8').decode(data)),
     hex: () => bytesToHex(data),
-  })
+  }
 }

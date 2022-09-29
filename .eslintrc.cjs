@@ -2,7 +2,7 @@ module.exports = {
   extends: ['plugin:@typescript-eslint/recommended', 'prettier', 'plugin:prettier/recommended'],
   parserOptions: {
     sourceType: 'module',
-    ecmaVersion: 2018,
+    ecmaVersion: 2020,
     project: './tsconfig.test.json',
   },
   env: {
@@ -89,6 +89,7 @@ module.exports = {
     ],
     'require-await': 'off',
     '@typescript-eslint/promise-function-async': 'error',
+    // '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-unused-vars': 'off',

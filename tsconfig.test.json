@@ -1,9 +1,8 @@
 {
-  "extends": "./tsconfig-base.json",
+  "extends": "./tsconfig.json",
   "include": [
     "src",
-    "test",
-    "jest.config.ts"
+    "test"
   ],
   "compilerOptions": {
     "noEmit": true

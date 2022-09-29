@@ -2,8 +2,8 @@
 import pkg from 'js-sha3'
 const { keccak256 } = pkg
 import { BeeArgumentError } from '../utils/error'
-import { Bytes } from '../utils/bytes'
 import { keccak256Hash } from '../utils/hash'
+import type { Bytes } from '../utils/bytes'
 
 const MAX_CHUNK_PAYLOAD_SIZE = 4096
 const SEGMENT_SIZE = 32

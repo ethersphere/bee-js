@@ -11,9 +11,9 @@ import {
   SUPPORTED_DEBUG_API_VERSION,
 } from '../../../../src/modules/debug/status'
 import { beeDebugKy } from '../../../utils'
-import fs from 'fs'
-import path from 'path'
-import * as util from 'util'
+import fs from 'node:fs/promises'
+import path, { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import semver from 'semver'
 
 const BEE_DEBUG_URL = beeDebugKy()
@@ -80,7 +80,8 @@ describe('modules/status', () => {
   })
 
   test('SUPPORTED_BEE_* should be same as in package.json', async () => {
-    const file = await util.promisify(fs.readFile)(path.join(__dirname, '../../../../package.json'))
+    const __dirname = dirname(fileURLToPath(import.meta.url))
+    const file = await fs.readFile(path.join(__dirname, '../../../../package.json'))
     const packageJson = JSON.parse(file.toString())
 
     expect(SUPPORTED_BEE_VERSION_EXACT).toBe(packageJson.engines.bee)

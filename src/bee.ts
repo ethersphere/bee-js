@@ -39,7 +39,7 @@ import {
 } from './utils/type'
 import { getJsonData, setJsonData } from './feed/json'
 import { assertCollection, makeCollectionFromFileList } from './utils/collection'
-import { makeCollectionFromFS } from './utils/collection.node'
+import { makeCollectionFromFS } from './utils/collection-node'
 import type {
   AddressPrefix,
   AnyJson,

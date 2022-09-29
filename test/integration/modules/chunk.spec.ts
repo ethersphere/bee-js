@@ -16,7 +16,7 @@ describe('modules/chunk', () => {
     expect(response).toEqual(reference)
 
     const downloadedData = await chunk.download(BEE_KY, response)
-    expect(downloadedData).toEqual(data)
+    expect(downloadedData.array()).toEqual(data)
   })
 
   it(

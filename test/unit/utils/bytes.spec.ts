@@ -2,13 +2,13 @@ import { wrapBytesWithHelpers } from '../../../src/utils/bytes'
 
 describe('bytes', () => {
   describe('wrapBytesWithHelpers', () => {
-    it('should still be Uint8Array', () => {
+    it('should expose the buffer under array function', () => {
       const dataA = wrapBytesWithHelpers(new Uint8Array([104, 101, 108, 108, 111, 32]))
       const dataB = wrapBytesWithHelpers(new Uint8Array([119, 111, 114, 108, 100]))
 
       expect(dataA.text()).toEqual('hello ')
       expect(dataB.text()).toEqual('world')
-      expect(new TextDecoder().decode(new Uint8Array([...dataA, ...dataB]))).toEqual('hello world')
+      expect(new TextDecoder().decode(new Uint8Array([...dataA.array(), ...dataB.array()]))).toEqual('hello world')
     })
 
     it('should convert to string', () => {

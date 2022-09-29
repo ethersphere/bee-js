@@ -1,4 +1,4 @@
-import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
+import { bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
 import { bmtHash } from './bmt'
 import { recoverAddress, sign } from './signer'
 import { keccak256Hash } from '../utils/hash'
@@ -12,6 +12,7 @@ import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
 import { EthAddress } from '../utils/eth'
 import { assertAddress } from '../utils/type'
+import type { Bytes } from '../utils/bytes'
 
 const IDENTIFIER_SIZE = 32
 const SIGNATURE_SIZE = 65
@@ -179,5 +180,5 @@ export async function downloadSingleOwnerChunk(
   const address = makeSOCAddress(identifier, ownerAddress)
   const data = await chunkAPI.download(ky, bytesToHex(address))
 
-  return makeSingleOwnerChunkFromData(data, address)
+  return makeSingleOwnerChunkFromData(data.array(), address)
 }

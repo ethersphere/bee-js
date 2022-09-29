@@ -1,4 +1,5 @@
-import { Bytes, makeBytes } from '../../../src/utils/bytes'
+import { makeBytes } from '../../../src/utils/bytes'
+import type { Bytes } from '../../../src/utils/bytes'
 import { HexString, hexToBytes } from '../../../src/utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian, writeUint64LittleEndian } from '../../../src/utils/uint64'
 

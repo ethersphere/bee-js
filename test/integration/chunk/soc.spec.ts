@@ -1,4 +1,5 @@
-import { Bytes, assertBytes } from '../../../src/utils/bytes'
+import { assertBytes } from '../../../src/utils/bytes'
+import type { Bytes } from '../../../src/utils/bytes'
 import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { beeKy, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
@@ -30,7 +31,7 @@ describe('soc', () => {
     const data = await chunkAPI.download(beeKy(), socHash)
     const address = hexToBytes(socHash)
     assertBytes(address, 32)
-    const soc = makeSingleOwnerChunkFromData(data, address)
+    const soc = makeSingleOwnerChunkFromData(data.array(), address)
     const socAddress = soc.address()
 
     expect(socAddress).toEqual(address)

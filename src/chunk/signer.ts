@@ -5,12 +5,13 @@ import pkg from 'elliptic'
 const { ec } = pkg
 
 import { BeeError } from '../utils/error'
-import { Bytes, isBytes, assertBytes, wrapBytesWithHelpers } from '../utils/bytes'
+import { isBytes, assertBytes, wrapBytesWithHelpers } from '../utils/bytes'
 import { keccak256Hash } from '../utils/hash'
 import { hexToBytes, makeHexString } from '../utils/hex'
 import { EthAddress } from '../utils/eth'
 import { Data, PrivateKeyBytes, Signature, SIGNATURE_BYTES_LENGTH, SIGNATURE_HEX_LENGTH, Signer } from '../types'
 import { isStrictlyObject } from '../utils/type'
+import type { Bytes } from '../utils/bytes'
 
 type EllipticPublicKey = curve.base.BasePoint
 const UNCOMPRESSED_RECOVERY_ID = 27
@@ -89,7 +90,7 @@ export function makePrivateKeySigner(privateKey: PrivateKeyBytes): Signer {
   const address = publicKeyToAddress(keyPair.getPublic())
 
   return {
-    sign: (digest: Data) => defaultSign(digest, privateKey),
+    sign: (digest: Data) => defaultSign(digest.array(), privateKey),
     address,
   }
 }

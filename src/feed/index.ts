@@ -16,13 +16,14 @@ import {
   Topic,
   UploadOptions,
 } from '../types'
-import { Bytes, bytesAtOffset, makeBytes } from '../utils/bytes'
+import { bytesAtOffset, makeBytes } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
 import { bytesToHex, hexToBytes, HexString, makeHexString } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
 
+import type { Bytes } from '../utils/bytes'
 import type { FeedType } from './type'
 import { assertAddress } from '../utils/type'
 import { makeFeedIdentifier } from './identifier'
@@ -99,7 +100,7 @@ export async function downloadFeedUpdate(ky: Ky, owner: EthAddress, topic: Topic
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const addressHex = bytesToHex(address)
   const data = await chunkAPI.download(ky, addressHex)
-  const soc = makeSingleOwnerChunkFromData(data, address)
+  const soc = makeSingleOwnerChunkFromData(data.array(), address)
   const payload = soc.payload()
   const timestampBytes = bytesAtOffset(payload, TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
   const timestamp = readUint64BigEndian(timestampBytes)

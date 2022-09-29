@@ -1,4 +1,7 @@
 import { join } from 'path'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+
 import {
   beeDebugUrl,
   beeKy,
@@ -9,11 +12,19 @@ import {
   getPostageBatch,
   PSS_TIMEOUT,
 } from '../utils'
-import '../../src'
-import type { Address, Reference } from '../../src/types'
 import * as bzz from '../../src/modules/bzz'
 
+import type { Reference, Address } from '../../src/types'
+
 commonMatchers()
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+declare global {
+  interface Window {
+    getBundlePath: () => string
+  }
+}
 
 describe('Bee class - in browser', () => {
   const BEE_URL = beeUrl()
@@ -23,6 +34,11 @@ describe('Bee class - in browser', () => {
 
   beforeAll(async () => {
     await jestPuppeteer.resetPage()
+    await page.exposeFunction(
+      'getBundlePath',
+      () => `file://${join(__dirname, '..', '..', 'dist', 'index.browser.js')}`,
+    )
+
     const testPage = join(__dirname, '..', 'testpage', 'testpage.html')
     await page.goto(`file://${testPage}`)
 
@@ -31,8 +47,10 @@ describe('Bee class - in browser', () => {
   })
 
   it('should create a new Bee instance in browser', async () => {
-    const beeUrl = await page.evaluate(BEE_URL => {
-      return new window.BeeJs.Bee(BEE_URL).url
+    const beeUrl = await page.evaluate(async BEE_URL => {
+      const { Bee } = await import(await window.getBundlePath())
+
+      return new Bee(BEE_URL).url
     }, BEE_URL)
 
     expect(beeUrl).toBe(BEE_URL)
@@ -40,14 +58,16 @@ describe('Bee class - in browser', () => {
 
   function testUrl(url: unknown): void {
     it(`should not accept invalid url '${url}'`, async () => {
-      await page.evaluate(url => {
+      await page.evaluate(async url => {
+        const { Bee, BeeArgumentError } = await import(await window.getBundlePath())
+
         try {
-          new window.BeeJs.Bee(url as string)
+          new Bee(url as string)
           fail('Bee constructor should have thrown error.')
         } catch (e) {
-          if (e instanceof window.BeeJs.BeeArgumentError) {
+          if (e instanceof BeeArgumentError) {
             // We don't have `expect()` available in browser context
-            if (e.value !== url) {
+            if ((e as typeof BeeArgumentError).value !== url) {
               throw new Error('Error value does not match the URL!')
             }
 
@@ -73,7 +93,9 @@ describe('Bee class - in browser', () => {
   it('should pin and unpin collection', async () => {
     const fileHash = await page.evaluate(
       async (BEE_URL, batchId) => {
-        const bee = new window.BeeJs.Bee(BEE_URL)
+        const { Bee } = await import(await window.getBundlePath())
+
+        const bee = new Bee(BEE_URL)
         const files: File[] = [new File(['hello'], 'hello')]
 
         return (await bee.uploadFiles(batchId, files)).reference
@@ -85,7 +107,9 @@ describe('Bee class - in browser', () => {
     //pinning
     await page.evaluate(
       async (BEE_URL, fileHash) => {
-        const bee = new window.BeeJs.Bee(BEE_URL)
+        const { Bee } = await import(await window.getBundlePath())
+
+        const bee = new Bee(BEE_URL)
 
         return await bee.pin(fileHash)
       },
@@ -96,7 +120,9 @@ describe('Bee class - in browser', () => {
     //unpinning
     await page.evaluate(
       async (BEE_URL, fileHash) => {
-        const bee = new window.BeeJs.Bee(BEE_URL)
+        const { Bee } = await import(await window.getBundlePath())
+
+        const bee = new Bee(BEE_URL)
 
         return await bee.unpin(fileHash)
       },
@@ -109,6 +135,8 @@ describe('Bee class - in browser', () => {
     it('should upload file with stream', async () => {
       const ref = (await page.evaluate(
         async (BEE_URL, batchId) => {
+          const { Bee } = await import(await window.getBundlePath())
+
           // @ts-ignore: This is evaluated in browser context - no TS support
           function createReadableStream(iterable) {
             const iter = iterable[Symbol.iterator]()
@@ -128,7 +156,7 @@ describe('Bee class - in browser', () => {
             })
           }
 
-          const bee = new window.BeeJs.Bee(BEE_URL)
+          const bee = new Bee(BEE_URL)
           const filename = 'hello.txt'
           const readable = createReadableStream([
             new TextEncoder().encode('hello '),
@@ -154,7 +182,9 @@ describe('Bee class - in browser', () => {
     it('should download file with stream', async () => {
       const content = (await page.evaluate(
         async (BEE_URL, batchId) => {
-          const bee = new window.BeeJs.Bee(BEE_URL)
+          const { Bee } = await import(await window.getBundlePath())
+
+          const bee = new Bee(BEE_URL)
 
           const { reference } = await bee.uploadFile(batchId, 'hello awesome world')
 
@@ -188,84 +218,81 @@ describe('Bee class - in browser', () => {
   describe('pss', () => {
     it(
       'should send and receive pss message',
-      done => {
+      async () => {
         // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
-        ;(async () => {
-          const message = '1234'
+        const message = '1234'
 
-          const result = await page.evaluate(
-            async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchIdPeer) => {
-              const topic = 'browser-bee-class-topic1'
+        const result = await page.evaluate(
+          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchIdPeer) => {
+            const { Bee, BeeDebug } = await import(await window.getBundlePath())
 
-              const bee = new window.BeeJs.Bee(BEE_URL)
-              const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
+            const topic = 'browser-bee-class-topic1'
 
-              const { overlay } = await beeDebug.getNodeAddresses()
-              const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
+            const bee = new Bee(BEE_URL)
+            const beeDebug = new BeeDebug(BEE_DEBUG_URL)
 
-              const receive = bee.pssReceive(topic)
-              await beePeer.pssSend(batchIdPeer, topic, overlay.slice(0, 2), message) // We don't have the `makeTestTarget` utility available in this context
+            const { overlay } = await beeDebug.getNodeAddresses()
+            const beePeer = new Bee(BEE_PEER_URL)
 
-              const msg = await receive
+            const receive = bee.pssReceive(topic)
+            await beePeer.pssSend(batchIdPeer, topic, overlay.slice(0, 2), message) // We don't have the `makeTestTarget` utility available in this context
 
-              // Need to pass it back as string
-              return new TextDecoder('utf-8').decode(new Uint8Array(msg))
-            },
-            BEE_URL,
-            BEE_DEBUG_URL,
-            BEE_PEER_URL,
-            message,
-            batchIdPeer,
-          )
+            const msg = await receive
 
-          expect(result).toEqual(message)
-          done()
-        })()
+            // Need to pass it back as string
+            return new TextDecoder('utf-8').decode(new Uint8Array(msg))
+          },
+          BEE_URL,
+          BEE_DEBUG_URL,
+          BEE_PEER_URL,
+          message,
+          batchIdPeer,
+        )
+
+        expect(result).toEqual(message)
       },
       PSS_TIMEOUT,
     )
 
     it(
       'should send and receive pss message encrypted with PSS key',
-      done => {
-        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
-        ;(async () => {
-          const message = '1234'
+      async () => {
+        const message = '1234'
 
-          const result = await page.evaluate(
-            async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchIdPeer) => {
-              const topic = 'browser-bee-class-topic2'
+        const result = await page.evaluate(
+          async (BEE_URL, BEE_DEBUG_URL, BEE_PEER_URL, message, batchIdPeer) => {
+            const { Bee, BeeDebug } = await import(await window.getBundlePath())
 
-              const bee = new window.BeeJs.Bee(BEE_URL)
-              const beeDebug = new window.BeeJs.BeeDebug(BEE_DEBUG_URL)
+            const topic = 'browser-bee-class-topic2'
 
-              const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-              const beePeer = new window.BeeJs.Bee(BEE_PEER_URL)
+            const bee = new Bee(BEE_URL)
+            const beeDebug = new BeeDebug(BEE_DEBUG_URL)
 
-              const receive = bee.pssReceive(topic)
-              await beePeer.pssSend(
-                batchIdPeer,
-                topic,
-                overlay.slice(0, 2), // We don't have the `makeTestTarget` utility available in this context
-                message,
-                pssPublicKey,
-              )
+            const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
+            const beePeer = new Bee(BEE_PEER_URL)
 
-              const msg = await receive
+            const receive = bee.pssReceive(topic)
+            await beePeer.pssSend(
+              batchIdPeer,
+              topic,
+              overlay.slice(0, 2), // We don't have the `makeTestTarget` utility available in this context
+              message,
+              pssPublicKey,
+            )
 
-              // Need to pass it back as string
-              return new TextDecoder('utf-8').decode(new Uint8Array(msg))
-            },
-            BEE_URL,
-            BEE_DEBUG_URL,
-            BEE_PEER_URL,
-            message,
-            batchIdPeer,
-          )
+            const msg = await receive
 
-          expect(result).toEqual(message)
-          done()
-        })()
+            // Need to pass it back as string
+            return new TextDecoder('utf-8').decode(new Uint8Array(msg))
+          },
+          BEE_URL,
+          BEE_DEBUG_URL,
+          BEE_PEER_URL,
+          message,
+          batchIdPeer,
+        )
+
+        expect(result).toEqual(message)
       },
       PSS_TIMEOUT,
     )

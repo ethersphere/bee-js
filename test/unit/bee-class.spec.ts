@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals'
 import { assertAllIsDone, downloadDataMock, fetchFeedUpdateMock, MOCK_SERVER_URL, uploadFileMock } from './nock'
 import {
   BatchId,
@@ -10,6 +11,9 @@ import {
   RequestOptions,
   CHUNK_SIZE,
   SPAN_SIZE,
+  HookCallback,
+  BeeRequest,
+  BeeResponse,
 } from '../../src'
 import {
   randomByteArray,
@@ -867,8 +871,8 @@ describe('Bee class', () => {
 
   describe('hooks', () => {
     it('should call with request', async () => {
-      const requestSpy = jest.fn()
-      const responseSpy = jest.fn()
+      const requestSpy = jest.fn<HookCallback<BeeRequest>>()
+      const responseSpy = jest.fn<HookCallback<BeeResponse>>()
 
       const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
 
@@ -908,8 +912,8 @@ describe('Bee class', () => {
     })
 
     it('should call with request with correct headers', async () => {
-      const requestSpy = jest.fn()
-      const responseSpy = jest.fn()
+      const requestSpy = jest.fn<HookCallback<BeeRequest>>()
+      const responseSpy = jest.fn<HookCallback<BeeResponse>>()
       const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
 
       uploadFileMock(testBatchId, 'nice.txt', { encrypt: true }).reply(200, {

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import ky from 'ky-universal'
-import { createPostageBatch, getPostageBatch } from '../src/modules/debug/stamps'
-import { BatchId, Ky } from '../src'
+import { createPostageBatch, getPostageBatch } from '../../src/modules/debug/stamps'
+import { BatchId, Ky } from '../../src'
 
 export default async function testsSetup(): Promise<void> {
   try {

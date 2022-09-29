@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const Sequencer = require('@jest/test-sequencer').default
+import Sequencer from '@jest/test-sequencer'
 
 /**
  * Jest Sequencer that allows to specify order of execution of tests.
@@ -8,7 +8,7 @@ const Sequencer = require('@jest/test-sequencer').default
  *
  * https://jestjs.io/docs/next/configuration#testsequencer-string
  */
-class TestTypeSequencer extends Sequencer {
+export default class TestTypeSequencer extends Sequencer.default {
   order = ['unit', 'integration']
 
   getType(test) {
@@ -32,5 +32,3 @@ class TestTypeSequencer extends Sequencer {
     })
   }
 }
-
-module.exports = TestTypeSequencer

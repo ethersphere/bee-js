@@ -1,5 +1,6 @@
 /* eslint-disable */
-import { BeeArgumentError, BeeOptions } from '../../src'
+import { jest } from '@jest/globals'
+import { BeeArgumentError, BeeOptions, Fetch } from '../../src'
 import { makeBytes } from '../../src/utils/bytes'
 
 export function testBatchIdAssertion(executor: (input: unknown) => void): void {
@@ -107,14 +108,14 @@ export function testRequestOptionsAssertions(
 
   if (testFetch) {
     it('should use per-call request options instead of instance request options', async () => {
-      const instanceFetch = jest.fn()
+      const instanceFetch = jest.fn<Fetch>()
       const instanceMessage = 'instance error'
       const instanceError = { message: instanceMessage }
       instanceFetch.mockRejectedValue(instanceError)
       await expect(() => executor({}, { retry: 0, fetch: instanceFetch })).rejects.toThrow(instanceMessage)
       expect(instanceFetch.mock.calls.length).toEqual(1)
 
-      const callFetch = jest.fn()
+      const callFetch = jest.fn<Fetch>()
       const callMessage = 'call error'
       const callError = { message: callMessage }
       callFetch.mockRejectedValue(callError)

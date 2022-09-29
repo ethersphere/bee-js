@@ -126,7 +126,7 @@ export function commonMatchers(): void {
 export async function readWholeUint8ArrayReadableStream(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
   const reader = stream.getReader()
   let buff: number[] = []
-  let readResult: ReadableStreamDefaultReadResult<Uint8Array>
+  let readResult: ReadableStreamReadResult<Uint8Array>
 
   do {
     readResult = await reader.read()

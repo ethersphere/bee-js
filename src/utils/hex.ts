@@ -1,5 +1,6 @@
-import { Bytes, makeBytes } from './bytes'
-import { BrandedType, FlavoredType } from '../types'
+import { makeBytes } from './bytes'
+import type { Bytes } from '../utils/bytes'
+import type { BrandedType, FlavoredType } from '../types'
 
 /**
  * Nominal type to represent hex strings WITHOUT '0x' prefix.

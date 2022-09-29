@@ -1,10 +1,11 @@
-import { Readable as NodeReadableNative, ReadableOptions as NodeReadableOptions } from 'stream'
+import * as streamPackage from 'stream'
 import { isStrictlyObject } from './type'
 import { ReadableStream } from 'web-streams-polyfill'
+import type { Readable as NodeReadableNative, ReadableOptions as NodeReadableOptions } from 'stream'
 
 import { Readable } from '../types'
 
-const NodeReadable = NodeReadableNative || class {}
+const NodeReadable = streamPackage?.Readable || class {}
 
 /**
  * Validates if passed object is either browser's ReadableStream
@@ -144,7 +145,7 @@ export function readableWebToNode(
   webStream: ReadableStream<unknown>,
   options?: NodeReadableOptions,
 ): NodeReadableNative {
-  if (!NodeReadableNative) {
+  if (!streamPackage?.Readable) {
     throw new Error(
       "The Node's Readable is not available! If you are running this in browser you have to polyfill 'stream' package!",
     )
