@@ -2,35 +2,6 @@
  * For a detailed explanation regarding each configuration property and type check, visit:
  * https://jestjs.io/docs/en/configuration.html
  */
-import Glob from 'glob'
-import * as Path from 'path'
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
-
-export async function getBrowserPathMapping () {
-  const browserSourceFiles = await new Promise((resolve, reject) => {
-    Glob.glob('src/**/*.browser.ts', (err, browserSourceCodes) => {
-      if (err) reject(err)
-      browserSourceCodes = browserSourceCodes.map(match => Path.resolve(__dirname, match))
-      const codePathMapping = {}
-      browserSourceCodes.map(browserFullPath => {
-        const filePathArray = browserFullPath.split('.')
-        filePathArray.pop()
-        filePathArray.pop() //remove 'browser.ts' from '**/*.browser.ts'
-        const nodeFullPath = filePathArray.join('.')
-        const aliasNodeReference = `/${nodeFullPath.split('/').pop()}$` //keep the last bit of node file referencing e.g. '/file-source$'
-
-        codePathMapping[aliasNodeReference] = browserFullPath
-      })
-
-      resolve(codePathMapping)
-    })
-  })
-
-  return browserSourceFiles
-}
 
 export default async () => {
   return {
@@ -68,7 +39,6 @@ export default async () => {
       {
         displayName: 'dom:integration',
         testRegex: 'test/integration/.*\\.browser\\.spec\\.ts',
-        moduleNameMapper: await getBrowserPathMapping(),
         preset: 'jest-puppeteer',
         extensionsToTreatAsEsm: ['.ts'],
         transform: {

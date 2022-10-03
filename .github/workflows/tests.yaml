@@ -52,20 +52,22 @@ jobs:
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm ci
 
-      # Start Bee Factory environment
       - name: Start Bee Factory environment
         if:  matrix.node-version != '18.x'
         run: npm run bee -- --verbose --detach
 
-      # Start Bee Factory environment for Node 18
-      - name: Start Bee Factory environment for Node 18
+      - name: Run unit and integration tests for node
+        if: matrix.node-version != '18.x'
+        run: npm run test:node -- --detectOpenHandles
+
+      - name: Node 18 specific Bee Factory and tests run
         if:  matrix.node-version == '18.x'
         env:
           NODE_OPTIONS: '--no-experimental-fetch'
-        run: npm run bee -- --verbose --detach
+        run: |
+          npm run bee -- --verbose --detach
+          npm run test:node -- --detectOpenHandles
 
-      - name: Run unit and integration tests for node
-        run: npm run test:node -- --detectOpenHandles
 
       - name: Debug workflow if failed
         if: failure()

@@ -123,7 +123,15 @@ There are also browser tests by Puppeteer, which also provide integrity testing.
 npm run test:browser
 ```
 The test HTML file which Puppeteer uses is the [test/testpage/testpage.html](test/testpage/testpage.html).
-To open and manually test BeeJS with developer console, it is necessary to build the library first with `npm run compile:browser` (running the browser tests `npm run test:browser` also builds the library).
+To open and manually test BeeJS with developer console, it is necessary to build the library first with `npm run build:browser` (running the browser tests `npm run test:browser` also builds the library).
+
+#### Node 18
+
+In order to run tests on Node 18 you have to disable the experimental Node's Udici/Fetch implementation. Use the `NODE_OPTIONS` env. variable like this:
+
+```shell
+$ export NODE_OPTIONS='--experimental-vm-modules --no-experimental-fetch'
+```
 
 ### Compile code
 
