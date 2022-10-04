@@ -7,11 +7,19 @@ on:
         description: 'Pre-release version (without "v" prefix)'
         required: true
 
+      branch:
+        description: 'Branch of this repo to build (default "master")'
+        default: master
+        required: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
       - uses: actions/setup-node@v1
         with:
           node-version: 16
