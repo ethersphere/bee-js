@@ -17,7 +17,7 @@ export async function checkIfChunkExistsLocally(ky: Ky, address: string): Promis
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -35,5 +35,5 @@ export async function deleteChunkFromLocalStorage(ky: Ky, address: string): Prom
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }

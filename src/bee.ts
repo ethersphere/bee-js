@@ -79,7 +79,7 @@ import {
   UploadResult,
 } from './types'
 
-import type { Options as KyOptions } from 'ky-universal'
+import type { Options as KyOptions } from 'ky'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { isReadable } from './utils/stream'
 import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
