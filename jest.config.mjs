@@ -9,7 +9,7 @@ export default async () => {
     // collectCoverage: false,
 
     // This will setup the prerequisites for the tests to run
-    globalSetup: './test/jest/tests-setup.ts',
+    globalSetup: './test/jest/tests-setup.js',
 
     // The directory where Jest should output its coverage files
     coverageDirectory: 'coverage',
@@ -23,7 +23,7 @@ export default async () => {
     extensionsToTreatAsEsm: ['.ts'],
 
     transform: {
-      '.ts': './test/jest/test-transformer.js',
+      '.ts': './test/jest/test-tragnsformer.js',
     },
     // Run tests from one or more projects
     projects: [
