@@ -72,7 +72,7 @@ export async function uploadFile(
   })
 
   return {
-    reference: response.data.reference,
+    reference: response.parsedData.reference,
     tagUid: makeTagUid(response.headers.get('swarm-tag')),
   }
 }
@@ -92,7 +92,7 @@ export async function downloadFile(ky: Ky, hash: ReferenceOrEns, path = ''): Pro
   })
   const file = {
     ...readFileHeaders(response.headers),
-    data: wrapBytesWithHelpers(new Uint8Array(response.data)),
+    data: wrapBytesWithHelpers(new Uint8Array(response.parsedData)),
   }
 
   return file
@@ -117,7 +117,7 @@ export async function downloadFileReadable(
   })
   const file = {
     ...readFileHeaders(response.headers),
-    data: response.data,
+    data: response.parsedData,
   }
 
   return file
@@ -174,7 +174,7 @@ export async function uploadCollection(
   })
 
   return {
-    reference: response.data.reference,
+    reference: response.parsedData.reference,
     tagUid: makeTagUid(response.headers.get('swarm-tag')),
   }
 }

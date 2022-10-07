@@ -1,10 +1,12 @@
 import { BeeError, BeeNotAJsonError, BeeRequestError, BeeResponseError } from './error'
 import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
-import kyFactory, { HTTPError, Options as KyOptions } from 'ky-universal'
+import kyFactory, { HTTPError } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
 import { deepMerge } from './merge'
 import { isObject, isStrictlyObject } from './type'
-import { KyRequestOptions } from '../types'
+
+import type { Options as KyOptions } from 'ky'
+import type { KyRequestOptions } from '../types'
 
 const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {
@@ -18,7 +20,7 @@ interface UndiciError {
 }
 
 interface KyResponse<T> extends Response {
-  data: T
+  parsedData: T
 }
 
 function isHttpError(e: unknown): e is HTTPError {
@@ -113,14 +115,14 @@ export async function http<T>(ky: Ky, config: KyRequestOptions): Promise<KyRespo
           throw new BeeError('Response was expected to get data but did not get any!')
         }
 
-        response.data = normalizeToReadableStream(response.body) as unknown as T
+        response.parsedData = normalizeToReadableStream(response.body) as unknown as T
         break
       case 'arraybuffer':
-        response.data = (await response.arrayBuffer()) as unknown as T
+        response.parsedData = (await response.arrayBuffer()) as unknown as T
         break
       case 'json':
         try {
-          response.data = (await response.json()) as unknown as T
+          response.parsedData = (await response.json()) as unknown as T
         } catch (e) {
           throw new BeeNotAJsonError()
         }

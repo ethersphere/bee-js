@@ -22,7 +22,7 @@ export async function getAllTransactions(ky: Ky): Promise<TransactionInfo[]> {
     responseType: 'json',
   })
 
-  return response.data.pendingTransactions
+  return response.parsedData.pendingTransactions
 }
 
 /**
@@ -37,7 +37,7 @@ export async function getTransaction(ky: Ky, transactionHash: TransactionHash): 
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -53,7 +53,7 @@ export async function rebroadcastTransaction(ky: Ky, transactionHash: Transactio
     responseType: 'json',
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }
 
 /**
@@ -68,12 +68,18 @@ export async function cancelTransaction(
   transactionHash: TransactionHash,
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
+  let headers
+
+  if (gasPrice) {
+    headers = { 'gas-price': gasPrice }
+  }
+
   const response = await http<TransactionResponse>(ky, {
     method: 'delete',
-    headers: { 'gas-price': gasPrice },
+    headers,
     path: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }

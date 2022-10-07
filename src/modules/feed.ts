@@ -66,7 +66,7 @@ export async function createFeedManifest(
     headers: extractUploadHeaders(postageBatchId),
   })
 
-  return response.data.reference
+  return response.parsedData.reference
 }
 
 function readFeedUpdateHeaders(headers: Headers): FeedUpdateHeaders {
@@ -113,7 +113,7 @@ export async function fetchLatestFeedUpdate(
   })
 
   return {
-    ...response.data,
+    ...response.parsedData,
     ...readFeedUpdateHeaders(response.headers),
   }
 }

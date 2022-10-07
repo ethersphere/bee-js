@@ -15,7 +15,7 @@ export async function getSettlements(ky: Ky, peer: string): Promise<Settlements>
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -29,5 +29,5 @@ export async function getAllSettlements(ky: Ky): Promise<AllSettlements> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }

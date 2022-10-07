@@ -19,7 +19,7 @@ export async function createTag(ky: Ky): Promise<Tag> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -34,7 +34,7 @@ export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -51,7 +51,7 @@ export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promi
     responseType: 'json',
   })
 
-  return response.data.tags
+  return response.parsedData.tags
 }
 
 /**

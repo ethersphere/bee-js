@@ -34,7 +34,7 @@ export async function upload(
     responseType: 'json',
   })
 
-  return response.data.reference
+  return response.parsedData.reference
 }
 
 /**
@@ -50,5 +50,5 @@ export async function download(ky: Ky, hash: ReferenceOrEns): Promise<Data> {
     path: `${endpoint}/${hash}`,
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.data))
+  return wrapBytesWithHelpers(new Uint8Array(response.parsedData))
 }

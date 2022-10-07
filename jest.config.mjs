@@ -9,7 +9,8 @@ export default async () => {
     // collectCoverage: false,
 
     // This will setup the prerequisites for the tests to run
-    globalSetup: './test/jest/tests-setup.js',
+    globalSetup: './test/jest/postage-setup.js',
+    setupFiles: ['./test/jest/tests-setup.js'],
 
     // The directory where Jest should output its coverage files
     coverageDirectory: 'coverage',
@@ -23,7 +24,7 @@ export default async () => {
     extensionsToTreatAsEsm: ['.ts'],
 
     transform: {
-      '.ts': './test/jest/test-tragnsformer.js',
+      '.ts': './test/jest/test-transformer.js',
     },
     // Run tests from one or more projects
     projects: [
@@ -32,6 +33,7 @@ export default async () => {
         globalSetup: '',
         testRegex: 'test/unit/((?!\\.browser).)*\\.spec\\.ts',
         extensionsToTreatAsEsm: ['.ts'],
+        setupFiles: ['./test/jest/tests-setup.js'],
         transform: {
           '.ts': './test/jest/test-transformer.js',
         },
@@ -41,6 +43,7 @@ export default async () => {
         testRegex: 'test/integration/.*\\.browser\\.spec\\.ts',
         preset: 'jest-puppeteer',
         extensionsToTreatAsEsm: ['.ts'],
+        setupFiles: ['./test/jest/tests-setup.js'],
         transform: {
           '.ts': './test/jest/test-transformer.js',
         },
@@ -49,6 +52,7 @@ export default async () => {
         displayName: 'node:integration',
         testRegex: 'test/integration/((?!\\.browser).)*\\.spec\\.ts',
         extensionsToTreatAsEsm: ['.ts'],
+        setupFiles: ['./test/jest/tests-setup.js'],
         transform: {
           '.ts': './test/jest/test-transformer.js',
         },

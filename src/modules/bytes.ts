@@ -34,7 +34,7 @@ export async function upload(
   })
 
   return {
-    reference: response.data.reference,
+    reference: response.parsedData.reference,
     tagUid: makeTagUid(response.headers.get('swarm-tag')),
   }
 }
@@ -51,7 +51,7 @@ export async function download(ky: Ky, hash: ReferenceOrEns): Promise<Data> {
     path: `${endpoint}/${hash}`,
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.data))
+  return wrapBytesWithHelpers(new Uint8Array(response.parsedData))
 }
 
 /**
@@ -66,5 +66,5 @@ export async function downloadReadable(ky: Ky, hash: ReferenceOrEns): Promise<Re
     path: `${endpoint}/${hash}`,
   })
 
-  return response.data
+  return response.parsedData
 }

@@ -63,7 +63,7 @@ jobs:
       - name: Node 18 specific Bee Factory and tests run
         if:  matrix.node-version == '18.x'
         env:
-          NODE_OPTIONS: '--no-experimental-fetch'
+          NODE_OPTIONS: '--no-experimental-fetch --experimental-vm-modules'
         run: |
           npm run bee -- --verbose --detach
           npm run test:node -- --detectOpenHandles

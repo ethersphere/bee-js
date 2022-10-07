@@ -219,7 +219,6 @@ describe('Bee class - in browser', () => {
     it(
       'should send and receive pss message',
       async () => {
-        // Jest does not allow use `done` and return Promise so this wrapper work arounds that.
         const message = '1234'
 
         const result = await page.evaluate(
@@ -232,15 +231,14 @@ describe('Bee class - in browser', () => {
             const beeDebug = new BeeDebug(BEE_DEBUG_URL)
 
             const { overlay } = await beeDebug.getNodeAddresses()
-            const beePeer = new Bee(BEE_PEER_URL)
-
             const receive = bee.pssReceive(topic)
+
+            const beePeer = new Bee(BEE_PEER_URL)
             await beePeer.pssSend(batchIdPeer, topic, overlay.slice(0, 2), message) // We don't have the `makeTestTarget` utility available in this context
 
             const msg = await receive
 
-            // Need to pass it back as string
-            return new TextDecoder('utf-8').decode(new Uint8Array(msg))
+            return msg.text()
           },
           BEE_URL,
           BEE_DEBUG_URL,
@@ -282,8 +280,7 @@ describe('Bee class - in browser', () => {
 
             const msg = await receive
 
-            // Need to pass it back as string
-            return new TextDecoder('utf-8').decode(new Uint8Array(msg))
+            return msg.text()
           },
           BEE_URL,
           BEE_DEBUG_URL,
