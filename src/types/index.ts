@@ -315,17 +315,13 @@ export interface Pin {
 }
 
 /**
- * Helper interface that adds utility functions
- * to work more conveniently with bytes in normal
- * user scenarios.
- *
- * Concretely: text(), hex(), json()
+ * Interface that represents Data passed from Bee and that allows accessing it in different forms..
  */
 export interface Data {
   /**
    * The raw binary data in form of Uint8Array
    */
-  array(): Uint8Array
+  bytes(): Uint8Array
 
   /**
    * Converts the binary data using UTF-8 decoding into string.

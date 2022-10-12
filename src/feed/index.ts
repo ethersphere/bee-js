@@ -100,7 +100,7 @@ export async function downloadFeedUpdate(ky: Ky, owner: EthAddress, topic: Topic
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const addressHex = bytesToHex(address)
   const data = await chunkAPI.download(ky, addressHex)
-  const soc = makeSingleOwnerChunkFromData(data.array(), address)
+  const soc = makeSingleOwnerChunkFromData(data.bytes(), address)
   const payload = soc.payload()
   const timestampBytes = bytesAtOffset(payload, TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
   const timestamp = readUint64BigEndian(timestampBytes)

@@ -22,6 +22,6 @@ describe('cac', () => {
     assertBytes(address, 32)
     const data = await chunkAPI.download(beeKy(), contentHash)
 
-    expect(() => assertValidChunkData(data.array(), address)).not.toThrow()
+    expect(() => assertValidChunkData(data.bytes(), address)).not.toThrow()
   })
 })

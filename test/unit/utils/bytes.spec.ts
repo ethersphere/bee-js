@@ -8,7 +8,7 @@ describe('bytes', () => {
 
       expect(dataA.text()).toEqual('hello ')
       expect(dataB.text()).toEqual('world')
-      expect(new TextDecoder().decode(new Uint8Array([...dataA.array(), ...dataB.array()]))).toEqual('hello world')
+      expect(new TextDecoder().decode(new Uint8Array([...dataA.bytes(), ...dataB.bytes()]))).toEqual('hello world')
     })
 
     it('should convert to string', () => {

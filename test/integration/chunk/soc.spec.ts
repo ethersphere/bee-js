@@ -31,7 +31,7 @@ describe('soc', () => {
     const data = await chunkAPI.download(beeKy(), socHash)
     const address = hexToBytes(socHash)
     assertBytes(address, 32)
-    const soc = makeSingleOwnerChunkFromData(data.array(), address)
+    const soc = makeSingleOwnerChunkFromData(data.bytes(), address)
     const socAddress = soc.address()
 
     expect(socAddress).toEqual(address)

@@ -180,5 +180,5 @@ export async function downloadSingleOwnerChunk(
   const address = makeSOCAddress(identifier, ownerAddress)
   const data = await chunkAPI.download(ky, bytesToHex(address))
 
-  return makeSingleOwnerChunkFromData(data.array(), address)
+  return makeSingleOwnerChunkFromData(data.bytes(), address)
 }

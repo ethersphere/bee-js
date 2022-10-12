@@ -53,7 +53,7 @@ describe('Bee class', () => {
       const reference = await bee.uploadChunk(getPostageBatch(), content)
       const downloadedChunk = await bee.downloadChunk(reference)
 
-      expect(downloadedChunk.array()).toEqual(content)
+      expect(downloadedChunk.bytes()).toEqual(content)
     })
 
     it('should upload and download chunk with direct upload', async () => {
@@ -62,7 +62,7 @@ describe('Bee class', () => {
       const reference = await bee.uploadChunk(getPostageBatch(), content, { deferred: false })
       const downloadedChunk = await bee.downloadChunk(reference)
 
-      expect(downloadedChunk.array()).toEqual(content)
+      expect(downloadedChunk.bytes()).toEqual(content)
     })
   })
 
@@ -76,7 +76,7 @@ describe('Bee class', () => {
       const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
-      expect(file.data.array()).toEqual(content)
+      expect(file.data.bytes()).toEqual(content)
     })
 
     it('should work with files and CIDs', async () => {
@@ -88,7 +88,7 @@ describe('Bee class', () => {
       const file = await bee.downloadFile(result.cid())
 
       expect(file.name).toEqual(name)
-      expect(file.data.array()).toEqual(content)
+      expect(file.data.bytes()).toEqual(content)
     })
 
     it('should work with files and direct upload', async () => {
@@ -100,7 +100,7 @@ describe('Bee class', () => {
       const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
-      expect(file.data.array()).toEqual(content)
+      expect(file.data.bytes()).toEqual(content)
     })
 
     it('should work with files and tags', async () => {
@@ -115,7 +115,7 @@ describe('Bee class', () => {
       const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
-      expect(file.data.array()).toEqual(content)
+      expect(file.data.bytes()).toEqual(content)
 
       const retrievedTag = await bee.retrieveTag(tag)
       expect(retrievedTag.total).toEqual(8)
@@ -134,7 +134,7 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file)
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data.array()).toEqual(content)
+      expect(downloadedFile.data.bytes()).toEqual(content)
       expect(downloadedFile.name).toEqual(name)
       expect(downloadedFile.contentType).toEqual(type)
     })
@@ -151,7 +151,7 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file, nameOverride)
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data.array()).toEqual(content)
+      expect(downloadedFile.data.bytes()).toEqual(content)
       expect(downloadedFile.name).toEqual(nameOverride)
     })
 
@@ -167,7 +167,7 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file, undefined, { contentType: contentTypeOverride })
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data.array()).toEqual(content)
+      expect(downloadedFile.data.bytes()).toEqual(content)
       expect(downloadedFile.contentType).toEqual(contentTypeOverride)
     })
 
@@ -210,7 +210,7 @@ describe('Bee class', () => {
       const file = await bee.downloadFile(result.reference)
 
       expect(file.name).toEqual(name)
-      expect(file.data.array().length).toEqual(13000)
+      expect(file.data.bytes().length).toEqual(13000)
 
       const retrievedTag = await bee.retrieveTag(tag)
       expect(retrievedTag.total).toEqual(8)
@@ -384,7 +384,7 @@ describe('Bee class', () => {
             const beeDebug = new BeeDebug(beeDebugUrl())
 
             bee.pssReceive(topic).then(receivedMessage => {
-              expect(receivedMessage.array()).toEqual(message)
+              expect(receivedMessage.bytes()).toEqual(message)
               resolve()
             })
 
@@ -407,7 +407,7 @@ describe('Bee class', () => {
             const beeDebug = new BeeDebug(beeDebugUrl())
 
             bee.pssReceive(topic).then(receivedMessage => {
-              expect(receivedMessage.array()).toEqual(message)
+              expect(receivedMessage.bytes()).toEqual(message)
               resolve()
             })
 
@@ -440,7 +440,7 @@ describe('Bee class', () => {
                 // without cancel jest complains for leaking handles and may hang
                 subscription?.cancel()
 
-                expect(receivedMessage.array()).toEqual(message)
+                expect(receivedMessage.bytes()).toEqual(message)
                 resolve()
               },
               onError: e => {

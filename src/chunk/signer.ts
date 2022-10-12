@@ -90,7 +90,7 @@ export function makePrivateKeySigner(privateKey: PrivateKeyBytes): Signer {
   const address = publicKeyToAddress(keyPair.getPublic())
 
   return {
-    sign: (digest: Data) => defaultSign(digest.array(), privateKey),
+    sign: (digest: Data) => defaultSign(digest.bytes(), privateKey),
     address,
   }
 }
