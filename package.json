@@ -27,13 +27,7 @@
   "exports": {
     ".": "./dist/src/index.js"
   },
-  "typesVersions": {
-    "*": {
-      "index.d.ts": [
-        "dist/types/index.d.ts"
-      ]
-    }
-  },
+  "types": "dist/types/index.d.ts",
   "browser": {
     "stream": false,
     "./dist/src/utils/data.js": "./dist/src/utils/data.browser.js",
