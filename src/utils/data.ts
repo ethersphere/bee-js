@@ -14,13 +14,17 @@ import { Readable } from '../types'
 export async function prepareData(
   data: string | ArrayBuffer | Uint8Array | Readable,
 ): Promise<Blob | ReadableStream<Uint8Array> | never> {
-  if (typeof data === 'string') return new BlobPolyfill([data], { type: 'text/plain' }) as unknown as Blob
+  const BlobClass = Blob ? Blob : BlobPolyfill
+
+  if (typeof data === 'string') return new BlobClass([data], { type: 'text/plain' }) as unknown as Blob
 
   if (data instanceof Uint8Array || data instanceof ArrayBuffer) {
-    return new BlobPolyfill([data], { type: 'application/octet-stream' }) as unknown as Blob
+    return new BlobClass([data], { type: 'application/octet-stream' }) as unknown as Blob
   }
 
-  if (data instanceof BlobPolyfill || isNodeReadable(data)) return data as ReadableStream<Uint8Array>
+  if (data instanceof BlobPolyfill || data instanceof Blob || isNodeReadable(data)) {
+    return data as ReadableStream<Uint8Array>
+  }
 
   if (isReadableStream(data)) {
     return readableWebToNode(data) as unknown as ReadableStream<Uint8Array>
@@ -33,7 +37,7 @@ function isBufferArray(buffer: unknown): buffer is Buffer[] {
   return Array.isArray(buffer) && buffer.length > 0 && buffer.every(data => data instanceof Buffer)
 }
 
-export async function prepareWebsocketData(data: Data | BlobPolyfill): Promise<Uint8Array> | never {
+export async function prepareWebsocketData(data: Data): Promise<Uint8Array> | never {
   if (typeof data === 'string') return new TextEncoder().encode(data)
 
   if (data instanceof Buffer) return new Uint8Array(data)
