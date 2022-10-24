@@ -71,14 +71,15 @@ Loading this module through a script tag will make the `BeeJs` object available 
 ## Usage
 
 ```js
-import { Bee } from "@ethersphere/bee-js"
+import { Bee, BeeDebug } from '@ethersphere/bee-js'
 
-bee = new Bee("http://localhost:1633")
+const bee = new Bee('http://localhost:1633')
+const beeDebug = new BeeDebug('http://localhost:1635')
 
 // Be aware, this creates on-chain transactions that spend Eth and BZZ!
-const batchId = await bee.createPostageBatch('100', 17)
-const fileHash = await bee.uploadData(batchId, "Bee is awesome!")
-const data = await bee.downloadData(fileHash)
+const batchId = await beeDebug.createPostageBatch('2000', 20)
+const { reference } = await bee.uploadData(batchId, 'Bee is awesome!')
+const data = await bee.downloadData(reference)
 
 console.log(data.text()) // prints 'Bee is awesome!'
 ```
