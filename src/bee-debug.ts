@@ -1,3 +1,5 @@
+import type { Options as KyOptions } from 'ky'
+
 import * as connectivity from './modules/debug/connectivity'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
@@ -60,7 +62,6 @@ import {
 } from './types'
 import * as tag from './modules/debug/tag'
 import * as stamps from './modules/debug/stamps'
-import type { Options as KyOptions } from 'ky-universal'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { sleep } from './utils/sleep'
 

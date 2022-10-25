@@ -28,5 +28,5 @@ export async function isRetrievable(ky: Ky, reference: ReferenceOrEns): Promise<
     path: `${stewardshipEndpoint}/${reference}`,
   })
 
-  return response.data.isRetrievable
+  return response.parsedData.isRetrievable
 }

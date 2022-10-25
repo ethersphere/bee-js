@@ -49,7 +49,7 @@ export async function getPin(ky: Ky, reference: Reference): Promise<Pin> {
     path: `${PINNING_ENDPOINT}/${reference}`,
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -64,5 +64,5 @@ export async function getAllPins(ky: Ky): Promise<Reference[]> {
     path: `${PINNING_ENDPOINT}`,
   })
 
-  return response.data.references
+  return response.parsedData.references
 }

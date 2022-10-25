@@ -15,7 +15,7 @@ export async function getAllBalances(ky: Ky): Promise<BalanceResponse> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -30,7 +30,7 @@ export async function getPeerBalance(ky: Ky, address: string): Promise<PeerBalan
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -44,7 +44,7 @@ export async function getPastDueConsumptionBalances(ky: Ky): Promise<BalanceResp
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -59,5 +59,5 @@ export async function getPastDueConsumptionPeerBalance(ky: Ky, address: string):
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }

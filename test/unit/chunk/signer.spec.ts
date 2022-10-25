@@ -23,7 +23,7 @@ describe('signer', () => {
   })
 
   test('recover address from signature', () => {
-    const recoveredAddress = recoverAddress(expectedSignatureBytes as Signature, dataToSignWithHelpers)
+    const recoveredAddress = recoverAddress(expectedSignatureBytes as Signature, dataToSignWithHelpers.bytes())
 
     expect(bytesToHex(recoveredAddress)).toEqual(testIdentity.address)
   })

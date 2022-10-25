@@ -7,7 +7,7 @@ export async function getNodeAddresses(ky: Ky): Promise<NodeAddresses> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 interface Peers {
   peers: Peer[]
@@ -19,7 +19,7 @@ export async function getPeers(ky: Ky): Promise<Peer[]> {
     responseType: 'json',
   })
 
-  return response.data.peers
+  return response.parsedData.peers
 }
 
 export async function getBlocklist(ky: Ky): Promise<Peer[]> {
@@ -28,7 +28,7 @@ export async function getBlocklist(ky: Ky): Promise<Peer[]> {
     responseType: 'json',
   })
 
-  return response.data.peers
+  return response.parsedData.peers
 }
 
 export async function removePeer(ky: Ky, peer: string): Promise<RemovePeerResponse> {
@@ -38,7 +38,7 @@ export async function removePeer(ky: Ky, peer: string): Promise<RemovePeerRespon
     method: 'DELETE',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 export async function getTopology(ky: Ky): Promise<Topology> {
@@ -47,7 +47,7 @@ export async function getTopology(ky: Ky): Promise<Topology> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 export async function pingPeer(ky: Ky, peer: string): Promise<PingResponse> {
@@ -57,5 +57,5 @@ export async function pingPeer(ky: Ky, peer: string): Promise<PingResponse> {
     method: 'POST',
   })
 
-  return response.data
+  return response.parsedData
 }

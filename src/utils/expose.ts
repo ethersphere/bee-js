@@ -1,9 +1,9 @@
 export { getCollectionSize } from './collection'
-export { getFolderSize } from './collection.node'
+export { getFolderSize } from './collection-node'
+
+export type { Bytes, FlexBytes } from './bytes'
 
 export {
-  Bytes,
-  FlexBytes,
   isBytes,
   assertBytes,
   isFlexBytes,
@@ -13,9 +13,9 @@ export {
   bytesEqual,
 } from './bytes'
 
+export type { HexString, PrefixedHexString } from './hex'
+
 export {
-  HexString,
-  PrefixedHexString,
   makeHexString,
   hexToBytes,
   bytesToHex,
@@ -25,8 +25,9 @@ export {
   assertPrefixedHexString,
 } from './hex'
 
+export type { EthAddress } from './eth'
+
 export {
-  EthAddress,
   makeEthAddress,
   makeHexEthAddress,
   isHexEthAddress,

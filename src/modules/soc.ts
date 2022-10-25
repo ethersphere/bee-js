@@ -36,5 +36,5 @@ export async function upload(
     searchParams: { sig: signature },
   })
 
-  return response.data.reference
+  return response.parsedData.reference
 }

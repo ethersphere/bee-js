@@ -2,7 +2,7 @@ module.exports = {
   extends: ['plugin:@typescript-eslint/recommended', 'prettier', 'plugin:prettier/recommended'],
   parserOptions: {
     sourceType: 'module',
-    ecmaVersion: 2018,
+    ecmaVersion: 2020,
     project: './tsconfig.test.json',
   },
   env: {

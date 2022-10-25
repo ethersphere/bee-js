@@ -10,7 +10,7 @@ describe('modules/bytes', () => {
     const result = await bytes.upload(BEE_KY, data, getPostageBatch())
     const downloadedData = await bytes.download(BEE_KY, result.reference)
 
-    expect(Buffer.from(downloadedData).toString()).toEqual(data)
+    expect(downloadedData.text()).toEqual(data)
   })
 
   it(

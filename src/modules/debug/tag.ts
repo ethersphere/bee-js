@@ -15,5 +15,5 @@ export async function retrieveExtendedTag(ky: Ky, uid: number): Promise<Extended
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }

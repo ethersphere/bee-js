@@ -1,22 +1,36 @@
 /* eslint-disable no-console */
-import ky from 'ky-universal'
-import { createPostageBatch, getPostageBatch } from '../src/modules/debug/stamps'
-import { BatchId, Ky } from '../src'
+import fetch from 'node-fetch'
 
-export default async function testsSetup(): Promise<void> {
+const STAMPS_ENDPOINT = 'stamps'
+
+async function http(url, config) {
+  const response = await fetch(url, config)
+
+  return await response.json()
+}
+
+async function getPostageBatch(url, postageBatchId) {
+  return await http(`${url}/${STAMPS_ENDPOINT}/${postageBatchId}`, {
+    method: 'get',
+  })
+}
+
+async function createPostageBatch(url, amount, depth) {
+  const response = await http(`${url}/${STAMPS_ENDPOINT}/${amount}/${depth}`, {
+    method: 'post',
+  })
+
+  return response.batchID
+}
+
+export default async function postageSetup() {
+  const beeDebugUrl = process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635'
+  const beeDebugPeerUrl = process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635'
+
   try {
-    const beeDebugKy = ky.create({
-      prefixUrl: process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635',
-      timeout: false,
-    })
-    const beeDebugPeerKy = ky.create({
-      prefixUrl: process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635',
-      timeout: false,
-    })
-
     if (process.env.BEE_POSTAGE) {
       try {
-        if (!(await getPostageBatch(beeDebugKy, process.env.BEE_POSTAGE as BatchId)).usable) {
+        if (!(await getPostageBatch(beeDebugUrl, process.env.BEE_POSTAGE)).usable) {
           delete process.env.BEE_POSTAGE
           console.log('BEE_POSTAGE stamp was found but is not usable')
         } else {
@@ -30,7 +44,7 @@ export default async function testsSetup(): Promise<void> {
 
     if (process.env.BEE_PEER_POSTAGE) {
       try {
-        if (!(await getPostageBatch(beeDebugPeerKy, process.env.BEE_PEER_POSTAGE as BatchId)).usable) {
+        if (!(await getPostageBatch(beeDebugPeerUrl, process.env.BEE_PEER_POSTAGE)).usable) {
           delete process.env.BEE_PEER_POSTAGE
           console.log('BEE_PEER_POSTAGE stamp was found but is not usable')
         } else {
@@ -45,17 +59,17 @@ export default async function testsSetup(): Promise<void> {
     if (!process.env.BEE_POSTAGE || !process.env.BEE_PEER_POSTAGE) {
       console.log('Creating postage stamps...')
 
-      const stampsOrder: { ky: Ky; env: string }[] = []
+      const stampsOrder = []
 
       if (!process.env.BEE_POSTAGE) {
-        stampsOrder.push({ ky: beeDebugKy, env: 'BEE_POSTAGE' })
+        stampsOrder.push({ url: beeDebugUrl, env: 'BEE_POSTAGE' })
       }
 
       if (!process.env.BEE_PEER_POSTAGE) {
-        stampsOrder.push({ ky: beeDebugPeerKy, env: 'BEE_PEER_POSTAGE' })
+        stampsOrder.push({ url: beeDebugPeerUrl, env: 'BEE_PEER_POSTAGE' })
       }
 
-      const stamps = await Promise.all(stampsOrder.map(async order => createPostageBatch(order.ky, '1', 20)))
+      const stamps = await Promise.all(stampsOrder.map(async order => createPostageBatch(order.url, '1', 20)))
 
       for (let i = 0; i < stamps.length; i++) {
         process.env[stampsOrder[i].env] = stamps[i]
@@ -69,7 +83,7 @@ export default async function testsSetup(): Promise<void> {
           // eslint-disable-next-line max-depth
           try {
             // eslint-disable-next-line max-depth
-            if (!(await getPostageBatch(stampsOrder[i].ky, stamps[i] as BatchId)).usable) {
+            if (!(await getPostageBatch(stampsOrder[i].url, stamps[i])).usable) {
               allUsable = false
               break
             } else {
@@ -82,7 +96,7 @@ export default async function testsSetup(): Promise<void> {
         }
 
         // eslint-disable-next-line no-loop-func
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 1_000))
+        await new Promise(resolve => setTimeout(() => resolve(), 1_000))
       } while (!allUsable)
       console.log('Usable, yey!')
     }

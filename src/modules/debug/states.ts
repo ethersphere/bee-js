@@ -17,7 +17,7 @@ export async function getReserveState(ky: Ky): Promise<ReserveState> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -32,7 +32,7 @@ export async function getChainState(ky: Ky): Promise<ChainState> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -47,5 +47,5 @@ export async function getWalletBalance(ky: Ky): Promise<WalletBalance> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }

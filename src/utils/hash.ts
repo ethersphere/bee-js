@@ -1,5 +1,5 @@
 import { Message } from 'js-sha3'
-import { Bytes } from './bytes'
+import type { Bytes } from './bytes'
 
 // For ESM compatibility
 import pkg from 'js-sha3'

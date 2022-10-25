@@ -1,4 +1,5 @@
 /* eslint @typescript-eslint/no-empty-function: 0 */
+import { jest } from '@jest/globals'
 import {
   makeEthereumWalletSigner,
   ethToSwarmAddress,

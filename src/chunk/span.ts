@@ -1,5 +1,5 @@
 import { BeeArgumentError } from '../utils/error'
-import { Bytes } from '../utils/bytes'
+import type { Bytes } from '../utils/bytes'
 
 export const SPAN_SIZE = 8
 

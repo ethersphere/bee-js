@@ -25,7 +25,7 @@ export async function getChequebookAddress(ky: Ky): Promise<ChequebookAddressRes
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -39,7 +39,7 @@ export async function getChequebookBalance(ky: Ky): Promise<ChequebookBalanceRes
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -54,7 +54,7 @@ export async function getLastCashoutAction(ky: Ky, peer: string): Promise<LastCa
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -82,7 +82,7 @@ export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutO
     headers,
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }
 
 /**
@@ -97,7 +97,7 @@ export async function getLastChequesForPeer(ky: Ky, peer: string): Promise<LastC
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -111,7 +111,7 @@ export async function getLastCheques(ky: Ky): Promise<LastChequesResponse> {
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -141,7 +141,7 @@ export async function depositTokens(
     headers,
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }
 
 /**
@@ -171,5 +171,5 @@ export async function withdrawTokens(
     headers,
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }

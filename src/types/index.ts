@@ -7,11 +7,11 @@ import type { BeeError } from '../utils/error'
 import type { EthAddress, HexEthAddress } from '../utils/eth'
 import type { HexString } from '../utils/hex'
 import type ky from 'ky-universal'
+import type { Options as KyOptions } from 'ky'
 
 import type { Readable as NativeReadable } from 'stream'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
 import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill'
-import { Options as KyOptions } from './ky-options'
 
 export * from './debug'
 
@@ -315,13 +315,14 @@ export interface Pin {
 }
 
 /**
- * Helper interface that adds utility functions
- * to work more conveniently with bytes in normal
- * user scenarios.
- *
- * Concretely: text(), hex(), json()
+ * Interface that represents Data passed from Bee and that allows accessing it in different forms..
  */
-export interface Data extends Uint8Array {
+export interface Data {
+  /**
+   * The raw binary data in form of Uint8Array
+   */
+  bytes(): Uint8Array
+
   /**
    * Converts the binary data using UTF-8 decoding into string.
    */
@@ -649,4 +650,4 @@ interface JsonMap {
 }
 type JsonArray = Array<AnyJson>
 
-type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>
+export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>

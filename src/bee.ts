@@ -39,7 +39,7 @@ import {
 } from './utils/type'
 import { getJsonData, setJsonData } from './feed/json'
 import { assertCollection, makeCollectionFromFileList } from './utils/collection'
-import { makeCollectionFromFS } from './utils/collection.node'
+import { makeCollectionFromFS } from './utils/collection-node'
 import type {
   AddressPrefix,
   AnyJson,
@@ -79,7 +79,7 @@ import {
   UploadResult,
 } from './types'
 
-import type { Options as KyOptions } from 'ky-universal'
+import type { Options as KyOptions } from 'ky'
 import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { isReadable } from './utils/stream'
 import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
