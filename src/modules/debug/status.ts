@@ -14,6 +14,7 @@ export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.substring(0, SU
 
 const NODE_INFO_URL = 'node'
 const HEALTH_URL = 'health'
+const READINESS_URL = 'readiness'
 
 /**
  * Get health of node
@@ -28,6 +29,24 @@ export async function getHealth(ky: Ky): Promise<Health> {
   })
 
   return response.data
+}
+
+/**
+ * Get readiness of node
+ *
+ * @param ky Ky debug instance
+ */
+export async function getReadiness(ky: Ky): Promise<boolean> {
+  try {
+    const response = await http<void>(ky, {
+      method: 'get',
+      path: READINESS_URL,
+    })
+
+    return response.status === 200
+  } catch {
+    return false
+  }
 }
 
 /**

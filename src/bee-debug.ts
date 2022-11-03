@@ -376,6 +376,15 @@ export class BeeDebug {
   }
 
   /**
+   * Get readiness of node
+   */
+  async getReadiness(options?: RequestOptions): Promise<boolean> {
+    assertRequestOptions(options)
+
+    return status.getReadiness(this.getKy(options))
+  }
+
+  /**
    * Get mode information of node
    */
   async getNodeInfo(options?: RequestOptions): Promise<NodeInfo> {
