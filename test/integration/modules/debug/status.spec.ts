@@ -1,6 +1,7 @@
 import {
   getHealth,
   getVersions,
+  getReadiness,
   isSupportedApiVersion,
   isSupportedDebugApiVersion,
   isSupportedExactVersion,
@@ -25,6 +26,12 @@ describe('modules/status', () => {
     expect(health.status).toBe('ok')
     // Matches both versions like 0.5.3-c423a39c, 0.5.3-c423a39c-dirty and 0.5.3
     expect(semver.valid(health.version)).not.toBeNull()
+  })
+
+  test('getReadiness', async () => {
+    const isReady = await getReadiness(BEE_DEBUG_URL)
+
+    expect(isReady).toBe(true)
   })
 
   test('isSupportedVersion', async () => {
