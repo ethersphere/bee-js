@@ -88,7 +88,7 @@
     "@babel/preset-typescript": "^7.14.5",
     "@commitlint/cli": "^17.0.2",
     "@commitlint/config-conventional": "^16.2.1",
-    "@ethersphere/bee-factory": "^0.4.1",
+    "@ethersphere/bee-factory": "^0.5.0",
     "@fluffy-spoon/substitute": "^1.208.0",
     "@jest/test-sequencer": "^27.5.0",
     "@jest/types": "^27.5.1",
@@ -135,8 +135,8 @@
   "engines": {
     "node": ">=14.0.0",
     "npm": ">=6.0.0",
-    "beeApiVersion": "3.0.2",
-    "beeDebugApiVersion": "3.0.2",
-    "bee": "1.7.0-bbf13011"
+    "beeApiVersion": "3.2.0",
+    "beeDebugApiVersion": "3.2.0",
+    "bee": "1.9.0-13a47043"
   }
 }
