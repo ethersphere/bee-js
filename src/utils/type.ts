@@ -25,6 +25,7 @@ import {
   PostageBatchOptions,
   CashoutOptions,
   ReferenceOrEns,
+  TransactionOptions,
 } from '../types'
 import { BeeArgumentError, BeeError } from './error'
 import { isFile } from './file'
@@ -401,6 +402,26 @@ export function assertPostageBatchOptions(value: unknown): asserts value is Post
   }
 }
 
+export function assertTransactionOptions(
+  value: unknown,
+  name = 'TransactionOptions',
+): asserts value is TransactionOptions {
+  if (value === undefined) {
+    return
+  }
+
+  assertStrictlyObject(value, name)
+  const options = value as TransactionOptions
+
+  if (options?.gasLimit) {
+    assertNonNegativeInteger(options.gasLimit, name)
+  }
+
+  if (options?.gasPrice) {
+    assertNonNegativeInteger(options.gasPrice, name)
+  }
+}
+
 export function assertCashoutOptions(value: unknown): asserts value is CashoutOptions {
   if (value === undefined) {
     return
@@ -409,15 +430,8 @@ export function assertCashoutOptions(value: unknown): asserts value is CashoutOp
   assertStrictlyObject(value)
 
   const options = value as CashoutOptions
-  assertRequestOptions(options, 'PostageBatchOptions')
-
-  if (options?.gasLimit) {
-    assertNonNegativeInteger(options.gasLimit)
-  }
-
-  if (options?.gasPrice) {
-    assertNonNegativeInteger(options.gasPrice)
-  }
+  assertRequestOptions(options, 'CashoutOptions')
+  assertTransactionOptions(options, 'CashoutOptions')
 }
 
 /**
