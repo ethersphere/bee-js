@@ -136,7 +136,8 @@ describe('Bee Debug class', () => {
       expect(await beeDebug.getNodeInfo()).toEqual(
         expect.objectContaining({
           beeMode: expect.stringMatching(/^(dev|light|full)$/),
-          gatewayMode: expect.any(Boolean),
+          chequebookEnabled: expect.any(Boolean),
+          swapEnabled: expect.any(Boolean),
         }),
       )
     })
