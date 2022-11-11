@@ -86,7 +86,7 @@ export interface ChequebookBalanceResponse {
   availableBalance: NumberString
 }
 
-export interface CashoutOptions extends RequestOptions {
+export interface TransactionOptions {
   /**
    * Gas price for the cashout transaction in WEI
    */
@@ -97,6 +97,8 @@ export interface CashoutOptions extends RequestOptions {
    */
   gasLimit?: NumberString
 }
+
+export type CashoutOptions = TransactionOptions & RequestOptions
 
 export interface CashoutResult {
   recipient: string

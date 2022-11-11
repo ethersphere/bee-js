@@ -143,6 +143,26 @@ describe('Bee Debug class', () => {
     })
   })
 
+  describe('staking', () => {
+    it('should return amount staked', async () => {
+      expect(await beeDebug.getStake()).toEqual(expect.stringMatching(/^[0-9]+$/))
+    })
+
+    it(
+      'should deposit stake',
+      async () => {
+        const originalStake = BigInt(await beeDebug.getStake())
+
+        await beeDebug.depositStake('100000000000000000')
+
+        const increasedStake = BigInt(await beeDebug.getStake())
+
+        expect(increasedStake - originalStake).toEqual(BigInt(10e16))
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT,
+    )
+  })
+
   describe('Wallet', () => {
     it('should return the nodes balances and other data', async () => {
       expect(await beeDebug.getWalletBalance()).toEqual(

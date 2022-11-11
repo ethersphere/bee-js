@@ -11,7 +11,7 @@ import { testAddress, testBatchId } from '../utils'
 import {
   testAddressAssertions,
   testBatchIdAssertion,
-  testCashoutOptionsAssertions,
+  testTransactionOptionsAssertions,
   testPostageBatchOptionsAssertions,
   testRequestOptionsAssertions,
 } from './assertions'
@@ -163,7 +163,7 @@ describe('BeeDebug class', () => {
       return bee.cashoutLastCheque(testAddress, input as RequestOptions)
     })
 
-    testCashoutOptionsAssertions(async (input: unknown) => {
+    testTransactionOptionsAssertions(async (input: unknown) => {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       return bee.cashoutLastCheque('', input as CashoutOptions)
@@ -341,6 +341,29 @@ describe('BeeDebug class', () => {
       await expect(bee.retrieveExtendedTag({ total: null })).rejects.toThrow(TypeError)
 
       await expect(bee.retrieveExtendedTag(-1)).rejects.toThrow(BeeArgumentError)
+    })
+  })
+
+  describe('getStake', () => {
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
+
+      return bee.getStake(input as RequestOptions)
+    })
+  })
+
+  describe('depositStake', () => {
+    const testStakingAmount = '100000000000000000'
+    testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL, beeOptions)
+
+      return bee.depositStake(testStakingAmount, input as RequestOptions)
+    })
+
+    testTransactionOptionsAssertions(async (input: unknown) => {
+      const bee = new BeeDebug(MOCK_SERVER_URL)
+
+      return bee.depositStake(testStakingAmount, input as RequestOptions)
     })
   })
 

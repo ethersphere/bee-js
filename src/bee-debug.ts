@@ -5,6 +5,8 @@ import * as settlements from './modules/debug/settlements'
 import * as status from './modules/debug/status'
 import * as transactions from './modules/debug/transactions'
 import * as states from './modules/debug/states'
+import * as stake from './modules/debug/stake'
+
 import type {
   Address,
   Peer,
@@ -46,6 +48,7 @@ import {
   assertPostageBatchOptions,
   assertRequestOptions,
   assertTransactionHash,
+  assertTransactionOptions,
   isTag,
 } from './utils/type'
 import {
@@ -57,6 +60,7 @@ import {
   STAMPS_DEPTH_MAX,
   STAMPS_DEPTH_MIN,
   Tag,
+  TransactionOptions,
 } from './types'
 import * as tag from './modules/debug/tag'
 import * as stamps from './modules/debug/stamps'
@@ -692,6 +696,32 @@ export class BeeDebug {
     }
 
     return transactions.cancelTransaction(this.getKy(options), transactionHash, gasPrice)
+  }
+
+  /**
+   * Gets the staked amount of BZZ (in PLUR unit) as number string.
+   *
+   * @param options
+   */
+  async getStake(options?: RequestOptions): Promise<NumberString> {
+    assertRequestOptions(options)
+
+    return stake.getStake(this.getKy(options))
+  }
+
+  /**
+   * Deposits given amount of BZZ token (in PLUR unit).
+   *
+   * Be aware that staked BZZ tokens can **not** be withdrawn.
+   *
+   * @param amount Amount of BZZ token (in PLUR unit) to be staked. Minimum is 100_000_000_000_000_000 PLUR (10 BZZ).
+   * @param options
+   */
+  async depositStake(amount: NumberString, options?: RequestOptions & TransactionOptions): Promise<void> {
+    assertRequestOptions(options)
+    assertTransactionOptions(options)
+
+    await stake.stake(this.getKy(options), amount, options)
   }
 
   private async waitForUsablePostageStamp(id: BatchId, timeout = 120_000): Promise<void> {
