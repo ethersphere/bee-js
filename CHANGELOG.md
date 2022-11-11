@@ -3,6 +3,7 @@
 
 ## [5.1.0](https://github.com/ethersphere/bee-js/compare/v5.0.0...v5.1.0) (2022-11-11)
 
+This is a smaller release that brings support for Bee 1.9 and several smaller features.
 
 ### Features
 
