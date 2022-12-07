@@ -10,11 +10,11 @@ import {
   ERR_TIMEOUT,
   getPostageBatch,
   commonMatchers,
-  beeKy,
+  beeKyOptions,
 } from '../../utils'
 import { Collection } from '../../../src/types'
 
-const BEE_KY = beeKy()
+const BEE_KY_OPTIONS = beeKyOptions()
 commonMatchers()
 
 describe('modules/pin', () => {
@@ -22,25 +22,25 @@ describe('modules/pin', () => {
     const randomData = randomByteArray(5000)
 
     it('should pin an existing file', async () => {
-      const result = await bzz.uploadFile(BEE_KY, randomData, getPostageBatch())
-      await pinning.pin(BEE_KY, result.reference)
+      const result = await bzz.uploadFile(BEE_KY_OPTIONS, randomData, getPostageBatch())
+      await pinning.pin(BEE_KY_OPTIONS, result.reference)
     })
 
     it('should unpin an existing file', async () => {
-      const result = await bzz.uploadFile(BEE_KY, randomData, getPostageBatch())
-      await pinning.unpin(BEE_KY, result.reference)
+      const result = await bzz.uploadFile(BEE_KY_OPTIONS, randomData, getPostageBatch())
+      await pinning.unpin(BEE_KY_OPTIONS, result.reference)
     })
 
     it(
       'should not pin a non-existing file',
       async () => {
-        await expect(pinning.pin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+        await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
       },
       ERR_TIMEOUT,
     )
 
     it('should not unpin a non-existing file', async () => {
-      await expect(pinning.unpin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
     })
   })
 
@@ -57,25 +57,25 @@ describe('modules/pin', () => {
     ]
 
     it('should pin an existing collection', async () => {
-      const result = await bzz.uploadCollection(BEE_KY, testCollection, getPostageBatch())
-      await pinning.pin(BEE_KY, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const result = await bzz.uploadCollection(BEE_KY_OPTIONS, testCollection, getPostageBatch())
+      await pinning.pin(BEE_KY_OPTIONS, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin an existing collections', async () => {
-      const result = await bzz.uploadCollection(BEE_KY, testCollection, getPostageBatch())
-      await pinning.unpin(BEE_KY, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const result = await bzz.uploadCollection(BEE_KY_OPTIONS, testCollection, getPostageBatch())
+      await pinning.unpin(BEE_KY_OPTIONS, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it(
       'should not pin a non-existing collections',
       async () => {
-        await expect(pinning.pin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+        await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
       },
       ERR_TIMEOUT,
     )
 
     it('should not unpin a non-existing collections', async () => {
-      await expect(pinning.unpin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
     })
   })
 
@@ -83,73 +83,73 @@ describe('modules/pin', () => {
     const randomData = randomByteArray(5000)
 
     it('should pin existing data', async () => {
-      const result = await bytes.upload(BEE_KY, randomData, getPostageBatch())
-      await pinning.pin(BEE_KY, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const result = await bytes.upload(BEE_KY_OPTIONS, randomData, getPostageBatch())
+      await pinning.pin(BEE_KY_OPTIONS, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin existing data', async () => {
-      const result = await bytes.upload(BEE_KY, randomData, getPostageBatch())
-      await pinning.pin(BEE_KY, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const result = await bytes.upload(BEE_KY_OPTIONS, randomData, getPostageBatch())
+      await pinning.pin(BEE_KY_OPTIONS, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it(
       'should not pin a non-existing data',
       async () => {
-        await expect(pinning.pin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+        await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
       },
       ERR_TIMEOUT,
     )
 
     it('should not unpin a non-existing data', async () => {
-      await expect(pinning.unpin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
     })
   })
 
   describe('should work with chunks', () => {
     it('should pin existing chunk', async () => {
-      const chunkReference = await chunk.upload(BEE_KY, testChunkData, getPostageBatch())
+      const chunkReference = await chunk.upload(BEE_KY_OPTIONS, testChunkData, getPostageBatch())
       expect(chunkReference).toEqual(testChunkHash)
 
-      await pinning.pin(BEE_KY, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await pinning.pin(BEE_KY_OPTIONS, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin existing chunk', async () => {
-      const chunkReference = await chunk.upload(BEE_KY, testChunkData, getPostageBatch())
+      const chunkReference = await chunk.upload(BEE_KY_OPTIONS, testChunkData, getPostageBatch())
       expect(chunkReference).toEqual(testChunkHash)
 
-      await pinning.unpin(BEE_KY, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await pinning.unpin(BEE_KY_OPTIONS, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it(
       'should not pin a non-existing chunk',
       async () => {
-        await expect(pinning.pin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+        await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
       },
       ERR_TIMEOUT,
     )
 
     it('should not unpin a non-existing chunk', async () => {
-      await expect(pinning.unpin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
     })
 
     it('should return pinning status of existing chunk', async () => {
-      const chunkReference = await chunk.upload(BEE_KY, testChunkData, getPostageBatch())
+      const chunkReference = await chunk.upload(BEE_KY_OPTIONS, testChunkData, getPostageBatch())
       expect(chunkReference).toEqual(testChunkHash)
 
-      await pinning.pin(BEE_KY, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
-      const pinningStatus = await pinning.getPin(BEE_KY, testChunkHash)
+      await pinning.pin(BEE_KY_OPTIONS, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      const pinningStatus = await pinning.getPin(BEE_KY_OPTIONS, testChunkHash)
       expect(pinningStatus.reference).toEqual(testChunkHash)
     })
 
     it('should not return pinning status of non-existing chunk', async () => {
-      await expect(pinning.getPin(BEE_KY, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.getPin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
     })
 
     it('should return list of pinned chunks', async () => {
-      const chunkReference = await chunk.upload(BEE_KY, testChunkData, getPostageBatch())
+      const chunkReference = await chunk.upload(BEE_KY_OPTIONS, testChunkData, getPostageBatch())
       expect(chunkReference).toEqual(testChunkHash)
 
-      await pinning.pin(BEE_KY, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await pinning.pin(BEE_KY_OPTIONS, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
   })
 })

@@ -5,11 +5,11 @@ import {
   getNodeAddresses,
   pingPeer,
 } from '../../../../src/modules/debug/connectivity'
-import { beeDebugKy } from '../../../utils'
+import { beeDebugKyOptions } from '../../../utils'
 
 describe('modules/debug/connectivity', () => {
   test('getPeers', async () => {
-    const peers = await getPeers(beeDebugKy())
+    const peers = await getPeers(beeDebugKyOptions())
 
     expect(Array.isArray(peers)).toBeTruthy()
     expect(peers.length).toBeGreaterThan(0)
@@ -21,7 +21,7 @@ describe('modules/debug/connectivity', () => {
   })
 
   test('getBlocklist', async () => {
-    const peers = await getBlocklist(beeDebugKy())
+    const peers = await getBlocklist(beeDebugKyOptions())
 
     expect(Array.isArray(peers)).toBeTruthy()
 
@@ -32,12 +32,12 @@ describe('modules/debug/connectivity', () => {
   })
 
   test('getTopology', async () => {
-    const topology = await getTopology(beeDebugKy())
+    const topology = await getTopology(beeDebugKyOptions())
 
     expect(topology.baseAddr).toMatch(/^[0-9a-f]{64}$/i)
     expect(topology.population).toBeGreaterThanOrEqual(0)
     expect(topology.connected).toBeGreaterThanOrEqual(0)
-    expect(Date.parse(topology.timestamp) !== NaN).toBeTruthy()
+    expect(!isNaN(Date.parse(topology.timestamp))).toBeTruthy()
     expect(topology.nnLowWatermark).toBeGreaterThanOrEqual(0)
     expect(topology.depth).toBeGreaterThanOrEqual(0)
 
@@ -51,7 +51,7 @@ describe('modules/debug/connectivity', () => {
   })
 
   test('getNodeAddresses', async () => {
-    const addresses = await getNodeAddresses(beeDebugKy())
+    const addresses = await getNodeAddresses(beeDebugKyOptions())
 
     expect(addresses.overlay).toMatch(/^[0-9a-f]{64}$/)
     expect(Array.isArray(addresses.underlay)).toBeTruthy()
@@ -61,8 +61,8 @@ describe('modules/debug/connectivity', () => {
   })
 
   test('pingPeer', async () => {
-    const peers = await getPeers(beeDebugKy())
-    const res = await pingPeer(beeDebugKy(), peers[0].address)
+    const peers = await getPeers(beeDebugKyOptions())
+    const res = await pingPeer(beeDebugKyOptions(), peers[0].address)
 
     expect(res.rtt).toMatch(/^\d+(\.\d+)?[mnpµ]?s$/)
   })

@@ -1,12 +1,14 @@
 import { BeeError, BeeNotAJsonError, BeeRequestError, BeeResponseError } from './error'
 import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
-import kyFactory, { HTTPError, Options as KyOptions } from 'ky-universal'
+import type { HTTPError, Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
-import { deepMerge } from './merge'
 import { isObject, isStrictlyObject } from './type'
 import { KyRequestOptions } from '../types'
+import { deepMerge } from './merge'
+import { sleep } from './sleep'
+import { import_ } from '@brillout/import'
 
-const DEFAULT_KY_CONFIG: KyOptions = {
+export const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {
     accept: 'application/json, text/plain, */*',
     'user-agent': `bee-js`,
@@ -18,7 +20,7 @@ interface UndiciError {
 }
 
 interface KyResponse<T> extends Response {
-  data: T
+  parseData: T
 }
 
 function isHttpError(e: unknown): e is HTTPError {
@@ -95,12 +97,13 @@ export function filterHeaders(obj?: object): Record<string, string> | undefined 
 
 /**
  * Main utility function to make HTTP requests.
- * @param ky
+ * @param kyOptions
  * @param config
  */
-export async function http<T>(ky: Ky, config: KyRequestOptions): Promise<KyResponse<T>> {
+export async function http<T>(kyOptions: KyOptions, config: KyRequestOptions): Promise<KyResponse<T>> {
   try {
-    const { path, responseType, ...kyConfig } = config
+    const ky = await getKy()
+    const { path, responseType, ...kyConfig } = deepMerge(kyOptions as KyRequestOptions, config)
 
     const response = (await ky(path, {
       ...kyConfig,
@@ -113,14 +116,14 @@ export async function http<T>(ky: Ky, config: KyRequestOptions): Promise<KyRespo
           throw new BeeError('Response was expected to get data but did not get any!')
         }
 
-        response.data = normalizeToReadableStream(response.body) as unknown as T
+        response.parseData = normalizeToReadableStream(response.body) as unknown as T
         break
       case 'arraybuffer':
-        response.data = (await response.arrayBuffer()) as unknown as T
+        response.parseData = (await response.arrayBuffer()) as unknown as T
         break
       case 'json':
         try {
-          response.data = (await response.json()) as unknown as T
+          response.parseData = (await response.json()) as unknown as T
         } catch (e) {
           throw new BeeNotAJsonError()
         }
@@ -168,6 +171,54 @@ export async function http<T>(ky: Ky, config: KyRequestOptions): Promise<KyRespo
   }
 }
 
-export function makeDefaultKy(kyConfig: KyOptions): Ky {
-  return kyFactory.create(deepMerge(DEFAULT_KY_CONFIG, kyConfig))
+let ky: Ky | undefined,
+  kyLock = false
+
+async function waitForLock(): Promise<void> {
+  while (kyLock) {
+    console.log(': Waiting for lock')
+
+    await sleep(10)
+  }
+}
+
+async function getKy(): Promise<Ky> {
+  if (ky) {
+    console.log('Ky found!: ')
+
+    return ky
+  }
+  console.log(': Ky not found, getting it')
+
+  // We use TSImportLib as TypeScript otherwise transpiles the `await import` into `require` call for CommonJS modules.
+  // The TSImportLib is used only in Node context as there is defined the `module` object.
+  // In browser&webpack is then used directly `await import()` as babel-loader only
+  // removes TS syntax and hence preserves `await import` in the browser build.
+  // if (tsimportlib && tsimportlib.dynamicImport) {
+  //   ky = (await tsimportlib.dynamicImport('ky-universal', module)).default
+  // } else {
+  //   ky = (await import('ky-universal')).default
+  // }
+
+  if (kyLock) {
+    await waitForLock()
+
+    if (ky) {
+      return ky
+    }
+  }
+
+  try {
+    kyLock = true
+    ky = (await import_('ky-universal')).default
+
+    if (!ky) {
+      throw new Error('Ky module not found!')
+    }
+  } finally {
+    kyLock = false
+  }
+  console.log(': Got Ky!')
+
+  return ky
 }

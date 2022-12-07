@@ -1,7 +1,7 @@
 import { join } from 'path'
 import {
   beeDebugUrl,
-  beeKy,
+  beeKyOptions,
   beePeerDebugUrl,
   beePeerUrl,
   beeUrl,
@@ -145,7 +145,7 @@ describe('Bee class - in browser', () => {
         batchId,
       )) as Reference
 
-      const file = await bzz.downloadFile(beeKy(), ref)
+      const file = await bzz.downloadFile(beeKyOptions(), ref)
 
       expect(file.name).toEqual('hello.txt')
       expect(file.data.text()).toEqual('hello another world')

@@ -1,17 +1,8 @@
 import { Readable } from 'stream'
 import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
+import type { Options as KyOptions } from 'ky'
 
-import ky from 'ky-universal'
-
-import type {
-  Address,
-  BatchId,
-  BeeGenericResponse,
-  Ky,
-  PlainBytesReference,
-  PostageBatch,
-  Reference,
-} from '../src/types'
+import type { Address, BatchId, BeeGenericResponse, PlainBytesReference, PostageBatch, Reference } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
@@ -126,7 +117,7 @@ export function commonMatchers(): void {
 export async function readWholeUint8ArrayReadableStream(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
   const reader = stream.getReader()
   let buff: number[] = []
-  let readResult: ReadableStreamDefaultReadResult<Uint8Array>
+  let readResult: ReadableStreamReadResult<Uint8Array>
 
   do {
     readResult = await reader.read()
@@ -209,8 +200,8 @@ export function beeUrl(): string {
   return process.env.BEE_API_URL || 'http://127.0.0.1:1633'
 }
 
-export function beeKy(): Ky {
-  return ky.create({ prefixUrl: beeUrl(), timeout: false })
+export function beeKyOptions(): KyOptions {
+  return { prefixUrl: beeUrl(), timeout: false }
 }
 
 /**
@@ -220,8 +211,8 @@ export function beePeerUrl(): string {
   return process.env.BEE_PEER_API_URL || 'http://127.0.0.1:11633'
 }
 
-export function beePeerKy(): Ky {
-  return ky.create({ prefixUrl: beePeerUrl(), timeout: false })
+export function beePeerKyOptions(): KyOptions {
+  return { prefixUrl: beePeerUrl(), timeout: false }
 }
 
 /**
@@ -257,8 +248,8 @@ export function beeDebugUrl(): string {
   return process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635'
 }
 
-export function beeDebugKy(): Ky {
-  return ky.create({ prefixUrl: beeDebugUrl(), timeout: false })
+export function beeDebugKyOptions(): KyOptions {
+  return { prefixUrl: beeDebugUrl(), timeout: false }
 }
 
 /**
@@ -268,8 +259,8 @@ export function beePeerDebugUrl(): string {
   return process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635'
 }
 
-export function beePeerDebugKy(): Ky {
-  return ky.create({ prefixUrl: beePeerDebugUrl(), timeout: false })
+export function beePeerDebugKyOptions(): KyOptions {
+  return { prefixUrl: beePeerDebugUrl(), timeout: false }
 }
 
 /**
@@ -284,7 +275,7 @@ export async function tryDeleteChunkFromLocalStorage(address: string | PlainByte
   }
 
   try {
-    await deleteChunkFromLocalStorage(beeDebugKy(), address)
+    await deleteChunkFromLocalStorage(beeDebugKyOptions(), address)
   } catch (e) {
     // ignore not found errors
     if (e instanceof BeeResponseError && e.status === 404) {
@@ -323,7 +314,7 @@ export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 
 
       do {
         await sleep(pollingInterval)
-        stamp = await stamps.getPostageBatch(beeDebugKy(), batchId as BatchId)
+        stamp = await stamps.getPostageBatch(beeDebugKyOptions(), batchId as BatchId)
       } while (!stamp.usable)
     },
   ])
@@ -347,18 +338,18 @@ export async function getOrCreatePostageBatch(
   immutable?: boolean,
 ): Promise<PostageBatch> {
   // Non-usable stamps are ignored by Bee
-  const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKy())).filter(stamp => stamp.usable)
+  const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKyOptions())).filter(stamp => stamp.usable)
 
   if (allUsableStamps.length === 0) {
     const batchId = await stamps.createPostageBatch(
-      beeDebugKy(),
+      beeDebugKyOptions(),
       amount ?? DEFAULT_BATCH_AMOUNT,
       depth ?? DEFAULT_BATCH_DEPTH,
     )
 
     await waitForBatchToBeUsable(batchId)
 
-    return stamps.getPostageBatch(beeDebugKy(), batchId)
+    return stamps.getPostageBatch(beeDebugKyOptions(), batchId)
   }
 
   // User does not want any specific batch, lets give him the first one
@@ -391,14 +382,14 @@ export async function getOrCreatePostageBatch(
 
   // No stamp meeting the criteria was found ==> we need to create a new one
   const batchId = await stamps.createPostageBatch(
-    beeDebugKy(),
+    beeDebugKyOptions(),
     amount ?? DEFAULT_BATCH_AMOUNT,
     depth ?? DEFAULT_BATCH_DEPTH,
   )
 
   await waitForBatchToBeUsable(batchId)
 
-  return stamps.getPostageBatch(beeDebugKy(), batchId)
+  return stamps.getPostageBatch(beeDebugKyOptions(), batchId)
 }
 
 export function makeTestTarget(target: string): string {

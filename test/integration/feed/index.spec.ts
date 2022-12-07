@@ -1,21 +1,22 @@
 import { fetchLatestFeedUpdate } from '../../../src/modules/feed'
 import { hexToBytes, makeHexString } from '../../../src/utils/hex'
-import { beeKy, ERR_TIMEOUT, getPostageBatch, testIdentity } from '../../utils'
+import { beeKyOptions, ERR_TIMEOUT, getPostageBatch, testIdentity } from '../../utils'
 import { downloadFeedUpdate, findNextIndex, Index, updateFeed } from '../../../src/feed'
 import { Bytes, assertBytes } from '../../../src/utils/bytes'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import * as chunkAPI from '../../../src/modules/chunk'
-import type { BytesReference, Ky, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
+import type { BytesReference, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
 import { BeeResponseError } from '../../../src'
+import type { Options as KyOptions } from 'ky'
 
 function makeChunk(index: number) {
   return makeContentAddressedChunk(new Uint8Array([index]))
 }
 
-async function uploadChunk(ky: Ky, index: number): Promise<BytesReference> {
+async function uploadChunk(kyOptions: KyOptions, index: number): Promise<BytesReference> {
   const chunk = makeChunk(index)
-  const reference = await chunkAPI.upload(ky, chunk.data, getPostageBatch())
+  const reference = await chunkAPI.upload(kyOptions, chunk.data, getPostageBatch())
 
   return hexToBytes(reference) as BytesReference
 }
@@ -23,9 +24,15 @@ async function uploadChunk(ky: Ky, index: number): Promise<BytesReference> {
 // FIXME helper function for setting up test state for testing finding feed updates
 // it is not intended as a replacement in tests for `uploadFeedUpdate`
 // https://github.com/ethersphere/bee-js/issues/154
-async function tryUploadFeedUpdate(ky: Ky, signer: Signer, topic: Topic, index: Index, reference: BytesReference) {
+async function tryUploadFeedUpdate(
+  kyOptions: KyOptions,
+  signer: Signer,
+  topic: Topic,
+  index: Index,
+  reference: BytesReference,
+) {
   try {
-    await updateFeed(ky, signer, topic, reference, getPostageBatch(), undefined, index)
+    await updateFeed(kyOptions, signer, topic, reference, getPostageBatch(), undefined, index)
   } catch (e) {
     if (e instanceof BeeResponseError && e.status === 409) {
       // ignore conflict errors when uploading the same feed update twice
@@ -36,7 +43,7 @@ async function tryUploadFeedUpdate(ky: Ky, signer: Signer, topic: Topic, index: 
 }
 
 describe('feed', () => {
-  const BEE_KY = beeKy()
+  const BEE_KY_OPTIONS = beeKyOptions()
   const owner = makeHexString(testIdentity.address, 40)
   const signer = makePrivateKeySigner(hexToBytes(testIdentity.privateKey) as PrivateKeyBytes)
   const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
@@ -45,7 +52,7 @@ describe('feed', () => {
     'empty feed update',
     async () => {
       const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
-      const index = await findNextIndex(BEE_KY, owner, emptyTopic)
+      const index = await findNextIndex(BEE_KY_OPTIONS, owner, emptyTopic)
 
       expect(index).toEqual('0000000000000000')
     },
@@ -53,10 +60,10 @@ describe('feed', () => {
   )
 
   test('feed update', async () => {
-    const uploadedChunk = await uploadChunk(BEE_KY, 0)
-    await tryUploadFeedUpdate(BEE_KY, signer, topic, 0, uploadedChunk)
+    const uploadedChunk = await uploadChunk(BEE_KY_OPTIONS, 0)
+    await tryUploadFeedUpdate(BEE_KY_OPTIONS, signer, topic, 0, uploadedChunk)
 
-    const feedUpdate = await fetchLatestFeedUpdate(BEE_KY, owner, topic)
+    const feedUpdate = await fetchLatestFeedUpdate(BEE_KY_OPTIONS, owner, topic)
 
     expect(feedUpdate.feedIndex).toEqual('0000000000000000')
     expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
@@ -72,12 +79,12 @@ describe('feed', () => {
 
     for (let i = 0; i < numUpdates; i++) {
       const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
-      await tryUploadFeedUpdate(BEE_KY, signer, multipleUpdateTopic, i, referenceI)
+      await tryUploadFeedUpdate(BEE_KY_OPTIONS, signer, multipleUpdateTopic, i, referenceI)
     }
 
     for (let i = 0; i < numUpdates; i++) {
       const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
-      const feedUpdateResponse = await downloadFeedUpdate(BEE_KY, signer.address, multipleUpdateTopic, i)
+      const feedUpdateResponse = await downloadFeedUpdate(BEE_KY_OPTIONS, signer.address, multipleUpdateTopic, i)
       expect(feedUpdateResponse.reference).toEqual(referenceI)
     }
   }, 15000)

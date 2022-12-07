@@ -11,13 +11,13 @@ import {
   SUPPORTED_BEE_VERSION_EXACT,
   SUPPORTED_DEBUG_API_VERSION,
 } from '../../../../src/modules/debug/status'
-import { beeDebugKy } from '../../../utils'
+import { beeDebugKyOptions } from '../../../utils'
 import fs from 'fs'
 import path from 'path'
 import * as util from 'util'
 import semver from 'semver'
 
-const BEE_DEBUG_URL = beeDebugKy()
+const BEE_DEBUG_URL = beeDebugKyOptions()
 
 describe('modules/status', () => {
   test('getHealth', async () => {

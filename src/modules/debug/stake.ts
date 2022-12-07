@@ -1,5 +1,6 @@
 import { http } from '../../utils/http'
-import { BeeGenericResponse, Ky, NumberString, TransactionOptions } from '../../types'
+import { BeeGenericResponse, NumberString, TransactionOptions } from '../../types'
+import type { Options as KyOptions } from 'ky'
 
 const STAKE_ENDPOINT = 'stake'
 
@@ -10,16 +11,16 @@ interface GetStake {
 /**
  * Gets the staked amount
  *
- * @param ky Ky instance for given Bee class instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getStake(ky: Ky): Promise<NumberString> {
-  const response = await http<GetStake>(ky, {
+export async function getStake(kyOptions: KyOptions): Promise<NumberString> {
+  const response = await http<GetStake>(kyOptions, {
     method: 'get',
     responseType: 'json',
     path: `${STAKE_ENDPOINT}`,
   })
 
-  return response.data.stakedAmount.toString()
+  return response.parseData.stakedAmount.toString()
 }
 
 /**
@@ -29,7 +30,7 @@ export async function getStake(ky: Ky): Promise<NumberString> {
  * @param amount
  * @param options
  */
-export async function stake(ky: Ky, amount: NumberString, options?: TransactionOptions): Promise<void> {
+export async function stake(kyOptions: KyOptions, amount: NumberString, options?: TransactionOptions): Promise<void> {
   const headers: Record<string, string> = {}
 
   if (options?.gasPrice) {
@@ -40,7 +41,7 @@ export async function stake(ky: Ky, amount: NumberString, options?: TransactionO
     headers['gas-limit'] = options.gasLimit.toString()
   }
 
-  await http<BeeGenericResponse>(ky, {
+  await http<BeeGenericResponse>(kyOptions, {
     method: 'post',
     responseType: 'json',
     path: `${STAKE_ENDPOINT}/${amount}`,

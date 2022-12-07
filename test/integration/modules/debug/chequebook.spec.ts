@@ -7,7 +7,7 @@ import {
 } from '../../../../src/modules/debug/chequebook'
 import { NumberString } from '../../../../src/types'
 import { isPrefixedHexString } from '../../../../src/utils/hex'
-import { beeDebugKy, commonMatchers } from '../../../utils'
+import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 import { sleep } from '../../../../src/utils/sleep'
 
 if (process.env.BEE_TEST_CHEQUEBOOK) {
@@ -15,13 +15,13 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
 
   describe('swap enabled chequebook', () => {
     test('address', async () => {
-      const response = await getChequebookAddress(beeDebugKy())
+      const response = await getChequebookAddress(beeDebugKyOptions())
 
       expect(isPrefixedHexString(response.chequebookAddress)).toBeTruthy()
     })
 
     test('balance', async () => {
-      const response = await getChequebookBalance(beeDebugKy())
+      const response = await getChequebookBalance(beeDebugKyOptions())
 
       expect(response.availableBalance).toBeNumberString()
       expect(response.totalBalance).toBeNumberString()
@@ -30,14 +30,14 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     const TRANSACTION_TIMEOUT = 20 * 1000
 
     const withDrawDepositTest = (amount: number | NumberString) => async () => {
-      const withdrawResponse = await withdrawTokens(beeDebugKy(), amount)
+      const withdrawResponse = await withdrawTokens(beeDebugKyOptions(), amount)
       expect(withdrawResponse).toBeType('string')
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
       await sleep(TRANSACTION_TIMEOUT)
 
-      const depositResponse = await depositTokens(beeDebugKy(), amount)
+      const depositResponse = await depositTokens(beeDebugKyOptions(), amount)
 
       expect(depositResponse).toBeType('string')
 
@@ -50,7 +50,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     test('withdraw and deposit integer', async () => await withDrawDepositTest(5), 3 * TRANSACTION_TIMEOUT)
 
     test('get last cheques for all peers', async () => {
-      const response = await getLastCheques(beeDebugKy())
+      const response = await getLastCheques(beeDebugKyOptions())
 
       expect(Array.isArray(response.lastcheques)).toBeTruthy()
     })

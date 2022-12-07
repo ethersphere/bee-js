@@ -6,12 +6,13 @@ import { SPAN_SIZE } from './span'
 import { serializeBytes } from './serialize'
 import { BeeError } from '../utils/error'
 import { Chunk, makeContentAddressedChunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, assertValidChunkData } from './cac'
-import { UploadOptions, Signature, Signer, BatchId, Reference, Ky, PlainBytesReference } from '../types'
+import { UploadOptions, Signature, Signer, BatchId, Reference, PlainBytesReference } from '../types'
 import { bytesToHex } from '../utils/hex'
 import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
 import { EthAddress } from '../utils/eth'
 import { assertAddress } from '../utils/type'
+import type { Options as KyOptions } from 'ky'
 
 const IDENTIFIER_SIZE = 32
 const SIGNATURE_SIZE = 65
@@ -120,13 +121,13 @@ export async function makeSingleOwnerChunk(
  *
  * It uses the Chunk API and calculates the address before uploading.
  *
- * @param ky              Ky instance
+ * @param kyOptions Ky Options for making requests
  * @param chunk           A chunk object
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options         Upload options
  */
 export async function uploadSingleOwnerChunk(
-  ky: Ky,
+  kyOptions: KyOptions,
   chunk: SingleOwnerChunk,
   postageBatchId: BatchId,
   options?: UploadOptions,
@@ -136,13 +137,13 @@ export async function uploadSingleOwnerChunk(
   const signature = bytesToHex(chunk.signature())
   const data = serializeBytes(chunk.span(), chunk.payload())
 
-  return socAPI.upload(ky, owner, identifier, signature, data, postageBatchId, options)
+  return socAPI.upload(kyOptions, owner, identifier, signature, data, postageBatchId, options)
 }
 
 /**
  * Helper function to create and upload SOC.
  *
- * @param ky              Ky instance
+ * @param kyOptions Ky Options for making requests
  * @param signer          The singer interface for signing the chunk
  * @param postageBatchId
  * @param identifier      The identifier of the chunk
@@ -150,7 +151,7 @@ export async function uploadSingleOwnerChunk(
  * @param options
  */
 export async function uploadSingleOwnerChunkData(
-  ky: Ky,
+  kyOptions: KyOptions,
   signer: Signer,
   postageBatchId: BatchId | string,
   identifier: Identifier,
@@ -161,7 +162,7 @@ export async function uploadSingleOwnerChunkData(
   const cac = makeContentAddressedChunk(data)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
 
-  return uploadSingleOwnerChunk(ky, soc, postageBatchId, options)
+  return uploadSingleOwnerChunk(kyOptions, soc, postageBatchId, options)
 }
 
 /**
@@ -172,12 +173,12 @@ export async function uploadSingleOwnerChunkData(
  * @param identifier    The identifier of the chunk
  */
 export async function downloadSingleOwnerChunk(
-  ky: Ky,
+  kyOptions: KyOptions,
   ownerAddress: EthAddress,
   identifier: Identifier,
 ): Promise<SingleOwnerChunk> {
   const address = makeSOCAddress(identifier, ownerAddress)
-  const data = await chunkAPI.download(ky, bytesToHex(address))
+  const data = await chunkAPI.download(kyOptions, bytesToHex(address))
 
   return makeSingleOwnerChunkFromData(data, address)
 }

@@ -1,9 +1,9 @@
 import * as bzz from '../../../src/modules/bzz'
 import * as stewardship from '../../../src/modules/stewardship'
 import { Collection } from '../../../src/types'
-import { beeKy, getPostageBatch } from '../../utils'
+import { beeKyOptions, getPostageBatch } from '../../utils'
 
-const BEE_KY = beeKy()
+const BEE_KY_OPTIONS = beeKyOptions()
 
 describe('modules/stewardship', () => {
   describe('collections', () => {
@@ -15,8 +15,8 @@ describe('modules/stewardship', () => {
         },
       ]
 
-      const result = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch(), { pin: true })
-      await stewardship.reupload(BEE_KY, result.reference) // Does not return anything, but will throw error if something is wrong
+      const result = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch(), { pin: true })
+      await stewardship.reupload(BEE_KY_OPTIONS, result.reference) // Does not return anything, but will throw error if something is wrong
     })
   })
 
@@ -25,8 +25,8 @@ describe('modules/stewardship', () => {
       const data = 'hello world'
       const filename = 'hello.txt'
 
-      const result = await bzz.uploadFile(BEE_KY, data, getPostageBatch(), filename, { pin: true })
-      await stewardship.reupload(BEE_KY, result.reference) // Does not return anything, but will throw error if something is wrong
+      const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, getPostageBatch(), filename, { pin: true })
+      await stewardship.reupload(BEE_KY_OPTIONS, result.reference) // Does not return anything, but will throw error if something is wrong
     })
   })
 })

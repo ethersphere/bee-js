@@ -8,7 +8,7 @@ import { makeEthAddress } from '../../src/utils/eth'
 import { bytesToHex, HexString } from '../../src/utils/hex'
 import {
   beeDebugUrl,
-  beeKy,
+  beeKyOptions,
   beePeerDebugUrl,
   beePeerUrl,
   beeUrl,
@@ -35,7 +35,7 @@ commonMatchers()
 
 describe('Bee class', () => {
   const BEE_URL = beeUrl()
-  const BEE_KY = beeKy()
+  const BEE_KY_OPTIONS = beeKyOptions()
   const BEE_PEER_URL = beePeerUrl()
   const BEE_DEBUG_PEER_URL = beePeerDebugUrl()
   const bee = new Bee(BEE_URL)
@@ -574,7 +574,7 @@ describe('Bee class', () => {
             data: new TextEncoder().encode('some data'),
           },
         ]
-        const cacResult = await bzz.uploadCollection(BEE_KY, directoryStructure, getPostageBatch())
+        const cacResult = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch())
 
         const feed = bee.makeFeedWriter('sequence', topic, signer)
         await feed.upload(getPostageBatch(), cacResult.reference)
@@ -687,7 +687,7 @@ describe('Bee class', () => {
         const identifier = makeBytes(32) // all zeroes
         const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
         await tryDeleteChunkFromLocalStorage(socAddress)
-        await uploadSingleOwnerChunkData(BEE_KY, signer, getPostageBatch(), identifier, testChunkPayload)
+        await uploadSingleOwnerChunkData(BEE_KY_OPTIONS, signer, getPostageBatch(), identifier, testChunkPayload)
 
         const socReader = bee.makeSOCReader(testIdentity.address)
         const soc = await socReader.download(identifier)

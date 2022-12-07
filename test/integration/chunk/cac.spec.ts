@@ -1,6 +1,6 @@
 import { assertBytes } from '../../../src/utils/bytes'
 import { makeContentAddressedChunk, assertValidChunkData } from '../../../src/chunk/cac'
-import { beeKy, getPostageBatch } from '../../utils'
+import { beeKyOptions, getPostageBatch } from '../../utils'
 import * as chunkAPI from '../../../src/modules/chunk'
 import { hexToBytes, bytesToHex } from '../../../src/utils/hex'
 
@@ -12,7 +12,7 @@ describe('cac', () => {
     const cac = makeContentAddressedChunk(payload)
     const address = cac.address()
     const reference = bytesToHex(address)
-    const response = await chunkAPI.upload(beeKy(), cac.data, getPostageBatch())
+    const response = await chunkAPI.upload(beeKyOptions(), cac.data, getPostageBatch())
 
     expect(response).toEqual(reference)
   })
@@ -20,7 +20,7 @@ describe('cac', () => {
   test('download content address chunk', async () => {
     const address = hexToBytes(contentHash)
     assertBytes(address, 32)
-    const data = await chunkAPI.download(beeKy(), contentHash)
+    const data = await chunkAPI.download(beeKyOptions(), contentHash)
 
     expect(() => assertValidChunkData(data, address)).not.toThrow()
   })

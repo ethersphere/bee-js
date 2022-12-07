@@ -30,7 +30,6 @@ import type {
   ExtendedTag,
   PostageBatchBuckets,
   PostageBatch,
-  Ky,
   TransactionInfo,
   TransactionHash,
   NodeInfo,
@@ -65,8 +64,9 @@ import {
 import * as tag from './modules/debug/tag'
 import * as stamps from './modules/debug/stamps'
 import type { Options as KyOptions } from 'ky-universal'
-import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
+import { DEFAULT_KY_CONFIG, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { sleep } from './utils/sleep'
+import { deepMerge } from './utils/merge'
 
 export class BeeDebug {
   /**
@@ -78,7 +78,7 @@ export class BeeDebug {
    * Ky instance that defines connection to Bee node
    * @private
    */
-  private readonly ky: Ky
+  private readonly kyOptions: KyOptions
 
   constructor(url: string, options?: BeeOptions) {
     assertBeeUrl(url)
@@ -111,19 +111,19 @@ export class BeeDebug {
       kyOptions.hooks!.afterResponse!.push(wrapResponseClosure(options.onResponse))
     }
 
-    this.ky = makeDefaultKy(kyOptions)
+    this.kyOptions = deepMerge(DEFAULT_KY_CONFIG, kyOptions)
   }
 
   async getNodeAddresses(options?: RequestOptions): Promise<NodeAddresses> {
     assertRequestOptions(options)
 
-    return connectivity.getNodeAddresses(this.getKy(options))
+    return connectivity.getNodeAddresses(this.getKyOptionsForCall(options))
   }
 
   async getBlocklist(options?: RequestOptions): Promise<Peer[]> {
     assertRequestOptions(options)
 
-    return connectivity.getBlocklist(this.getKy(options))
+    return connectivity.getBlocklist(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -147,7 +147,7 @@ export class BeeDebug {
       throw new TypeError('tagUid has to be either Tag or a number (UID)!')
     }
 
-    return tag.retrieveExtendedTag(this.getKy(options), tagUid)
+    return tag.retrieveExtendedTag(this.getKyOptionsForCall(options), tagUid)
   }
 
   /**
@@ -156,27 +156,27 @@ export class BeeDebug {
   async getPeers(options?: RequestOptions): Promise<Peer[]> {
     assertRequestOptions(options)
 
-    return connectivity.getPeers(this.getKy(options))
+    return connectivity.getPeers(this.getKyOptionsForCall(options))
   }
 
   async removePeer(peer: string | Address, options?: RequestOptions): Promise<RemovePeerResponse> {
     assertRequestOptions(options)
     assertAddress(peer)
 
-    return connectivity.removePeer(this.getKy(options), peer)
+    return connectivity.removePeer(this.getKyOptionsForCall(options), peer)
   }
 
   async getTopology(options?: RequestOptions): Promise<Topology> {
     assertRequestOptions(options)
 
-    return connectivity.getTopology(this.getKy(options))
+    return connectivity.getTopology(this.getKyOptionsForCall(options))
   }
 
   async pingPeer(peer: string | Address, options?: RequestOptions): Promise<PingResponse> {
     assertRequestOptions(options)
     assertAddress(peer)
 
-    return connectivity.pingPeer(this.getKy(options), peer)
+    return connectivity.pingPeer(this.getKyOptionsForCall(options), peer)
   }
 
   /*
@@ -189,7 +189,7 @@ export class BeeDebug {
   async getAllBalances(options?: RequestOptions): Promise<BalanceResponse> {
     assertRequestOptions(options)
 
-    return balance.getAllBalances(this.getKy(options))
+    return balance.getAllBalances(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -201,7 +201,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertAddress(address)
 
-    return balance.getPeerBalance(this.getKy(options), address)
+    return balance.getPeerBalance(this.getKyOptionsForCall(options), address)
   }
 
   /**
@@ -210,7 +210,7 @@ export class BeeDebug {
   async getPastDueConsumptionBalances(options?: RequestOptions): Promise<BalanceResponse> {
     assertRequestOptions(options)
 
-    return balance.getPastDueConsumptionBalances(this.getKy(options))
+    return balance.getPastDueConsumptionBalances(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -222,7 +222,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertAddress(address)
 
-    return balance.getPastDueConsumptionPeerBalance(this.getKy(options), address)
+    return balance.getPastDueConsumptionPeerBalance(this.getKyOptionsForCall(options), address)
   }
 
   /*
@@ -238,7 +238,7 @@ export class BeeDebug {
   async getChequebookAddress(options?: RequestOptions): Promise<ChequebookAddressResponse> {
     assertRequestOptions(options)
 
-    return chequebook.getChequebookAddress(this.getKy(options))
+    return chequebook.getChequebookAddress(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -247,7 +247,7 @@ export class BeeDebug {
   async getChequebookBalance(options?: RequestOptions): Promise<ChequebookBalanceResponse> {
     assertRequestOptions(options)
 
-    return chequebook.getChequebookBalance(this.getKy(options))
+    return chequebook.getChequebookBalance(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -256,7 +256,7 @@ export class BeeDebug {
   async getLastCheques(options?: RequestOptions): Promise<LastChequesResponse> {
     assertRequestOptions(options)
 
-    return chequebook.getLastCheques(this.getKy(options))
+    return chequebook.getLastCheques(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -271,7 +271,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertAddress(address)
 
-    return chequebook.getLastChequesForPeer(this.getKy(options), address)
+    return chequebook.getLastChequesForPeer(this.getKyOptionsForCall(options), address)
   }
 
   /**
@@ -283,7 +283,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertAddress(address)
 
-    return chequebook.getLastCashoutAction(this.getKy(options), address)
+    return chequebook.getLastCashoutAction(this.getKyOptionsForCall(options), address)
   }
 
   /**
@@ -298,7 +298,7 @@ export class BeeDebug {
     assertCashoutOptions(options)
     assertAddress(address)
 
-    return chequebook.cashoutLastCheque(this.getKy(options), address, options)
+    return chequebook.cashoutLastCheque(this.getKyOptionsForCall(options), address, options)
   }
 
   /**
@@ -320,7 +320,7 @@ export class BeeDebug {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return chequebook.depositTokens(this.getKy(options), amount, gasPrice)
+    return chequebook.depositTokens(this.getKyOptionsForCall(options), amount, gasPrice)
   }
 
   /**
@@ -342,7 +342,7 @@ export class BeeDebug {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return chequebook.withdrawTokens(this.getKy(options), amount, gasPrice)
+    return chequebook.withdrawTokens(this.getKyOptionsForCall(options), amount, gasPrice)
   }
 
   /*
@@ -358,7 +358,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertAddress(address)
 
-    return settlements.getSettlements(this.getKy(options), address)
+    return settlements.getSettlements(this.getKyOptionsForCall(options), address)
   }
 
   /**
@@ -367,7 +367,7 @@ export class BeeDebug {
   async getAllSettlements(options?: RequestOptions): Promise<AllSettlements> {
     assertRequestOptions(options)
 
-    return settlements.getAllSettlements(this.getKy(options))
+    return settlements.getAllSettlements(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -376,7 +376,7 @@ export class BeeDebug {
   async getHealth(options?: RequestOptions): Promise<Health> {
     assertRequestOptions(options)
 
-    return status.getHealth(this.getKy(options))
+    return status.getHealth(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -385,7 +385,7 @@ export class BeeDebug {
   async getReadiness(options?: RequestOptions): Promise<boolean> {
     assertRequestOptions(options)
 
-    return status.getReadiness(this.getKy(options))
+    return status.getReadiness(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -394,7 +394,7 @@ export class BeeDebug {
   async getNodeInfo(options?: RequestOptions): Promise<NodeInfo> {
     assertRequestOptions(options)
 
-    return status.getNodeInfo(this.getKy(options))
+    return status.getNodeInfo(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -406,7 +406,7 @@ export class BeeDebug {
   async isSupportedVersion(options?: RequestOptions): Promise<boolean> | never {
     assertRequestOptions(options)
 
-    return status.isSupportedVersion(this.getKy(options))
+    return status.isSupportedVersion(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -422,7 +422,7 @@ export class BeeDebug {
   async isSupportedExactVersion(options?: RequestOptions): Promise<boolean> | never {
     assertRequestOptions(options)
 
-    return status.isSupportedExactVersion(this.getKy(options))
+    return status.isSupportedExactVersion(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -436,7 +436,7 @@ export class BeeDebug {
   async isSupportedMainApiVersion(options?: RequestOptions): Promise<boolean> | never {
     assertRequestOptions(options)
 
-    return status.isSupportedMainApiVersion(this.getKy(options))
+    return status.isSupportedMainApiVersion(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -450,7 +450,7 @@ export class BeeDebug {
   async isSupportedDebugApiVersion(options?: RequestOptions): Promise<boolean> | never {
     assertRequestOptions(options)
 
-    return status.isSupportedDebugApiVersion(this.getKy(options))
+    return status.isSupportedDebugApiVersion(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -464,7 +464,7 @@ export class BeeDebug {
   async isSupportedApiVersion(options?: RequestOptions): Promise<boolean> | never {
     assertRequestOptions(options)
 
-    return status.isSupportedDebugApiVersion(this.getKy(options))
+    return status.isSupportedDebugApiVersion(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -476,7 +476,7 @@ export class BeeDebug {
   async getVersions(options?: RequestOptions): Promise<BeeVersions> | never {
     assertRequestOptions(options)
 
-    return status.getVersions(this.getKy(options))
+    return status.getVersions(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -485,7 +485,7 @@ export class BeeDebug {
   async getReserveState(options?: RequestOptions): Promise<ReserveState> {
     assertRequestOptions(options)
 
-    return states.getReserveState(this.getKy(options))
+    return states.getReserveState(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -494,7 +494,7 @@ export class BeeDebug {
   async getChainState(options?: RequestOptions): Promise<ChainState> {
     assertRequestOptions(options)
 
-    return states.getChainState(this.getKy(options))
+    return states.getChainState(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -505,7 +505,7 @@ export class BeeDebug {
   async getWalletBalance(options?: RequestOptions): Promise<WalletBalance> {
     assertRequestOptions(options)
 
-    return states.getWalletBalance(this.getKy(options))
+    return states.getWalletBalance(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -538,7 +538,7 @@ export class BeeDebug {
       throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
     }
 
-    const stamp = await stamps.createPostageBatch(this.getKy(options), amount, depth, options)
+    const stamp = await stamps.createPostageBatch(this.getKyOptionsForCall(options), amount, depth, options)
 
     if (options?.waitForUsable !== false) {
       await this.waitForUsablePostageStamp(stamp, options?.waitForUsableTimeout)
@@ -567,7 +567,7 @@ export class BeeDebug {
     assertNonNegativeInteger(amount, 'Amount')
     assertBatchId(postageBatchId)
 
-    await stamps.topUpBatch(this.getKy(options), postageBatchId, amount)
+    await stamps.topUpBatch(this.getKyOptionsForCall(options), postageBatchId, amount)
   }
 
   /**
@@ -591,7 +591,7 @@ export class BeeDebug {
     assertNonNegativeInteger(depth, 'Depth')
     assertBatchId(postageBatchId)
 
-    await stamps.diluteBatch(this.getKy(options), postageBatchId, depth)
+    await stamps.diluteBatch(this.getKyOptionsForCall(options), postageBatchId, depth)
   }
 
   /**
@@ -606,7 +606,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertBatchId(postageBatchId)
 
-    return stamps.getPostageBatch(this.getKy(options), postageBatchId)
+    return stamps.getPostageBatch(this.getKyOptionsForCall(options), postageBatchId)
   }
 
   /**
@@ -624,7 +624,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertBatchId(postageBatchId)
 
-    return stamps.getPostageBatchBuckets(this.getKy(options), postageBatchId)
+    return stamps.getPostageBatchBuckets(this.getKyOptionsForCall(options), postageBatchId)
   }
 
   /**
@@ -636,7 +636,7 @@ export class BeeDebug {
   async getAllPostageBatch(options?: RequestOptions): Promise<PostageBatch[]> {
     assertRequestOptions(options)
 
-    return stamps.getAllPostageBatches(this.getKy(options))
+    return stamps.getAllPostageBatches(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -645,7 +645,7 @@ export class BeeDebug {
   async getAllPendingTransactions(options?: RequestOptions): Promise<TransactionInfo[]> {
     assertRequestOptions(options)
 
-    return transactions.getAllTransactions(this.getKy(options))
+    return transactions.getAllTransactions(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -659,7 +659,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertTransactionHash(transactionHash)
 
-    return transactions.getTransaction(this.getKy(options), transactionHash)
+    return transactions.getTransaction(this.getKyOptionsForCall(options), transactionHash)
   }
 
   /**
@@ -675,7 +675,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertTransactionHash(transactionHash)
 
-    return transactions.rebroadcastTransaction(this.getKy(options), transactionHash)
+    return transactions.rebroadcastTransaction(this.getKyOptionsForCall(options), transactionHash)
   }
 
   /**
@@ -695,7 +695,7 @@ export class BeeDebug {
       assertNonNegativeInteger(gasPrice)
     }
 
-    return transactions.cancelTransaction(this.getKy(options), transactionHash, gasPrice)
+    return transactions.cancelTransaction(this.getKyOptionsForCall(options), transactionHash, gasPrice)
   }
 
   /**
@@ -706,7 +706,7 @@ export class BeeDebug {
   async getStake(options?: RequestOptions): Promise<NumberString> {
     assertRequestOptions(options)
 
-    return stake.getStake(this.getKy(options))
+    return stake.getStake(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -721,7 +721,7 @@ export class BeeDebug {
     assertRequestOptions(options)
     assertTransactionOptions(options)
 
-    await stake.stake(this.getKy(options), amount, options)
+    await stake.stake(this.getKyOptionsForCall(options), amount, options)
   }
 
   private async waitForUsablePostageStamp(id: BatchId, timeout = 120_000): Promise<void> {
@@ -739,11 +739,7 @@ export class BeeDebug {
     throw new BeeError('Timeout on waiting for postage stamp to become usable')
   }
 
-  private getKy(options?: RequestOptions): Ky {
-    if (!options) {
-      return this.ky
-    }
-
-    return this.ky.extend(options)
+  private getKyOptionsForCall(options?: RequestOptions): KyOptions {
+    return deepMerge(this.kyOptions, options)
   }
 }

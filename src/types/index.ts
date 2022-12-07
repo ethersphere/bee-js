@@ -11,7 +11,7 @@ import type ky from 'ky-universal'
 import type { Readable as NativeReadable } from 'stream'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
 import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill'
-import { Options as KyOptions } from './ky-options'
+import type { Options as KyOptions } from 'ky'
 
 export * from './debug'
 
@@ -182,8 +182,6 @@ export interface UploadOptions extends RequestOptions {
    *
    * Locally pinned data is possible to reupload to network if it disappear.
    *
-   * **Warning! Not allowed when node is in Gateway mode!**
-   *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
    * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
    */
@@ -191,8 +189,6 @@ export interface UploadOptions extends RequestOptions {
 
   /**
    * Will encrypt the uploaded data and return longer hash which also includes the decryption key.
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
    * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)

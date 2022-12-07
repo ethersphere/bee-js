@@ -1,22 +1,22 @@
 /* eslint-disable no-console */
-import ky from 'ky-universal'
 import { createPostageBatch, getPostageBatch } from '../src/modules/debug/stamps'
-import { BatchId, Ky } from '../src'
+import { BatchId } from '../src'
+import type { Options as KyOptions } from 'ky'
 
 export default async function testsSetup(): Promise<void> {
   try {
-    const beeDebugKy = ky.create({
-      prefixUrl: process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635',
+    const beeDebugKyOptions: KyOptions = {
+      prefixUrl: process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635/',
       timeout: false,
-    })
-    const beeDebugPeerKy = ky.create({
-      prefixUrl: process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635',
+    }
+    const beeDebugPeerKyOptions: KyOptions = {
+      prefixUrl: process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635/',
       timeout: false,
-    })
+    }
 
     if (process.env.BEE_POSTAGE) {
       try {
-        if (!(await getPostageBatch(beeDebugKy, process.env.BEE_POSTAGE as BatchId)).usable) {
+        if (!(await getPostageBatch(beeDebugKyOptions, process.env.BEE_POSTAGE as BatchId)).usable) {
           delete process.env.BEE_POSTAGE
           console.log('BEE_POSTAGE stamp was found but is not usable')
         } else {
@@ -30,7 +30,7 @@ export default async function testsSetup(): Promise<void> {
 
     if (process.env.BEE_PEER_POSTAGE) {
       try {
-        if (!(await getPostageBatch(beeDebugPeerKy, process.env.BEE_PEER_POSTAGE as BatchId)).usable) {
+        if (!(await getPostageBatch(beeDebugPeerKyOptions, process.env.BEE_PEER_POSTAGE as BatchId)).usable) {
           delete process.env.BEE_PEER_POSTAGE
           console.log('BEE_PEER_POSTAGE stamp was found but is not usable')
         } else {
@@ -45,17 +45,17 @@ export default async function testsSetup(): Promise<void> {
     if (!process.env.BEE_POSTAGE || !process.env.BEE_PEER_POSTAGE) {
       console.log('Creating postage stamps...')
 
-      const stampsOrder: { ky: Ky; env: string }[] = []
+      const stampsOrder: { kyOptions: KyOptions; env: string }[] = []
 
       if (!process.env.BEE_POSTAGE) {
-        stampsOrder.push({ ky: beeDebugKy, env: 'BEE_POSTAGE' })
+        stampsOrder.push({ kyOptions: beeDebugKyOptions, env: 'BEE_POSTAGE' })
       }
 
       if (!process.env.BEE_PEER_POSTAGE) {
-        stampsOrder.push({ ky: beeDebugPeerKy, env: 'BEE_PEER_POSTAGE' })
+        stampsOrder.push({ kyOptions: beeDebugPeerKyOptions, env: 'BEE_PEER_POSTAGE' })
       }
 
-      const stamps = await Promise.all(stampsOrder.map(async order => createPostageBatch(order.ky, '1', 20)))
+      const stamps = await Promise.all(stampsOrder.map(async order => createPostageBatch(order.kyOptions, '100', 20)))
 
       for (let i = 0; i < stamps.length; i++) {
         process.env[stampsOrder[i].env] = stamps[i]
@@ -69,7 +69,7 @@ export default async function testsSetup(): Promise<void> {
           // eslint-disable-next-line max-depth
           try {
             // eslint-disable-next-line max-depth
-            if (!(await getPostageBatch(stampsOrder[i].ky, stamps[i] as BatchId)).usable) {
+            if (!(await getPostageBatch(stampsOrder[i].kyOptions, stamps[i] as BatchId)).usable) {
               allUsable = false
               break
             } else {

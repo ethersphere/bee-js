@@ -1,28 +1,29 @@
-import type { BatchId, Data, Ky, Reference, ReferenceOrEns, UploadOptions } from '../types'
+import type { BatchId, Data, Reference, ReferenceOrEns, UploadOptions } from '../types'
 import { prepareData } from '../utils/data'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { UploadResult } from '../types'
 import { makeTagUid } from '../utils/type'
+import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'bytes'
 
 /**
  * Upload data to a Bee node
  *
- * @param ky              Ky instance
+ * @param kyOptions Ky Options for making requests
  * @param data            Data to be uploaded
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options         Additional options like tag, encryption, pinning
  */
 export async function upload(
-  ky: Ky,
+  kyOptions: KyOptions,
   data: string | Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<UploadResult> {
-  const response = await http<{ reference: Reference }>(ky, {
+  const response = await http<{ reference: Reference }>(kyOptions, {
     path: endpoint,
     method: 'post',
     responseType: 'json',
@@ -34,7 +35,7 @@ export async function upload(
   })
 
   return {
-    reference: response.data.reference,
+    reference: response.parseData.reference,
     tagUid: makeTagUid(response.headers.get('swarm-tag')),
   }
 }
@@ -45,13 +46,13 @@ export async function upload(
  * @param ky
  * @param hash Bee content reference
  */
-export async function download(ky: Ky, hash: ReferenceOrEns): Promise<Data> {
-  const response = await http<ArrayBuffer>(ky, {
+export async function download(kyOptions: KyOptions, hash: ReferenceOrEns): Promise<Data> {
+  const response = await http<ArrayBuffer>(kyOptions, {
     responseType: 'arraybuffer',
     path: `${endpoint}/${hash}`,
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.data))
+  return wrapBytesWithHelpers(new Uint8Array(response.parseData))
 }
 
 /**
@@ -60,11 +61,14 @@ export async function download(ky: Ky, hash: ReferenceOrEns): Promise<Data> {
  * @param ky
  * @param hash Bee content reference
  */
-export async function downloadReadable(ky: Ky, hash: ReferenceOrEns): Promise<ReadableStream<Uint8Array>> {
-  const response = await http<ReadableStream<Uint8Array>>(ky, {
+export async function downloadReadable(
+  kyOptions: KyOptions,
+  hash: ReferenceOrEns,
+): Promise<ReadableStream<Uint8Array>> {
+  const response = await http<ReadableStream<Uint8Array>>(kyOptions, {
     responseType: 'stream',
     path: `${endpoint}/${hash}`,
   })
 
-  return response.data
+  return response.parseData
 }

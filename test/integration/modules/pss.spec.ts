@@ -1,20 +1,20 @@
 import * as pss from '../../../src/modules/pss'
 import * as connectivity from '../../../src/modules/debug/connectivity'
 import {
-  beeDebugKy,
-  beeKy,
+  beeDebugKyOptions,
+  beeKyOptions,
   beePeerDebugUrl,
-  beePeerKy,
+  beePeerKyOptions,
   beeUrl,
   getPostageBatch,
   makeTestTarget,
   PSS_TIMEOUT,
 } from '../../utils'
 
-const BEE_KY = beeKy()
+const BEE_KY_OPTIONS = beeKyOptions()
 const BEE_URL = beeUrl()
-const BEE_PEER_KY = beePeerKy()
-const BEE_DEBUG_KY = beeDebugKy()
+const BEE_PEER_KY = beePeerKyOptions()
+const BEE_DEBUG_KY = beeDebugKyOptions()
 const BEE_DEBUG_PEER_URL = beePeerDebugUrl()
 
 // these tests only work when there is at least one peer connected
@@ -29,7 +29,7 @@ describe('modules/pss', () => {
       expect(peers.length).toBeGreaterThan(0)
 
       const target = peers[0].address
-      await pss.send(BEE_KY, topic, makeTestTarget(target), message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+      await pss.send(BEE_KY_OPTIONS, topic, makeTestTarget(target), message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     },
     PSS_TIMEOUT,
   )

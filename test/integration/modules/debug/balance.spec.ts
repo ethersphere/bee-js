@@ -1,10 +1,10 @@
-import { beeDebugKy, beePeerDebugKy, commonMatchers } from '../../../utils'
+import { beeDebugKyOptions, beePeerDebugKyOptions, commonMatchers } from '../../../utils'
 import * as balance from '../../../../src/modules/debug/balance'
 import * as connectivity from '../../../../src/modules/debug/connectivity'
 
 // helper function to get the peer overlay address
 async function getPeerOverlay() {
-  const nodeAddresses = await connectivity.getNodeAddresses(beePeerDebugKy())
+  const nodeAddresses = await connectivity.getNodeAddresses(beePeerDebugKyOptions())
 
   return nodeAddresses.overlay
 }
@@ -15,7 +15,7 @@ describe('balance', () => {
   describe('balances', () => {
     test('Get the balances with all known peers including prepaid services', async () => {
       const peerOverlay = await getPeerOverlay()
-      const response = await balance.getAllBalances(beeDebugKy())
+      const response = await balance.getAllBalances(beeDebugKyOptions())
 
       expect(response.balances).toEqual(
         expect.arrayContaining([
@@ -33,7 +33,7 @@ describe('balance', () => {
 
     test('Get the balances with all known peers including prepaid services', async () => {
       const peerOverlay = await getPeerOverlay()
-      const peerBalance = await balance.getPeerBalance(beeDebugKy(), peerOverlay)
+      const peerBalance = await balance.getPeerBalance(beeDebugKyOptions(), peerOverlay)
 
       expect(peerBalance.peer).toEqual(peerOverlay)
       expect(peerBalance.balance).toBeNumberString()
@@ -43,7 +43,7 @@ describe('balance', () => {
   describe('consumed', () => {
     test('Get the past due consumption balances with all known peers', async () => {
       const peerOverlay = await getPeerOverlay()
-      const response = await balance.getPastDueConsumptionBalances(beeDebugKy())
+      const response = await balance.getPastDueConsumptionBalances(beeDebugKyOptions())
 
       expect(response.balances).toEqual(
         expect.arrayContaining([
@@ -61,7 +61,7 @@ describe('balance', () => {
 
     test('Get the past due consumption balance with a specific peer', async () => {
       const peerOverlay = await getPeerOverlay()
-      const peerBalance = await balance.getPastDueConsumptionPeerBalance(beeDebugKy(), peerOverlay)
+      const peerBalance = await balance.getPastDueConsumptionPeerBalance(beeDebugKyOptions(), peerOverlay)
 
       expect(peerBalance.peer).toEqual(peerOverlay)
       expect(peerBalance.balance).toBeNumberString()

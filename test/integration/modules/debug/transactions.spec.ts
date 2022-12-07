@@ -1,10 +1,10 @@
 import * as transactions from '../../../../src/modules/debug/transactions'
-import { beeDebugKy, commonMatchers } from '../../../utils'
+import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 
 commonMatchers()
 
 describe('transactions', () => {
   it('should get at least empty array for listing', async () => {
-    await expect(transactions.getAllTransactions(beeDebugKy())).resolves.toBeType('array')
+    await expect(transactions.getAllTransactions(beeDebugKyOptions())).resolves.toBeType('array')
   })
 })

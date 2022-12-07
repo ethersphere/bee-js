@@ -1,9 +1,9 @@
 import * as beeTag from '../../../../src/modules/tag'
 import * as beeDebugTag from '../../../../src/modules/debug/tag'
-import { beeDebugKy, beeKy } from '../../../utils'
+import { beeDebugKyOptions, beeKyOptions } from '../../../utils'
 
-const BEE_URL = beeKy()
-const BEE_DEBUG_KY = beeDebugKy()
+const BEE_URL = beeKyOptions()
+const BEE_DEBUG_KY = beeDebugKyOptions()
 
 describe('modules/tag', () => {
   it('should retrieve extended tag', async () => {

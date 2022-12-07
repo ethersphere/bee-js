@@ -1,16 +1,17 @@
 import WebSocket from 'isomorphic-ws'
 
-import type { BatchId, BeeGenericResponse, Ky, PublicKey } from '../types'
 import { prepareData } from '../utils/data'
 import { http } from '../utils/http'
 import { extractUploadHeaders } from '../utils/headers'
+import type { BatchId, BeeGenericResponse, PublicKey } from '../types'
+import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'pss'
 
 /**
  * Send to recipient or target with Postal Service for Swarm
  *
- * @param ky Ky instance for given Bee class instance
+ * @param kyOptions Ky Options for making requests
  * @param topic Topic name
  * @param target Target message address prefix
  * @param data
@@ -19,14 +20,14 @@ const endpoint = 'pss'
  *
  */
 export async function send(
-  ky: Ky,
+  kyOptions: KyOptions,
   topic: string,
   target: string,
   data: string | Uint8Array,
   postageBatchId: BatchId,
   recipient?: PublicKey,
 ): Promise<void> {
-  await http<BeeGenericResponse>(ky, {
+  await http<BeeGenericResponse>(kyOptions, {
     method: 'post',
     path: `${endpoint}/send/${topic}/${target}`,
     body: await prepareData(data),

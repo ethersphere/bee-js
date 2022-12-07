@@ -1,11 +1,11 @@
 import * as settlements from '../../../../src/modules/debug/settlements'
-import { beeDebugKy, commonMatchers } from '../../../utils'
+import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 
 commonMatchers()
 
 describe('settlements', () => {
   test('all settlements', async () => {
-    const response = await settlements.getAllSettlements(beeDebugKy())
+    const response = await settlements.getAllSettlements(beeDebugKyOptions())
 
     expect(response.totalReceived).toBeNumberString()
     expect(response.totalSent).toBeNumberString()
@@ -24,7 +24,7 @@ describe('settlements', () => {
 
       const peerSettlement = response.settlements[0]
 
-      const peerSettlementResponse = await settlements.getSettlements(beeDebugKy(), peerSettlement.peer)
+      const peerSettlementResponse = await settlements.getSettlements(beeDebugKyOptions(), peerSettlement.peer)
 
       expect(peerSettlementResponse.peer).toEqual(peerSettlement.peer)
       expect(peerSettlementResponse.received).toBeNumberString()

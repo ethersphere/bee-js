@@ -9,7 +9,6 @@ import {
   FEED_INDEX_HEX_LENGTH,
   FeedReader,
   FeedWriter,
-  Ky,
   PlainBytesReference,
   Reference,
   Signer,
@@ -22,6 +21,7 @@ import { bytesToHex, hexToBytes, HexString, makeHexString } from '../utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import * as chunkAPI from '../modules/chunk'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
+import type { Options as KyOptions } from 'ky'
 
 import type { FeedType } from './type'
 import { assertAddress } from '../utils/type'
@@ -52,13 +52,13 @@ export interface FeedUpdate {
 }
 
 export async function findNextIndex(
-  ky: Ky,
+  kyOptions: KyOptions,
   owner: HexEthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<HexString<typeof FEED_INDEX_HEX_LENGTH>> {
   try {
-    const feedUpdate = await fetchLatestFeedUpdate(ky, owner, topic, options)
+    const feedUpdate = await fetchLatestFeedUpdate(kyOptions, owner, topic, options)
 
     return makeHexString(feedUpdate.feedIndexNext, FEED_INDEX_HEX_LENGTH)
   } catch (e) {
@@ -70,7 +70,7 @@ export async function findNextIndex(
 }
 
 export async function updateFeed(
-  ky: Ky,
+  kyOptions: KyOptions,
   signer: Signer,
   topic: Topic,
   reference: BytesReference,
@@ -79,14 +79,14 @@ export async function updateFeed(
   index: Index = 'latest',
 ): Promise<Reference> {
   const ownerHex = makeHexEthAddress(signer.address)
-  const nextIndex = index === 'latest' ? await findNextIndex(ky, ownerHex, topic, options) : index
+  const nextIndex = index === 'latest' ? await findNextIndex(kyOptions, ownerHex, topic, options) : index
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
   const at = options?.at ?? Date.now() / 1000.0
   const timestamp = writeUint64BigEndian(at)
   const payloadBytes = serializeBytes(timestamp, reference)
 
-  return uploadSingleOwnerChunkData(ky, signer, postageBatchId, identifier, payloadBytes, options)
+  return uploadSingleOwnerChunkData(kyOptions, signer, postageBatchId, identifier, payloadBytes, options)
 }
 
 export function getFeedUpdateChunkReference(owner: EthAddress, topic: Topic, index: Index): PlainBytesReference {
@@ -95,10 +95,15 @@ export function getFeedUpdateChunkReference(owner: EthAddress, topic: Topic, ind
   return keccak256Hash(identifier, owner)
 }
 
-export async function downloadFeedUpdate(ky: Ky, owner: EthAddress, topic: Topic, index: Index): Promise<FeedUpdate> {
+export async function downloadFeedUpdate(
+  kyOptions: KyOptions,
+  owner: EthAddress,
+  topic: Topic,
+  index: Index,
+): Promise<FeedUpdate> {
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const addressHex = bytesToHex(address)
-  const data = await chunkAPI.download(ky, addressHex)
+  const data = await chunkAPI.download(kyOptions, addressHex)
   const soc = makeSingleOwnerChunkFromData(data, address)
   const payload = soc.payload()
   const timestampBytes = bytesAtOffset(payload, TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
@@ -111,17 +116,17 @@ export async function downloadFeedUpdate(ky: Ky, owner: EthAddress, topic: Topic
   }
 }
 
-export function makeFeedReader(ky: Ky, type: FeedType, topic: Topic, owner: HexEthAddress): FeedReader {
+export function makeFeedReader(kyOptions: KyOptions, type: FeedType, topic: Topic, owner: HexEthAddress): FeedReader {
   return {
     type,
     owner,
     topic,
     async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
       if (!options?.index) {
-        return fetchLatestFeedUpdate(ky, owner, topic, { ...options, type })
+        return fetchLatestFeedUpdate(kyOptions, owner, topic, { ...options, type })
       }
 
-      const update = await downloadFeedUpdate(ky, hexToBytes(owner), topic, options.index)
+      const update = await downloadFeedUpdate(kyOptions, hexToBytes(owner), topic, options.index)
 
       return {
         reference: bytesToHex(update.reference),
@@ -132,7 +137,7 @@ export function makeFeedReader(ky: Ky, type: FeedType, topic: Topic, owner: HexE
   }
 }
 
-export function makeFeedWriter(ky: Ky, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
+export function makeFeedWriter(kyOptions: KyOptions, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
   const upload = async (
     postageBatchId: string | Address,
     reference: BytesReference | Reference,
@@ -141,11 +146,11 @@ export function makeFeedWriter(ky: Ky, type: FeedType, topic: Topic, signer: Sig
     assertAddress(postageBatchId)
     const canonicalReference = makeBytesReference(reference)
 
-    return updateFeed(ky, signer, topic, canonicalReference, postageBatchId, { ...options, type })
+    return updateFeed(kyOptions, signer, topic, canonicalReference, postageBatchId, { ...options, type })
   }
 
   return {
-    ...makeFeedReader(ky, type, topic, makeHexEthAddress(signer.address)),
+    ...makeFeedReader(kyOptions, type, topic, makeHexEthAddress(signer.address)),
     upload,
   }
 }

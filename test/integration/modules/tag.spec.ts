@@ -1,14 +1,14 @@
 import * as tag from '../../../src/modules/tag'
-import { beeKy, commonMatchers } from '../../utils'
+import { beeKyOptions, commonMatchers } from '../../utils'
 
-const BEE_KY = beeKy()
+const BEE_KY_OPTIONS = beeKyOptions()
 
 commonMatchers()
 
 describe('modules/tag', () => {
   it('should list tags', async () => {
-    await tag.createTag(BEE_KY)
-    const tags = await tag.getAllTags(BEE_KY)
+    await tag.createTag(BEE_KY_OPTIONS)
+    const tags = await tag.getAllTags(BEE_KY_OPTIONS)
 
     expect(tags).toEqual(
       expect.arrayContaining([
@@ -24,7 +24,7 @@ describe('modules/tag', () => {
   })
 
   it('should create empty tag', async () => {
-    const tag1 = await tag.createTag(BEE_KY)
+    const tag1 = await tag.createTag(BEE_KY_OPTIONS)
 
     expect(tag1.total).toBe(0)
     expect(tag1.processed).toBe(0)
@@ -34,8 +34,8 @@ describe('modules/tag', () => {
   })
 
   it('should retrieve previously created empty tag', async () => {
-    const tag1 = await tag.createTag(BEE_KY)
-    const tag2 = await tag.retrieveTag(BEE_KY, tag1.uid)
+    const tag1 = await tag.createTag(BEE_KY_OPTIONS)
+    const tag2 = await tag.retrieveTag(BEE_KY_OPTIONS, tag1.uid)
 
     expect(tag1).toEqual(tag2)
     expect(tag1).toEqual(

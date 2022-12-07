@@ -1,7 +1,7 @@
-import { beeDebugKy, commonMatchers } from '../../../utils'
+import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 import * as states from '../../../../src/modules/debug/states'
 
-const BEE_DEBUG_URL = beeDebugKy()
+const BEE_DEBUG_URL = beeDebugKyOptions()
 commonMatchers()
 
 describe('modules/states', () => {

@@ -1,7 +1,8 @@
-import type { BatchId, Data, Ky, Reference, ReferenceOrEns, ReferenceResponse, UploadOptions } from '../types'
+import type { BatchId, Data, Reference, ReferenceOrEns, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { wrapBytesWithHelpers } from '../utils/bytes'
+import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'chunks'
 
@@ -18,12 +19,12 @@ const endpoint = 'chunks'
  * @param options Additional options like tag, encryption, pinning
  */
 export async function upload(
-  ky: Ky,
+  kyOptions: KyOptions,
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await http<ReferenceResponse>(ky, {
+  const response = await http<ReferenceResponse>(kyOptions, {
     method: 'post',
     path: `${endpoint}`,
     body: data,
@@ -34,21 +35,21 @@ export async function upload(
     responseType: 'json',
   })
 
-  return response.data.reference
+  return response.parseData.reference
 }
 
 /**
  * Download chunk data as a byte array
  *
- * @param ky Ky instance for given Bee class instance
+ * @param kyOptions Ky Options for making requests
  * @param hash Bee content reference
  *
  */
-export async function download(ky: Ky, hash: ReferenceOrEns): Promise<Data> {
-  const response = await http<ArrayBuffer>(ky, {
+export async function download(kyOptions: KyOptions, hash: ReferenceOrEns): Promise<Data> {
+  const response = await http<ArrayBuffer>(kyOptions, {
     responseType: 'arraybuffer',
     path: `${endpoint}/${hash}`,
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.data))
+  return wrapBytesWithHelpers(new Uint8Array(response.parseData))
 }
