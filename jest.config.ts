@@ -3,31 +3,6 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 import type { Config } from '@jest/types'
-import { glob } from 'glob'
-import * as Path from 'path'
-
-export async function getBrowserPathMapping(): Promise<{ [aliasNodeReference: string]: string }> {
-  const browserSourceFiles = await new Promise<{ [aliasNodeReference: string]: string }>((resolve, reject) => {
-    glob('src/**/*.browser.ts', (err, browserSourceCodes) => {
-      if (err) reject(err)
-      browserSourceCodes = browserSourceCodes.map(match => Path.resolve(__dirname, match))
-      const codePathMapping: { [nodeFullPath: string]: string } = {}
-      browserSourceCodes.map(browserFullPath => {
-        const filePathArray = browserFullPath.split('.')
-        filePathArray.pop()
-        filePathArray.pop() //remove 'browser.ts' from '**/*.browser.ts'
-        const nodeFullPath = filePathArray.join('.')
-        const aliasNodeReference = `/${nodeFullPath.split('/').pop()}$` //keep the last bit of node file referencing e.g. '/file-source$'
-
-        codePathMapping[aliasNodeReference] = browserFullPath
-      })
-
-      resolve(codePathMapping)
-    })
-  })
-
-  return browserSourceFiles
-}
 
 export default async (): Promise<Config.InitialOptions> => {
   return {
@@ -51,13 +26,6 @@ export default async (): Promise<Config.InitialOptions> => {
 
     // Run tests from one or more projects
     projects: [
-      // We don't have any DOM specific tests atm.
-      // {
-      //   displayName: 'dom:unit',
-      //   testRegex: 'test/unit/.*\\.browser\\.spec\\.ts',
-      //   moduleNameMapper: await getBrowserPathMapping(),
-      //   preset: 'jest-puppeteer',
-      // },
       {
         displayName: 'node:unit',
         testEnvironment: 'node',
@@ -66,7 +34,6 @@ export default async (): Promise<Config.InitialOptions> => {
       {
         displayName: 'dom:integration',
         testRegex: 'test/integration/.*\\.browser\\.spec\\.ts',
-        moduleNameMapper: await getBrowserPathMapping(),
         preset: 'jest-puppeteer',
       },
       {
