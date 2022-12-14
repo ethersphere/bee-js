@@ -25,7 +25,7 @@ describe('JsonFeed', () => {
       const writer = Substitute.for<FeedWriter>()
       writer.upload(Arg.all()).resolves(FEED_REFERENCE_HASH)
 
-      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).resolves.toEqual(FEED_REFERENCE_HASH)
+      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).eventually.to.equal(FEED_REFERENCE_HASH)
       bee.received(1).uploadData(testAddress, expectedBytes)
       writer.received(1).upload(testAddress, DATA_REFERENCE)
     })
@@ -37,7 +37,7 @@ describe('JsonFeed', () => {
       const writer = Substitute.for<FeedWriter>()
       writer.download().resolves(FEED_REFERENCE)
 
-      await expect(getJsonData(bee, writer)).resolves.toEqual(data)
+      await expect(getJsonData(bee, writer)).eventually.to.equal(data)
       bee.received(1).downloadData(FEED_REFERENCE_HASH)
       writer.received(1).download()
     })

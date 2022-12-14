@@ -61,7 +61,7 @@ export function commonMatchers(): void {
 
       for (const validValue of validValues) {
         try {
-          expect(received).toEqual(validValue)
+          expect(received).to.equal(validValue)
           containsValidValue = true
           // eslint-disable-next-line no-empty
         } catch (e) {}

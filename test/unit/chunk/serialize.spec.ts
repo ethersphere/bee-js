@@ -9,7 +9,7 @@ describe('serializeBytes', () => {
 
     const result = serializeBytes(a1, a2, a3)
 
-    expect(result).toEqual(expectedResult)
+    expect(result).to.equal(expectedResult)
   })
 
   it('serializes chunk data with span', () => {
@@ -19,6 +19,6 @@ describe('serializeBytes', () => {
 
     const result = serializeBytes(span, payload)
 
-    expect(result).toEqual(expectedResult)
+    expect(result).to.equal(expectedResult)
   })
 })

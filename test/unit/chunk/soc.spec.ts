@@ -19,7 +19,7 @@ describe('soc', () => {
     const socAddress = bytesToHex(soc.address())
     const owner = soc.owner()
 
-    expect(socAddress).toEqual(socHash)
-    expect(owner).toEqual(signer.address)
+    expect(socAddress).to.equal(socHash)
+    expect(owner).to.equal(signer.address)
   })
 })

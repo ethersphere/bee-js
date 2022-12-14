@@ -2,8 +2,13 @@
 import { createPostageBatch, getPostageBatch } from '../src/modules/debug/stamps'
 import { BatchId } from '../src'
 import type { Options as KyOptions } from 'ky'
+import chaiAsPromised from 'chai-as-promised'
+import chaiParentheses from 'chai-parentheses'
 
 export default async function testsSetup(): Promise<void> {
+  chai.use(chaiAsPromised)
+  chai.use(chaiParentheses)
+
   try {
     const beeDebugKyOptions: KyOptions = {
       prefixUrl: process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635/',

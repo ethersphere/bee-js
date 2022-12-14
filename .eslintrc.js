@@ -8,11 +8,7 @@ module.exports = {
   env: {
     jest: true,
   },
-  globals: {
-    browser: true,
-    page: true,
-  },
-  plugins: ['jest', 'unused-imports'],
+  plugins: ['unused-imports'],
   rules: {
     'array-bracket-newline': ['error', 'consistent'],
     strict: ['error', 'safe'],
@@ -103,6 +99,7 @@ module.exports = {
       files: ['*.spec.ts'],
       rules: {
         'max-nested-callbacks': ['error', 10], // allow describe/it nesting
+        'prefer-arrow-callback': 'off'
       },
     },
   ],

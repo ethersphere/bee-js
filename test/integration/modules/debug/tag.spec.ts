@@ -6,11 +6,11 @@ const BEE_URL = beeKyOptions()
 const BEE_DEBUG_KY = beeDebugKyOptions()
 
 describe('modules/tag', () => {
-  it('should retrieve extended tag', async () => {
+  it('should retrieve extended tag', async function () {
     const tag1 = await beeTag.createTag(BEE_URL)
     const tag2 = await beeDebugTag.retrieveExtendedTag(BEE_DEBUG_KY, tag1.uid)
 
-    expect(tag2).toEqual(
+    expect(tag2).to.equal(
       expect.objectContaining({
         total: expect.any(Number),
         split: expect.any(Number),

@@ -14,7 +14,7 @@ describe('span', () => {
 
     expected.forEach(elem => {
       const result = makeSpan(elem[0])
-      expect(result).toEqual(elem[1])
+      expect(result).to.equal(elem[1])
     })
   })
 

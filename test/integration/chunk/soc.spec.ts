@@ -23,7 +23,7 @@ describe('soc', () => {
 
     const response = await uploadSingleOwnerChunk(beeKyOptions(), soc, getPostageBatch())
 
-    expect(response).toEqual(socAddress)
+    expect(response).to.equal(socAddress)
   })
 
   test('download single owner chunk', async () => {
@@ -33,6 +33,6 @@ describe('soc', () => {
     const soc = makeSingleOwnerChunkFromData(data, address)
     const socAddress = soc.address()
 
-    expect(socAddress).toEqual(address)
+    expect(socAddress).to.equal(address)
   })
 })

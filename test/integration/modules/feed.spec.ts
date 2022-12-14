@@ -22,7 +22,7 @@ describe('modules/feed', () => {
     const reference = '92442c3e08a308aeba8e2d231733ec57011a203354cad24129e7e0c37bac0cbe'
     const response = await createFeedManifest(BEE_KY_OPTIONS, owner, topic, getPostageBatch())
 
-    expect(response).toEqual(reference)
+    expect(response).to.equal(reference)
   })
 
   test(
@@ -55,7 +55,7 @@ describe('modules/feed', () => {
 
     const feedUpdate = await fetchLatestFeedUpdate(BEE_KY_OPTIONS, owner, oneUpdateTopic)
     expect(feedUpdate.reference).toBeType('string')
-    expect(feedUpdate.feedIndex).toEqual('0000000000000000')
-    expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
+    expect(feedUpdate.feedIndex).to.equal('0000000000000000')
+    expect(feedUpdate.feedIndexNext).to.equal('0000000000000001')
   }, 21000)
 })

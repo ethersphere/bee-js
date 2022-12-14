@@ -1,3 +1,4 @@
+import { expect } from 'chai'
 import { Bee, BeeDebug, BeeResponseError, BytesReference, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
@@ -43,31 +44,31 @@ describe('Bee class', () => {
 
   it('should strip trailing slash', () => {
     const bee = new Bee('http://127.0.0.1:1633/')
-    expect(bee.url).toEqual('http://127.0.0.1:1633')
+    expect(bee.url).to.equal('http://127.0.0.1:1633')
   })
 
   describe('chunk', () => {
-    it('should upload and download chunk', async () => {
+    it('should upload and download chunk', async function () {
       const content = randomByteArray(100)
 
       const reference = await bee.uploadChunk(getPostageBatch(), content)
       const downloadedChunk = await bee.downloadChunk(reference)
 
-      expect(downloadedChunk).toEqual(content)
+      expect(downloadedChunk).to.equal(content)
     })
 
-    it('should upload and download chunk with direct upload', async () => {
+    it('should upload and download chunk with direct upload', async function () {
       const content = randomByteArray(100)
 
       const reference = await bee.uploadChunk(getPostageBatch(), content, { deferred: false })
       const downloadedChunk = await bee.downloadChunk(reference)
 
-      expect(downloadedChunk).toEqual(content)
+      expect(downloadedChunk).to.equal(content)
     })
   })
 
   describe('files', () => {
-    it('should work with files', async () => {
+    it('should work with files', async function () {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
       const contentType = 'text/html'
@@ -75,11 +76,11 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType })
       const file = await bee.downloadFile(result.reference)
 
-      expect(file.name).toEqual(name)
-      expect(file.data).toEqual(content)
+      expect(file.name).to.equal(name)
+      expect(file.data).to.equal(content)
     })
 
-    it('should work with files and CIDs', async () => {
+    it('should work with files and CIDs', async function () {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
       const contentType = 'text/html'
@@ -87,11 +88,11 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType })
       const file = await bee.downloadFile(result.cid())
 
-      expect(file.name).toEqual(name)
-      expect(file.data).toEqual(content)
+      expect(file.name).to.equal(name)
+      expect(file.data).to.equal(content)
     })
 
-    it('should work with files and direct upload', async () => {
+    it('should work with files and direct upload', async function () {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
       const contentType = 'text/html'
@@ -99,11 +100,11 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType, deferred: false })
       const file = await bee.downloadFile(result.reference)
 
-      expect(file.name).toEqual(name)
-      expect(file.data).toEqual(content)
+      expect(file.name).to.equal(name)
+      expect(file.data).to.equal(content)
     })
 
-    it('should work with files and tags', async () => {
+    it('should work with files and tags', async function () {
       const tag = await bee.createTag()
 
       // Should fit into 4 chunks
@@ -114,14 +115,14 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), content, name, { contentType, tag: tag.uid })
       const file = await bee.downloadFile(result.reference)
 
-      expect(file.name).toEqual(name)
-      expect(file.data).toEqual(content)
+      expect(file.name).to.equal(name)
+      expect(file.data).to.equal(content)
 
       const retrievedTag = await bee.retrieveTag(tag)
-      expect(retrievedTag.total).toEqual(8)
+      expect(retrievedTag.total).to.equal(8)
     })
 
-    it('should work with file object', async () => {
+    it('should work with file object', async function () {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
       const type = 'text/plain'
@@ -134,12 +135,12 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file)
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data).toEqual(content)
-      expect(downloadedFile.name).toEqual(name)
-      expect(downloadedFile.contentType).toEqual(type)
+      expect(downloadedFile.data).to.equal(content)
+      expect(downloadedFile.name).to.equal(name)
+      expect(downloadedFile.contentType).to.equal(type)
     })
 
-    it('should work with file object and name overridden', async () => {
+    it('should work with file object and name overridden', async function () {
       const content = new Uint8Array([1, 2, 3])
       const name = 'hello.txt'
       const file = {
@@ -151,11 +152,11 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file, nameOverride)
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data).toEqual(content)
-      expect(downloadedFile.name).toEqual(nameOverride)
+      expect(downloadedFile.data).to.equal(content)
+      expect(downloadedFile.name).to.equal(nameOverride)
     })
 
-    it('should work with file object and content-type overridden', async () => {
+    it('should work with file object and content-type overridden', async function () {
       const content = new Uint8Array([1, 2, 3])
       const file = {
         arrayBuffer: () => content,
@@ -167,11 +168,11 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), file, undefined, { contentType: contentTypeOverride })
       const downloadedFile = await bee.downloadFile(result.reference)
 
-      expect(downloadedFile.data).toEqual(content)
-      expect(downloadedFile.contentType).toEqual(contentTypeOverride)
+      expect(downloadedFile.data).to.equal(content)
+      expect(downloadedFile.contentType).to.equal(contentTypeOverride)
     })
 
-    it('should work with NodeJS readable', async () => {
+    it('should work with NodeJS readable', async function () {
       const readable = Readable.from([new TextEncoder().encode('hello '), new TextEncoder().encode('world')])
       const name = 'hello.txt'
       const contentType = 'text/plain'
@@ -179,11 +180,13 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
       const file = await bee.downloadFile(result.reference)
 
-      expect(file.name).toEqual(name)
-      expect(file.data.text()).toEqual('hello world')
+      expect(file.name).to.equal(name)
+      expect(file.data.text()).to.equal('hello world')
     })
 
-    it('should work with WHATWG readable-stream', async () => {
+    it('should work with WHATWG readable-stream', async function () {
+      setTimeout(1000000)
+
       const readable = createReadableStream([new TextEncoder().encode('hello '), new TextEncoder().encode('world')])
       const name = 'hello.txt'
       const contentType = 'text/plain'
@@ -191,11 +194,11 @@ describe('Bee class', () => {
       const result = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
       const file = await bee.downloadFile(result.reference)
 
-      expect(file.name).toEqual(name)
-      expect(file.data.text()).toEqual('hello world')
-    }, 1000000)
+      expect(file.name).to.equal(name)
+      expect(file.data.text()).to.equal('hello world')
+    })
 
-    it('should work with readable and tags', async () => {
+    it('should work with readable and tags', async function () {
       const tag = await bee.createTag()
 
       const readable = createRandomNodeReadable(13000)
@@ -209,28 +212,28 @@ describe('Bee class', () => {
 
       const file = await bee.downloadFile(result.reference)
 
-      expect(file.name).toEqual(name)
-      expect(file.data.length).toEqual(13000)
+      expect(file.name).to.equal(name)
+      expect(file.data.length).to.equal(13000)
 
       const retrievedTag = await bee.retrieveTag(tag)
-      expect(retrievedTag.total).toEqual(8)
+      expect(retrievedTag.total).to.equal(8)
     })
   })
 
   describe('collections', () => {
-    it('should work with directory with unicode filenames', async () => {
+    it('should work with directory with unicode filenames', async function () {
       const result = await bee.uploadFilesFromDirectory(getPostageBatch(), './test/data')
 
-      expect(result.reference.length).toEqual(REFERENCE_HEX_LENGTH)
+      expect(result.reference.length).to.equal(REFERENCE_HEX_LENGTH)
     })
 
-    it('should work with directory with unicode filenames and direct upload', async () => {
+    it('should work with directory with unicode filenames and direct upload', async function () {
       const result = await bee.uploadFilesFromDirectory(getPostageBatch(), './test/data', { deferred: false })
 
-      expect(result.reference.length).toEqual(REFERENCE_HEX_LENGTH)
+      expect(result.reference.length).to.equal(REFERENCE_HEX_LENGTH)
     })
 
-    it('should upload collection', async () => {
+    it('should upload collection', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -241,11 +244,11 @@ describe('Bee class', () => {
       const result = await bee.uploadCollection(getPostageBatch(), directoryStructure)
       const file = await bee.downloadFile(result.reference, directoryStructure[0].path)
 
-      expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data.text()).toEqual('hello-world')
+      expect(file.name).to.equal(directoryStructure[0].path)
+      expect(file.data.text()).to.equal('hello-world')
     })
 
-    it('should upload collection with CIDs support', async () => {
+    it('should upload collection with CIDs support', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -256,44 +259,44 @@ describe('Bee class', () => {
       const result = await bee.uploadCollection(getPostageBatch(), directoryStructure)
       const file = await bee.downloadFile(result.cid(), directoryStructure[0].path)
 
-      expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data.text()).toEqual('hello-CID-world')
+      expect(file.name).to.equal(directoryStructure[0].path)
+      expect(file.data.text()).to.equal('hello-CID-world')
     })
   })
 
   describe('tags', () => {
-    it('should list tags', async () => {
+    it('should list tags', async function () {
       const originalTags = await bee.getAllTags({ limit: 1000 })
       const createdTag = await bee.createTag()
       const updatedTags = await bee.getAllTags({ limit: 1000 })
 
-      expect(updatedTags.length - originalTags.length).toEqual(1)
-      expect(originalTags.find(tag => tag.uid === createdTag.uid)).toBeFalsy()
-      expect(updatedTags.find(tag => tag.uid === createdTag.uid)).toBeTruthy()
+      expect(updatedTags.length - originalTags.length).to.equal(1)
+      expect(originalTags.find(tag => tag.uid === createdTag.uid)).to.be.false()
+      expect(updatedTags.find(tag => tag.uid === createdTag.uid)).to.be.true()
     })
 
-    it('should retrieve previously created empty tag', async () => {
+    it('should retrieve previously created empty tag', async function () {
       const tag = await bee.createTag()
       const tag2 = await bee.retrieveTag(tag)
 
-      expect(tag).toEqual(tag2)
+      expect(tag).to.equal(tag2)
     })
 
-    it('should delete tag', async () => {
+    it('should delete tag', async function () {
       const createdTag = await bee.createTag()
       const originalTags = await bee.getAllTags({ limit: 1000 })
-      expect(originalTags.find(tag => tag.uid === createdTag.uid)).toBeTruthy()
+      expect(originalTags.find(tag => tag.uid === createdTag.uid)).to.be.true()
 
       await bee.deleteTag(createdTag)
       const updatedTags = await bee.getAllTags({ limit: 1000 })
 
-      expect(updatedTags.length - originalTags.length).toEqual(-1)
-      expect(updatedTags.find(tag => tag.uid === createdTag.uid)).toBeFalsy()
+      expect(updatedTags.length - originalTags.length).to.equal(-1)
+      expect(updatedTags.find(tag => tag.uid === createdTag.uid)).to.be.false()
     })
   })
 
   describe('pinning', () => {
-    it('should list all pins', async () => {
+    it('should list all pins', async function () {
       const content = new Uint8Array([1, 2, 3])
       const result = await bee.uploadFile(getPostageBatch(), content)
 
@@ -301,10 +304,10 @@ describe('Bee class', () => {
 
       const pinnedChunks = await bee.getAllPins()
       expect(pinnedChunks).toBeType('array')
-      expect(pinnedChunks.includes(result.reference)).toBeTruthy()
+      expect(pinnedChunks.includes(result.reference)).to.be.true()
     })
 
-    it('should get pinning status', async () => {
+    it('should get pinning status', async function () {
       const content = randomByteArray(16, Date.now())
       const result = await bee.uploadFile(getPostageBatch(), content, 'test', {
         pin: false,
@@ -319,7 +322,7 @@ describe('Bee class', () => {
       expect(statusAfterPinning).toHaveProperty('reference', result.reference)
     })
 
-    it('should pin and unpin files', async () => {
+    it('should pin and unpin files', async function () {
       const content = new Uint8Array([1, 2, 3])
 
       const result = await bee.uploadFile(getPostageBatch(), content)
@@ -328,7 +331,7 @@ describe('Bee class', () => {
       await bee.unpin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
-    it('should pin and unpin collection from directory', async () => {
+    it('should pin and unpin collection from directory', async function () {
       const path = './test/data/'
       const result = await bee.uploadFilesFromDirectory(getPostageBatch(), path)
 
@@ -336,7 +339,7 @@ describe('Bee class', () => {
       await bee.unpin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
-    it('should pin and unpin data', async () => {
+    it('should pin and unpin data', async function () {
       const content = new Uint8Array([1, 2, 3])
 
       const result = await bee.uploadData(getPostageBatch(), content)
@@ -347,7 +350,7 @@ describe('Bee class', () => {
   })
 
   describe('stewardship', () => {
-    it('should reupload pinned data', async () => {
+    it('should reupload pinned data', async function () {
       const content = randomByteArray(16, Date.now())
       const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
 
@@ -362,12 +365,12 @@ describe('Bee class', () => {
         const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
 
         await sleep(10)
-        await expect(bee.isReferenceRetrievable(result.reference)).resolves.toEqual(true)
+        await expect(bee.isReferenceRetrievable(result.reference)).eventually.to.equal(true)
 
         // Reference that has correct form, but should not exist on the network
         await expect(
           bee.isReferenceRetrievable('ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4332'),
-        ).resolves.toEqual(false)
+        ).eventually.to.equal(false)
       },
       ERR_TIMEOUT,
     )
@@ -384,7 +387,7 @@ describe('Bee class', () => {
             const beeDebug = new BeeDebug(beeDebugUrl())
 
             bee.pssReceive(topic).then(receivedMessage => {
-              expect(receivedMessage).toEqual(message)
+              expect(receivedMessage).to.equal(message)
               resolve()
             })
 
@@ -407,7 +410,7 @@ describe('Bee class', () => {
             const beeDebug = new BeeDebug(beeDebugUrl())
 
             bee.pssReceive(topic).then(receivedMessage => {
-              expect(receivedMessage).toEqual(message)
+              expect(receivedMessage).to.equal(message)
               resolve()
             })
 
@@ -440,7 +443,7 @@ describe('Bee class', () => {
                 // without cancel jest complains for leaking handles and may hang
                 subscription?.cancel()
 
-                expect(receivedMessage).toEqual(message)
+                expect(receivedMessage).to.equal(message)
                 resolve()
               },
               onError: e => {
@@ -460,7 +463,7 @@ describe('Bee class', () => {
       PSS_TIMEOUT,
     )
 
-    it('should time out', async () => {
+    it('should time out', async function () {
       const topic = 'bee-class-receive-timeout'
 
       await expect(bee.pssReceive(topic, 1)).rejects.toThrow('pssReceive timeout')
@@ -482,16 +485,16 @@ describe('Bee class', () => {
         await feed.upload(getPostageBatch(), referenceZero)
         const firstUpdateReferenceResponse = await feed.download()
 
-        expect(firstUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceZero))
-        expect(firstUpdateReferenceResponse.feedIndex).toEqual('0000000000000000')
+        expect(firstUpdateReferenceResponse.reference).to.equal(bytesToHex(referenceZero))
+        expect(firstUpdateReferenceResponse.feedIndex).to.equal('0000000000000000')
 
         const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as BytesReference
 
         await feed.upload(getPostageBatch(), referenceOne)
         const secondUpdateReferenceResponse = await feed.download()
 
-        expect(secondUpdateReferenceResponse.reference).toEqual(bytesToHex(referenceOne))
-        expect(secondUpdateReferenceResponse.feedIndex).toEqual('0000000000000001')
+        expect(secondUpdateReferenceResponse.reference).to.equal(bytesToHex(referenceOne))
+        expect(secondUpdateReferenceResponse.feedIndex).to.equal('0000000000000001')
         // TODO the timeout was increased because this test is flaky
         //  most likely there is an issue with the lookup
         //  https://github.com/ethersphere/bee/issues/1248#issuecomment-786588911
@@ -510,15 +513,15 @@ describe('Bee class', () => {
         await feed.upload(getPostageBatch(), referenceZero)
 
         const firstLatestUpdate = await feed.download()
-        expect(firstLatestUpdate.reference).toEqual(bytesToHex(referenceZero))
-        expect(firstLatestUpdate.feedIndex).toEqual('0000000000000000')
+        expect(firstLatestUpdate.reference).to.equal(bytesToHex(referenceZero))
+        expect(firstLatestUpdate.feedIndex).to.equal('0000000000000000')
 
         const referenceOne = new Uint8Array([...new Uint8Array([1]), ...new Uint8Array(31)]) as BytesReference
         await feed.upload(getPostageBatch(), referenceOne)
 
         const secondLatestUpdate = await feed.download()
-        expect(secondLatestUpdate.reference).toEqual(bytesToHex(referenceOne))
-        expect(secondLatestUpdate.feedIndex).toEqual('0000000000000001')
+        expect(secondLatestUpdate.reference).to.equal(bytesToHex(referenceOne))
+        expect(secondLatestUpdate.feedIndex).to.equal('0000000000000001')
 
         const referenceTwo = new Uint8Array([
           ...new Uint8Array([1]),
@@ -528,12 +531,12 @@ describe('Bee class', () => {
         await feed.upload(getPostageBatch(), referenceTwo)
 
         const thirdLatestUpdate = await feed.download()
-        expect(thirdLatestUpdate.reference).toEqual(bytesToHex(referenceTwo))
-        expect(thirdLatestUpdate.feedIndex).toEqual('0000000000000002')
+        expect(thirdLatestUpdate.reference).to.equal(bytesToHex(referenceTwo))
+        expect(thirdLatestUpdate.feedIndex).to.equal('0000000000000002')
 
         const sendBackFetchedUpdate = await feed.download({ index: '0000000000000001' })
-        expect(sendBackFetchedUpdate.reference).toEqual(bytesToHex(referenceOne))
-        expect(sendBackFetchedUpdate.feedIndex).toEqual('0000000000000001')
+        expect(sendBackFetchedUpdate.reference).to.equal(bytesToHex(referenceOne))
+        expect(sendBackFetchedUpdate.feedIndex).to.equal('0000000000000001')
       },
       FEED_TIMEOUT,
     )
@@ -547,8 +550,8 @@ describe('Bee class', () => {
         await feed.upload(getPostageBatch(), referenceZero)
 
         const firstLatestUpdate = await feed.download()
-        expect(firstLatestUpdate.reference).toEqual(bytesToHex(referenceZero))
-        expect(firstLatestUpdate.feedIndex).toEqual('0000000000000000')
+        expect(firstLatestUpdate.reference).to.equal(bytesToHex(referenceZero))
+        expect(firstLatestUpdate.feedIndex).to.equal('0000000000000000')
 
         try {
           await feed.download({ index: '0000000000000001' })
@@ -556,7 +559,7 @@ describe('Bee class', () => {
         } catch (err) {
           const e = err as BeeResponseError
 
-          expect(e.status).toEqual(404)
+          expect(e.status).to.equal(404)
           expect(e.responseBody).toContain('chunk not found')
         }
       },
@@ -580,7 +583,7 @@ describe('Bee class', () => {
         await feed.upload(getPostageBatch(), cacResult.reference)
         const manifestResult = await bee.createFeedManifest(getPostageBatch(), 'sequence', topic, owner)
 
-        expect(manifestResult).toEqual(
+        expect(manifestResult).to.equal(
           expect.objectContaining({
             reference: expect.any(String),
             cid: expect.any(Function),
@@ -589,7 +592,7 @@ describe('Bee class', () => {
 
         // this calls /bzz endpoint that should resolve the manifest and the feed returning the latest feed's content
         const file = await bee.downloadFile(manifestResult.reference, 'index.html')
-        expect(new TextDecoder().decode(file.data)).toEqual('some data')
+        expect(new TextDecoder().decode(file.data)).to.equal('some data')
       },
       FEED_TIMEOUT,
     )
@@ -610,16 +613,16 @@ describe('Bee class', () => {
         await feed.upload(getPostageBatch(), updates[2].reference)
       }, FEED_TIMEOUT)
 
-      it('should return false if no feed updates', async () => {
+      it('should return false if no feed updates', async function () {
         const nonExistingTopic = randomByteArray(32, Date.now())
 
-        await expect(bee.isFeedRetrievable('sequence', owner, nonExistingTopic)).resolves.toEqual(false)
+        await expect(bee.isFeedRetrievable('sequence', owner, nonExistingTopic)).eventually.to.equal(false)
       })
 
       it(
         'should return true for latest query for existing topic',
         async () => {
-          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic)).resolves.toEqual(true)
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic)).eventually.to.equal(true)
         },
         FEED_TIMEOUT,
       )
@@ -627,13 +630,13 @@ describe('Bee class', () => {
       it(
         'should return true for index based query for existing topic',
         async () => {
-          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000000')).resolves.toEqual(
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000000')).eventually.to.equal(
             true,
           )
-          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000001')).resolves.toEqual(
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000001')).eventually.to.equal(
             true,
           )
-          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000002')).resolves.toEqual(
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000002')).eventually.to.equal(
             true,
           )
         },
@@ -643,7 +646,7 @@ describe('Bee class', () => {
       it(
         'should return false for index based query for existing topic but non-existing index',
         async () => {
-          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000005')).resolves.toEqual(
+          await expect(bee.isFeedRetrievable('sequence', owner, existingTopic, '0000000000000005')).eventually.to.equal(
             false,
           )
         },
@@ -656,7 +659,7 @@ describe('Bee class', () => {
         const topic = bee.makeFeedTopic('swarm.eth:application:handshake')
         const feed = bee.makeFeedReader('sequence', topic, owner)
 
-        expect(feed.topic).toEqual(topic)
+        expect(feed.topic).to.equal(topic)
       })
     })
   })
@@ -665,7 +668,7 @@ describe('Bee class', () => {
     const socHash = '9d453ebb73b2fedaaf44ceddcf7a0aa37f3e3d6453fea5841c31f0ea6d61dc85' as HexString
 
     describe('writer', () => {
-      it('should read and write', async () => {
+      it('should read and write', async function () {
         const identifier = makeBytes(32) // all zeroes
         const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
         await tryDeleteChunkFromLocalStorage(socAddress)
@@ -673,16 +676,16 @@ describe('Bee class', () => {
         const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
 
         const reference = await socWriter.upload(getPostageBatch(), identifier, testChunkPayload)
-        expect(reference).toEqual(socHash)
+        expect(reference).to.equal(socHash)
 
         const soc = await socWriter.download(identifier)
         const payload = soc.payload()
-        expect(payload).toEqual(testChunkPayload)
+        expect(payload).to.equal(testChunkPayload)
       })
     })
 
     describe('reader', () => {
-      it('should read', async () => {
+      it('should read', async function () {
         const signer = makeSigner(testIdentity.privateKey)
         const identifier = makeBytes(32) // all zeroes
         const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
@@ -692,13 +695,13 @@ describe('Bee class', () => {
         const socReader = bee.makeSOCReader(testIdentity.address)
         const soc = await socReader.download(identifier)
         const payload = soc.payload()
-        expect(payload).toEqual(testChunkPayload)
+        expect(payload).to.equal(testChunkPayload)
       })
     })
   })
 
   describe('signer', () => {
-    it('should be possible to pass it in constructor', async () => {
+    it('should be possible to pass it in constructor', async function () {
       const identifier = makeBytes(32)
       identifier[31] = 1
 
@@ -709,10 +712,10 @@ describe('Bee class', () => {
       const socWriter = bee.makeSOCWriter()
 
       const reference = await socWriter.upload(getPostageBatch(), identifier, testChunkPayload)
-      expect(reference).toEqual('00019ec85e8859aa641cf149fbd1147ac7965a9cad1dfe4ab7beaa12d5dc8027')
+      expect(reference).to.equal('00019ec85e8859aa641cf149fbd1147ac7965a9cad1dfe4ab7beaa12d5dc8027')
     })
 
-    it('should prioritize signer passed to method', async () => {
+    it('should prioritize signer passed to method', async function () {
       const identifier = makeBytes(32)
       identifier[31] = 2
 
@@ -726,7 +729,7 @@ describe('Bee class', () => {
       const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
 
       const reference = await socWriter.upload(getPostageBatch(), identifier, testChunkPayload)
-      expect(reference).toEqual('d1a21cce4c86411f6af2f621ce9a3a0aa3cc5cea6cc9e1b28523d28411398cfb')
+      expect(reference).to.equal('d1a21cce4c86411f6af2f621ce9a3a0aa3cc5cea6cc9e1b28523d28411398cfb')
     })
 
     it('should throw if no signers are passed', () => {
@@ -746,10 +749,10 @@ describe('Bee class', () => {
         const hashedTopic = bee.makeFeedTopic(TOPIC)
         const reader = bee.makeFeedReader('sequence', hashedTopic, testIdentity.address)
         const chunkReferenceResponse = await reader.download()
-        expect(chunkReferenceResponse.reference).toEqual(testJsonHash)
+        expect(chunkReferenceResponse.reference).to.equal(testJsonHash)
 
         const downloadedData = await bee.downloadData(chunkReferenceResponse.reference)
-        expect(downloadedData.json()).toEqual(testJsonPayload)
+        expect(downloadedData.json()).to.equal(testJsonPayload)
       },
       FEED_TIMEOUT,
     )
@@ -765,7 +768,7 @@ describe('Bee class', () => {
         await writer.upload(getPostageBatch(), dataChunkResult.reference)
 
         const fetchedData = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
-        expect(fetchedData).toEqual(data)
+        expect(fetchedData).to.equal(data)
       },
       FEED_TIMEOUT,
     )
@@ -780,7 +783,7 @@ describe('Bee class', () => {
         await writer.upload(getPostageBatch(), dataChunkResult.reference)
 
         const fetchedData = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
-        expect(fetchedData).toEqual(data)
+        expect(fetchedData).to.equal(data)
       },
       FEED_TIMEOUT,
     )

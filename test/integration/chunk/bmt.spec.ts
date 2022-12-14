@@ -5,7 +5,7 @@ import { makeSpan } from '../../../src/chunk/span'
 import { bytesToHex } from '../../../src/utils/hex'
 
 describe('bmt', () => {
-  it('should produce the same hash as Bee', async () => {
+  it('should produce the same hash as Bee', async function () {
     /**
      * We upload chunks smaller than 4096 bytes on the /bytes
      * endpoint therefore it is stored in a single chunk.
@@ -17,17 +17,17 @@ describe('bmt', () => {
 
       const reference = bytesToHex(bmtHash(data))
       const response = await chunk.upload(beeKyOptions(), data, getPostageBatch())
-      expect(response).toEqual(reference)
+      expect(response).to.equal(reference)
     }
   })
 
-  it('should produce the same hash as Bee for random content', async () => {
+  it('should produce the same hash as Bee for random content', async function () {
     const payload = randomByteArray(4096)
     const span = makeSpan(payload.length)
     const data = new Uint8Array([...span, ...payload])
 
     const reference = bytesToHex(bmtHash(data))
     const response = await chunk.upload(beeKyOptions(), data, getPostageBatch())
-    expect(response).toEqual(reference)
+    expect(response).to.equal(reference)
   })
 })

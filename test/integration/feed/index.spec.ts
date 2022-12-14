@@ -54,7 +54,7 @@ describe('feed', () => {
       const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
       const index = await findNextIndex(BEE_KY_OPTIONS, owner, emptyTopic)
 
-      expect(index).toEqual('0000000000000000')
+      expect(index).to.equal('0000000000000000')
     },
     ERR_TIMEOUT,
   )
@@ -65,8 +65,8 @@ describe('feed', () => {
 
     const feedUpdate = await fetchLatestFeedUpdate(BEE_KY_OPTIONS, owner, topic)
 
-    expect(feedUpdate.feedIndex).toEqual('0000000000000000')
-    expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
+    expect(feedUpdate.feedIndex).to.equal('0000000000000000')
+    expect(feedUpdate.feedIndexNext).to.equal('0000000000000001')
   }, 21000)
 
   test('multiple updates and lookup', async () => {
@@ -85,7 +85,7 @@ describe('feed', () => {
     for (let i = 0; i < numUpdates; i++) {
       const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
       const feedUpdateResponse = await downloadFeedUpdate(BEE_KY_OPTIONS, signer.address, multipleUpdateTopic, i)
-      expect(feedUpdateResponse.reference).toEqual(referenceI)
+      expect(feedUpdateResponse.reference).to.equal(referenceI)
     }
   }, 15000)
 })

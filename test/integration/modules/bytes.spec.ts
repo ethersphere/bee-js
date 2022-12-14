@@ -4,13 +4,13 @@ import { invalidReference, ERR_TIMEOUT, getPostageBatch, beeKyOptions } from '..
 const BEE_KY_OPTIONS = beeKyOptions()
 
 describe('modules/bytes', () => {
-  it('should store and retrieve data', async () => {
+  it('should store and retrieve data', async function () {
     const data = 'hello world'
 
     const result = await bytes.upload(BEE_KY_OPTIONS, data, getPostageBatch())
     const downloadedData = await bytes.download(BEE_KY_OPTIONS, result.reference)
 
-    expect(Buffer.from(downloadedData).toString()).toEqual(data)
+    expect(Buffer.from(downloadedData).toString()).to.equal(data)
   })
 
   it(

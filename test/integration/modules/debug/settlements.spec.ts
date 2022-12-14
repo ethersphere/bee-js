@@ -12,7 +12,7 @@ describe('settlements', () => {
     expect(Array.isArray(response.settlements)).toBeTruthy()
 
     if (response.settlements.length > 0) {
-      expect(response.settlements).toEqual(
+      expect(response.settlements).to.equal(
         expect.arrayContaining([
           expect.objectContaining({
             peer: expect.any(String),
@@ -26,7 +26,7 @@ describe('settlements', () => {
 
       const peerSettlementResponse = await settlements.getSettlements(beeDebugKyOptions(), peerSettlement.peer)
 
-      expect(peerSettlementResponse.peer).toEqual(peerSettlement.peer)
+      expect(peerSettlementResponse.peer).to.equal(peerSettlement.peer)
       expect(peerSettlementResponse.received).toBeNumberString()
       expect(peerSettlementResponse.sent).toBeNumberString()
     }

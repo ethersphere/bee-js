@@ -17,7 +17,7 @@ describe('balance', () => {
       const peerOverlay = await getPeerOverlay()
       const response = await balance.getAllBalances(beeDebugKyOptions())
 
-      expect(response.balances).toEqual(
+      expect(response.balances).to.equal(
         expect.arrayContaining([
           expect.objectContaining({
             peer: expect.any(String),
@@ -35,7 +35,7 @@ describe('balance', () => {
       const peerOverlay = await getPeerOverlay()
       const peerBalance = await balance.getPeerBalance(beeDebugKyOptions(), peerOverlay)
 
-      expect(peerBalance.peer).toEqual(peerOverlay)
+      expect(peerBalance.peer).to.equal(peerOverlay)
       expect(peerBalance.balance).toBeNumberString()
     })
   })
@@ -45,7 +45,7 @@ describe('balance', () => {
       const peerOverlay = await getPeerOverlay()
       const response = await balance.getPastDueConsumptionBalances(beeDebugKyOptions())
 
-      expect(response.balances).toEqual(
+      expect(response.balances).to.equal(
         expect.arrayContaining([
           expect.objectContaining({
             peer: expect.any(String),
@@ -63,7 +63,7 @@ describe('balance', () => {
       const peerOverlay = await getPeerOverlay()
       const peerBalance = await balance.getPastDueConsumptionPeerBalance(beeDebugKyOptions(), peerOverlay)
 
-      expect(peerBalance.peer).toEqual(peerOverlay)
+      expect(peerBalance.peer).to.equal(peerOverlay)
       expect(peerBalance.balance).toBeNumberString()
     })
   })

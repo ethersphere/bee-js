@@ -11,6 +11,6 @@ describe('bmt', () => {
 
     const result = bmtHash(data)
 
-    expect(bytesToHex(result)).toEqual(hash)
+    expect(bytesToHex(result)).to.equal(hash)
   })
 })

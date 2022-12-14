@@ -19,13 +19,13 @@ describe('signer', () => {
     const signer = makePrivateKeySigner(privateKey)
     const signature = await signer.sign(dataToSignWithHelpers)
 
-    expect(signature).toEqual(expectedSignatureBytes)
+    expect(signature).to.equal(expectedSignatureBytes)
   })
 
   test('recover address from signature', () => {
     const recoveredAddress = recoverAddress(expectedSignatureBytes as Signature, dataToSignWithHelpers)
 
-    expect(bytesToHex(recoveredAddress)).toEqual(testIdentity.address)
+    expect(bytesToHex(recoveredAddress)).to.equal(testIdentity.address)
   })
 
   describe('makeSigner', () => {
@@ -33,16 +33,16 @@ describe('signer', () => {
       const signer = makeSigner(testIdentity.privateKey)
       const signature = await signer.sign(dataToSignWithHelpers)
 
-      expect(bytesToHex(signer.address)).toEqual(testIdentity.address)
-      expect(signature).toEqual(expectedSignatureBytes)
+      expect(bytesToHex(signer.address)).to.equal(testIdentity.address)
+      expect(signature).to.equal(expectedSignatureBytes)
     })
 
     test('converts uintarray', async () => {
       const signer = makeSigner(hexToBytes(testIdentity.privateKey))
       const signature = await signer.sign(dataToSignWithHelpers)
 
-      expect(bytesToHex(signer.address)).toEqual(testIdentity.address)
-      expect(signature).toEqual(expectedSignatureBytes)
+      expect(bytesToHex(signer.address)).to.equal(testIdentity.address)
+      expect(signature).to.equal(expectedSignatureBytes)
     })
 
     test('returns already signer object', () => {
@@ -56,7 +56,7 @@ describe('signer', () => {
 
       const signer = makeSigner(signerLikeObject)
 
-      expect(signer.address).toEqual(zeroAddress)
+      expect(signer.address).to.equal(zeroAddress)
     })
 
     test('throws for invalid data', () => {
@@ -84,7 +84,7 @@ describe('signer', () => {
   })
 
   describe('sign', () => {
-    it('should wrap the digest with helpers', async () => {
+    it('should wrap the digest with helpers', async function () {
       const signer = {
         sign: digest => {
           expect(digest).toHaveProperty('hex')
@@ -97,7 +97,7 @@ describe('signer', () => {
       } as Signer
 
       const result = await sign(signer, dataToSignBytes)
-      expect(result).toEqual(expectedSignatureBytes)
+      expect(result).to.equal(expectedSignatureBytes)
     })
 
     function testSignerConversion(input: HexString, output: Uint8Array): void {
@@ -110,7 +110,7 @@ describe('signer', () => {
         } as Signer
 
         const result = await sign(signer, dataToSignBytes)
-        expect(result).toEqual(output)
+        expect(result).to.equal(output)
       })
     }
 

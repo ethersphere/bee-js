@@ -57,7 +57,7 @@ describe('Bee class', () => {
         fail('Bee constructor should have thrown error.')
       } catch (e) {
         if (e instanceof BeeArgumentError) {
-          expect(e.value).toEqual(url)
+          expect(e.value).to.equal(url)
 
           return
         }
@@ -77,7 +77,7 @@ describe('Bee class', () => {
   testUrl('javascript:console.log()')
   testUrl('ws://localhost:1633')
 
-  it('should set default headers and use them if specified', async () => {
+  it('should set default headers and use them if specified', async function () {
     const defaultHeaders = { 'X-Awesome-Header': '123' }
     uploadFileMock(testBatchId, 'nice.txt', {}, defaultHeaders).reply(200, {
       reference: testJsonHash,
@@ -86,17 +86,17 @@ describe('Bee class', () => {
     const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders })
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
-    expect(reference).toEqual(
+    expect(reference).to.equal(
       expect.objectContaining({
         reference: testJsonHash,
         tagUid: 123,
       }),
     )
 
-    expect(reference.cid()).toEqual(testJsonCid)
+    expect(reference.cid()).to.equal(testJsonCid)
   })
 
-  it('cid should throw for encrypted references', async () => {
+  it('cid should throw for encrypted references', async function () {
     uploadFileMock(testBatchId, 'nice.txt').reply(200, {
       reference: testChunkEncryptedReference,
     } as ReferenceResponse)
@@ -104,7 +104,7 @@ describe('Bee class', () => {
     const bee = new Bee(MOCK_SERVER_URL)
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
-    expect(reference).toEqual(
+    expect(reference).to.equal(
       expect.objectContaining({
         reference: testChunkEncryptedReference,
         tagUid: 123,
@@ -153,23 +153,23 @@ describe('Bee class', () => {
       return bee.downloadData(testChunkHash, input as RequestOptions)
     })
 
-    it('should accept valid ENS domain', async () => {
+    it('should accept valid ENS domain', async function () {
       downloadDataMock(testJsonEns).reply(200, testJsonStringPayload)
 
       const bee = new Bee(MOCK_SERVER_URL)
-      expect((await bee.downloadData(testJsonEns)).text()).toEqual(testJsonStringPayload)
+      expect((await bee.downloadData(testJsonEns)).text()).to.equal(testJsonStringPayload)
     })
 
-    it('should accept valid ENS subdomain', async () => {
+    it('should accept valid ENS subdomain', async function () {
       downloadDataMock(`subdomain.${testJsonEns}`).reply(200, testJsonStringPayload)
 
       const bee = new Bee(MOCK_SERVER_URL)
-      expect((await bee.downloadData(`subdomain.${testJsonEns}`)).text()).toEqual(testJsonStringPayload)
+      expect((await bee.downloadData(`subdomain.${testJsonEns}`)).text()).to.equal(testJsonStringPayload)
     })
   })
 
   describe('chunk', () => {
-    it('should fail for small data', async () => {
+    it('should fail for small data', async function () {
       const content = new Uint8Array([1, 2, 3, 4, 5, 6, 7])
 
       const bee = new Bee(MOCK_SERVER_URL)
@@ -177,7 +177,7 @@ describe('Bee class', () => {
       await expect(bee.uploadChunk(testBatchId, content)).rejects.toThrow(BeeArgumentError)
     })
 
-    it('should fail for big data', async () => {
+    it('should fail for big data', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       await expect(bee.uploadChunk(testBatchId, randomByteArray(CHUNK_SIZE + SPAN_SIZE + 1))).rejects.toThrow(
@@ -314,7 +314,7 @@ describe('Bee class', () => {
       return bee.uploadFilesFromDirectory(testBatchId, './test/data', input as RequestOptions)
     })
 
-    it('should throw exception for bad Dir', async () => {
+    it('should throw exception for bad Dir', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       await expect(bee.uploadFilesFromDirectory(testBatchId, '')).rejects.toThrow(TypeError)
@@ -340,7 +340,7 @@ describe('Bee class', () => {
       return bee.retrieveTag(0, input as RequestOptions)
     })
 
-    it('should throw exception for bad Tag', async () => {
+    it('should throw exception for bad Tag', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
@@ -374,7 +374,7 @@ describe('Bee class', () => {
       return bee.deleteTag(0, input as RequestOptions)
     })
 
-    it('should throw exception for bad Tag', async () => {
+    it('should throw exception for bad Tag', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
@@ -408,7 +408,7 @@ describe('Bee class', () => {
       return bee.getAllTags(input as RequestOptions)
     })
 
-    it('should throw exception for bad options', async () => {
+    it('should throw exception for bad options', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
@@ -423,7 +423,7 @@ describe('Bee class', () => {
       await expect(bee.getAllTags(null)).rejects.toThrow(TypeError)
     })
 
-    it('should throw exception for bad limit', async () => {
+    it('should throw exception for bad limit', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
@@ -441,7 +441,7 @@ describe('Bee class', () => {
       await expect(bee.getAllTags({ limit: Number.MAX_VALUE })).rejects.toThrow(BeeArgumentError)
     })
 
-    it('should throw exception for bad offset', async () => {
+    it('should throw exception for bad offset', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
@@ -578,7 +578,7 @@ describe('Bee class', () => {
       return bee.pssReceive(input as string)
     })
 
-    it('should throw exception for bad Timeout', async () => {
+    it('should throw exception for bad Timeout', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
@@ -737,7 +737,7 @@ describe('Bee class', () => {
       return bee.getJsonFeed(TOPIC, opts as RequestOptions)
     })
 
-    it('should fetch with specified address', async () => {
+    it('should fetch with specified address', async function () {
       downloadDataMock(testJsonHash).reply(200, testJsonStringPayload)
       fetchFeedUpdateMock(testIdentity.address, HASHED_TOPIC).reply(200, {
         reference: testJsonHash,
@@ -745,12 +745,12 @@ describe('Bee class', () => {
 
       const bee = new Bee(MOCK_SERVER_URL)
       const json = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
-      expect(json).toEqual(testJsonPayload)
+      expect(json).to.equal(testJsonPayload)
 
       assertAllIsDone()
     })
 
-    it('should fetch with specified signer private key', async () => {
+    it('should fetch with specified signer private key', async function () {
       downloadDataMock(testJsonHash).reply(200, testJsonStringPayload)
       fetchFeedUpdateMock(testIdentity.address, HASHED_TOPIC).reply(200, {
         reference: testJsonHash,
@@ -758,12 +758,12 @@ describe('Bee class', () => {
 
       const bee = new Bee(MOCK_SERVER_URL)
       const json = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
-      expect(json).toEqual(testJsonPayload)
+      expect(json).to.equal(testJsonPayload)
 
       assertAllIsDone()
     })
 
-    it('should fetch with default instance signer', async () => {
+    it('should fetch with default instance signer', async function () {
       downloadDataMock(testJsonHash).reply(200, testJsonStringPayload)
       fetchFeedUpdateMock(testIdentity.address, HASHED_TOPIC).reply(200, {
         reference: testJsonHash,
@@ -771,12 +771,12 @@ describe('Bee class', () => {
 
       const bee = new Bee(MOCK_SERVER_URL, { signer: testIdentity.privateKey })
       const json = await bee.getJsonFeed(TOPIC)
-      expect(json).toEqual(testJsonPayload)
+      expect(json).to.equal(testJsonPayload)
 
       assertAllIsDone()
     })
 
-    it('should prioritize address option over default instance signer', async () => {
+    it('should prioritize address option over default instance signer', async function () {
       downloadDataMock(testJsonHash).reply(200, testJsonStringPayload)
       fetchFeedUpdateMock(testIdentity.address, HASHED_TOPIC).reply(200, {
         reference: testJsonHash,
@@ -787,12 +787,12 @@ describe('Bee class', () => {
         signer: '634fb5a811196d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd',
       })
       const json = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
-      expect(json).toEqual(testJsonPayload)
+      expect(json).to.equal(testJsonPayload)
 
       assertAllIsDone()
     })
 
-    it('should prioritize signer option over default instance signer', async () => {
+    it('should prioritize signer option over default instance signer', async function () {
       downloadDataMock(testJsonHash).reply(200, testJsonStringPayload)
       fetchFeedUpdateMock(testIdentity.address, HASHED_TOPIC).reply(200, {
         reference: testJsonHash,
@@ -803,12 +803,12 @@ describe('Bee class', () => {
         signer: '634fb5a811196d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd',
       })
       const json = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
-      expect(json).toEqual(testJsonPayload)
+      expect(json).to.equal(testJsonPayload)
 
       assertAllIsDone()
     })
 
-    it('should fail when both signer and address options are specified', async () => {
+    it('should fail when both signer and address options are specified', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       await expect(
@@ -816,7 +816,7 @@ describe('Bee class', () => {
       ).rejects.toThrow()
     })
 
-    it('should fail if no signer or address is specified', async () => {
+    it('should fail if no signer or address is specified', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       await expect(bee.getJsonFeed(TOPIC)).rejects.toThrow()
@@ -840,7 +840,7 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       const socReader = bee.makeSOCReader(testIdentity.address)
-      expect(socReader.owner).toEqual(testIdentity.address)
+      expect(socReader.owner).to.equal(testIdentity.address)
     })
   })
 
@@ -861,12 +861,12 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       const socReader = bee.makeSOCWriter(testIdentity.privateKey)
-      expect(socReader.owner).toEqual(testIdentity.address)
+      expect(socReader.owner).to.equal(testIdentity.address)
     })
   })
 
   describe('hooks', () => {
-    it('should call with request', async () => {
+    it('should call with request', async function () {
       const requestSpy = jest.fn()
       const responseSpy = jest.fn()
 
@@ -880,18 +880,18 @@ describe('Bee class', () => {
       const feedReader = bee.makeFeedReader('sequence', topic, testIdentity.address)
       const feedUpdate = await feedReader.download()
 
-      expect(feedUpdate.reference).toEqual(testJsonHash)
+      expect(feedUpdate.reference).to.equal(testJsonHash)
 
-      expect(requestSpy.mock.calls.length).toEqual(1)
-      expect(requestSpy.mock.calls[0].length).toEqual(1)
+      expect(requestSpy.mock.calls.length).to.equal(1)
+      expect(requestSpy.mock.calls[0].length).to.equal(1)
       expect(requestSpy.mock.calls[0][0]).toMatchObject({
         url: `${MOCK_SERVER_URL}feeds/${testIdentity.address}/${topic}?type=sequence`,
         method: 'GET',
         headers: { accept: 'application/json, text/plain, */*' },
       })
 
-      expect(responseSpy.mock.calls.length).toEqual(1)
-      expect(responseSpy.mock.calls[0].length).toEqual(1)
+      expect(responseSpy.mock.calls.length).to.equal(1)
+      expect(responseSpy.mock.calls[0].length).to.equal(1)
       expect(responseSpy.mock.calls[0][0]).toMatchObject({
         status: 200,
         statusText: '',
@@ -907,7 +907,7 @@ describe('Bee class', () => {
       assertAllIsDone()
     })
 
-    it('should call with request with correct headers', async () => {
+    it('should call with request with correct headers', async function () {
       const requestSpy = jest.fn()
       const responseSpy = jest.fn()
       const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
@@ -918,17 +918,17 @@ describe('Bee class', () => {
 
       const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt', { encrypt: true })
 
-      expect(reference).toEqual(
+      expect(reference).to.equal(
         expect.objectContaining({
           reference: testJsonHash,
           tagUid: 123,
         }),
       )
 
-      expect(reference.cid()).toEqual(testJsonCid)
+      expect(reference.cid()).to.equal(testJsonCid)
 
-      expect(requestSpy.mock.calls.length).toEqual(1)
-      expect(requestSpy.mock.calls[0].length).toEqual(1)
+      expect(requestSpy.mock.calls.length).to.equal(1)
+      expect(requestSpy.mock.calls[0].length).to.equal(1)
       expect(requestSpy.mock.calls[0][0]).toMatchObject({
         url: `${MOCK_SERVER_URL}bzz?name=nice.txt`,
         method: 'POST',
@@ -939,8 +939,8 @@ describe('Bee class', () => {
         },
       })
 
-      expect(responseSpy.mock.calls.length).toEqual(1)
-      expect(responseSpy.mock.calls[0].length).toEqual(1)
+      expect(responseSpy.mock.calls.length).to.equal(1)
+      expect(responseSpy.mock.calls[0].length).to.equal(1)
       expect(responseSpy.mock.calls[0][0]).toMatchObject({
         status: 200,
         statusText: '',

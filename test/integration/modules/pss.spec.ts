@@ -51,7 +51,7 @@ describe('modules/pss', () => {
               return
             }
             ws.terminate()
-            expect(receivedMessage).toEqual(message)
+            expect(receivedMessage).to.equal(message)
             resolve()
           }
 
@@ -82,7 +82,7 @@ describe('modules/pss', () => {
               return
             }
             ws.terminate()
-            expect(receivedMessage).toEqual(message)
+            expect(receivedMessage).to.equal(message)
             resolve()
           }
 

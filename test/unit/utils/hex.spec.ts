@@ -38,7 +38,7 @@ describe('hex', () => {
   describe('isHexString', () => {
     function testCase(input: unknown, result: boolean): void {
       it(`should ${result ? 'accept' : 'reject'} input: ${input}`, () => {
-        expect(isHexString(input)).toEqual(result)
+        expect(isHexString(input)).to.equal(result)
       })
     }
 
@@ -53,8 +53,8 @@ describe('hex', () => {
     testCase([], false)
 
     it('should validate length if specified', () => {
-      expect(isHexString('C0FFEE', 6)).toEqual(true)
-      expect(isHexString('C0FFEE', 7)).toEqual(false)
+      expect(isHexString('C0FFEE', 6)).to.equal(true)
+      expect(isHexString('C0FFEE', 7)).to.equal(false)
     })
 
     it('chequebookaddress', () => {
@@ -70,7 +70,7 @@ describe('hex', () => {
       const input = testHex
       const result = hexToBytes(input)
 
-      expect(result).toEqual(testBytes)
+      expect(result).to.equal(testBytes)
     })
   })
 
@@ -79,7 +79,7 @@ describe('hex', () => {
       const input = testBytes
       const result = bytesToHex(input)
 
-      expect(result).toEqual(testHex)
+      expect(result).to.equal(testHex)
     })
   })
 

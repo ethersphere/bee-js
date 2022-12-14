@@ -7,7 +7,7 @@ const BEE_KY_OPTIONS = beeKyOptions()
 
 describe('modules/stewardship', () => {
   describe('collections', () => {
-    it('should reupload directory', async () => {
+    it('should reupload directory', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -21,7 +21,7 @@ describe('modules/stewardship', () => {
   })
 
   describe('file', () => {
-    it('should reupload file', async () => {
+    it('should reupload file', async function () {
       const data = 'hello world'
       const filename = 'hello.txt'
 

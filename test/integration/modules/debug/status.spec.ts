@@ -67,7 +67,7 @@ describe('modules/status', () => {
   test('getVersions', async () => {
     const versions = await getVersions(BEE_DEBUG_URL)
 
-    expect(versions).toEqual(
+    expect(versions).to.equal(
       expect.objectContaining({
         supportedBeeVersion: expect.any(String),
         supportedBeeApiVersion: expect.any(String),

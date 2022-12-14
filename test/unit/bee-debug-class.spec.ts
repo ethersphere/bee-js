@@ -29,7 +29,7 @@ describe('BeeDebug class', () => {
         fail('BeeDebug constructor should have thrown error.')
       } catch (e) {
         if (e instanceof BeeArgumentError) {
-          expect(e.value).toEqual(url)
+          expect(e.value).to.equal(url)
 
           return
         }
@@ -49,11 +49,11 @@ describe('BeeDebug class', () => {
   testUrl('javascript:console.log()')
   testUrl('ws://localhost:1633')
 
-  it('should set default headers and use them if specified', async () => {
+  it('should set default headers and use them if specified', async function () {
     depositTokensMock('10', undefined, { 'X-Awesome-Header': '123' }).reply(201, CASHOUT_RESPONSE)
 
     const bee = new BeeDebug(MOCK_SERVER_URL, { defaultHeaders: { 'X-Awesome-Header': '123' } })
-    await expect(bee.depositTokens('10')).resolves.toEqual(TRANSACTION_HASH)
+    await expect(bee.depositTokens('10')).eventually.to.equal(TRANSACTION_HASH)
 
     assertAllIsDone()
   })
@@ -169,27 +169,31 @@ describe('BeeDebug class', () => {
       return bee.cashoutLastCheque('', input as CashoutOptions)
     })
 
-    it('should not pass headers if no gas price is specified', async () => {
+    it('should not pass headers if no gas price is specified', async function () {
       cashoutLastChequeMock(testAddress).reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.cashoutLastCheque(testAddress)).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.cashoutLastCheque(testAddress)).eventually.to.equal(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
-    it('should pass headers if gas price is specified', async () => {
+    it('should pass headers if gas price is specified', async function () {
       cashoutLastChequeMock(testAddress, '100000000000').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: '100000000000' })).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.cashoutLastCheque(testAddress, { gasPrice: '100000000000' })).eventually.to.equal(
+        TRANSACTION_HASH,
+      )
       assertAllIsDone()
     })
 
-    it('should pass headers if gas limit is specified', async () => {
+    it('should pass headers if gas limit is specified', async function () {
       cashoutLastChequeMock(testAddress, undefined, '100000000000').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: '100000000000' })).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.cashoutLastCheque(testAddress, { gasLimit: '100000000000' })).eventually.to.equal(
+        TRANSACTION_HASH,
+      )
       assertAllIsDone()
     })
 
@@ -212,23 +216,23 @@ describe('BeeDebug class', () => {
       return bee.withdrawTokens('1', '0', input as RequestOptions)
     })
 
-    it('should not pass headers if no gas price is specified', async () => {
+    it('should not pass headers if no gas price is specified', async function () {
       withdrawTokensMock('10').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.withdrawTokens('10')).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.withdrawTokens('10')).eventually.to.equal(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
-    it('should pass headers if gas price is specified', async () => {
+    it('should pass headers if gas price is specified', async function () {
       withdrawTokensMock('10', '100000000000').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.withdrawTokens('10', '100000000000')).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.withdrawTokens('10', '100000000000')).eventually.to.equal(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
-    it('should throw error if passed wrong amount', async () => {
+    it('should throw error if passed wrong amount', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       // @ts-ignore: Input testing
@@ -244,7 +248,7 @@ describe('BeeDebug class', () => {
       await expect(bee.withdrawTokens('-1')).rejects.toThrow(BeeArgumentError)
     })
 
-    it('should throw error if passed wrong gas price input', async () => {
+    it('should throw error if passed wrong gas price input', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       // @ts-ignore: Input testing
@@ -267,23 +271,23 @@ describe('BeeDebug class', () => {
       return bee.depositTokens('1', '0', input as RequestOptions)
     })
 
-    it('should not pass headers if no gas price is specified', async () => {
+    it('should not pass headers if no gas price is specified', async function () {
       depositTokensMock('10').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.depositTokens('10')).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.depositTokens('10')).eventually.to.equal(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
-    it('should pass headers if gas price is specified', async () => {
+    it('should pass headers if gas price is specified', async function () {
       depositTokensMock('10', '100000000000').reply(201, CASHOUT_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.depositTokens('10', '100000000000')).resolves.toEqual(TRANSACTION_HASH)
+      await expect(bee.depositTokens('10', '100000000000')).eventually.to.equal(TRANSACTION_HASH)
       assertAllIsDone()
     })
 
-    it('should throw error if passed wrong amount', async () => {
+    it('should throw error if passed wrong amount', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       // @ts-ignore: Input testing
@@ -299,7 +303,7 @@ describe('BeeDebug class', () => {
       await expect(bee.depositTokens('-1')).rejects.toThrow(BeeArgumentError)
     })
 
-    it('should throw error if passed wrong gas price input', async () => {
+    it('should throw error if passed wrong gas price input', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       // @ts-ignore: Input testing
@@ -317,7 +321,7 @@ describe('BeeDebug class', () => {
       return bee.retrieveExtendedTag(0, input as RequestOptions)
     })
 
-    it('should throw exception for bad Tag', async () => {
+    it('should throw exception for bad Tag', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
@@ -385,25 +389,25 @@ describe('BeeDebug class', () => {
       return bee.createPostageBatch('10', 17, input as RequestOptions)
     })
 
-    it('should not pass headers if no gas price is specified', async () => {
+    it('should not pass headers if no gas price is specified', async function () {
       createPostageBatchMock('10', '17').reply(201, BATCH_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.createPostageBatch('10', 17, { waitForUsable: false })).resolves.toEqual(BATCH_ID)
+      await expect(bee.createPostageBatch('10', 17, { waitForUsable: false })).eventually.to.equal(BATCH_ID)
       assertAllIsDone()
     })
 
-    it('should pass headers if gas price is specified', async () => {
+    it('should pass headers if gas price is specified', async function () {
       createPostageBatchMock('10', '17', '100').reply(201, BATCH_RESPONSE)
 
       const bee = new BeeDebug(MOCK_SERVER_URL)
-      await expect(bee.createPostageBatch('10', 17, { waitForUsable: false, gasPrice: '100' })).resolves.toEqual(
+      await expect(bee.createPostageBatch('10', 17, { waitForUsable: false, gasPrice: '100' })).eventually.to.equal(
         BATCH_ID,
       )
       assertAllIsDone()
     })
 
-    it('should throw error if passed wrong immutable input', async () => {
+    it('should throw error if passed wrong immutable input', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       // @ts-ignore: Input testing
@@ -416,21 +420,21 @@ describe('BeeDebug class', () => {
       await expect(bee.createPostageBatch('10', 17, { immutableFlag: 'true' })).rejects.toThrow(TypeError)
     })
 
-    it('should throw error if too small depth', async () => {
+    it('should throw error if too small depth', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       await expect(bee.createPostageBatch('10', -1)).rejects.toThrow(BeeArgumentError)
       await expect(bee.createPostageBatch('10', 15)).rejects.toThrow(BeeArgumentError)
     })
 
-    it('should throw error if too small amount', async () => {
+    it('should throw error if too small amount', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       await expect(bee.createPostageBatch('-10', 17)).rejects.toThrow(BeeArgumentError)
       await expect(bee.createPostageBatch('0', 17)).rejects.toThrow(BeeArgumentError)
     })
 
-    it('should throw error if too big depth', async () => {
+    it('should throw error if too big depth', async function () {
       const bee = new BeeDebug(MOCK_SERVER_URL)
 
       await expect(bee.createPostageBatch('10', 256)).rejects.toThrow(BeeArgumentError)

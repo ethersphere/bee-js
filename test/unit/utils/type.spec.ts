@@ -20,13 +20,13 @@ describe('type', () => {
 
     wrongValues.forEach((v: unknown | NumberString) =>
       test(`should return false for value  ${v}`, () => {
-        expect(isInteger(v)).toEqual(false)
+        expect(isInteger(v)).to.equal(false)
       }),
     )
 
     correctValues.forEach((v: unknown | NumberString) =>
       test(`should return true for value  ${v}`, () => {
-        expect(isInteger(v)).toEqual(true)
+        expect(isInteger(v)).to.equal(true)
       }),
     )
   })

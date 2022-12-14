@@ -154,7 +154,7 @@ describe('eth', () => {
     const expectedSignatureHex =
       '0x336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
 
-    it('should detect valid interface', async () => {
+    it('should detect valid interface', async function () {
       await expect(makeEthereumWalletSigner({})).rejects.toThrow()
       await expect(makeEthereumWalletSigner('' as unknown as JsonRPC)).rejects.toThrow(TypeError)
       await expect(makeEthereumWalletSigner(1 as unknown as JsonRPC)).rejects.toThrow(TypeError)
@@ -162,18 +162,18 @@ describe('eth', () => {
       await expect(makeEthereumWalletSigner(undefined as unknown as JsonRPC)).rejects.toThrow(TypeError)
     })
 
-    it('should request address if not specified', async () => {
+    it('should request address if not specified', async function () {
       const providerMock = jest.fn()
       providerMock.mockReturnValue(['0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a'])
 
       const signer = await makeEthereumWalletSigner({ request: providerMock } as JsonRPC)
 
-      expect(signer.address).toEqual(hexToBytes('f1B07aC6E91A423d9c3c834cc9d938E89E19334a'))
-      expect(providerMock.mock.calls.length).toEqual(1)
-      expect(providerMock.mock.calls[0][0]).toEqual({ method: 'eth_requestAccounts' })
+      expect(signer.address).to.equal(hexToBytes('f1B07aC6E91A423d9c3c834cc9d938E89E19334a'))
+      expect(providerMock.mock.calls.length).to.equal(1)
+      expect(providerMock.mock.calls[0][0]).to.equal({ method: 'eth_requestAccounts' })
     })
 
-    it('should request signature when sign() is called', async () => {
+    it('should request signature when sign() is called', async function () {
       const providerMock = jest.fn()
       providerMock.mockReturnValue(expectedSignatureHex)
 
@@ -181,9 +181,9 @@ describe('eth', () => {
         { request: providerMock } as JsonRPC,
         '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
       )
-      await expect(signer.sign(dataToSignWithHelpers)).resolves.toEqual(expectedSignatureHex)
-      expect(providerMock.mock.calls.length).toEqual(1)
-      expect(providerMock.mock.calls[0][0]).toEqual({
+      await expect(signer.sign(dataToSignWithHelpers)).eventually.to.equal(expectedSignatureHex)
+      expect(providerMock.mock.calls.length).to.equal(1)
+      expect(providerMock.mock.calls[0][0]).to.equal({
         jsonrpc: '2.0',
         method: 'personal_sign',
         params: [
@@ -193,7 +193,7 @@ describe('eth', () => {
       })
     })
 
-    it('should normalize hex prefix for address', async () => {
+    it('should normalize hex prefix for address', async function () {
       const providerMock = jest.fn()
       providerMock.mockReturnValue(expectedSignatureHex)
 
@@ -201,9 +201,9 @@ describe('eth', () => {
         { request: providerMock } as JsonRPC,
         'f1B07aC6E91A423d9c3c834cc9d938E89E19334a',
       )
-      await expect(signer.sign(dataToSignWithHelpers)).resolves.toEqual(expectedSignatureHex)
-      expect(providerMock.mock.calls.length).toEqual(1)
-      expect(providerMock.mock.calls[0][0]).toEqual({
+      await expect(signer.sign(dataToSignWithHelpers)).eventually.to.equal(expectedSignatureHex)
+      expect(providerMock.mock.calls.length).to.equal(1)
+      expect(providerMock.mock.calls[0][0]).to.equal({
         jsonrpc: '2.0',
         method: 'personal_sign',
         params: [
@@ -213,7 +213,7 @@ describe('eth', () => {
       })
     })
 
-    it('should validate eth address', async () => {
+    it('should validate eth address', async function () {
       const providerMock = jest.fn()
       providerMock.mockReturnValue(expectedSignatureHex)
 

@@ -12,7 +12,7 @@ describe('cac', () => {
     const cac = makeContentAddressedChunk(payload)
     const address = cac.address()
 
-    expect(bytesToHex(address)).toEqual(contentHash)
+    expect(bytesToHex(address)).to.equal(contentHash)
   })
 
   test('content address chunk verification', () => {

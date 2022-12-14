@@ -20,7 +20,7 @@ describe('Bee Debug class', () => {
       async () => {
         const batchId = await beeDebug.createPostageBatch('10', 17)
         const stamp = await beeDebug.getPostageBatch(batchId)
-        expect(stamp.usable).toEqual(true)
+        expect(stamp.usable).to.equal(true)
 
         const allBatches = await beeDebug.getAllPostageBatch()
         expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
@@ -33,7 +33,7 @@ describe('Bee Debug class', () => {
       async () => {
         const batchId = await beeDebug.createPostageBatch('1000', 17, { waitForUsable: false })
         const stamp = await beeDebug.getPostageBatch(batchId)
-        expect(stamp.usable).toEqual(false)
+        expect(stamp.usable).to.equal(false)
       },
       BLOCKCHAIN_TRANSACTION_TIMEOUT,
     )
@@ -49,7 +49,7 @@ describe('Bee Debug class', () => {
         await sleep(4000)
         const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
         const newAmount = (parseInt(batch.amount) + 10).toString()
-        expect(batchDetails.amount).toEqual(newAmount)
+        expect(batchDetails.amount).to.equal(newAmount)
       },
       BLOCKCHAIN_TRANSACTION_TIMEOUT * 3,
     )
@@ -62,7 +62,7 @@ describe('Bee Debug class', () => {
         await beeDebug.diluteBatch(batch.batchID, batch.depth + 2)
 
         const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
-        expect(batchDetails.depth).toEqual(batch.depth + 2)
+        expect(batchDetails.depth).to.equal(batch.depth + 2)
       },
       BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
     )
@@ -80,12 +80,12 @@ describe('Bee Debug class', () => {
       BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
     )
 
-    it('should have all properties', async () => {
+    it('should have all properties', async function () {
       const allBatches = await beeDebug.getAllPostageBatch()
 
       expect(allBatches.length).toBeGreaterThan(0)
 
-      expect(allBatches).toEqual(
+      expect(allBatches).to.equal(
         expect.arrayContaining([
           expect.objectContaining({
             batchID: expect.any(String),
@@ -104,14 +104,14 @@ describe('Bee Debug class', () => {
       )
     })
 
-    it('buckets should have all properties', async () => {
+    it('buckets should have all properties', async function () {
       const allBatches = await beeDebug.getAllPostageBatch()
 
       expect(allBatches.length).toBeGreaterThan(0)
       const batchId = allBatches[0].batchID
       const buckets = await beeDebug.getPostageBatchBuckets(batchId)
 
-      expect(buckets).toEqual(
+      expect(buckets).to.equal(
         expect.objectContaining({
           depth: expect.any(Number),
           bucketDepth: expect.any(Number),
@@ -126,14 +126,14 @@ describe('Bee Debug class', () => {
       )
     })
 
-    it('should error with negative amount', async () => {
+    it('should error with negative amount', async function () {
       await expect(beeDebug.createPostageBatch('-1', 17)).rejects.toThrowError(BeeArgumentError)
     })
   })
 
   describe('modes', () => {
-    it('should return modes', async () => {
-      expect(await beeDebug.getNodeInfo()).toEqual(
+    it('should return modes', async function () {
+      expect(await beeDebug.getNodeInfo()).to.equal(
         expect.objectContaining({
           beeMode: expect.stringMatching(/^(dev|light|full)$/),
           chequebookEnabled: expect.any(Boolean),
@@ -144,8 +144,8 @@ describe('Bee Debug class', () => {
   })
 
   describe('staking', () => {
-    it('should return amount staked', async () => {
-      expect(await beeDebug.getStake()).toEqual(expect.stringMatching(/^[0-9]+$/))
+    it('should return amount staked', async function () {
+      expect(await beeDebug.getStake()).to.equal(expect.stringMatching(/^[0-9]+$/))
     })
 
     it(
@@ -157,15 +157,15 @@ describe('Bee Debug class', () => {
 
         const increasedStake = BigInt(await beeDebug.getStake())
 
-        expect(increasedStake - originalStake).toEqual(BigInt(10e16))
+        expect(increasedStake - originalStake).to.equal(BigInt(10e16))
       },
       BLOCKCHAIN_TRANSACTION_TIMEOUT,
     )
   })
 
   describe('Wallet', () => {
-    it('should return the nodes balances and other data', async () => {
-      expect(await beeDebug.getWalletBalance()).toEqual(
+    it('should return the nodes balances and other data', async function () {
+      expect(await beeDebug.getWalletBalance()).to.equal(
         expect.objectContaining({
           bzzBalance: expect.stringMatching(/^[0-9]+$/),
           nativeTokenBalance: expect.stringMatching(/^[0-9]+$/),

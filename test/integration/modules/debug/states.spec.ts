@@ -6,7 +6,7 @@ commonMatchers()
 
 describe('modules/states', () => {
   describe('chainstate', () => {
-    it('should fetch the chainstate', async () => {
+    it('should fetch the chainstate', async function () {
       const state = await states.getChainState(BEE_DEBUG_URL)
 
       expect(state).toHaveProperty('block')
@@ -18,7 +18,7 @@ describe('modules/states', () => {
     })
   })
   describe('ReserveState', () => {
-    it('should fetch the reserve state', async () => {
+    it('should fetch the reserve state', async function () {
       const state = await states.getReserveState(BEE_DEBUG_URL)
       expect(state).toHaveProperty('commitment')
       expect(state).toHaveProperty('radius')
