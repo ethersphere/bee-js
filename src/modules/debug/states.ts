@@ -47,5 +47,21 @@ export async function getWalletBalance(ky: Ky): Promise<WalletBalance> {
     responseType: 'json',
   })
 
-  return response.data
+  return mapWalletProperties(response.data)
+}
+
+/**
+ * TODO: Remove on next break
+ * @param data
+ */
+function mapWalletProperties(data: WalletBalance): WalletBalance {
+  return {
+    // @ts-ignore: Needed for backward compatibility mapping
+    bzz: data.bzzBalance,
+    // @ts-ignore: Needed for backward compatibility mapping
+    xDai: data.nativeTokenBalance,
+    // @ts-ignore: Needed for backward compatibility mapping
+    contractAddress: data.chequebookContractAddress,
+    ...data,
+  }
 }
