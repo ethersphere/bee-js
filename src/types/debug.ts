@@ -254,13 +254,27 @@ export interface ChainState {
 export interface WalletBalance {
   /**
    * Balance of BZZ tokens
+   *
+   * @deprecated: Use bzzBalance property instead
    */
   bzz: NumberString
 
   /**
+   * Balance of BZZ tokens
+   */
+  bzzBalance: NumberString
+
+  /**
    * Balance of xDai
+   *
+   * @deprecated: Use nativeTokenBalance property instead
    */
   xDai: NumberString
+
+  /**
+   * Balance of xDai
+   */
+  nativeTokenBalance: NumberString
 
   /**
    * Chain network ID to which the Bee node is connected
@@ -269,6 +283,18 @@ export interface WalletBalance {
 
   /**
    * Chequebook contract address
+   *
+   * @deprecated: Use chequebookContractAddress property instead
    */
   contractAddress: string
+
+  /**
+   * Chequebook contract address
+   */
+  chequebookContractAddress: string
+
+  /**
+   * Node's wallet address
+   */
+  walletAddress: string
 }
