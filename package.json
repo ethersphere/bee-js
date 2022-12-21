@@ -76,7 +76,7 @@
     "semver": "^7.3.5",
     "tar-js": "^0.3.0",
     "utf-8-validate": "^5.0.9",
-    "web-streams-polyfill": "^4.0.0-beta.1",
+    "web-streams-polyfill": "^4.0.0-beta.3",
     "ws": "^8.7.0"
   },
   "devDependencies": {
