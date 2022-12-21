@@ -43,7 +43,7 @@ export async function stake(ky: Ky, amount: NumberString, options?: TransactionO
   await http<BeeGenericResponse>(ky, {
     method: 'post',
     responseType: 'json',
-    path: `${STAKE_ENDPOINT}/deposit/${amount}`,
+    path: `${STAKE_ENDPOINT}/${amount}`,
     headers,
   })
 }
