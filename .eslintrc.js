@@ -38,14 +38,7 @@ module.exports = {
     'require-yield': 'error',
     'max-nested-callbacks': ['error', 4],
     'max-depth': ['error', 4],
-    'space-before-function-paren': [
-      'error',
-      {
-        anonymous: 'never',
-        named: 'never',
-        asyncArrow: 'always',
-      },
-    ],
+    'space-before-function-paren': 'off',
     'padding-line-between-statements': [
       'error',
       { blankLine: 'always', prev: '*', next: 'if' },
@@ -99,7 +92,7 @@ module.exports = {
       files: ['*.spec.ts'],
       rules: {
         'max-nested-callbacks': ['error', 10], // allow describe/it nesting
-        'prefer-arrow-callback': 'off'
+        'prefer-arrow-callback': 'off',
       },
     },
   ],

@@ -2,10 +2,11 @@
 import { createPostageBatch, getPostageBatch } from '../src/modules/debug/stamps'
 import { BatchId } from '../src'
 import type { Options as KyOptions } from 'ky'
+import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiParentheses from 'chai-parentheses'
 
-export default async function testsSetup(): Promise<void> {
+export async function mochaGlobalSetup(): Promise<void> {
   chai.use(chaiAsPromised)
   chai.use(chaiParentheses)
 

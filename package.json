@@ -33,7 +33,6 @@
   "types": "dist/types/index.d.ts",
   "browser": {
     "stream": false,
-    "tsimportlib": false,
     "./src/utils/data.ts": "./src/utils/data.browser.ts",
     "./dist/cjs/utils/data.js": "./dist/cjs/utils/data.browser.js",
     "./dist/mjs/utils/data.js": "./dist/mjs/utils/data.browser.js",
@@ -65,7 +64,6 @@
     "bee": "bee-factory start"
   },
   "dependencies": {
-    "@brillout/import": "^0.2.1",
     "@ethersphere/swarm-cid": "^0.1.0",
     "@types/readable-stream": "^2.3.13",
     "bufferutil": "^4.0.6",
@@ -121,6 +119,7 @@
     "husky": "^8.0.1",
     "mocha": "^10.2.0",
     "nock": "^13.2.4",
+    "playwright-test": "^8.1.2",
     "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^5.3.1",
