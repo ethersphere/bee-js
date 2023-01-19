@@ -137,6 +137,6 @@
     "npm": ">=6.0.0",
     "beeApiVersion": "4.0.0",
     "beeDebugApiVersion": "4.0.0",
-    "bee": "1.11.0-rc2-a56957a1"
+    "bee": "1.11.0-59249382"
   }
 }
