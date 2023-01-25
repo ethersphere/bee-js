@@ -77,9 +77,9 @@ const bee = new Bee('http://localhost:1633')
 const beeDebug = new BeeDebug('http://localhost:1635')
 
 // Be aware, this creates on-chain transactions that spend Eth and BZZ!
-const batchId = await beeDebug.createPostageBatch('2000', 20)
-const { reference } = await bee.uploadData(batchId, 'Bee is awesome!')
-const data = await bee.downloadData(reference)
+const batchId = await bee.createPostageBatch('2000', 20)
+const uploadResult = await bee.uploadData(batchId, "Bee is awesome!")
+const data = await bee.downloadData(uploadResult.reference)
 
 console.log(data.text()) // prints 'Bee is awesome!'
 ```
