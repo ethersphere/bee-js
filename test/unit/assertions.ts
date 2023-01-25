@@ -148,8 +148,8 @@ export function testPostageBatchOptionsAssertions(executor: (input: unknown) => 
   })
 }
 
-export function testCashoutOptionsAssertions(executor: (input: unknown) => void): void {
-  it('should throw exception for bad CashoutOptions', async () => {
+export function testTransactionOptionsAssertions(executor: (input: unknown) => void): void {
+  it('should throw exception for bad TransactionOptions', async () => {
     await expect(() => executor(1)).rejects.toThrow(TypeError)
     await expect(() => executor(true)).rejects.toThrow(TypeError)
     await expect(() => executor([])).rejects.toThrow(TypeError)

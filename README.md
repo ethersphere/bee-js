@@ -13,7 +13,7 @@
 
 **Warning: This project is in beta state. There might (and most probably will) be changes in the future to its API and working. Also, no guarantees can be made about its stability, efficiency, and security at this stage.**
 
-This project is intended to be used with **Bee version <!-- SUPPORTED_BEE_START -->1.7.0<!-- SUPPORTED_BEE_END -->**. Using it with older or newer Bee versions is not recommended and may not work. Stay up to date by joining the [official Discord](https://discord.gg/GU22h2utj6) and by keeping an eye on the [releases tab](https://github.com/ethersphere/bee-js/releases).
+This project is intended to be used with **Bee version <!-- SUPPORTED_BEE_START -->1.10.0<!-- SUPPORTED_BEE_END -->**. Using it with older or newer Bee versions is not recommended and may not work. Stay up to date by joining the [official Discord](https://discord.gg/GU22h2utj6) and by keeping an eye on the [releases tab](https://github.com/ethersphere/bee-js/releases).
 
 ## Table of Contents
 
@@ -71,12 +71,13 @@ Loading this module through a script tag will make the `BeeJs` object available 
 ## Usage
 
 ```js
-import { Bee } from "@ethersphere/bee-js"
+import { Bee, BeeDebug } from '@ethersphere/bee-js'
 
-bee = new Bee("http://localhost:1633")
+const bee = new Bee('http://localhost:1633')
+const beeDebug = new BeeDebug('http://localhost:1635')
 
 // Be aware, this creates on-chain transactions that spend Eth and BZZ!
-const batchId = await bee.createPostageBatch('100', 17)
+const batchId = await bee.createPostageBatch('2000', 20)
 const uploadResult = await bee.uploadData(batchId, "Bee is awesome!")
 const data = await bee.downloadData(uploadResult.reference)
 

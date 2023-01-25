@@ -6,14 +6,15 @@ import getMajorSemver from 'semver/functions/major.js'
 
 // Following lines bellow are automatically updated with GitHub Action when Bee version is updated
 // so if you are changing anything about them change the `update_bee` action accordingly!
-export const SUPPORTED_BEE_VERSION_EXACT = '1.7.0-bbf13011'
-export const SUPPORTED_API_VERSION = '3.0.2'
-export const SUPPORTED_DEBUG_API_VERSION = '3.0.2'
+export const SUPPORTED_BEE_VERSION_EXACT = '1.10.0-904cbb08'
+export const SUPPORTED_API_VERSION = '4.0.0'
+export const SUPPORTED_DEBUG_API_VERSION = '4.0.0'
 
 export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.substring(0, SUPPORTED_BEE_VERSION_EXACT.indexOf('-'))
 
 const NODE_INFO_URL = 'node'
 const HEALTH_URL = 'health'
+const READINESS_URL = 'readiness'
 
 /**
  * Get health of node
@@ -28,6 +29,24 @@ export async function getHealth(ky: Ky): Promise<Health> {
   })
 
   return response.data
+}
+
+/**
+ * Get readiness of node
+ *
+ * @param ky Ky debug instance
+ */
+export async function getReadiness(ky: Ky): Promise<boolean> {
+  try {
+    const response = await http<void>(ky, {
+      method: 'get',
+      path: READINESS_URL,
+    })
+
+    return response.status === 200
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -53,6 +72,7 @@ export async function getNodeInfo(ky: Ky): Promise<NodeInfo> {
  * @returns true if the Bee node version is supported
  * @deprecated Use `isSupportedExactVersion` instead
  */
+// TODO: Remove on break
 export async function isSupportedVersion(ky: Ky): Promise<boolean> {
   return isSupportedExactVersion(ky)
 }

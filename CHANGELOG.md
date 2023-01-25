@@ -1,6 +1,23 @@
 # Changelog
 
 
+## [5.1.1](https://github.com/ethersphere/bee-js/compare/v5.1.0...v5.1.1) (2022-12-21)
+
+
+### Bug Fixes
+
+* backward compatibility for wallet ep ([#803](https://github.com/ethersphere/bee-js/issues/803)) ([63d7aed](https://github.com/ethersphere/bee-js/commit/63d7aedf2afd1fdd71418a6f9a409ba2c2c21404))
+* staking ep url change ([#804](https://github.com/ethersphere/bee-js/issues/804)) ([63d7aed](https://github.com/ethersphere/bee-js/commit/63d7aedf2afd1fdd71418a6f9a409ba2c2c21404))
+
+## [5.1.0](https://github.com/ethersphere/bee-js/compare/v5.0.0...v5.1.0) (2022-11-11)
+
+This is a smaller release that brings support for Bee 1.9 and several smaller features.
+
+### Features
+
+* add readiness endpoint ([#787](https://github.com/ethersphere/bee-js/issues/787)) ([03e2694](https://github.com/ethersphere/bee-js/commit/03e26949106472c599a0d245b83459634071f02c))
+* staking endpoint support ([#793](https://github.com/ethersphere/bee-js/issues/793)) ([f584c89](https://github.com/ethersphere/bee-js/commit/f584c899f50b83f5ae2e4cc4788326da1d254b82))
+
 ## [5.0.0](https://github.com/ethersphere/bee-js/compare/v4.1.1...v5.0.0) (2022-07-28)
 
 This is a breaking release that brings support for Bee 1.7 and cleans up some long awaiting breaking changes that we had lined up:

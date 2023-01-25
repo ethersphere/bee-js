@@ -136,20 +136,41 @@ describe('Bee Debug class', () => {
       expect(await beeDebug.getNodeInfo()).toEqual(
         expect.objectContaining({
           beeMode: expect.stringMatching(/^(dev|light|full)$/),
-          gatewayMode: expect.any(Boolean),
+          chequebookEnabled: expect.any(Boolean),
+          swapEnabled: expect.any(Boolean),
         }),
       )
     })
+  })
+
+  describe('staking', () => {
+    it('should return amount staked', async () => {
+      expect(await beeDebug.getStake()).toEqual(expect.stringMatching(/^[0-9]+$/))
+    })
+
+    it(
+      'should deposit stake',
+      async () => {
+        const originalStake = BigInt(await beeDebug.getStake())
+
+        await beeDebug.depositStake('100000000000000000')
+
+        const increasedStake = BigInt(await beeDebug.getStake())
+
+        expect(increasedStake - originalStake).toEqual(BigInt(10e16))
+      },
+      BLOCKCHAIN_TRANSACTION_TIMEOUT,
+    )
   })
 
   describe('Wallet', () => {
     it('should return the nodes balances and other data', async () => {
       expect(await beeDebug.getWalletBalance()).toEqual(
         expect.objectContaining({
-          bzz: expect.stringMatching(/^[0-9]+$/),
-          xDai: expect.stringMatching(/^[0-9]+$/),
+          bzzBalance: expect.stringMatching(/^[0-9]+$/),
+          nativeTokenBalance: expect.stringMatching(/^[0-9]+$/),
           chainID: expect.any(Number),
-          contractAddress: expect.stringMatching(/^0x[0-9a-f]{40}$/),
+          chequebookContractAddress: expect.stringMatching(/^0x[0-9a-f]{40}$/),
         }),
       )
     })
