@@ -27,7 +27,7 @@ describe('modules/status', () => {
 
     expect(health.status).to.eql('ok')
     // Matches both versions like 0.5.3-c423a39c, 0.5.3-c423a39c-dirty and 0.5.3
-    expect(semver.valid(health.version)).to.not.be.null()()
+    expect(semver.valid(health.version)).to.not.be.null()
   })
 
   it('getReadiness', async function () {
@@ -80,12 +80,12 @@ describe('modules/status', () => {
       }),
     )
 
-    expect(semver.valid(versions.beeVersion)).to.not.be.null()()
-    expect(semver.valid(versions.beeApiVersion)).to.not.be.null()()
-    expect(semver.valid(versions.beeDebugApiVersion)).to.not.be.null()()
-    expect(semver.valid(versions.supportedBeeApiVersion)).to.not.be.null()()
-    expect(semver.valid(versions.supportedBeeVersion)).to.not.be.null()()
-    expect(semver.valid(versions.supportedBeeDebugApiVersion)).to.not.be.null()()
+    expect(semver.valid(versions.beeVersion)).to.not.be.null()
+    expect(semver.valid(versions.beeApiVersion)).to.not.be.null()
+    expect(semver.valid(versions.beeDebugApiVersion)).to.not.be.null()
+    expect(semver.valid(versions.supportedBeeApiVersion)).to.not.be.null()
+    expect(semver.valid(versions.supportedBeeVersion)).to.not.be.null()
+    expect(semver.valid(versions.supportedBeeDebugApiVersion)).to.not.be.null()
   })
 
   it('SUPPORTED_BEE_* should be same as in package.json', async function () {

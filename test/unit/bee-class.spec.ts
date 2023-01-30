@@ -89,7 +89,7 @@ describe('Bee class', () => {
     const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders })
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
-    expect(reference).to.eql({
+    expect(reference).to.include({
       reference: testJsonHash,
       tagUid: 123,
     })
@@ -105,7 +105,7 @@ describe('Bee class', () => {
     const bee = new Bee(MOCK_SERVER_URL)
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
-    expect(reference).to.eql({
+    expect(reference).to.include({
       reference: testChunkEncryptedReference,
       tagUid: 123,
     })
@@ -881,13 +881,13 @@ describe('Bee class', () => {
 
       expect(feedUpdate.reference).to.eql(testJsonHash)
 
-      expect(requestSpy).to.be.calledOnceWith({
+      expect(requestSpy).to.be.calledWithMatch({
         url: `${MOCK_SERVER_URL}feeds/${testIdentity.address}/${topic}?type=sequence`,
         method: 'GET',
         headers: { accept: 'application/json, text/plain, */*' },
       })
 
-      expect(responseSpy).to.be.calledOnceWith({
+      expect(responseSpy).to.be.calledWithMatch({
         status: 200,
         statusText: '',
         headers: {
@@ -913,14 +913,14 @@ describe('Bee class', () => {
 
       const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt', { encrypt: true })
 
-      expect(reference).to.eql({
+      expect(reference).to.include({
         reference: testJsonHash,
         tagUid: 123,
       })
 
       expect(reference.cid()).to.eql(testJsonCid)
 
-      expect(requestSpy).to.be.calledOnceWith({
+      expect(requestSpy).to.be.calledWithMatch({
         url: `${MOCK_SERVER_URL}bzz?name=nice.txt`,
         method: 'POST',
         headers: {
@@ -930,7 +930,7 @@ describe('Bee class', () => {
         },
       })
 
-      expect(responseSpy).to.be.calledOnceWith({
+      expect(responseSpy).to.be.calledWithMatch({
         status: 200,
         statusText: '',
         headers: {

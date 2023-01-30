@@ -13,7 +13,7 @@ describe('modules/states', () => {
       expect(state).to.have.property('block')
       expect(state).to.have.property('totalAmount')
       expect(state).to.have.property('currentPrice')
-      expect(state.block).to.be.numberString()
+      expect(state.block).to.be.a('number')
       expect(state.totalAmount).to.be.numberString()
       expect(state.currentPrice).to.be.numberString()
     })
