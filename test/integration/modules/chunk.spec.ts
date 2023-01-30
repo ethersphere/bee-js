@@ -1,5 +1,6 @@
 import * as chunk from '../../../src/modules/chunk'
 import { invalidReference, ERR_TIMEOUT, getPostageBatch, beeKyOptions } from '../../utils'
+import { expect } from 'chai'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 
@@ -13,17 +14,15 @@ describe('modules/chunk', () => {
     const reference = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
 
     const response = await chunk.upload(BEE_KY_OPTIONS, data, getPostageBatch())
-    expect(response).to.equal(reference)
+    expect(response).to.eql(reference)
 
     const downloadedData = await chunk.download(BEE_KY_OPTIONS, response)
-    expect(downloadedData).to.equal(data)
+    expect(downloadedData).to.eql(data)
   })
 
-  it(
-    'should catch error',
-    async () => {
-      await expect(chunk.download(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
-    },
-    ERR_TIMEOUT,
-  )
+  it('should catch error', async function () {
+    this.timeout(ERR_TIMEOUT)
+
+    await expect(chunk.download(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+  })
 })

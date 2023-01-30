@@ -1,5 +1,6 @@
 import { makeSpan } from '../../../src/chunk/span'
 import { BeeArgumentError } from '../../../src/utils/error'
+import { expect } from 'chai'
 
 describe('span', () => {
   it('should construct correct span', () => {
@@ -14,25 +15,25 @@ describe('span', () => {
 
     expected.forEach(elem => {
       const result = makeSpan(elem[0])
-      expect(result).to.equal(elem[1])
+      expect(result).to.eql(elem[1])
     })
   })
 
   it('should throw error with negative length', () => {
     const length = -1
     const t = () => makeSpan(length)
-    expect(t).toThrow(BeeArgumentError)
+    expect(t).to.throw(BeeArgumentError)
   })
 
   it('should throw error with zero length', () => {
     const length = 0
     const t = () => makeSpan(length)
-    expect(t).toThrow(BeeArgumentError)
+    expect(t).to.throw(BeeArgumentError)
   })
 
   it('should throw error when it is too big', () => {
     const length = 2 ** 32
     const t = () => makeSpan(length)
-    expect(t).toThrow(BeeArgumentError)
+    expect(t).to.throw(BeeArgumentError)
   })
 })

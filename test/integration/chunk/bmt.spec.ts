@@ -3,6 +3,7 @@ import { beeKyOptions, getPostageBatch, randomByteArray } from '../../utils'
 import * as chunk from '../../../src/modules/chunk'
 import { makeSpan } from '../../../src/chunk/span'
 import { bytesToHex } from '../../../src/utils/hex'
+import { expect } from 'chai'
 
 describe('bmt', () => {
   it('should produce the same hash as Bee', async function () {
@@ -17,7 +18,7 @@ describe('bmt', () => {
 
       const reference = bytesToHex(bmtHash(data))
       const response = await chunk.upload(beeKyOptions(), data, getPostageBatch())
-      expect(response).to.equal(reference)
+      expect(response).to.eql(reference)
     }
   })
 
@@ -28,6 +29,6 @@ describe('bmt', () => {
 
     const reference = bytesToHex(bmtHash(data))
     const response = await chunk.upload(beeKyOptions(), data, getPostageBatch())
-    expect(response).to.equal(reference)
+    expect(response).to.eql(reference)
   })
 })

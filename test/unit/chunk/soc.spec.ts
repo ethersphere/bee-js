@@ -4,6 +4,7 @@ import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { testIdentity } from '../../utils'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import { HexString, hexToBytes, bytesToHex } from '../../../src/utils/hex'
+import { expect } from 'chai'
 
 describe('soc', () => {
   const privateKey = hexToBytes(testIdentity.privateKey)
@@ -13,13 +14,13 @@ describe('soc', () => {
   const socHash = '9d453ebb73b2fedaaf44ceddcf7a0aa37f3e3d6453fea5841c31f0ea6d61dc85' as HexString
   const identifier = new Uint8Array(32) as Bytes<32>
 
-  test('single owner chunk creation', async () => {
+  it('single owner chunk creation', async function () {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
     const socAddress = bytesToHex(soc.address())
     const owner = soc.owner()
 
-    expect(socAddress).to.equal(socHash)
-    expect(owner).to.equal(signer.address)
+    expect(socAddress).to.eql(socHash)
+    expect(owner).to.eql(signer.address)
   })
 })

@@ -1,101 +1,102 @@
 import { Bytes, makeBytes } from '../../../src/utils/bytes'
 import { HexString, hexToBytes } from '../../../src/utils/hex'
 import { readUint64BigEndian, writeUint64BigEndian, writeUint64LittleEndian } from '../../../src/utils/uint64'
+import { expect } from 'chai'
 
 describe('uint64', () => {
   describe('little endian', () => {
-    test('zero', () => {
+    it('zero', () => {
       const uint64 = writeUint64LittleEndian(0)
       const zero = makeBytes(8)
 
-      expect(uint64).to.equal(zero)
+      expect(uint64).to.eql(zero)
     })
 
-    test('one', () => {
+    it('one', () => {
       const uint64 = writeUint64LittleEndian(1)
       const one = hexToBytes('0100000000000000' as HexString)
 
-      expect(uint64).to.equal(one)
+      expect(uint64).to.eql(one)
     })
 
-    test('deadbeef', () => {
+    it('deadbeef', () => {
       const uint64 = writeUint64LittleEndian(0xdeadbeef)
       const deadbeef = hexToBytes('efbeadde00000000' as HexString)
 
-      expect(uint64).to.equal(deadbeef)
+      expect(uint64).to.eql(deadbeef)
     })
   })
 
   describe('big endian', () => {
     describe('write', () => {
-      test('zero', () => {
+      it('zero', () => {
         const uint64 = writeUint64BigEndian(0)
         const zero = makeBytes(8)
 
-        expect(uint64).to.equal(zero)
+        expect(uint64).to.eql(zero)
       })
 
-      test('one', () => {
+      it('one', () => {
         const uint64 = writeUint64BigEndian(1)
         const one = hexToBytes('0000000000000001' as HexString)
 
-        expect(uint64).to.equal(one)
+        expect(uint64).to.eql(one)
       })
 
-      test('deadbeef', () => {
+      it('deadbeef', () => {
         const uint64 = writeUint64BigEndian(0xdeadbeef)
         const deadbeef = hexToBytes('00000000deadbeef' as HexString)
 
-        expect(uint64).to.equal(deadbeef)
+        expect(uint64).to.eql(deadbeef)
       })
     })
 
     describe('read', () => {
-      test('zero', () => {
+      it('zero', () => {
         const zero = makeBytes(8)
         const value = readUint64BigEndian(zero)
 
-        expect(value).to.equal(0)
+        expect(value).to.eql(0)
       })
 
-      test('one', () => {
+      it('one', () => {
         const one = hexToBytes('0000000000000001' as HexString) as Bytes<8>
         const value = readUint64BigEndian(one)
 
-        expect(value).to.equal(1)
+        expect(value).to.eql(1)
       })
 
-      test('deadbeef', () => {
+      it('deadbeef', () => {
         const deadbeef = hexToBytes('00000000deadbeef' as HexString) as Bytes<8>
         const value = readUint64BigEndian(deadbeef)
 
-        expect(value).to.equal(0xdeadbeef)
+        expect(value).to.eql(0xdeadbeef)
       })
     })
 
     describe('read and write', () => {
-      test('zero', () => {
+      it('zero', () => {
         const zero = makeBytes(8)
         const num = readUint64BigEndian(zero)
         const value = writeUint64BigEndian(num)
 
-        expect(value).to.equal(zero)
+        expect(value).to.eql(zero)
       })
 
-      test('one', () => {
+      it('one', () => {
         const one = hexToBytes('0000000000000001' as HexString) as Bytes<8>
         const num = readUint64BigEndian(one)
         const value = writeUint64BigEndian(num)
 
-        expect(value).to.equal(one)
+        expect(value).to.eql(one)
       })
 
-      test('deadbeef', () => {
+      it('deadbeef', () => {
         const deadbeef = hexToBytes('00000000deadbeef' as HexString) as Bytes<8>
         const num = readUint64BigEndian(deadbeef)
         const value = writeUint64BigEndian(num)
 
-        expect(value).to.equal(deadbeef)
+        expect(value).to.eql(deadbeef)
       })
     })
   })

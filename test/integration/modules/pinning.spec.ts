@@ -13,6 +13,7 @@ import {
   beeKyOptions,
 } from '../../utils'
 import { Collection } from '../../../src/types'
+import { expect } from 'chai'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 commonMatchers()
@@ -31,16 +32,14 @@ describe('modules/pin', () => {
       await pinning.unpin(BEE_KY_OPTIONS, result.reference)
     })
 
-    it(
-      'should not pin a non-existing file',
-      async () => {
-        await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
-      },
-      ERR_TIMEOUT,
-    )
+    it('should not pin a non-existing file', async function () {
+      this.timeout(ERR_TIMEOUT)
+
+      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+    })
 
     it('should not unpin a non-existing file', async function () {
-      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
     })
   })
 
@@ -66,16 +65,14 @@ describe('modules/pin', () => {
       await pinning.unpin(BEE_KY_OPTIONS, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
-    it(
-      'should not pin a non-existing collections',
-      async () => {
-        await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
-      },
-      ERR_TIMEOUT,
-    )
+    it('should not pin a non-existing collections', async function () {
+      this.timeout(ERR_TIMEOUT)
+
+      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+    })
 
     it('should not unpin a non-existing collections', async function () {
-      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
     })
   })
 
@@ -92,62 +89,58 @@ describe('modules/pin', () => {
       await pinning.pin(BEE_KY_OPTIONS, result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
-    it(
-      'should not pin a non-existing data',
-      async () => {
-        await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
-      },
-      ERR_TIMEOUT,
-    )
+    it('should not pin a non-existing data', async function () {
+      this.timeout(ERR_TIMEOUT)
+
+      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+    })
 
     it('should not unpin a non-existing data', async function () {
-      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
     })
   })
 
   describe('should work with chunks', () => {
     it('should pin existing chunk', async function () {
       const chunkReference = await chunk.upload(BEE_KY_OPTIONS, testChunkData, getPostageBatch())
-      expect(chunkReference).to.equal(testChunkHash)
+      expect(chunkReference).to.eql(testChunkHash)
 
       await pinning.pin(BEE_KY_OPTIONS, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
     it('should unpin existing chunk', async function () {
       const chunkReference = await chunk.upload(BEE_KY_OPTIONS, testChunkData, getPostageBatch())
-      expect(chunkReference).to.equal(testChunkHash)
+      expect(chunkReference).to.eql(testChunkHash)
 
       await pinning.unpin(BEE_KY_OPTIONS, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })
 
-    it(
-      'should not pin a non-existing chunk',
-      async () => {
-        await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
-      },
-      ERR_TIMEOUT,
-    )
+    it('should not pin a non-existing chunk', async function () {
+      this.timeout(ERR_TIMEOUT)
+
+      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+    })
 
     it('should not unpin a non-existing chunk', async function () {
-      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
     })
 
     it('should return pinning status of existing chunk', async function () {
       const chunkReference = await chunk.upload(BEE_KY_OPTIONS, testChunkData, getPostageBatch())
-      expect(chunkReference).to.equal(testChunkHash)
+      expect(chunkReference).to.eql(testChunkHash)
 
       await pinning.pin(BEE_KY_OPTIONS, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
       const pinningStatus = await pinning.getPin(BEE_KY_OPTIONS, testChunkHash)
-      expect(pinningStatus.reference).to.equal(testChunkHash)
+      expect(pinningStatus.reference).to.eql(testChunkHash)
     })
 
     it('should not return pinning status of non-existing chunk', async function () {
-      await expect(pinning.getPin(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
+      await expect(pinning.getPin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
     })
 
     it('should return list of pinned chunks', async function () {
       const chunkReference = await chunk.upload(BEE_KY_OPTIONS, testChunkData, getPostageBatch())
-      expect(chunkReference).to.equal(testChunkHash)
+      expect(chunkReference).to.eql(testChunkHash)
 
       await pinning.pin(BEE_KY_OPTIONS, testChunkHash) // Nothing is asserted as nothing is returned, will throw error if something is wrong
     })

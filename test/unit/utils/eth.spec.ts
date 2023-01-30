@@ -9,6 +9,8 @@ import {
 } from '../../../src/utils/eth'
 import { HexString, hexToBytes } from '../../../src/utils/hex'
 import { wrapBytesWithHelpers } from '../../../src/utils/bytes'
+import { expect } from 'chai'
+import sinon from 'sinon'
 
 describe('eth', () => {
   describe('isEthAddress', () => {
@@ -33,8 +35,8 @@ describe('eth', () => {
     ]
 
     testValues.forEach(({ value, result }) => {
-      test(`should test if value ${value} is address: ${result}`, () => {
-        expect(isHexEthAddress(value as unknown as string)).toBe(result)
+      it(`should test if value ${value} is address: ${result}`, () => {
+        expect(isHexEthAddress(value as unknown as string)).to.eql(result)
       })
     })
   })
@@ -52,16 +54,16 @@ describe('eth', () => {
     ]
 
     testValues.forEach(({ value, result, pad }) => {
-      test(`should conver value ${value}${pad ? ` with pad ${pad}` : ''} to ${result}`, () => {
-        expect(toLittleEndian(value, pad)).toBe(result)
+      it(`should conver value ${value}${pad ? ` with pad ${pad}` : ''} to ${result}`, () => {
+        expect(toLittleEndian(value, pad)).to.eql(result)
       })
     })
 
     const wrongTestValues = [124.1, -1, () => {}, new Function(), Number.MAX_SAFE_INTEGER + 1]
 
     wrongTestValues.forEach(value =>
-      test(`should throw for non string or positive int values: ${value}`, () => {
-        expect(() => toLittleEndian(value as unknown as string)).toThrow()
+      it(`should throw for non string or positive int values: ${value}`, () => {
+        expect(() => toLittleEndian(value as unknown as string)).to.throw()
       }),
     )
   })
@@ -70,24 +72,24 @@ describe('eth', () => {
     const testValues = ['0123', '0x0123', 124, 28721856816]
 
     testValues.forEach(value => {
-      test(`should conver value ${value} back and forth`, () => {
+      it(`should conver value ${value} back and forth`, () => {
         // We are converting first time to make for the comparison value to be padded and of the same type
         const littleEndian1 = toLittleEndian(value)
         const bigEndian = fromLittleEndian(littleEndian1)
         const littleEndian2 = fromLittleEndian(bigEndian)
 
-        expect(littleEndian1).toBe(littleEndian2)
+        expect(littleEndian1).to.eql(littleEndian2)
       })
     })
 
     testValues.forEach(value => {
-      test(`should conver value ${value} back and forth with padding`, () => {
+      it(`should conver value ${value} back and forth with padding`, () => {
         // We are converting first time to make for the comparison value to be padded and of the same type
         const littleEndian1 = toLittleEndian(value, 10)
         const bigEndian = fromLittleEndian(littleEndian1, 10)
         const littleEndian2 = fromLittleEndian(bigEndian, 10)
 
-        expect(littleEndian1).toBe(littleEndian2)
+        expect(littleEndian1).to.eql(littleEndian2)
       })
     })
   })
@@ -113,8 +115,8 @@ describe('eth', () => {
     ]
 
     testValues.forEach(({ value, result }) => {
-      test(`should create from ${value} to ${result}`, () => {
-        expect(ethToSwarmAddress(value)).toBe(result)
+      it(`should create from ${value} to ${result}`, () => {
+        expect(ethToSwarmAddress(value)).to.eql(result)
       })
     })
 
@@ -142,8 +144,8 @@ describe('eth', () => {
     ]
 
     wrongTestValues.forEach((address, netId) =>
-      test(`should throw for incorrect values address ${address} netId ${netId}`, () => {
-        expect(() => ethToSwarmAddress(address as unknown as string, netId as unknown as number)).toThrow()
+      it(`should throw for incorrect values address ${address} netId ${netId}`, () => {
+        expect(() => ethToSwarmAddress(address as unknown as string, netId as unknown as number)).to.throw()
       }),
     )
   })
@@ -155,35 +157,33 @@ describe('eth', () => {
       '0x336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
 
     it('should detect valid interface', async function () {
-      await expect(makeEthereumWalletSigner({})).rejects.toThrow()
-      await expect(makeEthereumWalletSigner('' as unknown as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(makeEthereumWalletSigner(1 as unknown as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(makeEthereumWalletSigner(null as unknown as JsonRPC)).rejects.toThrow(TypeError)
-      await expect(makeEthereumWalletSigner(undefined as unknown as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner({})).rejectedWith()
+      await expect(makeEthereumWalletSigner('' as unknown as JsonRPC)).rejectedWith(TypeError)
+      await expect(makeEthereumWalletSigner(1 as unknown as JsonRPC)).rejectedWith(TypeError)
+      await expect(makeEthereumWalletSigner(null as unknown as JsonRPC)).rejectedWith(TypeError)
+      await expect(makeEthereumWalletSigner(undefined as unknown as JsonRPC)).rejectedWith(TypeError)
     })
 
     it('should request address if not specified', async function () {
-      const providerMock = jest.fn()
-      providerMock.mockReturnValue(['0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a'])
+      const providerMock = sinon.stub()
+      providerMock.returns(['0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a'])
 
       const signer = await makeEthereumWalletSigner({ request: providerMock } as JsonRPC)
 
-      expect(signer.address).to.equal(hexToBytes('f1B07aC6E91A423d9c3c834cc9d938E89E19334a'))
-      expect(providerMock.mock.calls.length).to.equal(1)
-      expect(providerMock.mock.calls[0][0]).to.equal({ method: 'eth_requestAccounts' })
+      expect(signer.address).to.eql(hexToBytes('f1B07aC6E91A423d9c3c834cc9d938E89E19334a'))
+      expect(providerMock).to.be.calledOnceWith({ method: 'eth_requestAccounts' })
     })
 
     it('should request signature when sign() is called', async function () {
-      const providerMock = jest.fn()
-      providerMock.mockReturnValue(expectedSignatureHex)
+      const providerMock = sinon.stub()
+      providerMock.returns(expectedSignatureHex)
 
       const signer = await makeEthereumWalletSigner(
         { request: providerMock } as JsonRPC,
         '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
       )
-      await expect(signer.sign(dataToSignWithHelpers)).eventually.to.equal(expectedSignatureHex)
-      expect(providerMock.mock.calls.length).to.equal(1)
-      expect(providerMock.mock.calls[0][0]).to.equal({
+      await expect(signer.sign(dataToSignWithHelpers)).eventually.to.eql(expectedSignatureHex)
+      expect(providerMock).to.be.calledOnceWith({
         jsonrpc: '2.0',
         method: 'personal_sign',
         params: [
@@ -194,16 +194,15 @@ describe('eth', () => {
     })
 
     it('should normalize hex prefix for address', async function () {
-      const providerMock = jest.fn()
-      providerMock.mockReturnValue(expectedSignatureHex)
+      const providerMock = sinon.stub()
+      providerMock.returns(expectedSignatureHex)
 
       const signer = await makeEthereumWalletSigner(
         { request: providerMock } as JsonRPC,
         'f1B07aC6E91A423d9c3c834cc9d938E89E19334a',
       )
-      await expect(signer.sign(dataToSignWithHelpers)).eventually.to.equal(expectedSignatureHex)
-      expect(providerMock.mock.calls.length).to.equal(1)
-      expect(providerMock.mock.calls[0][0]).to.equal({
+      await expect(signer.sign(dataToSignWithHelpers)).eventually.to.eql(expectedSignatureHex)
+      expect(providerMock).to.be.calledOnceWith({
         jsonrpc: '2.0',
         method: 'personal_sign',
         params: [
@@ -214,12 +213,12 @@ describe('eth', () => {
     })
 
     it('should validate eth address', async function () {
-      const providerMock = jest.fn()
-      providerMock.mockReturnValue(expectedSignatureHex)
+      const providerMock = sinon.stub()
+      providerMock.returns(expectedSignatureHex)
 
       await expect(
         makeEthereumWalletSigner({ request: providerMock } as JsonRPC, '0x307aC6E91A423d9c3c834cc9d938E89E19334a'),
-      ).rejects.toThrow(TypeError)
+      ).rejectedWith(TypeError)
     })
   })
 })

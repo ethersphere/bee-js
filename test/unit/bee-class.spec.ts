@@ -45,6 +45,9 @@ import {
 } from './assertions'
 import { FeedType } from '../../src/feed/type'
 import { isStrictlyObject } from '../../src/utils/type'
+import { fail } from 'assert'
+import { expect } from 'chai'
+import sinon from 'sinon'
 
 const TOPIC = 'some=very%nice#topic'
 const HASHED_TOPIC = makeTopicFromString(TOPIC)
@@ -57,7 +60,7 @@ describe('Bee class', () => {
         fail('Bee constructor should have thrown error.')
       } catch (e) {
         if (e instanceof BeeArgumentError) {
-          expect(e.value).to.equal(url)
+          expect(e.value).to.eql(url)
 
           return
         }
@@ -86,14 +89,12 @@ describe('Bee class', () => {
     const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders })
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
-    expect(reference).to.equal(
-      expect.objectContaining({
-        reference: testJsonHash,
-        tagUid: 123,
-      }),
-    )
+    expect(reference).to.eql({
+      reference: testJsonHash,
+      tagUid: 123,
+    })
 
-    expect(reference.cid()).to.equal(testJsonCid)
+    expect(reference.cid()).to.eql(testJsonCid)
   })
 
   it('cid should throw for encrypted references', async function () {
@@ -104,14 +105,12 @@ describe('Bee class', () => {
     const bee = new Bee(MOCK_SERVER_URL)
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
-    expect(reference).to.equal(
-      expect.objectContaining({
-        reference: testChunkEncryptedReference,
-        tagUid: 123,
-      }),
-    )
+    expect(reference).to.eql({
+      reference: testChunkEncryptedReference,
+      tagUid: 123,
+    })
 
-    expect(() => reference.cid()).toThrow(TypeError)
+    expect(() => reference.cid()).to.throw(TypeError)
   })
 
   describe('uploadData', () => {
@@ -157,14 +156,14 @@ describe('Bee class', () => {
       downloadDataMock(testJsonEns).reply(200, testJsonStringPayload)
 
       const bee = new Bee(MOCK_SERVER_URL)
-      expect((await bee.downloadData(testJsonEns)).text()).to.equal(testJsonStringPayload)
+      expect((await bee.downloadData(testJsonEns)).text()).to.eql(testJsonStringPayload)
     })
 
     it('should accept valid ENS subdomain', async function () {
       downloadDataMock(`subdomain.${testJsonEns}`).reply(200, testJsonStringPayload)
 
       const bee = new Bee(MOCK_SERVER_URL)
-      expect((await bee.downloadData(`subdomain.${testJsonEns}`)).text()).to.equal(testJsonStringPayload)
+      expect((await bee.downloadData(`subdomain.${testJsonEns}`)).text()).to.eql(testJsonStringPayload)
     })
   })
 
@@ -174,13 +173,13 @@ describe('Bee class', () => {
 
       const bee = new Bee(MOCK_SERVER_URL)
 
-      await expect(bee.uploadChunk(testBatchId, content)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.uploadChunk(testBatchId, content)).rejectedWith(BeeArgumentError)
     })
 
     it('should fail for big data', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
-      await expect(bee.uploadChunk(testBatchId, randomByteArray(CHUNK_SIZE + SPAN_SIZE + 1))).rejects.toThrow(
+      await expect(bee.uploadChunk(testBatchId, randomByteArray(CHUNK_SIZE + SPAN_SIZE + 1))).rejectedWith(
         BeeArgumentError,
       )
     })
@@ -317,19 +316,19 @@ describe('Bee class', () => {
     it('should throw exception for bad Dir', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
-      await expect(bee.uploadFilesFromDirectory(testBatchId, '')).rejects.toThrow(TypeError)
+      await expect(bee.uploadFilesFromDirectory(testBatchId, '')).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, true)).rejects.toThrow(TypeError)
+      await expect(bee.uploadFilesFromDirectory(testBatchId, true)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, 1)).rejects.toThrow(TypeError)
+      await expect(bee.uploadFilesFromDirectory(testBatchId, 1)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, [])).rejects.toThrow(TypeError)
+      await expect(bee.uploadFilesFromDirectory(testBatchId, [])).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, {})).rejects.toThrow(TypeError)
+      await expect(bee.uploadFilesFromDirectory(testBatchId, {})).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, null)).rejects.toThrow(TypeError)
+      await expect(bee.uploadFilesFromDirectory(testBatchId, null)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.uploadFilesFromDirectory(testBatchId, undefined)).rejects.toThrow(TypeError)
+      await expect(bee.uploadFilesFromDirectory(testBatchId, undefined)).rejectedWith(TypeError)
     })
   })
 
@@ -344,26 +343,26 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag('')).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag('')).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag(true)).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag(true)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag([])).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag([])).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag({})).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag({})).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag(null)).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag(null)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag(undefined)).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag(undefined)).rejectedWith(TypeError)
 
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag({ total: true })).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag({ total: true })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag({ total: 'asdf' })).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag({ total: 'asdf' })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.retrieveTag({ total: null })).rejects.toThrow(TypeError)
+      await expect(bee.retrieveTag({ total: null })).rejectedWith(TypeError)
 
-      await expect(bee.retrieveTag(-1)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.retrieveTag(-1)).rejectedWith(BeeArgumentError)
     })
   })
 
@@ -378,26 +377,26 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag('')).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag('')).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag(true)).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag(true)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag([])).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag([])).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag({})).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag({})).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag(null)).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag(null)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag(undefined)).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag(undefined)).rejectedWith(TypeError)
 
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag({ total: true })).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag({ total: true })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag({ total: 'asdf' })).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag({ total: 'asdf' })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.deleteTag({ total: null })).rejects.toThrow(TypeError)
+      await expect(bee.deleteTag({ total: null })).rejectedWith(TypeError)
 
-      await expect(bee.deleteTag(-1)).rejects.toThrow(BeeArgumentError)
+      await expect(bee.deleteTag(-1)).rejectedWith(BeeArgumentError)
     })
   })
 
@@ -412,50 +411,50 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags('')).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags('')).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags(true)).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags(true)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags(-1)).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags(-1)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags([])).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags([])).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags(null)).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags(null)).rejectedWith(TypeError)
     })
 
     it('should throw exception for bad limit', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ limit: '' })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ limit: '' })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ limit: true })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ limit: true })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ limit: [] })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ limit: [] })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ limit: {} })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ limit: {} })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ limit: null })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ limit: null })).rejectedWith(TypeError)
 
-      await expect(bee.getAllTags({ limit: -1 })).rejects.toThrow(BeeArgumentError)
-      await expect(bee.getAllTags({ limit: Number.MAX_VALUE })).rejects.toThrow(BeeArgumentError)
+      await expect(bee.getAllTags({ limit: -1 })).rejectedWith(BeeArgumentError)
+      await expect(bee.getAllTags({ limit: Number.MAX_VALUE })).rejectedWith(BeeArgumentError)
     })
 
     it('should throw exception for bad offset', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ offset: '' })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ offset: '' })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ offset: true })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ offset: true })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ offset: [] })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ offset: [] })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ offset: {} })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ offset: {} })).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.getAllTags({ offset: null })).rejects.toThrow(TypeError)
+      await expect(bee.getAllTags({ offset: null })).rejectedWith(TypeError)
 
-      await expect(bee.getAllTags({ offset: -1 })).rejects.toThrow(BeeArgumentError)
+      await expect(bee.getAllTags({ offset: -1 })).rejectedWith(BeeArgumentError)
     })
   })
 
@@ -582,13 +581,13 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       // @ts-ignore: Type testing
-      await expect(bee.pssReceive('topic', true)).rejects.toThrow(TypeError)
+      await expect(bee.pssReceive('topic', true)).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.pssReceive('topic', 'asd')).rejects.toThrow(TypeError)
+      await expect(bee.pssReceive('topic', 'asd')).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.pssReceive('topic', [])).rejects.toThrow(TypeError)
+      await expect(bee.pssReceive('topic', [])).rejectedWith(TypeError)
       // @ts-ignore: Type testing
-      await expect(bee.pssReceive('topic', {})).rejects.toThrow(TypeError)
+      await expect(bee.pssReceive('topic', {})).rejectedWith(TypeError)
     })
   })
 
@@ -745,7 +744,7 @@ describe('Bee class', () => {
 
       const bee = new Bee(MOCK_SERVER_URL)
       const json = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
-      expect(json).to.equal(testJsonPayload)
+      expect(json).to.eql(testJsonPayload)
 
       assertAllIsDone()
     })
@@ -758,7 +757,7 @@ describe('Bee class', () => {
 
       const bee = new Bee(MOCK_SERVER_URL)
       const json = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
-      expect(json).to.equal(testJsonPayload)
+      expect(json).to.eql(testJsonPayload)
 
       assertAllIsDone()
     })
@@ -771,7 +770,7 @@ describe('Bee class', () => {
 
       const bee = new Bee(MOCK_SERVER_URL, { signer: testIdentity.privateKey })
       const json = await bee.getJsonFeed(TOPIC)
-      expect(json).to.equal(testJsonPayload)
+      expect(json).to.eql(testJsonPayload)
 
       assertAllIsDone()
     })
@@ -787,7 +786,7 @@ describe('Bee class', () => {
         signer: '634fb5a811196d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd',
       })
       const json = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
-      expect(json).to.equal(testJsonPayload)
+      expect(json).to.eql(testJsonPayload)
 
       assertAllIsDone()
     })
@@ -803,7 +802,7 @@ describe('Bee class', () => {
         signer: '634fb5a811196d9693e5c9f9d7233cfa93f395c093371017ff44aa9ae6564cdd',
       })
       const json = await bee.getJsonFeed(TOPIC, { signer: testIdentity.privateKey })
-      expect(json).to.equal(testJsonPayload)
+      expect(json).to.eql(testJsonPayload)
 
       assertAllIsDone()
     })
@@ -813,13 +812,13 @@ describe('Bee class', () => {
 
       await expect(
         bee.getJsonFeed(TOPIC, { address: testIdentity.address, signer: testIdentity.privateKey }),
-      ).rejects.toThrow()
+      ).rejectedWith()
     })
 
     it('should fail if no signer or address is specified', async function () {
       const bee = new Bee(MOCK_SERVER_URL)
 
-      await expect(bee.getJsonFeed(TOPIC)).rejects.toThrow()
+      await expect(bee.getJsonFeed(TOPIC)).rejectedWith()
     })
   })
 
@@ -840,7 +839,7 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       const socReader = bee.makeSOCReader(testIdentity.address)
-      expect(socReader.owner).to.equal(testIdentity.address)
+      expect(socReader.owner).to.eql(testIdentity.address)
     })
   })
 
@@ -861,14 +860,14 @@ describe('Bee class', () => {
       const bee = new Bee(MOCK_SERVER_URL)
 
       const socReader = bee.makeSOCWriter(testIdentity.privateKey)
-      expect(socReader.owner).to.equal(testIdentity.address)
+      expect(socReader.owner).to.eql(testIdentity.address)
     })
   })
 
   describe('hooks', () => {
     it('should call with request', async function () {
-      const requestSpy = jest.fn()
-      const responseSpy = jest.fn()
+      const requestSpy = sinon.stub()
+      const responseSpy = sinon.stub()
 
       const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
 
@@ -880,19 +879,15 @@ describe('Bee class', () => {
       const feedReader = bee.makeFeedReader('sequence', topic, testIdentity.address)
       const feedUpdate = await feedReader.download()
 
-      expect(feedUpdate.reference).to.equal(testJsonHash)
+      expect(feedUpdate.reference).to.eql(testJsonHash)
 
-      expect(requestSpy.mock.calls.length).to.equal(1)
-      expect(requestSpy.mock.calls[0].length).to.equal(1)
-      expect(requestSpy.mock.calls[0][0]).toMatchObject({
+      expect(requestSpy).to.be.calledOnceWith({
         url: `${MOCK_SERVER_URL}feeds/${testIdentity.address}/${topic}?type=sequence`,
         method: 'GET',
         headers: { accept: 'application/json, text/plain, */*' },
       })
 
-      expect(responseSpy.mock.calls.length).to.equal(1)
-      expect(responseSpy.mock.calls[0].length).to.equal(1)
-      expect(responseSpy.mock.calls[0][0]).toMatchObject({
+      expect(responseSpy).to.be.calledOnceWith({
         status: 200,
         statusText: '',
         headers: {
@@ -908,8 +903,8 @@ describe('Bee class', () => {
     })
 
     it('should call with request with correct headers', async function () {
-      const requestSpy = jest.fn()
-      const responseSpy = jest.fn()
+      const requestSpy = sinon.stub()
+      const responseSpy = sinon.stub()
       const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
 
       uploadFileMock(testBatchId, 'nice.txt', { encrypt: true }).reply(200, {
@@ -918,18 +913,14 @@ describe('Bee class', () => {
 
       const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt', { encrypt: true })
 
-      expect(reference).to.equal(
-        expect.objectContaining({
-          reference: testJsonHash,
-          tagUid: 123,
-        }),
-      )
+      expect(reference).to.eql({
+        reference: testJsonHash,
+        tagUid: 123,
+      })
 
-      expect(reference.cid()).to.equal(testJsonCid)
+      expect(reference.cid()).to.eql(testJsonCid)
 
-      expect(requestSpy.mock.calls.length).to.equal(1)
-      expect(requestSpy.mock.calls[0].length).to.equal(1)
-      expect(requestSpy.mock.calls[0][0]).toMatchObject({
+      expect(requestSpy).to.be.calledOnceWith({
         url: `${MOCK_SERVER_URL}bzz?name=nice.txt`,
         method: 'POST',
         headers: {
@@ -939,9 +930,7 @@ describe('Bee class', () => {
         },
       })
 
-      expect(responseSpy.mock.calls.length).to.equal(1)
-      expect(responseSpy.mock.calls[0].length).to.equal(1)
-      expect(responseSpy.mock.calls[0][0]).toMatchObject({
+      expect(responseSpy).to.be.calledOnceWith({
         status: 200,
         statusText: '',
         headers: {

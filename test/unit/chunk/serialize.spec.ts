@@ -1,4 +1,5 @@
 import { serializeBytes } from '../../../src/chunk/serialize'
+import { expect } from 'chai'
 
 describe('serializeBytes', () => {
   it('serializes', () => {
@@ -9,7 +10,7 @@ describe('serializeBytes', () => {
 
     const result = serializeBytes(a1, a2, a3)
 
-    expect(result).to.equal(expectedResult)
+    expect(result).to.eql(expectedResult)
   })
 
   it('serializes chunk data with span', () => {
@@ -19,6 +20,6 @@ describe('serializeBytes', () => {
 
     const result = serializeBytes(span, payload)
 
-    expect(result).to.equal(expectedResult)
+    expect(result).to.eql(expectedResult)
   })
 })

@@ -4,7 +4,7 @@ import { beeKyOptions } from '../../utils'
 const BEE_KY_OPTIONS = beeKyOptions()
 
 describe('checkConnection', () => {
-  test('should connect to a running node', async () => {
+  it('should connect to a running node', async function () {
     await status.checkConnection(BEE_KY_OPTIONS)
   })
 })

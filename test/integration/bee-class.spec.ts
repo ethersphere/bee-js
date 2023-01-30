@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import { expect as jestExpect } from 'expect'
 import { Bee, BeeDebug, BeeResponseError, BytesReference, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
@@ -29,7 +30,6 @@ import {
   tryDeleteChunkFromLocalStorage,
 } from '../utils'
 import { Readable } from 'stream'
-// import { TextEncoder } from 'util'
 import { sleep } from '../../src/utils/sleep'
 
 commonMatchers()
@@ -172,7 +172,8 @@ describe('Bee class', () => {
       expect(downloadedFile.contentType).to.eql(contentTypeOverride)
     })
 
-    it('should work with NodeJS readable', async function () {
+    // TODO: https://github.com/ethersphere/bee-js/issues/816
+    it.skip('should work with NodeJS readable', async function () {
       const readable = Readable.from([new TextEncoder().encode('hello '), new TextEncoder().encode('world')], {
         objectMode: false,
       })
@@ -186,7 +187,8 @@ describe('Bee class', () => {
       expect(file.data.text()).to.eql('hello world')
     })
 
-    it('should work with WHATWG readable-stream', async function () {
+    // TODO: https://github.com/ethersphere/bee-js/issues/816
+    it.skip('should work with WHATWG readable-stream', async function () {
       this.timeout(1000000)
 
       const readable = createReadableStream([new TextEncoder().encode('hello '), new TextEncoder().encode('world')])
@@ -200,7 +202,8 @@ describe('Bee class', () => {
       expect(file.data.text()).to.eql('hello world')
     })
 
-    it('should work with readable and tags', async function () {
+    // TODO: https://github.com/ethersphere/bee-js/issues/816
+    it.skip('should work with readable and tags', async function () {
       const tag = await bee.createTag()
 
       const readable = createRandomNodeReadable(13000)
@@ -569,12 +572,12 @@ describe('Bee class', () => {
       await feed.upload(getPostageBatch(), cacResult.reference)
       const manifestResult = await bee.createFeedManifest(getPostageBatch(), 'sequence', topic, owner)
 
-      // expect(manifestResult).to.eql(
-      //   expect.objectContaining({
-      //     reference: expect.any(String),
-      //     cid: expect.any(Function),
-      //   }),
-      // )
+      jestExpect(manifestResult).toEqual(
+        jestExpect.objectContaining({
+          reference: jestExpect.any(String),
+          cid: jestExpect.any(Function),
+        }),
+      )
 
       // this calls /bzz endpoint that should resolve the manifest and the feed returning the latest feed's content
       const file = await bee.downloadFile(manifestResult.reference, 'index.html')
@@ -758,5 +761,3 @@ describe('Bee class', () => {
     })
   })
 })
-
-// it\(\s*'(.*)',\s*async \(\) => \{

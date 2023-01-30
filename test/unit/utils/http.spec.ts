@@ -2,6 +2,8 @@ import { MOCK_SERVER_URL } from '../nock'
 import { http } from '../../../src/utils/http'
 import nock from 'nock'
 import { BeeNotAJsonError, BeeResponseError } from '../../../src'
+import { expect } from 'chai'
+import { expect as jestExpect } from 'expect'
 
 class ShouldHaveFailedError extends Error {}
 
@@ -12,7 +14,7 @@ describe('http', () => {
     nock(MOCK_SERVER_URL).get('/endpoint').reply(200, HTML_RESPONSE)
     const kyOptions = { prefixUrl: MOCK_SERVER_URL }
 
-    await expect(http(kyOptions, { path: 'endpoint', responseType: 'json', method: 'get' })).rejects.toThrow(
+    await expect(http(kyOptions, { path: 'endpoint', responseType: 'json', method: 'get' })).rejectedWith(
       BeeNotAJsonError,
     )
   })
@@ -23,7 +25,7 @@ describe('http', () => {
     nock(MOCK_SERVER_URL).get('/endpoint').reply(404, HTML_RESPONSE)
     const kyOptions = { prefixUrl: MOCK_SERVER_URL }
 
-    await expect(http(kyOptions, { path: 'endpoint', responseType: 'json', method: 'get' })).rejects.toThrow(
+    await expect(http(kyOptions, { path: 'endpoint', responseType: 'json', method: 'get' })).rejectedWith(
       BeeResponseError,
     )
   })
@@ -44,19 +46,19 @@ describe('http', () => {
         throw new Error('Expected error to be instance of BeeResponseError!')
       }
 
-      expect(e.requestOptions).to.equal({ path: 'endpoint', method: 'get' })
+      expect(e.requestOptions).to.eql({ path: 'endpoint', method: 'get' })
 
       // Testing only partial Response object for the major functionality
-      expect(e.response).to.equal(
-        expect.objectContaining({
-          text: expect.any(Function),
-          json: expect.any(Function),
-          url: expect.any(String),
-          status: expect.any(Number),
+      jestExpect(e.response).toEqual(
+        jestExpect.objectContaining({
+          text: jestExpect.any(Function),
+          json: jestExpect.any(Function),
+          url: jestExpect.any(String),
+          status: jestExpect.any(Number),
         }),
       )
 
-      expect(e.responseBody).to.equal('Some error')
+      expect(e.responseBody).to.eql('Some error')
     }
   })
 })
