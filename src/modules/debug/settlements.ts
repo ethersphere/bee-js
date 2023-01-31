@@ -16,7 +16,7 @@ export async function getSettlements(kyOptions: KyOptions, peer: string): Promis
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -30,5 +30,5 @@ export async function getAllSettlements(kyOptions: KyOptions): Promise<AllSettle
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }

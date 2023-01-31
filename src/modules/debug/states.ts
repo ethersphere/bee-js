@@ -18,7 +18,7 @@ export async function getReserveState(kyOptions: KyOptions): Promise<ReserveStat
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -33,7 +33,7 @@ export async function getChainState(kyOptions: KyOptions): Promise<ChainState> {
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -48,7 +48,7 @@ export async function getWalletBalance(kyOptions: KyOptions): Promise<WalletBala
     responseType: 'json',
   })
 
-  return mapWalletProperties(response.parseData)
+  return mapWalletProperties(response.parsedData)
 }
 
 /**

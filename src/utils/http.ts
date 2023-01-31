@@ -18,7 +18,7 @@ interface UndiciError {
 }
 
 interface KyResponse<T> extends Response {
-  parseData: T
+  parsedData: T
 }
 
 function isHttpError(e: unknown): e is HTTPError {
@@ -114,14 +114,14 @@ export async function http<T>(kyOptions: KyOptions, config: KyRequestOptions): P
           throw new BeeError('Response was expected to get data but did not get any!')
         }
 
-        response.parseData = normalizeToReadableStream(response.body) as unknown as T
+        response.parsedData = normalizeToReadableStream(response.body) as unknown as T
         break
       case 'arraybuffer':
-        response.parseData = (await response.arrayBuffer()) as unknown as T
+        response.parsedData = (await response.arrayBuffer()) as unknown as T
         break
       case 'json':
         try {
-          response.parseData = (await response.json()) as unknown as T
+          response.parsedData = (await response.json()) as unknown as T
         } catch (e) {
           throw new BeeNotAJsonError()
         }

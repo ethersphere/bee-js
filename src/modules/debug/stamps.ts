@@ -19,7 +19,7 @@ export async function getAllPostageBatches(kyOptions: KyOptions): Promise<Postag
     responseType: 'json',
   })
 
-  return response.parseData.stamps
+  return response.parsedData.stamps
 }
 
 export async function getPostageBatch(kyOptions: KyOptions, postageBatchId: BatchId): Promise<PostageBatch> {
@@ -29,7 +29,7 @@ export async function getPostageBatch(kyOptions: KyOptions, postageBatchId: Batc
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 export async function getPostageBatchBuckets(
@@ -42,7 +42,7 @@ export async function getPostageBatchBuckets(
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 export async function createPostageBatch(
@@ -69,7 +69,7 @@ export async function createPostageBatch(
     headers,
   })
 
-  return response.parseData.batchID
+  return response.parsedData.batchID
 }
 
 export async function topUpBatch(kyOptions: KyOptions, id: string, amount: NumberString): Promise<BatchId> {
@@ -79,7 +79,7 @@ export async function topUpBatch(kyOptions: KyOptions, id: string, amount: Numbe
     responseType: 'json',
   })
 
-  return response.parseData.batchID
+  return response.parsedData.batchID
 }
 
 export async function diluteBatch(kyOptions: KyOptions, id: string, depth: number): Promise<BatchId> {
@@ -89,5 +89,5 @@ export async function diluteBatch(kyOptions: KyOptions, id: string, depth: numbe
     responseType: 'json',
   })
 
-  return response.parseData.batchID
+  return response.parsedData.batchID
 }

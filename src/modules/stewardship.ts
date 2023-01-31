@@ -29,5 +29,5 @@ export async function isRetrievable(kyOptions: KyOptions, reference: ReferenceOr
     path: `${stewardshipEndpoint}/${reference}`,
   })
 
-  return response.parseData.isRetrievable
+  return response.parsedData.isRetrievable
 }

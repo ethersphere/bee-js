@@ -28,7 +28,7 @@ export async function getHealth(kyOptions: KyOptions): Promise<Health> {
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -61,7 +61,7 @@ export async function getNodeInfo(kyOptions: KyOptions): Promise<NodeInfo> {
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**

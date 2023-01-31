@@ -20,7 +20,7 @@ export async function getStake(kyOptions: KyOptions): Promise<NumberString> {
     path: `${STAKE_ENDPOINT}`,
   })
 
-  return response.parseData.stakedAmount.toString()
+  return response.parsedData.stakedAmount.toString()
 }
 
 /**

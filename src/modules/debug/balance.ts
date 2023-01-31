@@ -16,7 +16,7 @@ export async function getAllBalances(kyOptions: KyOptions): Promise<BalanceRespo
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -31,7 +31,7 @@ export async function getPeerBalance(kyOptions: KyOptions, address: string): Pro
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -45,7 +45,7 @@ export async function getPastDueConsumptionBalances(kyOptions: KyOptions): Promi
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -60,5 +60,5 @@ export async function getPastDueConsumptionPeerBalance(kyOptions: KyOptions, add
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }

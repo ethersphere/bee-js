@@ -23,7 +23,7 @@ export async function getAllTransactions(kyOptions: KyOptions): Promise<Transact
     responseType: 'json',
   })
 
-  return response.parseData.pendingTransactions
+  return response.parsedData.pendingTransactions
 }
 
 /**
@@ -38,7 +38,7 @@ export async function getTransaction(kyOptions: KyOptions, transactionHash: Tran
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -57,7 +57,7 @@ export async function rebroadcastTransaction(
     responseType: 'json',
   })
 
-  return response.parseData.transactionHash
+  return response.parsedData.transactionHash
 }
 
 /**
@@ -79,5 +79,5 @@ export async function cancelTransaction(
     responseType: 'json',
   })
 
-  return response.parseData.transactionHash
+  return response.parsedData.transactionHash
 }

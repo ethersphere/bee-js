@@ -35,7 +35,7 @@ export async function upload(
     responseType: 'json',
   })
 
-  return response.parseData.reference
+  return response.parsedData.reference
 }
 
 /**
@@ -51,5 +51,5 @@ export async function download(kyOptions: KyOptions, hash: ReferenceOrEns): Prom
     path: `${endpoint}/${hash}`,
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.parseData))
+  return wrapBytesWithHelpers(new Uint8Array(response.parsedData))
 }

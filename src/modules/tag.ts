@@ -20,7 +20,7 @@ export async function createTag(kyOptions: KyOptions): Promise<Tag> {
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -35,7 +35,7 @@ export async function retrieveTag(kyOptions: KyOptions, uid: number): Promise<Ta
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -52,7 +52,7 @@ export async function getAllTags(kyOptions: KyOptions, offset?: number, limit?: 
     responseType: 'json',
   })
 
-  return response.parseData.tags
+  return response.parsedData.tags
 }
 
 /**

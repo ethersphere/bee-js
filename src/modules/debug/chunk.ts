@@ -18,7 +18,7 @@ export async function checkIfChunkExistsLocally(kyOptions: KyOptions, address: s
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
 
 /**
@@ -36,5 +36,5 @@ export async function deleteChunkFromLocalStorage(kyOptions: KyOptions, address:
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }

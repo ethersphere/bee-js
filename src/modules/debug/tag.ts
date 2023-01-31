@@ -16,5 +16,5 @@ export async function retrieveExtendedTag(kyOptions: KyOptions, uid: number): Pr
     responseType: 'json',
   })
 
-  return response.parseData
+  return response.parsedData
 }
