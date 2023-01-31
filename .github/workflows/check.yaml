@@ -53,6 +53,9 @@ jobs:
       - name: Check typings
         run: npm run check:types
 
+      - name: Check build
+        run: npm run build
+
       - name: Trigger API Docs update PR
         uses: peter-evans/repository-dispatch@v1
         if: github.ref == 'refs/heads/master'
