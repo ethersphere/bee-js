@@ -148,8 +148,6 @@ or for Browsers
 
 ## Maintainers
 
-- [auhau](https://github.com/auhau)
-- [vojtechsimetka](https://github.com/vojtechsimetka)
 
 ## License
 
