@@ -15,8 +15,8 @@ export function isFile(file: unknown): file is File {
 
   return (
     typeof f === 'object' &&
-    typeof f.name === 'string' &&
-    (typeof f.stream === 'function' || typeof f.arrayBuffer === 'function')
+    typeof (f as File).name === 'string' &&
+    (typeof (f as File).stream === 'function' || typeof (f as File).arrayBuffer === 'function')
   )
 }
 

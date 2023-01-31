@@ -1,17 +1,8 @@
 import { Readable } from 'stream'
 import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
+import type { Options as KyOptions } from 'ky'
 
-import ky from 'ky-universal'
-
-import type {
-  Address,
-  BatchId,
-  BeeGenericResponse,
-  Ky,
-  PlainBytesReference,
-  PostageBatch,
-  Reference,
-} from '../src/types'
+import type { Address, BatchId, BeeGenericResponse, PlainBytesReference, PostageBatch, Reference } from '../src/types'
 import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import { BeeResponseError } from '../src'
@@ -36,87 +27,63 @@ declare global {
  * Load common own Jest Matchers which can be used to check particular return values.
  */
 export function commonMatchers(): void {
-  expect.extend({
-    toBeHashReference(received: string) {
-      const result = {
-        pass: false,
-        message: () => 'Given input is not a Swarm hash reference',
-      }
-
-      if (typeof received === 'string' && /^[0-9a-fA-F]{64}$/.test(received)) {
-        result.pass = true
-        result.message = () => 'Given string is semantically valid Swarm hash reference'
-      }
-
-      return result
-    },
-    toBeBeeResponse(received: BeeGenericResponse, expectedStatusCode: number) {
-      const result = {
-        pass: false,
-        message: () =>
-          `Bee response does not have status code ${expectedStatusCode}. Got: ${received.code}\nResponse message: ${received.message}`,
-      }
-
-      if (received.code === expectedStatusCode) {
-        result.pass = true
-        result.message = () => 'Bee response meets with its requirements'
-      }
-
-      return result
-    },
-    toBeOneOf(received, argument) {
-      const validValues = Array.isArray(argument) ? argument : [argument]
-      let containsValidValue = false
-
-      for (const validValue of validValues) {
-        try {
-          expect(received).toEqual(validValue)
-          containsValidValue = true
-          // eslint-disable-next-line no-empty
-        } catch (e) {}
-      }
-
-      if (containsValidValue) {
-        return {
-          message: () => `expected ${JSON.stringify(received)} not to be one of [${validValues.join(', ')}]`,
-          pass: true,
-        }
-      }
-
-      return {
-        message: () => `expected ${JSON.stringify(received)} to be one of [${validValues.join(', ')}]`,
-        pass: false,
-      }
-    },
-    toBeType(received, argument) {
-      const initialType = typeof received
-      const isArray = Array.isArray(received) ? 'array' : initialType
-      const type = initialType === 'object' ? isArray : initialType
-
-      return type === argument
-        ? {
-            message: () => `expected ${received} to be type ${argument}`,
-            pass: true,
-          }
-        : {
-            message: () => `expected ${received} to be type ${argument}`,
-            pass: false,
-          }
-    },
-    toBeNumberString(received) {
-      const message = () => `expected ${received} to be a number in a string type`
-
-      return /^-?(0|[1-9][0-9]*)$/g.test(received)
-        ? {
-            message,
-            pass: true,
-          }
-        : {
-            message,
-            pass: false,
-          }
-    },
-  })
+  // expect.extend({
+  //   toBeHashReference(received: string) {
+  //     const result = {
+  //       pass: false,
+  //       message: () => 'Given input is not a Swarm hash reference',
+  //     }
+  //
+  //     if (typeof received === 'string' && /^[0-9a-fA-F]{64}$/.test(received)) {
+  //       result.pass = true
+  //       result.message = () => 'Given string is semantically valid Swarm hash reference'
+  //     }
+  //
+  //     return result
+  //   },
+  //   toBeBeeResponse(received: BeeGenericResponse, expectedStatusCode: number) {
+  //     const result = {
+  //       pass: false,
+  //       message: () =>
+  //         `Bee response does not have status code ${expectedStatusCode}. Got: ${received.code}\nResponse message: ${received.message}`,
+  //     }
+  //
+  //     if (received.code === expectedStatusCode) {
+  //       result.pass = true
+  //       result.message = () => 'Bee response meets with its requirements'
+  //     }
+  //
+  //     return result
+  //   },
+  //   toBeType(received, argument) {
+  //     const initialType = typeof received
+  //     const isArray = Array.isArray(received) ? 'array' : initialType
+  //     const type = initialType === 'object' ? isArray : initialType
+  //
+  //     return type === argument
+  //       ? {
+  //           message: () => `expected ${received} to be type ${argument}`,
+  //           pass: true,
+  //         }
+  //       : {
+  //           message: () => `expected ${received} to be type ${argument}`,
+  //           pass: false,
+  //         }
+  //   },
+  //   toBeNumberString(received) {
+  //     const message = () => `expected ${received} to be a number in a string type`
+  //
+  //     return /^-?(0|[1-9][0-9]*)$/g.test(received)
+  //       ? {
+  //           message,
+  //           pass: true,
+  //         }
+  //       : {
+  //           message,
+  //           pass: false,
+  //         }
+  //   },
+  // })
 }
 
 /**
@@ -126,7 +93,7 @@ export function commonMatchers(): void {
 export async function readWholeUint8ArrayReadableStream(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
   const reader = stream.getReader()
   let buff: number[] = []
-  let readResult: ReadableStreamDefaultReadResult<Uint8Array>
+  let readResult: ReadableStreamReadResult<Uint8Array>
 
   do {
     readResult = await reader.read()
@@ -209,8 +176,8 @@ export function beeUrl(): string {
   return process.env.BEE_API_URL || 'http://127.0.0.1:1633'
 }
 
-export function beeKy(): Ky {
-  return ky.create({ prefixUrl: beeUrl(), timeout: false })
+export function beeKyOptions(): KyOptions {
+  return { prefixUrl: beeUrl(), timeout: false }
 }
 
 /**
@@ -220,8 +187,8 @@ export function beePeerUrl(): string {
   return process.env.BEE_PEER_API_URL || 'http://127.0.0.1:11633'
 }
 
-export function beePeerKy(): Ky {
-  return ky.create({ prefixUrl: beePeerUrl(), timeout: false })
+export function beePeerKyOptions(): KyOptions {
+  return { prefixUrl: beePeerUrl(), timeout: false }
 }
 
 /**
@@ -257,8 +224,8 @@ export function beeDebugUrl(): string {
   return process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635'
 }
 
-export function beeDebugKy(): Ky {
-  return ky.create({ prefixUrl: beeDebugUrl(), timeout: false })
+export function beeDebugKyOptions(): KyOptions {
+  return { prefixUrl: beeDebugUrl(), timeout: false }
 }
 
 /**
@@ -268,8 +235,8 @@ export function beePeerDebugUrl(): string {
   return process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635'
 }
 
-export function beePeerDebugKy(): Ky {
-  return ky.create({ prefixUrl: beePeerDebugUrl(), timeout: false })
+export function beePeerDebugKyOptions(): KyOptions {
+  return { prefixUrl: beePeerDebugUrl(), timeout: false }
 }
 
 /**
@@ -284,7 +251,7 @@ export async function tryDeleteChunkFromLocalStorage(address: string | PlainByte
   }
 
   try {
-    await deleteChunkFromLocalStorage(beeDebugKy(), address)
+    await deleteChunkFromLocalStorage(beeDebugKyOptions(), address)
   } catch (e) {
     // ignore not found errors
     if (e instanceof BeeResponseError && e.status === 404) {
@@ -323,7 +290,7 @@ export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 
 
       do {
         await sleep(pollingInterval)
-        stamp = await stamps.getPostageBatch(beeDebugKy(), batchId as BatchId)
+        stamp = await stamps.getPostageBatch(beeDebugKyOptions(), batchId as BatchId)
       } while (!stamp.usable)
     },
   ])
@@ -347,18 +314,18 @@ export async function getOrCreatePostageBatch(
   immutable?: boolean,
 ): Promise<PostageBatch> {
   // Non-usable stamps are ignored by Bee
-  const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKy())).filter(stamp => stamp.usable)
+  const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKyOptions())).filter(stamp => stamp.usable)
 
   if (allUsableStamps.length === 0) {
     const batchId = await stamps.createPostageBatch(
-      beeDebugKy(),
+      beeDebugKyOptions(),
       amount ?? DEFAULT_BATCH_AMOUNT,
       depth ?? DEFAULT_BATCH_DEPTH,
     )
 
     await waitForBatchToBeUsable(batchId)
 
-    return stamps.getPostageBatch(beeDebugKy(), batchId)
+    return stamps.getPostageBatch(beeDebugKyOptions(), batchId)
   }
 
   // User does not want any specific batch, lets give him the first one
@@ -391,14 +358,14 @@ export async function getOrCreatePostageBatch(
 
   // No stamp meeting the criteria was found ==> we need to create a new one
   const batchId = await stamps.createPostageBatch(
-    beeDebugKy(),
+    beeDebugKyOptions(),
     amount ?? DEFAULT_BATCH_AMOUNT,
     depth ?? DEFAULT_BATCH_DEPTH,
   )
 
   await waitForBatchToBeUsable(batchId)
 
-  return stamps.getPostageBatch(beeDebugKy(), batchId)
+  return stamps.getPostageBatch(beeDebugKyOptions(), batchId)
 }
 
 export function makeTestTarget(target: string): string {

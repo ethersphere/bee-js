@@ -1,9 +1,10 @@
-import { BatchId, Ky, Reference, ReferenceResponse, Topic } from '../types'
+import { BatchId, Reference, ReferenceResponse, Topic } from '../types'
 import { filterHeaders, http } from '../utils/http'
 import { FeedType } from '../feed/type'
 import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'
 import { BeeError } from '../utils/error'
+import type { Options as KyOptions } from 'ky'
 
 const feedEndpoint = 'feeds'
 
@@ -52,13 +53,13 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
  * @param options         Additional options, like type (default: 'sequence')
  */
 export async function createFeedManifest(
-  ky: Ky,
+  kyOptions: KyOptions,
   owner: HexEthAddress,
   topic: Topic,
   postageBatchId: BatchId,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
-  const response = await http<ReferenceResponse>(ky, {
+  const response = await http<ReferenceResponse>(kyOptions, {
     method: 'post',
     responseType: 'json',
     path: `${feedEndpoint}/${owner}/${topic}`,
@@ -66,7 +67,7 @@ export async function createFeedManifest(
     headers: extractUploadHeaders(postageBatchId),
   })
 
-  return response.data.reference
+  return response.parsedData.reference
 }
 
 function readFeedUpdateHeaders(headers: Headers): FeedUpdateHeaders {
@@ -101,19 +102,19 @@ function readFeedUpdateHeaders(headers: Headers): FeedUpdateHeaders {
  * @param options     Additional options, like index, at, type
  */
 export async function fetchLatestFeedUpdate(
-  ky: Ky,
+  kyOptions: KyOptions,
   owner: HexEthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<FetchFeedUpdateResponse> {
-  const response = await http<ReferenceResponse>(ky, {
+  const response = await http<ReferenceResponse>(kyOptions, {
     responseType: 'json',
     path: `${feedEndpoint}/${owner}/${topic}`,
     searchParams: filterHeaders(options),
   })
 
   return {
-    ...response.data,
+    ...response.parsedData,
     ...readFeedUpdateHeaders(response.headers),
   }
 }

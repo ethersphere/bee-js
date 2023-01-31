@@ -7,64 +7,68 @@ import type {
   LastChequesForPeerResponse,
   LastChequesResponse,
   NumberString,
-  Ky,
   CashoutOptions,
   TransactionHash,
 } from '../../types'
+import type { Options as KyOptions } from 'ky'
 
 const chequebookEndpoint = 'chequebook'
 
 /**
  * Get the address of the chequebook contract used
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getChequebookAddress(ky: Ky): Promise<ChequebookAddressResponse> {
-  const response = await http<ChequebookAddressResponse>(ky, {
+export async function getChequebookAddress(kyOptions: KyOptions): Promise<ChequebookAddressResponse> {
+  const response = await http<ChequebookAddressResponse>(kyOptions, {
     path: chequebookEndpoint + '/address',
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Get the balance of the chequebook
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getChequebookBalance(ky: Ky): Promise<ChequebookBalanceResponse> {
-  const response = await http<ChequebookBalanceResponse>(ky, {
+export async function getChequebookBalance(kyOptions: KyOptions): Promise<ChequebookBalanceResponse> {
+  const response = await http<ChequebookBalanceResponse>(kyOptions, {
     path: chequebookEndpoint + '/balance',
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Get last cashout action for the peer
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  * @param peer  Swarm address of peer
  */
-export async function getLastCashoutAction(ky: Ky, peer: string): Promise<LastCashoutActionResponse> {
-  const response = await http<LastCashoutActionResponse>(ky, {
+export async function getLastCashoutAction(kyOptions: KyOptions, peer: string): Promise<LastCashoutActionResponse> {
+  const response = await http<LastCashoutActionResponse>(kyOptions, {
     path: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Cashout the last cheque for the peer
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  * @param peer  Swarm address of peer
  * @param options
  */
-export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutOptions): Promise<TransactionHash> {
+export async function cashoutLastCheque(
+  kyOptions: KyOptions,
+  peer: string,
+  options?: CashoutOptions,
+): Promise<TransactionHash> {
   const headers: Record<string, string> = {}
 
   if (options?.gasPrice) {
@@ -75,55 +79,55 @@ export async function cashoutLastCheque(ky: Ky, peer: string, options?: CashoutO
     headers['gas-limit'] = options.gasLimit.toString()
   }
 
-  const response = await http<TransactionResponse>(ky, {
+  const response = await http<TransactionResponse>(kyOptions, {
     method: 'post',
     path: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
     headers,
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }
 
 /**
  * Get last cheques for the peer
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  * @param peer  Swarm address of peer
  */
-export async function getLastChequesForPeer(ky: Ky, peer: string): Promise<LastChequesForPeerResponse> {
-  const response = await http<LastChequesForPeerResponse>(ky, {
+export async function getLastChequesForPeer(kyOptions: KyOptions, peer: string): Promise<LastChequesForPeerResponse> {
+  const response = await http<LastChequesForPeerResponse>(kyOptions, {
     path: chequebookEndpoint + `/cheque/${peer}`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Get last cheques for all peers
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getLastCheques(ky: Ky): Promise<LastChequesResponse> {
-  const response = await http<LastChequesResponse>(ky, {
+export async function getLastCheques(kyOptions: KyOptions): Promise<LastChequesResponse> {
+  const response = await http<LastChequesResponse>(kyOptions, {
     path: chequebookEndpoint + '/cheque',
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Deposit tokens from overlay address into chequebook
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  * @param amount   Amount of tokens to deposit
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
  */
 export async function depositTokens(
-  ky: Ky,
+  kyOptions: KyOptions,
   amount: number | NumberString,
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
@@ -133,7 +137,7 @@ export async function depositTokens(
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await http<TransactionResponse>(ky, {
+  const response = await http<TransactionResponse>(kyOptions, {
     method: 'post',
     path: chequebookEndpoint + '/deposit',
     responseType: 'json',
@@ -141,19 +145,19 @@ export async function depositTokens(
     headers,
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }
 
 /**
  * Withdraw tokens from the chequebook to the overlay address
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  * @param amount   Amount of tokens to withdraw
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
  */
 export async function withdrawTokens(
-  ky: Ky,
+  kyOptions: KyOptions,
   amount: number | NumberString,
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
@@ -163,7 +167,7 @@ export async function withdrawTokens(
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await http<TransactionResponse>(ky, {
+  const response = await http<TransactionResponse>(kyOptions, {
     method: 'post',
     path: chequebookEndpoint + '/withdraw',
     responseType: 'json',
@@ -171,5 +175,5 @@ export async function withdrawTokens(
     headers,
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }

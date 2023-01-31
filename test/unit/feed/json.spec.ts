@@ -4,6 +4,7 @@ import { testAddress, testBatchId, testChunkHash } from '../../utils'
 import { getJsonData, setJsonData } from '../../../src/feed/json'
 import { FetchFeedUpdateResponse } from '../../../src/modules/feed'
 import { wrapBytesWithHelpers } from '../../../src/utils/bytes'
+import { expect } from 'chai'
 
 interface CircularReference {
   otherData: 123
@@ -25,7 +26,7 @@ describe('JsonFeed', () => {
       const writer = Substitute.for<FeedWriter>()
       writer.upload(Arg.all()).resolves(FEED_REFERENCE_HASH)
 
-      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).resolves.toEqual(FEED_REFERENCE_HASH)
+      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).eventually.to.eql(FEED_REFERENCE_HASH)
       bee.received(1).uploadData(testAddress, expectedBytes)
       writer.received(1).upload(testAddress, DATA_REFERENCE)
     })
@@ -37,7 +38,7 @@ describe('JsonFeed', () => {
       const writer = Substitute.for<FeedWriter>()
       writer.download().resolves(FEED_REFERENCE)
 
-      await expect(getJsonData(bee, writer)).resolves.toEqual(data)
+      await expect(getJsonData(bee, writer)).eventually.to.eql(data)
       bee.received(1).downloadData(FEED_REFERENCE_HASH)
       writer.received(1).download()
     })
@@ -62,12 +63,12 @@ describe('JsonFeed', () => {
   it(`should fail for non-serializable data`, async () => {
     const bee = Substitute.for<Bee>()
     const writer = Substitute.for<FeedWriter>()
-    await expect(setJsonData(bee, writer, testAddress, BigInt(123) as unknown as AnyJson)).rejects.toThrow(TypeError)
+    await expect(setJsonData(bee, writer, testAddress, BigInt(123) as unknown as AnyJson)).rejectedWith(TypeError)
 
     const circularReference: CircularReference = { otherData: 123 }
     circularReference.myself = circularReference
 
     // @ts-ignore: Circular references are detected with TS, so we have to ts-ignore to test it.
-    await expect(setJsonData(bee, writer, testBatchId, circularReference)).rejects.toThrow(TypeError)
+    await expect(setJsonData(bee, writer, testBatchId, circularReference)).rejectedWith(TypeError)
   })
 })

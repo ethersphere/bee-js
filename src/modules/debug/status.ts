@@ -1,8 +1,8 @@
 import { http } from '../../utils/http'
 import type { Health, NodeInfo } from '../../types/debug'
-import { Ky } from '../../types'
 import { BeeVersions } from '../../types/debug'
 import getMajorSemver from 'semver/functions/major.js'
+import type { Options as KyOptions } from 'ky'
 
 // Following lines bellow are automatically updated with GitHub Action when Bee version is updated
 // so if you are changing anything about them change the `update_bee` action accordingly!
@@ -19,26 +19,26 @@ const READINESS_URL = 'readiness'
 /**
  * Get health of node
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getHealth(ky: Ky): Promise<Health> {
-  const response = await http<Health>(ky, {
+export async function getHealth(kyOptions: KyOptions): Promise<Health> {
+  const response = await http<Health>(kyOptions, {
     method: 'get',
     path: HEALTH_URL,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Get readiness of node
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getReadiness(ky: Ky): Promise<boolean> {
+export async function getReadiness(kyOptions: KyOptions): Promise<boolean> {
   try {
-    const response = await http<void>(ky, {
+    const response = await http<void>(kyOptions, {
       method: 'get',
       path: READINESS_URL,
     })
@@ -52,29 +52,29 @@ export async function getReadiness(ky: Ky): Promise<boolean> {
 /**
  * Get information about Bee node
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getNodeInfo(ky: Ky): Promise<NodeInfo> {
-  const response = await http<NodeInfo>(ky, {
+export async function getNodeInfo(kyOptions: KyOptions): Promise<NodeInfo> {
+  const response = await http<NodeInfo>(kyOptions, {
     method: 'get',
     path: NODE_INFO_URL,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Connects to a node and checks if it is a supported Bee version by the bee-js
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  *
  * @returns true if the Bee node version is supported
  * @deprecated Use `isSupportedExactVersion` instead
  */
 // TODO: Remove on break
-export async function isSupportedVersion(ky: Ky): Promise<boolean> {
-  return isSupportedExactVersion(ky)
+export async function isSupportedVersion(kyOptions: KyOptions): Promise<boolean> {
+  return isSupportedExactVersion(kyOptions)
 }
 
 /**
@@ -87,8 +87,8 @@ export async function isSupportedVersion(ky: Ky): Promise<boolean> {
  *
  * @param ky
  */
-export async function isSupportedExactVersion(ky: Ky): Promise<boolean> {
-  const { version } = await getHealth(ky)
+export async function isSupportedExactVersion(kyOptions: KyOptions): Promise<boolean> {
+  const { version } = await getHealth(kyOptions)
 
   return version === SUPPORTED_BEE_VERSION_EXACT
 }
@@ -101,8 +101,8 @@ export async function isSupportedExactVersion(ky: Ky): Promise<boolean> {
  *
  * @param ky
  */
-export async function isSupportedMainApiVersion(ky: Ky): Promise<boolean> {
-  const { apiVersion } = await getHealth(ky)
+export async function isSupportedMainApiVersion(kyOptions: KyOptions): Promise<boolean> {
+  const { apiVersion } = await getHealth(kyOptions)
 
   return getMajorSemver(apiVersion) === getMajorSemver(SUPPORTED_API_VERSION)
 }
@@ -115,8 +115,8 @@ export async function isSupportedMainApiVersion(ky: Ky): Promise<boolean> {
  *
  * @param ky
  */
-export async function isSupportedDebugApiVersion(ky: Ky): Promise<boolean> {
-  const { debugApiVersion } = await getHealth(ky)
+export async function isSupportedDebugApiVersion(kyOptions: KyOptions): Promise<boolean> {
+  const { debugApiVersion } = await getHealth(kyOptions)
 
   return getMajorSemver(debugApiVersion) === getMajorSemver(SUPPORTED_DEBUG_API_VERSION)
 }
@@ -128,8 +128,8 @@ export async function isSupportedDebugApiVersion(ky: Ky): Promise<boolean> {
  *
  * @param ky
  */
-export async function isSupportedApiVersion(ky: Ky): Promise<boolean> {
-  const { apiVersion, debugApiVersion } = await getHealth(ky)
+export async function isSupportedApiVersion(kyOptions: KyOptions): Promise<boolean> {
+  const { apiVersion, debugApiVersion } = await getHealth(kyOptions)
 
   return (
     getMajorSemver(apiVersion) === getMajorSemver(SUPPORTED_API_VERSION) &&
@@ -143,8 +143,8 @@ export async function isSupportedApiVersion(ky: Ky): Promise<boolean> {
  *
  * @param ky
  */
-export async function getVersions(ky: Ky): Promise<BeeVersions> {
-  const { version, apiVersion, debugApiVersion } = await getHealth(ky)
+export async function getVersions(kyOptions: KyOptions): Promise<BeeVersions> {
+  const { version, apiVersion, debugApiVersion } = await getHealth(kyOptions)
 
   return {
     supportedBeeVersion: SUPPORTED_BEE_VERSION_EXACT,

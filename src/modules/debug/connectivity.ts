@@ -1,61 +1,62 @@
 import { http } from '../../utils/http'
-import type { Ky, NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
+import type { NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
+import type { Options as KyOptions } from 'ky'
 
-export async function getNodeAddresses(ky: Ky): Promise<NodeAddresses> {
-  const response = await http<NodeAddresses>(ky, {
+export async function getNodeAddresses(kyOptions: KyOptions): Promise<NodeAddresses> {
+  const response = await http<NodeAddresses>(kyOptions, {
     path: 'addresses',
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 interface Peers {
   peers: Peer[]
 }
 
-export async function getPeers(ky: Ky): Promise<Peer[]> {
-  const response = await http<Peers>(ky, {
+export async function getPeers(kyOptions: KyOptions): Promise<Peer[]> {
+  const response = await http<Peers>(kyOptions, {
     path: 'peers',
     responseType: 'json',
   })
 
-  return response.data.peers
+  return response.parsedData.peers
 }
 
-export async function getBlocklist(ky: Ky): Promise<Peer[]> {
-  const response = await http<Peers>(ky, {
+export async function getBlocklist(kyOptions: KyOptions): Promise<Peer[]> {
+  const response = await http<Peers>(kyOptions, {
     path: 'blocklist',
     responseType: 'json',
   })
 
-  return response.data.peers
+  return response.parsedData.peers
 }
 
-export async function removePeer(ky: Ky, peer: string): Promise<RemovePeerResponse> {
-  const response = await http<RemovePeerResponse>(ky, {
+export async function removePeer(kyOptions: KyOptions, peer: string): Promise<RemovePeerResponse> {
+  const response = await http<RemovePeerResponse>(kyOptions, {
     path: `peers/${peer}`,
     responseType: 'json',
     method: 'DELETE',
   })
 
-  return response.data
+  return response.parsedData
 }
 
-export async function getTopology(ky: Ky): Promise<Topology> {
-  const response = await http<Topology>(ky, {
+export async function getTopology(kyOptions: KyOptions): Promise<Topology> {
+  const response = await http<Topology>(kyOptions, {
     path: `topology`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
-export async function pingPeer(ky: Ky, peer: string): Promise<PingResponse> {
-  const response = await http<PingResponse>(ky, {
+export async function pingPeer(kyOptions: KyOptions, peer: string): Promise<PingResponse> {
+  const response = await http<PingResponse>(kyOptions, {
     path: `pingpong/${peer}`,
     responseType: 'json',
     method: 'POST',
   })
 
-  return response.data
+  return response.parsedData
 }

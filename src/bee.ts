@@ -70,7 +70,6 @@ import {
   CHUNK_SIZE,
   Collection,
   FeedManifestResult,
-  Ky,
   Readable,
   ReferenceCidOrEns,
   ReferenceOrEns,
@@ -79,11 +78,12 @@ import {
   UploadResult,
 } from './types'
 
-import type { Options as KyOptions } from 'ky-universal'
-import { makeDefaultKy, wrapRequestClosure, wrapResponseClosure } from './utils/http'
+import type { Options as KyOptions } from 'ky'
+import { DEFAULT_KY_CONFIG, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { isReadable } from './utils/stream'
 import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
 import { ReferenceType } from '@ethersphere/swarm-cid'
+import { deepMerge } from './utils/merge'
 
 /**
  * The main component that abstracts operations available on the main Bee API.
@@ -106,7 +106,7 @@ export class Bee {
    * Ky instance that defines connection to Bee node
    * @private
    */
-  private readonly ky: Ky
+  private readonly kyOptions: KyOptions
 
   /**
    * @param url URL on which is the main API of Bee node exposed
@@ -147,7 +147,7 @@ export class Bee {
       kyOptions.hooks!.afterResponse!.push(wrapResponseClosure(options.onResponse))
     }
 
-    this.ky = makeDefaultKy(kyOptions)
+    this.kyOptions = deepMerge(DEFAULT_KY_CONFIG, kyOptions)
   }
 
   /**
@@ -171,7 +171,7 @@ export class Bee {
 
     if (options) assertUploadOptions(options)
 
-    return bytes.upload(this.getKy(options), data, postageBatchId, options)
+    return bytes.upload(this.getKyOptionsForCall(options), data, postageBatchId, options)
   }
 
   /**
@@ -188,7 +188,7 @@ export class Bee {
     assertRequestOptions(options)
     assertReferenceOrEns(reference)
 
-    return bytes.download(this.getKy(options), reference)
+    return bytes.download(this.getKyOptionsForCall(options), reference)
   }
 
   /**
@@ -208,7 +208,7 @@ export class Bee {
     assertRequestOptions(options)
     assertReferenceOrEns(reference)
 
-    return bytes.downloadReadable(this.getKy(options), reference)
+    return bytes.downloadReadable(this.getKyOptionsForCall(options), reference)
   }
 
   /**
@@ -239,7 +239,7 @@ export class Bee {
 
     if (options) assertUploadOptions(options)
 
-    return chunk.upload(this.getKy(options), data, postageBatchId, options)
+    return chunk.upload(this.getKyOptionsForCall(options), data, postageBatchId, options)
   }
 
   /**
@@ -256,7 +256,7 @@ export class Bee {
     assertRequestOptions(options)
     assertReferenceOrEns(reference)
 
-    return chunk.download(this.getKy(options), reference)
+    return chunk.download(this.getKyOptionsForCall(options), reference)
   }
 
   /**
@@ -297,18 +297,18 @@ export class Bee {
       const fileOptions = { contentType, ...options }
 
       return addCidConversionFunction(
-        await bzz.uploadFile(this.getKy(options), fileData, postageBatchId, fileName, fileOptions),
+        await bzz.uploadFile(this.getKyOptionsForCall(options), fileData, postageBatchId, fileName, fileOptions),
         ReferenceType.MANIFEST,
       )
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
-      const result = await bzz.uploadFile(this.getKy(options), data, postageBatchId, name, options)
+      const result = await bzz.uploadFile(this.getKyOptionsForCall(options), data, postageBatchId, name, options)
       await this.updateTag(options.tag, result.reference)
 
       return addCidConversionFunction(result, ReferenceType.MANIFEST)
     } else {
       return addCidConversionFunction(
-        await bzz.uploadFile(this.getKy(options), data, postageBatchId, name, options),
+        await bzz.uploadFile(this.getKyOptionsForCall(options), data, postageBatchId, name, options),
         ReferenceType.MANIFEST,
       )
     }
@@ -334,7 +334,7 @@ export class Bee {
     assertRequestOptions(options)
     reference = makeReferenceOrEns(reference, ReferenceType.MANIFEST)
 
-    return bzz.downloadFile(this.getKy(options), reference, path)
+    return bzz.downloadFile(this.getKyOptionsForCall(options), reference, path)
   }
 
   /**
@@ -357,7 +357,7 @@ export class Bee {
     assertRequestOptions(options)
     reference = makeReferenceOrEns(reference, ReferenceType.MANIFEST)
 
-    return bzz.downloadFileReadable(this.getKy(options), reference, path)
+    return bzz.downloadFileReadable(this.getKyOptionsForCall(options), reference, path)
   }
 
   /**
@@ -388,7 +388,7 @@ export class Bee {
     const data = await makeCollectionFromFileList(fileList)
 
     return addCidConversionFunction(
-      await bzz.uploadCollection(this.getKy(options), data, postageBatchId, options),
+      await bzz.uploadCollection(this.getKyOptionsForCall(options), data, postageBatchId, options),
       ReferenceType.MANIFEST,
     )
   }
@@ -414,7 +414,7 @@ export class Bee {
     if (options) assertCollectionUploadOptions(options)
 
     return addCidConversionFunction(
-      await bzz.uploadCollection(this.ky, collection, postageBatchId, options),
+      await bzz.uploadCollection(this.kyOptions, collection, postageBatchId, options),
       ReferenceType.MANIFEST,
     )
   }
@@ -446,15 +446,13 @@ export class Bee {
     const data = await makeCollectionFromFS(dir)
 
     return addCidConversionFunction(
-      await bzz.uploadCollection(this.getKy(options), data, postageBatchId, options),
+      await bzz.uploadCollection(this.getKyOptionsForCall(options), data, postageBatchId, options),
       ReferenceType.MANIFEST,
     )
   }
 
   /**
    * Create a new Tag which is meant for tracking progres of syncing data across network.
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param options Options that affects the request behavior
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
@@ -463,15 +461,13 @@ export class Bee {
   async createTag(options?: RequestOptions): Promise<Tag> {
     assertRequestOptions(options)
 
-    return tag.createTag(this.getKy(options))
+    return tag.createTag(this.getKyOptionsForCall(options))
   }
 
   /**
    * Fetches all tags.
    *
    * The listing is limited by options.limit. So you have to iterate using options.offset to get all tags.
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param options Options that affects the request behavior
    * @throws TypeError if limit or offset are not numbers or undefined
@@ -484,13 +480,11 @@ export class Bee {
     assertRequestOptions(options)
     assertAllTagsOptions(options)
 
-    return tag.getAllTags(this.getKy(options), options?.offset, options?.limit)
+    return tag.getAllTags(this.getKyOptionsForCall(options), options?.offset, options?.limit)
   }
 
   /**
    * Retrieve tag information from Bee node
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
    * @param options Options that affects the request behavior
@@ -505,13 +499,11 @@ export class Bee {
 
     tagUid = makeTagUid(tagUid)
 
-    return tag.retrieveTag(this.getKy(options), tagUid)
+    return tag.retrieveTag(this.getKyOptionsForCall(options), tagUid)
   }
 
   /**
    * Delete Tag
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
    * @param options Options that affects the request behavior
@@ -526,7 +518,7 @@ export class Bee {
 
     tagUid = makeTagUid(tagUid)
 
-    return tag.deleteTag(this.getKy(options), tagUid)
+    return tag.deleteTag(this.getKyOptionsForCall(options), tagUid)
   }
 
   /**
@@ -534,8 +526,6 @@ export class Bee {
    *
    * This is important if you are uploading individual chunks with a tag. Then upon finishing the final root chunk,
    * you can use this method to update the total chunks count for the tag.
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param tagUid UID or tag object to be retrieved
    * @param reference The root reference that contains all the chunks to be counted
@@ -552,13 +542,11 @@ export class Bee {
 
     tagUid = makeTagUid(tagUid)
 
-    return tag.updateTag(this.getKy(options), tagUid, reference)
+    return tag.updateTag(this.getKyOptionsForCall(options), tagUid, reference)
   }
 
   /**
    * Pin local data with given reference
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Data reference
    * @param options Options that affects the request behavior
@@ -570,13 +558,11 @@ export class Bee {
     assertRequestOptions(options)
     assertReference(reference)
 
-    return pinning.pin(this.getKy(options), reference)
+    return pinning.pin(this.getKyOptionsForCall(options), reference)
   }
 
   /**
    * Unpin local data with given reference
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Data reference
    * @param options Options that affects the request behavior
@@ -588,13 +574,11 @@ export class Bee {
     assertRequestOptions(options)
     assertReference(reference)
 
-    return pinning.unpin(this.getKy(options), reference)
+    return pinning.unpin(this.getKyOptionsForCall(options), reference)
   }
 
   /**
    * Get list of all locally pinned references
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param options Options that affects the request behavior
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
@@ -602,13 +586,11 @@ export class Bee {
   async getAllPins(options?: RequestOptions): Promise<Reference[]> {
     assertRequestOptions(options)
 
-    return pinning.getAllPins(this.getKy(options))
+    return pinning.getAllPins(this.getKyOptionsForCall(options))
   }
 
   /**
    * Get pinning status of chunk with given reference
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * @param reference Bee data reference in hex string (either 64 or 128 chars long) or ENS domain.
    * @param options Options that affects the request behavior
@@ -621,7 +603,7 @@ export class Bee {
     assertRequestOptions(options)
     assertReference(reference)
 
-    return pinning.getPin(this.getKy(options), reference)
+    return pinning.getPin(this.getKyOptionsForCall(options), reference)
   }
 
   /**
@@ -639,7 +621,7 @@ export class Bee {
     assertRequestOptions(options)
     assertReferenceOrEns(reference)
 
-    await stewardship.reupload(this.getKy(options), reference)
+    await stewardship.reupload(this.getKyOptionsForCall(options), reference)
   }
 
   /**
@@ -656,7 +638,7 @@ export class Bee {
     assertRequestOptions(options)
     assertReferenceOrEns(reference)
 
-    return stewardship.isRetrievable(this.getKy(options), reference)
+    return stewardship.isRetrievable(this.getKyOptionsForCall(options), reference)
   }
 
   /**
@@ -716,8 +698,6 @@ export class Bee {
    * most likely for setting up an encrypted communication
    * channel by sending an one-off message.
    *
-   * **Warning! Not allowed when node is in Gateway mode!**
-   *
    * **Warning! If the recipient Bee node is a light node, then he will never receive the message!**
    * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
    *
@@ -752,16 +732,14 @@ export class Bee {
     if (recipient) {
       assertPublicKey(recipient)
 
-      return pss.send(this.getKy(options), topic, target, data, postageBatchId, recipient)
+      return pss.send(this.getKyOptionsForCall(options), topic, target, data, postageBatchId, recipient)
     } else {
-      return pss.send(this.getKy(options), topic, target, data, postageBatchId)
+      return pss.send(this.getKyOptionsForCall(options), topic, target, data, postageBatchId)
     }
   }
 
   /**
    * Subscribe to messages for given topic with Postal Service for Swarm
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * **Warning! If connected Bee node is a light node, then he will never receive any message!**
    * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
@@ -831,8 +809,6 @@ export class Bee {
    * arrive and then cancel the subscription. Additionally a
    * timeout can be provided for the message to arrive or else
    * an error will be thrown.
-   *
-   * **Warning! Not allowed when node is in Gateway mode!**
    *
    * **Warning! If connected Bee node is a light node, then he will never receive any message!**
    * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
@@ -908,9 +884,15 @@ export class Bee {
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
 
-    const reference = await createFeedManifest(this.getKy(options), canonicalOwner, canonicalTopic, postageBatchId, {
-      type,
-    })
+    const reference = await createFeedManifest(
+      this.getKyOptionsForCall(options),
+      canonicalOwner,
+      canonicalTopic,
+      postageBatchId,
+      {
+        type,
+      },
+    )
 
     return addCidConversionFunction({ reference }, ReferenceType.FEED)
   }
@@ -937,7 +919,7 @@ export class Bee {
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
 
-    return makeFeedReader(this.getKy(options), type, canonicalTopic, canonicalOwner)
+    return makeFeedReader(this.getKyOptionsForCall(options), type, canonicalTopic, canonicalOwner)
   }
 
   /**
@@ -962,7 +944,7 @@ export class Bee {
     const canonicalTopic = makeTopic(topic)
     const canonicalSigner = this.resolveSigner(signer)
 
-    return makeFeedWriter(this.getKy(options), type, canonicalTopic, canonicalSigner)
+    return makeFeedWriter(this.getKyOptionsForCall(options), type, canonicalTopic, canonicalSigner)
   }
 
   /**
@@ -1074,7 +1056,7 @@ export class Bee {
 
     return {
       owner: makeHexEthAddress(canonicalOwner),
-      download: downloadSingleOwnerChunk.bind(null, this.getKy(options), canonicalOwner),
+      download: downloadSingleOwnerChunk.bind(null, this.getKyOptionsForCall(options), canonicalOwner),
     }
   }
 
@@ -1092,7 +1074,7 @@ export class Bee {
     return {
       ...this.makeSOCReader(canonicalSigner.address, options),
 
-      upload: uploadSingleOwnerChunkData.bind(null, this.getKy(options), canonicalSigner),
+      upload: uploadSingleOwnerChunkData.bind(null, this.getKyOptionsForCall(options), canonicalSigner),
     }
   }
 
@@ -1105,7 +1087,7 @@ export class Bee {
   async checkConnection(options?: RequestOptions): Promise<void> | never {
     assertRequestOptions(options, 'PostageBatchOptions')
 
-    return status.checkConnection(this.getKy(options))
+    return status.checkConnection(this.getKyOptionsForCall(options))
   }
 
   /**
@@ -1118,7 +1100,7 @@ export class Bee {
     assertRequestOptions(options, 'PostageBatchOptions')
 
     try {
-      await status.checkConnection(this.getKy(options))
+      await status.checkConnection(this.getKyOptionsForCall(options))
     } catch (e) {
       return false
     }
@@ -1143,11 +1125,7 @@ export class Bee {
     throw new BeeError('You have to pass Signer as property to either the method call or constructor! Non found.')
   }
 
-  private getKy(options?: RequestOptions): Ky {
-    if (!options) {
-      return this.ky
-    }
-
-    return this.ky.extend(options)
+  private getKyOptionsForCall(options?: RequestOptions): KyOptions {
+    return deepMerge(this.kyOptions, options)
   }
 }

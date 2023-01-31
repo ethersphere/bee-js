@@ -5,7 +5,6 @@ import {
   Data,
   FileData,
   FileUploadOptions,
-  Ky,
   Readable,
   Reference,
   ReferenceOrEns,
@@ -20,6 +19,7 @@ import { assertCollection } from '../utils/collection'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { isReadable } from '../utils/stream'
 import { makeTagUid } from '../utils/type'
+import type { Options as KyOptions } from 'ky'
 
 const bzzEndpoint = 'bzz'
 
@@ -48,7 +48,7 @@ function extractFileUploadHeaders(postageBatchId: BatchId, options?: FileUploadO
  * @param options
  */
 export async function uploadFile(
-  ky: Ky,
+  kyOptions: KyOptions,
   data: string | Uint8Array | Readable | ArrayBuffer,
   postageBatchId: BatchId,
   name?: string,
@@ -60,7 +60,7 @@ export async function uploadFile(
     options.contentType = 'application/octet-stream'
   }
 
-  const response = await http<{ reference: Reference }>(ky, {
+  const response = await http<{ reference: Reference }>(kyOptions, {
     method: 'post',
     path: bzzEndpoint,
     body: await prepareData(data),
@@ -72,7 +72,7 @@ export async function uploadFile(
   })
 
   return {
-    reference: response.data.reference,
+    reference: response.parsedData.reference,
     tagUid: makeTagUid(response.headers.get('swarm-tag')),
   }
 }
@@ -80,19 +80,19 @@ export async function uploadFile(
 /**
  * Download single file as a buffer
  *
- * @param ky Ky instance for given Bee class instance
+ * @param kyOptions Ky Options for making requests
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
  */
-export async function downloadFile(ky: Ky, hash: ReferenceOrEns, path = ''): Promise<FileData<Data>> {
-  const response = await http<ArrayBuffer>(ky, {
+export async function downloadFile(kyOptions: KyOptions, hash: ReferenceOrEns, path = ''): Promise<FileData<Data>> {
+  const response = await http<ArrayBuffer>(kyOptions, {
     method: 'GET',
     responseType: 'arraybuffer',
     path: `${bzzEndpoint}/${hash}/${path}`,
   })
   const file = {
     ...readFileHeaders(response.headers),
-    data: wrapBytesWithHelpers(new Uint8Array(response.data)),
+    data: wrapBytesWithHelpers(new Uint8Array(response.parsedData)),
   }
 
   return file
@@ -101,23 +101,23 @@ export async function downloadFile(ky: Ky, hash: ReferenceOrEns, path = ''): Pro
 /**
  * Download single file as a readable stream
  *
- * @param ky Ky instance for given Bee class instance
+ * @param kyOptions Ky Options for making requests
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
  */
 export async function downloadFileReadable(
-  ky: Ky,
+  kyOptions: KyOptions,
   hash: ReferenceOrEns,
   path = '',
 ): Promise<FileData<ReadableStream<Uint8Array>>> {
-  const response = await http<ReadableStream<Uint8Array>>(ky, {
+  const response = await http<ReadableStream<Uint8Array>>(kyOptions, {
     method: 'GET',
     responseType: 'stream',
     path: `${bzzEndpoint}/${hash}/${path}`,
   })
   const file = {
     ...readFileHeaders(response.headers),
-    data: response.data,
+    data: response.parsedData,
   }
 
   return file
@@ -147,13 +147,13 @@ function extractCollectionUploadHeaders(
 
 /**
  * Upload collection
- * @param ky Ky instance for given Bee class instance
+ * @param kyOptions Ky Options for making requests
  * @param collection Collection of Uint8Array buffers to upload
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options
  */
 export async function uploadCollection(
-  ky: Ky,
+  kyOptions: KyOptions,
   collection: Collection<Uint8Array>,
   postageBatchId: BatchId,
   options?: CollectionUploadOptions,
@@ -161,7 +161,7 @@ export async function uploadCollection(
   assertCollection(collection)
   const tarData = makeTar(collection)
 
-  const response = await http<{ reference: Reference }>(ky, {
+  const response = await http<{ reference: Reference }>(kyOptions, {
     method: 'post',
     path: bzzEndpoint,
     body: tarData,
@@ -174,7 +174,7 @@ export async function uploadCollection(
   })
 
   return {
-    reference: response.data.reference,
+    reference: response.parsedData.reference,
     tagUid: makeTagUid(response.headers.get('swarm-tag')),
   }
 }

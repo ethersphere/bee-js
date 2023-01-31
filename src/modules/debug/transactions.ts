@@ -1,5 +1,6 @@
-import { Ky, NumberString, TransactionHash, TransactionInfo } from '../../types'
+import { NumberString, TransactionHash, TransactionInfo } from '../../types'
 import { http } from '../../utils/http'
+import type { Options as KyOptions } from 'ky'
 
 const transactionsEndpoint = 'transactions'
 
@@ -16,13 +17,13 @@ interface TransactionResponse {
  *
  * @param ky   Debug Ky instance
  */
-export async function getAllTransactions(ky: Ky): Promise<TransactionInfo[]> {
-  const response = await http<PendingTransactionsResponse>(ky, {
+export async function getAllTransactions(kyOptions: KyOptions): Promise<TransactionInfo[]> {
+  const response = await http<PendingTransactionsResponse>(kyOptions, {
     path: transactionsEndpoint,
     responseType: 'json',
   })
 
-  return response.data.pendingTransactions
+  return response.parsedData.pendingTransactions
 }
 
 /**
@@ -31,13 +32,13 @@ export async function getAllTransactions(ky: Ky): Promise<TransactionInfo[]> {
  * @param ky   Debug Ky instance
  * @param transactionHash Hash of the transaction
  */
-export async function getTransaction(ky: Ky, transactionHash: TransactionHash): Promise<TransactionInfo> {
-  const response = await http<TransactionInfo>(ky, {
+export async function getTransaction(kyOptions: KyOptions, transactionHash: TransactionHash): Promise<TransactionInfo> {
+  const response = await http<TransactionInfo>(kyOptions, {
     path: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -46,14 +47,17 @@ export async function getTransaction(ky: Ky, transactionHash: TransactionHash): 
  * @param ky   Debug Ky instance
  * @param transactionHash Hash of the transaction
  */
-export async function rebroadcastTransaction(ky: Ky, transactionHash: TransactionHash): Promise<TransactionHash> {
-  const response = await http<TransactionResponse>(ky, {
+export async function rebroadcastTransaction(
+  kyOptions: KyOptions,
+  transactionHash: TransactionHash,
+): Promise<TransactionHash> {
+  const response = await http<TransactionResponse>(kyOptions, {
     method: 'post',
     path: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }
 
 /**
@@ -64,16 +68,16 @@ export async function rebroadcastTransaction(ky: Ky, transactionHash: Transactio
  * @param gasPrice Optional gas price
  */
 export async function cancelTransaction(
-  ky: Ky,
+  kyOptions: KyOptions,
   transactionHash: TransactionHash,
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
-  const response = await http<TransactionResponse>(ky, {
+  const response = await http<TransactionResponse>(kyOptions, {
     method: 'delete',
     headers: { 'gas-price': gasPrice },
     path: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.data.transactionHash
+  return response.parsedData.transactionHash
 }

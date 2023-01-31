@@ -1,5 +1,6 @@
-import { Ky, Reference, Tag } from '../types'
+import { Reference, Tag } from '../types'
 import { http } from '../utils/http'
+import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'tags'
 
@@ -12,14 +13,14 @@ interface GetAllTagsResponse {
  *
  * @param url Bee tag URL
  */
-export async function createTag(ky: Ky): Promise<Tag> {
-  const response = await http<Tag>(ky, {
+export async function createTag(kyOptions: KyOptions): Promise<Tag> {
+  const response = await http<Tag>(kyOptions, {
     method: 'post',
     path: endpoint,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -28,13 +29,13 @@ export async function createTag(ky: Ky): Promise<Tag> {
  * @param url Bee tag URL
  * @param uid UID of tag to be retrieved
  */
-export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
-  const response = await http<Tag>(ky, {
+export async function retrieveTag(kyOptions: KyOptions, uid: number): Promise<Tag> {
+  const response = await http<Tag>(kyOptions, {
     path: `${endpoint}/${uid}`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
@@ -44,14 +45,14 @@ export async function retrieveTag(ky: Ky, uid: number): Promise<Tag> {
  * @param offset
  * @param limit
  */
-export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promise<Tag[]> {
-  const response = await http<GetAllTagsResponse>(ky, {
+export async function getAllTags(kyOptions: KyOptions, offset?: number, limit?: number): Promise<Tag[]> {
+  const response = await http<GetAllTagsResponse>(kyOptions, {
     path: `${endpoint}`,
     searchParams: { offset, limit },
     responseType: 'json',
   })
 
-  return response.data.tags
+  return response.parsedData.tags
 }
 
 /**
@@ -59,8 +60,8 @@ export async function getAllTags(ky: Ky, offset?: number, limit?: number): Promi
  * @param url
  * @param uid
  */
-export async function deleteTag(ky: Ky, uid: number): Promise<void> {
-  await http<void>(ky, {
+export async function deleteTag(kyOptions: KyOptions, uid: number): Promise<void> {
+  await http<void>(kyOptions, {
     method: 'delete',
     path: `${endpoint}/${uid}`,
   })
@@ -72,8 +73,8 @@ export async function deleteTag(ky: Ky, uid: number): Promise<void> {
  * @param uid
  * @param reference
  */
-export async function updateTag(ky: Ky, uid: number, reference: Reference): Promise<void> {
-  await http<void>(ky, {
+export async function updateTag(kyOptions: KyOptions, uid: number, reference: Reference): Promise<void> {
+  await http<void>(kyOptions, {
     method: 'patch',
     path: `${endpoint}/${uid}`,
     json: {
