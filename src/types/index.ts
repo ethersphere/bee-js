@@ -6,11 +6,15 @@ import type { Bytes } from '../utils/bytes'
 import type { BeeError } from '../utils/error'
 import type { EthAddress, HexEthAddress } from '../utils/eth'
 import type { HexString } from '../utils/hex'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type ky from 'ky-universal'
 
 import type { Readable as NativeReadable } from 'stream'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
 import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 
 export * from './debug'

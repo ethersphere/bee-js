@@ -1,6 +1,8 @@
 import { BatchId, Reference, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 
 const socEndpoint = 'soc'

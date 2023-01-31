@@ -8,6 +8,8 @@ import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import * as chunkAPI from '../../../src/modules/chunk'
 import type { BytesReference, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
 import { BeeResponseError } from '../../../src'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 import { expect } from 'chai'
 

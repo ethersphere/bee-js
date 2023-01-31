@@ -1,5 +1,7 @@
 import { Readable } from 'stream'
 import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 
 import type { Address, BatchId, BeeGenericResponse, PlainBytesReference, PostageBatch, Reference } from '../src/types'

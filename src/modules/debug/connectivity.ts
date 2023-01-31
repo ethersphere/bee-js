@@ -1,5 +1,7 @@
 import { http } from '../../utils/http'
 import type { NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 
 export async function getNodeAddresses(kyOptions: KyOptions): Promise<NodeAddresses> {

@@ -29,7 +29,7 @@ const base = async (env?: Partial<WebpackEnvParams>): Promise<Configuration> => 
     output: {
       path,
       filename,
-      sourceMapFilename: filename + '.map',
+      sourceMapFilename: '[file].map[query]',
       library: 'BeeJs',
       libraryTarget: 'umd',
       globalObject: 'this',

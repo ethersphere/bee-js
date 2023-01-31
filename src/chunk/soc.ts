@@ -12,6 +12,8 @@ import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
 import { EthAddress } from '../utils/eth'
 import { assertAddress } from '../utils/type'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 
 const IDENTIFIER_SIZE = 32
