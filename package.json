@@ -112,7 +112,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "expect": "^29.4.0",
-    "glob": "^8.0.1",
     "husky": "^8.0.1",
     "mocha": "^10.2.0",
     "nock": "^13.3.0",
