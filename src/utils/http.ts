@@ -1,5 +1,7 @@
 import { BeeError, BeeNotAJsonError, BeeRequestError, BeeResponseError } from './error'
 import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { HTTPError, Options as KyOptions } from 'ky-universal'
 import { normalizeToReadableStream } from './stream'
 import { isObject, isStrictlyObject } from './type'
@@ -176,15 +178,7 @@ async function getKy(): Promise<Ky> {
     return ky
   }
 
-  // We use TSImportLib as TypeScript otherwise transpiles the `await import` into `require` call for CommonJS modules.
-  // The TSImportLib is used only in Node context as there is defined the `module` object.
-  // In browser&webpack is then used directly `await import()` as babel-loader only
-  // removes TS syntax and hence preserves `await import` in the browser build.
-  // if (importLib && importLib.import_) {
-  //   ky = (await importLib.import_('ky-universal')).default
-  // } else {
   ky = (await import('ky-universal')).default
-  // }
 
   if (!ky) {
     throw new Error('Ky was not found while it should have been!')

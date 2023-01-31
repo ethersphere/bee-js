@@ -5,6 +5,8 @@ import { http } from '../utils/http'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { UploadResult } from '../types'
 import { makeTagUid } from '../utils/type'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'bytes'

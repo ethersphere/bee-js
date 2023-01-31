@@ -63,7 +63,10 @@ import {
 } from './types'
 import * as tag from './modules/debug/tag'
 import * as stamps from './modules/debug/stamps'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky-universal'
+
 import { DEFAULT_KY_CONFIG, wrapRequestClosure, wrapResponseClosure } from './utils/http'
 import { sleep } from './utils/sleep'
 import { deepMerge } from './utils/merge'

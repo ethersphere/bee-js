@@ -1,5 +1,7 @@
 import type { BatchId, PostageBatch, NumberString, PostageBatchBuckets, PostageBatchOptions } from '../../types'
 import { http } from '../../utils/http'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 
 const STAMPS_ENDPOINT = 'stamps'
