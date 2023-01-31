@@ -1,6 +1,8 @@
 import { beeDebugKyOptions, beePeerDebugKyOptions, commonMatchers } from '../../../utils'
 import * as balance from '../../../../src/modules/debug/balance'
 import * as connectivity from '../../../../src/modules/debug/connectivity'
+import { expect } from 'chai'
+import { expect as jestExpect } from 'expect'
 
 // helper function to get the peer overlay address
 async function getPeerOverlay() {
@@ -13,58 +15,58 @@ commonMatchers()
 
 describe('balance', () => {
   describe('balances', () => {
-    test('Get the balances with all known peers including prepaid services', async () => {
+    it('Get the balances with all known peers including prepaid services', async function () {
       const peerOverlay = await getPeerOverlay()
       const response = await balance.getAllBalances(beeDebugKyOptions())
 
-      expect(response.balances).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            peer: expect.any(String),
-            balance: expect.any(String),
+      jestExpect(response.balances).toEqual(
+        jestExpect.arrayContaining([
+          jestExpect.objectContaining({
+            peer: jestExpect.any(String),
+            balance: jestExpect.any(String),
           }),
         ]),
       )
 
       const peerBalances = response.balances.map(peerBalance => peerBalance.peer)
 
-      expect(peerBalances.includes(peerOverlay)).toBeTruthy()
+      expect(peerBalances.includes(peerOverlay)).to.be.ok()
     })
 
-    test('Get the balances with all known peers including prepaid services', async () => {
+    it('Get the balances with all known peers including prepaid services', async function () {
       const peerOverlay = await getPeerOverlay()
       const peerBalance = await balance.getPeerBalance(beeDebugKyOptions(), peerOverlay)
 
-      expect(peerBalance.peer).toEqual(peerOverlay)
-      expect(peerBalance.balance).toBeNumberString()
+      expect(peerBalance.peer).to.eql(peerOverlay)
+      expect(peerBalance.balance).to.be.numberString()
     })
   })
 
   describe('consumed', () => {
-    test('Get the past due consumption balances with all known peers', async () => {
+    it('Get the past due consumption balances with all known peers', async function () {
       const peerOverlay = await getPeerOverlay()
       const response = await balance.getPastDueConsumptionBalances(beeDebugKyOptions())
 
-      expect(response.balances).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            peer: expect.any(String),
-            balance: expect.any(String),
+      jestExpect(response.balances).toEqual(
+        jestExpect.arrayContaining([
+          jestExpect.objectContaining({
+            peer: jestExpect.any(String),
+            balance: jestExpect.any(String),
           }),
         ]),
       )
 
       const peerBalances = response.balances.map(peerBalance => peerBalance.peer)
 
-      expect(peerBalances.includes(peerOverlay)).toBeTruthy()
+      expect(peerBalances.includes(peerOverlay)).to.be.ok()
     })
 
-    test('Get the past due consumption balance with a specific peer', async () => {
+    it('Get the past due consumption balance with a specific peer', async function () {
       const peerOverlay = await getPeerOverlay()
       const peerBalance = await balance.getPastDueConsumptionPeerBalance(beeDebugKyOptions(), peerOverlay)
 
-      expect(peerBalance.peer).toEqual(peerOverlay)
-      expect(peerBalance.balance).toBeNumberString()
+      expect(peerBalance.peer).to.eql(peerOverlay)
+      expect(peerBalance.balance).to.be.numberString()
     })
   })
 })

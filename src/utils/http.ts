@@ -5,8 +5,6 @@ import { normalizeToReadableStream } from './stream'
 import { isObject, isStrictlyObject } from './type'
 import { KyRequestOptions } from '../types'
 import { deepMerge } from './merge'
-import { sleep } from './sleep'
-import { import_ } from '@brillout/import'
 
 export const DEFAULT_KY_CONFIG: KyOptions = {
   headers: {
@@ -171,54 +169,26 @@ export async function http<T>(kyOptions: KyOptions, config: KyRequestOptions): P
   }
 }
 
-let ky: Ky | undefined,
-  kyLock = false
-
-async function waitForLock(): Promise<void> {
-  while (kyLock) {
-    console.log(': Waiting for lock')
-
-    await sleep(10)
-  }
-}
+let ky: Ky | undefined
 
 async function getKy(): Promise<Ky> {
   if (ky) {
-    console.log('Ky found!: ')
-
     return ky
   }
-  console.log(': Ky not found, getting it')
 
   // We use TSImportLib as TypeScript otherwise transpiles the `await import` into `require` call for CommonJS modules.
   // The TSImportLib is used only in Node context as there is defined the `module` object.
   // In browser&webpack is then used directly `await import()` as babel-loader only
   // removes TS syntax and hence preserves `await import` in the browser build.
-  // if (tsimportlib && tsimportlib.dynamicImport) {
-  //   ky = (await tsimportlib.dynamicImport('ky-universal', module)).default
+  // if (importLib && importLib.import_) {
+  //   ky = (await importLib.import_('ky-universal')).default
   // } else {
-  //   ky = (await import('ky-universal')).default
+  ky = (await import('ky-universal')).default
   // }
 
-  if (kyLock) {
-    await waitForLock()
-
-    if (ky) {
-      return ky
-    }
+  if (!ky) {
+    throw new Error('Ky was not found while it should have been!')
   }
-
-  try {
-    kyLock = true
-    ky = (await import_('ky-universal')).default
-
-    if (!ky) {
-      throw new Error('Ky module not found!')
-    }
-  } finally {
-    kyLock = false
-  }
-  console.log(': Got Ky!')
 
   return ky
 }

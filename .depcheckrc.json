@@ -10,22 +10,15 @@
     "@commitlint/config-conventional",
     "@types/content-disposition",
     "@types/debug",
-    "@types/expect-puppeteer",
-    "@types/jest",
-    "@types/jest-environment-puppeteer",
-    "@types/puppeteer",
     "babel-jest",
     "babel-loader",
     "bufferutil",
     "cross-blob",
     "debug",
     "husky",
-    "jest-puppeteer",
-    "puppeteer",
     "ts-node",
-    "typedoc",
-    "typedoc-plugin-markdown",
     "utf-8-validate",
-    "webpack-cli"
+    "webpack-cli",
+    "playwright-test"
   ]
 }

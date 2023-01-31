@@ -1,31 +1,32 @@
 import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 import * as states from '../../../../src/modules/debug/states'
+import { expect } from 'chai'
 
 const BEE_DEBUG_URL = beeDebugKyOptions()
 commonMatchers()
 
 describe('modules/states', () => {
   describe('chainstate', () => {
-    it('should fetch the chainstate', async () => {
+    it('should fetch the chainstate', async function () {
       const state = await states.getChainState(BEE_DEBUG_URL)
 
-      expect(state).toHaveProperty('block')
-      expect(state).toHaveProperty('totalAmount')
-      expect(state).toHaveProperty('currentPrice')
-      expect(state.block).toBeNumberString()
-      expect(state.totalAmount).toBeNumberString()
-      expect(state.currentPrice).toBeNumberString()
+      expect(state).to.have.property('block')
+      expect(state).to.have.property('totalAmount')
+      expect(state).to.have.property('currentPrice')
+      expect(state.block).to.be.a('number')
+      expect(state.totalAmount).to.be.numberString()
+      expect(state.currentPrice).to.be.numberString()
     })
   })
   describe('ReserveState', () => {
-    it('should fetch the reserve state', async () => {
+    it('should fetch the reserve state', async function () {
       const state = await states.getReserveState(BEE_DEBUG_URL)
-      expect(state).toHaveProperty('commitment')
-      expect(state).toHaveProperty('radius')
-      expect(state).toHaveProperty('storageRadius')
-      expect(state.radius).toBeType('number')
-      expect(state.commitment).toBeType('number')
-      expect(state.storageRadius).toBeType('number')
+      expect(state).to.have.property('commitment')
+      expect(state).to.have.property('radius')
+      expect(state).to.have.property('storageRadius')
+      expect(state.radius).a('number')
+      expect(state.commitment).a('number')
+      expect(state.storageRadius).a('number')
     })
   })
 })

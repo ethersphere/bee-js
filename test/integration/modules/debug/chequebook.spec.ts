@@ -9,29 +9,30 @@ import { NumberString } from '../../../../src/types'
 import { isPrefixedHexString } from '../../../../src/utils/hex'
 import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 import { sleep } from '../../../../src/utils/sleep'
+import { expect } from 'chai'
 
 if (process.env.BEE_TEST_CHEQUEBOOK) {
   commonMatchers()
 
   describe('swap enabled chequebook', () => {
-    test('address', async () => {
+    it('address', async function () {
       const response = await getChequebookAddress(beeDebugKyOptions())
 
-      expect(isPrefixedHexString(response.chequebookAddress)).toBeTruthy()
+      expect(isPrefixedHexString(response.chequebookAddress)).to.be.ok()
     })
 
-    test('balance', async () => {
+    it('balance', async function () {
       const response = await getChequebookBalance(beeDebugKyOptions())
 
-      expect(response.availableBalance).toBeNumberString()
-      expect(response.totalBalance).toBeNumberString()
+      expect(response.availableBalance).to.be.numberString()
+      expect(response.totalBalance).to.be.numberString()
     })
 
     const TRANSACTION_TIMEOUT = 20 * 1000
 
     const withDrawDepositTest = (amount: number | NumberString) => async () => {
       const withdrawResponse = await withdrawTokens(beeDebugKyOptions(), amount)
-      expect(withdrawResponse).toBeType('string')
+      expect(withdrawResponse).a('string')
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
@@ -39,24 +40,31 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
 
       const depositResponse = await depositTokens(beeDebugKyOptions(), amount)
 
-      expect(depositResponse).toBeType('string')
+      expect(depositResponse).a('string')
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
       await sleep(TRANSACTION_TIMEOUT)
     }
 
-    test('withdraw and deposit string', async () => await withDrawDepositTest('5'), 3 * TRANSACTION_TIMEOUT)
-    test('withdraw and deposit integer', async () => await withDrawDepositTest(5), 3 * TRANSACTION_TIMEOUT)
+    it('withdraw and deposit string', async function () {
+      this.timeout(3 * TRANSACTION_TIMEOUT)
+      await withDrawDepositTest('5')
+    })
 
-    test('get last cheques for all peers', async () => {
+    it('withdraw and deposit integer', async function () {
+      this.timeout(3 * TRANSACTION_TIMEOUT)
+      await withDrawDepositTest(5)
+    })
+
+    it('get last cheques for all peers', async function () {
       const response = await getLastCheques(beeDebugKyOptions())
 
-      expect(Array.isArray(response.lastcheques)).toBeTruthy()
+      expect(Array.isArray(response.lastcheques)).to.be.ok()
     })
   })
 } else {
-  test('swap disabled chequebook', () => {
+  it('swap disabled chequebook', () => {
     // eslint-disable-next-line no-console
     console.log(`
       Chequebook tests are disabled because BEE_TEST_CHEQUEBOOK environment variable is not set.

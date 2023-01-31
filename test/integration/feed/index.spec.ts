@@ -9,6 +9,7 @@ import * as chunkAPI from '../../../src/modules/chunk'
 import type { BytesReference, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
 import { BeeResponseError } from '../../../src'
 import type { Options as KyOptions } from 'ky'
+import { expect } from 'chai'
 
 function makeChunk(index: number) {
   return makeContentAddressedChunk(new Uint8Array([index]))
@@ -48,28 +49,29 @@ describe('feed', () => {
   const signer = makePrivateKeySigner(hexToBytes(testIdentity.privateKey) as PrivateKeyBytes)
   const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
 
-  test(
-    'empty feed update',
-    async () => {
-      const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
-      const index = await findNextIndex(BEE_KY_OPTIONS, owner, emptyTopic)
+  it('empty feed update', async function () {
+    this.timeout(ERR_TIMEOUT)
+    const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
+    const index = await findNextIndex(BEE_KY_OPTIONS, owner, emptyTopic)
 
-      expect(index).toEqual('0000000000000000')
-    },
-    ERR_TIMEOUT,
-  )
+    expect(index).to.eql('0000000000000000')
+  })
 
-  test('feed update', async () => {
+  it('feed update', async function () {
+    this.timeout(21000)
+
     const uploadedChunk = await uploadChunk(BEE_KY_OPTIONS, 0)
     await tryUploadFeedUpdate(BEE_KY_OPTIONS, signer, topic, 0, uploadedChunk)
 
     const feedUpdate = await fetchLatestFeedUpdate(BEE_KY_OPTIONS, owner, topic)
 
-    expect(feedUpdate.feedIndex).toEqual('0000000000000000')
-    expect(feedUpdate.feedIndexNext).toEqual('0000000000000001')
-  }, 21000)
+    expect(feedUpdate.feedIndex).to.eql('0000000000000000')
+    expect(feedUpdate.feedIndexNext).to.eql('0000000000000001')
+  })
 
-  test('multiple updates and lookup', async () => {
+  it('multiple updates and lookup', async function () {
+    this.timeout(15000)
+
     const reference = makeHexString('0000000000000000000000000000000000000000000000000000000000000000', 64)
     const referenceBytes = hexToBytes(reference)
     assertBytes(referenceBytes, 32)
@@ -85,7 +87,7 @@ describe('feed', () => {
     for (let i = 0; i < numUpdates; i++) {
       const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
       const feedUpdateResponse = await downloadFeedUpdate(BEE_KY_OPTIONS, signer.address, multipleUpdateTopic, i)
-      expect(feedUpdateResponse.reference).toEqual(referenceI)
+      expect(feedUpdateResponse.reference).to.eql(referenceI)
     }
-  }, 15000)
+  })
 })

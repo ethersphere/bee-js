@@ -2,8 +2,33 @@
 import { createPostageBatch, getPostageBatch } from '../src/modules/debug/stamps'
 import { BatchId } from '../src'
 import type { Options as KyOptions } from 'ky'
+import chai, { Assertion } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+import chaiParentheses from 'chai-parentheses'
+import sinonChai from 'sinon-chai'
 
-export default async function testsSetup(): Promise<void> {
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  export namespace Chai {
+    interface Assertion {
+      /**
+       * Checks if given input is numeric string
+       */
+      numberString: Assertion
+    }
+  }
+}
+
+export async function mochaGlobalSetup(): Promise<void> {
+  chai.use(chaiAsPromised)
+  chai.use(chaiParentheses)
+  chai.use(sinonChai)
+
+  Assertion.addMethod('numberString', function () {
+    new Assertion(this._obj).to.be.a('string')
+    new Assertion(this._obj).to.match(/^-?(0|[1-9][0-9]*)$/g)
+  })
+
   try {
     const beeDebugKyOptions: KyOptions = {
       prefixUrl: process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635/',

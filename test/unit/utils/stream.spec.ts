@@ -1,6 +1,7 @@
 import { Readable } from 'stream'
 import { readableNodeToWeb, readableWebToNode } from '../../../src/utils/stream'
 import { bytesEqual } from '../../../src/utils/bytes'
+import { expect } from 'chai'
 
 async function getAllReadable(read: Readable): Promise<any[]> {
   const arr = []
@@ -13,7 +14,7 @@ async function getAllReadable(read: Readable): Promise<any[]> {
 }
 
 describe('stream', () => {
-  it('should convert from nodejs readable to whatwg readablestream and back', async () => {
+  it('should convert from nodejs readable to whatwg readablestream and back', async function () {
     const input = [new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6]), new Uint8Array([7, 8, 9])]
     const nodeJsReadable = Readable.from(input)
 
@@ -21,10 +22,10 @@ describe('stream', () => {
     const nodeJsRevertedReadable = readableWebToNode(readableStream, { highWaterMark: 1 })
 
     const result = await getAllReadable(nodeJsRevertedReadable)
-    expect(result.length).toEqual(input.length)
+    expect(result.length).to.eql(input.length)
 
     for (let i = 0; i < input.length; i++) {
-      expect(bytesEqual(result[i], input[i])).toBeTruthy()
+      expect(bytesEqual(result[i], input[i])).to.be.ok()
     }
   })
 })

@@ -4,12 +4,14 @@ import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
 import { makeCollectionFromFS } from '../../../src/utils/collection.node'
 import { beeKyOptions, BIG_FILE_TIMEOUT, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
 import { Readable } from 'stream'
+import { expect } from 'chai'
+import { expect as jestExpect } from 'expect'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 
 describe('modules/bzz', () => {
   describe('collections', () => {
-    it('should store and retrieve collection with single file', async () => {
+    it('should store and retrieve collection with single file', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -20,11 +22,11 @@ describe('modules/bzz', () => {
       const result = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch())
       const file = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference, directoryStructure[0].path)
 
-      expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data).toEqual(directoryStructure[0].data)
+      expect(file.name).to.eql(directoryStructure[0].path)
+      expect(file.data).to.eql(directoryStructure[0].data)
     })
 
-    it('should retrieve the filename but not the complete path', async () => {
+    it('should retrieve the filename but not the complete path', async function () {
       const path = 'a/b/c/d/'
       const name = '0'
       const directoryStructure: Collection<Uint8Array> = [
@@ -37,11 +39,11 @@ describe('modules/bzz', () => {
       const result = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch())
       const file = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference, directoryStructure[0].path)
 
-      expect(file.name).toEqual(name)
-      expect(file.data).toEqual(directoryStructure[0].data)
+      expect(file.name).to.eql(name)
+      expect(file.data).to.eql(directoryStructure[0].data)
     })
 
-    it('should work with pinning', async () => {
+    it('should work with pinning', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -52,11 +54,11 @@ describe('modules/bzz', () => {
       const result = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch(), { pin: true })
       const file = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference, directoryStructure[0].path)
 
-      expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data).toEqual(directoryStructure[0].data)
+      expect(file.name).to.eql(directoryStructure[0].path)
+      expect(file.data).to.eql(directoryStructure[0].data)
     })
 
-    it('should work with encryption', async () => {
+    it('should work with encryption', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -69,34 +71,31 @@ describe('modules/bzz', () => {
       })
       const file = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference, directoryStructure[0].path)
 
-      expect(file.name).toEqual(directoryStructure[0].path)
-      expect(file.data).toEqual(directoryStructure[0].data)
-      expect(result.reference.length).toEqual(ENCRYPTED_REFERENCE_HEX_LENGTH)
+      expect(file.name).to.eql(directoryStructure[0].path)
+      expect(file.data).to.eql(directoryStructure[0].data)
+      expect(result.reference.length).to.eql(ENCRYPTED_REFERENCE_HEX_LENGTH)
     })
 
-    it(
-      'should upload bigger file',
-      async () => {
-        const directoryStructure: Collection<Uint8Array> = [
-          {
-            path: '0',
-            data: new Uint8Array(32 * 1024 * 1024),
-          },
-        ]
+    it('should upload bigger file', async function () {
+      this.timeout(BIG_FILE_TIMEOUT)
+      const directoryStructure: Collection<Uint8Array> = [
+        {
+          path: '0',
+          data: new Uint8Array(32 * 1024 * 1024),
+        },
+      ]
 
-        const response = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch())
+      const response = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch())
 
-        expect(response).toEqual(
-          expect.objectContaining({
-            reference: expect.any(String),
-            tagUid: expect.any(Number),
-          }),
-        )
-      },
-      BIG_FILE_TIMEOUT,
-    )
+      jestExpect(response).toEqual(
+        jestExpect.objectContaining({
+          reference: jestExpect.any(String),
+          tagUid: jestExpect.any(Number),
+        }),
+      )
+    })
 
-    it('should store and retrieve collection', async () => {
+    it('should store and retrieve collection', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -111,15 +110,15 @@ describe('modules/bzz', () => {
       const result = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch())
 
       const file0 = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference, directoryStructure[0].path)
-      expect(file0.name).toEqual(directoryStructure[0].path)
-      expect(file0.data).toEqual(directoryStructure[0].data)
+      expect(file0.name).to.eql(directoryStructure[0].path)
+      expect(file0.data).to.eql(directoryStructure[0].data)
 
       const file1 = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference, directoryStructure[1].path)
-      expect(file1.name).toEqual(directoryStructure[1].path)
-      expect(file1.data).toEqual(directoryStructure[1].data)
+      expect(file1.name).to.eql(directoryStructure[1].path)
+      expect(file1.data).to.eql(directoryStructure[1].data)
     })
 
-    it('should store and retrieve collection with index document', async () => {
+    it('should store and retrieve collection with index document', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -136,11 +135,11 @@ describe('modules/bzz', () => {
       })
 
       const indexFile = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference)
-      expect(indexFile.name).toEqual(directoryStructure[0].path)
-      expect(indexFile.data).toEqual(directoryStructure[0].data)
+      expect(indexFile.name).to.eql(directoryStructure[0].path)
+      expect(indexFile.data).to.eql(directoryStructure[0].data)
     })
 
-    it('should store and retrieve collection with error document', async () => {
+    it('should store and retrieve collection with error document', async function () {
       const directoryStructure: Collection<Uint8Array> = [
         {
           path: '0',
@@ -157,11 +156,11 @@ describe('modules/bzz', () => {
       })
 
       const errorFile = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference, 'error')
-      expect(errorFile.name).toEqual(directoryStructure[0].path)
-      expect(errorFile.data).toEqual(directoryStructure[0].data)
+      expect(errorFile.name).to.eql(directoryStructure[0].path)
+      expect(errorFile.data).to.eql(directoryStructure[0].data)
     })
 
-    it('should store and retrieve actual directory', async () => {
+    it('should store and retrieve actual directory', async function () {
       const path = 'test/data/'
       const dir = `./${path}`
       const file3Name = '3.txt'
@@ -171,11 +170,11 @@ describe('modules/bzz', () => {
       const result = await bzz.uploadCollection(BEE_KY_OPTIONS, directoryStructure, getPostageBatch())
 
       const file3 = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference, `${subDir}${file3Name}`)
-      expect(file3.name).toEqual(file3Name)
-      expect(file3.data).toEqual(data)
+      expect(file3.name).to.eql(file3Name)
+      expect(file3.data).to.eql(data)
     })
 
-    it('should store and retrieve actual directory with index document', async () => {
+    it('should store and retrieve actual directory with index document', async function () {
       const path = 'test/data/'
       const dir = `./${path}`
       const fileName = '1.txt'
@@ -186,33 +185,33 @@ describe('modules/bzz', () => {
       })
 
       const file1 = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference)
-      expect(file1.name).toEqual(fileName)
-      expect(file1.data).toEqual(data)
+      expect(file1.name).to.eql(fileName)
+      expect(file1.data).to.eql(data)
     })
   })
 
   describe('file', () => {
-    it('should store and retrieve file', async () => {
+    it('should store and retrieve file', async function () {
       const data = 'hello world'
       const filename = 'hello.txt'
 
       const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, getPostageBatch(), filename)
       const fileData = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference)
 
-      expect(Buffer.from(fileData.data).toString()).toEqual(data)
-      expect(fileData.name).toEqual(filename)
+      expect(Buffer.from(fileData.data).toString()).to.eql(data)
+      expect(fileData.name).to.eql(filename)
     })
 
-    it('should store file without filename', async () => {
+    it('should store file without filename', async function () {
       const data = 'hello world'
 
       const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, getPostageBatch())
       const fileData = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference)
 
-      expect(Buffer.from(fileData.data).toString()).toEqual(data)
+      expect(Buffer.from(fileData.data).toString()).to.eql(data)
     })
 
-    it('should store readable file', async () => {
+    it('should store readable file', async function () {
       const data = randomByteArray(5000, 1)
       const filename = 'hello.txt'
 
@@ -221,10 +220,12 @@ describe('modules/bzz', () => {
       })
       const fileData = await bzz.downloadFile(BEE_KY_OPTIONS, result.reference)
 
-      expect(fileData.data).toEqual(data)
+      expect(fileData.data).to.eql(data)
     })
 
-    it('should store file with a tag', async () => {
+    it('should store file with a tag', async function () {
+      this.timeout(BIG_FILE_TIMEOUT)
+
       // Relates to how many chunks is uploaded which depends on manifest serialization.
       // https://github.com/ethersphere/bee/pull/1501#discussion_r611385602
       const EXPECTED_TAGS_COUNT = 6
@@ -236,32 +237,26 @@ describe('modules/bzz', () => {
       await bzz.uploadFile(BEE_KY_OPTIONS, data, getPostageBatch(), filename, { tag: tag1.uid })
       const tag2 = await tag.retrieveTag(BEE_KY_OPTIONS, tag1.uid)
 
-      expect(tag2.total).toEqual(EXPECTED_TAGS_COUNT)
-      expect(tag2.processed).toEqual(EXPECTED_TAGS_COUNT)
-    }, 5000)
+      expect(tag2.total).to.eql(EXPECTED_TAGS_COUNT)
+      expect(tag2.processed).to.eql(EXPECTED_TAGS_COUNT)
+    })
 
-    it(
-      'should catch error',
-      async () => {
-        await expect(bzz.downloadFile(BEE_KY_OPTIONS, invalidReference)).rejects.toThrow('Not Found')
-      },
-      BIG_FILE_TIMEOUT,
-    )
+    it('should catch error', async function () {
+      this.timeout(BIG_FILE_TIMEOUT)
+      await expect(bzz.downloadFile(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+    })
 
-    it(
-      'should upload bigger file',
-      async () => {
-        const data = new Uint8Array(32 * 1024 * 1024)
-        const response = await bzz.uploadFile(BEE_KY_OPTIONS, data, getPostageBatch())
+    it('should upload bigger file', async function () {
+      this.timeout(BIG_FILE_TIMEOUT)
+      const data = new Uint8Array(32 * 1024 * 1024)
+      const response = await bzz.uploadFile(BEE_KY_OPTIONS, data, getPostageBatch())
 
-        expect(response).toEqual(
-          expect.objectContaining({
-            reference: expect.any(String),
-            tagUid: expect.any(Number),
-          }),
-        )
-      },
-      BIG_FILE_TIMEOUT,
-    )
+      jestExpect(response).toEqual(
+        jestExpect.objectContaining({
+          reference: jestExpect.any(String),
+          tagUid: jestExpect.any(Number),
+        }),
+      )
+    })
   })
 })
