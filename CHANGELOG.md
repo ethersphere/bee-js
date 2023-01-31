@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [5.1.2](https://github.com/ethersphere/bee-js/compare/v5.1.1...v5.1.2) (2023-01-31)
+
+
+### Bug Fixes
+
+* improved readme example ([#756](https://github.com/ethersphere/bee-js/issues/756)) ([a316659](https://github.com/ethersphere/bee-js/commit/a31665981e543bc6d065481c32f18b093e6e062f))
+
 ## [5.1.1](https://github.com/ethersphere/bee-js/compare/v5.1.0...v5.1.1) (2022-12-21)
 
 
