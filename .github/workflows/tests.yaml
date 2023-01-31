@@ -36,7 +36,7 @@ jobs:
           cache: 'npm'
 
       - name: Install npm deps
-        run: npm ci
+        run: npm install -g npm && npm ci
 
       # Start Bee Factory environment
       - name: Start Bee Factory environment
