@@ -50,7 +50,14 @@ jobs:
           NODE_OPTIONS: '--no-experimental-fetch'
         run: npm run bee -- --verbose --detach
 
-      - name: Run unit and integration tests for node
+      - name: Tests Node 18
+        if:  matrix.node-version == '18.x'
+        env:
+          NODE_OPTIONS: '--no-experimental-fetch'
+        run: npm run test
+
+      - name: Tests non-Node 18
+        if:  matrix.node-version != '18.x'
         run: npm run test
 
       - name: Debug workflow if failed
