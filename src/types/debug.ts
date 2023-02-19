@@ -1,5 +1,5 @@
-import { PublicKey, NumberString, Reference, TransactionHash, RequestOptions } from './index'
 import { HexEthAddress } from '../utils/eth'
+import { NumberString, PublicKey, Reference, RequestOptions, TransactionHash } from './index'
 
 /**
  * Object that contains information about progress of upload of data to network.
@@ -164,6 +164,17 @@ export enum BeeModes {
   LIGHT = 'light',
   ULTRA_LIGHT = 'ultra-light',
   DEV = 'dev',
+}
+
+export interface RedistributionState {
+  isFrozen: boolean
+  round: number
+  lastWonRound: number
+  lastPlayedRound: number
+  lastFrozenRound: number
+  block: number
+  reward: NumberString
+  fees: NumberString
 }
 
 /**

@@ -1,10 +1,11 @@
+import { BeeGenericResponse, NumberString, RedistributionState, TransactionOptions } from '../../types'
 import { http } from '../../utils/http'
-import { BeeGenericResponse, NumberString, TransactionOptions } from '../../types'
 
 // @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky'
 
 const STAKE_ENDPOINT = 'stake'
+const REDISTRIBUTION_ENDPOINT = 'redistributionstate'
 
 interface GetStake {
   stakedAmount: NumberString
@@ -49,4 +50,19 @@ export async function stake(kyOptions: KyOptions, amount: NumberString, options?
     path: `${STAKE_ENDPOINT}/${amount}`,
     headers,
   })
+}
+
+/**
+ * Get current status of node in redistribution game
+ *
+ * @param kyOptions Ky Options for making requests
+ */
+export async function getRedistributionState(kyOptions: KyOptions): Promise<RedistributionState> {
+  const response = await http<RedistributionState>(kyOptions, {
+    method: 'get',
+    responseType: 'json',
+    path: REDISTRIBUTION_ENDPOINT,
+  })
+
+  return response.parsedData
 }

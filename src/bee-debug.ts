@@ -1,43 +1,56 @@
-import * as connectivity from './modules/debug/connectivity'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
+import * as connectivity from './modules/debug/connectivity'
 import * as settlements from './modules/debug/settlements'
+import * as stake from './modules/debug/stake'
+import * as states from './modules/debug/states'
 import * as status from './modules/debug/status'
 import * as transactions from './modules/debug/transactions'
-import * as states from './modules/debug/states'
-import * as stake from './modules/debug/stake'
 
+import * as stamps from './modules/debug/stamps'
+import * as tag from './modules/debug/tag'
 import type {
   Address,
-  Peer,
+  AllSettlements,
   BalanceResponse,
-  PeerBalance,
+  BeeVersions,
+  ChainState,
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
-  LastChequesResponse,
-  LastChequesForPeerResponse,
-  LastCashoutActionResponse,
-  Settlements,
-  AllSettlements,
-  RemovePeerResponse,
-  Topology,
-  PingResponse,
-  Health,
-  NodeAddresses,
-  ReserveState,
-  ChainState,
-  NumberString,
   ExtendedTag,
-  PostageBatchBuckets,
-  PostageBatch,
-  TransactionInfo,
-  TransactionHash,
+  Health,
+  LastCashoutActionResponse,
+  LastChequesForPeerResponse,
+  LastChequesResponse,
+  NodeAddresses,
   NodeInfo,
-  BeeVersions,
+  NumberString,
+  Peer,
+  PeerBalance,
+  PingResponse,
+  PostageBatch,
+  PostageBatchBuckets,
+  RedistributionState,
+  RemovePeerResponse,
+  ReserveState,
+  Settlements,
+  Topology,
+  TransactionHash,
+  TransactionInfo,
   WalletBalance,
 } from './types'
+import {
+  BatchId,
+  BeeOptions,
+  CashoutOptions,
+  PostageBatchOptions,
+  RequestOptions,
+  STAMPS_DEPTH_MAX,
+  STAMPS_DEPTH_MIN,
+  Tag,
+  TransactionOptions,
+} from './types'
 import { BeeArgumentError, BeeError } from './utils/error'
-import { assertBeeUrl, stripLastSlash } from './utils/url'
 import {
   assertAddress,
   assertBatchId,
@@ -50,26 +63,14 @@ import {
   assertTransactionOptions,
   isTag,
 } from './utils/type'
-import {
-  BatchId,
-  BeeOptions,
-  CashoutOptions,
-  PostageBatchOptions,
-  RequestOptions,
-  STAMPS_DEPTH_MAX,
-  STAMPS_DEPTH_MIN,
-  Tag,
-  TransactionOptions,
-} from './types'
-import * as tag from './modules/debug/tag'
-import * as stamps from './modules/debug/stamps'
+import { assertBeeUrl, stripLastSlash } from './utils/url'
 
 // @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
 import type { Options as KyOptions } from 'ky-universal'
 
 import { DEFAULT_KY_CONFIG, wrapRequestClosure, wrapResponseClosure } from './utils/http'
-import { sleep } from './utils/sleep'
 import { deepMerge } from './utils/merge'
+import { sleep } from './utils/sleep'
 
 export class BeeDebug {
   /**
@@ -725,6 +726,17 @@ export class BeeDebug {
     assertTransactionOptions(options)
 
     await stake.stake(this.getKyOptionsForCall(options), amount, options)
+  }
+
+  /**
+   * Get current status of node in redistribution game
+   *
+   * @param options
+   */
+  async getRedistributionState(options?: RequestOptions): Promise<RedistributionState> {
+    assertRequestOptions(options)
+
+    return stake.getRedistributionState(this.getKyOptionsForCall(options))
   }
 
   private async waitForUsablePostageStamp(id: BatchId, timeout = 120_000): Promise<void> {
