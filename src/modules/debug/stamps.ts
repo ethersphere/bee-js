@@ -1,5 +1,8 @@
-import type { BatchId, PostageBatch, Ky, NumberString, PostageBatchBuckets, PostageBatchOptions } from '../../types'
+import type { BatchId, PostageBatch, NumberString, PostageBatchBuckets, PostageBatchOptions } from '../../types'
 import { http } from '../../utils/http'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
+import type { Options as KyOptions } from 'ky'
 
 const STAMPS_ENDPOINT = 'stamps'
 
@@ -11,38 +14,41 @@ interface StampResponse {
   batchID: BatchId
 }
 
-export async function getAllPostageBatches(ky: Ky): Promise<PostageBatch[]> {
-  const response = await http<GetAllStampsResponse>(ky, {
+export async function getAllPostageBatches(kyOptions: KyOptions): Promise<PostageBatch[]> {
+  const response = await http<GetAllStampsResponse>(kyOptions, {
     method: 'get',
     path: `${STAMPS_ENDPOINT}`,
     responseType: 'json',
   })
 
-  return response.data.stamps
+  return response.parsedData.stamps
 }
 
-export async function getPostageBatch(ky: Ky, postageBatchId: BatchId): Promise<PostageBatch> {
-  const response = await http<PostageBatch>(ky, {
+export async function getPostageBatch(kyOptions: KyOptions, postageBatchId: BatchId): Promise<PostageBatch> {
+  const response = await http<PostageBatch>(kyOptions, {
     method: 'get',
     path: `${STAMPS_ENDPOINT}/${postageBatchId}`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
-export async function getPostageBatchBuckets(ky: Ky, postageBatchId: BatchId): Promise<PostageBatchBuckets> {
-  const response = await http<PostageBatchBuckets>(ky, {
+export async function getPostageBatchBuckets(
+  kyOptions: KyOptions,
+  postageBatchId: BatchId,
+): Promise<PostageBatchBuckets> {
+  const response = await http<PostageBatchBuckets>(kyOptions, {
     method: 'get',
     path: `${STAMPS_ENDPOINT}/${postageBatchId}/buckets`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 export async function createPostageBatch(
-  ky: Ky,
+  kyOptions: KyOptions,
   amount: NumberString,
   depth: number,
   options?: PostageBatchOptions,
@@ -57,7 +63,7 @@ export async function createPostageBatch(
     headers.immutable = String(options.immutableFlag)
   }
 
-  const response = await http<StampResponse>(ky, {
+  const response = await http<StampResponse>(kyOptions, {
     method: 'post',
     path: `${STAMPS_ENDPOINT}/${amount}/${depth}`,
     responseType: 'json',
@@ -65,25 +71,25 @@ export async function createPostageBatch(
     headers,
   })
 
-  return response.data.batchID
+  return response.parsedData.batchID
 }
 
-export async function topUpBatch(ky: Ky, id: string, amount: NumberString): Promise<BatchId> {
-  const response = await http<StampResponse>(ky, {
+export async function topUpBatch(kyOptions: KyOptions, id: string, amount: NumberString): Promise<BatchId> {
+  const response = await http<StampResponse>(kyOptions, {
     method: 'patch',
     path: `${STAMPS_ENDPOINT}/topup/${id}/${amount}`,
     responseType: 'json',
   })
 
-  return response.data.batchID
+  return response.parsedData.batchID
 }
 
-export async function diluteBatch(ky: Ky, id: string, depth: number): Promise<BatchId> {
-  const response = await http<StampResponse>(ky, {
+export async function diluteBatch(kyOptions: KyOptions, id: string, depth: number): Promise<BatchId> {
+  const response = await http<StampResponse>(kyOptions, {
     method: 'patch',
     path: `${STAMPS_ENDPOINT}/dilute/${id}/${depth}`,
     responseType: 'json',
   })
 
-  return response.data.batchID
+  return response.parsedData.batchID
 }

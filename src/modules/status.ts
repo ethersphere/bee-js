@@ -1,13 +1,15 @@
 import { http } from '../utils/http'
-import { Ky } from '../types'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
+import type { Options as KyOptions } from 'ky'
 
 /**
  * Ping the base bee URL. If connection was not successful throw error
  *
- * @param ky Ky instance for given Bee class instance
+ * @param kyOptions Ky instance for given Bee class instance
  */
-export async function checkConnection(ky: Ky): Promise<void> | never {
-  await http<string>(ky, {
+export async function checkConnection(kyOptions: KyOptions): Promise<void> | never {
+  await http<string>(kyOptions, {
     path: '',
   })
 }

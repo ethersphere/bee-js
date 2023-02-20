@@ -106,6 +106,16 @@ Install project dependencies with
 npm i
 ```
 
+### Node 18
+
+Node 18 came with its own fetch's native implementation called Undici. If you want to run bee-js tests under Node 18, then disable
+the native's fetch implementation otherwise unit tests will fail as they capture HTTP calls with library called `nock` that does
+not support native fetch yet.
+
+```
+export NODE_OPTIONS='--no-experimental-fetch'
+```
+
 ### Test
 
 The tests run in both context: node and dom with Jest.
@@ -138,8 +148,6 @@ or for Browsers
 
 ## Maintainers
 
-- [auhau](https://github.com/auhau)
-- [vojtechsimetka](https://github.com/vojtechsimetka)
 
 ## License
 

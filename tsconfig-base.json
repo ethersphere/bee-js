@@ -7,10 +7,9 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "strict": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
     "typeRoots": ["./src/types", "node_modules/@types"],
-    "target": "es2015",
+    "target": "es2020",
     "rootDirs": ["src"],
   },
 }

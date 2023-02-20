@@ -1,176 +1,157 @@
+import { expect } from 'chai'
+import { expect as jestExpect } from 'expect'
 import { BeeArgumentError, BeeDebug } from '../../src'
 import {
   beeDebugUrl,
-  commonMatchers,
   getOrCreatePostageBatch,
   BLOCKCHAIN_TRANSACTION_TIMEOUT,
   WAITING_USABLE_STAMP_TIMEOUT,
 } from '../utils'
 import { sleep } from '../../src/utils/sleep'
 
-commonMatchers()
-
 describe('Bee Debug class', () => {
   const BEE_DEBUG_URL = beeDebugUrl()
   const beeDebug = new BeeDebug(BEE_DEBUG_URL)
 
   describe('PostageBatch', () => {
-    it(
-      'should create a new postage batch with zero amount and be usable',
-      async () => {
-        const batchId = await beeDebug.createPostageBatch('10', 17)
-        const stamp = await beeDebug.getPostageBatch(batchId)
-        expect(stamp.usable).toEqual(true)
+    it('should create a new postage batch with zero amount and be usable', async function () {
+      this.timeout(WAITING_USABLE_STAMP_TIMEOUT + BLOCKCHAIN_TRANSACTION_TIMEOUT)
+      const batchId = await beeDebug.createPostageBatch('10', 17)
+      const stamp = await beeDebug.getPostageBatch(batchId)
+      expect(stamp.usable).to.eql(true)
 
-        const allBatches = await beeDebug.getAllPostageBatch()
-        expect(allBatches.find(batch => batch.batchID === batchId)).toBeTruthy()
-      },
-      WAITING_USABLE_STAMP_TIMEOUT + BLOCKCHAIN_TRANSACTION_TIMEOUT,
-    )
+      const allBatches = await beeDebug.getAllPostageBatch()
+      expect(allBatches.find(batch => batch.batchID === batchId)).to.be.ok()
+    })
 
-    it(
-      'should not wait for the stamp to be usable if specified',
-      async () => {
-        const batchId = await beeDebug.createPostageBatch('1000', 17, { waitForUsable: false })
-        const stamp = await beeDebug.getPostageBatch(batchId)
-        expect(stamp.usable).toEqual(false)
-      },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT,
-    )
+    it('should not wait for the stamp to be usable if specified', async function () {
+      this.timeout(BLOCKCHAIN_TRANSACTION_TIMEOUT)
+      const batchId = await beeDebug.createPostageBatch('1000', 17, { waitForUsable: false })
+      const stamp = await beeDebug.getPostageBatch(batchId)
+      expect(stamp.usable).to.eql(false)
+    })
 
     // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
-    it.skip(
-      'should topup postage batch',
-      async () => {
-        const batch = await getOrCreatePostageBatch(undefined, undefined, false)
+    it.skip('should topup postage batch', async function () {
+      this.timeout(BLOCKCHAIN_TRANSACTION_TIMEOUT * 3)
+      const batch = await getOrCreatePostageBatch(undefined, undefined, false)
 
-        await beeDebug.topUpBatch(batch.batchID, '10')
+      await beeDebug.topUpBatch(batch.batchID, '10')
 
-        await sleep(4000)
-        const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
-        const newAmount = (parseInt(batch.amount) + 10).toString()
-        expect(batchDetails.amount).toEqual(newAmount)
-      },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT * 3,
-    )
+      await sleep(4000)
+      const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
+      const newAmount = (parseInt(batch.amount) + 10).toString()
+      expect(batchDetails.amount).to.eql(newAmount)
+    })
 
     // TODO: Finish topup and dilute testing https://github.com/ethersphere/bee-js/issues/427
-    it.skip(
-      'should dilute postage batch',
-      async () => {
-        const batch = await getOrCreatePostageBatch(undefined, 17, false)
-        await beeDebug.diluteBatch(batch.batchID, batch.depth + 2)
+    it.skip('should dilute postage batch', async function () {
+      this.timeout(BLOCKCHAIN_TRANSACTION_TIMEOUT * 2)
+      const batch = await getOrCreatePostageBatch(undefined, 17, false)
+      await beeDebug.diluteBatch(batch.batchID, batch.depth + 2)
 
-        const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
-        expect(batchDetails.depth).toEqual(batch.depth + 2)
-      },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
-    )
+      const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
+      expect(batchDetails.depth).to.eql(batch.depth + 2)
+    })
 
-    it(
-      'should have both immutable true and false',
-      async () => {
-        await beeDebug.createPostageBatch('1', 17, { immutableFlag: true, waitForUsable: true })
-        await beeDebug.createPostageBatch('1', 17, { immutableFlag: false, waitForUsable: true })
-        const allBatches = await beeDebug.getAllPostageBatch()
-
-        expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
-        expect(allBatches.find(batch => batch.immutableFlag === false)).toBeTruthy()
-      },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT * 2,
-    )
-
-    it('should have all properties', async () => {
+    it('should have both immutable true and false', async function () {
+      this.timeout(BLOCKCHAIN_TRANSACTION_TIMEOUT * 2)
+      await beeDebug.createPostageBatch('1', 17, { immutableFlag: true, waitForUsable: false })
+      await beeDebug.createPostageBatch('1', 17, { immutableFlag: false, waitForUsable: false })
       const allBatches = await beeDebug.getAllPostageBatch()
 
-      expect(allBatches.length).toBeGreaterThan(0)
+      expect(allBatches.find(batch => batch.immutableFlag === true)).to.be.ok()
+      expect(allBatches.find(batch => batch.immutableFlag === false)).to.be.ok()
+    })
 
-      expect(allBatches).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            batchID: expect.any(String),
-            utilization: expect.any(Number),
-            usable: expect.any(Boolean),
-            label: expect.any(String),
-            depth: expect.any(Number),
-            amount: expect.any(String),
-            bucketDepth: expect.any(Number),
-            blockNumber: expect.any(Number),
-            immutableFlag: expect.any(Boolean),
-            batchTTL: expect.any(Number),
-            exists: expect.any(Boolean),
+    it('should have all properties', async function () {
+      const allBatches = await beeDebug.getAllPostageBatch()
+
+      expect(allBatches.length).above(0)
+
+      jestExpect(allBatches).toEqual(
+        jestExpect.arrayContaining([
+          jestExpect.objectContaining({
+            batchID: jestExpect.any(String),
+            utilization: jestExpect.any(Number),
+            usable: jestExpect.any(Boolean),
+            label: jestExpect.any(String),
+            depth: jestExpect.any(Number),
+            amount: jestExpect.any(String),
+            bucketDepth: jestExpect.any(Number),
+            blockNumber: jestExpect.any(Number),
+            immutableFlag: jestExpect.any(Boolean),
+            batchTTL: jestExpect.any(Number),
+            exists: jestExpect.any(Boolean),
           }),
         ]),
       )
     })
 
-    it('buckets should have all properties', async () => {
+    it('buckets should have all properties', async function () {
       const allBatches = await beeDebug.getAllPostageBatch()
 
-      expect(allBatches.length).toBeGreaterThan(0)
+      expect(allBatches.length).above(0)
       const batchId = allBatches[0].batchID
       const buckets = await beeDebug.getPostageBatchBuckets(batchId)
 
-      expect(buckets).toEqual(
-        expect.objectContaining({
-          depth: expect.any(Number),
-          bucketDepth: expect.any(Number),
-          bucketUpperBound: expect.any(Number),
-          buckets: expect.arrayContaining([
-            expect.objectContaining({
-              bucketID: expect.any(Number),
-              collisions: expect.any(Number),
+      jestExpect(buckets).toEqual(
+        jestExpect.objectContaining({
+          depth: jestExpect.any(Number),
+          bucketDepth: jestExpect.any(Number),
+          bucketUpperBound: jestExpect.any(Number),
+          buckets: jestExpect.arrayContaining([
+            jestExpect.objectContaining({
+              bucketID: jestExpect.any(Number),
+              collisions: jestExpect.any(Number),
             }),
           ]),
         }),
       )
     })
 
-    it('should error with negative amount', async () => {
-      await expect(beeDebug.createPostageBatch('-1', 17)).rejects.toThrowError(BeeArgumentError)
+    it('should error with negative amount', async function () {
+      await expect(beeDebug.createPostageBatch('-1', 17)).rejectedWith(BeeArgumentError)
     })
   })
 
   describe('modes', () => {
-    it('should return modes', async () => {
-      expect(await beeDebug.getNodeInfo()).toEqual(
-        expect.objectContaining({
-          beeMode: expect.stringMatching(/^(dev|light|full)$/),
-          chequebookEnabled: expect.any(Boolean),
-          swapEnabled: expect.any(Boolean),
+    it('should return modes', async function () {
+      jestExpect(await beeDebug.getNodeInfo()).toEqual(
+        jestExpect.objectContaining({
+          beeMode: jestExpect.stringMatching(/^(dev|light|full)$/),
+          chequebookEnabled: jestExpect.any(Boolean),
+          swapEnabled: jestExpect.any(Boolean),
         }),
       )
     })
   })
 
   describe('staking', () => {
-    it('should return amount staked', async () => {
-      expect(await beeDebug.getStake()).toEqual(expect.stringMatching(/^[0-9]+$/))
+    it('should return amount staked', async function () {
+      expect(await beeDebug.getStake()).to.match(/^[0-9]+$/)
     })
 
-    it(
-      'should deposit stake',
-      async () => {
-        const originalStake = BigInt(await beeDebug.getStake())
+    it('should deposit stake', async function () {
+      this.timeout(BLOCKCHAIN_TRANSACTION_TIMEOUT)
+      const originalStake = BigInt(await beeDebug.getStake())
 
-        await beeDebug.depositStake('100000000000000000')
+      await beeDebug.depositStake('100000000000000000')
 
-        const increasedStake = BigInt(await beeDebug.getStake())
+      const increasedStake = BigInt(await beeDebug.getStake())
 
-        expect(increasedStake - originalStake).toEqual(BigInt(10e16))
-      },
-      BLOCKCHAIN_TRANSACTION_TIMEOUT,
-    )
+      expect(increasedStake - originalStake).to.eql(BigInt(10e16))
+    })
   })
 
   describe('Wallet', () => {
-    it('should return the nodes balances and other data', async () => {
-      expect(await beeDebug.getWalletBalance()).toEqual(
-        expect.objectContaining({
-          bzzBalance: expect.stringMatching(/^[0-9]+$/),
-          nativeTokenBalance: expect.stringMatching(/^[0-9]+$/),
-          chainID: expect.any(Number),
-          chequebookContractAddress: expect.stringMatching(/^0x[0-9a-f]{40}$/),
+    it('should return the nodes balances and other data', async function () {
+      jestExpect(await beeDebug.getWalletBalance()).toEqual(
+        jestExpect.objectContaining({
+          bzzBalance: jestExpect.stringMatching(/^[0-9]+$/),
+          nativeTokenBalance: jestExpect.stringMatching(/^[0-9]+$/),
+          chainID: jestExpect.any(Number),
+          chequebookContractAddress: jestExpect.stringMatching(/^0x[0-9a-f]{40}$/),
         }),
       )
     })

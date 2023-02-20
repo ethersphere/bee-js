@@ -3,6 +3,7 @@ import { makeBytes, assertBytes, wrapBytesWithHelpers } from '../../../src/utils
 import { HexString, hexToBytes, bytesToHex } from '../../../src/utils/hex'
 import { shorten, testIdentity } from '../../utils'
 import type { Signature, Signer } from '../../../src/types'
+import { expect } from 'chai'
 
 describe('signer', () => {
   const dataToSignBytes = hexToBytes('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae' as HexString)
@@ -12,40 +13,40 @@ describe('signer', () => {
     '336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
   const expectedSignatureBytes = hexToBytes(expectedSignatureHex)
 
-  test('default signer (same data as Bee Go client)', async () => {
+  it('default signer (same data as Bee Go client)', async function () {
     const privateKey = hexToBytes(testIdentity.privateKey)
     assertBytes(privateKey, 32)
 
     const signer = makePrivateKeySigner(privateKey)
     const signature = await signer.sign(dataToSignWithHelpers)
 
-    expect(signature).toEqual(expectedSignatureBytes)
+    expect(signature).to.eql(expectedSignatureBytes)
   })
 
-  test('recover address from signature', () => {
+  it('recover address from signature', () => {
     const recoveredAddress = recoverAddress(expectedSignatureBytes as Signature, dataToSignWithHelpers)
 
-    expect(bytesToHex(recoveredAddress)).toEqual(testIdentity.address)
+    expect(bytesToHex(recoveredAddress)).to.eql(testIdentity.address)
   })
 
   describe('makeSigner', () => {
-    test('converts string', async () => {
+    it('converts string', async function () {
       const signer = makeSigner(testIdentity.privateKey)
       const signature = await signer.sign(dataToSignWithHelpers)
 
-      expect(bytesToHex(signer.address)).toEqual(testIdentity.address)
-      expect(signature).toEqual(expectedSignatureBytes)
+      expect(bytesToHex(signer.address)).to.eql(testIdentity.address)
+      expect(signature).to.eql(expectedSignatureBytes)
     })
 
-    test('converts uintarray', async () => {
+    it('converts uintarray', async function () {
       const signer = makeSigner(hexToBytes(testIdentity.privateKey))
       const signature = await signer.sign(dataToSignWithHelpers)
 
-      expect(bytesToHex(signer.address)).toEqual(testIdentity.address)
-      expect(signature).toEqual(expectedSignatureBytes)
+      expect(bytesToHex(signer.address)).to.eql(testIdentity.address)
+      expect(signature).to.eql(expectedSignatureBytes)
     })
 
-    test('returns already signer object', () => {
+    it('returns already signer object', () => {
       const zeroAddress = makeBytes(20)
       const signerLikeObject = {
         address: zeroAddress,
@@ -56,10 +57,10 @@ describe('signer', () => {
 
       const signer = makeSigner(signerLikeObject)
 
-      expect(signer.address).toEqual(zeroAddress)
+      expect(signer.address).to.eql(zeroAddress)
     })
 
-    test('throws for invalid data', () => {
+    it('throws for invalid data', () => {
       const data = [
         null,
         123,
@@ -78,18 +79,18 @@ describe('signer', () => {
       for (const el of data) {
         expect(() => {
           makeSigner(el)
-        }).toThrow(TypeError)
+        }).to.throw(TypeError)
       }
     })
   })
 
   describe('sign', () => {
-    it('should wrap the digest with helpers', async () => {
+    it('should wrap the digest with helpers', async function () {
       const signer = {
         sign: digest => {
-          expect(digest).toHaveProperty('hex')
-          expect(digest).toHaveProperty('text')
-          expect(digest).toHaveProperty('json')
+          expect(digest).to.have.property('hex')
+          expect(digest).to.have.property('text')
+          expect(digest).to.have.property('json')
 
           return expectedSignatureHex
         },
@@ -97,7 +98,7 @@ describe('signer', () => {
       } as Signer
 
       const result = await sign(signer, dataToSignBytes)
-      expect(result).toEqual(expectedSignatureBytes)
+      expect(result).to.eql(expectedSignatureBytes)
     })
 
     function testSignerConversion(input: HexString, output: Uint8Array): void {
@@ -110,7 +111,7 @@ describe('signer', () => {
         } as Signer
 
         const result = await sign(signer, dataToSignBytes)
-        expect(result).toEqual(output)
+        expect(result).to.eql(output)
       })
     }
 
@@ -126,7 +127,7 @@ describe('signer', () => {
           address: makeBytes(20),
         } as Signer
 
-        await expect(sign(signer, dataToSignBytes)).rejects.toThrow(TypeError)
+        await expect(sign(signer, dataToSignBytes)).rejectedWith(TypeError)
       })
     }
 

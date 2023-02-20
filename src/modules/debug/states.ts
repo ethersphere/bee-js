@@ -1,5 +1,8 @@
 import { http } from '../../utils/http'
-import { ChainState, Ky, ReserveState, WalletBalance } from '../../types'
+import { ChainState, ReserveState, WalletBalance } from '../../types'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
+import type { Options as KyOptions } from 'ky'
 
 const RESERVE_STATE_ENDPOINT = 'reservestate'
 const WALLET_ENDPOINT = 'wallet'
@@ -8,46 +11,46 @@ const CHAIN_STATE_ENDPOINT = 'chainstate'
 /**
  * Get state of reserve
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getReserveState(ky: Ky): Promise<ReserveState> {
-  const response = await http<ReserveState>(ky, {
+export async function getReserveState(kyOptions: KyOptions): Promise<ReserveState> {
+  const response = await http<ReserveState>(kyOptions, {
     method: 'get',
     path: `${RESERVE_STATE_ENDPOINT}`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Get state of reserve
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getChainState(ky: Ky): Promise<ChainState> {
-  const response = await http<ChainState>(ky, {
+export async function getChainState(kyOptions: KyOptions): Promise<ChainState> {
+  const response = await http<ChainState>(kyOptions, {
     method: 'get',
     path: `${CHAIN_STATE_ENDPOINT}`,
     responseType: 'json',
   })
 
-  return response.data
+  return response.parsedData
 }
 
 /**
  * Get wallet balances for xDai and BZZ of the node
  *
- * @param ky Ky debug instance
+ * @param kyOptions Ky Options for making requests
  */
-export async function getWalletBalance(ky: Ky): Promise<WalletBalance> {
-  const response = await http<WalletBalance>(ky, {
+export async function getWalletBalance(kyOptions: KyOptions): Promise<WalletBalance> {
+  const response = await http<WalletBalance>(kyOptions, {
     method: 'get',
     path: `${WALLET_ENDPOINT}`,
     responseType: 'json',
   })
 
-  return mapWalletProperties(response.data)
+  return mapWalletProperties(response.parsedData)
 }
 
 /**

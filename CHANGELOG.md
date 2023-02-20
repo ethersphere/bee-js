@@ -1,6 +1,10 @@
 # Changelog
 
 
+## [5.1.2](https://github.com/ethersphere/bee-js/compare/v5.1.1...v5.1.2) (2023-01-31)
+
+This release updates Ky (the http library) and restructures its internal usage in order to keep the backward compatibility with CommonJS builds.
+
 ## [5.1.1](https://github.com/ethersphere/bee-js/compare/v5.1.0...v5.1.1) (2022-12-21)
 
 

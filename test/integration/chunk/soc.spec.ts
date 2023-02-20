@@ -1,10 +1,11 @@
 import { Bytes, assertBytes } from '../../../src/utils/bytes'
 import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
-import { beeKy, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
+import { beeKyOptions, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import * as chunkAPI from '../../../src/modules/chunk'
 import { HexString, hexToBytes, bytesToHex } from '../../../src/utils/hex'
+import { expect } from 'chai'
 
 describe('soc', () => {
   const privateKey = hexToBytes(testIdentity.privateKey)
@@ -14,25 +15,25 @@ describe('soc', () => {
   const socHash = '9d453ebb73b2fedaaf44ceddcf7a0aa37f3e3d6453fea5841c31f0ea6d61dc85' as HexString
   const identifier = new Uint8Array(32) as Bytes<32>
 
-  test('upload single owner chunk', async () => {
+  it('upload single owner chunk', async function () {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
     const socAddress = bytesToHex(soc.address())
 
     await tryDeleteChunkFromLocalStorage(socHash)
 
-    const response = await uploadSingleOwnerChunk(beeKy(), soc, getPostageBatch())
+    const response = await uploadSingleOwnerChunk(beeKyOptions(), soc, getPostageBatch())
 
-    expect(response).toEqual(socAddress)
+    expect(response).to.eql(socAddress)
   })
 
-  test('download single owner chunk', async () => {
-    const data = await chunkAPI.download(beeKy(), socHash)
+  it('download single owner chunk', async function () {
+    const data = await chunkAPI.download(beeKyOptions(), socHash)
     const address = hexToBytes(socHash)
     assertBytes(address, 32)
     const soc = makeSingleOwnerChunkFromData(data, address)
     const socAddress = soc.address()
 
-    expect(socAddress).toEqual(address)
+    expect(socAddress).to.eql(address)
   })
 })

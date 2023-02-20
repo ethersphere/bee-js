@@ -1,4 +1,5 @@
 import { bytesToHex, HexString, hexToBytes, intToHex, isHexString, makeHexString } from '../../../src/utils/hex'
+import { expect } from 'chai'
 
 describe('hex', () => {
   // prettier-ignore
@@ -11,26 +12,26 @@ describe('hex', () => {
         const input = '0xC0fFEE'
         const result = makeHexString(input)
 
-        expect(result).toBe('C0fFEE')
+        expect(result).to.eql('C0fFEE')
       })
 
       it('should return valid non prefixed string', () => {
         const input = 'C0FFEE'
         const result = makeHexString(input)
 
-        expect(result).toBe('C0FFEE')
+        expect(result).to.eql('C0FFEE')
       })
 
       it('should throw for other non valid strings', () => {
-        expect(() => makeHexString('')).toThrowError(TypeError)
-        expect(() => makeHexString('COFFEE')).toThrowError(TypeError)
+        expect(() => makeHexString('')).to.throw(TypeError)
+        expect(() => makeHexString('COFFEE')).to.throw(TypeError)
       })
 
       it('should validate length if specified', () => {
-        expect(makeHexString('C0fFEE', 6)).toBe('C0fFEE')
-        expect(makeHexString('0xC0fFEE', 6)).toBe('C0fFEE')
-        expect(() => makeHexString('C0fFEE', 5)).toThrowError(TypeError)
-        expect(() => makeHexString('0xC0fFEE', 7)).toThrowError(TypeError)
+        expect(makeHexString('C0fFEE', 6)).to.eql('C0fFEE')
+        expect(makeHexString('0xC0fFEE', 6)).to.eql('C0fFEE')
+        expect(() => makeHexString('C0fFEE', 5)).to.throw(TypeError)
+        expect(() => makeHexString('0xC0fFEE', 7)).to.throw(TypeError)
       })
     })
   })
@@ -38,7 +39,7 @@ describe('hex', () => {
   describe('isHexString', () => {
     function testCase(input: unknown, result: boolean): void {
       it(`should ${result ? 'accept' : 'reject'} input: ${input}`, () => {
-        expect(isHexString(input)).toEqual(result)
+        expect(isHexString(input)).to.eql(result)
       })
     }
 
@@ -53,15 +54,15 @@ describe('hex', () => {
     testCase([], false)
 
     it('should validate length if specified', () => {
-      expect(isHexString('C0FFEE', 6)).toEqual(true)
-      expect(isHexString('C0FFEE', 7)).toEqual(false)
+      expect(isHexString('C0FFEE', 6)).to.eql(true)
+      expect(isHexString('C0FFEE', 7)).to.eql(false)
     })
 
     it('chequebookaddress', () => {
       const input = '20d7855b548C71b69dA434D46187C336BDcef00F'
       const result = isHexString(input)
 
-      expect(result).toBeTruthy()
+      expect(result).to.be.ok()
     })
   })
 
@@ -70,7 +71,7 @@ describe('hex', () => {
       const input = testHex
       const result = hexToBytes(input)
 
-      expect(result).toEqual(testBytes)
+      expect(result).to.eql(testBytes)
     })
   })
 
@@ -79,7 +80,7 @@ describe('hex', () => {
       const input = testBytes
       const result = bytesToHex(input)
 
-      expect(result).toEqual(testHex)
+      expect(result).to.eql(testHex)
     })
   })
 
@@ -103,11 +104,11 @@ describe('hex', () => {
     testValues.forEach(({ value, result, length, throws }) => {
       if (throws) {
         it(`should throw error for value ${value}`, () => {
-          expect(() => intToHex(value as number, length)).toThrowError(throws)
+          expect(() => intToHex(value as number, length)).to.throw(throws)
         })
       } else {
         it(`should convert value ${value} to ${result}`, () => {
-          expect(intToHex(value as number, length)).toBe(result)
+          expect(intToHex(value as number, length)).to.eql(result)
         })
       }
     })

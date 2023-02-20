@@ -1,6 +1,9 @@
-import { BatchId, Ky, Reference, ReferenceResponse, UploadOptions } from '../types'
+import { BatchId, Reference, ReferenceResponse, UploadOptions } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+
+// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
+import type { Options as KyOptions } from 'ky'
 
 const socEndpoint = 'soc'
 
@@ -16,7 +19,7 @@ const socEndpoint = 'soc'
  * @param options         Additional options like tag, encryption, pinning
  */
 export async function upload(
-  ky: Ky,
+  kyOptions: KyOptions,
   owner: string,
   identifier: string,
   signature: string,
@@ -24,7 +27,7 @@ export async function upload(
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await http<ReferenceResponse>(ky, {
+  const response = await http<ReferenceResponse>(kyOptions, {
     method: 'post',
     path: `${socEndpoint}/${owner}/${identifier}`,
     body: data,
@@ -36,5 +39,5 @@ export async function upload(
     searchParams: { sig: signature },
   })
 
-  return response.data.reference
+  return response.parsedData.reference
 }
