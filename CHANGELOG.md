@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [5.2.0](https://github.com/ethersphere/bee-js/compare/v5.1.2...v5.2.0) (2023-02-20)
+
+
+### Features
+
+* add redistribution state endpoint ([#834](https://github.com/ethersphere/bee-js/issues/834)) ([7715c99](https://github.com/ethersphere/bee-js/commit/7715c993c521fef7d8dec0d2691524cda09fc1a2))
+
 ## [5.1.2](https://github.com/ethersphere/bee-js/compare/v5.1.1...v5.1.2) (2023-01-31)
 
 This release updates Ky (the http library) and restructures its internal usage in order to keep the backward compatibility with CommonJS builds.
