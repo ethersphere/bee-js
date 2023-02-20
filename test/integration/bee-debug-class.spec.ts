@@ -70,8 +70,8 @@ describe('Bee Debug class', () => {
     it(
       'should have both immutable true and false',
       async () => {
-        await beeDebug.createPostageBatch('1', 17, { immutableFlag: true, waitForUsable: false })
-        await beeDebug.createPostageBatch('1', 17, { immutableFlag: false, waitForUsable: false })
+        await beeDebug.createPostageBatch('1', 17, { immutableFlag: true, waitForUsable: true })
+        await beeDebug.createPostageBatch('1', 17, { immutableFlag: false, waitForUsable: true })
         const allBatches = await beeDebug.getAllPostageBatch()
 
         expect(allBatches.find(batch => batch.immutableFlag === true)).toBeTruthy()
