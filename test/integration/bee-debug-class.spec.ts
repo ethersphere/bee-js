@@ -55,9 +55,9 @@ describe('Bee Debug class', () => {
     })
 
     it('should have both immutable true and false', async function () {
-      this.timeout(BLOCKCHAIN_TRANSACTION_TIMEOUT * 2)
-      await beeDebug.createPostageBatch('1', 17, { immutableFlag: true, waitForUsable: false })
-      await beeDebug.createPostageBatch('1', 17, { immutableFlag: false, waitForUsable: false })
+      this.timeout(WAITING_USABLE_STAMP_TIMEOUT * 2 + BLOCKCHAIN_TRANSACTION_TIMEOUT * 4)
+      await beeDebug.createPostageBatch('1', 17, { immutableFlag: true, waitForUsable: true })
+      await beeDebug.createPostageBatch('1', 17, { immutableFlag: false, waitForUsable: true })
       const allBatches = await beeDebug.getAllPostageBatch()
 
       expect(allBatches.find(batch => batch.immutableFlag === true)).to.be.ok()
