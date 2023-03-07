@@ -1,12 +1,9 @@
-import { BatchId, Reference, ReferenceResponse, Topic } from '../types'
-import { filterHeaders, http } from '../utils/http'
 import { FeedType } from '../feed/type'
+import { BatchId, BeeRequestOptions, Reference, ReferenceResponse, Topic } from '../types'
+import { BeeError } from '../utils/error'
 import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'
-import { BeeError } from '../utils/error'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
+import { http } from '../utils/http'
 
 const feedEndpoint = 'feeds'
 
@@ -55,26 +52,26 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
  * @param options         Additional options, like type (default: 'sequence')
  */
 export async function createFeedManifest(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   owner: HexEthAddress,
   topic: Topic,
   postageBatchId: BatchId,
   options?: CreateFeedOptions,
 ): Promise<Reference> {
-  const response = await http<ReferenceResponse>(kyOptions, {
+  const response = await http<ReferenceResponse>(requestOptions, {
     method: 'post',
     responseType: 'json',
-    path: `${feedEndpoint}/${owner}/${topic}`,
-    searchParams: filterHeaders(options),
+    url: `${feedEndpoint}/${owner}/${topic}`,
+    params: options,
     headers: extractUploadHeaders(postageBatchId),
   })
 
-  return response.parsedData.reference
+  return response.data.reference
 }
 
-function readFeedUpdateHeaders(headers: Headers): FeedUpdateHeaders {
-  const feedIndex = headers.get('swarm-feed-index')
-  const feedIndexNext = headers.get('swarm-feed-index-next')
+function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeaders {
+  const feedIndex = headers['swarm-feed-index']
+  const feedIndexNext = headers['swarm-feed-index-next']
 
   if (!feedIndex) {
     throw new BeeError('Response did not contain expected swarm-feed-index!')
@@ -104,19 +101,19 @@ function readFeedUpdateHeaders(headers: Headers): FeedUpdateHeaders {
  * @param options     Additional options, like index, at, type
  */
 export async function fetchLatestFeedUpdate(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   owner: HexEthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<FetchFeedUpdateResponse> {
-  const response = await http<ReferenceResponse>(kyOptions, {
+  const response = await http<ReferenceResponse>(requestOptions, {
     responseType: 'json',
-    path: `${feedEndpoint}/${owner}/${topic}`,
-    searchParams: filterHeaders(options),
+    url: `${feedEndpoint}/${owner}/${topic}`,
+    params: options,
   })
 
   return {
-    ...response.parsedData,
-    ...readFeedUpdateHeaders(response.headers),
+    ...response.data,
+    ...readFeedUpdateHeaders(response.headers as Record<string, string>),
   }
 }

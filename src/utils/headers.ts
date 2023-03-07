@@ -32,10 +32,10 @@ function readTagUid(header: string | null): number | undefined {
   return parseInt(header, 10)
 }
 
-export function readFileHeaders(headers: Headers): FileHeaders {
-  const name = readContentDispositionFilename(headers.get('content-disposition'))
-  const tagUid = readTagUid(headers.get('swarm-tag-uid'))
-  const contentType = headers.get('content-type') || undefined
+export function readFileHeaders(headers: Record<string, string>): FileHeaders {
+  const name = readContentDispositionFilename(headers['content-disposition'])
+  const tagUid = readTagUid(headers['swarm-tag-uid'])
+  const contentType = headers['content-type'] || undefined
 
   return {
     name,

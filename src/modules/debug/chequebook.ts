@@ -1,18 +1,16 @@
-import { http } from '../../utils/http'
 import type {
+  BeeRequestOptions,
+  CashoutOptions,
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
   LastCashoutActionResponse,
-  TransactionResponse,
   LastChequesForPeerResponse,
   LastChequesResponse,
   NumberString,
-  CashoutOptions,
   TransactionHash,
+  TransactionResponse,
 } from '../../types'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
+import { http } from '../../utils/http'
 
 const chequebookEndpoint = 'chequebook'
 
@@ -21,13 +19,13 @@ const chequebookEndpoint = 'chequebook'
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getChequebookAddress(kyOptions: KyOptions): Promise<ChequebookAddressResponse> {
-  const response = await http<ChequebookAddressResponse>(kyOptions, {
-    path: chequebookEndpoint + '/address',
+export async function getChequebookAddress(requestOptions: BeeRequestOptions): Promise<ChequebookAddressResponse> {
+  const response = await http<ChequebookAddressResponse>(requestOptions, {
+    url: chequebookEndpoint + '/address',
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -35,13 +33,13 @@ export async function getChequebookAddress(kyOptions: KyOptions): Promise<Cheque
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getChequebookBalance(kyOptions: KyOptions): Promise<ChequebookBalanceResponse> {
-  const response = await http<ChequebookBalanceResponse>(kyOptions, {
-    path: chequebookEndpoint + '/balance',
+export async function getChequebookBalance(requestOptions: BeeRequestOptions): Promise<ChequebookBalanceResponse> {
+  const response = await http<ChequebookBalanceResponse>(requestOptions, {
+    url: chequebookEndpoint + '/balance',
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -50,13 +48,16 @@ export async function getChequebookBalance(kyOptions: KyOptions): Promise<Cheque
  * @param kyOptions Ky Options for making requests
  * @param peer  Swarm address of peer
  */
-export async function getLastCashoutAction(kyOptions: KyOptions, peer: string): Promise<LastCashoutActionResponse> {
-  const response = await http<LastCashoutActionResponse>(kyOptions, {
-    path: chequebookEndpoint + `/cashout/${peer}`,
+export async function getLastCashoutAction(
+  requestOptions: BeeRequestOptions,
+  peer: string,
+): Promise<LastCashoutActionResponse> {
+  const response = await http<LastCashoutActionResponse>(requestOptions, {
+    url: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -67,7 +68,7 @@ export async function getLastCashoutAction(kyOptions: KyOptions, peer: string): 
  * @param options
  */
 export async function cashoutLastCheque(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   peer: string,
   options?: CashoutOptions,
 ): Promise<TransactionHash> {
@@ -81,14 +82,14 @@ export async function cashoutLastCheque(
     headers['gas-limit'] = options.gasLimit.toString()
   }
 
-  const response = await http<TransactionResponse>(kyOptions, {
+  const response = await http<TransactionResponse>(requestOptions, {
     method: 'post',
-    path: chequebookEndpoint + `/cashout/${peer}`,
+    url: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
     headers,
   })
 
-  return response.parsedData.transactionHash
+  return response.data.transactionHash
 }
 
 /**
@@ -97,13 +98,16 @@ export async function cashoutLastCheque(
  * @param kyOptions Ky Options for making requests
  * @param peer  Swarm address of peer
  */
-export async function getLastChequesForPeer(kyOptions: KyOptions, peer: string): Promise<LastChequesForPeerResponse> {
-  const response = await http<LastChequesForPeerResponse>(kyOptions, {
-    path: chequebookEndpoint + `/cheque/${peer}`,
+export async function getLastChequesForPeer(
+  requestOptions: BeeRequestOptions,
+  peer: string,
+): Promise<LastChequesForPeerResponse> {
+  const response = await http<LastChequesForPeerResponse>(requestOptions, {
+    url: chequebookEndpoint + `/cheque/${peer}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -111,13 +115,13 @@ export async function getLastChequesForPeer(kyOptions: KyOptions, peer: string):
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getLastCheques(kyOptions: KyOptions): Promise<LastChequesResponse> {
-  const response = await http<LastChequesResponse>(kyOptions, {
-    path: chequebookEndpoint + '/cheque',
+export async function getLastCheques(requestOptions: BeeRequestOptions): Promise<LastChequesResponse> {
+  const response = await http<LastChequesResponse>(requestOptions, {
+    url: chequebookEndpoint + '/cheque',
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -129,7 +133,7 @@ export async function getLastCheques(kyOptions: KyOptions): Promise<LastChequesR
  * @return string  Hash of the transaction
  */
 export async function depositTokens(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   amount: number | NumberString,
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
@@ -139,15 +143,15 @@ export async function depositTokens(
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await http<TransactionResponse>(kyOptions, {
+  const response = await http<TransactionResponse>(requestOptions, {
     method: 'post',
-    path: chequebookEndpoint + '/deposit',
+    url: chequebookEndpoint + '/deposit',
     responseType: 'json',
-    searchParams: { amount: amount.toString(10) },
+    params: { amount: amount.toString(10) },
     headers,
   })
 
-  return response.parsedData.transactionHash
+  return response.data.transactionHash
 }
 
 /**
@@ -159,7 +163,7 @@ export async function depositTokens(
  * @return string  Hash of the transaction
  */
 export async function withdrawTokens(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   amount: number | NumberString,
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
@@ -169,13 +173,13 @@ export async function withdrawTokens(
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await http<TransactionResponse>(kyOptions, {
+  const response = await http<TransactionResponse>(requestOptions, {
     method: 'post',
-    path: chequebookEndpoint + '/withdraw',
+    url: chequebookEndpoint + '/withdraw',
     responseType: 'json',
-    searchParams: { amount: amount.toString(10) },
+    params: { amount: amount.toString(10) },
     headers,
   })
 
-  return response.parsedData.transactionHash
+  return response.data.transactionHash
 }

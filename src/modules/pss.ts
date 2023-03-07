@@ -1,12 +1,7 @@
 import WebSocket from 'isomorphic-ws'
-
-import { prepareData } from '../utils/data'
-import { http } from '../utils/http'
+import type { BatchId, BeeGenericResponse, BeeRequestOptions, PublicKey } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
-import type { BatchId, BeeGenericResponse, PublicKey } from '../types'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
+import { http } from '../utils/http'
 
 const endpoint = 'pss'
 
@@ -22,19 +17,19 @@ const endpoint = 'pss'
  *
  */
 export async function send(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   topic: string,
   target: string,
   data: string | Uint8Array,
   postageBatchId: BatchId,
   recipient?: PublicKey,
 ): Promise<void> {
-  await http<BeeGenericResponse>(kyOptions, {
+  await http<BeeGenericResponse>(requestOptions, {
     method: 'post',
-    path: `${endpoint}/send/${topic}/${target}`,
-    body: await prepareData(data),
+    url: `${endpoint}/send/${topic}/${target}`,
+    data,
     responseType: 'json',
-    searchParams: { recipient },
+    params: { recipient },
     headers: extractUploadHeaders(postageBatchId),
   })
 }

@@ -1,11 +1,11 @@
-import { Bytes, assertBytes } from '../../../src/utils/bytes'
-import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
-import { makeContentAddressedChunk } from '../../../src/chunk/cac'
-import { beeKyOptions, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
-import { makePrivateKeySigner } from '../../../src/chunk/signer'
-import * as chunkAPI from '../../../src/modules/chunk'
-import { HexString, hexToBytes, bytesToHex } from '../../../src/utils/hex'
 import { expect } from 'chai'
+import { makeContentAddressedChunk } from '../../../src/chunk/cac'
+import { makePrivateKeySigner } from '../../../src/chunk/signer'
+import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
+import * as chunkAPI from '../../../src/modules/chunk'
+import { assertBytes, Bytes } from '../../../src/utils/bytes'
+import { bytesToHex, HexString, hexToBytes } from '../../../src/utils/hex'
+import { beeKyOptions, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
 
 describe('soc', () => {
   const privateKey = hexToBytes(testIdentity.privateKey)

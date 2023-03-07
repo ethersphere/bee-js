@@ -1,14 +1,15 @@
-import { keccak256Hash } from '../utils/hash'
 import { serializeBytes } from '../chunk/serialize'
-import { FeedUpdateOptions, fetchLatestFeedUpdate, FetchFeedUpdateResponse } from '../modules/feed'
 import { makeSingleOwnerChunkFromData, uploadSingleOwnerChunkData } from '../chunk/soc'
+import * as chunkAPI from '../modules/chunk'
+import { FeedUpdateOptions, FetchFeedUpdateResponse, fetchLatestFeedUpdate } from '../modules/feed'
 import {
   Address,
   BatchId,
+  BeeRequestOptions,
   BytesReference,
-  FEED_INDEX_HEX_LENGTH,
   FeedReader,
   FeedWriter,
+  FEED_INDEX_HEX_LENGTH,
   PlainBytesReference,
   Reference,
   Signer,
@@ -16,19 +17,14 @@ import {
   UploadOptions,
 } from '../types'
 import { Bytes, bytesAtOffset, makeBytes } from '../utils/bytes'
-import { BeeResponseError } from '../utils/error'
-import { bytesToHex, hexToBytes, HexString, makeHexString } from '../utils/hex'
-import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
-import * as chunkAPI from '../modules/chunk'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
-
-import type { FeedType } from './type'
-import { assertAddress } from '../utils/type'
-import { makeFeedIdentifier } from './identifier'
+import { keccak256Hash } from '../utils/hash'
+import { bytesToHex, HexString, hexToBytes, makeHexString } from '../utils/hex'
 import { makeBytesReference } from '../utils/reference'
+import { assertAddress } from '../utils/type'
+import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
+import { makeFeedIdentifier } from './identifier'
+import type { FeedType } from './type'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8
@@ -54,17 +50,17 @@ export interface FeedUpdate {
 }
 
 export async function findNextIndex(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   owner: HexEthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<HexString<typeof FEED_INDEX_HEX_LENGTH>> {
   try {
-    const feedUpdate = await fetchLatestFeedUpdate(kyOptions, owner, topic, options)
+    const feedUpdate = await fetchLatestFeedUpdate(requestOptions, owner, topic, options)
 
     return makeHexString(feedUpdate.feedIndexNext, FEED_INDEX_HEX_LENGTH)
-  } catch (e) {
-    if (e instanceof BeeResponseError && e.status === 404) {
+  } catch (e: any) {
+    if (e?.response?.status === 404) {
       return bytesToHex(makeBytes(8))
     }
     throw e
@@ -72,7 +68,7 @@ export async function findNextIndex(
 }
 
 export async function updateFeed(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   signer: Signer,
   topic: Topic,
   reference: BytesReference,
@@ -81,14 +77,14 @@ export async function updateFeed(
   index: Index = 'latest',
 ): Promise<Reference> {
   const ownerHex = makeHexEthAddress(signer.address)
-  const nextIndex = index === 'latest' ? await findNextIndex(kyOptions, ownerHex, topic, options) : index
+  const nextIndex = index === 'latest' ? await findNextIndex(requestOptions, ownerHex, topic, options) : index
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
   const at = options?.at ?? Date.now() / 1000.0
   const timestamp = writeUint64BigEndian(at)
   const payloadBytes = serializeBytes(timestamp, reference)
 
-  return uploadSingleOwnerChunkData(kyOptions, signer, postageBatchId, identifier, payloadBytes, options)
+  return uploadSingleOwnerChunkData(requestOptions, signer, postageBatchId, identifier, payloadBytes, options)
 }
 
 export function getFeedUpdateChunkReference(owner: EthAddress, topic: Topic, index: Index): PlainBytesReference {
@@ -98,14 +94,14 @@ export function getFeedUpdateChunkReference(owner: EthAddress, topic: Topic, ind
 }
 
 export async function downloadFeedUpdate(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   owner: EthAddress,
   topic: Topic,
   index: Index,
 ): Promise<FeedUpdate> {
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const addressHex = bytesToHex(address)
-  const data = await chunkAPI.download(kyOptions, addressHex)
+  const data = await chunkAPI.download(requestOptions, addressHex)
   const soc = makeSingleOwnerChunkFromData(data, address)
   const payload = soc.payload()
   const timestampBytes = bytesAtOffset(payload, TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
@@ -118,17 +114,22 @@ export async function downloadFeedUpdate(
   }
 }
 
-export function makeFeedReader(kyOptions: KyOptions, type: FeedType, topic: Topic, owner: HexEthAddress): FeedReader {
+export function makeFeedReader(
+  requestOptions: BeeRequestOptions,
+  type: FeedType,
+  topic: Topic,
+  owner: HexEthAddress,
+): FeedReader {
   return {
     type,
     owner,
     topic,
     async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
       if (!options?.index) {
-        return fetchLatestFeedUpdate(kyOptions, owner, topic, { ...options, type })
+        return fetchLatestFeedUpdate(requestOptions, owner, topic, { ...options, type })
       }
 
-      const update = await downloadFeedUpdate(kyOptions, hexToBytes(owner), topic, options.index)
+      const update = await downloadFeedUpdate(requestOptions, hexToBytes(owner), topic, options.index)
 
       return {
         reference: bytesToHex(update.reference),
@@ -139,7 +140,12 @@ export function makeFeedReader(kyOptions: KyOptions, type: FeedType, topic: Topi
   }
 }
 
-export function makeFeedWriter(kyOptions: KyOptions, type: FeedType, topic: Topic, signer: Signer): FeedWriter {
+export function makeFeedWriter(
+  requestOptions: BeeRequestOptions,
+  type: FeedType,
+  topic: Topic,
+  signer: Signer,
+): FeedWriter {
   const upload = async (
     postageBatchId: string | Address,
     reference: BytesReference | Reference,
@@ -148,11 +154,11 @@ export function makeFeedWriter(kyOptions: KyOptions, type: FeedType, topic: Topi
     assertAddress(postageBatchId)
     const canonicalReference = makeBytesReference(reference)
 
-    return updateFeed(kyOptions, signer, topic, canonicalReference, postageBatchId, { ...options, type })
+    return updateFeed(requestOptions, signer, topic, canonicalReference, postageBatchId, { ...options, type })
   }
 
   return {
-    ...makeFeedReader(kyOptions, type, topic, makeHexEthAddress(signer.address)),
+    ...makeFeedReader(requestOptions, type, topic, makeHexEthAddress(signer.address)),
     upload,
   }
 }

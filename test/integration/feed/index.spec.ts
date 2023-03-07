@@ -1,25 +1,21 @@
+import { expect } from 'chai'
+import { makeContentAddressedChunk } from '../../../src/chunk/cac'
+import { makePrivateKeySigner } from '../../../src/chunk/signer'
+import { downloadFeedUpdate, findNextIndex, Index, updateFeed } from '../../../src/feed'
+import * as chunkAPI from '../../../src/modules/chunk'
 import { fetchLatestFeedUpdate } from '../../../src/modules/feed'
+import type { BeeRequestOptions, BytesReference, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
+import { assertBytes, Bytes } from '../../../src/utils/bytes'
 import { hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeKyOptions, ERR_TIMEOUT, getPostageBatch, testIdentity } from '../../utils'
-import { downloadFeedUpdate, findNextIndex, Index, updateFeed } from '../../../src/feed'
-import { Bytes, assertBytes } from '../../../src/utils/bytes'
-import { makePrivateKeySigner } from '../../../src/chunk/signer'
-import { makeContentAddressedChunk } from '../../../src/chunk/cac'
-import * as chunkAPI from '../../../src/modules/chunk'
-import type { BytesReference, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
-import { BeeResponseError } from '../../../src'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
-import { expect } from 'chai'
 
 function makeChunk(index: number) {
   return makeContentAddressedChunk(new Uint8Array([index]))
 }
 
-async function uploadChunk(kyOptions: KyOptions, index: number): Promise<BytesReference> {
+async function uploadChunk(options: BeeRequestOptions, index: number): Promise<BytesReference> {
   const chunk = makeChunk(index)
-  const reference = await chunkAPI.upload(kyOptions, chunk.data, getPostageBatch())
+  const reference = await chunkAPI.upload(options, chunk.data, getPostageBatch())
 
   return hexToBytes(reference) as BytesReference
 }
@@ -28,16 +24,16 @@ async function uploadChunk(kyOptions: KyOptions, index: number): Promise<BytesRe
 // it is not intended as a replacement in tests for `uploadFeedUpdate`
 // https://github.com/ethersphere/bee-js/issues/154
 async function tryUploadFeedUpdate(
-  kyOptions: KyOptions,
+  options: BeeRequestOptions,
   signer: Signer,
   topic: Topic,
   index: Index,
   reference: BytesReference,
 ) {
   try {
-    await updateFeed(kyOptions, signer, topic, reference, getPostageBatch(), undefined, index)
-  } catch (e) {
-    if (e instanceof BeeResponseError && e.status === 409) {
+    await updateFeed(options, signer, topic, reference, getPostageBatch(), undefined, index)
+  } catch (e: any) {
+    if (e?.response?.status === 409) {
       // ignore conflict errors when uploading the same feed update twice
       return
     }

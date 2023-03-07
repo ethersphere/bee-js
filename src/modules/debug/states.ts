@@ -1,8 +1,5 @@
+import { BeeRequestOptions, ChainState, ReserveState, WalletBalance } from '../../types'
 import { http } from '../../utils/http'
-import { ChainState, ReserveState, WalletBalance } from '../../types'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const RESERVE_STATE_ENDPOINT = 'reservestate'
 const WALLET_ENDPOINT = 'wallet'
@@ -13,14 +10,14 @@ const CHAIN_STATE_ENDPOINT = 'chainstate'
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getReserveState(kyOptions: KyOptions): Promise<ReserveState> {
-  const response = await http<ReserveState>(kyOptions, {
+export async function getReserveState(requestOptions: BeeRequestOptions): Promise<ReserveState> {
+  const response = await http<ReserveState>(requestOptions, {
     method: 'get',
-    path: `${RESERVE_STATE_ENDPOINT}`,
+    url: `${RESERVE_STATE_ENDPOINT}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -28,14 +25,14 @@ export async function getReserveState(kyOptions: KyOptions): Promise<ReserveStat
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getChainState(kyOptions: KyOptions): Promise<ChainState> {
-  const response = await http<ChainState>(kyOptions, {
+export async function getChainState(requestOptions: BeeRequestOptions): Promise<ChainState> {
+  const response = await http<ChainState>(requestOptions, {
     method: 'get',
-    path: `${CHAIN_STATE_ENDPOINT}`,
+    url: `${CHAIN_STATE_ENDPOINT}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -43,14 +40,14 @@ export async function getChainState(kyOptions: KyOptions): Promise<ChainState> {
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getWalletBalance(kyOptions: KyOptions): Promise<WalletBalance> {
-  const response = await http<WalletBalance>(kyOptions, {
+export async function getWalletBalance(requestOptions: BeeRequestOptions): Promise<WalletBalance> {
+  const response = await http<WalletBalance>(requestOptions, {
     method: 'get',
-    path: `${WALLET_ENDPOINT}`,
+    url: `${WALLET_ENDPOINT}`,
     responseType: 'json',
   })
 
-  return mapWalletProperties(response.parsedData)
+  return mapWalletProperties(response.data)
 }
 
 /**

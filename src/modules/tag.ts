@@ -1,8 +1,5 @@
-import { Reference, Tag } from '../types'
+import { BeeRequestOptions, Reference, Tag } from '../types'
 import { http } from '../utils/http'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'tags'
 
@@ -15,14 +12,14 @@ interface GetAllTagsResponse {
  *
  * @param url Bee tag URL
  */
-export async function createTag(kyOptions: KyOptions): Promise<Tag> {
-  const response = await http<Tag>(kyOptions, {
+export async function createTag(requestOptions: BeeRequestOptions): Promise<Tag> {
+  const response = await http<Tag>(requestOptions, {
     method: 'post',
-    path: endpoint,
+    url: endpoint,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -31,13 +28,13 @@ export async function createTag(kyOptions: KyOptions): Promise<Tag> {
  * @param url Bee tag URL
  * @param uid UID of tag to be retrieved
  */
-export async function retrieveTag(kyOptions: KyOptions, uid: number): Promise<Tag> {
-  const response = await http<Tag>(kyOptions, {
-    path: `${endpoint}/${uid}`,
+export async function retrieveTag(requestOptions: BeeRequestOptions, uid: number): Promise<Tag> {
+  const response = await http<Tag>(requestOptions, {
+    url: `${endpoint}/${uid}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -47,14 +44,14 @@ export async function retrieveTag(kyOptions: KyOptions, uid: number): Promise<Ta
  * @param offset
  * @param limit
  */
-export async function getAllTags(kyOptions: KyOptions, offset?: number, limit?: number): Promise<Tag[]> {
-  const response = await http<GetAllTagsResponse>(kyOptions, {
-    path: `${endpoint}`,
-    searchParams: { offset, limit },
+export async function getAllTags(requestOptions: BeeRequestOptions, offset?: number, limit?: number): Promise<Tag[]> {
+  const response = await http<GetAllTagsResponse>(requestOptions, {
+    url: endpoint,
+    params: { offset, limit },
     responseType: 'json',
   })
 
-  return response.parsedData.tags
+  return response.data.tags
 }
 
 /**
@@ -62,10 +59,10 @@ export async function getAllTags(kyOptions: KyOptions, offset?: number, limit?: 
  * @param url
  * @param uid
  */
-export async function deleteTag(kyOptions: KyOptions, uid: number): Promise<void> {
-  await http<void>(kyOptions, {
+export async function deleteTag(requestOptions: BeeRequestOptions, uid: number): Promise<void> {
+  await http<void>(requestOptions, {
     method: 'delete',
-    path: `${endpoint}/${uid}`,
+    url: `${endpoint}/${uid}`,
   })
 }
 
@@ -75,11 +72,11 @@ export async function deleteTag(kyOptions: KyOptions, uid: number): Promise<void
  * @param uid
  * @param reference
  */
-export async function updateTag(kyOptions: KyOptions, uid: number, reference: Reference): Promise<void> {
-  await http<void>(kyOptions, {
+export async function updateTag(requestOptions: BeeRequestOptions, uid: number, reference: Reference): Promise<void> {
+  await http<void>(requestOptions, {
     method: 'patch',
-    path: `${endpoint}/${uid}`,
-    json: {
+    url: `${endpoint}/${uid}`,
+    data: {
       reference,
     },
   })

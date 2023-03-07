@@ -1,8 +1,5 @@
+import type { AllSettlements, BeeRequestOptions, Settlements } from '../../types'
 import { http } from '../../utils/http'
-import type { Settlements, AllSettlements } from '../../types'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const settlementsEndpoint = 'settlements'
 
@@ -12,13 +9,13 @@ const settlementsEndpoint = 'settlements'
  * @param kyOptions Ky Options for making requests
  * @param peer  Swarm address of peer
  */
-export async function getSettlements(kyOptions: KyOptions, peer: string): Promise<Settlements> {
-  const response = await http<Settlements>(kyOptions, {
-    path: `${settlementsEndpoint}/${peer}`,
+export async function getSettlements(requestOptions: BeeRequestOptions, peer: string): Promise<Settlements> {
+  const response = await http<Settlements>(requestOptions, {
+    url: `${settlementsEndpoint}/${peer}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -26,11 +23,11 @@ export async function getSettlements(kyOptions: KyOptions, peer: string): Promis
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getAllSettlements(kyOptions: KyOptions): Promise<AllSettlements> {
-  const response = await http<AllSettlements>(kyOptions, {
-    path: settlementsEndpoint,
+export async function getAllSettlements(requestOptions: BeeRequestOptions): Promise<AllSettlements> {
+  const response = await http<AllSettlements>(requestOptions, {
+    url: settlementsEndpoint,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }

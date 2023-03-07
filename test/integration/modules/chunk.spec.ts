@@ -1,6 +1,6 @@
-import * as chunk from '../../../src/modules/chunk'
-import { invalidReference, ERR_TIMEOUT, getPostageBatch, beeKyOptions } from '../../utils'
 import { expect } from 'chai'
+import * as chunk from '../../../src/modules/chunk'
+import { beeKyOptions, ERR_TIMEOUT, getPostageBatch, invalidReference } from '../../utils'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 

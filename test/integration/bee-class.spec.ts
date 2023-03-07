@@ -1,6 +1,8 @@
+import { System } from 'cafe-utility'
 import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
-import { Bee, BeeDebug, BeeResponseError, BytesReference, Collection, PssSubscription } from '../../src'
+import { Readable } from 'stream'
+import { Bee, BeeDebug, BytesReference, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
 import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import * as bzz from '../../src/modules/bzz'
@@ -29,8 +31,6 @@ import {
   testJsonPayload,
   tryDeleteChunkFromLocalStorage,
 } from '../utils'
-import { Readable } from 'stream'
-import { sleep } from '../../src/utils/sleep'
 
 commonMatchers()
 
@@ -359,7 +359,7 @@ describe('Bee class', () => {
       const content = randomByteArray(16, Date.now())
       const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
 
-      await sleep(10)
+      await System.sleepMillis(10)
       await bee.reuploadPinnedData(result.reference) // Does not return anything, but will throw exception if something is going wrong
     })
 
@@ -368,7 +368,7 @@ describe('Bee class', () => {
       const content = randomByteArray(16, Date.now())
       const result = await bee.uploadData(getPostageBatch(), content, { pin: true })
 
-      await sleep(10)
+      await System.sleepMillis(10)
       await expect(bee.isReferenceRetrievable(result.reference)).eventually.to.eql(true)
 
       // Reference that has correct form, but should not exist on the network
@@ -547,11 +547,9 @@ describe('Bee class', () => {
       try {
         await feed.download({ index: '0000000000000001' })
         throw new Error('Should fail')
-      } catch (err) {
-        const e = err as BeeResponseError
-
-        expect(e.status).to.eql(404)
-        expect(e.responseBody).to.contain('chunk not found')
+      } catch (e: any) {
+        expect(e.response.status).to.eql(404)
+        expect(e.response.data).to.contain('chunk not found')
       }
     })
 

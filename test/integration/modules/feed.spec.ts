@@ -1,4 +1,7 @@
+import { expect } from 'chai'
 import { createFeedManifest, fetchLatestFeedUpdate } from '../../../src/modules/feed'
+import { upload as uploadSOC } from '../../../src/modules/soc'
+import type { Topic } from '../../../src/types'
 import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
 import {
   beeKyOptions,
@@ -8,9 +11,6 @@ import {
   testIdentity,
   tryDeleteChunkFromLocalStorage,
 } from '../../utils'
-import { upload as uploadSOC } from '../../../src/modules/soc'
-import type { Topic } from '../../../src/types'
-import { expect } from 'chai'
 
 commonMatchers()
 

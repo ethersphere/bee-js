@@ -1,5 +1,5 @@
 import { HexEthAddress } from '../utils/eth'
-import { NumberString, PublicKey, Reference, RequestOptions, TransactionHash } from './index'
+import { NumberString, PublicKey, Reference, TransactionHash } from './index'
 
 /**
  * Object that contains information about progress of upload of data to network.
@@ -98,7 +98,7 @@ export interface TransactionOptions {
   gasLimit?: NumberString
 }
 
-export type CashoutOptions = TransactionOptions & RequestOptions
+export type CashoutOptions = TransactionOptions
 
 export interface CashoutResult {
   recipient: string

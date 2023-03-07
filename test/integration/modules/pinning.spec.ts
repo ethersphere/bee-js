@@ -1,19 +1,19 @@
-import * as pinning from '../../../src/modules/pinning'
-import * as bzz from '../../../src/modules/bzz'
+import { expect } from 'chai'
 import * as bytes from '../../../src/modules/bytes'
+import * as bzz from '../../../src/modules/bzz'
 import * as chunk from '../../../src/modules/chunk'
+import * as pinning from '../../../src/modules/pinning'
+import { Collection } from '../../../src/types'
 import {
+  beeKyOptions,
+  commonMatchers,
+  ERR_TIMEOUT,
+  getPostageBatch,
   invalidReference,
   randomByteArray,
   testChunkData,
   testChunkHash,
-  ERR_TIMEOUT,
-  getPostageBatch,
-  commonMatchers,
-  beeKyOptions,
 } from '../../utils'
-import { Collection } from '../../../src/types'
-import { expect } from 'chai'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 commonMatchers()

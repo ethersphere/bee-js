@@ -1,5 +1,6 @@
-import * as pss from '../../../src/modules/pss'
+import { expect } from 'chai'
 import * as connectivity from '../../../src/modules/debug/connectivity'
+import * as pss from '../../../src/modules/pss'
 import {
   beeDebugKyOptions,
   beeKyOptions,
@@ -10,7 +11,6 @@ import {
   makeTestTarget,
   PSS_TIMEOUT,
 } from '../../utils'
-import { expect } from 'chai'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 const BEE_URL = beeUrl()

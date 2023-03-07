@@ -1,6 +1,6 @@
-import { beeDebugKyOptions, commonMatchers } from '../../../utils'
-import * as states from '../../../../src/modules/debug/states'
 import { expect } from 'chai'
+import * as states from '../../../../src/modules/debug/states'
+import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 
 const BEE_DEBUG_URL = beeDebugKyOptions()
 commonMatchers()

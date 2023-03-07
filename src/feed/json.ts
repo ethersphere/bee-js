@@ -1,5 +1,14 @@
-import { FeedWriter, FeedReader, AnyJson, BatchId, Reference, RequestOptions } from '../types'
 import { Bee } from '../bee'
+import {
+  AnyJson,
+  BatchId,
+  BeeRequestOptions,
+  FeedReader,
+  FeedWriter,
+  JsonFeedOptions,
+  Reference,
+  UploadOptions,
+} from '../types'
 import { isError } from '../utils/type'
 
 function serializeJson(data: AnyJson): Uint8Array {
@@ -27,10 +36,11 @@ export async function setJsonData(
   writer: FeedWriter,
   postageBatchId: BatchId,
   data: AnyJson,
-  options?: RequestOptions,
+  options?: JsonFeedOptions & UploadOptions,
+  requestOptions?: BeeRequestOptions,
 ): Promise<Reference> {
   const serializedData = serializeJson(data)
-  const { reference } = await bee.uploadData(postageBatchId, serializedData, options)
+  const { reference } = await bee.uploadData(postageBatchId, serializedData, options, requestOptions)
 
   return writer.upload(postageBatchId, reference)
 }

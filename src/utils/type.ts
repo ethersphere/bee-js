@@ -1,37 +1,37 @@
+import { decodeCid, encodeReference, ReferenceType } from '@ethersphere/swarm-cid'
 import {
   Address,
-  ADDRESS_HEX_LENGTH,
   AddressPrefix,
+  ADDRESS_HEX_LENGTH,
   AllTagsOptions,
-  BATCH_ID_HEX_LENGTH,
   BatchId,
+  BATCH_ID_HEX_LENGTH,
+  BeeRequestOptions,
+  CashoutOptions,
   CollectionUploadOptions,
   ENCRYPTED_REFERENCE_HEX_LENGTH,
   FileUploadOptions,
   NumberString,
+  PostageBatchOptions,
   PssMessageHandler,
+  PSS_TARGET_HEX_LENGTH_MAX,
   PUBKEY_HEX_LENGTH,
   PublicKey,
   Readable,
   Reference,
+  ReferenceOrEns,
   REFERENCE_HEX_LENGTH,
   Tag,
   TAGS_LIMIT_MAX,
   TAGS_LIMIT_MIN,
-  PSS_TARGET_HEX_LENGTH_MAX,
-  UploadOptions,
   TransactionHash,
-  RequestOptions,
-  PostageBatchOptions,
-  CashoutOptions,
-  ReferenceOrEns,
   TransactionOptions,
+  UploadOptions,
 } from '../types'
 import { BeeArgumentError, BeeError } from './error'
 import { isFile } from './file'
 import { assertHexString, assertPrefixedHexString, isHexString } from './hex'
 import { isReadable } from './stream'
-import { decodeCid, encodeReference, ReferenceType } from '@ethersphere/swarm-cid'
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
   return obj instanceof Uint8Array
@@ -218,7 +218,7 @@ export function assertBatchId(value: unknown): asserts value is BatchId {
   assertHexString(value, BATCH_ID_HEX_LENGTH, 'BatchId')
 }
 
-export function assertRequestOptions(value: unknown, name = 'RequestOptions'): asserts value is RequestOptions {
+export function assertRequestOptions(value: unknown, name = 'RequestOptions'): asserts value is BeeRequestOptions {
   if (value === undefined) {
     return
   }
@@ -227,7 +227,7 @@ export function assertRequestOptions(value: unknown, name = 'RequestOptions'): a
     throw new TypeError(`${name} has to be an object!`)
   }
 
-  const options = value as RequestOptions
+  const options = value as BeeRequestOptions
 
   if (options.retry) {
     assertNonNegativeInteger(options.retry, `${name}.retry`)
@@ -235,10 +235,6 @@ export function assertRequestOptions(value: unknown, name = 'RequestOptions'): a
 
   if (options.timeout) {
     assertNonNegativeInteger(options.timeout, `${name}.timeout`)
-  }
-
-  if (options.fetch && typeof options.fetch !== 'function') {
-    throw new TypeError(`${name}.fetch has to be a function or undefined!`)
   }
 }
 

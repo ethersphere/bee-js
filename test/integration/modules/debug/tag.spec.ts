@@ -1,7 +1,7 @@
-import * as beeTag from '../../../../src/modules/tag'
-import * as beeDebugTag from '../../../../src/modules/debug/tag'
-import { beeDebugKyOptions, beeKyOptions } from '../../../utils'
 import { expect as jestExpect } from 'expect'
+import * as beeDebugTag from '../../../../src/modules/debug/tag'
+import * as beeTag from '../../../../src/modules/tag'
+import { beeDebugKyOptions, beeKyOptions } from '../../../utils'
 
 const BEE_URL = beeKyOptions()
 const BEE_DEBUG_KY = beeDebugKyOptions()
