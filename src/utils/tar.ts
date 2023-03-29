@@ -1,5 +1,5 @@
-import { Collection } from '../types'
 import Tar from 'tar-js'
+import { Collection } from '../types'
 
 // this is a workaround type so that we are able to pass in Uint8Arrays
 // as string to `tar.append`
@@ -20,7 +20,7 @@ function fixUnicodePath(path: string): StringLike {
 }
 
 export function makeTar(data: Collection<Uint8Array>): Uint8Array {
-  const tar = new Tar()
+  const tar = new Tar(1)
   for (const entry of data) {
     const path = fixUnicodePath(entry.path)
     tar.append(path, entry.data)

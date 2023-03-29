@@ -36,28 +36,28 @@ jobs:
           cache: 'npm'
 
       - name: Install npm deps
-        run: npm install -g npm && npm ci
+        run: npm install -g npm && npm ci && npm install -g @ethersphere/bee-factory
 
       # Start Bee Factory environment
       - name: Start Bee Factory environment
-        if:  matrix.node-version != '18.x'
+        if: matrix.node-version != '18.x'
         run: npm run bee -- --verbose --detach
 
       # Start Bee Factory environment for Node 18
       - name: Start Bee Factory environment for Node 18
-        if:  matrix.node-version == '18.x'
+        if: matrix.node-version == '18.x'
         env:
           NODE_OPTIONS: '--no-experimental-fetch'
         run: npm run bee -- --verbose --detach
 
       - name: Tests Node 18
-        if:  matrix.node-version == '18.x'
+        if: matrix.node-version == '18.x'
         env:
           NODE_OPTIONS: '--no-experimental-fetch'
         run: npm run test
 
       - name: Tests non-Node 18
-        if:  matrix.node-version != '18.x'
+        if: matrix.node-version != '18.x'
         run: npm run test
 
       - name: Debug workflow if failed
