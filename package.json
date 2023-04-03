@@ -107,7 +107,7 @@
     "cross-env": "^7.0.3",
     "debug": "^4.3.4",
     "depcheck": "^1.4.3",
-    "eslint": "^8.13.0",
+    "eslint": "^8.37.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
