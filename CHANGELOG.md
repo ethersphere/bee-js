@@ -1,6 +1,17 @@
 # Changelog
 
 
+## [6.0.0](https://github.com/ethersphere/bee-js/compare/v5.2.0...v6.0.0) (2023-05-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* change http library ([#842](https://github.com/ethersphere/bee-js/issues/842))
+
+### Features
+
+* change http library ([#842](https://github.com/ethersphere/bee-js/issues/842)) ([e5f0b35](https://github.com/ethersphere/bee-js/commit/e5f0b354ae8125f3ad04573b4af1057f96c3deda))
+
 ## [5.2.0](https://github.com/ethersphere/bee-js/compare/v5.1.2...v5.2.0) (2023-02-20)
 
 
