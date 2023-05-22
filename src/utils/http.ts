@@ -1,188 +1,37 @@
-import { BeeError, BeeNotAJsonError, BeeRequestError, BeeResponseError } from './error'
-import type { BeeRequest, BeeResponse, HookCallback, HttpMethod, Ky } from '../types'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { Objects, Strings } from 'cafe-utility'
+import { BeeRequestOptions } from '../index'
 
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { HTTPError, Options as KyOptions } from 'ky-universal'
-import { normalizeToReadableStream } from './stream'
-import { isObject, isStrictlyObject } from './type'
-import { KyRequestOptions } from '../types'
-import { deepMerge } from './merge'
-
-export const DEFAULT_KY_CONFIG: KyOptions = {
+export const DEFAULT_HTTP_CONFIG = {
   headers: {
     accept: 'application/json, text/plain, */*',
-    'user-agent': `bee-js`,
   },
 }
 
-interface UndiciError {
-  cause: Error
-}
-
-interface KyResponse<T> extends Response {
-  parsedData: T
-}
-
-function isHttpError(e: unknown): e is HTTPError {
-  return isObject(e) && typeof e.response !== 'undefined'
-}
-
-function isHttpRequestError(e: unknown): e is Error {
-  return isObject(e) && typeof e.request !== 'undefined'
-}
-
-function headersToObject(header: Headers) {
-  return [...header.entries()].reduce<Record<string, string>>((obj, [key, val]) => {
-    obj[key] = val
-
-    return obj
-  }, {})
-}
-
-function wrapRequest(request: Request): BeeRequest {
-  return {
-    url: request.url,
-    method: request.method.toUpperCase() as HttpMethod,
-    headers: headersToObject(request.headers),
-  }
-}
-
-export function wrapRequestClosure(cb: HookCallback<BeeRequest>): (request: Request) => Promise<void> {
-  return async (request: Request) => {
-    await cb(wrapRequest(request))
-  }
-}
-
-export function wrapResponseClosure(
-  cb: HookCallback<BeeResponse>,
-): (request: Request, options: unknown, response: Response) => Promise<void> {
-  return async (request: Request, options: unknown, response: Response) => {
-    await cb({
-      headers: headersToObject(response.headers),
-      status: response.status,
-      statusText: response.statusText,
-      request: wrapRequest(request),
-    })
-  }
-}
-
 /**
- * Filters out entries that has undefined value from headers object.
- * Modifies the original object!
- *
- * @param obj
+ * Main function to make HTTP requests.
+ * @param options User defined settings
+ * @param config Internal settings and/or Bee settings
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function filterHeaders(obj?: object): Record<string, string> | undefined {
-  if (obj === undefined) {
-    return undefined
-  }
-
-  isStrictlyObject(obj)
-
-  const typedObj = obj as Record<string, string>
-
-  for (const key in typedObj) {
-    if (typedObj[key] === undefined) {
-      delete typedObj[key]
-    }
-  }
-
-  if (Object.keys(typedObj).length === 0) {
-    return undefined
-  }
-
-  return typedObj
-}
-
-/**
- * Main utility function to make HTTP requests.
- * @param kyOptions
- * @param config
- */
-export async function http<T>(kyOptions: KyOptions, config: KyRequestOptions): Promise<KyResponse<T>> {
+export async function http<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
   try {
-    const ky = await getKy()
-    const { path, responseType, ...kyConfig } = deepMerge(kyOptions as KyRequestOptions, config)
-
-    const response = (await ky(path, {
-      ...kyConfig,
-      searchParams: filterHeaders(kyConfig.searchParams),
-    })) as KyResponse<T>
-
-    switch (responseType) {
-      case 'stream':
-        if (!response.body) {
-          throw new BeeError('Response was expected to get data but did not get any!')
-        }
-
-        response.parsedData = normalizeToReadableStream(response.body) as unknown as T
-        break
-      case 'arraybuffer':
-        response.parsedData = (await response.arrayBuffer()) as unknown as T
-        break
-      case 'json':
-        try {
-          response.parsedData = (await response.json()) as unknown as T
-        } catch (e) {
-          throw new BeeNotAJsonError()
-        }
-        break
-      default:
-        break // If responseType is not set, then no data are expected
-    }
+    const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+    maybeRunOnRequestHook(options, requestConfig)
+    const response = await axios(requestConfig)
 
     return response
   } catch (e) {
-    // Passthrough thrown errors
-    if (e instanceof BeeNotAJsonError) {
-      throw e
-    }
-
-    if (isHttpError(e)) {
-      let message
-
-      // We store the response body here as it can be read only once in Response's lifecycle so to make it exposed
-      // to the user in the BeeResponseError, for further analysis.
-      const body = await e.response.text()
-
-      try {
-        // The response can be Bee's JSON with structure `{code, message}` lets try to parse it
-        message = JSON.parse(body).message
-      } catch (e) {}
-
-      if (message) {
-        throw new BeeResponseError(e.response.status, e.response, body, config, `${e.response.statusText}: ${message}`)
-      } else {
-        throw new BeeResponseError(e.response.status, e.response, body, config, e.response.statusText)
-      }
-    } else if (isHttpRequestError(e)) {
-      throw new BeeRequestError(e.message, config)
-    } else {
-      // Node 18 has native `fetch` implementation called Undici. Errors from this implementation have top level generic
-      // message "fetch failed" with the more specific error placed into `cause` property. Instead of "fetch failed" we
-      // expose the underlying problem.
-      if ((e as UndiciError).cause) {
-        throw new BeeError((e as UndiciError).cause.message)
-      }
-
-      throw new BeeError((e as Error).message)
-    }
+    throw e
   }
 }
 
-let ky: Ky | undefined
-
-async function getKy(): Promise<Ky> {
-  if (ky) {
-    return ky
+function maybeRunOnRequestHook(options: BeeRequestOptions, requestConfig: AxiosRequestConfig) {
+  if (options.onRequest) {
+    options.onRequest({
+      method: requestConfig.method || 'GET',
+      url: Strings.joinUrl(requestConfig.baseURL as string, requestConfig.url as string),
+      headers: { ...requestConfig.headers } as Record<string, string>,
+      params: requestConfig.params,
+    })
   }
-
-  ky = (await import('ky-universal')).default
-
-  if (!ky) {
-    throw new Error('Ky was not found while it should have been!')
-  }
-
-  return ky
 }

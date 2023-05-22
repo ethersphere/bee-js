@@ -1,8 +1,5 @@
-import type { BeeGenericResponse } from '../../types'
+import type { BeeGenericResponse, BeeRequestOptions } from '../../types'
 import { http } from '../../utils/http'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'chunks'
 
@@ -14,13 +11,16 @@ const endpoint = 'chunks'
  *
  * @returns BeeGenericResponse if chunk is found or throws an exception
  */
-export async function checkIfChunkExistsLocally(kyOptions: KyOptions, address: string): Promise<BeeGenericResponse> {
-  const response = await http<BeeGenericResponse>(kyOptions, {
-    path: endpoint + `/${address}`,
+export async function checkIfChunkExistsLocally(
+  requestOptions: BeeRequestOptions,
+  address: string,
+): Promise<BeeGenericResponse> {
+  const response = await http<BeeGenericResponse>(requestOptions, {
+    url: `${endpoint}/${address}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -31,12 +31,15 @@ export async function checkIfChunkExistsLocally(kyOptions: KyOptions, address: s
  *
  * @returns BeeGenericResponse if chunk was deleted or throws an exception
  */
-export async function deleteChunkFromLocalStorage(kyOptions: KyOptions, address: string): Promise<BeeGenericResponse> {
-  const response = await http<BeeGenericResponse>(kyOptions, {
+export async function deleteChunkFromLocalStorage(
+  requestOptions: BeeRequestOptions,
+  address: string,
+): Promise<BeeGenericResponse> {
+  const response = await http<BeeGenericResponse>(requestOptions, {
     method: 'delete',
-    path: endpoint + `/${address}`,
+    url: `${endpoint}/${address}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }

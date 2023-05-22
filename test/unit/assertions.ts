@@ -1,8 +1,7 @@
 /* eslint-disable */
+import { expect } from 'chai'
 import { BeeArgumentError, BeeOptions } from '../../src'
 import { makeBytes } from '../../src/utils/bytes'
-import { expect } from 'chai'
-import sinon from 'sinon'
 
 export function testBatchIdAssertion(executor: (input: unknown) => Promise<unknown>): void {
   it('should throw exception for bad BatchId', async function () {
@@ -94,33 +93,7 @@ export function testRequestOptionsAssertions(
     await expect(executor({ retry: {} })).rejectedWith(TypeError)
     await expect(executor({ retry: [] })).rejectedWith(TypeError)
     await expect(executor({ retry: -1 })).rejectedWith(BeeArgumentError)
-
-    await expect(executor({ fetch: 'plur' })).rejectedWith(TypeError)
-    await expect(executor({ fetch: true })).rejectedWith(TypeError)
-    await expect(executor({ fetch: {} })).rejectedWith(TypeError)
-    await expect(executor({ fetch: [] })).rejectedWith(TypeError)
-    await expect(executor({ fetch: -1 })).rejectedWith(TypeError)
-    await expect(executor({ fetch: 1 })).rejectedWith(TypeError)
   })
-
-  if (testFetch) {
-    it('should use per-call request options instead of instance request options', async function () {
-      const instanceFetch = sinon.stub()
-      const instanceMessage = 'instance error'
-      const instanceError = { message: instanceMessage }
-      instanceFetch.rejects(instanceError)
-      await expect(executor({}, { retry: 0, fetch: instanceFetch })).rejectedWith(instanceMessage)
-      expect(instanceFetch.calledOnce).to.be.true()
-
-      const callFetch = sinon.stub()
-      const callMessage = 'call error'
-      const callError = { message: callMessage }
-      callFetch.rejects(callError)
-      await expect(executor({ fetch: callFetch }, { retry: 0, fetch: instanceFetch })).rejectedWith(callMessage)
-      expect(instanceFetch.calledOnce).to.be.true() // The count did not change from last call
-      expect(callFetch.calledOnce).to.be.true()
-    })
-  }
 }
 
 export function testPostageBatchOptionsAssertions(executor: (input: unknown) => Promise<unknown>): void {

@@ -7,19 +7,11 @@ import type { BeeError } from '../utils/error'
 import type { EthAddress, HexEthAddress } from '../utils/eth'
 import type { HexString } from '../utils/hex'
 
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type ky from 'ky-universal'
-
-import type { Readable as NativeReadable } from 'stream'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
+import type { Readable as NativeReadable } from 'stream'
 import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill'
 
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
-
 export * from './debug'
-
-export type Ky = typeof ky
 
 export interface Dictionary<T> {
   [Key: string]: T
@@ -99,60 +91,20 @@ export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
  */
 export type AddressPrefix = HexString
 
-/**
- * Internal interface that represents configuration for creating a request with Ky
- */
-export interface KyRequestOptions extends Omit<KyOptions, 'searchParams'> {
-  path: string
-  responseType?: 'json' | 'arraybuffer' | 'stream'
-
-  /**
-   * Overridden parameter that allows undefined as a value.
-   */
-  searchParams?: Record<string, string | number | boolean | undefined>
+export type BeeRequestOptions = {
+  baseURL?: string
+  timeout?: number | false
+  retry?: number | false
+  headers?: Record<string, string>
+  onRequest?: (request: BeeRequest) => void
 }
 
-export interface RequestOptions {
-  /**
-   * Timeout of requests in milliseconds
-   */
-  timeout?: number
-
-  /**
-   * Configure backoff mechanism for requests retries.
-   * Specifies how many retries will be performed before failing a request.
-   * Retries are performed for GET, PUT, HEAD, DELETE, OPTIONS and TRACE requests.
-   * Default is 2.
-   */
-  retry?: number
-
-  /**
-   * User defined Fetch compatible function
-   */
-  fetch?: Fetch
-}
-
-export interface BeeOptions extends RequestOptions {
+export interface BeeOptions extends BeeRequestOptions {
   /**
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   signer?: Signer | Uint8Array | string
-
-  /**
-   * Object that contains default headers that will be present
-   * in all outgoing bee-js requests for instance of Bee class.
-   */
-  defaultHeaders?: Record<string, string>
-
-  /**
-   * Function that registers listener callback for all outgoing HTTP requests that Bee instance makes.
-   */
-  onRequest?: HookCallback<BeeRequest>
-
-  /**
-   * Function that registers listener callback for all incoming HTTP responses that Bee instance made.
-   */
-  onResponse?: HookCallback<BeeResponse>
+  onRequest?: (request: BeeRequest) => void
 }
 
 export interface UploadResultWithCid extends UploadResult {
@@ -180,7 +132,7 @@ export interface UploadResult {
   tagUid: number
 }
 
-export interface UploadOptions extends RequestOptions {
+export interface UploadOptions {
   /**
    * Will pin the data locally in the Bee node as well.
    *
@@ -295,7 +247,7 @@ export interface Tag {
   startedAt: string
 }
 
-export interface AllTagsOptions extends RequestOptions {
+export interface AllTagsOptions {
   limit?: number
   offset?: number
 }
@@ -380,7 +332,7 @@ export type HookCallback<V> = (value: V) => void | Promise<void>
 
 export interface BeeRequest {
   url: string
-  method: HttpMethod
+  method: string
   headers?: Record<string, string>
   params?: Record<string, unknown>
 }
@@ -434,7 +386,7 @@ export interface FeedReader {
   download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
 }
 
-export interface JsonFeedOptions extends RequestOptions {
+export interface JsonFeedOptions {
   /**
    * Valid only for `get` action, where either this `address` or `signer` has
    * to be specified.
@@ -552,7 +504,7 @@ export interface TransactionInfo {
 /**
  * Options for creation of postage batch
  */
-export interface PostageBatchOptions extends RequestOptions {
+export interface PostageBatchOptions {
   /**
    * Sets label for the postage batch
    */
@@ -648,5 +600,3 @@ interface JsonMap {
   [key: string]: AnyJson
 }
 type JsonArray = Array<AnyJson>
-
-type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>

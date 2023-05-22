@@ -1,9 +1,9 @@
-import { assertBytes } from '../../../src/utils/bytes'
-import { makeContentAddressedChunk, assertValidChunkData } from '../../../src/chunk/cac'
-import { beeKyOptions, getPostageBatch } from '../../utils'
-import * as chunkAPI from '../../../src/modules/chunk'
-import { hexToBytes, bytesToHex } from '../../../src/utils/hex'
 import { expect } from 'chai'
+import { assertValidChunkData, makeContentAddressedChunk } from '../../../src/chunk/cac'
+import * as chunkAPI from '../../../src/modules/chunk'
+import { assertBytes } from '../../../src/utils/bytes'
+import { bytesToHex, hexToBytes } from '../../../src/utils/hex'
+import { beeKyOptions, getPostageBatch } from '../../utils'
 
 describe('cac', () => {
   const payload = new Uint8Array([1, 2, 3])

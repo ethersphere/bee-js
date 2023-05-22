@@ -1,9 +1,8 @@
-import { MOCK_SERVER_URL } from '../nock'
-import { http } from '../../../src/utils/http'
-import nock from 'nock'
-import { BeeNotAJsonError, BeeResponseError } from '../../../src'
 import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
+import nock from 'nock'
+import { http } from '../../../src/utils/http'
+import { MOCK_SERVER_URL } from '../nock'
 
 class ShouldHaveFailedError extends Error {}
 
@@ -12,41 +11,33 @@ describe('http', () => {
     const HTML_RESPONSE = `<html><body><h1>Some error!</h1></body></html>`
 
     nock(MOCK_SERVER_URL).get('/endpoint').reply(200, HTML_RESPONSE)
-    const kyOptions = { prefixUrl: MOCK_SERVER_URL }
+    const kyOptions = { baseURL: MOCK_SERVER_URL }
 
-    await expect(http(kyOptions, { path: 'endpoint', responseType: 'json', method: 'get' })).rejectedWith(
-      BeeNotAJsonError,
-    )
+    await expect(http(kyOptions, { url: 'endpoint', responseType: 'json', method: 'get' })).rejectedWith(Error)
   })
 
   it('should handle non-json response for 404', async function () {
     const HTML_RESPONSE = `<html><body><h1>Some error!</h1></body></html>`
 
     nock(MOCK_SERVER_URL).get('/endpoint').reply(404, HTML_RESPONSE)
-    const kyOptions = { prefixUrl: MOCK_SERVER_URL }
+    const kyOptions = { baseURL: MOCK_SERVER_URL }
 
-    await expect(http(kyOptions, { path: 'endpoint', responseType: 'json', method: 'get' })).rejectedWith(
-      BeeResponseError,
-    )
+    await expect(http(kyOptions, { url: 'endpoint', responseType: 'json', method: 'get' })).rejectedWith(Error)
   })
 
   it('should give options when thrown error', async function () {
     nock(MOCK_SERVER_URL).get('/endpoint').reply(400, 'Some error')
-    const kyOptions = { prefixUrl: MOCK_SERVER_URL }
+    const kyOptions = { baseURL: MOCK_SERVER_URL }
 
     try {
-      await http(kyOptions, { path: 'endpoint', method: 'get' })
+      await http(kyOptions, { url: 'endpoint', method: 'get' })
       throw new ShouldHaveFailedError()
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof ShouldHaveFailedError) {
         throw e
       }
 
-      if (!(e instanceof BeeResponseError)) {
-        throw new Error('Expected error to be instance of BeeResponseError!')
-      }
-
-      expect(e.requestOptions).to.eql({ path: 'endpoint', method: 'get' })
+      expect(e.request.path).to.eql({ path: 'endpoint', method: 'get' })
 
       // Testing only partial Response object for the major functionality
       jestExpect(e.response).toEqual(

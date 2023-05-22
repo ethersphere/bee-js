@@ -1,16 +1,19 @@
-import { assertAllIsDone, downloadDataMock, fetchFeedUpdateMock, MOCK_SERVER_URL, uploadFileMock } from './nock'
+import { fail } from 'assert'
+import { expect } from 'chai'
 import {
   BatchId,
   Bee,
   BeeArgumentError,
+  BeeRequestOptions,
+  CHUNK_SIZE,
   CollectionUploadOptions,
   PssMessageHandler,
   ReferenceResponse,
-  UploadOptions,
-  RequestOptions,
-  CHUNK_SIZE,
   SPAN_SIZE,
+  UploadOptions,
 } from '../../src'
+import { makeTopicFromString } from '../../src/feed/topic'
+import { FeedType } from '../../src/feed/type'
 import {
   randomByteArray,
   testBatchId,
@@ -23,31 +26,26 @@ import {
   testJsonPayload,
   testJsonStringPayload,
 } from '../utils'
-import { makeTopicFromString } from '../../src/feed/topic'
 import {
   testAddressPrefixAssertions,
   testBatchIdAssertion,
   testCollectionUploadOptionsAssertions,
   testDataAssertions,
+  testEthAddressAssertions,
+  testFeedTopicAssertions,
+  testFeedTypeAssertions,
   testFileDataAssertions,
   testFileUploadOptionsAssertions,
+  testMakeSignerAssertions,
   testPssMessageHandlerAssertions,
   testPublicKeyAssertions,
   testReferenceAssertions,
+  testReferenceOrEnsAssertions,
+  testRequestOptionsAssertions,
   testTopicAssertions,
   testUploadOptionsAssertions,
-  testFeedTypeAssertions,
-  testFeedTopicAssertions,
-  testEthAddressAssertions,
-  testMakeSignerAssertions,
-  testRequestOptionsAssertions,
-  testReferenceOrEnsAssertions,
 } from './assertions'
-import { FeedType } from '../../src/feed/type'
-import { isStrictlyObject } from '../../src/utils/type'
-import { fail } from 'assert'
-import { expect } from 'chai'
-import sinon from 'sinon'
+import { assertAllIsDone, downloadDataMock, fetchFeedUpdateMock, MOCK_SERVER_URL, uploadFileMock } from './nock'
 
 const TOPIC = 'some=very%nice#topic'
 const HASHED_TOPIC = makeTopicFromString(TOPIC)
@@ -86,7 +84,7 @@ describe('Bee class', () => {
       reference: testJsonHash,
     } as ReferenceResponse)
 
-    const bee = new Bee(MOCK_SERVER_URL, { defaultHeaders })
+    const bee = new Bee(MOCK_SERVER_URL, { headers: defaultHeaders })
     const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt')
 
     expect(reference).to.include({
@@ -123,7 +121,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.uploadData(testBatchId, '', input as RequestOptions)
+      return bee.uploadData(testBatchId, '', undefined, input as BeeRequestOptions)
     })
 
     testDataAssertions(async (input: unknown) => {
@@ -149,7 +147,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.downloadData(testChunkHash, input as RequestOptions)
+      return bee.downloadData(testChunkHash, input as BeeRequestOptions)
     })
 
     it('should accept valid ENS domain', async function () {
@@ -195,7 +193,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.downloadReadableData(testChunkHash, input as RequestOptions)
+      return bee.downloadReadableData(testChunkHash, input as BeeRequestOptions)
     })
   })
 
@@ -209,7 +207,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.uploadFile(testBatchId, '', undefined, input as RequestOptions)
+      return bee.uploadFile(testBatchId, '', undefined, undefined, input as BeeRequestOptions)
     })
 
     testFileDataAssertions(async (input: unknown) => {
@@ -241,7 +239,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.downloadFile(testChunkHash, '', input as RequestOptions)
+      return bee.downloadFile(testChunkHash, '', input as BeeRequestOptions)
     })
   })
 
@@ -255,7 +253,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.downloadReadableFile(testChunkHash, '', input as RequestOptions)
+      return bee.downloadReadableFile(testChunkHash, '', input as BeeRequestOptions)
     })
   })
 
@@ -284,7 +282,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.uploadFiles(testBatchId, files, input as RequestOptions)
+      return bee.uploadFiles(testBatchId, files, undefined, input as BeeRequestOptions)
     })
   })
 
@@ -310,7 +308,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.uploadFilesFromDirectory(testBatchId, './test/data', input as RequestOptions)
+      return bee.uploadFilesFromDirectory(testBatchId, './test/data', undefined, input as BeeRequestOptions)
     })
 
     it('should throw exception for bad Dir', async function () {
@@ -336,7 +334,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.retrieveTag(0, input as RequestOptions)
+      return bee.retrieveTag(0, input as BeeRequestOptions)
     })
 
     it('should throw exception for bad Tag', async function () {
@@ -370,7 +368,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.deleteTag(0, input as RequestOptions)
+      return bee.deleteTag(0, input as BeeRequestOptions)
     })
 
     it('should throw exception for bad Tag', async function () {
@@ -404,7 +402,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.getAllTags(input as RequestOptions)
+      return bee.getAllTags()
     })
 
     it('should throw exception for bad options', async function () {
@@ -462,7 +460,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.pin(testChunkHash, input as RequestOptions)
+      return bee.pin(testChunkHash, input as BeeRequestOptions)
     })
 
     testReferenceAssertions(async (input: unknown) => {
@@ -476,7 +474,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.unpin(testChunkHash, input as RequestOptions)
+      return bee.unpin(testChunkHash, input as BeeRequestOptions)
     })
     testReferenceAssertions(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
@@ -489,7 +487,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.getPin(testChunkHash, input as RequestOptions)
+      return bee.getPin(testChunkHash, input as BeeRequestOptions)
     })
     testReferenceAssertions(async (input: unknown) => {
       const bee = new Bee(MOCK_SERVER_URL)
@@ -502,7 +500,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.reuploadPinnedData(testChunkHash, input as RequestOptions)
+      return bee.reuploadPinnedData(testChunkHash, input as BeeRequestOptions)
     })
 
     testReferenceOrEnsAssertions(async (input: unknown) => {
@@ -516,7 +514,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.pssSend(testBatchId, 'topic', '123', 'data', '', input as RequestOptions)
+      return bee.pssSend(testBatchId, 'topic', '123', 'data', '', input as BeeRequestOptions)
     })
 
     testBatchIdAssertion(async (input: unknown) => {
@@ -595,7 +593,13 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.createFeedManifest(testBatchId, 'epoch', testChunkHash, testIdentity.address, input as RequestOptions)
+      return bee.createFeedManifest(
+        testBatchId,
+        'epoch',
+        testChunkHash,
+        testIdentity.address,
+        input as BeeRequestOptions,
+      )
     })
 
     testBatchIdAssertion(async (input: unknown) => {
@@ -627,7 +631,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.makeFeedReader('epoch', testChunkHash, testIdentity.address, input as RequestOptions)
+      return bee.makeFeedReader('epoch', testChunkHash, testIdentity.address, input as BeeRequestOptions)
     }, false)
 
     testFeedTypeAssertions(async (input: unknown) => {
@@ -653,7 +657,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.makeFeedWriter('epoch', testChunkHash, testIdentity.address, input as RequestOptions)
+      return bee.makeFeedWriter('epoch', testChunkHash, testIdentity.address, input as BeeRequestOptions)
     }, false)
 
     testFeedTypeAssertions(async (input: unknown) => {
@@ -679,18 +683,11 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      let opts
-
-      if (isStrictlyObject(input)) {
-        opts = {
-          signer: testIdentity.privateKey,
-          ...input,
-        }
-      } else {
-        opts = input
+      const opts = {
+        signer: testIdentity.privateKey,
       }
 
-      return bee.setJsonFeed(testBatchId, 'epoch', '123', opts as RequestOptions)
+      return bee.setJsonFeed(testBatchId, 'epoch', '123', opts)
     })
 
     testBatchIdAssertion(async (input: unknown) => {
@@ -722,18 +719,11 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      let opts
-
-      if (isStrictlyObject(input)) {
-        opts = {
-          signer: testIdentity.privateKey,
-          ...input,
-        }
-      } else {
-        opts = input
+      const opts = {
+        signer: testIdentity.privateKey,
       }
 
-      return bee.getJsonFeed(TOPIC, opts as RequestOptions)
+      return bee.getJsonFeed(TOPIC, opts)
     })
 
     it('should fetch with specified address', async function () {
@@ -826,7 +816,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.makeSOCReader(testIdentity.privateKey, input as RequestOptions)
+      return bee.makeSOCReader(testIdentity.privateKey, input as BeeRequestOptions)
     }, false)
 
     testEthAddressAssertions(async (input: unknown) => {
@@ -847,7 +837,7 @@ describe('Bee class', () => {
     testRequestOptionsAssertions(async (input: unknown, beeOptions) => {
       const bee = new Bee(MOCK_SERVER_URL, beeOptions)
 
-      return bee.makeSOCWriter(testIdentity.privateKey, input as RequestOptions)
+      return bee.makeSOCWriter(testIdentity.privateKey, input as BeeRequestOptions)
     }, false)
 
     testMakeSignerAssertions(async (input: unknown) => {
@@ -861,93 +851,6 @@ describe('Bee class', () => {
 
       const socReader = bee.makeSOCWriter(testIdentity.privateKey)
       expect(socReader.owner).to.eql(testIdentity.address)
-    })
-  })
-
-  describe('hooks', () => {
-    it('should call with request', async function () {
-      const requestSpy = sinon.stub()
-      const responseSpy = sinon.stub()
-
-      const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
-
-      const topic = bee.makeFeedTopic('some-topic')
-      fetchFeedUpdateMock(testIdentity.address, topic).reply(200, {
-        reference: testJsonHash,
-      } as ReferenceResponse)
-
-      const feedReader = bee.makeFeedReader('sequence', topic, testIdentity.address)
-      const feedUpdate = await feedReader.download()
-
-      expect(feedUpdate.reference).to.eql(testJsonHash)
-
-      expect(requestSpy).to.be.calledWithMatch({
-        url: `${MOCK_SERVER_URL}feeds/${testIdentity.address}/${topic}?type=sequence`,
-        method: 'GET',
-        headers: { accept: 'application/json, text/plain, */*' },
-      })
-
-      expect(responseSpy).to.be.calledWithMatch({
-        status: 200,
-        statusText: '',
-        headers: {
-          'content-type': 'application/json',
-        },
-        request: {
-          url: `${MOCK_SERVER_URL}feeds/${testIdentity.address}/${topic}?type=sequence`,
-          method: 'GET',
-          headers: { accept: 'application/json, text/plain, */*' },
-        },
-      })
-      assertAllIsDone()
-    })
-
-    it('should call with request with correct headers', async function () {
-      const requestSpy = sinon.stub()
-      const responseSpy = sinon.stub()
-      const bee = new Bee(MOCK_SERVER_URL, { onRequest: requestSpy, onResponse: responseSpy })
-
-      uploadFileMock(testBatchId, 'nice.txt', { encrypt: true }).reply(200, {
-        reference: testJsonHash,
-      } as ReferenceResponse)
-
-      const reference = await bee.uploadFile(testBatchId, 'hello world', 'nice.txt', { encrypt: true })
-
-      expect(reference).to.include({
-        reference: testJsonHash,
-        tagUid: 123,
-      })
-
-      expect(reference.cid()).to.eql(testJsonCid)
-
-      expect(requestSpy).to.be.calledWithMatch({
-        url: `${MOCK_SERVER_URL}bzz?name=nice.txt`,
-        method: 'POST',
-        headers: {
-          accept: 'application/json, text/plain, */*',
-          'swarm-encrypt': 'true',
-          'swarm-postage-batch-id': testBatchId,
-        },
-      })
-
-      expect(responseSpy).to.be.calledWithMatch({
-        status: 200,
-        statusText: '',
-        headers: {
-          'content-type': 'application/json',
-        },
-        request: {
-          url: `${MOCK_SERVER_URL}bzz?name=nice.txt`,
-          method: 'POST',
-          headers: {
-            accept: 'application/json, text/plain, */*',
-            'swarm-encrypt': 'true',
-            'swarm-postage-batch-id': testBatchId,
-          },
-        },
-      })
-
-      assertAllIsDone()
     })
   })
 })

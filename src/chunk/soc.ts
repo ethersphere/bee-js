@@ -1,20 +1,17 @@
-import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
-import { bmtHash } from './bmt'
-import { recoverAddress, sign } from './signer'
-import { keccak256Hash } from '../utils/hash'
-import { SPAN_SIZE } from './span'
-import { serializeBytes } from './serialize'
-import { BeeError } from '../utils/error'
-import { Chunk, makeContentAddressedChunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, assertValidChunkData } from './cac'
-import { UploadOptions, Signature, Signer, BatchId, Reference, PlainBytesReference } from '../types'
-import { bytesToHex } from '../utils/hex'
-import * as socAPI from '../modules/soc'
 import * as chunkAPI from '../modules/chunk'
+import * as socAPI from '../modules/soc'
+import { BatchId, BeeRequestOptions, PlainBytesReference, Reference, Signature, Signer, UploadOptions } from '../types'
+import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
+import { BeeError } from '../utils/error'
 import { EthAddress } from '../utils/eth'
+import { keccak256Hash } from '../utils/hash'
+import { bytesToHex } from '../utils/hex'
 import { assertAddress } from '../utils/type'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
+import { bmtHash } from './bmt'
+import { assertValidChunkData, Chunk, makeContentAddressedChunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE } from './cac'
+import { serializeBytes } from './serialize'
+import { recoverAddress, sign } from './signer'
+import { SPAN_SIZE } from './span'
 
 const IDENTIFIER_SIZE = 32
 const SIGNATURE_SIZE = 65
@@ -129,7 +126,7 @@ export async function makeSingleOwnerChunk(
  * @param options         Upload options
  */
 export async function uploadSingleOwnerChunk(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   chunk: SingleOwnerChunk,
   postageBatchId: BatchId,
   options?: UploadOptions,
@@ -139,7 +136,7 @@ export async function uploadSingleOwnerChunk(
   const signature = bytesToHex(chunk.signature())
   const data = serializeBytes(chunk.span(), chunk.payload())
 
-  return socAPI.upload(kyOptions, owner, identifier, signature, data, postageBatchId, options)
+  return socAPI.upload(requestOptions, owner, identifier, signature, data, postageBatchId, options)
 }
 
 /**
@@ -153,7 +150,7 @@ export async function uploadSingleOwnerChunk(
  * @param options
  */
 export async function uploadSingleOwnerChunkData(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   signer: Signer,
   postageBatchId: BatchId | string,
   identifier: Identifier,
@@ -164,7 +161,7 @@ export async function uploadSingleOwnerChunkData(
   const cac = makeContentAddressedChunk(data)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
 
-  return uploadSingleOwnerChunk(kyOptions, soc, postageBatchId, options)
+  return uploadSingleOwnerChunk(requestOptions, soc, postageBatchId, options)
 }
 
 /**
@@ -175,12 +172,12 @@ export async function uploadSingleOwnerChunkData(
  * @param identifier    The identifier of the chunk
  */
 export async function downloadSingleOwnerChunk(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   ownerAddress: EthAddress,
   identifier: Identifier,
 ): Promise<SingleOwnerChunk> {
   const address = makeSOCAddress(identifier, ownerAddress)
-  const data = await chunkAPI.download(kyOptions, bytesToHex(address))
+  const data = await chunkAPI.download(requestOptions, bytesToHex(address))
 
   return makeSingleOwnerChunkFromData(data, address)
 }

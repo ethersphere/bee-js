@@ -1,8 +1,11 @@
-import { BeeGenericResponse, NumberString, RedistributionState, TransactionOptions } from '../../types'
+import {
+  BeeGenericResponse,
+  BeeRequestOptions,
+  NumberString,
+  RedistributionState,
+  TransactionOptions,
+} from '../../types'
 import { http } from '../../utils/http'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const STAKE_ENDPOINT = 'stake'
 const REDISTRIBUTION_ENDPOINT = 'redistributionstate'
@@ -16,14 +19,14 @@ interface GetStake {
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getStake(kyOptions: KyOptions): Promise<NumberString> {
-  const response = await http<GetStake>(kyOptions, {
+export async function getStake(requestOptions: BeeRequestOptions): Promise<NumberString> {
+  const response = await http<GetStake>(requestOptions, {
     method: 'get',
     responseType: 'json',
-    path: `${STAKE_ENDPOINT}`,
+    url: `${STAKE_ENDPOINT}`,
   })
 
-  return response.parsedData.stakedAmount.toString()
+  return response.data.stakedAmount.toString()
 }
 
 /**
@@ -33,7 +36,11 @@ export async function getStake(kyOptions: KyOptions): Promise<NumberString> {
  * @param amount
  * @param options
  */
-export async function stake(kyOptions: KyOptions, amount: NumberString, options?: TransactionOptions): Promise<void> {
+export async function stake(
+  requestOptions: BeeRequestOptions,
+  amount: NumberString,
+  options?: TransactionOptions,
+): Promise<void> {
   const headers: Record<string, string> = {}
 
   if (options?.gasPrice) {
@@ -44,10 +51,10 @@ export async function stake(kyOptions: KyOptions, amount: NumberString, options?
     headers['gas-limit'] = options.gasLimit.toString()
   }
 
-  await http<BeeGenericResponse>(kyOptions, {
+  await http<BeeGenericResponse>(requestOptions, {
     method: 'post',
     responseType: 'json',
-    path: `${STAKE_ENDPOINT}/${amount}`,
+    url: `${STAKE_ENDPOINT}/${amount}`,
     headers,
   })
 }
@@ -57,12 +64,12 @@ export async function stake(kyOptions: KyOptions, amount: NumberString, options?
  *
  * @param kyOptions Ky Options for making requests
  */
-export async function getRedistributionState(kyOptions: KyOptions): Promise<RedistributionState> {
-  const response = await http<RedistributionState>(kyOptions, {
+export async function getRedistributionState(requestOptions: BeeRequestOptions): Promise<RedistributionState> {
+  const response = await http<RedistributionState>(requestOptions, {
     method: 'get',
     responseType: 'json',
-    path: REDISTRIBUTION_ENDPOINT,
+    url: REDISTRIBUTION_ENDPOINT,
   })
 
-  return response.parsedData
+  return response.data
 }

@@ -1,8 +1,5 @@
-import { NumberString, TransactionHash, TransactionInfo } from '../../types'
+import { BeeRequestOptions, NumberString, TransactionHash, TransactionInfo } from '../../types'
 import { http } from '../../utils/http'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const transactionsEndpoint = 'transactions'
 
@@ -19,13 +16,13 @@ interface TransactionResponse {
  *
  * @param ky   Debug Ky instance
  */
-export async function getAllTransactions(kyOptions: KyOptions): Promise<TransactionInfo[]> {
-  const response = await http<PendingTransactionsResponse>(kyOptions, {
-    path: transactionsEndpoint,
+export async function getAllTransactions(requestOptions: BeeRequestOptions): Promise<TransactionInfo[]> {
+  const response = await http<PendingTransactionsResponse>(requestOptions, {
+    url: transactionsEndpoint,
     responseType: 'json',
   })
 
-  return response.parsedData.pendingTransactions
+  return response.data.pendingTransactions
 }
 
 /**
@@ -34,13 +31,16 @@ export async function getAllTransactions(kyOptions: KyOptions): Promise<Transact
  * @param ky   Debug Ky instance
  * @param transactionHash Hash of the transaction
  */
-export async function getTransaction(kyOptions: KyOptions, transactionHash: TransactionHash): Promise<TransactionInfo> {
-  const response = await http<TransactionInfo>(kyOptions, {
-    path: `${transactionsEndpoint}/${transactionHash}`,
+export async function getTransaction(
+  requestOptions: BeeRequestOptions,
+  transactionHash: TransactionHash,
+): Promise<TransactionInfo> {
+  const response = await http<TransactionInfo>(requestOptions, {
+    url: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -50,16 +50,16 @@ export async function getTransaction(kyOptions: KyOptions, transactionHash: Tran
  * @param transactionHash Hash of the transaction
  */
 export async function rebroadcastTransaction(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   transactionHash: TransactionHash,
 ): Promise<TransactionHash> {
-  const response = await http<TransactionResponse>(kyOptions, {
+  const response = await http<TransactionResponse>(requestOptions, {
     method: 'post',
-    path: `${transactionsEndpoint}/${transactionHash}`,
+    url: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.parsedData.transactionHash
+  return response.data.transactionHash
 }
 
 /**
@@ -70,16 +70,16 @@ export async function rebroadcastTransaction(
  * @param gasPrice Optional gas price
  */
 export async function cancelTransaction(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   transactionHash: TransactionHash,
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
-  const response = await http<TransactionResponse>(kyOptions, {
+  const response = await http<TransactionResponse>(requestOptions, {
     method: 'delete',
     headers: { 'gas-price': gasPrice },
-    path: `${transactionsEndpoint}/${transactionHash}`,
+    url: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.parsedData.transactionHash
+  return response.data.transactionHash
 }

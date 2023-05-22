@@ -1,3 +1,5 @@
+import { System } from 'cafe-utility'
+import { expect } from 'chai'
 import {
   depositTokens,
   getChequebookAddress,
@@ -8,8 +10,6 @@ import {
 import { NumberString } from '../../../../src/types'
 import { isPrefixedHexString } from '../../../../src/utils/hex'
 import { beeDebugKyOptions, commonMatchers } from '../../../utils'
-import { sleep } from '../../../../src/utils/sleep'
-import { expect } from 'chai'
 
 if (process.env.BEE_TEST_CHEQUEBOOK) {
   commonMatchers()
@@ -36,7 +36,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
-      await sleep(TRANSACTION_TIMEOUT)
+      await System.sleepMillis(TRANSACTION_TIMEOUT)
 
       const depositResponse = await depositTokens(beeDebugKyOptions(), amount)
 
@@ -44,7 +44,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
-      await sleep(TRANSACTION_TIMEOUT)
+      await System.sleepMillis(TRANSACTION_TIMEOUT)
     }
 
     it('withdraw and deposit string', async function () {

@@ -1,7 +1,7 @@
-import * as tag from '../../../src/modules/tag'
-import { beeKyOptions, commonMatchers } from '../../utils'
 import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
+import * as tag from '../../../src/modules/tag'
+import { beeKyOptions, commonMatchers } from '../../utils'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 

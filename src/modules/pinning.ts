@@ -1,8 +1,5 @@
-import type { BeeGenericResponse, Pin, Reference } from '../types'
+import type { BeeGenericResponse, BeeRequestOptions, Pin, Reference } from '../types'
 import { http } from '../utils/http'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const PINNING_ENDPOINT = 'pins'
 
@@ -16,11 +13,11 @@ export interface GetAllPinResponse {
  * @param kyOptions Ky Options for making requests
  * @param reference Bee data reference
  */
-export async function pin(kyOptions: KyOptions, reference: Reference): Promise<void> {
-  await http<BeeGenericResponse>(kyOptions, {
+export async function pin(requestOptions: BeeRequestOptions, reference: Reference): Promise<void> {
+  await http<BeeGenericResponse>(requestOptions, {
     method: 'post',
     responseType: 'json',
-    path: `${PINNING_ENDPOINT}/${reference}`,
+    url: `${PINNING_ENDPOINT}/${reference}`,
   })
 }
 
@@ -30,11 +27,11 @@ export async function pin(kyOptions: KyOptions, reference: Reference): Promise<v
  * @param kyOptions Ky Options for making requests
  * @param reference Bee data reference
  */
-export async function unpin(kyOptions: KyOptions, reference: Reference): Promise<void> {
-  await http<BeeGenericResponse>(kyOptions, {
+export async function unpin(requestOptions: BeeRequestOptions, reference: Reference): Promise<void> {
+  await http<BeeGenericResponse>(requestOptions, {
     method: 'delete',
     responseType: 'json',
-    path: `${PINNING_ENDPOINT}/${reference}`,
+    url: `${PINNING_ENDPOINT}/${reference}`,
   })
 }
 
@@ -45,14 +42,14 @@ export async function unpin(kyOptions: KyOptions, reference: Reference): Promise
  * @param reference
  * @throws Error if given address is not pinned
  */
-export async function getPin(kyOptions: KyOptions, reference: Reference): Promise<Pin> {
-  const response = await http<Pin>(kyOptions, {
+export async function getPin(requestOptions: BeeRequestOptions, reference: Reference): Promise<Pin> {
+  const response = await http<Pin>(requestOptions, {
     method: 'get',
     responseType: 'json',
-    path: `${PINNING_ENDPOINT}/${reference}`,
+    url: `${PINNING_ENDPOINT}/${reference}`,
   })
 
-  return response.parsedData
+  return response.data
 }
 
 /**
@@ -60,12 +57,12 @@ export async function getPin(kyOptions: KyOptions, reference: Reference): Promis
  *
  * @param ky Ky instance
  */
-export async function getAllPins(kyOptions: KyOptions): Promise<Reference[]> {
-  const response = await http<GetAllPinResponse>(kyOptions, {
+export async function getAllPins(requestOptions: BeeRequestOptions): Promise<Reference[]> {
+  const response = await http<GetAllPinResponse>(requestOptions, {
     method: 'get',
     responseType: 'json',
-    path: `${PINNING_ENDPOINT}`,
+    url: `${PINNING_ENDPOINT}`,
   })
 
-  return response.parsedData.references
+  return response.data.references
 }

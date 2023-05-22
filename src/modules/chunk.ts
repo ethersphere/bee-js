@@ -1,10 +1,15 @@
-import type { BatchId, Data, Reference, ReferenceOrEns, ReferenceResponse, UploadOptions } from '../types'
+import type {
+  BatchId,
+  BeeRequestOptions,
+  Data,
+  Reference,
+  ReferenceOrEns,
+  ReferenceResponse,
+  UploadOptions,
+} from '../types'
+import { wrapBytesWithHelpers } from '../utils/bytes'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { wrapBytesWithHelpers } from '../utils/bytes'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'chunks'
 
@@ -21,15 +26,15 @@ const endpoint = 'chunks'
  * @param options Additional options like tag, encryption, pinning
  */
 export async function upload(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await http<ReferenceResponse>(kyOptions, {
+  const response = await http<ReferenceResponse>(requestOptions, {
     method: 'post',
-    path: `${endpoint}`,
-    body: data,
+    url: `${endpoint}`,
+    data,
     headers: {
       'content-type': 'application/octet-stream',
       ...extractUploadHeaders(postageBatchId, options),
@@ -37,7 +42,7 @@ export async function upload(
     responseType: 'json',
   })
 
-  return response.parsedData.reference
+  return response.data.reference
 }
 
 /**
@@ -47,11 +52,11 @@ export async function upload(
  * @param hash Bee content reference
  *
  */
-export async function download(kyOptions: KyOptions, hash: ReferenceOrEns): Promise<Data> {
-  const response = await http<ArrayBuffer>(kyOptions, {
+export async function download(requestOptions: BeeRequestOptions, hash: ReferenceOrEns): Promise<Data> {
+  const response = await http<ArrayBuffer>(requestOptions, {
     responseType: 'arraybuffer',
-    path: `${endpoint}/${hash}`,
+    url: `${endpoint}/${hash}`,
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.parsedData))
+  return wrapBytesWithHelpers(new Uint8Array(response.data))
 }

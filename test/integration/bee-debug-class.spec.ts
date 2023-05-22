@@ -1,13 +1,13 @@
+import { System } from 'cafe-utility'
 import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
 import { BeeArgumentError, BeeDebug } from '../../src'
 import {
   beeDebugUrl,
-  getOrCreatePostageBatch,
   BLOCKCHAIN_TRANSACTION_TIMEOUT,
+  getOrCreatePostageBatch,
   WAITING_USABLE_STAMP_TIMEOUT,
 } from '../utils'
-import { sleep } from '../../src/utils/sleep'
 
 describe('Bee Debug class', () => {
   const BEE_DEBUG_URL = beeDebugUrl()
@@ -38,7 +38,7 @@ describe('Bee Debug class', () => {
 
       await beeDebug.topUpBatch(batch.batchID, '10')
 
-      await sleep(4000)
+      await System.sleepMillis(4000)
       const batchDetails = await beeDebug.getPostageBatch(batch.batchID)
       const newAmount = (parseInt(batch.amount) + 10).toString()
       expect(batchDetails.amount).to.eql(newAmount)

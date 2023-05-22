@@ -1,10 +1,10 @@
 import { Bee } from './bee'
 import { BeeDebug } from './bee-debug'
 
-export * as Utils from './utils/expose'
+export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './modules/debug/status'
 export * from './types'
 export * from './utils/error'
-export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './modules/debug/status'
+export * as Utils from './utils/expose'
 export { Bee, BeeDebug }
 
 // for requrie-like imports
@@ -16,8 +16,6 @@ declare global {
       BeeDebug: typeof import('./bee-debug').BeeDebug
       Utils: typeof import('./utils/expose')
       BeeError: typeof import('./utils/error').BeeError
-      BeeRequestError: typeof import('./utils/error').BeeRequestError
-      BeeResponseError: typeof import('./utils/error').BeeResponseError
       BeeArgumentError: typeof import('./utils/error').BeeArgumentError
     }
   }

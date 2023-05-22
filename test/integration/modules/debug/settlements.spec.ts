@@ -1,7 +1,7 @@
-import * as settlements from '../../../../src/modules/debug/settlements'
-import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
+import * as settlements from '../../../../src/modules/debug/settlements'
+import { beeDebugKyOptions, commonMatchers } from '../../../utils'
 
 commonMatchers()
 

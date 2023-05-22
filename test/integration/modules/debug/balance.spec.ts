@@ -1,8 +1,8 @@
-import { beeDebugKyOptions, beePeerDebugKyOptions, commonMatchers } from '../../../utils'
-import * as balance from '../../../../src/modules/debug/balance'
-import * as connectivity from '../../../../src/modules/debug/connectivity'
 import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
+import * as balance from '../../../../src/modules/debug/balance'
+import * as connectivity from '../../../../src/modules/debug/connectivity'
+import { beeDebugKyOptions, beePeerDebugKyOptions, commonMatchers } from '../../../utils'
 
 // helper function to get the peer overlay address
 async function getPeerOverlay() {

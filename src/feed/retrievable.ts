@@ -1,10 +1,9 @@
 import { Bee } from '../bee'
+import { BeeRequestOptions, Reference, Topic } from '../types'
 import { EthAddress } from '../utils/eth'
-import { Reference, RequestOptions, Topic } from '../types'
-import { getFeedUpdateChunkReference, Index } from './index'
-import { readUint64BigEndian } from '../utils/uint64'
 import { bytesToHex } from '../utils/hex'
-import { BeeResponseError } from '../utils/error'
+import { readUint64BigEndian } from '../utils/uint64'
+import { getFeedUpdateChunkReference, Index } from './index'
 
 function makeNumericIndex(index: Index): number {
   if (index instanceof Uint8Array) {
@@ -30,15 +29,13 @@ function makeNumericIndex(index: Index): number {
  * @param ref
  * @param options
  */
-async function isChunkRetrievable(bee: Bee, ref: Reference, options?: RequestOptions): Promise<boolean> {
+async function isChunkRetrievable(bee: Bee, ref: Reference, requestOptions: BeeRequestOptions): Promise<boolean> {
   try {
-    await bee.downloadChunk(ref, options)
+    await bee.downloadChunk(ref, requestOptions)
 
     return true
-  } catch (e) {
-    const err = e as BeeResponseError
-
-    if (err.status === 404) {
+  } catch (e: any) {
+    if (e?.response?.status === 404) {
       return false
     }
 
@@ -69,10 +66,10 @@ export async function areAllSequentialFeedsUpdateRetrievable(
   owner: EthAddress,
   topic: Topic,
   index: Index,
-  options?: RequestOptions,
+  requestOptions: BeeRequestOptions,
 ): Promise<boolean> {
   const chunkRetrievablePromises = getAllSequenceUpdateReferences(owner, topic, index).map(async ref =>
-    isChunkRetrievable(bee, ref, options),
+    isChunkRetrievable(bee, ref, requestOptions),
   )
 
   return (await Promise.all(chunkRetrievablePromises)).every(result => result)

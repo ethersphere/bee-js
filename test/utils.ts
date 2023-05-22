@@ -1,16 +1,20 @@
+import { System } from 'cafe-utility'
 import { Readable } from 'stream'
 import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
 
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
-
-import type { Address, BatchId, BeeGenericResponse, PlainBytesReference, PostageBatch, Reference } from '../src/types'
-import { bytesToHex, HexString } from '../src/utils/hex'
 import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
-import { BeeResponseError } from '../src'
-import { assertBytes } from '../src/utils/bytes'
 import * as stamps from '../src/modules/debug/stamps'
-import { sleep } from '../src/utils/sleep'
+import type {
+  Address,
+  BatchId,
+  BeeGenericResponse,
+  BeeRequestOptions,
+  PlainBytesReference,
+  PostageBatch,
+  Reference,
+} from '../src/types'
+import { assertBytes } from '../src/utils/bytes'
+import { bytesToHex, HexString } from '../src/utils/hex'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -178,8 +182,8 @@ export function beeUrl(): string {
   return process.env.BEE_API_URL || 'http://127.0.0.1:1633'
 }
 
-export function beeKyOptions(): KyOptions {
-  return { prefixUrl: beeUrl(), timeout: false }
+export function beeKyOptions(): BeeRequestOptions {
+  return { baseURL: beeUrl(), timeout: false }
 }
 
 /**
@@ -189,8 +193,8 @@ export function beePeerUrl(): string {
   return process.env.BEE_PEER_API_URL || 'http://127.0.0.1:11633'
 }
 
-export function beePeerKyOptions(): KyOptions {
-  return { prefixUrl: beePeerUrl(), timeout: false }
+export function beePeerKyOptions(): BeeRequestOptions {
+  return { baseURL: beePeerUrl(), timeout: false }
 }
 
 /**
@@ -226,8 +230,8 @@ export function beeDebugUrl(): string {
   return process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635'
 }
 
-export function beeDebugKyOptions(): KyOptions {
-  return { prefixUrl: beeDebugUrl(), timeout: false }
+export function beeDebugKyOptions(): BeeRequestOptions {
+  return { baseURL: beeDebugUrl(), timeout: false }
 }
 
 /**
@@ -237,8 +241,8 @@ export function beePeerDebugUrl(): string {
   return process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635'
 }
 
-export function beePeerDebugKyOptions(): KyOptions {
-  return { prefixUrl: beePeerDebugUrl(), timeout: false }
+export function beePeerDebugKyOptions(): BeeRequestOptions {
+  return { baseURL: beePeerDebugUrl(), timeout: false }
 }
 
 /**
@@ -254,9 +258,9 @@ export async function tryDeleteChunkFromLocalStorage(address: string | PlainByte
 
   try {
     await deleteChunkFromLocalStorage(beeDebugKyOptions(), address)
-  } catch (e) {
+  } catch (e: any) {
     // ignore not found errors
-    if (e instanceof BeeResponseError && e.status === 404) {
+    if (e?.response?.status === 404) {
       return
     }
     throw e
@@ -280,7 +284,7 @@ export function shorten(inputStr: unknown, len = 17): string {
 }
 
 async function timeout(ms: number, message = 'Execution reached timeout!'): Promise<Error> {
-  await sleep(ms)
+  await System.sleepMillis(ms)
   throw new Error(message)
 }
 
@@ -291,7 +295,7 @@ export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 
       let stamp
 
       do {
-        await sleep(pollingInterval)
+        await System.sleepMillis(pollingInterval)
         stamp = await stamps.getPostageBatch(beeDebugKyOptions(), batchId as BatchId)
       } while (!stamp.usable)
     },

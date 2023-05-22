@@ -1,11 +1,11 @@
+import { expect } from 'chai'
+import { expect as jestExpect } from 'expect'
+import { Readable } from 'stream'
 import * as bzz from '../../../src/modules/bzz'
 import * as tag from '../../../src/modules/tag'
 import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
 import { makeCollectionFromFS } from '../../../src/utils/collection.node'
 import { beeKyOptions, BIG_FILE_TIMEOUT, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
-import { Readable } from 'stream'
-import { expect } from 'chai'
-import { expect as jestExpect } from 'expect'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 

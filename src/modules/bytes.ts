@@ -1,13 +1,9 @@
-import type { BatchId, Data, Reference, ReferenceOrEns, UploadOptions } from '../types'
-import { prepareData } from '../utils/data'
+import type { BatchId, BeeRequestOptions, Data, Reference, ReferenceOrEns, UploadOptions } from '../types'
+import { UploadResult } from '../types'
+import { wrapBytesWithHelpers } from '../utils/bytes'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { wrapBytesWithHelpers } from '../utils/bytes'
-import { UploadResult } from '../types'
 import { makeTagUid } from '../utils/type'
-
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
 
 const endpoint = 'bytes'
 
@@ -20,16 +16,16 @@ const endpoint = 'bytes'
  * @param options         Additional options like tag, encryption, pinning
  */
 export async function upload(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   data: string | Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
 ): Promise<UploadResult> {
-  const response = await http<{ reference: Reference }>(kyOptions, {
-    path: endpoint,
+  const response = await http<{ reference: Reference }>(requestOptions, {
+    url: endpoint,
     method: 'post',
     responseType: 'json',
-    body: await prepareData(data),
+    data,
     headers: {
       'content-type': 'application/octet-stream',
       ...extractUploadHeaders(postageBatchId, options),
@@ -37,8 +33,8 @@ export async function upload(
   })
 
   return {
-    reference: response.parsedData.reference,
-    tagUid: makeTagUid(response.headers.get('swarm-tag')),
+    reference: response.data.reference,
+    tagUid: makeTagUid(response.headers['swarm-tag']),
   }
 }
 
@@ -48,13 +44,13 @@ export async function upload(
  * @param ky
  * @param hash Bee content reference
  */
-export async function download(kyOptions: KyOptions, hash: ReferenceOrEns): Promise<Data> {
-  const response = await http<ArrayBuffer>(kyOptions, {
+export async function download(requestOptions: BeeRequestOptions, hash: ReferenceOrEns): Promise<Data> {
+  const response = await http<ArrayBuffer>(requestOptions, {
     responseType: 'arraybuffer',
-    path: `${endpoint}/${hash}`,
+    url: `${endpoint}/${hash}`,
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.parsedData))
+  return wrapBytesWithHelpers(new Uint8Array(response.data))
 }
 
 /**
@@ -64,13 +60,13 @@ export async function download(kyOptions: KyOptions, hash: ReferenceOrEns): Prom
  * @param hash Bee content reference
  */
 export async function downloadReadable(
-  kyOptions: KyOptions,
+  requestOptions: BeeRequestOptions,
   hash: ReferenceOrEns,
 ): Promise<ReadableStream<Uint8Array>> {
-  const response = await http<ReadableStream<Uint8Array>>(kyOptions, {
+  const response = await http<ReadableStream<Uint8Array>>(requestOptions, {
     responseType: 'stream',
-    path: `${endpoint}/${hash}`,
+    url: `${endpoint}/${hash}`,
   })
 
-  return response.parsedData
+  return response.data
 }

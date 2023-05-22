@@ -1,9 +1,9 @@
-import { bmtHash } from '../../../src/chunk/bmt'
-import { beeKyOptions, getPostageBatch, randomByteArray } from '../../utils'
-import * as chunk from '../../../src/modules/chunk'
-import { makeSpan } from '../../../src/chunk/span'
-import { bytesToHex } from '../../../src/utils/hex'
 import { expect } from 'chai'
+import { bmtHash } from '../../../src/chunk/bmt'
+import { makeSpan } from '../../../src/chunk/span'
+import * as chunk from '../../../src/modules/chunk'
+import { bytesToHex } from '../../../src/utils/hex'
+import { beeKyOptions, getPostageBatch, randomByteArray } from '../../utils'
 
 describe('bmt', () => {
   it('should produce the same hash as Bee', async function () {

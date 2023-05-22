@@ -1,64 +1,61 @@
+import type { BeeRequestOptions, NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
 import { http } from '../../utils/http'
-import type { NodeAddresses, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
 
-// @ts-ignore: Needed TS otherwise complains about importing ESM package in CJS even though they are just typings
-import type { Options as KyOptions } from 'ky'
-
-export async function getNodeAddresses(kyOptions: KyOptions): Promise<NodeAddresses> {
-  const response = await http<NodeAddresses>(kyOptions, {
-    path: 'addresses',
+export async function getNodeAddresses(requestOptions: BeeRequestOptions): Promise<NodeAddresses> {
+  const response = await http<NodeAddresses>(requestOptions, {
+    url: 'addresses',
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 interface Peers {
   peers: Peer[]
 }
 
-export async function getPeers(kyOptions: KyOptions): Promise<Peer[]> {
-  const response = await http<Peers>(kyOptions, {
-    path: 'peers',
+export async function getPeers(requestOptions: BeeRequestOptions): Promise<Peer[]> {
+  const response = await http<Peers>(requestOptions, {
+    url: 'peers',
     responseType: 'json',
   })
 
-  return response.parsedData.peers
+  return response.data.peers
 }
 
-export async function getBlocklist(kyOptions: KyOptions): Promise<Peer[]> {
-  const response = await http<Peers>(kyOptions, {
-    path: 'blocklist',
+export async function getBlocklist(requestOptions: BeeRequestOptions): Promise<Peer[]> {
+  const response = await http<Peers>(requestOptions, {
+    url: 'blocklist',
     responseType: 'json',
   })
 
-  return response.parsedData.peers
+  return response.data.peers
 }
 
-export async function removePeer(kyOptions: KyOptions, peer: string): Promise<RemovePeerResponse> {
-  const response = await http<RemovePeerResponse>(kyOptions, {
-    path: `peers/${peer}`,
+export async function removePeer(requestOptions: BeeRequestOptions, peer: string): Promise<RemovePeerResponse> {
+  const response = await http<RemovePeerResponse>(requestOptions, {
+    url: `peers/${peer}`,
     responseType: 'json',
     method: 'DELETE',
   })
 
-  return response.parsedData
+  return response.data
 }
 
-export async function getTopology(kyOptions: KyOptions): Promise<Topology> {
-  const response = await http<Topology>(kyOptions, {
-    path: `topology`,
+export async function getTopology(requestOptions: BeeRequestOptions): Promise<Topology> {
+  const response = await http<Topology>(requestOptions, {
+    url: `topology`,
     responseType: 'json',
   })
 
-  return response.parsedData
+  return response.data
 }
 
-export async function pingPeer(kyOptions: KyOptions, peer: string): Promise<PingResponse> {
-  const response = await http<PingResponse>(kyOptions, {
-    path: `pingpong/${peer}`,
+export async function pingPeer(requestOptions: BeeRequestOptions, peer: string): Promise<PingResponse> {
+  const response = await http<PingResponse>(requestOptions, {
+    url: `pingpong/${peer}`,
     responseType: 'json',
     method: 'POST',
   })
 
-  return response.parsedData
+  return response.data
 }

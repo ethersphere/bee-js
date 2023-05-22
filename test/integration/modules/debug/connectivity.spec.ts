@@ -1,12 +1,12 @@
+import { expect } from 'chai'
 import {
-  getPeers,
   getBlocklist,
-  getTopology,
   getNodeAddresses,
+  getPeers,
+  getTopology,
   pingPeer,
 } from '../../../../src/modules/debug/connectivity'
 import { beeDebugKyOptions } from '../../../utils'
-import { expect } from 'chai'
 
 describe('modules/debug/connectivity', () => {
   it('getPeers', async function () {

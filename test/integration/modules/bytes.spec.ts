@@ -1,6 +1,6 @@
-import * as bytes from '../../../src/modules/bytes'
-import { invalidReference, ERR_TIMEOUT, getPostageBatch, beeKyOptions } from '../../utils'
 import { expect } from 'chai'
+import * as bytes from '../../../src/modules/bytes'
+import { beeKyOptions, ERR_TIMEOUT, getPostageBatch, invalidReference } from '../../utils'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 
