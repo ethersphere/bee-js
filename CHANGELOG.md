@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.1.0](https://github.com/ethersphere/bee-js/compare/v6.0.0...v6.1.0) (2023-08-01)
+
+
+### Features
+
+* add http adapter option to bee and bee debug ([#860](https://github.com/ethersphere/bee-js/issues/860)) ([ff78e0d](https://github.com/ethersphere/bee-js/commit/ff78e0d910e3da98c8ca48765f0e1a5ab35616f7))
+
 ## [6.0.0](https://github.com/ethersphere/bee-js/compare/v5.2.0...v6.0.0) (2023-05-22)
 
 
