@@ -23,6 +23,6 @@ describe('modules/chunk', () => {
   it('should catch error', async function () {
     this.timeout(ERR_TIMEOUT)
 
-    await expect(chunk.download(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+    await expect(chunk.download(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
   })
 })

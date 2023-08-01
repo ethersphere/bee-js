@@ -5,7 +5,7 @@ import * as bzz from '../../../src/modules/bzz'
 import * as tag from '../../../src/modules/tag'
 import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
 import { makeCollectionFromFS } from '../../../src/utils/collection.node'
-import { beeKyOptions, BIG_FILE_TIMEOUT, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
+import { BIG_FILE_TIMEOUT, beeKyOptions, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 
@@ -243,7 +243,9 @@ describe('modules/bzz', () => {
 
     it('should catch error', async function () {
       this.timeout(BIG_FILE_TIMEOUT)
-      await expect(bzz.downloadFile(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+      await expect(bzz.downloadFile(BEE_KY_OPTIONS, invalidReference)).rejectedWith(
+        'Request failed with status code 404',
+      )
     })
 
     it('should upload bigger file', async function () {

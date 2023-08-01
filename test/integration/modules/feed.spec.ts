@@ -4,9 +4,9 @@ import { upload as uploadSOC } from '../../../src/modules/soc'
 import type { Topic } from '../../../src/types'
 import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
 import {
+  ERR_TIMEOUT,
   beeKyOptions,
   commonMatchers,
-  ERR_TIMEOUT,
   getPostageBatch,
   testIdentity,
   tryDeleteChunkFromLocalStorage,
@@ -32,7 +32,7 @@ describe('modules/feed', () => {
     const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic
     const feedUpdate = fetchLatestFeedUpdate(BEE_KY_OPTIONS, owner, emptyTopic)
 
-    await expect(feedUpdate).rejectedWith('Not Found')
+    await expect(feedUpdate).rejectedWith('Request failed with status code 404')
   })
 
   it('one feed update', async function () {
