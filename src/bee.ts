@@ -6,7 +6,7 @@ import { Index, IndexBytes, makeFeedReader, makeFeedWriter } from './feed'
 import { getJsonData, setJsonData } from './feed/json'
 import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
 import { makeTopic, makeTopicFromString } from './feed/topic'
-import { assertFeedType, DEFAULT_FEED_TYPE, FeedType } from './feed/type'
+import { DEFAULT_FEED_TYPE, FeedType, assertFeedType } from './feed/type'
 import * as bytes from './modules/bytes'
 import * as bzz from './modules/bzz'
 import * as chunk from './modules/chunk'
@@ -34,9 +34,9 @@ import type {
   PssSubscription,
   PublicKey,
   Reference,
-  Signer,
   SOCReader,
   SOCWriter,
+  Signer,
   Tag,
   Topic,
   UploadOptions,
@@ -120,20 +120,13 @@ export class Bee {
       this.signer = makeSigner(options.signer)
     }
 
-    const requestOptions: BeeRequestOptions = {
+    this.requestOptions = {
       baseURL: this.url,
       timeout: options?.timeout ?? false,
+      headers: options?.headers,
+      onRequest: options?.onRequest,
+      adapter: options?.adapter,
     }
-
-    if (options?.headers) {
-      requestOptions.headers = options.headers
-    }
-
-    if (options?.onRequest) {
-      requestOptions.onRequest = options.onRequest
-    }
-
-    this.requestOptions = requestOptions
   }
 
   /**

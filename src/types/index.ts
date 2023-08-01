@@ -1,3 +1,4 @@
+import { AxiosAdapter } from 'axios'
 import type { Identifier, SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
 import type { FeedType } from '../feed/type'
@@ -96,6 +97,7 @@ export type BeeRequestOptions = {
   timeout?: number | false
   retry?: number | false
   headers?: Record<string, string>
+  adapter?: AxiosAdapter
   onRequest?: (request: BeeRequest) => void
 }
 
@@ -104,7 +106,6 @@ export interface BeeOptions extends BeeRequestOptions {
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   signer?: Signer | Uint8Array | string
-  onRequest?: (request: BeeRequest) => void
 }
 
 export interface UploadResultWithCid extends UploadResult {
@@ -129,7 +130,7 @@ export interface UploadResult {
   /**
    * Automatically created tag's UID.
    */
-  tagUid: number
+  tagUid?: number
 }
 
 export interface UploadOptions {

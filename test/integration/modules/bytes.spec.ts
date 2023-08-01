@@ -16,6 +16,6 @@ describe('modules/bytes', () => {
 
   it('should catch error', async function () {
     this.timeout(ERR_TIMEOUT)
-    await expect(bytes.download(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Not Found')
+    await expect(bytes.download(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
   })
 })

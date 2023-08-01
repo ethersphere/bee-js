@@ -9,8 +9,11 @@ import * as bzz from '../../src/modules/bzz'
 import { REFERENCE_HEX_LENGTH } from '../../src/types'
 import { makeBytes } from '../../src/utils/bytes'
 import { makeEthAddress } from '../../src/utils/eth'
-import { bytesToHex, HexString } from '../../src/utils/hex'
+import { HexString, bytesToHex } from '../../src/utils/hex'
 import {
+  ERR_TIMEOUT,
+  FEED_TIMEOUT,
+  PSS_TIMEOUT,
   beeDebugUrl,
   beeKyOptions,
   beePeerDebugUrl,
@@ -19,11 +22,8 @@ import {
   commonMatchers,
   createRandomNodeReadable,
   createReadableStream,
-  ERR_TIMEOUT,
-  FEED_TIMEOUT,
   getPostageBatch,
   makeTestTarget,
-  PSS_TIMEOUT,
   randomByteArray,
   testChunkPayload,
   testIdentity,
@@ -319,7 +319,7 @@ describe('Bee class', () => {
       })
 
       const statusBeforePinning = bee.getPin(result.reference)
-      await expect(statusBeforePinning).be.rejectedWith('Not Found')
+      await expect(statusBeforePinning).be.rejectedWith('Request failed with status code 404')
 
       await bee.pin(result.reference) // Nothing is asserted as nothing is returned, will throw error if something is wrong
 
