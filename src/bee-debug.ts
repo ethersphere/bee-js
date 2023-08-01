@@ -86,20 +86,13 @@ export class BeeDebug {
     // unnecessary redirects.
     this.url = stripLastSlash(url)
 
-    const requestOptions: BeeRequestOptions = {
+    this.requestOptions = {
       baseURL: this.url,
       timeout: options?.timeout ?? false,
+      headers: options?.headers,
+      onRequest: options?.onRequest,
+      adapter: options?.adapter,
     }
-
-    if (options?.headers) {
-      requestOptions.headers = options.headers
-    }
-
-    if (options?.onRequest) {
-      requestOptions.onRequest = options.onRequest
-    }
-
-    this.requestOptions = requestOptions
   }
 
   async getNodeAddresses(options?: BeeRequestOptions): Promise<NodeAddresses> {

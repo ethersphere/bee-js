@@ -61,7 +61,7 @@
     "@ethersphere/swarm-cid": "^0.1.0",
     "@types/readable-stream": "^2.3.13",
     "axios": "^1.3.4",
-    "cafe-utility": "^9.0.1",
+    "cafe-utility": "^10.8.1",
     "elliptic": "^6.5.4",
     "fetch-blob": "2.1.2",
     "isomorphic-ws": "^4.0.1",
