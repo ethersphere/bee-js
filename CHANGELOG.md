@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.2.0](https://github.com/ethersphere/bee-js/compare/v6.1.0...v6.2.0) (2023-08-03)
+
+
+### Features
+
+* add new redistribution state properties ([#862](https://github.com/ethersphere/bee-js/issues/862)) ([c049101](https://github.com/ethersphere/bee-js/commit/c049101a16faf5c44f8a2abce62eb6583baad32d))
+
 ## [6.1.0](https://github.com/ethersphere/bee-js/compare/v6.0.0...v6.1.0) (2023-08-01)
 
 
