@@ -167,11 +167,17 @@ export enum BeeModes {
 }
 
 export interface RedistributionState {
+  minimumGasFunds: NumberString
+  hasSufficientFunds: boolean
   isFrozen: boolean
+  isFullySynced: boolean
+  phase: string
   round: number
   lastWonRound: number
   lastPlayedRound: number
   lastFrozenRound: number
+  lastSelectedRound: number
+  lastSampleDuration: string
   block: number
   reward: NumberString
   fees: NumberString
