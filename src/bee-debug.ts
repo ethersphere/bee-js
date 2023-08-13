@@ -359,6 +359,9 @@ export class BeeDebug {
     return settlements.getAllSettlements(this.getRequestOptionsForCall(options))
   }
 
+  /**
+   * Get status of node
+   */
   async getStatus(options?: BeeRequestOptions): Promise<DebugStatus> {
     assertRequestOptions(options)
 
