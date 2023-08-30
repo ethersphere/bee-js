@@ -4,47 +4,54 @@ export { getFolderSize } from './collection.node'
 export {
   Bytes,
   FlexBytes,
-  isBytes,
   assertBytes,
-  isFlexBytes,
   assertFlexBytes,
   bytesAtOffset,
-  flexBytesAtOffset,
   bytesEqual,
+  flexBytesAtOffset,
+  isBytes,
+  isFlexBytes,
 } from './bytes'
 
 export {
   HexString,
   PrefixedHexString,
-  makeHexString,
-  hexToBytes,
-  bytesToHex,
-  intToHex,
-  isHexString,
   assertHexString,
   assertPrefixedHexString,
+  bytesToHex,
+  hexToBytes,
+  intToHex,
+  isHexString,
+  makeHexString,
 } from './hex'
 
 export {
   EthAddress,
-  makeEthAddress,
-  makeHexEthAddress,
-  isHexEthAddress,
   ethToSwarmAddress,
-  toLittleEndian,
   fromLittleEndian,
+  isHexEthAddress,
+  makeEthAddress,
   makeEthereumWalletSigner,
+  makeHexEthAddress,
+  toLittleEndian,
 } from './eth'
 
 export {
-  readableWebToNode,
-  readableNodeToWeb,
-  isReadableStream,
   isNodeReadable,
-  normalizeToReadableStream,
   isReadable,
+  isReadableStream,
+  normalizeToReadableStream,
+  readableNodeToWeb,
+  readableWebToNode,
 } from './stream'
 
 export { keccak256Hash } from './hash'
 export { makeMaxTarget } from './pss'
-export { getStampUsage } from './stamps'
+
+export {
+  getStampCostInBzz,
+  getStampCostInPlur,
+  getStampMaximumCapacityBytes,
+  getStampTtlSeconds,
+  getStampUsage,
+} from './stamps'
