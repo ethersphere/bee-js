@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.3.0](https://github.com/ethersphere/bee-js/compare/v6.2.0...v6.3.0) (2023-08-30)
+
+
+### Features
+
+* add stamp utils ([#866](https://github.com/ethersphere/bee-js/issues/866)) ([01bd416](https://github.com/ethersphere/bee-js/commit/01bd416f2d988e60376a1fafd9caee7967c4df20))
+
 ## [6.2.0](https://github.com/ethersphere/bee-js/compare/v6.1.0...v6.2.0) (2023-08-03)
 
 
