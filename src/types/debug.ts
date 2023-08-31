@@ -143,6 +143,19 @@ export interface BalanceResponse {
   balances: PeerBalance[]
 }
 
+export interface DebugStatus {
+  peer: string
+  proximity: number
+  beeMode: BeeModes
+  reserveSize: number
+  pullsyncRate: number
+  storageRadius: number
+  connectedPeers: number
+  neighborhoodSize: number
+  batchCommitment: number
+  isReachable: boolean
+}
+
 export interface Health {
   status: 'ok'
   version: string

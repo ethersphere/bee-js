@@ -19,6 +19,7 @@ import type {
   ChainState,
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
+  DebugStatus,
   ExtendedTag,
   Health,
   LastCashoutActionResponse,
@@ -356,6 +357,15 @@ export class BeeDebug {
     assertRequestOptions(options)
 
     return settlements.getAllSettlements(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get status of node
+   */
+  async getStatus(options?: BeeRequestOptions): Promise<DebugStatus> {
+    assertRequestOptions(options)
+
+    return status.getDebugStatus(this.getRequestOptionsForCall(options))
   }
 
   /**

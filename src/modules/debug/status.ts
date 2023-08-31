@@ -1,6 +1,6 @@
 import getMajorSemver from 'semver/functions/major.js'
 import { BeeRequestOptions } from '../../index'
-import type { Health, NodeInfo } from '../../types/debug'
+import type { DebugStatus, Health, NodeInfo } from '../../types/debug'
 import { BeeVersions } from '../../types/debug'
 import { http } from '../../utils/http'
 
@@ -13,8 +13,19 @@ export const SUPPORTED_DEBUG_API_VERSION = '4.0.0'
 export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.substring(0, SUPPORTED_BEE_VERSION_EXACT.indexOf('-'))
 
 const NODE_INFO_URL = 'node'
+const STATUS_URL = 'status'
 const HEALTH_URL = 'health'
 const READINESS_URL = 'readiness'
+
+export async function getDebugStatus(requestOptions: BeeRequestOptions): Promise<DebugStatus> {
+  const response = await http<DebugStatus>(requestOptions, {
+    method: 'get',
+    url: STATUS_URL,
+    responseType: 'json',
+  })
+
+  return response.data
+}
 
 /**
  * Get health of node
