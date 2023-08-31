@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [6.4.0](https://github.com/ethersphere/bee-js/compare/v6.3.0...v6.4.0) (2023-08-31)
+
+
+### Features
+
+* add debug status endpoint ([#864](https://github.com/ethersphere/bee-js/issues/864)) ([1fc78eb](https://github.com/ethersphere/bee-js/commit/1fc78ebb4c6e2cf71efb466ec7e95465602c1e24))
+* update to new tag type ([#868](https://github.com/ethersphere/bee-js/issues/868)) ([3b703d1](https://github.com/ethersphere/bee-js/commit/3b703d14a269f605c0823867fcb8ae1fb16a6a1f))
+
 ## [6.3.0](https://github.com/ethersphere/bee-js/compare/v6.2.0...v6.3.0) (2023-08-30)
 
 
