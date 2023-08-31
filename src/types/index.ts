@@ -223,17 +223,27 @@ export interface UploadHeaders {
  */
 export interface Tag {
   /**
-   * Number of all chunks that the data will be split into.
+   * Number of chunks created by the splitter.
    */
-  total: number
+  split: number
 
   /**
-   * Number of chunks that is locally stored in the Bee node.
+   * Number of chunks that are already uploaded with same reference and same postage batch. These don't need to be synced again.
    */
-  processed: number
+  seen: number
 
   /**
-   * Number of chunks that arrived to their designated destination in the network
+   * Number of chunks that were stored locally as they lie in the uploader node's neighborhood. This is only applicable for full nodes.
+   */
+  stored: number
+
+  /**
+   * Number of chunks sent on the network to peers as a part of the upload. Chunks could be sent multiple times because of failures or replication.
+   */
+  sent: number
+
+  /**
+   * Number of chunks that were pushed with a valid receipt. The receipt will also show if they were stored at the correct depth.
    */
   synced: number
 
@@ -241,6 +251,11 @@ export interface Tag {
    * Unique identifier
    */
   uid: number
+
+  /**
+   * Swarm hash of the uploaded data
+   */
+  address: string
 
   /**
    * When the upload process started
