@@ -119,7 +119,7 @@ describe('Bee class', () => {
       expect(file.data).to.eql(content)
 
       const retrievedTag = await bee.retrieveTag(tag)
-      expect(retrievedTag.total).to.eql(8)
+      expect(retrievedTag.split).to.eql(8)
     })
 
     it('should work with file object', async function () {
@@ -221,7 +221,7 @@ describe('Bee class', () => {
       expect(file.data.length).to.eql(13000)
 
       const retrievedTag = await bee.retrieveTag(tag)
-      expect(retrievedTag.total).to.eql(8)
+      expect(retrievedTag.split).to.eql(8)
     })
   })
 
