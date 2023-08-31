@@ -28,8 +28,8 @@ describe('modules/tag', () => {
   it('should create empty tag', async function () {
     const tag1 = await tag.createTag(BEE_KY_OPTIONS)
 
-    expect(tag1.total).to.eql(0)
-    expect(tag1.processed).to.eql(0)
+    expect(tag1.split).to.eql(0)
+    expect(tag1.sent).to.eql(0)
     expect(tag1.synced).to.eql(0)
     expect(Number.isInteger(tag1.uid)).to.be.ok()
     expect(tag1.startedAt).a('string')

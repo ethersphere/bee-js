@@ -237,8 +237,8 @@ describe('modules/bzz', () => {
       await bzz.uploadFile(BEE_KY_OPTIONS, data, getPostageBatch(), filename, { tag: tag1.uid })
       const tag2 = await tag.retrieveTag(BEE_KY_OPTIONS, tag1.uid)
 
-      expect(tag2.total).to.eql(EXPECTED_TAGS_COUNT)
-      expect(tag2.processed).to.eql(EXPECTED_TAGS_COUNT)
+      expect(tag2.split).to.eql(EXPECTED_TAGS_COUNT)
+      expect(tag2.synced).to.eql(EXPECTED_TAGS_COUNT)
     })
 
     it('should catch error', async function () {
