@@ -75,6 +75,7 @@ export async function cancelTransaction(
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
   const headers: Record<string, string | number> = {}
+
   if (gasPrice) {
     headers['gas-price'] = gasPrice
   }
