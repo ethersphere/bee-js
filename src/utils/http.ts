@@ -22,7 +22,7 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     return response
   } catch (e: unknown) {
     if (e instanceof AxiosError) {
-      throw new BeeResponseError(e.message, e.response?.status, e.config, e.request, e.response)
+      throw new BeeResponseError(e.message, e.code, e.status, e.response?.status, e.config, e.request, e.response)
     }
     throw e
   }

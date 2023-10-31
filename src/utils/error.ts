@@ -15,6 +15,8 @@ export class BeeArgumentError extends BeeError {
 export class BeeResponseError extends BeeError {
   public constructor(
     message: string,
+    public code?: string,
+    public axiosStatus?: string,
     public status?: number,
     public config?: AxiosRequestConfig,
     public request?: any,
