@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [18.x, 20.x]
 
     steps:
       - name: Checkout
@@ -40,22 +40,7 @@ jobs:
 
       # Start Bee Factory environment
       - name: Start Bee Factory environment
-        if: matrix.node-version != '18.x'
         run: npm run bee -- --verbose --detach
 
-      # Start Bee Factory environment for Node 18
-      - name: Start Bee Factory environment for Node 18
-        if: matrix.node-version == '18.x'
-        env:
-          NODE_OPTIONS: '--no-experimental-fetch'
-        run: npm run bee -- --verbose --detach
-
-      - name: Tests Node 18
-        if: matrix.node-version == '18.x'
-        env:
-          NODE_OPTIONS: '--no-experimental-fetch'
-        run: npm run test
-
-      - name: Tests non-Node 18
-        if: matrix.node-version != '18.x'
+      - name: Tests
         run: npm run test
