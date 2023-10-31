@@ -74,9 +74,14 @@ export async function cancelTransaction(
   transactionHash: TransactionHash,
   gasPrice?: NumberString,
 ): Promise<TransactionHash> {
+  const headers: Record<string, string | number> = {}
+
+  if (gasPrice) {
+    headers['gas-price'] = gasPrice
+  }
   const response = await http<TransactionResponse>(requestOptions, {
     method: 'delete',
-    headers: { 'gas-price': gasPrice },
+    headers,
     url: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
