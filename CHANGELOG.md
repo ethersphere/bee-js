@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.4.1](https://github.com/ethersphere/bee-js/compare/v6.4.0...v6.4.1) (2023-10-31)
+
+
+### Bug Fixes
+
+* use compatible axios ([#874](https://github.com/ethersphere/bee-js/issues/874)) ([ad8f5d2](https://github.com/ethersphere/bee-js/commit/ad8f5d2a6aef394947ea61e79a99681b615fb800))
+
 ## [6.4.0](https://github.com/ethersphere/bee-js/compare/v6.3.0...v6.4.0) (2023-08-31)
 
 
