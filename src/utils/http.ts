@@ -1,6 +1,6 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Objects, Strings } from 'cafe-utility'
-import { BeeRequestOptions } from '../index'
+import { BeeRequestOptions, BeeResponseError } from '../index'
 
 export const DEFAULT_HTTP_CONFIG = {
   headers: {
@@ -20,7 +20,10 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     const response = await axios(requestConfig)
 
     return response
-  } catch (e) {
+  } catch (e: unknown) {
+    if (e instanceof AxiosError) {
+      throw new BeeResponseError(e.message, e.response?.status, e.config, e.request, e.response)
+    }
     throw e
   }
 }
