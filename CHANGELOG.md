@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.5.0](https://github.com/ethersphere/bee-js/compare/v6.4.1...v6.5.0) (2023-11-05)
+
+
+### Features
+
+* add global batches endpoint ([#878](https://github.com/ethersphere/bee-js/issues/878)) ([baf3195](https://github.com/ethersphere/bee-js/commit/baf31954953722f66d18b660c5da9219ab48ee96))
+
 ## [6.4.1](https://github.com/ethersphere/bee-js/compare/v6.4.0...v6.4.1) (2023-10-31)
 
 
