@@ -643,6 +643,15 @@ export class BeeDebug {
   }
 
   /**
+   * Return all globally available postage batches.
+   */
+  async getAllGlobalPostageBatch(options?: BeeRequestOptions): Promise<PostageBatch[]> {
+    assertRequestOptions(options)
+
+    return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(options))
+  }
+
+  /**
    * Return lists of all current pending transactions that the Bee made
    */
   async getAllPendingTransactions(options?: BeeRequestOptions): Promise<TransactionInfo[]> {
