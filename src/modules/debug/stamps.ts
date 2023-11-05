@@ -9,6 +9,7 @@ import type {
 import { http } from '../../utils/http'
 
 const STAMPS_ENDPOINT = 'stamps'
+const BATCHES_ENDPOINT = 'batches'
 
 interface GetAllStampsResponse {
   stamps: PostageBatch[]
@@ -16,6 +17,16 @@ interface GetAllStampsResponse {
 
 interface StampResponse {
   batchID: BatchId
+}
+
+export async function getGlobalPostageBatches(requestOptions: BeeRequestOptions): Promise<PostageBatch[]> {
+  const response = await http<GetAllStampsResponse>(requestOptions, {
+    method: 'get',
+    url: `${BATCHES_ENDPOINT}`,
+    responseType: 'json',
+  })
+
+  return response.data.stamps
 }
 
 export async function getAllPostageBatches(requestOptions: BeeRequestOptions): Promise<PostageBatch[]> {
