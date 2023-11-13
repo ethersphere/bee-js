@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.5.1](https://github.com/ethersphere/bee-js/compare/v6.5.0...v6.5.1) (2023-11-13)
+
+
+### Bug Fixes
+
+* enable unlimited uploads ([#881](https://github.com/ethersphere/bee-js/issues/881)) ([d0757cd](https://github.com/ethersphere/bee-js/commit/d0757cdc5b3ff8136f0037acc6f1b0d5e4434034))
+
 ## [6.5.0](https://github.com/ethersphere/bee-js/compare/v6.4.1...v6.5.0) (2023-11-05)
 
 
