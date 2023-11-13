@@ -2,10 +2,12 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Objects, Strings } from 'cafe-utility'
 import { BeeRequestOptions } from '../index'
 
-export const DEFAULT_HTTP_CONFIG = {
+export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
   headers: {
     accept: 'application/json, text/plain, */*',
   },
+  maxBodyLength: Infinity,
+  maxContentLength: Infinity,
 }
 
 /**
