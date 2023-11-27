@@ -63,7 +63,7 @@ export function getStampTtlSeconds(amount: number, pricePerBlock = 24_000, block
  */
 export function getAmountForTtl(days: number): NumberString {
   // 414720000 = (24 * 60 * 60 * 24_000) / 5
-  return ((days <= 0? 1 : days) * 414720000).toString() as NumberString
+  return ((days <= 0 ? 1 : days) * 414720000).toString() as NumberString
 }
 
 /**
@@ -75,5 +75,5 @@ export function getAmountForTtl(days: number): NumberString {
  * @returns {number} The calculated depth necessary to achieve the specified capacity.
  */
 export function getDepthForCapacity(gigabytes: number): number {
-  return (gigabytes <= 1) ? 18 : Math.ceil(Math.log2(Math.ceil(gigabytes)) + 18)
+  return gigabytes <= 1 ? 18 : Math.ceil(Math.log2(Math.ceil(gigabytes)) + 18)
 }
