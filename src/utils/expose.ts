@@ -49,6 +49,8 @@ export { keccak256Hash } from './hash'
 export { makeMaxTarget } from './pss'
 
 export {
+  getAmountForTtl,
+  getDepthForCapacity,
   getStampCostInBzz,
   getStampCostInPlur,
   getStampMaximumCapacityBytes,

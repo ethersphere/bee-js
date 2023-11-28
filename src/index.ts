@@ -17,6 +17,7 @@ declare global {
       Utils: typeof import('./utils/expose')
       BeeError: typeof import('./utils/error').BeeError
       BeeArgumentError: typeof import('./utils/error').BeeArgumentError
+      BeeResponseError: typeof import('./utils/error').BeeResponseError
     }
   }
 }
