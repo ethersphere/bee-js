@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [6.6.0](https://github.com/ethersphere/bee-js/compare/v6.5.1...v6.6.0) (2023-11-28)
+
+
+### Features
+
+* add reverse functions for depth and amount ([#887](https://github.com/ethersphere/bee-js/issues/887)) ([85c67eb](https://github.com/ethersphere/bee-js/commit/85c67eb249217e34416144960e12dc70378178ba))
+* re-introduce BeeResponseError ([#877](https://github.com/ethersphere/bee-js/issues/877)) ([d29d5c4](https://github.com/ethersphere/bee-js/commit/d29d5c441a888c8ee2881c9b085dd1072d8e340f))
+
 ## [6.5.1](https://github.com/ethersphere/bee-js/compare/v6.5.0...v6.5.1) (2023-11-13)
 
 
