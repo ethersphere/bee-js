@@ -27,4 +27,36 @@ describe('stamp', () => {
       expect(Utils.getStampCostInPlur(20, 20_000_000_000)).to.eql(20971520000000000)
     })
   })
+  describe('reverse depth', () => {
+    it('sholud return value 21', () => {
+      expect(Utils.getDepthForCapacity(8)).to.eql(21)
+    })
+    it('sholud return value 20', () => {
+      expect(Utils.getDepthForCapacity(4)).to.eql(20)
+    })
+    it('sholud return value 19', () => {
+      expect(Utils.getDepthForCapacity(2)).to.eql(19)
+    })
+    it('sholud return value 18', () => {
+      expect(Utils.getDepthForCapacity(1)).to.eql(18)
+    })
+    it('sholud return value 20 for 2.3', () => {
+      expect(Utils.getDepthForCapacity(2.3)).to.eql(20)
+    })
+    it('sholud return value 18 for 0', () => {
+      expect(Utils.getDepthForCapacity(0)).to.eql(18)
+    })
+    it('sholud return value 18 for negative value', () => {
+      expect(Utils.getDepthForCapacity(-3)).to.eql(18)
+    })
+  })
+
+  describe('reverse amount', () => {
+    it('should return 20_000_000_000 for 48,225308641975309 day (4166666.666666666666 sec / 86400)', () => {
+      expect(Utils.getAmountForTtl(4166666.6666666665 / 86400)).to.eql('20000000000')
+    })
+    it('should return 414720000 for < 0  value', () => {
+      expect(Utils.getAmountForTtl(-1)).to.eql('414720000')
+    })
+  })
 })
