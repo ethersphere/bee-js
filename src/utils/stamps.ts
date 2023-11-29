@@ -20,6 +20,44 @@ export function getStampMaximumCapacityBytes(depth: number): number {
   return 2 ** depth * 4096
 }
 
+
+/**
+ * Based on https://docs.ethswarm.org/docs/learn/technology/contracts/postage-stamp/#effective-utilisation-table
+ */
+const utilisationRateMap: Record<number, number> = {
+  22: 0.2867,
+  23: 0.4956,
+  24: 0.6433,
+  25: 0.7478,
+  26: 0.8217,
+  27: 0.8739,
+  28: 0.9108,
+  29: 0.9369,
+  30: 0.9554,
+  31: 0.9685,
+  32: 0.9777,
+  33: 0.9842,
+  34: 0.9889,
+}
+
+/**
+ * Utility function that calculates the effective volume of a postage batch based on its depth.
+ *
+ * Below 22 depth the effective volume is 0
+ * Above 34 it's always > 99%
+ *
+ * @returns {number} The effective volume of the postage batch in bytes.
+ */
+export function getStampEffectiveBytes(depth: number): number {
+  if(depth < 22) {
+    return 0
+  }
+
+  const utilRate = utilisationRateMap[depth] ?? 0.99
+
+  return getStampMaximumCapacityBytes(depth) * utilRate;
+}
+
 /**
  * Utility function that calculates the cost of a postage batch based on its depth and amount.
  *
