@@ -54,6 +54,7 @@ export {
   getStampCostInBzz,
   getStampCostInPlur,
   getStampMaximumCapacityBytes,
+  getStampEffectiveBytes,
   getStampTtlSeconds,
   getStampUsage,
 } from './stamps'
