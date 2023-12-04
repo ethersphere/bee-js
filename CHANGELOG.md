@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [6.7.0](https://github.com/ethersphere/bee-js/compare/v6.6.0...v6.7.0) (2023-12-04)
+
+
+### Features
+
+* add stamp effective byte util ([#890](https://github.com/ethersphere/bee-js/issues/890)) ([34b40b7](https://github.com/ethersphere/bee-js/commit/34b40b711ccd1cce61fc4f97b377f2b282c0f8a8))
+
+
+### Bug Fixes
+
+* expose stamp effective volume util ([#893](https://github.com/ethersphere/bee-js/issues/893)) ([6adb8d2](https://github.com/ethersphere/bee-js/commit/6adb8d203b4a78db63d8a8791b8e52bf6f48bddc))
+
 ## [6.6.0](https://github.com/ethersphere/bee-js/compare/v6.5.1...v6.6.0) (2023-11-28)
 
 
