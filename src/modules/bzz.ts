@@ -4,17 +4,19 @@ import {
   Collection,
   CollectionUploadOptions,
   Data,
+  DownloadRedundancyOptions,
   FileData,
   FileUploadOptions,
   Readable,
   Reference,
   ReferenceOrEns,
   UploadHeaders,
+  UploadRedundancyOptions,
   UploadResult,
 } from '../types'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
-import { extractUploadHeaders, readFileHeaders } from '../utils/headers'
+import { extractDownloadHeaders, extractRedundantUploadHeaders, readFileHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { isReadable } from '../utils/stream'
 import { makeTar } from '../utils/tar'
@@ -27,8 +29,11 @@ interface FileUploadHeaders extends UploadHeaders {
   'content-type'?: string
 }
 
-function extractFileUploadHeaders(postageBatchId: BatchId, options?: FileUploadOptions): FileUploadHeaders {
-  const headers: FileUploadHeaders = extractUploadHeaders(postageBatchId, options)
+function extractFileUploadHeaders(
+  postageBatchId: BatchId,
+  options?: FileUploadOptions & UploadRedundancyOptions,
+): FileUploadHeaders {
+  const headers: FileUploadHeaders = extractRedundantUploadHeaders(postageBatchId, options)
 
   if (options?.size) headers['content-length'] = String(options.size)
 
@@ -51,10 +56,12 @@ export async function uploadFile(
   data: string | Uint8Array | Readable | ArrayBuffer,
   postageBatchId: BatchId,
   name?: string,
-  options?: FileUploadOptions,
+  options?: FileUploadOptions & UploadRedundancyOptions,
 ): Promise<UploadResult> {
   if (isReadable(data) && !options?.contentType) {
-    if (!options) options = {}
+    if (!options) {
+      options = {}
+    }
     options.contentType = 'application/octet-stream'
   }
 
@@ -86,11 +93,13 @@ export async function downloadFile(
   requestOptions: BeeRequestOptions,
   hash: ReferenceOrEns,
   path = '',
+  options?: DownloadRedundancyOptions,
 ): Promise<FileData<Data>> {
   const response = await http<ArrayBuffer>(requestOptions, {
     method: 'GET',
     responseType: 'arraybuffer',
     url: `${bzzEndpoint}/${hash}/${path}`,
+    headers: extractDownloadHeaders(options),
   })
   const file = {
     ...readFileHeaders(response.headers as Record<string, string>),
@@ -111,11 +120,13 @@ export async function downloadFileReadable(
   requestOptions: BeeRequestOptions,
   hash: ReferenceOrEns,
   path = '',
+  options?: DownloadRedundancyOptions,
 ): Promise<FileData<ReadableStream<Uint8Array>>> {
   const response = await http<ReadableStream<Uint8Array>>(requestOptions, {
     method: 'GET',
     responseType: 'stream',
     url: `${bzzEndpoint}/${hash}/${path}`,
+    headers: extractDownloadHeaders(options),
   })
   const file = {
     ...readFileHeaders(response.headers as Record<string, string>),
@@ -136,13 +147,17 @@ interface CollectionUploadHeaders extends UploadHeaders {
 
 function extractCollectionUploadHeaders(
   postageBatchId: BatchId,
-  options?: CollectionUploadOptions,
-): CollectionUploadHeaders {
-  const headers: CollectionUploadHeaders = extractUploadHeaders(postageBatchId, options)
+  options?: CollectionUploadOptions & UploadRedundancyOptions,
+): CollectionUploadHeaders & UploadRedundancyOptions {
+  const headers: CollectionUploadHeaders = extractRedundantUploadHeaders(postageBatchId, options)
 
-  if (options?.indexDocument) headers['swarm-index-document'] = options.indexDocument
+  if (options?.indexDocument) {
+    headers['swarm-index-document'] = options.indexDocument
+  }
 
-  if (options?.errorDocument) headers['swarm-error-document'] = options.errorDocument
+  if (options?.errorDocument) {
+    headers['swarm-error-document'] = options.errorDocument
+  }
 
   return headers
 }
@@ -158,7 +173,7 @@ export async function uploadCollection(
   requestOptions: BeeRequestOptions,
   collection: Collection<Uint8Array>,
   postageBatchId: BatchId,
-  options?: CollectionUploadOptions,
+  options?: CollectionUploadOptions & UploadRedundancyOptions,
 ): Promise<UploadResult> {
   assertCollection(collection)
   const tarData = makeTar(collection)

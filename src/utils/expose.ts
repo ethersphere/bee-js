@@ -53,8 +53,10 @@ export {
   getDepthForCapacity,
   getStampCostInBzz,
   getStampCostInPlur,
-  getStampMaximumCapacityBytes,
   getStampEffectiveBytes,
+  getStampMaximumCapacityBytes,
   getStampTtlSeconds,
   getStampUsage,
 } from './stamps'
+
+export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from './redundancy'

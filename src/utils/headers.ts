@@ -1,4 +1,4 @@
-import { BatchId, FileHeaders, UploadOptions } from '../types'
+import { BatchId, DownloadRedundancyOptions, FileHeaders, UploadOptions, UploadRedundancyOptions } from '../types'
 import { BeeError } from './error'
 
 /**
@@ -53,13 +53,52 @@ export function extractUploadHeaders(postageBatchId: BatchId, options?: UploadOp
     'swarm-postage-batch-id': postageBatchId,
   }
 
-  if (options?.pin) headers['swarm-pin'] = String(options.pin)
+  if (options?.pin) {
+    headers['swarm-pin'] = String(options.pin)
+  }
 
-  if (options?.encrypt) headers['swarm-encrypt'] = String(options.encrypt)
+  if (options?.encrypt) {
+    headers['swarm-encrypt'] = String(options.encrypt)
+  }
 
-  if (options?.tag) headers['swarm-tag'] = String(options.tag)
+  if (options?.tag) {
+    headers['swarm-tag'] = String(options.tag)
+  }
 
-  if (typeof options?.deferred === 'boolean') headers['swarm-deferred-upload'] = options.deferred.toString()
+  if (typeof options?.deferred === 'boolean') {
+    headers['swarm-deferred-upload'] = options.deferred.toString()
+  }
+
+  return headers
+}
+
+export function extractRedundantUploadHeaders(
+  postageBatchId: BatchId,
+  options?: UploadOptions & UploadRedundancyOptions,
+): Record<string, string> {
+  const headers = extractUploadHeaders(postageBatchId, options)
+
+  if (options?.redundancyLevel) {
+    headers['swarm-redundancy-level'] = String(options.redundancyLevel)
+  }
+
+  return headers
+}
+
+export function extractDownloadHeaders(options?: DownloadRedundancyOptions): Record<string, string> {
+  const headers: Record<string, string> = {}
+
+  if (options?.redundancyStrategy) {
+    headers['swarm-Redundancy-strategy'] = String(options.redundancyStrategy)
+  }
+
+  if (options?.fallback === false) {
+    headers['swarm-redundancy-fallback-mode'] = 'false'
+  }
+
+  if (options?.timeoutMs !== undefined) {
+    headers['swarm-chunk-retrieval-timeout'] = String(options.timeoutMs)
+  }
 
   return headers
 }
