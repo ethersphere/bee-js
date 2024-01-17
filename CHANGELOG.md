@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.7.2](https://github.com/ethersphere/bee-js/compare/v6.7.1...v6.7.2) (2024-01-17)
+
+
+### Bug Fixes
+
+* change feed index type to index ([#900](https://github.com/ethersphere/bee-js/issues/900)) ([a600f12](https://github.com/ethersphere/bee-js/commit/a600f12544844a60380ef4eae1814374c85e9f13))
+
 ## [6.7.1](https://github.com/ethersphere/bee-js/compare/v6.7.0...v6.7.1) (2024-01-17)
 
 
