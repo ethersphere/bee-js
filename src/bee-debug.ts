@@ -762,6 +762,7 @@ export class BeeDebug {
         }
       } catch (error: any) {
         const message = error?.response?.data?.message || error?.message || ''
+
         if (!message.includes('batch not usable')) {
           throw error
         }
