@@ -125,7 +125,7 @@ export function makeFeedReader(
     owner,
     topic,
     async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
-      if (!options?.index) {
+      if (!options?.index && options?.index !== 0 {
         return fetchLatestFeedUpdate(requestOptions, owner, topic, { ...options, type })
       }
 
