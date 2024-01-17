@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [6.7.1](https://github.com/ethersphere/bee-js/compare/v6.7.0...v6.7.1) (2024-01-17)
+
+
+### Bug Fixes
+
+* allow feed index to be 0 when downloading ([#897](https://github.com/ethersphere/bee-js/issues/897)) ([5440c81](https://github.com/ethersphere/bee-js/commit/5440c81dbd090bbd6e0897e7b47c861f6483ecca))
+* wait for stamp in edge cases ([#898](https://github.com/ethersphere/bee-js/issues/898)) ([d577f2c](https://github.com/ethersphere/bee-js/commit/d577f2c361ee3de1c90629fa82be31abd212a0f4))
+
 ## [6.7.0](https://github.com/ethersphere/bee-js/compare/v6.6.0...v6.7.0) (2023-12-04)
 
 
