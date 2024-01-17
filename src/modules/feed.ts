@@ -1,3 +1,4 @@
+import { Index } from '../feed'
 import { FeedType } from '../feed/type'
 import { BatchId, BeeRequestOptions, Reference, ReferenceResponse, Topic } from '../types'
 import { BeeError } from '../utils/error'
@@ -25,14 +26,14 @@ export interface FeedUpdateOptions {
   /**
    * Fetch specific previous Feed's update (default fetches latest update)
    */
-  index?: string
+  index?: Index
 }
 
 interface FeedUpdateHeaders {
   /**
    * The current feed's index
    */
-  feedIndex: string
+  feedIndex: Index
 
   /**
    * The feed's index for next update.

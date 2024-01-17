@@ -7,9 +7,9 @@ import {
   BatchId,
   BeeRequestOptions,
   BytesReference,
+  FEED_INDEX_HEX_LENGTH,
   FeedReader,
   FeedWriter,
-  FEED_INDEX_HEX_LENGTH,
   PlainBytesReference,
   Reference,
   Signer,
@@ -19,7 +19,7 @@ import {
 import { Bytes, bytesAtOffset, makeBytes } from '../utils/bytes'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
 import { keccak256Hash } from '../utils/hash'
-import { bytesToHex, HexString, hexToBytes, makeHexString } from '../utils/hex'
+import { HexString, bytesToHex, hexToBytes, makeHexString } from '../utils/hex'
 import { makeBytesReference } from '../utils/reference'
 import { assertAddress } from '../utils/type'
 import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
@@ -125,7 +125,7 @@ export function makeFeedReader(
     owner,
     topic,
     async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
-      if (!options?.index && options?.index !== 0 {
+      if (!options?.index && options?.index !== 0) {
         return fetchLatestFeedUpdate(requestOptions, owner, topic, { ...options, type })
       }
 
