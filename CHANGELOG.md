@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.7.3](https://github.com/ethersphere/bee-js/compare/v6.7.2...v6.7.3) (2024-02-08)
+
+
+### Bug Fixes
+
+* increase wait for usable time ([#902](https://github.com/ethersphere/bee-js/issues/902)) ([b98b97a](https://github.com/ethersphere/bee-js/commit/b98b97aad27d2e899bd524878ae55b81eb3d3da6))
+
 ## [6.7.2](https://github.com/ethersphere/bee-js/compare/v6.7.1...v6.7.2) (2024-01-17)
 
 
