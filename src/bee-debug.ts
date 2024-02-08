@@ -751,8 +751,8 @@ export class BeeDebug {
     return stake.getRedistributionState(this.getRequestOptionsForCall(options))
   }
 
-  private async waitForUsablePostageStamp(id: BatchId, timeout = 120_000): Promise<void> {
-    const TIME_STEP = 1500
+  private async waitForUsablePostageStamp(id: BatchId, timeout = 240_000): Promise<void> {
+    const TIME_STEP = 2_000
     for (let time = 0; time < timeout; time += TIME_STEP) {
       try {
         const stamp = await this.getPostageBatch(id)
