@@ -89,7 +89,7 @@ export function extractDownloadHeaders(options?: DownloadRedundancyOptions): Rec
   const headers: Record<string, string> = {}
 
   if (options?.redundancyStrategy) {
-    headers['swarm-Redundancy-strategy'] = String(options.redundancyStrategy)
+    headers['swarm-redundancy-strategy'] = String(options.redundancyStrategy)
   }
 
   if (options?.fallback === false) {
