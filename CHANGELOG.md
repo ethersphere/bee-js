@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.7.4](https://github.com/ethersphere/bee-js/compare/v6.7.3...v6.7.4) (2024-02-27)
+
+
+### Bug Fixes
+
+* do not dispose arraybuffer in browser ([#906](https://github.com/ethersphere/bee-js/issues/906)) ([1524f74](https://github.com/ethersphere/bee-js/commit/1524f74d5eee182ba2ea95914a306853172945e1))
+
 ## [6.7.3](https://github.com/ethersphere/bee-js/compare/v6.7.2...v6.7.3) (2024-02-08)
 
 
