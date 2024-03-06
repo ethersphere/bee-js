@@ -35,11 +35,11 @@ describe('modules/pin', () => {
     it('should not pin a non-existing file', async function () {
       this.timeout(ERR_TIMEOUT)
 
-      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
 
     it('should not unpin a non-existing file', async function () {
-      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
   })
 
@@ -68,11 +68,11 @@ describe('modules/pin', () => {
     it('should not pin a non-existing collections', async function () {
       this.timeout(ERR_TIMEOUT)
 
-      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
 
     it('should not unpin a non-existing collections', async function () {
-      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
   })
 
@@ -92,11 +92,11 @@ describe('modules/pin', () => {
     it('should not pin a non-existing data', async function () {
       this.timeout(ERR_TIMEOUT)
 
-      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
 
     it('should not unpin a non-existing data', async function () {
-      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
   })
 
@@ -118,11 +118,11 @@ describe('modules/pin', () => {
     it('should not pin a non-existing chunk', async function () {
       this.timeout(ERR_TIMEOUT)
 
-      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.pin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
 
     it('should not unpin a non-existing chunk', async function () {
-      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.unpin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
 
     it('should return pinning status of existing chunk', async function () {
@@ -135,7 +135,7 @@ describe('modules/pin', () => {
     })
 
     it('should not return pinning status of non-existing chunk', async function () {
-      await expect(pinning.getPin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+      await expect(pinning.getPin(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 500')
     })
 
     it('should return list of pinned chunks', async function () {
