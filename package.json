@@ -55,7 +55,7 @@
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "depcheck": "depcheck .",
-    "bee": "npx bee-factory start"
+    "bee": "npx fdp-play start --detach --bee-version 1.8.2"
   },
   "dependencies": {
     "@ethersphere/swarm-cid": "^0.1.0",
