@@ -1,8 +1,7 @@
 import { Readable as NodeReadableNative, ReadableOptions as NodeReadableOptions } from 'stream'
-import { isStrictlyObject } from './type'
 import { ReadableStream } from 'web-streams-polyfill'
-
 import { Readable } from '../types'
+import { isStrictlyObject } from './type'
 
 const NodeReadable = NodeReadableNative || class {}
 
@@ -21,7 +20,7 @@ export function isReadableStream(entry: unknown): entry is ReadableStream {
     return false
   }
 
-  const browserReadable = entry as ReadableStream
+  const browserReadable = entry as unknown as ReadableStream
 
   if (
     typeof browserReadable.getReader === 'function' &&
@@ -41,7 +40,7 @@ export function isNodeReadable(entry: unknown): entry is NodeReadableNative {
     return false
   }
 
-  const nodeReadable = entry as NodeReadableNative
+  const nodeReadable = entry as unknown as NodeReadableNative
 
   if (typeof nodeReadable.pipe === 'function' && nodeReadable.readable && typeof nodeReadable._read === 'function') {
     return true
