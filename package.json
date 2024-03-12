@@ -60,7 +60,7 @@
   "dependencies": {
     "@ethersphere/swarm-cid": "^0.1.0",
     "@types/readable-stream": "^2.3.13",
-    "axios": "^0.27.2",
+    "axios": "^0.28.0",
     "cafe-utility": "^15.0.2",
     "elliptic": "^6.5.4",
     "fetch-blob": "2.1.2",

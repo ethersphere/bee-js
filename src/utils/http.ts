@@ -21,7 +21,8 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     maybeRunOnRequestHook(options, requestConfig)
     const response = await axios(requestConfig)
 
-    return response
+    // TODO: https://github.com/axios/axios/pull/6253
+    return response as AxiosResponse<T>
   } catch (e: unknown) {
     if (e instanceof AxiosError) {
       throw new BeeResponseError(e.message, e.code, e.status, e.response?.status, e.config, e.request, e.response)
