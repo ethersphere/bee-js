@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.8.0](https://github.com/ethersphere/bee-js/compare/v6.7.4...v6.8.0) (2024-03-12)
+
+
+### Features
+
+* upgrade axios ([#909](https://github.com/ethersphere/bee-js/issues/909)) ([5076778](https://github.com/ethersphere/bee-js/commit/5076778ea327b6afce6a89c06eab567cda95e1de))
+
 ## [6.7.4](https://github.com/ethersphere/bee-js/compare/v6.7.3...v6.7.4) (2024-02-27)
 
 
