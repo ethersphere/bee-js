@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [18.x]
 
     steps:
       - name: Checkout
@@ -36,11 +36,10 @@ jobs:
           cache: 'npm'
 
       - name: Install npm deps
-        run: npm install -g npm && npm ci && npm install -g @ethersphere/bee-factory
+        run: npm install -g npm && npm ci && npm install -g @fairdatasociety/fdp-play
 
-      # Start Bee Factory environment
-      - name: Start Bee Factory environment
-        run: npm run bee -- --verbose --detach
+      - name: Start fdp-play environment
+        run: npm run bee
 
       - name: Tests
         run: npm run test

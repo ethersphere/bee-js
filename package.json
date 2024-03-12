@@ -55,7 +55,7 @@
     "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "depcheck": "depcheck .",
-    "bee": "npx bee-factory start"
+    "bee": "npx fdp-play start --detach --fresh"
   },
   "dependencies": {
     "@ethersphere/swarm-cid": "^0.1.0",
@@ -129,6 +129,6 @@
     "npm": ">=6.0.0",
     "beeApiVersion": "4.0.0",
     "beeDebugApiVersion": "4.0.0",
-    "bee": "1.13.0-f1067884"
+    "bee": "1.18.2-759f56f"
   }
 }
