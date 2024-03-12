@@ -291,7 +291,7 @@ export function isTag(value: unknown): value is Tag {
     return false
   }
 
-  return !!value.uid
+  return Boolean(value.uid)
 }
 
 export function assertTag(value: unknown): asserts value is Tag {
