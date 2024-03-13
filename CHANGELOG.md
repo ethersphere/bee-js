@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.8.1](https://github.com/ethersphere/bee-js/compare/v6.8.0...v6.8.1) (2024-03-13)
+
+
+### Bug Fixes
+
+* add types under exports ([#911](https://github.com/ethersphere/bee-js/issues/911)) ([a3e1426](https://github.com/ethersphere/bee-js/commit/a3e142634c189c28b3eadebe00e1b913ec473f79))
+
 ## [6.8.0](https://github.com/ethersphere/bee-js/compare/v6.7.4...v6.8.0) (2024-03-12)
 
 
