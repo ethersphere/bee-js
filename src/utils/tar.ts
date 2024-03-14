@@ -1,30 +1,24 @@
-import Tar from 'tar-js'
+import { pack } from 'tar-stream'
 import { Collection } from '../types'
+import { PassThrough } from 'stream'
 
-// this is a workaround type so that we are able to pass in Uint8Arrays
-// as string to `tar.append`
-interface StringLike {
-  readonly length: number
-  charCodeAt: (index: number) => number
-}
+export function makeTar(data: Collection<Uint8Array>): PassThrough {
+  const tar = pack()
 
-// converts a string to utf8 Uint8Array and returns it as a string-like
-// object that `tar.append` accepts as path
-function fixUnicodePath(path: string): StringLike {
-  const codes = new TextEncoder().encode(path)
-
-  return {
-    length: codes.length,
-    charCodeAt: index => codes[index],
-  }
-}
-
-export function makeTar(data: Collection<Uint8Array>): Uint8Array {
-  const tar = new Tar(1)
   for (const entry of data) {
-    const path = fixUnicodePath(entry.path)
-    tar.append(path, entry.data)
+    tar.entry(
+      {
+        name: entry.path,
+      },
+      Buffer.from(entry.data),
+    )
   }
 
-  return tar.out
+  tar.finalize()
+
+  const stream = new PassThrough()
+
+  tar.pipe(stream)
+
+  return stream
 }
