@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.9.0](https://github.com/ethersphere/bee-js/compare/v6.8.1...v6.9.0) (2024-03-27)
+
+
+### Features
+
+* add redundancy options and utils ([#896](https://github.com/ethersphere/bee-js/issues/896)) ([29899ed](https://github.com/ethersphere/bee-js/commit/29899ed8c4e155667782d31d94bc94f85ed64b3f))
+
 ## [6.8.1](https://github.com/ethersphere/bee-js/compare/v6.8.0...v6.8.1) (2024-03-13)
 
 
