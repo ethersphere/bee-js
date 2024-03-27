@@ -40,6 +40,7 @@ import type {
   Tag,
   Topic,
   UploadOptions,
+  UploadRedundancyOptions,
   UploadResultWithCid,
 } from './types'
 import {
@@ -143,7 +144,7 @@ export class Bee {
   async uploadData(
     postageBatchId: string | BatchId,
     data: string | Uint8Array,
-    options?: UploadOptions,
+    options?: UploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
@@ -264,7 +265,7 @@ export class Bee {
     postageBatchId: string | BatchId,
     data: string | Uint8Array | Readable | File,
     name?: string,
-    options?: FileUploadOptions,
+    options?: FileUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
@@ -377,7 +378,7 @@ export class Bee {
   async uploadFiles(
     postageBatchId: string | BatchId,
     fileList: FileList | File[],
-    options?: CollectionUploadOptions,
+    options?: CollectionUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
@@ -405,7 +406,7 @@ export class Bee {
   async uploadCollection(
     postageBatchId: string | BatchId,
     collection: Collection<Uint8Array | Readable>,
-    options?: CollectionUploadOptions,
+    options?: CollectionUploadOptions & UploadRedundancyOptions,
   ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
     assertCollection(collection)
@@ -437,7 +438,7 @@ export class Bee {
   async uploadFilesFromDirectory(
     postageBatchId: string | BatchId,
     dir: string,
-    options?: CollectionUploadOptions,
+    options?: CollectionUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)

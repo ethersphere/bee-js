@@ -7,7 +7,7 @@ export * from './utils/error'
 export * as Utils from './utils/expose'
 export { Bee, BeeDebug }
 
-// for requrie-like imports
+// for require-like imports
 declare global {
   interface Window {
     // binded as 'BeeJs' via Webpack
