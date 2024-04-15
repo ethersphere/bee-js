@@ -1,7 +1,7 @@
 {
-  "name": "@ethersphere/bee-js",
+  "name": "@solarpunk/bee-js",
   "version": "6.9.0",
-  "description": "Javascript client for Bee",
+  "description": "Javascript client for Bee (This is not the original repo. This is a fork for SolarPunk)",
   "keywords": [
     "bee",
     "swarm",
