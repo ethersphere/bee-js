@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
-import { downloadFeedUpdate, findNextIndex, Index, updateFeed } from '../../../src/feed'
+import { downloadFeedUpdate, FeedUploadOptions, findNextIndex, updateFeed } from '../../../src/feed'
 import * as chunkAPI from '../../../src/modules/chunk'
 import { fetchLatestFeedUpdate } from '../../../src/modules/feed'
 import type { BeeRequestOptions, BytesReference, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
@@ -27,11 +27,11 @@ async function tryUploadFeedUpdate(
   options: BeeRequestOptions,
   signer: Signer,
   topic: Topic,
-  index: Index,
   reference: BytesReference,
+  feedOptions?: FeedUploadOptions,
 ) {
   try {
-    await updateFeed(options, signer, topic, reference, getPostageBatch(), undefined, index)
+    await updateFeed(options, signer, topic, reference, getPostageBatch(), feedOptions)
   } catch (e: any) {
     if (e?.response?.status === 409) {
       // ignore conflict errors when uploading the same feed update twice
@@ -59,7 +59,7 @@ describe('feed', () => {
     this.timeout(21000)
 
     const uploadedChunk = await uploadChunk(BEE_KY_OPTIONS, 0)
-    await tryUploadFeedUpdate(BEE_KY_OPTIONS, signer, topic, 0, uploadedChunk)
+    await tryUploadFeedUpdate(BEE_KY_OPTIONS, signer, topic, uploadedChunk, { index: 0 })
 
     const feedUpdate = await fetchLatestFeedUpdate(BEE_KY_OPTIONS, owner, topic)
 
@@ -79,7 +79,7 @@ describe('feed', () => {
 
     for (let i = 0; i < numUpdates; i++) {
       const referenceI = new Uint8Array([i, ...referenceBytes.slice(1)]) as Bytes<32>
-      await tryUploadFeedUpdate(BEE_KY_OPTIONS, signer, multipleUpdateTopic, i, referenceI)
+      await tryUploadFeedUpdate(BEE_KY_OPTIONS, signer, multipleUpdateTopic, referenceI, { index: i })
     }
 
     for (let i = 0; i < numUpdates; i++) {
