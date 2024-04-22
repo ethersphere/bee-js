@@ -54,7 +54,7 @@ export function extractUploadHeaders(postageBatchId: BatchId, options?: UploadOp
   }
 
   if(options?.act) {
-    headers['Swarm-Act'] = String(options.act)
+    headers['swarm-act'] = String(options.act)
   }
 
   if (options?.pin) {
