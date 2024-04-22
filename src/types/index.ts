@@ -135,6 +135,11 @@ export interface UploadResult {
 
 export interface UploadOptions {
   /**
+   * If set to true, an ACT will be created for the uploaded data.
+   *
+   */
+  act?: boolean
+  /**
    * Will pin the data locally in the Bee node as well.
    *
    * Locally pinned data is possible to reupload to network if it disappear.
