@@ -263,6 +263,7 @@ export interface CollectionUploadOptions extends UploadOptions {
 }
 
 export interface UploadHeaders {
+  'swarm-act'?:string
   'swarm-pin'?: string
   'swarm-encrypt'?: string
   'swarm-tag'?: string
