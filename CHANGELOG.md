@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [6.9.1](https://github.com/ethersphere/bee-js/compare/v6.9.0...v6.9.1) (2024-04-24)
+
+
+### Bug Fixes
+
+* add index param to feed writer ([#905](https://github.com/ethersphere/bee-js/issues/905)) ([077dcb7](https://github.com/ethersphere/bee-js/commit/077dcb7914399abbd9dab47aaf1e3eb9dceaffa3))
+
 ## [6.9.0](https://github.com/ethersphere/bee-js/compare/v6.8.1...v6.9.0) (2024-03-27)
 
 
