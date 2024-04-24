@@ -68,6 +68,7 @@ export function approximateOverheadForRedundancyLevel(chunks: number, level: Red
       return parities[i] / supportedChunks[i]
     }
   }
+
   return parities[parities.length - 1] / supportedChunks[supportedChunks.length - 1]
 }
 
