@@ -131,6 +131,8 @@ export interface UploadResult {
    * Automatically created tag's UID.
    */
   tagUid?: number
+
+  history_address?: string
 }
 
 export interface UploadOptions {

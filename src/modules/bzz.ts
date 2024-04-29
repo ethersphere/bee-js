@@ -75,10 +75,11 @@ export async function uploadFile(
     params: { name },
     responseType: 'json',
   })
-
+  
   return {
     reference: response.data.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
+    history_address: response.headers['swarm-act-history-address'] || undefined
   }
 }
 
