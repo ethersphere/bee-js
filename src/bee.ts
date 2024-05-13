@@ -1131,6 +1131,7 @@ export class Bee {
   }
 
   private getRequestOptionsForCall(options?: BeeRequestOptions): BeeRequestOptions {
-    return options ? Objects.deepMerge2(this.requestOptions, options) : this.requestOptions
+    const v = options ? Objects.deepMerge2(this.requestOptions, options) : this.requestOptions
+    return v
   }
 }

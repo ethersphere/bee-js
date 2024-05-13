@@ -132,7 +132,10 @@ export interface UploadResult {
    */
   tagUid?: number
 
-  history_address?: string
+  /**
+   * History address of the uploaded data with ACT.
+   */
+  history_address: string
 }
 
 export interface UploadOptions {
