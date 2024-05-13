@@ -13,6 +13,7 @@ import {
   UploadHeaders,
   UploadRedundancyOptions,
   UploadResult,
+  addGranteesResult,
 } from '../types'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
@@ -23,6 +24,23 @@ import { makeTar } from '../utils/tar'
 import { makeTagUid } from '../utils/type'
 
 const bzzEndpoint = 'bzz'
+const granteeEndpoint = 'grantee'
+
+export async function addGrantees(
+  requestOptions: BeeRequestOptions,
+  postageBatchId: BatchId,
+  grantees: string[]
+): Promise<addGranteesResult> {
+  return await http<addGranteesResult>(requestOptions, {
+    method: 'post',
+    url: granteeEndpoint,
+    data: { grantees: grantees },
+    headers: {
+      ...extractRedundantUploadHeaders(postageBatchId),
+    },
+    responseType: 'json',
+  })
+}
 
 interface FileUploadHeaders extends UploadHeaders {
   'content-length'?: string

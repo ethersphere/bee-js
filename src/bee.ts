@@ -42,6 +42,7 @@ import type {
   UploadOptions,
   UploadRedundancyOptions,
   UploadResultWithCid,
+  addGranteesResult,
 } from './types'
 import {
   AllTagsOptions,
@@ -243,6 +244,14 @@ export class Bee {
     assertReferenceOrEns(reference)
 
     return chunk.download(this.getRequestOptionsForCall(options), reference)
+  }
+
+  async addGrantees(
+    postageBatchId: BatchId,
+    grantees: string[],
+    requestOptions?: BeeRequestOptions,
+  ): Promise<addGranteesResult> {
+    return  bzz.addGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
   }
 
   /**

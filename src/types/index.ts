@@ -108,6 +108,10 @@ export interface BeeOptions extends BeeRequestOptions {
   signer?: Signer | Uint8Array | string
 }
 
+export interface addGranteesResult {
+  
+}
+
 export interface UploadResultWithCid extends UploadResult {
   /**
    * Function that converts the reference into Swarm CIDs
