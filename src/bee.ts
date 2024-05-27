@@ -43,6 +43,7 @@ import type {
   UploadRedundancyOptions,
   UploadResultWithCid,
   addGranteesResult,
+  GetGranteesResult,
 } from './types'
 import {
   AllTagsOptions,
@@ -247,11 +248,20 @@ export class Bee {
   }
 
   async addGrantees(
-    postageBatchId: BatchId,
+    postageBatchId: string | BatchId,
     grantees: string[],
     requestOptions?: BeeRequestOptions,
   ): Promise<addGranteesResult> {
-    return  bzz.addGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
+    assertBatchId(postageBatchId)
+
+    return bzz.addGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
+  }
+
+  async getGrantees(
+    reference: ReferenceOrEns | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GetGranteesResult> {
+    return bzz.getGrantees(reference, requestOptions ?? {})
   }
 
   /**
@@ -1140,7 +1150,6 @@ export class Bee {
   }
 
   private getRequestOptionsForCall(options?: BeeRequestOptions): BeeRequestOptions {
-    const v = options ? Objects.deepMerge2(this.requestOptions, options) : this.requestOptions
-    return v
+    return options ? Objects.deepMerge2(this.requestOptions, options) : this.requestOptions
   }
 }

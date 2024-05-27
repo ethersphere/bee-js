@@ -7,6 +7,7 @@ import {
   DownloadRedundancyOptions,
   FileData,
   FileUploadOptions,
+  GetGranteesResult,
   Readable,
   Reference,
   ReferenceOrEns,
@@ -26,12 +27,25 @@ import { makeTagUid } from '../utils/type'
 const bzzEndpoint = 'bzz'
 const granteeEndpoint = 'grantee'
 
+export async function getGrantees(reference: string, requestOptions: BeeRequestOptions): Promise<GetGranteesResult> {
+  const response = await http<GetGranteesResult>(requestOptions, {
+    method: 'get',
+    url: `${granteeEndpoint}/${reference}`,
+    responseType: 'json',
+  })
+
+  return {
+    status: response.status,
+    statusText: response.statusText,
+  }
+}
+
 export async function addGrantees(
   requestOptions: BeeRequestOptions,
   postageBatchId: BatchId,
-  grantees: string[]
+  grantees: string[],
 ): Promise<addGranteesResult> {
-  return await http<addGranteesResult>(requestOptions, {
+  const response = await http<addGranteesResult>(requestOptions, {
     method: 'post',
     url: granteeEndpoint,
     data: { grantees: grantees },
@@ -40,6 +54,13 @@ export async function addGrantees(
     },
     responseType: 'json',
   })
+
+  return {
+    status: response.status,
+    statusText: response.statusText,
+    ref: response.data.ref,
+    historyref: response.data.historyref,
+  }
 }
 
 interface FileUploadHeaders extends UploadHeaders {
@@ -93,12 +114,12 @@ export async function uploadFile(
     params: { name },
     responseType: 'json',
   })
-  
+
   return {
     reference: response.data.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     history_address: response.headers['swarm-act-history-address'] || '',
-  };
+  }
 }
 
 /**

@@ -109,7 +109,15 @@ export interface BeeOptions extends BeeRequestOptions {
 }
 
 export interface addGranteesResult {
-  
+  status: number
+  statusText: string
+  ref: Reference
+  historyref: Reference
+}
+
+export interface GetGranteesResult {
+  status: number
+  statusText: string
 }
 
 export interface UploadResultWithCid extends UploadResult {
@@ -272,7 +280,7 @@ export interface CollectionUploadOptions extends UploadOptions {
 }
 
 export interface UploadHeaders {
-  'swarm-act'?:string
+  'swarm-act'?: string
   'swarm-pin'?: string
   'swarm-encrypt'?: string
   'swarm-tag'?: string
