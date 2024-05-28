@@ -35,14 +35,14 @@ type ValidChunkData = BrandedType<Uint8Array, 'ValidChunkData'>
  *
  * @param payloadBytes the data to be stored in the chunk
  */
-export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
-  const span = makeSpan(payloadBytes.length)
+export function makeContentAddressedChunk(payloadBytes: Uint8Array, span?: Uint8Array): Chunk {
+  span ||= makeSpan(payloadBytes.length)
   assertFlexBytes(payloadBytes, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE)
   const data = serializeBytes(span, payloadBytes) as ValidChunkData
 
   return {
     data,
-    span: () => span,
+    span: () => span as Bytes<8>,
     payload: () => flexBytesAtOffset(data, CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE),
     address: () => bmtHash(data),
   }
