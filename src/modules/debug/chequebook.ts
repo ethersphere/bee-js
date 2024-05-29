@@ -17,7 +17,7 @@ const chequebookEndpoint = 'chequebook'
 /**
  * Get the address of the chequebook contract used
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getChequebookAddress(requestOptions: BeeRequestOptions): Promise<ChequebookAddressResponse> {
   const response = await http<ChequebookAddressResponse>(requestOptions, {
@@ -31,7 +31,7 @@ export async function getChequebookAddress(requestOptions: BeeRequestOptions): P
 /**
  * Get the balance of the chequebook
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getChequebookBalance(requestOptions: BeeRequestOptions): Promise<ChequebookBalanceResponse> {
   const response = await http<ChequebookBalanceResponse>(requestOptions, {
@@ -45,7 +45,7 @@ export async function getChequebookBalance(requestOptions: BeeRequestOptions): P
 /**
  * Get last cashout action for the peer
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param peer  Swarm address of peer
  */
 export async function getLastCashoutAction(
@@ -63,7 +63,7 @@ export async function getLastCashoutAction(
 /**
  * Cashout the last cheque for the peer
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param peer  Swarm address of peer
  * @param options
  */
@@ -95,7 +95,7 @@ export async function cashoutLastCheque(
 /**
  * Get last cheques for the peer
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param peer  Swarm address of peer
  */
 export async function getLastChequesForPeer(
@@ -113,7 +113,7 @@ export async function getLastChequesForPeer(
 /**
  * Get last cheques for all peers
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getLastCheques(requestOptions: BeeRequestOptions): Promise<LastChequesResponse> {
   const response = await http<LastChequesResponse>(requestOptions, {
@@ -127,7 +127,7 @@ export async function getLastCheques(requestOptions: BeeRequestOptions): Promise
 /**
  * Deposit tokens from overlay address into chequebook
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param amount   Amount of tokens to deposit
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction
@@ -157,7 +157,7 @@ export async function depositTokens(
 /**
  * Withdraw tokens from the chequebook to the overlay address
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param amount   Amount of tokens to withdraw
  * @param gasPrice Gas Price in WEI for the transaction call
  * @return string  Hash of the transaction

@@ -26,13 +26,7 @@ export function isValidBeeUrl(url: unknown): url is URL {
     // There can be wide range of protocols passed.
     return urlObject.protocol === 'http:' || urlObject.protocol === 'https:'
   } catch (e) {
-    // URL constructor throws TypeError if not valid URL
-    // TODO: Drop the `.code` hack for NodeJS environment: https://github.com/ethersphere/bee-js/issues/204
-    if (e instanceof TypeError || (isNodeJsError(e) && e.code === 'ERR_INVALID_URL')) {
-      return false
-    }
-
-    throw e
+    return false
   }
 }
 

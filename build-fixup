@@ -9,6 +9,10 @@ cat >dist/cjs/package.json <<!EOF
     "type": "commonjs",
     "browser": {
      "stream": false,
+     "fs": false,
+      "./utils/tar.js": "./utils/tar.browser.js",
+      "./utils/tar-writer.js": "./utils/tar-writer.browser.js",
+      "./utils/tar-uploader.js": "./utils/tar-uploader.browser.js",
       "./utils/data.js": "./utils/data.browser.js",
       "./utils/collection.node.js": "./utils/collection.browser.js"
     }
@@ -20,8 +24,12 @@ cat >dist/mjs/package.json <<!EOF
     "type": "module",
     "browser": {
      "stream": false,
-      "./utils/data.js": "./utils/data.browser.js",
-      "./utils/collection.node.js": "./utils/collection.browser.js"
+     "fs": false,
+     "./utils/tar.js": "./utils/tar.browser.js",
+     "./utils/tar-writer.js": "./utils/tar-writer.browser.js",
+      "./utils/tar-uploader.js": "./utils/tar-uploader.browser.js",
+     "./utils/data.js": "./utils/data.browser.js",
+     "./utils/collection.node.js": "./utils/collection.browser.js"
     }
 }
 !EOF

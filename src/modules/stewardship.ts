@@ -5,7 +5,7 @@ const stewardshipEndpoint = 'stewardship'
 
 /**
  * Reupload locally pinned data
- * @param ky Ky instance
+ * @param requestOptions Options for making requests
  * @param reference
  * @param options
  * @throws BeeResponseError if not locally pinned or invalid data

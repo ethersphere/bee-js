@@ -30,18 +30,18 @@ export async function mochaGlobalSetup(): Promise<void> {
   })
 
   try {
-    const beeDebugRequestOptions: BeeRequestOptions = {
-      baseURL: process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635/',
+    const beeRequestOptions: BeeRequestOptions = {
+      baseURL: process.env.BEE_API_URL || 'http://127.0.0.1:1633/',
       timeout: false,
     }
-    const beeDebugPeerRequestOptions: BeeRequestOptions = {
-      baseURL: process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635/',
+    const beePeerRequestOptions: BeeRequestOptions = {
+      baseURL: process.env.BEE_PEER_API_URL || 'http://127.0.0.1:11633/',
       timeout: false,
     }
 
     if (process.env.BEE_POSTAGE) {
       try {
-        if (!(await getPostageBatch(beeDebugRequestOptions, process.env.BEE_POSTAGE as BatchId)).usable) {
+        if (!(await getPostageBatch(beeRequestOptions, process.env.BEE_POSTAGE as BatchId)).usable) {
           delete process.env.BEE_POSTAGE
           console.log('BEE_POSTAGE stamp was found but is not usable')
         } else {
@@ -55,7 +55,7 @@ export async function mochaGlobalSetup(): Promise<void> {
 
     if (process.env.BEE_PEER_POSTAGE) {
       try {
-        if (!(await getPostageBatch(beeDebugPeerRequestOptions, process.env.BEE_PEER_POSTAGE as BatchId)).usable) {
+        if (!(await getPostageBatch(beePeerRequestOptions, process.env.BEE_PEER_POSTAGE as BatchId)).usable) {
           delete process.env.BEE_PEER_POSTAGE
           console.log('BEE_PEER_POSTAGE stamp was found but is not usable')
         } else {
@@ -73,11 +73,11 @@ export async function mochaGlobalSetup(): Promise<void> {
       const stampsOrder: { requestOptions: BeeRequestOptions; env: string }[] = []
 
       if (!process.env.BEE_POSTAGE) {
-        stampsOrder.push({ requestOptions: beeDebugRequestOptions, env: 'BEE_POSTAGE' })
+        stampsOrder.push({ requestOptions: beeRequestOptions, env: 'BEE_POSTAGE' })
       }
 
       if (!process.env.BEE_PEER_POSTAGE) {
-        stampsOrder.push({ requestOptions: beeDebugPeerRequestOptions, env: 'BEE_PEER_POSTAGE' })
+        stampsOrder.push({ requestOptions: beePeerRequestOptions, env: 'BEE_PEER_POSTAGE' })
       }
 
       const stamps = await Promise.all(

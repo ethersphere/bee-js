@@ -1,13 +1,13 @@
 import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
 import * as settlements from '../../../../src/modules/debug/settlements'
-import { beeDebugKyOptions, commonMatchers } from '../../../utils'
+import { beeKyOptions, commonMatchers } from '../../../utils'
 
 commonMatchers()
 
 describe('settlements', () => {
   it('all settlements', async function () {
-    const response = await settlements.getAllSettlements(beeDebugKyOptions())
+    const response = await settlements.getAllSettlements(beeKyOptions())
 
     expect(response.totalReceived).to.be.numberString()
     expect(response.totalSent).to.be.numberString()
@@ -26,7 +26,7 @@ describe('settlements', () => {
 
       const peerSettlement = response.settlements[0]
 
-      const peerSettlementResponse = await settlements.getSettlements(beeDebugKyOptions(), peerSettlement.peer)
+      const peerSettlementResponse = await settlements.getSettlements(beeKyOptions(), peerSettlement.peer)
 
       expect(peerSettlementResponse.peer).to.eql(peerSettlement.peer)
       expect(peerSettlementResponse.received).to.be.numberString()

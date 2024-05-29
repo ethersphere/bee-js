@@ -12,7 +12,7 @@ const BEE_KY_OPTIONS = beeKyOptions()
 describe('modules/bzz', () => {
   describe('collections', () => {
     it('should store and retrieve collection with single file', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: Uint8Array.from([0]),
@@ -29,7 +29,7 @@ describe('modules/bzz', () => {
     it('should retrieve the filename but not the complete path', async function () {
       const path = 'a/b/c/d/'
       const name = '0'
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: `${path}${name}`,
           data: Uint8Array.from([0]),
@@ -44,7 +44,7 @@ describe('modules/bzz', () => {
     })
 
     it('should work with pinning', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: Uint8Array.from([0]),
@@ -59,7 +59,7 @@ describe('modules/bzz', () => {
     })
 
     it('should work with encryption', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: Uint8Array.from([0]),
@@ -78,7 +78,7 @@ describe('modules/bzz', () => {
 
     it('should upload bigger file', async function () {
       this.timeout(BIG_FILE_TIMEOUT)
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: new Uint8Array(32 * 1024 * 1024),
@@ -96,7 +96,7 @@ describe('modules/bzz', () => {
     })
 
     it('should store and retrieve collection', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: Uint8Array.from([0]),
@@ -119,7 +119,7 @@ describe('modules/bzz', () => {
     })
 
     it('should store and retrieve collection with index document', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: Uint8Array.from([0]),
@@ -140,7 +140,7 @@ describe('modules/bzz', () => {
     })
 
     it('should store and retrieve collection with error document', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: Uint8Array.from([0]),

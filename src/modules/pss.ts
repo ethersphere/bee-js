@@ -8,7 +8,7 @@ const endpoint = 'pss'
 /**
  * Send to recipient or target with Postal Service for Swarm
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param topic Topic name
  * @param target Target message address prefix
  * @param data

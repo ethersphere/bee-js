@@ -1,27 +1,21 @@
 import { System } from 'cafe-utility'
 import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
-import { Readable } from 'stream'
-import { Bee, BeeDebug, BytesReference, Collection, PssSubscription } from '../../src'
+import { Bee, BytesReference, Collection, PssSubscription } from '../../src'
 import { makeSigner } from '../../src/chunk/signer'
-import { makeSOCAddress, uploadSingleOwnerChunkData } from '../../src/chunk/soc'
+import { uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import * as bzz from '../../src/modules/bzz'
 import { REFERENCE_HEX_LENGTH } from '../../src/types'
 import { makeBytes } from '../../src/utils/bytes'
-import { makeEthAddress } from '../../src/utils/eth'
 import { HexString, bytesToHex } from '../../src/utils/hex'
 import {
   ERR_TIMEOUT,
   FEED_TIMEOUT,
   PSS_TIMEOUT,
-  beeDebugUrl,
   beeKyOptions,
-  beePeerDebugUrl,
   beePeerUrl,
   beeUrl,
   commonMatchers,
-  createRandomNodeReadable,
-  createReadableStream,
   getPostageBatch,
   makeTestTarget,
   randomByteArray,
@@ -29,7 +23,6 @@ import {
   testIdentity,
   testJsonHash,
   testJsonPayload,
-  tryDeleteChunkFromLocalStorage,
 } from '../utils'
 
 commonMatchers()
@@ -38,7 +31,6 @@ describe('Bee class', () => {
   const BEE_URL = beeUrl()
   const BEE_KY_OPTIONS = beeKyOptions()
   const BEE_PEER_URL = beePeerUrl()
-  const BEE_DEBUG_PEER_URL = beePeerDebugUrl()
   const bee = new Bee(BEE_URL)
   const beePeer = new Bee(BEE_PEER_URL)
 
@@ -171,58 +163,6 @@ describe('Bee class', () => {
       expect(downloadedFile.data).to.eql(content)
       expect(downloadedFile.contentType).to.eql(contentTypeOverride)
     })
-
-    // TODO: https://github.com/ethersphere/bee-js/issues/816
-    it.skip('should work with NodeJS readable', async function () {
-      const readable = Readable.from([new TextEncoder().encode('hello '), new TextEncoder().encode('world')], {
-        objectMode: false,
-      })
-      const name = 'hello.txt'
-      const contentType = 'text/plain'
-
-      const result = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
-      const file = await bee.downloadFile(result.reference)
-
-      expect(file.name).to.eql(name)
-      expect(file.data.text()).to.eql('hello world')
-    })
-
-    // TODO: https://github.com/ethersphere/bee-js/issues/816
-    it.skip('should work with WHATWG readable-stream', async function () {
-      this.timeout(1000000)
-
-      const readable = createReadableStream([new TextEncoder().encode('hello '), new TextEncoder().encode('world')])
-      const name = 'hello.txt'
-      const contentType = 'text/plain'
-
-      const result = await bee.uploadFile(getPostageBatch(), readable, name, { contentType })
-      const file = await bee.downloadFile(result.reference)
-
-      expect(file.name).to.eql(name)
-      expect(file.data.text()).to.eql('hello world')
-    })
-
-    // TODO: https://github.com/ethersphere/bee-js/issues/816
-    it.skip('should work with readable and tags', async function () {
-      const tag = await bee.createTag()
-
-      const readable = createRandomNodeReadable(13000)
-      const name = 'hello.txt'
-      const contentType = 'text/plain'
-
-      const result = await bee.uploadFile(getPostageBatch(), readable, name, {
-        contentType,
-        tag: tag.uid,
-      })
-
-      const file = await bee.downloadFile(result.reference)
-
-      expect(file.name).to.eql(name)
-      expect(file.data.length).to.eql(13000)
-
-      const retrievedTag = await bee.retrieveTag(tag)
-      expect(retrievedTag.split).to.eql(8)
-    })
   })
 
   describe('collections', () => {
@@ -239,7 +179,7 @@ describe('Bee class', () => {
     })
 
     it('should upload collection', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: new TextEncoder().encode('hello-world'),
@@ -254,7 +194,7 @@ describe('Bee class', () => {
     })
 
     it('should upload collection with CIDs support', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: new TextEncoder().encode('hello-CID-world'),
@@ -386,15 +326,15 @@ describe('Bee class', () => {
         ;(async () => {
           const topic = 'bee-class-topic'
           const message = new Uint8Array([1, 2, 3])
-          const beeDebug = new BeeDebug(beeDebugUrl())
+          const bee = new Bee(beeUrl())
 
           bee.pssReceive(topic).then(receivedMessage => {
             expect(receivedMessage).to.eql(message)
             resolve()
           })
 
-          const { overlay } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeTestTarget(overlay), message)
+          const { overlay } = await bee.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, makeTestTarget(overlay), message)
         })().catch(reject)
       })
     })
@@ -407,21 +347,15 @@ describe('Bee class', () => {
         ;(async () => {
           const topic = 'bee-class-topic-publickey'
           const message = new Uint8Array([1, 2, 3])
-          const beeDebug = new BeeDebug(beeDebugUrl())
+          const bee = new Bee(beeUrl())
 
           bee.pssReceive(topic).then(receivedMessage => {
             expect(receivedMessage).to.eql(message)
             resolve()
           })
 
-          const { overlay, pssPublicKey } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(
-            getPostageBatch(BEE_DEBUG_PEER_URL),
-            topic,
-            makeTestTarget(overlay),
-            message,
-            pssPublicKey,
-          )
+          const { overlay, pssPublicKey } = await bee.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, makeTestTarget(overlay), message, pssPublicKey)
         })().catch(reject)
       })
     })
@@ -434,7 +368,7 @@ describe('Bee class', () => {
         ;(async () => {
           const topic = 'bee-class-subscribe-topic'
           const message = new Uint8Array([1, 2, 3])
-          const beeDebug = new BeeDebug(beeDebugUrl())
+          const bee = new Bee(beeUrl())
 
           subscription = bee.pssSubscribe(topic, {
             onMessage: receivedMessage => {
@@ -449,8 +383,8 @@ describe('Bee class', () => {
             },
           })
 
-          const { overlay } = await beeDebug.getNodeAddresses()
-          await beePeer.pssSend(getPostageBatch(BEE_DEBUG_PEER_URL), topic, makeTestTarget(overlay), message)
+          const { overlay } = await bee.getNodeAddresses()
+          await beePeer.pssSend(getPostageBatch(BEE_PEER_URL), topic, makeTestTarget(overlay), message)
         })().catch(e => {
           // without cancel jest complains for leaking handles and may hang
           subscription?.cancel()
@@ -558,7 +492,7 @@ describe('Bee class', () => {
 
       const topic = randomByteArray(32, Date.now())
 
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: 'index.html',
           data: new TextEncoder().encode('some data'),
@@ -649,8 +583,6 @@ describe('Bee class', () => {
     describe('writer', () => {
       it('should read and write', async function () {
         const identifier = makeBytes(32) // all zeroes
-        const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
-        await tryDeleteChunkFromLocalStorage(socAddress)
 
         const socWriter = bee.makeSOCWriter(testIdentity.privateKey)
 
@@ -667,8 +599,6 @@ describe('Bee class', () => {
       it('should read', async function () {
         const signer = makeSigner(testIdentity.privateKey)
         const identifier = makeBytes(32) // all zeroes
-        const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
-        await tryDeleteChunkFromLocalStorage(socAddress)
         await uploadSingleOwnerChunkData(BEE_KY_OPTIONS, signer, getPostageBatch(), identifier, testChunkPayload)
 
         const socReader = bee.makeSOCReader(testIdentity.address)
@@ -684,9 +614,6 @@ describe('Bee class', () => {
       const identifier = makeBytes(32)
       identifier[31] = 1
 
-      const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
-      await tryDeleteChunkFromLocalStorage(socAddress)
-
       const bee = new Bee(BEE_URL, { signer: testIdentity.privateKey })
       const socWriter = bee.makeSOCWriter()
 
@@ -697,9 +624,6 @@ describe('Bee class', () => {
     it('should prioritize signer passed to method', async function () {
       const identifier = makeBytes(32)
       identifier[31] = 2
-
-      const socAddress = makeSOCAddress(identifier, makeEthAddress(testIdentity.address))
-      await tryDeleteChunkFromLocalStorage(socAddress)
 
       // We pass different private key to the instance
       const bee = new Bee(BEE_URL, {

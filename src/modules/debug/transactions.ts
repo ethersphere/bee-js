@@ -14,7 +14,7 @@ interface TransactionResponse {
 /**
  * Get list of all pending transactions
  *
- * @param ky   Debug Ky instance
+ * @param requestOptions Options for making requests
  */
 export async function getAllTransactions(requestOptions: BeeRequestOptions): Promise<TransactionInfo[]> {
   const response = await http<PendingTransactionsResponse>(requestOptions, {
@@ -28,7 +28,7 @@ export async function getAllTransactions(requestOptions: BeeRequestOptions): Pro
 /**
  * Get information for specific pending transactions
  *
- * @param ky   Debug Ky instance
+ * @param requestOptions Options for making requests
  * @param transactionHash Hash of the transaction
  */
 export async function getTransaction(
@@ -46,7 +46,7 @@ export async function getTransaction(
 /**
  * Rebroadcast existing transaction
  *
- * @param ky   Debug Ky instance
+ * @param requestOptions Options for making requests
  * @param transactionHash Hash of the transaction
  */
 export async function rebroadcastTransaction(
@@ -65,7 +65,7 @@ export async function rebroadcastTransaction(
 /**
  * Cancel existing transaction
  *
- * @param ky   Debug Ky instance
+ * @param requestOptions Options for making requests
  * @param transactionHash Hash of the transaction
  * @param gasPrice Optional gas price
  */

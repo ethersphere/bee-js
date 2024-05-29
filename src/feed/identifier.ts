@@ -1,8 +1,9 @@
-import { FEED_INDEX_HEX_LENGTH, Topic } from '../types'
+import { Binary } from 'cafe-utility'
 import { Identifier } from '../chunk/soc'
+import { FEED_INDEX_HEX_LENGTH, Topic } from '../types'
+import { Bytes } from '../utils/expose'
 import { keccak256Hash } from '../utils/hash'
 import { hexToBytes, makeHexString } from '../utils/hex'
-import { writeUint64BigEndian } from '../utils/uint64'
 import { Epoch, Index, IndexBytes } from './index'
 
 function isEpoch(epoch: unknown): epoch is Epoch {
@@ -14,7 +15,7 @@ function hashFeedIdentifier(topic: Topic, index: IndexBytes): Identifier {
 }
 
 function makeSequentialFeedIdentifier(topic: Topic, index: number): Identifier {
-  const indexBytes = writeUint64BigEndian(index)
+  const indexBytes = Binary.numberToUint64BE(index) as Bytes<8>
 
   return hashFeedIdentifier(topic, indexBytes)
 }

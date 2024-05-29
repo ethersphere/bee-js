@@ -1,13 +1,13 @@
+import { Binary } from 'cafe-utility'
 import { Bee } from '../bee'
 import { BeeRequestOptions, Reference, Topic } from '../types'
 import { EthAddress } from '../utils/eth'
 import { bytesToHex } from '../utils/hex'
-import { readUint64BigEndian } from '../utils/uint64'
-import { getFeedUpdateChunkReference, Index } from './index'
+import { Index, getFeedUpdateChunkReference } from './index'
 
 function makeNumericIndex(index: Index): number {
   if (index instanceof Uint8Array) {
-    return readUint64BigEndian(index)
+    return Binary.uint64BEToNumber(index)
   }
 
   if (typeof index === 'string') {
