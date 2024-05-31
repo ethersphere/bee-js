@@ -1,7 +1,6 @@
-import { serializeBytes } from '../chunk/serialize'
-import { makeSingleOwnerChunkFromData, uploadSingleOwnerChunkData } from '../chunk/soc'
-import * as chunkAPI from '../modules/chunk'
-import { FeedUpdateOptions, FetchFeedUpdateResponse, fetchLatestFeedUpdate } from '../modules/feed'
+import { uploadSingleOwnerChunkData } from '../chunk/soc'
+import { Chunk } from '../chunk/cac'
+import { FeedUpdateOptions, FetchFeedUpdateResponse, fetchFeedUpdate } from '../modules/feed'
 import {
   Address,
   BatchId,
@@ -16,19 +15,13 @@ import {
   Topic,
   UploadOptions,
 } from '../types'
-import { Bytes, bytesAtOffset, makeBytes } from '../utils/bytes'
+import { Bytes, makeBytes } from '../utils/bytes'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
 import { keccak256Hash } from '../utils/hash'
-import { HexString, bytesToHex, hexToBytes, makeHexString } from '../utils/hex'
-import { makeBytesReference } from '../utils/reference'
+import { HexString, bytesToHex, makeHexString } from '../utils/hex'
 import { assertAddress } from '../utils/type'
-import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import { makeFeedIdentifier } from './identifier'
 import type { FeedType } from './type'
-
-const TIMESTAMP_PAYLOAD_OFFSET = 0
-const TIMESTAMP_PAYLOAD_SIZE = 8
-const REFERENCE_PAYLOAD_OFFSET = TIMESTAMP_PAYLOAD_SIZE
 
 export interface Epoch {
   time: number
@@ -56,7 +49,7 @@ export async function findNextIndex(
   options?: FeedUpdateOptions,
 ): Promise<HexString<typeof FEED_INDEX_HEX_LENGTH>> {
   try {
-    const feedUpdate = await fetchLatestFeedUpdate(requestOptions, owner, topic, options)
+    const feedUpdate = await fetchFeedUpdate(requestOptions, owner, topic, options)
 
     return makeHexString(feedUpdate.feedIndexNext, FEED_INDEX_HEX_LENGTH)
   } catch (e: any) {
@@ -71,7 +64,7 @@ export async function updateFeed(
   requestOptions: BeeRequestOptions,
   signer: Signer,
   topic: Topic,
-  reference: BytesReference,
+  payload: Uint8Array | Chunk,
   postageBatchId: BatchId,
   options?: FeedUploadOptions,
 ): Promise<Reference> {
@@ -79,38 +72,14 @@ export async function updateFeed(
   const nextIndex = options?.index || (await findNextIndex(requestOptions, ownerHex, topic, options))
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
-  const at = options?.at ?? Date.now() / 1000.0
-  const timestamp = writeUint64BigEndian(at)
-  const payloadBytes = serializeBytes(timestamp, reference)
 
-  return uploadSingleOwnerChunkData(requestOptions, signer, postageBatchId, identifier, payloadBytes, options)
+  return uploadSingleOwnerChunkData(requestOptions, signer, postageBatchId, identifier, payload, options)
 }
 
 export function getFeedUpdateChunkReference(owner: EthAddress, topic: Topic, index: Index): PlainBytesReference {
   const identifier = makeFeedIdentifier(topic, index)
 
   return keccak256Hash(identifier, owner)
-}
-
-export async function downloadFeedUpdate(
-  requestOptions: BeeRequestOptions,
-  owner: EthAddress,
-  topic: Topic,
-  index: Index,
-): Promise<FeedUpdate> {
-  const address = getFeedUpdateChunkReference(owner, topic, index)
-  const addressHex = bytesToHex(address)
-  const data = await chunkAPI.download(requestOptions, addressHex)
-  const soc = makeSingleOwnerChunkFromData(data, address)
-  const payload = soc.payload()
-  const timestampBytes = bytesAtOffset(payload, TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
-  const timestamp = readUint64BigEndian(timestampBytes)
-  const reference = makeBytesReference(payload, REFERENCE_PAYLOAD_OFFSET)
-
-  return {
-    timestamp,
-    reference,
-  }
 }
 
 export function makeFeedReader(
@@ -124,17 +93,7 @@ export function makeFeedReader(
     owner,
     topic,
     async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
-      if (!options?.index && options?.index !== 0) {
-        return fetchLatestFeedUpdate(requestOptions, owner, topic, { ...options, type })
-      }
-
-      const update = await downloadFeedUpdate(requestOptions, hexToBytes(owner), topic, options.index)
-
-      return {
-        reference: bytesToHex(update.reference),
-        feedIndex: options.index,
-        feedIndexNext: '',
-      }
+      return fetchFeedUpdate(requestOptions, owner, topic, { ...options, type })
     },
   }
 }
@@ -145,15 +104,10 @@ export function makeFeedWriter(
   topic: Topic,
   signer: Signer,
 ): FeedWriter {
-  const upload = async (
-    postageBatchId: string | Address,
-    reference: BytesReference | Reference,
-    options?: FeedUploadOptions,
-  ) => {
+  const upload = async (postageBatchId: string | Address, payload: Uint8Array | Chunk, options?: FeedUploadOptions) => {
     assertAddress(postageBatchId)
-    const canonicalReference = makeBytesReference(reference)
 
-    return updateFeed(requestOptions, signer, topic, canonicalReference, postageBatchId, { ...options, type })
+    return updateFeed(requestOptions, signer, topic, payload, postageBatchId, { ...options, type })
   }
 
   return {

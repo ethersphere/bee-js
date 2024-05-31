@@ -11,6 +11,7 @@ import type { HexString } from '../utils/hex'
 import type { Readable as CompatibilityReadable } from 'readable-stream'
 import type { Readable as NativeReadable } from 'stream'
 import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill'
+import { Chunk } from '../chunk/cac'
 
 export * from './debug'
 
@@ -474,16 +475,12 @@ export interface FeedWriter extends FeedReader {
    * Upload a new feed update
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
-   * @param reference The reference to be stored in the new update
+   * @param payload   Lesser than one chunk payload or the root chunk of a chunk tree. Other than root chunk should be uploaded separately.
    * @param options   Additional options like `at`
    *
    * @returns Reference that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
    */
-  upload(
-    postageBatchId: string | BatchId,
-    reference: BytesReference | Reference,
-    options?: FeedUploadOptions,
-  ): Promise<Reference>
+  upload(postageBatchId: string | BatchId, payload: Uint8Array | Chunk, options?: FeedUploadOptions): Promise<Reference>
 }
 
 /**

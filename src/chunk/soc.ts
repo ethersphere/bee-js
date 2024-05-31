@@ -1,3 +1,4 @@
+import { isUint8Array } from 'util/types'
 import * as chunkAPI from '../modules/chunk'
 import * as socAPI from '../modules/soc'
 import { BatchId, BeeRequestOptions, PlainBytesReference, Reference, Signature, Signer, UploadOptions } from '../types'
@@ -154,11 +155,17 @@ export async function uploadSingleOwnerChunkData(
   signer: Signer,
   postageBatchId: BatchId | string,
   identifier: Identifier,
-  data: Uint8Array,
+  payload: Uint8Array | { chunkPayload: Uint8Array; chunkSpan: Bytes<8> },
   options?: UploadOptions,
 ): Promise<Reference> {
   assertAddress(postageBatchId)
-  const cac = makeContentAddressedChunk(data)
+  let cac: Chunk
+
+  if (isUint8Array(payload)) {
+    cac = makeContentAddressedChunk(payload)
+  } else {
+    cac = makeContentAddressedChunk(payload.chunkPayload, payload.chunkSpan)
+  }
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
 
   return uploadSingleOwnerChunk(requestOptions, soc, postageBatchId, options)

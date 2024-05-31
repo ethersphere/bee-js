@@ -1,6 +1,7 @@
 import { Index } from '../feed'
 import { FeedType } from '../feed/type'
-import { BatchId, BeeRequestOptions, Reference, ReferenceResponse, Topic } from '../types'
+import { BatchId, BeeRequestOptions, Data, Reference, ReferenceResponse, Topic } from '../types'
+import { wrapBytesWithHelpers } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'
@@ -41,7 +42,12 @@ interface FeedUpdateHeaders {
    */
   feedIndexNext: string
 }
-export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
+export interface FetchFeedUpdateResponse extends FeedUpdateHeaders {
+  /**
+   * Feed payload
+   */
+  data: Data
+}
 
 /**
  * Create an initial feed root manifest
@@ -96,25 +102,25 @@ function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeade
  * the reference it contains along with its index and the
  * index of the subsequent update.
  *
- * @param ky Ky instance
- * @param owner       Owner's ethereum address in hex
- * @param topic       Topic in hex
- * @param options     Additional options, like index, at, type
+ * @param requestOptions  BeeRequestOptions
+ * @param owner           Owner's ethereum address in hex
+ * @param topic           Topic in hex
+ * @param options         Additional options, like index, at, type
  */
-export async function fetchLatestFeedUpdate(
+export async function fetchFeedUpdate(
   requestOptions: BeeRequestOptions,
   owner: HexEthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<FetchFeedUpdateResponse> {
-  const response = await http<ReferenceResponse>(requestOptions, {
-    responseType: 'json',
+  const response = await http<ArrayBuffer>(requestOptions, {
+    responseType: 'arraybuffer',
     url: `${feedEndpoint}/${owner}/${topic}`,
     params: options,
   })
 
   return {
-    ...response.data,
+    data: wrapBytesWithHelpers(new Uint8Array(response.data)),
     ...readFeedUpdateHeaders(response.headers as Record<string, string>),
   }
 }
