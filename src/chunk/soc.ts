@@ -155,7 +155,7 @@ export async function uploadSingleOwnerChunkData(
   signer: Signer,
   postageBatchId: BatchId | string,
   identifier: Identifier,
-  payload: Uint8Array | Chunk,
+  payload: Uint8Array | { chunkPayload: Uint8Array; chunkSpan: Bytes<8> },
   options?: UploadOptions,
 ): Promise<Reference> {
   assertAddress(postageBatchId)
@@ -164,7 +164,7 @@ export async function uploadSingleOwnerChunkData(
   if (isUint8Array(payload)) {
     cac = makeContentAddressedChunk(payload)
   } else {
-    cac = payload
+    cac = makeContentAddressedChunk(payload.chunkPayload, payload.chunkSpan)
   }
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
 
