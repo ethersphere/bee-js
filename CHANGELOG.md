@@ -1,6 +1,17 @@
 # Changelog
 
 
+## [7.0.0](https://github.com/ethersphere/bee-js/compare/v6.9.1...v7.0.0) (2024-06-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* merge api ([#920](https://github.com/ethersphere/bee-js/issues/920))
+
+### Features
+
+* merge api ([#920](https://github.com/ethersphere/bee-js/issues/920)) ([a7b68be](https://github.com/ethersphere/bee-js/commit/a7b68be04b859832c5a003cc95ab9ed598acb456))
+
 ## [6.9.1](https://github.com/ethersphere/bee-js/compare/v6.9.0...v6.9.1) (2024-04-24)
 
 
