@@ -7,7 +7,7 @@ const consumedEndpoint = 'consumed'
 /**
  * Get the balances with all known peers including prepaid services
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getAllBalances(requestOptions: BeeRequestOptions): Promise<BalanceResponse> {
   const response = await http<BalanceResponse>(requestOptions, {
@@ -21,7 +21,7 @@ export async function getAllBalances(requestOptions: BeeRequestOptions): Promise
 /**
  * Get the balances with a specific peer including prepaid services
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param address Swarm address of peer
  */
 export async function getPeerBalance(requestOptions: BeeRequestOptions, address: string): Promise<PeerBalance> {
@@ -36,7 +36,7 @@ export async function getPeerBalance(requestOptions: BeeRequestOptions, address:
 /**
  * Get the past due consumption balances with all known peers
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getPastDueConsumptionBalances(requestOptions: BeeRequestOptions): Promise<BalanceResponse> {
   const response = await http<BalanceResponse>(requestOptions, {
@@ -50,7 +50,7 @@ export async function getPastDueConsumptionBalances(requestOptions: BeeRequestOp
 /**
  * Get the past due consumption balance with a specific peer
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param address Swarm address of peer
  */
 export async function getPastDueConsumptionPeerBalance(

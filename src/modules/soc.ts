@@ -7,7 +7,7 @@ const socEndpoint = 'soc'
 /**
  * Upload single owner chunk (SOC) to a Bee node
  *
- * @param ky Ky instance
+ * @param requestOptions  Options for making requests
  * @param owner           Owner's ethereum address in hex
  * @param identifier      Arbitrary identifier in hex
  * @param signature       Signature in hex

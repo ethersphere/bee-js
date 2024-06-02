@@ -3,14 +3,7 @@ import { createFeedManifest, fetchLatestFeedUpdate } from '../../../src/modules/
 import { upload as uploadSOC } from '../../../src/modules/soc'
 import type { Topic } from '../../../src/types'
 import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
-import {
-  ERR_TIMEOUT,
-  beeKyOptions,
-  commonMatchers,
-  getPostageBatch,
-  testIdentity,
-  tryDeleteChunkFromLocalStorage,
-} from '../../utils'
+import { ERR_TIMEOUT, beeKyOptions, commonMatchers, getPostageBatch, testIdentity } from '../../utils'
 
 commonMatchers()
 
@@ -45,11 +38,6 @@ describe('modules/feed', () => {
     const socData = hexToBytes(
       '280000000000000000000000602a57df0000000000000000000000000000000000000000000000000000000000000000' as HexString,
     )
-
-    // delete the chunk from local storage if already exists
-    // this makes the test repeatable
-    const cacAddress = '03e8eef6d72dbca9dfb7d2e15a5a305a152a3807ac7fd5ea52721a16972f3813'
-    await tryDeleteChunkFromLocalStorage(cacAddress)
 
     const socResponse = await uploadSOC(BEE_KY_OPTIONS, owner, identifier, signature, socData, getPostageBatch())
     expect(socResponse).a('string')

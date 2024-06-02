@@ -160,16 +160,13 @@ export interface Health {
   status: 'ok'
   version: string
   apiVersion: string
-  debugApiVersion: string
 }
 
 export interface BeeVersions {
   supportedBeeVersion: string
   supportedBeeApiVersion: string
-  supportedBeeDebugApiVersion: string
   beeVersion: string
   beeApiVersion: string
-  beeDebugApiVersion: string
 }
 
 export enum BeeModes {

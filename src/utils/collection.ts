@@ -1,17 +1,15 @@
 import { Collection } from '../types'
 import { BeeArgumentError } from './error'
-import { fileArrayBuffer } from './file'
-import { isUint8Array } from './type'
 
-export function isCollection(data: unknown): data is Collection<Uint8Array> {
+export function isCollection(data: unknown): data is Collection {
   if (!Array.isArray(data)) {
     return false
   }
 
-  return data.every(entry => typeof entry === 'object' && entry.data && entry.path && isUint8Array(entry.data))
+  return data.every(entry => typeof entry === 'object' && entry.path && entry.size)
 }
 
-export function assertCollection(data: unknown): asserts data is Collection<Uint8Array> {
+export function assertCollection(data: unknown): asserts data is Collection {
   if (!isCollection(data)) {
     throw new BeeArgumentError('invalid collection', data)
   }
@@ -29,21 +27,12 @@ function makeFilePath(file: File) {
   throw new TypeError('file is not valid File object')
 }
 
-export async function makeCollectionFromFileList(fileList: FileList | File[]): Promise<Collection<Uint8Array>> {
-  const collection: Collection<Uint8Array> = []
-
-  for (let i = 0; i < fileList.length; i++) {
-    const file = fileList[i]
-
-    if (file) {
-      collection.push({
-        path: makeFilePath(file),
-        data: new Uint8Array(await fileArrayBuffer(file)),
-      })
-    }
-  }
-
-  return collection
+export async function makeCollectionFromFileList(fileList: FileList | File[]): Promise<Collection> {
+  return Array.from(fileList).map(file => ({
+    path: makeFilePath(file),
+    size: file.size,
+    file,
+  }))
 }
 
 /**
@@ -53,15 +42,5 @@ export async function makeCollectionFromFileList(fileList: FileList | File[]): P
  * @returns size in bytes
  */
 export function getCollectionSize(fileList: FileList | File[]): number {
-  let sum = 0
-
-  for (let i = 0; i < fileList.length; i++) {
-    const file = fileList[i]
-
-    if (file) {
-      sum += file.size
-    }
-  }
-
-  return sum
+  return Array.from(fileList).reduce((sum, file) => sum + file.size, 0)
 }

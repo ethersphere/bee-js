@@ -10,7 +10,7 @@ export interface GetAllPinResponse {
 /**
  * Pin data with given reference
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param reference Bee data reference
  */
 export async function pin(requestOptions: BeeRequestOptions, reference: Reference): Promise<void> {
@@ -24,7 +24,7 @@ export async function pin(requestOptions: BeeRequestOptions, reference: Referenc
 /**
  * Unpin data with given reference
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param reference Bee data reference
  */
 export async function unpin(requestOptions: BeeRequestOptions, reference: Reference): Promise<void> {
@@ -38,7 +38,7 @@ export async function unpin(requestOptions: BeeRequestOptions, reference: Refere
 /**
  * Get pin status for specific address.
  *
- * @param ky Ky instance
+ * @param requestOptions Options for making requests
  * @param reference
  * @throws Error if given address is not pinned
  */
@@ -55,7 +55,7 @@ export async function getPin(requestOptions: BeeRequestOptions, reference: Refer
 /**
  * Get list of all pins
  *
- * @param ky Ky instance
+ * @param requestOptions Options for making requests
  */
 export async function getAllPins(requestOptions: BeeRequestOptions): Promise<Reference[]> {
   const response = await http<GetAllPinResponse>(requestOptions, {

@@ -3,7 +3,6 @@
  *
  * https://developer.mozilla.org/en-US/docs/Web/API/File
  */
-
 export function isFile(file: unknown): file is File {
   // browser
   if (typeof File === 'function') {
