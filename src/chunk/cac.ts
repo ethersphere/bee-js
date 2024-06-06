@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { BrandedType, PlainBytesReference } from '../types'
 import { BeeError } from '../utils/error'
 import { bmtHash } from './bmt'
@@ -27,6 +28,9 @@ export interface Chunk {
 
   address(): PlainBytesReference
 }
+
+/** Define root chunk as parameter by the user */
+export interface ChunkParam { chunkPayload: Uint8Array; chunkSpan: Bytes<8> }
 
 type ValidChunkData = BrandedType<Uint8Array, 'ValidChunkData'>
 

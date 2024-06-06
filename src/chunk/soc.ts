@@ -9,7 +9,14 @@ import { keccak256Hash } from '../utils/hash'
 import { bytesToHex } from '../utils/hex'
 import { assertAddress } from '../utils/type'
 import { bmtHash } from './bmt'
-import { assertValidChunkData, Chunk, makeContentAddressedChunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE } from './cac'
+import {
+  assertValidChunkData,
+  Chunk,
+  ChunkParam,
+  makeContentAddressedChunk,
+  MAX_PAYLOAD_SIZE,
+  MIN_PAYLOAD_SIZE,
+} from './cac'
 import { serializeBytes } from './serialize'
 import { recoverAddress, sign } from './signer'
 import { SPAN_SIZE } from './span'
@@ -155,7 +162,7 @@ export async function uploadSingleOwnerChunkData(
   signer: Signer,
   postageBatchId: BatchId | string,
   identifier: Identifier,
-  payload: Uint8Array | { chunkPayload: Uint8Array; chunkSpan: Bytes<8> },
+  payload: Uint8Array | ChunkParam,
   options?: UploadOptions,
 ): Promise<Reference> {
   assertAddress(postageBatchId)
