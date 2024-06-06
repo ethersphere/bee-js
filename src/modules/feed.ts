@@ -107,7 +107,7 @@ function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeade
  * @param topic           Topic in hex
  * @param options         Additional options, like index, at, type
  */
-export async function fetchFeedUpdate(
+export async function fetchLatestFeedUpdate(
   requestOptions: BeeRequestOptions,
   owner: HexEthAddress,
   topic: Topic,

@@ -1,11 +1,12 @@
 import { uploadSingleOwnerChunkData } from '../chunk/soc'
-import { Chunk } from '../chunk/cac'
-import { FeedUpdateOptions, FetchFeedUpdateResponse, fetchFeedUpdate } from '../modules/feed'
+import { ChunkParam } from '../chunk/cac'
+import { FeedUpdateOptions, FetchFeedUpdateResponse, fetchLatestFeedUpdate } from '../modules/feed'
+import * as socAPI from '../modules/soc'
 import {
   Address,
   BatchId,
   BeeRequestOptions,
-  BytesReference,
+  Data,
   FEED_INDEX_HEX_LENGTH,
   FeedReader,
   FeedWriter,
@@ -18,7 +19,7 @@ import {
 import { Bytes, makeBytes } from '../utils/bytes'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
 import { keccak256Hash } from '../utils/hash'
-import { HexString, bytesToHex, makeHexString } from '../utils/hex'
+import { HexString, bytesToHex, hexToBytes, makeHexString } from '../utils/hex'
 import { assertAddress } from '../utils/type'
 import { makeFeedIdentifier } from './identifier'
 import type { FeedType } from './type'
@@ -37,11 +38,6 @@ export type Index = number | Epoch | IndexBytes | string
 
 export interface FeedUploadOptions extends UploadOptions, FeedUpdateOptions {}
 
-export interface FeedUpdate {
-  timestamp: number
-  reference: BytesReference
-}
-
 export async function findNextIndex(
   requestOptions: BeeRequestOptions,
   owner: HexEthAddress,
@@ -49,7 +45,7 @@ export async function findNextIndex(
   options?: FeedUpdateOptions,
 ): Promise<HexString<typeof FEED_INDEX_HEX_LENGTH>> {
   try {
-    const feedUpdate = await fetchFeedUpdate(requestOptions, owner, topic, options)
+    const feedUpdate = await fetchLatestFeedUpdate(requestOptions, owner, topic, options)
 
     return makeHexString(feedUpdate.feedIndexNext, FEED_INDEX_HEX_LENGTH)
   } catch (e: any) {
@@ -64,7 +60,7 @@ export async function updateFeed(
   requestOptions: BeeRequestOptions,
   signer: Signer,
   topic: Topic,
-  payload: Uint8Array | Chunk,
+  payload: Uint8Array | ChunkParam,
   postageBatchId: BatchId,
   options?: FeedUploadOptions,
 ): Promise<Reference> {
@@ -82,6 +78,17 @@ export function getFeedUpdateChunkReference(owner: EthAddress, topic: Topic, ind
   return keccak256Hash(identifier, owner)
 }
 
+export async function downloadFeedUpdate(
+  requestOptions: BeeRequestOptions,
+  owner: EthAddress,
+  topic: Topic,
+  index: Index,
+): Promise<Data> {
+  const identifier = makeFeedIdentifier(topic, index)
+
+  return socAPI.download(requestOptions, bytesToHex(owner), bytesToHex(identifier))
+}
+
 export function makeFeedReader(
   requestOptions: BeeRequestOptions,
   type: FeedType,
@@ -93,7 +100,17 @@ export function makeFeedReader(
     owner,
     topic,
     async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
-      return fetchFeedUpdate(requestOptions, owner, topic, { ...options, type })
+      if (!options?.index && options?.index !== 0) {
+        return fetchLatestFeedUpdate(requestOptions, owner, topic, { ...options, type })
+      }
+
+      const update = await downloadFeedUpdate(requestOptions, hexToBytes(owner), topic, options.index)
+
+      return {
+        data: update,
+        feedIndex: options.index,
+        feedIndexNext: '',
+      }
     },
   }
 }
@@ -104,7 +121,11 @@ export function makeFeedWriter(
   topic: Topic,
   signer: Signer,
 ): FeedWriter {
-  const upload = async (postageBatchId: string | Address, payload: Uint8Array | Chunk, options?: FeedUploadOptions) => {
+  const upload = async (
+    postageBatchId: string | Address,
+    payload: Uint8Array | ChunkParam,
+    options?: FeedUploadOptions,
+  ) => {
     assertAddress(postageBatchId)
 
     return updateFeed(requestOptions, signer, topic, payload, postageBatchId, { ...options, type })

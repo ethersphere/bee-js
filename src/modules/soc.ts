@@ -1,5 +1,14 @@
-import { BatchId, BeeRequestOptions, Reference, ReferenceResponse, UploadOptions } from '../types'
-import { extractUploadHeaders } from '../utils/headers'
+import {
+  BatchId,
+  BeeRequestOptions,
+  Data,
+  DownloadRedundancyOptions,
+  Reference,
+  ReferenceResponse,
+  UploadOptions,
+} from '../types'
+import { wrapBytesWithHelpers } from '../utils/bytes'
+import { extractDownloadHeaders, extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 
 const socEndpoint = 'soc'
@@ -37,4 +46,25 @@ export async function upload(
   })
 
   return response.data.reference
+}
+
+/**
+ * Download data as a byte array
+ *
+ * @param ky
+ * @param hash Bee content reference
+ */
+export async function download(
+  requestOptions: BeeRequestOptions,
+  owner: string,
+  identifier: string,
+  options?: DownloadRedundancyOptions,
+): Promise<Data> {
+  const response = await http<ArrayBuffer>(requestOptions, {
+    responseType: 'arraybuffer',
+    url: `${socEndpoint}/${owner}/${identifier}`,
+    headers: extractDownloadHeaders(options),
+  })
+
+  return wrapBytesWithHelpers(new Uint8Array(response.data))
 }
