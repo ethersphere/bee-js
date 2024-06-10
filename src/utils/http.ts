@@ -30,6 +30,25 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     throw e
   }
 }
+export async function http2<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  try {
+    const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+    maybeRunOnRequestHook(options, requestConfig)
+    const response = await axios(requestConfig)
+    if (Array.isArray(response.data) && response.data.every((element) => typeof element === 'string')) {
+      const array = response.data as string[]
+      response.data = { data: array } as any ;
+    } 
+
+    // TODO: https://github.com/axios/axios/pull/6253
+    return response as AxiosResponse<T>
+  } catch (e: unknown) {
+    if (e instanceof AxiosError) {
+      throw new BeeResponseError(e.message, e.code, e.status, e.response?.status, e.config, e.request, e.response)
+    }
+    throw e
+  }
+}
 
 function maybeRunOnRequestHook(options: BeeRequestOptions, requestConfig: AxiosRequestConfig) {
   if (options.onRequest) {

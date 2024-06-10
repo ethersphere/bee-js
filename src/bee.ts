@@ -42,7 +42,7 @@ import type {
   UploadOptions,
   UploadRedundancyOptions,
   UploadResultWithCid,
-  addGranteesResult,
+  GranteesResult,
   GetGranteesResult,
 } from './types'
 import {
@@ -251,9 +251,8 @@ export class Bee {
     postageBatchId: string | BatchId,
     grantees: string[],
     requestOptions?: BeeRequestOptions,
-  ): Promise<addGranteesResult> {
+  ): Promise<GranteesResult> {
     assertBatchId(postageBatchId)
-
     return bzz.addGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
   }
 
@@ -261,7 +260,18 @@ export class Bee {
     reference: ReferenceOrEns | string,
     requestOptions?: BeeRequestOptions,
   ): Promise<GetGranteesResult> {
-    return bzz.getGrantees(reference, requestOptions ?? {})
+    return bzz.getGrantees(reference, this.getRequestOptionsForCall(requestOptions))
+  }
+
+  async patchGrantees(
+    reference: Reference | string,
+    histrory: Reference | string,
+    postageBatchId: string | BatchId,
+    grantees: string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    assertBatchId(postageBatchId)
+    return bzz.patchGrantees(reference, histrory, postageBatchId, grantees, this.getRequestOptionsForCall(requestOptions))
   }
 
   /**

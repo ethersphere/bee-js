@@ -108,7 +108,7 @@ export interface BeeOptions extends BeeRequestOptions {
   signer?: Signer | Uint8Array | string
 }
 
-export interface addGranteesResult {
+export interface GranteesResult {
   status: number
   statusText: string
   ref: Reference
@@ -118,6 +118,7 @@ export interface addGranteesResult {
 export interface GetGranteesResult {
   status: number
   statusText: string
+  data: string[]
 }
 
 export interface UploadResultWithCid extends UploadResult {

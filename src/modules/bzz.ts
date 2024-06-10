@@ -8,18 +8,18 @@ import {
   FileData,
   FileUploadOptions,
   GetGranteesResult,
+  GranteesResult,
   Readable,
   Reference,
   ReferenceOrEns,
   UploadHeaders,
   UploadRedundancyOptions,
   UploadResult,
-  addGranteesResult,
 } from '../types'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
 import { extractDownloadHeaders, extractRedundantUploadHeaders, readFileHeaders } from '../utils/headers'
-import { http } from '../utils/http'
+import { http, http2 } from '../utils/http'
 import { isReadable } from '../utils/stream'
 import { makeTar } from '../utils/tar'
 import { makeTagUid } from '../utils/type'
@@ -28,7 +28,7 @@ const bzzEndpoint = 'bzz'
 const granteeEndpoint = 'grantee'
 
 export async function getGrantees(reference: string, requestOptions: BeeRequestOptions): Promise<GetGranteesResult> {
-  const response = await http<GetGranteesResult>(requestOptions, {
+  const response = await http2<GetGranteesResult>(requestOptions, {
     method: 'get',
     url: `${granteeEndpoint}/${reference}`,
     responseType: 'json',
@@ -37,6 +37,7 @@ export async function getGrantees(reference: string, requestOptions: BeeRequestO
   return {
     status: response.status,
     statusText: response.statusText,
+    data: response.data.data,
   }
 }
 
@@ -44,8 +45,8 @@ export async function addGrantees(
   requestOptions: BeeRequestOptions,
   postageBatchId: BatchId,
   grantees: string[],
-): Promise<addGranteesResult> {
-  const response = await http<addGranteesResult>(requestOptions, {
+): Promise<GranteesResult> {
+  const response = await http<GranteesResult>(requestOptions, {
     method: 'post',
     url: granteeEndpoint,
     data: { grantees: grantees },
@@ -54,7 +55,31 @@ export async function addGrantees(
     },
     responseType: 'json',
   })
+  return {
+    status: response.status,
+    statusText: response.statusText,
+    ref: response.data.ref,
+    historyref: response.data.historyref,
+  }
+}
 
+export async function patchGrantees(
+  reference: string,
+  historyRef: string,
+  postageBatchId: BatchId,
+  grantees: string,
+  requestOptions: BeeRequestOptions,
+): Promise<GranteesResult> {
+  const response = await http<GranteesResult>(requestOptions, {
+    method: 'patch',
+    url: `${granteeEndpoint}/${reference}`,
+    data: grantees,
+    headers: {
+      ...extractRedundantUploadHeaders(postageBatchId),
+      'swarm-act-history-address': historyRef,
+    },
+    responseType: 'json',
+  })
   return {
     status: response.status,
     statusText: response.statusText,
