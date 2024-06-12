@@ -28,25 +28,25 @@ describe('stamp', () => {
     })
   })
   describe('reverse depth', () => {
-    it('sholud return value 21', () => {
+    it('should return value 21', () => {
       expect(Utils.getDepthForCapacity(8)).to.eql(21)
     })
-    it('sholud return value 20', () => {
+    it('should return value 20', () => {
       expect(Utils.getDepthForCapacity(4)).to.eql(20)
     })
-    it('sholud return value 19', () => {
+    it('should return value 19', () => {
       expect(Utils.getDepthForCapacity(2)).to.eql(19)
     })
-    it('sholud return value 18', () => {
+    it('should return value 18', () => {
       expect(Utils.getDepthForCapacity(1)).to.eql(18)
     })
-    it('sholud return value 20 for 2.3', () => {
+    it('should return value 20 for 2.3', () => {
       expect(Utils.getDepthForCapacity(2.3)).to.eql(20)
     })
-    it('sholud return value 18 for 0', () => {
+    it('should return value 18 for 0', () => {
       expect(Utils.getDepthForCapacity(0)).to.eql(18)
     })
-    it('sholud return value 18 for negative value', () => {
+    it('should return value 18 for negative value', () => {
       expect(Utils.getDepthForCapacity(-3)).to.eql(18)
     })
   })
