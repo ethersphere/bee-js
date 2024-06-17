@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.0.1](https://github.com/ethersphere/bee-js/compare/v7.0.0...v7.0.1) (2024-06-17)
+
+
+### Bug Fixes
+
+* floor update feed timestamp ([#923](https://github.com/ethersphere/bee-js/issues/923)) ([7170b47](https://github.com/ethersphere/bee-js/commit/7170b47f0751fc2daf7ee481da8eba8b7fb5de47))
+
 ## [7.0.0](https://github.com/ethersphere/bee-js/compare/v6.9.1...v7.0.0) (2024-06-02)
 
 
