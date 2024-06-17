@@ -79,7 +79,7 @@ export async function updateFeed(
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
   const at = options?.at ?? Date.now() / 1000.0
-  const timestamp = Binary.numberToUint64BE(at)
+  const timestamp = Binary.numberToUint64BE(Math.floor(at))
   const payloadBytes = Binary.concatBytes(timestamp, reference)
 
   return uploadSingleOwnerChunkData(requestOptions, signer, postageBatchId, identifier, payloadBytes, options)
