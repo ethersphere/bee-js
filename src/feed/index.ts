@@ -75,7 +75,7 @@ export async function updateFeed(
   options?: FeedUploadOptions,
 ): Promise<Reference> {
   const ownerHex = makeHexEthAddress(signer.address)
-  const nextIndex = options?.index || (await findNextIndex(requestOptions, ownerHex, topic, options))
+  const nextIndex = options?.index ?? (await findNextIndex(requestOptions, ownerHex, topic, options))
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
   const at = options?.at ?? Date.now() / 1000.0
