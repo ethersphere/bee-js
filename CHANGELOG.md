@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.0.2](https://github.com/ethersphere/bee-js/compare/v7.0.1...v7.0.2) (2024-06-17)
+
+
+### Bug Fixes
+
+* allow falsy feed index ([#925](https://github.com/ethersphere/bee-js/issues/925)) ([4e63889](https://github.com/ethersphere/bee-js/commit/4e638894144ff1eae1f6d095f9022da8a80df9a8))
+
 ## [7.0.1](https://github.com/ethersphere/bee-js/compare/v7.0.0...v7.0.1) (2024-06-17)
 
 
