@@ -1810,7 +1810,7 @@ export class Bee {
   }
 
   private async waitForUsablePostageStamp(id: BatchId, timeout = 240_000): Promise<void> {
-    const TIME_STEP = 2_000
+    const TIME_STEP = 3_000
     for (let time = 0; time < timeout; time += TIME_STEP) {
       try {
         const stamp = await this.getPostageBatch(id)
@@ -1818,13 +1818,7 @@ export class Bee {
         if (stamp.usable) {
           return
         }
-      } catch (error: any) {
-        const message = error?.response?.data?.message || error?.message || ''
-
-        if (!message.includes('batch not usable')) {
-          throw error
-        }
-      }
+      } catch (error: any) {}
 
       await System.sleepMillis(TIME_STEP)
     }
