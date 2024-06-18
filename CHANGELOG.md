@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.0.3](https://github.com/ethersphere/bee-js/compare/v7.0.2...v7.0.3) (2024-06-18)
+
+
+### Bug Fixes
+
+* ignore errors while waiting for stamp ([#927](https://github.com/ethersphere/bee-js/issues/927)) ([ac2092e](https://github.com/ethersphere/bee-js/commit/ac2092e173fe122d66bca77ddb9bbd3be351942a))
+
 ## [7.0.2](https://github.com/ethersphere/bee-js/compare/v7.0.1...v7.0.2) (2024-06-17)
 
 
