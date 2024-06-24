@@ -18,9 +18,6 @@ export interface FeedUpdateOptions {
    */
   at?: number
 
-  /**
-   * Can be 'epoch' or 'sequence' (default: 'sequence')
-   */
   type?: FeedType
 
   /**
@@ -46,7 +43,7 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
 /**
  * Create an initial feed root manifest
  *
- * @param ky Ky instance
+ * @param requestOptions  Options for making requests
  * @param owner           Owner's ethereum address in hex
  * @param topic           Topic in hex
  * @param postageBatchId  Postage BatchId to be used to create the Feed Manifest
@@ -57,13 +54,11 @@ export async function createFeedManifest(
   owner: HexEthAddress,
   topic: Topic,
   postageBatchId: BatchId,
-  options?: CreateFeedOptions,
 ): Promise<Reference> {
   const response = await http<ReferenceResponse>(requestOptions, {
     method: 'post',
     responseType: 'json',
     url: `${feedEndpoint}/${owner}/${topic}`,
-    params: options,
     headers: extractUploadHeaders(postageBatchId),
   })
 
@@ -96,10 +91,10 @@ function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeade
  * the reference it contains along with its index and the
  * index of the subsequent update.
  *
- * @param ky Ky instance
- * @param owner       Owner's ethereum address in hex
- * @param topic       Topic in hex
- * @param options     Additional options, like index, at, type
+ * @param requestOptions Options for making requests
+ * @param owner          Owner's ethereum address in hex
+ * @param topic          Topic in hex
+ * @param options        Additional options, like index, at, type
  */
 export async function fetchLatestFeedUpdate(
   requestOptions: BeeRequestOptions,
@@ -110,7 +105,7 @@ export async function fetchLatestFeedUpdate(
   const response = await http<ReferenceResponse>(requestOptions, {
     responseType: 'json',
     url: `${feedEndpoint}/${owner}/${topic}`,
-    params: options,
+    params: options as any,
   })
 
   return {

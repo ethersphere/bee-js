@@ -1,5 +1,6 @@
-import { BeeArgumentError } from '../utils/error'
+import { Binary } from 'cafe-utility'
 import { Bytes } from '../utils/bytes'
+import { BeeArgumentError } from '../utils/error'
 
 export const SPAN_SIZE = 8
 
@@ -22,12 +23,5 @@ export function makeSpan(length: number): Bytes<8> {
     throw new BeeArgumentError('invalid length (> MAX_SPAN_LENGTH)', length)
   }
 
-  const span = new Uint8Array(SPAN_SIZE)
-  const dataView = new DataView(span.buffer)
-  const littleEndian = true
-  const lengthLower32 = length & 0xffffffff
-
-  dataView.setUint32(0, lengthLower32, littleEndian)
-
-  return span as Bytes<8>
+  return Binary.numberToUint64LE(length) as Bytes<8>
 }

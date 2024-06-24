@@ -3,9 +3,9 @@ import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
 import * as chunkAPI from '../../../src/modules/chunk'
-import { assertBytes, Bytes } from '../../../src/utils/bytes'
-import { bytesToHex, HexString, hexToBytes } from '../../../src/utils/hex'
-import { beeKyOptions, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
+import { Bytes, assertBytes } from '../../../src/utils/bytes'
+import { HexString, bytesToHex, hexToBytes } from '../../../src/utils/hex'
+import { beeKyOptions, getPostageBatch, testIdentity } from '../../utils'
 
 describe('soc', () => {
   const privateKey = hexToBytes(testIdentity.privateKey)
@@ -19,8 +19,6 @@ describe('soc', () => {
     const cac = makeContentAddressedChunk(payload)
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
     const socAddress = bytesToHex(soc.address())
-
-    await tryDeleteChunkFromLocalStorage(socHash)
 
     const response = await uploadSingleOwnerChunk(beeKyOptions(), soc, getPostageBatch())
 

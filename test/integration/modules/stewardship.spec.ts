@@ -8,7 +8,7 @@ const BEE_KY_OPTIONS = beeKyOptions()
 describe('modules/stewardship', () => {
   describe('collections', () => {
     it('should reupload directory', async function () {
-      const directoryStructure: Collection<Uint8Array> = [
+      const directoryStructure: Collection = [
         {
           path: '0',
           data: Uint8Array.from([0]),

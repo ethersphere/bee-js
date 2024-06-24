@@ -1,6 +1,8 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Objects, Strings } from 'cafe-utility'
 import { BeeRequestOptions, BeeResponseError } from '../index'
+
+const { AxiosError } = axios
 
 export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
   headers: {
@@ -21,30 +23,17 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     maybeRunOnRequestHook(options, requestConfig)
     const response = await axios(requestConfig)
 
-    // TODO: https://github.com/axios/axios/pull/6253
-    return response as AxiosResponse<T>
-  } catch (e: unknown) {
-    if (e instanceof AxiosError) {
-      throw new BeeResponseError(e.message, e.code, e.status, e.response?.status, e.config, e.request, e.response)
-    }
-    throw e
-  }
-}
-export async function http2<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-  try {
-    const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
-    maybeRunOnRequestHook(options, requestConfig)
-    const response = await axios(requestConfig)
-    if (Array.isArray(response.data) && response.data.every((element) => typeof element === 'string')) {
+    // Axios does not parse array of strings as JSON
+    if (Array.isArray(response.data) && response.data.every(element => typeof element === 'string')) {
       const array = response.data as string[]
-      response.data = { data: array } as any ;
-    } 
+      response.data = { data: array } as any
+    }
 
     // TODO: https://github.com/axios/axios/pull/6253
     return response as AxiosResponse<T>
   } catch (e: unknown) {
     if (e instanceof AxiosError) {
-      throw new BeeResponseError(e.message, e.code, e.status, e.response?.status, e.config, e.request, e.response)
+      throw new BeeResponseError(e.message, e.status, e.code)
     }
     throw e
   }

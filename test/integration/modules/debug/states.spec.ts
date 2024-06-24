@@ -1,14 +1,14 @@
 import { expect } from 'chai'
 import * as states from '../../../../src/modules/debug/states'
-import { beeDebugKyOptions, commonMatchers } from '../../../utils'
+import { beeKyOptions, commonMatchers } from '../../../utils'
 
-const BEE_DEBUG_URL = beeDebugKyOptions()
+const BEE_URL = beeKyOptions()
 commonMatchers()
 
 describe('modules/states', () => {
   describe('chainstate', () => {
     it('should fetch the chainstate', async function () {
-      const state = await states.getChainState(BEE_DEBUG_URL)
+      const state = await states.getChainState(BEE_URL)
 
       expect(state).to.have.property('block')
       expect(state).to.have.property('totalAmount')
@@ -20,7 +20,7 @@ describe('modules/states', () => {
   })
   describe('ReserveState', () => {
     it('should fetch the reserve state', async function () {
-      const state = await states.getReserveState(BEE_DEBUG_URL)
+      const state = await states.getReserveState(BEE_URL)
       expect(state).to.have.property('commitment')
       expect(state).to.have.property('radius')
       expect(state).to.have.property('storageRadius')

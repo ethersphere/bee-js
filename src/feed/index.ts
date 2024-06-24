@@ -1,4 +1,4 @@
-import { serializeBytes } from '../chunk/serialize'
+import { Binary } from 'cafe-utility'
 import { makeSingleOwnerChunkFromData, uploadSingleOwnerChunkData } from '../chunk/soc'
 import * as chunkAPI from '../modules/chunk'
 import { FeedUpdateOptions, FetchFeedUpdateResponse, fetchLatestFeedUpdate } from '../modules/feed'
@@ -22,7 +22,6 @@ import { keccak256Hash } from '../utils/hash'
 import { HexString, bytesToHex, hexToBytes, makeHexString } from '../utils/hex'
 import { makeBytesReference } from '../utils/reference'
 import { assertAddress } from '../utils/type'
-import { readUint64BigEndian, writeUint64BigEndian } from '../utils/uint64'
 import { makeFeedIdentifier } from './identifier'
 import type { FeedType } from './type'
 
@@ -76,12 +75,12 @@ export async function updateFeed(
   options?: FeedUploadOptions,
 ): Promise<Reference> {
   const ownerHex = makeHexEthAddress(signer.address)
-  const nextIndex = options?.index || (await findNextIndex(requestOptions, ownerHex, topic, options))
+  const nextIndex = options?.index ?? (await findNextIndex(requestOptions, ownerHex, topic, options))
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
   const at = options?.at ?? Date.now() / 1000.0
-  const timestamp = writeUint64BigEndian(at)
-  const payloadBytes = serializeBytes(timestamp, reference)
+  const timestamp = Binary.numberToUint64BE(Math.floor(at))
+  const payloadBytes = Binary.concatBytes(timestamp, reference)
 
   return uploadSingleOwnerChunkData(requestOptions, signer, postageBatchId, identifier, payloadBytes, options)
 }
@@ -104,7 +103,7 @@ export async function downloadFeedUpdate(
   const soc = makeSingleOwnerChunkFromData(data, address)
   const payload = soc.payload()
   const timestampBytes = bytesAtOffset(payload, TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
-  const timestamp = readUint64BigEndian(timestampBytes)
+  const timestamp = Binary.uint64BEToNumber(timestampBytes)
   const reference = makeBytesReference(payload, REFERENCE_PAYLOAD_OFFSET)
 
   return {
@@ -125,7 +124,7 @@ export function makeFeedReader(
     topic,
     async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
       if (!options?.index && options?.index !== 0) {
-        return fetchLatestFeedUpdate(requestOptions, owner, topic, { ...options, type })
+        return fetchLatestFeedUpdate(requestOptions, owner, topic)
       }
 
       const update = await downloadFeedUpdate(requestOptions, hexToBytes(owner), topic, options.index)

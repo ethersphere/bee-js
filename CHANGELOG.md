@@ -1,6 +1,45 @@
 # Changelog
 
 
+## [7.0.3](https://github.com/ethersphere/bee-js/compare/v7.0.2...v7.0.3) (2024-06-18)
+
+
+### Bug Fixes
+
+* ignore errors while waiting for stamp ([#927](https://github.com/ethersphere/bee-js/issues/927)) ([ac2092e](https://github.com/ethersphere/bee-js/commit/ac2092e173fe122d66bca77ddb9bbd3be351942a))
+
+## [7.0.2](https://github.com/ethersphere/bee-js/compare/v7.0.1...v7.0.2) (2024-06-17)
+
+
+### Bug Fixes
+
+* allow falsy feed index ([#925](https://github.com/ethersphere/bee-js/issues/925)) ([4e63889](https://github.com/ethersphere/bee-js/commit/4e638894144ff1eae1f6d095f9022da8a80df9a8))
+
+## [7.0.1](https://github.com/ethersphere/bee-js/compare/v7.0.0...v7.0.1) (2024-06-17)
+
+
+### Bug Fixes
+
+* floor update feed timestamp ([#923](https://github.com/ethersphere/bee-js/issues/923)) ([7170b47](https://github.com/ethersphere/bee-js/commit/7170b47f0751fc2daf7ee481da8eba8b7fb5de47))
+
+## [7.0.0](https://github.com/ethersphere/bee-js/compare/v6.9.1...v7.0.0) (2024-06-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* merge api ([#920](https://github.com/ethersphere/bee-js/issues/920))
+
+### Features
+
+* merge api ([#920](https://github.com/ethersphere/bee-js/issues/920)) ([a7b68be](https://github.com/ethersphere/bee-js/commit/a7b68be04b859832c5a003cc95ab9ed598acb456))
+
+## [6.9.1](https://github.com/ethersphere/bee-js/compare/v6.9.0...v6.9.1) (2024-04-24)
+
+
+### Bug Fixes
+
+* add index param to feed writer ([#905](https://github.com/ethersphere/bee-js/issues/905)) ([077dcb7](https://github.com/ethersphere/bee-js/commit/077dcb7914399abbd9dab47aaf1e3eb9dceaffa3))
+
 ## [6.9.0](https://github.com/ethersphere/bee-js/compare/v6.8.1...v6.9.0) (2024-03-27)
 
 

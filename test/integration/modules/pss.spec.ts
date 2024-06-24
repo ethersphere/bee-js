@@ -2,21 +2,19 @@ import { expect } from 'chai'
 import * as connectivity from '../../../src/modules/debug/connectivity'
 import * as pss from '../../../src/modules/pss'
 import {
-  beeDebugKyOptions,
   beeKyOptions,
-  beePeerDebugUrl,
   beePeerKyOptions,
+  beePeerUrl,
   beeUrl,
   getPostageBatch,
   makeTestTarget,
   PSS_TIMEOUT,
 } from '../../utils'
 
-const BEE_KY_OPTIONS = beeKyOptions()
+const BEE_KY = beeKyOptions()
 const BEE_URL = beeUrl()
 const BEE_PEER_KY = beePeerKyOptions()
-const BEE_DEBUG_KY = beeDebugKyOptions()
-const BEE_DEBUG_PEER_URL = beePeerDebugUrl()
+const BEE_PEER_URL = beePeerUrl()
 
 // these tests only work when there is at least one peer connected
 describe('modules/pss', () => {
@@ -26,11 +24,11 @@ describe('modules/pss', () => {
     const topic = 'send-pss-message'
     const message = 'hello'
 
-    const peers = await connectivity.getPeers(BEE_DEBUG_KY)
+    const peers = await connectivity.getPeers(BEE_KY)
     expect(peers.length).above(0)
 
     const target = peers[0].address
-    await pss.send(BEE_KY_OPTIONS, topic, makeTestTarget(target), message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
+    await pss.send(BEE_KY, topic, makeTestTarget(target), message, getPostageBatch()) // Nothing is asserted as nothing is returned, will throw error if something is wrong
   })
 
   it('should send and receive PSS message', async function () {
@@ -54,9 +52,9 @@ describe('modules/pss', () => {
           resolve()
         }
 
-        const addresses = await connectivity.getNodeAddresses(BEE_DEBUG_KY)
+        const addresses = await connectivity.getNodeAddresses(BEE_KY)
         const target = addresses.overlay
-        await pss.send(BEE_PEER_KY, topic, makeTestTarget(target), message, getPostageBatch(BEE_DEBUG_PEER_URL))
+        await pss.send(BEE_PEER_KY, topic, makeTestTarget(target), message, getPostageBatch(BEE_PEER_URL))
       })().catch(reject)
     })
   })
@@ -83,17 +81,10 @@ describe('modules/pss', () => {
           resolve()
         }
 
-        const addresses = await connectivity.getNodeAddresses(BEE_DEBUG_KY)
+        const addresses = await connectivity.getNodeAddresses(BEE_KY)
         const target = addresses.overlay
         const recipient = addresses.pssPublicKey
-        await pss.send(
-          BEE_PEER_KY,
-          topic,
-          makeTestTarget(target),
-          message,
-          getPostageBatch(BEE_DEBUG_PEER_URL),
-          recipient,
-        )
+        await pss.send(BEE_PEER_KY, topic, makeTestTarget(target), message, getPostageBatch(BEE_PEER_URL), recipient)
       })().catch(reject)
     })
   })

@@ -1,20 +1,10 @@
 import { System } from 'cafe-utility'
 import { Readable } from 'stream'
-import { ReadableStream as ReadableStreamPolyfill } from 'web-streams-polyfill'
 
-import { deleteChunkFromLocalStorage } from '../src/modules/debug/chunk'
 import * as stamps from '../src/modules/debug/stamps'
-import type {
-  Address,
-  BatchId,
-  BeeGenericResponse,
-  BeeRequestOptions,
-  PlainBytesReference,
-  PostageBatch,
-  Reference,
-} from '../src/types'
-import { assertBytes } from '../src/utils/bytes'
-import { bytesToHex, HexString } from '../src/utils/hex'
+import type { Address, BatchId, BeeGenericResponse, BeeRequestOptions, PostageBatch, Reference } from '../src/types'
+import { HexString } from '../src/utils/hex'
+import { http } from '../src/utils/http'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -128,24 +118,6 @@ export function createRandomNodeReadable(totalSize: number, chunkSize = 1000): R
   return stream
 }
 
-export function createReadableStream(iterable: Iterable<Uint8Array>): ReadableStream {
-  const iter = iterable[Symbol.iterator]()
-
-  return new ReadableStreamPolyfill({
-    async pull(controller) {
-      const result = iter.next()
-
-      if (result.done) {
-        controller.close()
-
-        return
-      }
-
-      controller.enqueue(result.value)
-    },
-  }) as ReadableStream
-}
-
 /**
  * Lehmer random number generator with seed (minstd_rand in C++11)
  * !!! Very fast but not well distributed pseudo-random function !!!
@@ -187,6 +159,28 @@ export function beeKyOptions(): BeeRequestOptions {
 }
 
 /**
+ * Creates BeeRequestOptions object with additional headers for swarm-act.
+ *
+ * @param publicKey - The public key of the publisher.
+ * @param historyAddress - The history address.
+ * @param timeStamp - The timestamp.
+ * @returns The BeeRequestOptions object with swarm-act headers.
+ */
+export function actBeeKyOptions(
+  publicKey: string,
+  historyAddress: string,
+  timeStamp: string): BeeRequestOptions {
+  var reqOpt = beeKyOptions()
+    reqOpt.headers = {
+        'swarm-act': 'true',
+        'swarm-act-publisher': publicKey,
+        'swarm-act-history-address': historyAddress,
+        'swarm-act-timestamp': timeStamp,
+    }
+    return reqOpt
+}
+
+/**
  * Returns a url of another peer for testing the Bee public API
  */
 export function beePeerUrl(): string {
@@ -202,69 +196,24 @@ export function beePeerKyOptions(): BeeRequestOptions {
  * There is semaphore mechanism that allows only creation of one batch across all the
  * parallel running tests that have to wait until it is created.
  */
-export function getPostageBatch(url = beeDebugUrl()): BatchId {
+export function getPostageBatch(url = beeUrl()): BatchId {
   let stamp: BatchId
 
   switch (url) {
-    case beeDebugUrl():
+    case beeUrl():
       stamp = process.env.BEE_POSTAGE as BatchId
       break
-    case beePeerDebugUrl():
+    case beePeerUrl():
       stamp = process.env.BEE_PEER_POSTAGE as BatchId
       break
     default:
       throw new Error('Unknown URL ' + url)
   }
-
   if (!stamp) {
     throw new Error('There is no postage stamp configured for URL ' + url)
   }
 
   return stamp
-}
-
-/**
- * Returns a url for testing the Bee Debug API
- */
-export function beeDebugUrl(): string {
-  return process.env.BEE_DEBUG_API_URL || 'http://127.0.0.1:1635'
-}
-
-export function beeDebugKyOptions(): BeeRequestOptions {
-  return { baseURL: beeDebugUrl(), timeout: false }
-}
-
-/**
- * Returns a url for testing the Bee Debug API
- */
-export function beePeerDebugUrl(): string {
-  return process.env.BEE_PEER_DEBUG_API_URL || 'http://127.0.0.1:11635'
-}
-
-export function beePeerDebugKyOptions(): BeeRequestOptions {
-  return { baseURL: beePeerDebugUrl(), timeout: false }
-}
-
-/**
- * Try to delete a chunk from local storage, ignoring all errors
- *
- * @param address  Swarm address of chunk
- */
-export async function tryDeleteChunkFromLocalStorage(address: string | PlainBytesReference): Promise<void> {
-  if (typeof address !== 'string') {
-    assertBytes(address, 32)
-    address = bytesToHex(address)
-  }
-
-  try {
-    await deleteChunkFromLocalStorage(beeDebugKyOptions(), address)
-  } catch (e: any) {
-    // ignore not found errors
-    if (e?.response?.status === 404) {
-      return
-    }
-    throw e
-  }
 }
 
 /**
@@ -296,7 +245,7 @@ export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 
 
       do {
         await System.sleepMillis(pollingInterval)
-        stamp = await stamps.getPostageBatch(beeDebugKyOptions(), batchId as BatchId)
+        stamp = await stamps.getPostageBatch(beeKyOptions(), batchId as BatchId)
       } while (!stamp.usable)
     },
   ])
@@ -320,18 +269,18 @@ export async function getOrCreatePostageBatch(
   immutable?: boolean,
 ): Promise<PostageBatch> {
   // Non-usable stamps are ignored by Bee
-  const allUsableStamps = (await stamps.getAllPostageBatches(beeDebugKyOptions())).filter(stamp => stamp.usable)
+  const allUsableStamps = (await stamps.getAllPostageBatches(beeKyOptions())).filter(stamp => stamp.usable)
 
   if (allUsableStamps.length === 0) {
     const batchId = await stamps.createPostageBatch(
-      beeDebugKyOptions(),
+      beeKyOptions(),
       amount ?? DEFAULT_BATCH_AMOUNT,
       depth ?? DEFAULT_BATCH_DEPTH,
     )
 
     await waitForBatchToBeUsable(batchId)
 
-    return stamps.getPostageBatch(beeDebugKyOptions(), batchId)
+    return stamps.getPostageBatch(beeKyOptions(), batchId)
   }
 
   // User does not want any specific batch, lets give him the first one
@@ -364,14 +313,14 @@ export async function getOrCreatePostageBatch(
 
   // No stamp meeting the criteria was found ==> we need to create a new one
   const batchId = await stamps.createPostageBatch(
-    beeDebugKyOptions(),
+    beeKyOptions(),
     amount ?? DEFAULT_BATCH_AMOUNT,
     depth ?? DEFAULT_BATCH_DEPTH,
   )
 
   await waitForBatchToBeUsable(batchId)
 
-  return stamps.getPostageBatch(beeDebugKyOptions(), batchId)
+  return stamps.getPostageBatch(beeKyOptions(), batchId)
 }
 
 export function makeTestTarget(target: string): string {

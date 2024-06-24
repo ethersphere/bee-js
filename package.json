@@ -1,7 +1,7 @@
 {
-  "name": "@solarpunk/bee-js",
-  "version": "6.9.0",
-  "description": "Javascript client for Bee (This is not the original repo. This is a fork for SolarPunk)",
+  "name": "@ethersphere/bee-js",
+  "version": "7.0.3",
+  "description": "Javascript client for Bee",
   "keywords": [
     "bee",
     "swarm",
@@ -34,6 +34,7 @@
   "types": "dist/types/index.d.ts",
   "browser": {
     "stream": false,
+    "fs": false,
     "./src/utils/data.ts": "./src/utils/data.browser.ts",
     "./dist/cjs/utils/data.js": "./dist/cjs/utils/data.browser.js",
     "./dist/mjs/utils/data.js": "./dist/mjs/utils/data.browser.js",
@@ -60,16 +61,12 @@
   },
   "dependencies": {
     "@ethersphere/swarm-cid": "^0.1.0",
-    "@types/readable-stream": "^2.3.13",
-    "axios": "^0.28.0",
-    "cafe-utility": "^15.0.2",
+    "axios": "^0.28.1",
+    "cafe-utility": "^21.3.1",
     "elliptic": "^6.5.4",
-    "fetch-blob": "2.1.2",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
     "semver": "^7.3.5",
-    "tar-js": "^0.3.0",
-    "web-streams-polyfill": "^4.0.0-beta.3",
     "ws": "^8.7.0"
   },
   "devDependencies": {
@@ -85,8 +82,6 @@
     "@naholyr/cross-env": "^1.0.0",
     "@types/chai": "^4.3.4",
     "@types/chai-as-promised": "^7.1.5",
-    "@types/content-disposition": "^0.5.4",
-    "@types/debug": "^4.1.7",
     "@types/elliptic": "^6.4.14",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.11",
@@ -101,9 +96,7 @@
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
     "chai-parentheses": "^0.0.2",
-    "cross-blob": "^2.0.1",
     "cross-env": "^7.0.3",
-    "debug": "^4.3.4",
     "depcheck": "^1.4.3",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
@@ -122,14 +115,6 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5",
     "webpack": "^5.75.0",
-    "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^5.0.1"
-  },
-  "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0",
-    "beeApiVersion": "4.0.0",
-    "beeDebugApiVersion": "4.0.0",
-    "bee": "1.18.2-759f56f"
   }
 }

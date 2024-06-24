@@ -7,6 +7,15 @@ import { MOCK_SERVER_URL } from '../nock'
 class ShouldHaveFailedError extends Error {}
 
 describe('http', () => {
+  it('should handle json with data for array', async function () {
+    const JSON_RESPONSE = `[1,2,5]`
+
+    nock(MOCK_SERVER_URL).get('/endpoint').reply(200, JSON_RESPONSE)
+    const kyOptions = { baseURL: MOCK_SERVER_URL }
+    const response = await http(kyOptions, { url: 'endpoint', responseType: 'json', method: 'get' })  
+    await expect(response.data).to.eql(JSON.parse(JSON_RESPONSE))
+  })
+
   it('should handle non-json response for 200', async function () {
     const HTML_RESPONSE = `<html><body><h1>Some error!</h1></body></html>`
 

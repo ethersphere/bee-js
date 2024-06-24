@@ -1,3 +1,4 @@
+import { Readable } from 'stream'
 import {
   BatchId,
   BeeRequestOptions,
@@ -9,7 +10,6 @@ import {
   FileUploadOptions,
   GetGranteesResult,
   GranteesResult,
-  Readable,
   Reference,
   ReferenceOrEns,
   UploadHeaders,
@@ -19,16 +19,15 @@ import {
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
 import { extractDownloadHeaders, extractRedundantUploadHeaders, readFileHeaders } from '../utils/headers'
-import { http, http2 } from '../utils/http'
-import { isReadable } from '../utils/stream'
-import { makeTar } from '../utils/tar'
-import { makeTagUid } from '../utils/type'
+import { http } from '../utils/http'
+import { uploadTar } from '../utils/tar-uploader'
+import { isReadable, makeTagUid } from '../utils/type'
 
 const bzzEndpoint = 'bzz'
 const granteeEndpoint = 'grantee'
 
 export async function getGrantees(reference: string, requestOptions: BeeRequestOptions): Promise<GetGranteesResult> {
-  const response = await http2<GetGranteesResult>(requestOptions, {
+  const response = await http<GetGranteesResult>(requestOptions, {
     method: 'get',
     url: `${granteeEndpoint}/${reference}`,
     responseType: 'json',
@@ -55,6 +54,7 @@ export async function addGrantees(
     },
     responseType: 'json',
   })
+
   return {
     status: response.status,
     statusText: response.statusText,
@@ -80,6 +80,7 @@ export async function patchGrantees(
     },
     responseType: 'json',
   })
+
   return {
     status: response.status,
     statusText: response.statusText,
@@ -109,7 +110,7 @@ function extractFileUploadHeaders(
 /**
  * Upload single file
  *
- * @param ky
+ * @param requestOptions Options for making requests
  * @param data Files data
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param name Name that will be attached to the uploaded file. Wraps the data into manifest with set index document.
@@ -150,7 +151,7 @@ export async function uploadFile(
 /**
  * Download single file as a buffer
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
  */
@@ -177,7 +178,7 @@ export async function downloadFile(
 /**
  * Download single file as a readable stream
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param hash Bee file or collection hash
  * @param path If hash is collection then this defines path to a single file in the collection
  */
@@ -205,12 +206,12 @@ export async function downloadFileReadable(
 
 // Collections
 
-interface CollectionUploadHeaders extends UploadHeaders {
+export interface CollectionUploadHeaders extends UploadHeaders {
   'swarm-index-document'?: string
   'swarm-error-document'?: string
 }
 
-function extractCollectionUploadHeaders(
+export function extractCollectionUploadHeaders(
   postageBatchId: BatchId,
   options?: CollectionUploadOptions & UploadRedundancyOptions,
 ): CollectionUploadHeaders & UploadRedundancyOptions {
@@ -229,31 +230,19 @@ function extractCollectionUploadHeaders(
 
 /**
  * Upload collection
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param collection Collection of Uint8Array buffers to upload
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options
  */
 export async function uploadCollection(
   requestOptions: BeeRequestOptions,
-  collection: Collection<Uint8Array>,
+  collection: Collection,
   postageBatchId: BatchId,
   options?: CollectionUploadOptions & UploadRedundancyOptions,
 ): Promise<UploadResult> {
   assertCollection(collection)
-  const tarData = makeTar(collection)
-
-  const response = await http<{ reference: Reference }>(requestOptions, {
-    method: 'post',
-    url: bzzEndpoint,
-    data: tarData,
-    responseType: 'json',
-    headers: {
-      'content-type': 'application/x-tar',
-      'swarm-collection': 'true',
-      ...extractCollectionUploadHeaders(postageBatchId, options),
-    },
-  })
+  const response = await uploadTar(requestOptions, collection, postageBatchId, options)
 
   return {
     reference: response.data.reference,

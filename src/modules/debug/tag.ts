@@ -6,7 +6,7 @@ const endpoint = 'tags'
 /**
  * Retrieve tag with extended information from Bee node
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param uid UID of tag to be retrieved
  */
 export async function retrieveExtendedTag(requestOptions: BeeRequestOptions, uid: number): Promise<ExtendedTag> {

@@ -1,4 +1,3 @@
-import { AxiosAdapter } from 'axios'
 import type { Identifier, SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
 import type { FeedType } from '../feed/type'
@@ -7,10 +6,6 @@ import type { Bytes } from '../utils/bytes'
 import type { BeeError } from '../utils/error'
 import type { EthAddress, HexEthAddress } from '../utils/eth'
 import type { HexString } from '../utils/hex'
-
-import type { Readable as CompatibilityReadable } from 'readable-stream'
-import type { Readable as NativeReadable } from 'stream'
-import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill'
 
 export * from './debug'
 
@@ -36,6 +31,11 @@ export const ENCRYPTED_REFERENCE_BYTES_LENGTH = 64
  * Minimal depth that can be used for creation of postage batch
  */
 export const STAMPS_DEPTH_MIN = 17
+
+/**
+ * Minimal amount that can be used for creation of postage batch
+ */
+export const STAMPS_AMOUNT_MIN = 24000 * 24 * 60 * 12
 
 /**
  * Maximal depth that can be used for creation of postage batch
@@ -76,12 +76,6 @@ export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
 
 /**
- * Type representing Readable stream that abstracts away implementation especially the difference between
- * browser and NodeJS versions as both are supported.
- */
-export type Readable = NativeReadable | CompatibilityReadable | ReadableStream | ReadableStreamPonyfill
-
-/**
  * BatchId is result of keccak256 hash so 64 hex string without prefix.
  */
 export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
@@ -97,7 +91,6 @@ export type BeeRequestOptions = {
   timeout?: number | false
   retry?: number | false
   headers?: Record<string, string>
-  adapter?: AxiosAdapter
   onRequest?: (request: BeeRequest) => void
 }
 
@@ -381,19 +374,17 @@ export interface Data extends Uint8Array {
 /**
  * Object represents a file and some of its metadata in [[Directory]] object.
  */
-export interface CollectionEntry<T> {
-  data: T
-
-  /**
-   *
-   */
+export interface CollectionEntry {
   path: string
+  size: number
+  file?: File
+  fsPath?: string
 }
 
 /**
  * Represents Collections
  */
-export type Collection<T> = Array<CollectionEntry<T>>
+export type Collection = Array<CollectionEntry>
 
 export interface PssSubscription {
   readonly topic: string

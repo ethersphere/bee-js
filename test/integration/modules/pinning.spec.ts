@@ -44,7 +44,7 @@ describe('modules/pin', () => {
   })
 
   describe('should work with collections', () => {
-    const testCollection: Collection<Uint8Array> = [
+    const testCollection: Collection = [
       {
         path: '0',
         data: Uint8Array.from([0]),
