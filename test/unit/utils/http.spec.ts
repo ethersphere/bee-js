@@ -12,7 +12,7 @@ describe('http', () => {
 
     nock(MOCK_SERVER_URL).get('/endpoint').reply(200, JSON_RESPONSE)
     const kyOptions = { baseURL: MOCK_SERVER_URL }
-    const response = await http(kyOptions, { url: 'endpoint', responseType: 'json', method: 'get' })  
+    const response = await http(kyOptions, { url: 'endpoint', responseType: 'json', method: 'get' })
     await expect(response.data).to.eql(JSON.parse(JSON_RESPONSE))
   })
 

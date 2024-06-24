@@ -4,7 +4,6 @@ import { Readable } from 'stream'
 import * as stamps from '../src/modules/debug/stamps'
 import type { Address, BatchId, BeeGenericResponse, BeeRequestOptions, PostageBatch, Reference } from '../src/types'
 import { HexString } from '../src/utils/hex'
-import { http } from '../src/utils/http'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -166,18 +165,16 @@ export function beeKyOptions(): BeeRequestOptions {
  * @param timeStamp - The timestamp.
  * @returns The BeeRequestOptions object with swarm-act headers.
  */
-export function actBeeKyOptions(
-  publicKey: string,
-  historyAddress: string,
-  timeStamp: string): BeeRequestOptions {
-  var reqOpt = beeKyOptions()
-    reqOpt.headers = {
-        'swarm-act': 'true',
-        'swarm-act-publisher': publicKey,
-        'swarm-act-history-address': historyAddress,
-        'swarm-act-timestamp': timeStamp,
-    }
-    return reqOpt
+export function actBeeKyOptions(publicKey: string, historyAddress: string, timeStamp: string): BeeRequestOptions {
+  const reqOpt = beeKyOptions()
+  reqOpt.headers = {
+    'swarm-act': 'true',
+    'swarm-act-publisher': publicKey,
+    'swarm-act-history-address': historyAddress,
+    'swarm-act-timestamp': timeStamp,
+  }
+
+  return reqOpt
 }
 
 /**
@@ -209,6 +206,7 @@ export function getPostageBatch(url = beeUrl()): BatchId {
     default:
       throw new Error('Unknown URL ' + url)
   }
+
   if (!stamp) {
     throw new Error('There is no postage stamp configured for URL ' + url)
   }

@@ -5,29 +5,40 @@ import * as bzz from '../../../src/modules/bzz'
 import * as tag from '../../../src/modules/tag'
 import { BatchId, Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
 import { makeCollectionFromFS } from '../../../src/utils/collection.node'
-import { BIG_FILE_TIMEOUT, actBeeKyOptions, beeKyOptions, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
+import {
+  BIG_FILE_TIMEOUT,
+  actBeeKyOptions,
+  beeKyOptions,
+  getPostageBatch,
+  invalidReference,
+  randomByteArray,
+} from '../../utils'
 import { http } from '../../../src/utils/http'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 
 describe('ACT', () => {
   const data = 'hello act'
-  let publicKey: string;
-  let batchID: BatchId;
+  let publicKey: string
+  let batchID: BatchId
 
   before(async () => {
-    publicKey = (await http<any>(BEE_KY_OPTIONS, {
-    method: 'get',
-    url: 'addresses',
-    responseType: 'json',
-    })).data.publicKey;
+    publicKey = (
+      await http<any>(BEE_KY_OPTIONS, {
+        method: 'get',
+        url: 'addresses',
+        responseType: 'json',
+      })
+    ).data.publicKey
 
-    batchID = (await http<any>(BEE_KY_OPTIONS,  {
-      method: 'post',
-      url: 'stamps/420000000/17',
-      responseType: 'json',
-    })).data.batchID;
-  });
+    batchID = (
+      await http<any>(BEE_KY_OPTIONS, {
+        method: 'post',
+        url: 'stamps/420000000/17',
+        responseType: 'json',
+      })
+    ).data.batchID
+  })
 
   it('should upload with act', async function () {
     const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, 'act-1.txt', { act: true })
@@ -42,16 +53,14 @@ describe('ACT', () => {
     )
   })
 
-  it('should not be able to download with ACT header but with wrong publicKey', async function () { 
+  it('should not be able to download with ACT header but with wrong publicKey', async function () {
     const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, 'act-2.txt', { act: true })
     const requestOptionsBad = actBeeKyOptions(
       '0x1234567890123456789012345678901234567890123456789012345678901234',
       result.history_address,
-      '1'
+      '1',
     )
-    await expect(bzz.downloadFile(BEE_KY_OPTIONS, result.reference)).rejectedWith(
-      'Request failed with status code 404',
-    )
+    await expect(bzz.downloadFile(BEE_KY_OPTIONS, result.reference)).rejectedWith('Request failed with status code 404')
   })
 
   it('should download with ACT and valid publicKey', async function () {
