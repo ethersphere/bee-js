@@ -22,7 +22,7 @@ import { getTopologyShape } from './get-topology'
 import { getWalletShape } from './get-wallet'
 import { getWelcomeMessageShape } from './get-welcome-message'
 
-test('GET /addresses', async () => {
+it('GET /addresses', async () => {
   await testGet('http://localhost:1635/addresses', getAddressesShape)
   await testGet('http://localhost:1635/peers', getPeersShape)
   await testGet('http://localhost:1635/topology', getTopologyShape)
