@@ -21,6 +21,11 @@ describe('ACT', () => {
   const data = 'hello act'
   let publicKey: string
   let batchID: BatchId
+  const grantees =[
+    "02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12e8",
+    "02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12e9",
+    "02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12ee",
+]
 
   before(async () => {
     publicKey = (
@@ -69,6 +74,21 @@ describe('ACT', () => {
     const requestOptionsOK = actBeeKyOptions(publicKey, result.history_address, '1')
     const dFile = await bzz.downloadFile(requestOptionsOK, result.reference, filename)
     expect(Buffer.from(dFile.data).toString()).to.eql(data)
+  })
+
+  it('should upload grantee list', async function () {
+    const response = await bzz.addGrantees(BEE_KY_OPTIONS, batchID, grantees )
+    expect(response.ref).to.have.lengthOf(128)
+    expect(response.historyref).to.have.lengthOf(64)
+  })
+
+  it('should download grantee list', async function () {
+    const response = await bzz.addGrantees(BEE_KY_OPTIONS, batchID, grantees )
+    const list = await bzz.getGrantees(response.ref, BEE_KY_OPTIONS)
+    expect(list.data).to.have.lengthOf(grantees.length)
+    list.data.forEach((element: any, index: number) => {
+      expect(grantees.includes(element)).to.be.true;
+    })
   })
 })
 
