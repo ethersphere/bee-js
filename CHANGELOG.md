@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.0.4](https://github.com/ethersphere/bee-js/compare/v7.0.3...v7.0.4) (2024-07-17)
+
+
+### Bug Fixes
+
+* add chaintip field ([#931](https://github.com/ethersphere/bee-js/issues/931)) ([4a45a56](https://github.com/ethersphere/bee-js/commit/4a45a562c649d90cb6fa3668cd74bf033ca18ad5))
+
 ## [7.0.3](https://github.com/ethersphere/bee-js/compare/v7.0.2...v7.0.3) (2024-06-18)
 
 
