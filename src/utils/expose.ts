@@ -27,6 +27,7 @@ export {
 
 export {
   EthAddress,
+  capitalizeAddressERC55,
   ethToSwarmAddress,
   fromLittleEndian,
   isHexEthAddress,
