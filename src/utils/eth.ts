@@ -25,6 +25,7 @@ export function capitalizeAddressERC55(address: string): string {
       result += address[i].toLowerCase()
     }
   }
+
   return result
 }
 
