@@ -274,6 +274,7 @@ export interface ReserveState {
 
 export interface ChainState {
   block: number
+  chainTip: number
   totalAmount: NumberString
   currentPrice: NumberString
 }

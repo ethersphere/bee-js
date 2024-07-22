@@ -1,6 +1,20 @@
 # Changelog
 
 
+## [7.1.0](https://github.com/ethersphere/bee-js/compare/v7.0.4...v7.1.0) (2024-07-17)
+
+
+### Features
+
+* add capitalizeAddressERC55 function ([#933](https://github.com/ethersphere/bee-js/issues/933)) ([8e06014](https://github.com/ethersphere/bee-js/commit/8e06014fe2be32e6435bdec3fc75c86dbbc77f10))
+
+## [7.0.4](https://github.com/ethersphere/bee-js/compare/v7.0.3...v7.0.4) (2024-07-17)
+
+
+### Bug Fixes
+
+* add chaintip field ([#931](https://github.com/ethersphere/bee-js/issues/931)) ([4a45a56](https://github.com/ethersphere/bee-js/commit/4a45a562c649d90cb6fa3668cd74bf033ca18ad5))
+
 ## [7.0.3](https://github.com/ethersphere/bee-js/compare/v7.0.2...v7.0.3) (2024-06-18)
 
 
