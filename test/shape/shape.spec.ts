@@ -21,6 +21,7 @@ import { getTimesettlementsShape } from './get-timesettlements'
 import { getTopologyShape } from './get-topology'
 import { getWalletShape } from './get-wallet'
 import { getWelcomeMessageShape } from './get-welcome-message'
+import { test } from 'mocha'
 
 test('GET /addresses', async () => {
   await testGet('http://localhost:1635/addresses', getAddressesShape)

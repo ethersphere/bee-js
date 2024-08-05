@@ -81,6 +81,8 @@ import type {
   UploadOptions,
   UploadRedundancyOptions,
   UploadResultWithCid,
+  GranteesResult,
+  GetGranteesResult,
   WalletBalance,
 } from './types'
 import {
@@ -295,6 +297,66 @@ export class Bee {
     assertReferenceOrEns(reference)
 
     return chunk.download(this.getRequestOptionsForCall(options), reference)
+  }
+
+  /**
+   * Adds grantees to a postage batch.
+   *
+   * @param postageBatchId - The ID of the postage batch.
+   * @param grantees - An array of public keys representing the grantees.
+   * @param requestOptions - Optional request options.
+   * @returns A promise that resolves to a `GranteesResult` object.
+   */
+  async addGrantees(
+    postageBatchId: string | BatchId,
+    grantees: string[],
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    assertBatchId(postageBatchId)
+
+    return bzz.addGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
+  }
+
+  /**
+   * Retrieves the grantees for a given reference or ENS name.
+   *
+   * @param reference - The reference.
+   * @param requestOptions - Optional request options.
+   * @returns A promise that resolves to a `GetGranteesResult object.
+   */
+  async getGrantees(
+    reference: ReferenceOrEns | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GetGranteesResult> {
+    return bzz.getGrantees(reference, this.getRequestOptionsForCall(requestOptions))
+  }
+
+  /**
+   * Updates the grantees of a specific reference and history.
+   *
+   * @param reference - The reference.
+   * @param history - The history.
+   * @param postageBatchId - The ID of the postage batch.
+   * @param grantees - The grantees.
+   * @param requestOptions - Optional request options.
+   * @returns A Promise that resolves to to a `GranteesResult` object.
+   */
+  async patchGrantees(
+    reference: Reference | string,
+    histrory: Reference | string,
+    postageBatchId: string | BatchId,
+    grantees: string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    assertBatchId(postageBatchId)
+
+    return bzz.patchGrantees(
+      reference,
+      histrory,
+      postageBatchId,
+      grantees,
+      this.getRequestOptionsForCall(requestOptions),
+    )
   }
 
   /**

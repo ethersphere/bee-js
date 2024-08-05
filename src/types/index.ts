@@ -101,6 +101,19 @@ export interface BeeOptions extends BeeRequestOptions {
   signer?: Signer | Uint8Array | string
 }
 
+export interface GranteesResult {
+  status: number
+  statusText: string
+  ref: Reference
+  historyref: Reference
+}
+
+export interface GetGranteesResult {
+  status: number
+  statusText: string
+  data: string[]
+}
+
 export interface UploadResultWithCid extends UploadResult {
   /**
    * Function that converts the reference into Swarm CIDs
@@ -124,9 +137,19 @@ export interface UploadResult {
    * Automatically created tag's UID.
    */
   tagUid?: number
+
+  /**
+   * History address of the uploaded data with ACT.
+   */
+  history_address: string
 }
 
 export interface UploadOptions {
+  /**
+   * If set to true, an ACT will be created for the uploaded data.
+   *
+   */
+  act?: boolean
   /**
    * Will pin the data locally in the Bee node as well.
    *
@@ -251,6 +274,7 @@ export interface CollectionUploadOptions extends UploadOptions {
 }
 
 export interface UploadHeaders {
+  'swarm-act'?: string
   'swarm-pin'?: string
   'swarm-encrypt'?: string
   'swarm-tag'?: string
