@@ -323,6 +323,10 @@ export interface Pin {
   reference: string
 }
 
+export interface ReferenceInformation {
+  contentLength: number
+}
+
 /**
  * Helper interface that adds utility functions
  * to work more conveniently with bytes in normal
