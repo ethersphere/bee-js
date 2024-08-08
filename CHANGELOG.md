@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.1.1](https://github.com/ethersphere/bee-js/compare/v7.1.0...v7.1.1) (2024-08-08)
+
+
+### Bug Fixes
+
+* correct jsdocs links ([#938](https://github.com/ethersphere/bee-js/issues/938)) ([105909d](https://github.com/ethersphere/bee-js/commit/105909db865ea29be449cba9d1e54c2b479138aa))
+
 ## [7.1.0](https://github.com/ethersphere/bee-js/compare/v7.0.4...v7.1.0) (2024-07-17)
 
 
