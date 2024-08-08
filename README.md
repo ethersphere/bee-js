@@ -15,6 +15,22 @@
 
 > Intended to be used with Bee version 2.1.0.
 
+## Quick start
+
+Start a Swarm project using TypeScript:
+
+```sh
+npm init swarm-app@latest my-dapp node-ts
+```
+
+or using Vite and TypeScript:
+
+```sh
+npm init swarm-app@latest my-dapp vite-tsx
+```
+
+Supported types are `node`, `node-esm`, `node-ts` and `vite-tsx`. Replace `my-dapp` with your project name.
+
 ## Install
 
 ```sh
