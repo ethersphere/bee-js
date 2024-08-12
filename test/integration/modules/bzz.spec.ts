@@ -27,19 +27,30 @@ describe('modules/bzz', () => {
       '02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12e9',
       '02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12ee',
     ]
+    const patchGrantees = {
+      add: [
+        '02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12e8'
+      ],
+      revoke: [
+        '02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12e9',
+        '02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12ee',
+      ]
+    }
+
+    const patchGranteesString = JSON.stringify(patchGrantees);
 
     before(async () => {
       const responsePUBK = await http<{ publicKey: string }>(BEE_KY_OPTIONS, {
-        method: 'get',
-        url: 'addresses',
-        responseType: 'json',
+      method: 'get',
+      url: 'addresses',
+      responseType: 'json',
       })
       publicKey = responsePUBK.data.publicKey
 
       const responseBATCHID = await http<{ batchID: BatchId }>(BEE_KY_OPTIONS, {
-        method: 'post',
-        url: 'stamps/420000000/17',
-        responseType: 'json',
+      method: 'post',
+      url: 'stamps/420000000/17',
+      responseType: 'json',
       })
       batchID = responseBATCHID.data.batchID
     })
@@ -90,6 +101,24 @@ describe('modules/bzz', () => {
       list.data.forEach((element: string, _index: number) => {
         assert.isTrue(grantees.includes(element))
       })
+    })
+
+    it('should patch grantee list', async function () {
+      const filename = 'act-4.txt'
+      const uploadResult = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, filename, { act: true })
+      
+      const createResponse = await bzz.addGrantees(BEE_KY_OPTIONS, batchID, grantees)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const patchResponse = await bzz.patchGrantees(createResponse.ref, uploadResult.history_address, batchID, patchGranteesString, BEE_KY_OPTIONS)
+      const list = await bzz.getGrantees(patchResponse.ref, BEE_KY_OPTIONS)
+
+      expect(list.data).to.have.lengthOf(1)
+      expect(list.data[0]).to.eql(patchGrantees.add[0])
+
+      const requestOptionsOK = actBeeKyOptions(publicKey, patchResponse.historyref, '1')
+      const dFile = await bzz.downloadFile(requestOptionsOK, uploadResult.reference, filename)
+      
+      expect(Buffer.from(dFile.data).toString()).to.eql(data)
     })
   })
 
