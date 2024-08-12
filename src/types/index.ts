@@ -53,7 +53,7 @@ export const FEED_INDEX_HEX_LENGTH = 16
  *
  * Encrypted reference consists of two parts. The reference address itself (like non-encrypted reference) and decryption key.
  *
- * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
+ * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/develop/access-the-swarm/store-with-encryption)
  */
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
 
@@ -155,16 +155,16 @@ export interface UploadOptions {
    *
    * Locally pinned data is possible to reupload to network if it disappear.
    *
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   pin?: boolean
 
   /**
    * Will encrypt the uploaded data and return longer hash which also includes the decryption key.
    *
-   * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/develop/access-the-swarm/store-with-encryption)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    * @see Reference
    */
   encrypt?: boolean
@@ -172,8 +172,8 @@ export interface UploadOptions {
   /**
    * Tags keep track of syncing the data with network. This option allows attach existing Tag UUID to the uploaded data.
    *
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @link Tag
    */
   tag?: number
@@ -243,14 +243,14 @@ export interface FileUploadOptions extends UploadOptions {
   /**
    * Specifies Content-Length for the given data. It is required when uploading with Readable.
    *
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   size?: number
 
   /**
    * Specifies given Content-Type so when loaded in browser the file is correctly represented.
    *
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   contentType?: string
 }
@@ -259,16 +259,16 @@ export interface CollectionUploadOptions extends UploadOptions {
   /**
    * Default file to be returned when the root hash of collection is accessed.
    *
-   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   indexDocument?: string
 
   /**
    * Configure custom error document to be returned when a specified path can not be found in collection.
    *
-   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   errorDocument?: string
 }
@@ -284,7 +284,7 @@ export interface UploadHeaders {
 /**
  * Object that contains infromation about progress of upload of data to network.
  *
- * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+ * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
  */
 export interface Tag {
   /**

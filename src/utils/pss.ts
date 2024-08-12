@@ -5,7 +5,7 @@ import { AddressPrefix, PSS_TARGET_HEX_LENGTH_MAX } from '../types'
  * target that Bee node will except.
  *
  * @param target is a non-prefixed hex string Bee address
- * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
+ * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/develop/tools-and-features/pss)
  */
 export function makeMaxTarget(target: string): AddressPrefix {
   if (typeof target !== 'string') {

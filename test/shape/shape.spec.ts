@@ -37,10 +37,10 @@ test('GET /addresses', async () => {
   await testGet('http://localhost:1635/chainstate', getChainstateShape)
   await testGet('http://localhost:1635/node', getNodeShape)
   await testGet('http://localhost:1635/health', getHealthShape)
-  0 && (await testGet('http://localhost:1635/readiness', getReadinessShape))
+  await testGet('http://localhost:1635/readiness', getReadinessShape)
   await testGet('http://localhost:1635/settlements', getSettlementsShape)
   await testGet('http://localhost:1635/timesettlements', getTimesettlementsShape)
-  0 && (await testGet('http://localhost:1635/redistributionstate', getRedistributionstateShape))
+  await testGet('http://localhost:1635/redistributionstate', getRedistributionstateShape)
   await testGet('http://localhost:1635/wallet', getWalletShape)
   await testGet('http://localhost:1635/stamps', getStampsShape)
   await testGet('http://localhost:1635/batches', getBatchesShape)
@@ -50,6 +50,7 @@ test('GET /addresses', async () => {
 
 async function testGet(url: string, shape: any) {
   const response = await axios.get(url)
+
   if (Array.isArray(response.data)) {
     Types.enforceArrayShape(response.data, shape)
   } else {

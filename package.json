@@ -1,6 +1,6 @@
 {
   "name": "@ethersphere/bee-js",
-  "version": "7.1.0",
+  "version": "7.1.1",
   "description": "Javascript client for Bee",
   "keywords": [
     "bee",
@@ -97,7 +97,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-parentheses": "^0.0.2",
     "cross-env": "^7.0.3",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",

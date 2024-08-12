@@ -192,7 +192,7 @@ export class Bee {
    * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
    * @returns reference is a content hash of the data
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `POST /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes/post)
    */
   async uploadData(
@@ -216,7 +216,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
   async downloadData(reference: ReferenceOrEns | string, options?: BeeRequestOptions): Promise<Data> {
@@ -233,7 +233,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
   async downloadReadableData(
@@ -254,7 +254,7 @@ export class Bee {
    * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
    * @returns reference is a content hash of the data
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `POST /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)
    */
   async uploadChunk(
@@ -289,8 +289,8 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `GET /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1{reference}/get)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `GET /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1{address}/get)
    */
   async downloadChunk(reference: ReferenceOrEns | string, options?: BeeRequestOptions): Promise<Data> {
     assertRequestOptions(options)
@@ -370,9 +370,9 @@ export class Bee {
    * @param name    Optional name of the uploaded file
    * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File/paths/~1bzz/post)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    * @returns reference is a content hash of the file
    */
   async uploadFile(
@@ -436,8 +436,8 @@ export class Bee {
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    * @see Data
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)
    */
   async downloadFile(
     reference: ReferenceCidOrEns | string,
@@ -459,8 +459,8 @@ export class Bee {
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    *
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)
    */
   async downloadReadableFile(
     reference: ReferenceCidOrEns | string,
@@ -485,9 +485,9 @@ export class Bee {
    * @param fileList list of files to be uploaded
    * @param options Additional options like tag, encryption, pinning and request options
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory/)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   async uploadFiles(
     postageBatchId: string | BatchId,
@@ -545,9 +545,9 @@ export class Bee {
    * @param dir the path of the files to be uploaded
    * @param options Additional options like tag, encryption, pinning and request options
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory/)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   async uploadFilesFromDirectory(
     postageBatchId: string | BatchId,
@@ -570,7 +570,7 @@ export class Bee {
    * Create a new Tag which is meant for tracking progres of syncing data across network.
    *
    * @param options Options that affects the request behavior
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `POST /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)
    */
   async createTag(options?: BeeRequestOptions): Promise<Tag> {
@@ -588,7 +588,7 @@ export class Bee {
    * @throws TypeError if limit or offset are not numbers or undefined
    * @throws BeeArgumentError if limit or offset have invalid options
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)
    */
   async getAllTags(options?: AllTagsOptions): Promise<Tag[]> {
@@ -605,7 +605,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if tagUid is in not correct format
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/get)
    *
    */
@@ -625,7 +625,7 @@ export class Bee {
    * @throws TypeError if tagUid is in not correct format
    * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `DELETE /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/delete)
    */
   async deleteTag(tagUid: number | Tag, options?: BeeRequestOptions): Promise<void> {
@@ -648,7 +648,7 @@ export class Bee {
    * @throws TypeError if tagUid is in not correct format
    * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `PATCH /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/patch)
    */
   async updateTag(tagUid: number | Tag, reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
@@ -667,7 +667,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
   async pin(reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
     assertRequestOptions(options)
@@ -683,7 +683,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
   async unpin(reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
     assertRequestOptions(options)
@@ -696,7 +696,7 @@ export class Bee {
    * Get list of all locally pinned references
    *
    * @param options Options that affects the request behavior
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
   async getAllPins(options?: BeeRequestOptions): Promise<Reference[]> {
     assertRequestOptions(options)
@@ -712,7 +712,7 @@ export class Bee {
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    *
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
   async getPin(reference: Reference | string, options?: BeeRequestOptions): Promise<Pin> {
     assertRequestOptions(options)
@@ -827,7 +827,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if `data`, `batchId`, `target` or `recipient` are in invalid format
    *
-   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
+   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/develop/tools-and-features/pss)
    * @see [Bee API reference - `POST /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1send~1{topic}~1{targets}/post)
    */
   async pssSend(
@@ -867,7 +867,7 @@ export class Bee {
    *
    * @returns Subscription to a given topic
    *
-   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
+   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/develop/tools-and-features/pss)
    * @see [Bee API reference - `GET /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1{topic}/get)
    */
   pssSubscribe(topic: string, handler: PssMessageHandler): PssSubscription {
@@ -936,7 +936,7 @@ export class Bee {
    *
    * @returns Message in byte array
    *
-   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
+   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/develop/tools-and-features/pss)
    * @see [Bee API reference - `GET /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1{topic}/get)
    */
   async pssReceive(topic: string, timeoutMsec = 0): Promise<Data> {
@@ -985,7 +985,7 @@ export class Bee {
    * @param owner           Owner's ethereum address in hex or bytes
    * @param options Options that affects the request behavior
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    * @see [Bee API reference - `POST /feeds`](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1{owner}~1{topic}/post)
    */
   async createFeedManifest(
@@ -1020,7 +1020,7 @@ export class Bee {
    * @param owner   Owner's ethereum address in hex or bytes
    * @param options Options that affects the request behavior
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   makeFeedReader(
     type: FeedType,
@@ -1045,7 +1045,7 @@ export class Bee {
    * @param signer  The signer's private key or a Signer instance that can sign data
    * @param options Options that affects the request behavior
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   makeFeedWriter(
     type: FeedType,
@@ -1078,7 +1078,7 @@ export class Bee {
    *
    * @throws BeeError if `options.signer` is not specified nor the default Signer on Bee's instance is specified.
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   async setJsonFeed<T extends AnyJson>(
     postageBatchId: string | BatchId,
@@ -1114,7 +1114,7 @@ export class Bee {
    * @param options.address Ethereum address of owner of the feed that signed it. This option is exclusive with `signer` option.
    * @param options.type Type of Feed
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   async getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
     assertRequestOptions(options, 'JsonFeedOptions')
@@ -1164,7 +1164,7 @@ export class Bee {
    *
    * @param ownerAddress The ethereum address of the owner
    * @param options Options that affects the request behavior
-   * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/dapps-on-swarm/chunk-types#single-owner-chunks)
+   * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/develop/tools-and-features/chunk-types#single-owner-chunks)
    */
   makeSOCReader(ownerAddress: EthAddress | Uint8Array | string, options?: BeeRequestOptions): SOCReader {
     assertRequestOptions(options)
@@ -1181,7 +1181,7 @@ export class Bee {
    *
    * @param signer The signer's private key or a Signer instance that can sign data
    * @param options Options that affects the request behavior
-   * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/dapps-on-swarm/chunk-types#single-owner-chunks)
+   * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/develop/tools-and-features/chunk-types#single-owner-chunks)
    */
   makeSOCWriter(signer?: Signer | Uint8Array | string, options?: BeeRequestOptions): SOCWriter {
     assertRequestOptions(options)
@@ -1244,7 +1244,7 @@ export class Bee {
    * @param tagUid UID or tag object to be retrieved
    * @throws TypeError if tagUid is in not correct format
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/debug-api/#tag/Tag)
    *
    */
@@ -1626,7 +1626,7 @@ export class Bee {
    * Creates new postage batch from the funds that the node has available in its Ethereum account.
    *
    * For better understanding what each parameter means and what are the optimal values please see
-   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction#keep-your-data-alive).
    *
    * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
    *
@@ -1636,7 +1636,7 @@ export class Bee {
    * @throws BeeArgumentError when negative amount or depth is specified
    * @throws TypeError if non-integer value is passed to amount or depth
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `POST /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{amount}~1{depth}/post)
    */
   async createPostageBatch(
@@ -1674,7 +1674,7 @@ export class Bee {
    * Topup a fresh amount of BZZ to given Postage Batch.
    *
    * For better understanding what each parameter means and what are the optimal values please see
-   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive).
    *
    * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
    *
@@ -1682,7 +1682,7 @@ export class Bee {
    * @param amount Amount to be added to the batch
    * @param options Request options
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{id}~1{amount}/patch)
    */
   async topUpBatch(postageBatchId: BatchId | string, amount: NumberString, options?: BeeRequestOptions): Promise<void> {
@@ -1698,7 +1698,7 @@ export class Bee {
    * the Postage Batch to be used for more chunks.
    *
    * For better understanding what each parameter means and what are the optimal values please see
-   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive).
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive).
    *
    * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
    *
@@ -1706,7 +1706,7 @@ export class Bee {
    * @param depth Amount to be added to the batch
    * @param options Request options
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{id}~1{amount}/patch)
    */
   async diluteBatch(postageBatchId: BatchId | string, depth: number, options?: BeeRequestOptions): Promise<void> {
@@ -1722,7 +1722,7 @@ export class Bee {
    *
    * @param postageBatchId Batch ID
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
    */
   async getPostageBatch(postageBatchId: BatchId | string, options?: BeeRequestOptions): Promise<PostageBatch> {
@@ -1737,7 +1737,7 @@ export class Bee {
    *
    * @param postageBatchId Batch ID
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}/buckets`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}~1buckets/get)
    */
   async getPostageBatchBuckets(
@@ -1753,7 +1753,7 @@ export class Bee {
   /**
    * Return all postage batches that has the node available.
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps/get)
    */
   async getAllPostageBatch(options?: BeeRequestOptions): Promise<PostageBatch[]> {

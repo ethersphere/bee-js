@@ -4,7 +4,7 @@ import { NumberString, PublicKey, Reference, TransactionHash } from './index'
 /**
  * Object that contains information about progress of upload of data to network.
  *
- * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+ * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
  */
 export interface ExtendedTag {
   /**
@@ -211,14 +211,14 @@ export interface NodeInfo {
   /**
    * Indicates whether the Bee node has its own deployed chequebook.
    *
-   * @see [Bee docs - Chequebook](https://docs.ethswarm.org/docs/introduction/terminology#cheques--chequebook)
+   * @see [Bee docs - Chequebook](https://docs.ethswarm.org/docs/learn/glossary#cheques--chequebook)
    */
   chequebookEnabled: boolean
 
   /**
    * Indicates whether SWAP is enabled for the Bee node.
    *
-   * @see [Bee docs - SWAP](https://docs.ethswarm.org/docs/introduction/terminology#swap)
+   * @see [Bee docs - SWAP](https://docs.ethswarm.org/docs/learn/glossary#swap)
    */
   swapEnabled: boolean
 }
