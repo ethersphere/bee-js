@@ -10,6 +10,7 @@ import { makeTopic, makeTopicFromString } from './feed/topic'
 import { DEFAULT_FEED_TYPE, FeedType, assertFeedType } from './feed/type'
 import * as bytes from './modules/bytes'
 import * as bzz from './modules/bzz'
+import * as grantee from './modules/grantee'
 import * as chunk from './modules/chunk'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
@@ -314,7 +315,7 @@ export class Bee {
   ): Promise<GranteesResult> {
     assertBatchId(postageBatchId)
 
-    return bzz.createGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
+    return grantee.createGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
   }
 
   /**
@@ -328,7 +329,7 @@ export class Bee {
     reference: ReferenceOrEns | string,
     requestOptions?: BeeRequestOptions,
   ): Promise<GetGranteesResult> {
-    return bzz.getGrantees(reference, this.getRequestOptionsForCall(requestOptions))
+    return grantee.getGrantees(reference, this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -350,7 +351,7 @@ export class Bee {
   ): Promise<GranteesResult> {
     assertBatchId(postageBatchId)
 
-    return bzz.patchGrantees(
+    return grantee.patchGrantees(
       reference,
       histrory,
       postageBatchId,
