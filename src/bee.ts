@@ -318,7 +318,7 @@ export class Bee {
   }
 
   /**
-   * Retrieves the grantees for a given reference or ENS name.
+   * Retrieves the grantees for a given reference.
    *
    * @param reference - The reference.
    * @param requestOptions - Optional request options.
