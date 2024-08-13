@@ -301,7 +301,9 @@ export class Bee {
   }
 
   /**
-   * Create grantees for a postage batch.
+   * Create a grantees list from the given array of public keys.
+   *
+   * The grantees list can be obtained with the `getGrantees` method.
    *
    * @param postageBatchId - The ID of the postage batch.
    * @param grantees - An array of public keys representing the grantees.
