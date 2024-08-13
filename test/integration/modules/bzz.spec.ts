@@ -1,3 +1,4 @@
+import { expect } from 'chai'
 import { expect as jestExpect } from 'expect'
 import { Readable } from 'stream'
 import * as bzz from '../../../src/modules/bzz'
