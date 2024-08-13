@@ -40,7 +40,7 @@ export async function getGrantees(reference: string, requestOptions: BeeRequestO
   }
 }
 
-export async function addGrantees(
+export async function createGrantees(
   requestOptions: BeeRequestOptions,
   postageBatchId: BatchId,
   grantees: string[],

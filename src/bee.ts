@@ -300,21 +300,21 @@ export class Bee {
   }
 
   /**
-   * Adds grantees to a postage batch.
+   * Create grantees for a postage batch.
    *
    * @param postageBatchId - The ID of the postage batch.
    * @param grantees - An array of public keys representing the grantees.
    * @param requestOptions - Optional request options.
    * @returns A promise that resolves to a `GranteesResult` object.
    */
-  async addGrantees(
+  async createGrantees(
     postageBatchId: string | BatchId,
     grantees: string[],
     requestOptions?: BeeRequestOptions,
   ): Promise<GranteesResult> {
     assertBatchId(postageBatchId)
 
-    return bzz.addGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
+    return bzz.createGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
   }
 
   /**

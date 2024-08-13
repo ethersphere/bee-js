@@ -87,13 +87,13 @@ describe('modules/bzz', () => {
     })
 
     it('should create grantee list', async function () {
-      const response = await bzz.addGrantees(BEE_KY_OPTIONS, batchID, grantees)
+      const response = await bzz.createGrantees(BEE_KY_OPTIONS, batchID, grantees)
       expect(response.ref).to.have.lengthOf(128)
       expect(response.historyref).to.have.lengthOf(64)
     })
 
     it('should download grantee list', async function () {
-      const response = await bzz.addGrantees(BEE_KY_OPTIONS, batchID, grantees)
+      const response = await bzz.createGrantees(BEE_KY_OPTIONS, batchID, grantees)
       const list = await bzz.getGrantees(response.ref, BEE_KY_OPTIONS)
       expect(list.data).to.have.lengthOf(grantees.length)
       list.data.forEach((element: string, _index: number) => {
@@ -105,7 +105,7 @@ describe('modules/bzz', () => {
       const filename = 'act-4.txt'
       const uploadResult = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, filename, { act: true })
 
-      const createResponse = await bzz.addGrantees(BEE_KY_OPTIONS, batchID, grantees)
+      const createResponse = await bzz.createGrantees(BEE_KY_OPTIONS, batchID, grantees)
       await new Promise(resolve => setTimeout(resolve, 1000))
       const patchResponse = await bzz.patchGrantees(
         createResponse.ref,
