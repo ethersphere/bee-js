@@ -13,10 +13,10 @@ describe('modules/chunk', () => {
     // the hash is hardcoded because we would need the bmt hasher otherwise
     const reference = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
 
-    const response = await chunk.upload(BEE_KY_OPTIONS, data, getPostageBatch())
-    expect(response).to.eql(reference)
+    const uploadResult = await chunk.upload(BEE_KY_OPTIONS, data, getPostageBatch())
+    expect(uploadResult.reference).to.eql(reference)
 
-    const downloadedData = await chunk.download(BEE_KY_OPTIONS, response)
+    const downloadedData = await chunk.download(BEE_KY_OPTIONS, uploadResult.reference)
     expect(downloadedData).to.eql(data)
   })
 

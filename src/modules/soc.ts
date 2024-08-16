@@ -1,6 +1,7 @@
-import { BatchId, BeeRequestOptions, Reference, ReferenceResponse, UploadOptions } from '../types'
+import { BatchId, BeeRequestOptions, ReferenceResponse, UploadOptions, UploadResult } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+import { makeTagUid } from '../utils/type'
 
 const socEndpoint = 'soc'
 
@@ -23,7 +24,7 @@ export async function upload(
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const response = await http<ReferenceResponse>(requestOptions, {
     method: 'post',
     url: `${socEndpoint}/${owner}/${identifier}`,
@@ -36,5 +37,9 @@ export async function upload(
     params: { sig: signature },
   })
 
-  return response.data.reference
+  return {
+    reference: response.data.reference,
+    tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
+    history_address: response.headers['swarm-act-history-address'] || '',
+  }
 }

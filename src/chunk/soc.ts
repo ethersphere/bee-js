@@ -1,7 +1,7 @@
 import { Binary } from 'cafe-utility'
 import * as chunkAPI from '../modules/chunk'
 import * as socAPI from '../modules/soc'
-import { BatchId, BeeRequestOptions, PlainBytesReference, Reference, Signature, Signer, UploadOptions } from '../types'
+import { BatchId, BeeRequestOptions, PlainBytesReference, Reference, Signature, Signer, UploadOptions, UploadResult } from '../types'
 import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { EthAddress } from '../utils/eth'
@@ -130,7 +130,7 @@ export async function uploadSingleOwnerChunk(
   chunk: SingleOwnerChunk,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const owner = bytesToHex(chunk.owner())
   const identifier = bytesToHex(chunk.identifier())
   const signature = bytesToHex(chunk.signature())
@@ -156,7 +156,7 @@ export async function uploadSingleOwnerChunkData(
   identifier: Identifier,
   data: Uint8Array,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   assertAddress(postageBatchId)
   const cac = makeContentAddressedChunk(data)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
