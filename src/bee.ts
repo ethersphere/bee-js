@@ -263,7 +263,7 @@ export class Bee {
     data: Uint8Array,
     options?: UploadOptions,
     requestOptions?: BeeRequestOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
 
     if (!(data instanceof Uint8Array)) {
