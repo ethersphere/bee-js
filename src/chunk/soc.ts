@@ -1,7 +1,15 @@
 import { Binary } from 'cafe-utility'
 import * as chunkAPI from '../modules/chunk'
 import * as socAPI from '../modules/soc'
-import { BatchId, BeeRequestOptions, PlainBytesReference, Reference, Signature, Signer, UploadOptions, UploadResult } from '../types'
+import {
+  BatchId,
+  BeeRequestOptions,
+  PlainBytesReference,
+  Signature,
+  Signer,
+  UploadOptions,
+  UploadResult,
+} from '../types'
 import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { EthAddress } from '../utils/eth'
