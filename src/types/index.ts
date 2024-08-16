@@ -492,13 +492,13 @@ export interface FeedWriter extends FeedReader {
    * @param reference The reference to be stored in the new update
    * @param options   Additional options like `at`
    *
-   * @returns Reference that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
+   * @returns UpdateResult that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
    */
   upload(
     postageBatchId: string | BatchId,
     reference: BytesReference | Reference,
     options?: FeedUploadOptions,
-  ): Promise<Reference>
+  ): Promise<UploadResult>
 }
 
 /**
@@ -530,7 +530,7 @@ export interface SOCWriter extends SOCReader {
     identifier: Identifier,
     data: Uint8Array,
     options?: UploadOptions,
-  ) => Promise<Reference>
+  ) => Promise<UploadResult>
 }
 
 /**

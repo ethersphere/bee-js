@@ -15,6 +15,7 @@ import {
   Signer,
   Topic,
   UploadOptions,
+  UploadResult,
 } from '../types'
 import { Bytes, bytesAtOffset, makeBytes } from '../utils/bytes'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
@@ -73,7 +74,7 @@ export async function updateFeed(
   reference: BytesReference,
   postageBatchId: BatchId,
   options?: FeedUploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const ownerHex = makeHexEthAddress(signer.address)
   const nextIndex = options?.index ?? (await findNextIndex(requestOptions, ownerHex, topic, options))
 

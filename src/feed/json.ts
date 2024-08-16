@@ -6,8 +6,8 @@ import {
   FeedReader,
   FeedWriter,
   JsonFeedOptions,
-  Reference,
   UploadOptions,
+  UploadResult,
 } from '../types'
 import { isError } from '../utils/type'
 
@@ -38,7 +38,7 @@ export async function setJsonData(
   data: AnyJson,
   options?: JsonFeedOptions & UploadOptions,
   requestOptions?: BeeRequestOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const serializedData = serializeJson(data)
   const { reference } = await bee.uploadData(postageBatchId, serializedData, options, requestOptions)
 

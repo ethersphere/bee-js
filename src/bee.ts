@@ -1089,7 +1089,7 @@ export class Bee {
     data: T,
     options?: JsonFeedOptions,
     requestOptions?: BeeRequestOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertRequestOptions(options, 'JsonFeedOptions')
     assertBatchId(postageBatchId)
 
