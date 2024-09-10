@@ -5,7 +5,7 @@ import { TarStream } from './tar'
 export async function writeTar(collection: Collection, tarStream: TarStream) {
   for (const item of collection) {
     if (item.file) {
-      await tarStream.beginFile(item.path, item.file.size)
+      tarStream.beginFile(item.path, item.file.size)
       await tarStream.appendFile(new Uint8Array(await fileArrayBuffer(item.file)))
       await tarStream.endFile()
     } else {
