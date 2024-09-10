@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.1.2](https://github.com/ethersphere/bee-js/compare/v7.1.1...v7.1.2) (2024-09-10)
+
+
+### Bug Fixes
+
+* fix tar padding ([#943](https://github.com/ethersphere/bee-js/issues/943)) ([a40d5ec](https://github.com/ethersphere/bee-js/commit/a40d5ecab2e325353f8dc7a71adda0ab1c8b29a4))
+
 ## [7.1.1](https://github.com/ethersphere/bee-js/compare/v7.1.0...v7.1.1) (2024-08-08)
 
 
