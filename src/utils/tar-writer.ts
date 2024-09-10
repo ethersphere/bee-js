@@ -4,7 +4,7 @@ import { TarStream } from './tar'
 
 export async function writeTar(collection: Collection, tarStream: TarStream) {
   for (const item of collection) {
-    await tarStream.beginFile(item.path, item.size)
+    tarStream.beginFile(item.path, item.size)
 
     if (item.fsPath) {
       const stream = createReadStream(item.fsPath)
