@@ -1,6 +1,17 @@
 # Changelog
 
 
+## [8.0.0](https://github.com/ethersphere/bee-js/compare/v7.1.2...v8.0.0) (2024-09-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* add act ([#942](https://github.com/ethersphere/bee-js/issues/942))
+
+### Features
+
+* add act ([#942](https://github.com/ethersphere/bee-js/issues/942)) ([09f22ee](https://github.com/ethersphere/bee-js/commit/09f22ee1b9cd462c6eb8bbc762ee58fdd1aa961e))
+
 ## [7.1.2](https://github.com/ethersphere/bee-js/compare/v7.1.1...v7.1.2) (2024-09-10)
 
 
