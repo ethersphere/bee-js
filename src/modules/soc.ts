@@ -40,6 +40,6 @@ export async function upload(
   return {
     reference: response.data.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
-    history_address: response.headers['swarm-act-history-address'] || '',
+    historyAddress: response.headers['swarm-act-history-address'] || '',
   }
 }

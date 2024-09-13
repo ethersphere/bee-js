@@ -1,9 +1,9 @@
+import { assert, expect } from 'chai'
+import * as bzz from '../../../src/modules/bzz'
+import * as grantee from '../../../src/modules/grantee'
 import { BatchId } from '../../../src/types'
 import { http } from '../../../src/utils/http'
 import { actBeeKyOptions, beeKyOptions } from '../../utils'
-import * as bzz from '../../../src/modules/bzz'
-import * as grantee from '../../../src/modules/grantee'
-import { assert, expect } from 'chai'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 
@@ -39,7 +39,6 @@ describe('modules/grantee', () => {
     ],
   }
 
-  const patchGranteesString = JSON.stringify(patchGrantees)
   it('should create grantee list', async function () {
     const response = await grantee.createGrantees(BEE_KY_OPTIONS, batchID, grantees)
     expect(response.ref).to.have.lengthOf(128)
@@ -63,10 +62,10 @@ describe('modules/grantee', () => {
     const createResponse = await grantee.createGrantees(BEE_KY_OPTIONS, batchID, grantees)
     await new Promise(resolve => setTimeout(resolve, 1000))
     const patchResponse = await grantee.patchGrantees(
-      createResponse.ref,
-      uploadResult.history_address,
       batchID,
-      patchGranteesString,
+      createResponse.ref,
+      uploadResult.historyAddress,
+      patchGrantees,
       BEE_KY_OPTIONS,
     )
     const list = await grantee.getGrantees(patchResponse.ref, BEE_KY_OPTIONS)

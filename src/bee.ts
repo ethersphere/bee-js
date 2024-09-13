@@ -10,7 +10,6 @@ import { makeTopic, makeTopicFromString } from './feed/topic'
 import { DEFAULT_FEED_TYPE, FeedType, assertFeedType } from './feed/type'
 import * as bytes from './modules/bytes'
 import * as bzz from './modules/bzz'
-import * as grantee from './modules/grantee'
 import * as chunk from './modules/chunk'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
@@ -23,6 +22,7 @@ import * as debugStatus from './modules/debug/status'
 import * as debugTag from './modules/debug/tag'
 import * as transactions from './modules/debug/transactions'
 import { createFeedManifest } from './modules/feed'
+import * as grantee from './modules/grantee'
 import * as pinning from './modules/pinning'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
@@ -49,6 +49,8 @@ import type {
   FeedWriter,
   FileData,
   FileUploadOptions,
+  GetGranteesResult,
+  GranteesResult,
   Health,
   JsonFeedOptions,
   LastCashoutActionResponse,
@@ -82,8 +84,6 @@ import type {
   UploadOptions,
   UploadRedundancyOptions,
   UploadResultWithCid,
-  GranteesResult,
-  GetGranteesResult,
   WalletBalance,
 } from './types'
 import {
@@ -325,7 +325,7 @@ export class Bee {
    *
    * @param reference - The reference.
    * @param requestOptions - Optional request options.
-   * @returns A promise that resolves to a `GetGranteesResult object.
+   * @returns A promise that resolves to a `GetGranteesResult` object.
    */
   async getGrantees(
     reference: ReferenceOrEns | string,
@@ -345,19 +345,19 @@ export class Bee {
    * @returns A Promise that resolves to to a `GranteesResult` object.
    */
   async patchGrantees(
-    reference: Reference | string,
-    histrory: Reference | string,
     postageBatchId: string | BatchId,
-    grantees: string,
+    reference: Reference | string,
+    history: Reference | string,
+    grantees: { add?: string[]; revoke?: string[] },
     requestOptions?: BeeRequestOptions,
   ): Promise<GranteesResult> {
     assertBatchId(postageBatchId)
 
     return grantee.patchGrantees(
-      reference,
-      histrory,
       postageBatchId,
-      grantees,
+      reference,
+      history,
+      { add: grantees.add || [], revoke: grantees.revoke || [] },
       this.getRequestOptionsForCall(requestOptions),
     )
   }
@@ -365,7 +365,7 @@ export class Bee {
   /**
    * Upload single file to a Bee node.
    *
-   * **To make sure that you won't loose critical data it is highly recommended to also
+   * **To make sure that you won't lose critical data it is highly recommended to also
    * locally pin the data with `options.pin = true`**
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with

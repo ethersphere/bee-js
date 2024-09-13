@@ -42,10 +42,10 @@ export async function createGrantees(
 }
 
 export async function patchGrantees(
+  postageBatchId: BatchId,
   reference: string,
   historyRef: string,
-  postageBatchId: BatchId,
-  grantees: string,
+  grantees: { add?: string[]; revoke?: string[] },
   requestOptions: BeeRequestOptions,
 ): Promise<GranteesResult> {
   const response = await http<GranteesResult>(requestOptions, {
