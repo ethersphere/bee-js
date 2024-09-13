@@ -10,6 +10,7 @@ import { makeTopic, makeTopicFromString } from './feed/topic'
 import { DEFAULT_FEED_TYPE, FeedType, assertFeedType } from './feed/type'
 import * as bytes from './modules/bytes'
 import * as bzz from './modules/bzz'
+import * as grantee from './modules/grantee'
 import * as chunk from './modules/chunk'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
@@ -81,6 +82,8 @@ import type {
   UploadOptions,
   UploadRedundancyOptions,
   UploadResultWithCid,
+  GranteesResult,
+  GetGranteesResult,
   WalletBalance,
 } from './types'
 import {
@@ -260,7 +263,7 @@ export class Bee {
     data: Uint8Array,
     options?: UploadOptions,
     requestOptions?: BeeRequestOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
 
     if (!(data instanceof Uint8Array)) {
@@ -295,6 +298,68 @@ export class Bee {
     assertReferenceOrEns(reference)
 
     return chunk.download(this.getRequestOptionsForCall(options), reference)
+  }
+
+  /**
+   * Create a grantees list from the given array of public keys.
+   *
+   * The grantees list can be obtained with the `getGrantees` method.
+   *
+   * @param postageBatchId - The ID of the postage batch.
+   * @param grantees - An array of public keys representing the grantees.
+   * @param requestOptions - Optional request options.
+   * @returns A promise that resolves to a `GranteesResult` object.
+   */
+  async createGrantees(
+    postageBatchId: string | BatchId,
+    grantees: string[],
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    assertBatchId(postageBatchId)
+
+    return grantee.createGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
+  }
+
+  /**
+   * Retrieves the grantees for a given reference.
+   *
+   * @param reference - The reference.
+   * @param requestOptions - Optional request options.
+   * @returns A promise that resolves to a `GetGranteesResult object.
+   */
+  async getGrantees(
+    reference: ReferenceOrEns | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GetGranteesResult> {
+    return grantee.getGrantees(reference, this.getRequestOptionsForCall(requestOptions))
+  }
+
+  /**
+   * Updates the grantees of a specific reference and history.
+   *
+   * @param reference - The reference.
+   * @param history - The history.
+   * @param postageBatchId - The ID of the postage batch.
+   * @param grantees - The grantees.
+   * @param requestOptions - Optional request options.
+   * @returns A Promise that resolves to to a `GranteesResult` object.
+   */
+  async patchGrantees(
+    reference: Reference | string,
+    histrory: Reference | string,
+    postageBatchId: string | BatchId,
+    grantees: string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    assertBatchId(postageBatchId)
+
+    return grantee.patchGrantees(
+      reference,
+      histrory,
+      postageBatchId,
+      grantees,
+      this.getRequestOptionsForCall(requestOptions),
+    )
   }
 
   /**
@@ -1024,7 +1089,7 @@ export class Bee {
     data: T,
     options?: JsonFeedOptions,
     requestOptions?: BeeRequestOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertRequestOptions(options, 'JsonFeedOptions')
     assertBatchId(postageBatchId)
 

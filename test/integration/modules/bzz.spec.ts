@@ -3,13 +3,76 @@ import { expect as jestExpect } from 'expect'
 import { Readable } from 'stream'
 import * as bzz from '../../../src/modules/bzz'
 import * as tag from '../../../src/modules/tag'
-import { Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
+import { BatchId, Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
 import { makeCollectionFromFS } from '../../../src/utils/collection.node'
-import { BIG_FILE_TIMEOUT, beeKyOptions, getPostageBatch, invalidReference, randomByteArray } from '../../utils'
+import {
+  BIG_FILE_TIMEOUT,
+  actBeeKyOptions,
+  beeKyOptions,
+  getPostageBatch,
+  invalidReference,
+  randomByteArray,
+} from '../../utils'
+import { http } from '../../../src/utils/http'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 
 describe('modules/bzz', () => {
+  describe('act', () => {
+    const data = 'hello act'
+    let publicKey: string
+    let batchID: BatchId
+
+    before(async () => {
+      const responsePUBK = await http<{ publicKey: string }>(BEE_KY_OPTIONS, {
+        method: 'get',
+        url: 'addresses',
+        responseType: 'json',
+      })
+      publicKey = responsePUBK.data.publicKey
+
+      const responseBATCHID = await http<{ batchID: BatchId }>(BEE_KY_OPTIONS, {
+        method: 'post',
+        url: 'stamps/420000000/17',
+        responseType: 'json',
+      })
+      batchID = responseBATCHID.data.batchID
+    })
+
+    it('should upload with act', async function () {
+      const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, 'act-1.txt', { act: true })
+      expect(result.reference).to.have.lengthOf(64)
+      expect(result.history_address).to.have.lengthOf(64)
+    })
+
+    it('should not be able to download without ACT header', async function () {
+      const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, 'act-1.txt', { act: true })
+      await expect(bzz.downloadFile(BEE_KY_OPTIONS, result.reference)).to.be.rejectedWith(
+        'Request failed with status code 404',
+      )
+    })
+
+    it('should not be able to download with ACT header but with wrong publicKey', async function () {
+      const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, 'act-2.txt', { act: true })
+      const requestOptionsBad = actBeeKyOptions(
+        '0x1234567890123456789012345678901234567890123456789012345678901234',
+        result.history_address,
+        '1',
+      )
+      await expect(bzz.downloadFile(requestOptionsBad, result.reference)).rejectedWith(
+        'Request failed with status code 400',
+      )
+    })
+
+    it('should download with ACT and valid publicKey', async function () {
+      const filename = 'act-3.txt'
+      const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, filename, { act: true })
+      const requestOptionsOK = actBeeKyOptions(publicKey, result.history_address, '1')
+      const dFile = await bzz.downloadFile(requestOptionsOK, result.reference, filename)
+      expect(Buffer.from(dFile.data).toString()).to.eql(data)
+    })
+  })
+
   describe('collections', () => {
     it('should store and retrieve collection with single file', async function () {
       const directoryStructure: Collection = [

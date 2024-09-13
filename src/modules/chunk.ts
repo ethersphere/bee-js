@@ -2,14 +2,15 @@ import type {
   BatchId,
   BeeRequestOptions,
   Data,
-  Reference,
   ReferenceOrEns,
   ReferenceResponse,
   UploadOptions,
+  UploadResult,
 } from '../types'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+import { makeTagUid } from '../utils/type'
 
 const endpoint = 'chunks'
 
@@ -30,7 +31,7 @@ export async function upload(
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const response = await http<ReferenceResponse>(requestOptions, {
     method: 'post',
     url: `${endpoint}`,
@@ -42,7 +43,11 @@ export async function upload(
     responseType: 'json',
   })
 
-  return response.data.reference
+  return {
+    reference: response.data.reference,
+    tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
+    history_address: response.headers['swarm-act-history-address'] || '',
+  }
 }
 
 /**

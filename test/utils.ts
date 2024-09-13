@@ -158,6 +158,26 @@ export function beeKyOptions(): BeeRequestOptions {
 }
 
 /**
+ * Creates BeeRequestOptions object with additional headers for swarm-act.
+ *
+ * @param publicKey - The public key of the publisher.
+ * @param historyAddress - The history address.
+ * @param timeStamp - The timestamp.
+ * @returns The BeeRequestOptions object with swarm-act headers.
+ */
+export function actBeeKyOptions(publicKey: string, historyAddress: string, timeStamp: string): BeeRequestOptions {
+  const reqOpt = beeKyOptions()
+  reqOpt.headers = {
+    'swarm-act': 'true',
+    'swarm-act-publisher': publicKey,
+    'swarm-act-history-address': historyAddress,
+    'swarm-act-timestamp': timeStamp,
+  }
+
+  return reqOpt
+}
+
+/**
  * Returns a url of another peer for testing the Bee public API
  */
 export function beePeerUrl(): string {
