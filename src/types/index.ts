@@ -141,7 +141,7 @@ export interface UploadResult {
   /**
    * History address of the uploaded data with ACT.
    */
-  history_address: string
+  historyAddress: string
 }
 
 export interface UploadOptions {

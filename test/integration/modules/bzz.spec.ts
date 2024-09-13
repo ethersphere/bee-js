@@ -5,6 +5,7 @@ import * as bzz from '../../../src/modules/bzz'
 import * as tag from '../../../src/modules/tag'
 import { BatchId, Collection, ENCRYPTED_REFERENCE_HEX_LENGTH } from '../../../src/types'
 import { makeCollectionFromFS } from '../../../src/utils/collection.node'
+import { http } from '../../../src/utils/http'
 import {
   BIG_FILE_TIMEOUT,
   actBeeKyOptions,
@@ -13,7 +14,6 @@ import {
   invalidReference,
   randomByteArray,
 } from '../../utils'
-import { http } from '../../../src/utils/http'
 
 const BEE_KY_OPTIONS = beeKyOptions()
 
@@ -42,7 +42,7 @@ describe('modules/bzz', () => {
     it('should upload with act', async function () {
       const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, 'act-1.txt', { act: true })
       expect(result.reference).to.have.lengthOf(64)
-      expect(result.history_address).to.have.lengthOf(64)
+      expect(result.historyAddress).to.have.lengthOf(64)
     })
 
     it('should not be able to download without ACT header', async function () {
@@ -56,7 +56,7 @@ describe('modules/bzz', () => {
       const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, 'act-2.txt', { act: true })
       const requestOptionsBad = actBeeKyOptions(
         '0x1234567890123456789012345678901234567890123456789012345678901234',
-        result.history_address,
+        result.historyAddress,
         '1',
       )
       await expect(bzz.downloadFile(requestOptionsBad, result.reference)).rejectedWith(
@@ -67,7 +67,7 @@ describe('modules/bzz', () => {
     it('should download with ACT and valid publicKey', async function () {
       const filename = 'act-3.txt'
       const result = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, filename, { act: true })
-      const requestOptionsOK = actBeeKyOptions(publicKey, result.history_address, '1')
+      const requestOptionsOK = actBeeKyOptions(publicKey, result.historyAddress, '1')
       const dFile = await bzz.downloadFile(requestOptionsOK, result.reference, filename)
       expect(Buffer.from(dFile.data).toString()).to.eql(data)
     })
