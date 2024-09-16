@@ -25,6 +25,7 @@ export class TarStream {
 
   async endFile() {
     const padding = this.currentFileSize % 512 === 0 ? 0 : 512 - (this.currentFileSize % 512)
+
     if (padding > 0) {
       this.output.write(Buffer.alloc(padding, 0))
     }
