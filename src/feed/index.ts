@@ -18,6 +18,7 @@ import {
   UploadResult,
 } from '../types'
 import { Bytes, bytesAtOffset, makeBytes } from '../utils/bytes'
+import { BeeResponseError } from '../utils/error'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
 import { keccak256Hash } from '../utils/hash'
 import { HexString, bytesToHex, hexToBytes, makeHexString } from '../utils/hex'
@@ -60,7 +61,7 @@ export async function findNextIndex(
 
     return makeHexString(feedUpdate.feedIndexNext, FEED_INDEX_HEX_LENGTH)
   } catch (e: any) {
-    if (e?.response?.status === 404) {
+    if (e instanceof BeeResponseError) {
       return bytesToHex(makeBytes(8))
     }
     throw e
