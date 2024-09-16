@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [8.0.2](https://github.com/ethersphere/bee-js/compare/v8.0.1...v8.0.2) (2024-09-16)
+
+
+### Bug Fixes
+
+* handle bad request in feed index lookup ([#949](https://github.com/ethersphere/bee-js/issues/949)) ([a1730f9](https://github.com/ethersphere/bee-js/commit/a1730f907e90c77caaeb00a8b6306f04fc9e9f19))
+
 ## [8.0.1](https://github.com/ethersphere/bee-js/compare/v8.0.0...v8.0.1) (2024-09-16)
 
 
