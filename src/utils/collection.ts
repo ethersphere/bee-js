@@ -6,7 +6,7 @@ export function isCollection(data: unknown): data is Collection {
     return false
   }
 
-  return data.every(entry => typeof entry === 'object' && entry.path && entry.size)
+  return data.every(entry => typeof entry === 'object' && entry.path && entry.size !== undefined)
 }
 
 export function assertCollection(data: unknown): asserts data is Collection {
