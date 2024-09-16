@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [8.0.1](https://github.com/ethersphere/bee-js/compare/v8.0.0...v8.0.1) (2024-09-16)
+
+
+### Bug Fixes
+
+* allow collection items with zero size ([#947](https://github.com/ethersphere/bee-js/issues/947)) ([e5d9590](https://github.com/ethersphere/bee-js/commit/e5d9590774000acdea29eb1fa5409704e2b26a05))
+
 ## [8.0.0](https://github.com/ethersphere/bee-js/compare/v7.1.2...v8.0.0) (2024-09-13)
 
 
