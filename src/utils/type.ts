@@ -222,10 +222,6 @@ export function assertRequestOptions(value: unknown, name = 'RequestOptions'): a
 
   const options = value as BeeRequestOptions
 
-  if (options.retry) {
-    assertNonNegativeInteger(options.retry, `${name}.retry`)
-  }
-
   if (options.timeout) {
     assertNonNegativeInteger(options.timeout, `${name}.timeout`)
   }

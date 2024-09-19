@@ -35,7 +35,7 @@ async function isChunkRetrievable(bee: Bee, ref: Reference, requestOptions: BeeR
 
     return true
   } catch (e: any) {
-    if (e?.response?.status === 404) {
+    if (e?.status === 404 || e?.status === 500) {
       return false
     }
 

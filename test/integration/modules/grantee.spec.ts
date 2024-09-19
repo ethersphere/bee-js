@@ -1,31 +1,17 @@
-import { assert, expect } from 'chai'
+import { Bee } from '../../../src'
 import * as bzz from '../../../src/modules/bzz'
 import * as grantee from '../../../src/modules/grantee'
-import { BatchId } from '../../../src/types'
-import { http } from '../../../src/utils/http'
-import { actBeeKyOptions, beeKyOptions } from '../../utils'
+import { actBeeKyOptions, beeKyOptions, beeUrl, getPostageBatch } from '../../utils'
 
-const BEE_KY_OPTIONS = beeKyOptions()
+const BEE_REQUEST_OPTIONS = beeKyOptions()
 
 describe('modules/grantee', () => {
   let publicKey: string
-  let batchID: BatchId
 
-  before(async () => {
-    const responsePUBK = await http<{ publicKey: string }>(BEE_KY_OPTIONS, {
-      method: 'get',
-      url: 'addresses',
-      responseType: 'json',
-    })
-    publicKey = responsePUBK.data.publicKey
-
-    const responseBATCHID = await http<{ batchID: BatchId }>(BEE_KY_OPTIONS, {
-      method: 'post',
-      url: 'stamps/420000000/17',
-      responseType: 'json',
-    })
-    batchID = responseBATCHID.data.batchID
+  beforeAll(async () => {
+    publicKey = (await new Bee(beeUrl()).getNodeAddresses()).publicKey
   })
+
   const grantees = [
     '02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12e8',
     '02ceff1422a7026ba54ad89967d81f2805a55eb3d05f64eb5c49ea6024212b12e9',
@@ -40,42 +26,42 @@ describe('modules/grantee', () => {
   }
 
   it('should create grantee list', async function () {
-    const response = await grantee.createGrantees(BEE_KY_OPTIONS, batchID, grantees)
-    expect(response.ref).to.have.lengthOf(128)
-    expect(response.historyref).to.have.lengthOf(64)
+    const response = await grantee.createGrantees(BEE_REQUEST_OPTIONS, getPostageBatch(), grantees)
+    expect(response.ref).toHaveLength(128)
+    expect(response.historyref).toHaveLength(64)
   })
 
   it('should download grantee list', async function () {
-    const response = await grantee.createGrantees(BEE_KY_OPTIONS, batchID, grantees)
-    const list = await grantee.getGrantees(response.ref, BEE_KY_OPTIONS)
-    expect(list.data).to.have.lengthOf(grantees.length)
+    const response = await grantee.createGrantees(BEE_REQUEST_OPTIONS, getPostageBatch(), grantees)
+    const list = await grantee.getGrantees(response.ref, BEE_REQUEST_OPTIONS)
+    expect(list.data).toHaveLength(grantees.length)
     list.data.forEach((element: string, _index: number) => {
-      assert.isTrue(grantees.includes(element))
+      expect(grantees.includes(element)).toBeTruthy()
     })
   })
 
   it('should patch grantee list', async function () {
     const filename = 'act-4.txt'
     const data = 'hello act grantees!'
-    const uploadResult = await bzz.uploadFile(BEE_KY_OPTIONS, data, batchID, filename, { act: true })
+    const uploadResult = await bzz.uploadFile(BEE_REQUEST_OPTIONS, data, getPostageBatch(), filename, { act: true })
 
-    const createResponse = await grantee.createGrantees(BEE_KY_OPTIONS, batchID, grantees)
+    const createResponse = await grantee.createGrantees(BEE_REQUEST_OPTIONS, getPostageBatch(), grantees)
     await new Promise(resolve => setTimeout(resolve, 1000))
     const patchResponse = await grantee.patchGrantees(
-      batchID,
+      getPostageBatch(),
       createResponse.ref,
       uploadResult.historyAddress,
       patchGrantees,
-      BEE_KY_OPTIONS,
+      BEE_REQUEST_OPTIONS,
     )
-    const list = await grantee.getGrantees(patchResponse.ref, BEE_KY_OPTIONS)
+    const list = await grantee.getGrantees(patchResponse.ref, BEE_REQUEST_OPTIONS)
 
-    expect(list.data).to.have.lengthOf(1)
-    expect(list.data[0]).to.eql(patchGrantees.add[0])
+    expect(list.data).toHaveLength(1)
+    expect(list.data[0]).toBe(patchGrantees.add[0])
 
     const requestOptionsOK = actBeeKyOptions(publicKey, patchResponse.historyref, '1')
     const dFile = await bzz.downloadFile(requestOptionsOK, uploadResult.reference, filename)
 
-    expect(Buffer.from(dFile.data).toString()).to.eql(data)
+    expect(Buffer.from(dFile.data).toString()).toBe(data)
   })
 })

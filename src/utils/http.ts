@@ -33,7 +33,14 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     return response as AxiosResponse<T>
   } catch (e: unknown) {
     if (e instanceof AxiosError) {
-      throw new BeeResponseError(e.message, e.status, e.code)
+      throw new BeeResponseError(
+        config.method || 'get',
+        config.url || '<unknown>',
+        e.message,
+        e.response?.data,
+        e.response?.status,
+        e.code,
+      )
     }
     throw e
   }

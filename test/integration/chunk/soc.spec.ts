@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
@@ -22,7 +21,7 @@ describe('soc', () => {
 
     const response = await uploadSingleOwnerChunk(beeKyOptions(), soc, getPostageBatch())
 
-    expect(response).to.eql(socAddress)
+    expect(response.reference).toBe(socAddress)
   })
 
   it('download single owner chunk', async function () {
@@ -32,6 +31,6 @@ describe('soc', () => {
     const soc = makeSingleOwnerChunkFromData(data, address)
     const socAddress = soc.address()
 
-    expect(socAddress).to.eql(address)
+    expect(socAddress).toStrictEqual(address)
   })
 })

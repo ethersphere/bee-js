@@ -1,7 +1,6 @@
 /* eslint @typescript-eslint/no-empty-function: 0 */
 import { NumberString } from '../../../src/types'
 import { isInteger } from '../../../src/utils/type'
-import { expect } from 'chai'
 
 describe('type', () => {
   describe('isInteger', () => {
@@ -21,13 +20,13 @@ describe('type', () => {
 
     wrongValues.forEach((v: unknown | NumberString) =>
       it(`should return false for value  ${v}`, () => {
-        expect(isInteger(v)).to.eql(false)
+        expect(isInteger(v)).toBe(false)
       }),
     )
 
     correctValues.forEach((v: unknown | NumberString) =>
       it(`should return true for value  ${v}`, () => {
-        expect(isInteger(v)).to.eql(true)
+        expect(isInteger(v)).toBe(true)
       }),
     )
   })

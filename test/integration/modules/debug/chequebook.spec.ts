@@ -1,5 +1,4 @@
 import { System } from 'cafe-utility'
-import { expect } from 'chai'
 import {
   depositTokens,
   getChequebookAddress,
@@ -18,21 +17,21 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     it('address', async function () {
       const response = await getChequebookAddress(beeKyOptions())
 
-      expect(isPrefixedHexString(response.chequebookAddress)).to.be.ok()
+      expect(isPrefixedHexString(response.chequebookAddress)).toBeTruthy()
     })
 
     it('balance', async function () {
       const response = await getChequebookBalance(beeKyOptions())
 
-      expect(response.availableBalance).to.be.numberString()
-      expect(response.totalBalance).to.be.numberString()
+      expect(response.availableBalance).toBeNumberString()
+      expect(response.totalBalance).toBeNumberString()
     })
 
     const TRANSACTION_TIMEOUT = 20 * 1000
 
     const withDrawDepositTest = (amount: number | NumberString) => async () => {
       const withdrawResponse = await withdrawTokens(beeKyOptions(), amount)
-      expect(withdrawResponse).a('string')
+      expect(withdrawResponse).toBeInstanceOf(String)
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
@@ -40,7 +39,7 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
 
       const depositResponse = await depositTokens(beeKyOptions(), amount)
 
-      expect(depositResponse).a('string')
+      expect(depositResponse).toBeInstanceOf(String)
 
       // TODO avoid sleep in tests
       // See https://github.com/ethersphere/bee/issues/1191
@@ -48,19 +47,17 @@ if (process.env.BEE_TEST_CHEQUEBOOK) {
     }
 
     it('withdraw and deposit string', async function () {
-      this.timeout(3 * TRANSACTION_TIMEOUT)
       await withDrawDepositTest('5')
     })
 
     it('withdraw and deposit integer', async function () {
-      this.timeout(3 * TRANSACTION_TIMEOUT)
       await withDrawDepositTest(5)
     })
 
     it('get last cheques for all peers', async function () {
       const response = await getLastCheques(beeKyOptions())
 
-      expect(Array.isArray(response.lastcheques)).to.be.ok()
+      expect(Array.isArray(response.lastcheques)).toBeTruthy()
     })
   })
 } else {

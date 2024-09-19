@@ -7,7 +7,7 @@ import { http } from '../../utils/http'
 // Following lines bellow are automatically updated with GitHub Action when Bee version is updated
 // so if you are changing anything about them change the `update_bee` action accordingly!
 export const SUPPORTED_BEE_VERSION_EXACT = '2.2.0-06a0aca7'
-export const SUPPORTED_API_VERSION = '4.0.0'
+export const SUPPORTED_API_VERSION = '7.1.0'
 
 export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.split('-')[0]
 

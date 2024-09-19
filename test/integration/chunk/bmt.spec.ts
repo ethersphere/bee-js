@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import { bmtHash } from '../../../src/chunk/bmt'
 import { makeSpan } from '../../../src/chunk/span'
 import * as chunk from '../../../src/modules/chunk'
@@ -18,7 +17,7 @@ describe('bmt', () => {
 
       const reference = bytesToHex(bmtHash(data))
       const response = await chunk.upload(beeKyOptions(), data, getPostageBatch())
-      expect(response).to.eql(reference)
+      expect(response.reference).toBe(reference)
     }
   })
 
@@ -29,6 +28,6 @@ describe('bmt', () => {
 
     const reference = bytesToHex(bmtHash(data))
     const response = await chunk.upload(beeKyOptions(), data, getPostageBatch())
-    expect(response).to.eql(reference)
+    expect(response.reference).toBe(reference)
   })
 })
