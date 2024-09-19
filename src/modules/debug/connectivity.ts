@@ -9,6 +9,7 @@ export async function getNodeAddresses(requestOptions: BeeRequestOptions): Promi
 
   return response.data
 }
+
 interface Peers {
   peers: Peer[]
 }

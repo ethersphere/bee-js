@@ -6,11 +6,10 @@ import { http } from '../../utils/http'
 
 // Following lines bellow are automatically updated with GitHub Action when Bee version is updated
 // so if you are changing anything about them change the `update_bee` action accordingly!
-export const SUPPORTED_BEE_VERSION_EXACT = '1.18.2-759f56f'
-export const SUPPORTED_API_VERSION = '4.0.0'
-export const SUPPORTED_DEBUG_API_VERSION = '4.0.0'
+export const SUPPORTED_BEE_VERSION_EXACT = '2.2.0-06a0aca7'
+export const SUPPORTED_API_VERSION = '7.1.0'
 
-export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.substring(0, SUPPORTED_BEE_VERSION_EXACT.indexOf('-'))
+export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.split('-')[0]
 
 const NODE_INFO_URL = 'node'
 const STATUS_URL = 'status'
@@ -30,7 +29,7 @@ export async function getDebugStatus(requestOptions: BeeRequestOptions): Promise
 /**
  * Get health of node
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getHealth(requestOptions: BeeRequestOptions): Promise<Health> {
   const response = await http<Health>(requestOptions, {
@@ -45,7 +44,7 @@ export async function getHealth(requestOptions: BeeRequestOptions): Promise<Heal
 /**
  * Get readiness of node
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getReadiness(requestOptions: BeeRequestOptions): Promise<boolean> {
   try {
@@ -63,7 +62,7 @@ export async function getReadiness(requestOptions: BeeRequestOptions): Promise<b
 /**
  * Get information about Bee node
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getNodeInfo(requestOptions: BeeRequestOptions): Promise<NodeInfo> {
   const response = await http<NodeInfo>(requestOptions, {
@@ -78,8 +77,7 @@ export async function getNodeInfo(requestOptions: BeeRequestOptions): Promise<No
 /**
  * Connects to a node and checks if it is a supported Bee version by the bee-js
  *
- * @param kyOptions Ky Options for making requests
- *
+ * @param requestOptions Options for making requests
  * @returns true if the Bee node version is supported
  * @deprecated Use `isSupportedExactVersion` instead
  */
@@ -96,7 +94,7 @@ export async function isSupportedVersion(requestOptions: BeeRequestOptions): Pro
  * `isSupportedApiVersion`, `isSupportedMainApiVersion` or `isSupportedDebugApiVersion`
  * based on your use-case.
  *
- * @param ky
+ * @param requestOptions Options for making requests
  */
 export async function isSupportedExactVersion(requestOptions: BeeRequestOptions): Promise<boolean> {
   const { version } = await getHealth(requestOptions)
@@ -107,10 +105,10 @@ export async function isSupportedExactVersion(requestOptions: BeeRequestOptions)
 /**
  * Connects to a node and checks if its main's API version matches with the one that bee-js supports.
  *
- * This is useful if you are not using `BeeDebug` class (for anything else then this check)
+ * This is useful if you are not using `Bee` class (for anything else then this check)
  * and want to make sure about compatibility.
  *
- * @param ky
+ * @param requestOptions Options for making requests
  */
 export async function isSupportedMainApiVersion(requestOptions: BeeRequestOptions): Promise<boolean> {
   const { apiVersion } = await getHealth(requestOptions)
@@ -119,50 +117,31 @@ export async function isSupportedMainApiVersion(requestOptions: BeeRequestOption
 }
 
 /**
- * Connects to a node and checks if its Debug API version matches with the one that bee-js supports.
- *
- * This is useful if you are not using `Bee` class in your application and want to make sure
- * about compatibility.
- *
- * @param ky
- */
-export async function isSupportedDebugApiVersion(requestOptions: BeeRequestOptions): Promise<boolean> {
-  const { debugApiVersion } = await getHealth(requestOptions)
-
-  return getMajorSemver(debugApiVersion) === getMajorSemver(SUPPORTED_DEBUG_API_VERSION)
-}
-
-/**
- * Connects to a node and checks if its Main and Debug API versions matches with the one that bee-js supports.
+ * Connects to a node and checks if its Main API versions matches with the one that bee-js supports.
  *
  * This should be the main way how to check compatibility for your app and Bee node.
  *
- * @param ky
+ * @param requestOptions Options for making requests
  */
 export async function isSupportedApiVersion(requestOptions: BeeRequestOptions): Promise<boolean> {
-  const { apiVersion, debugApiVersion } = await getHealth(requestOptions)
+  const { apiVersion } = await getHealth(requestOptions)
 
-  return (
-    getMajorSemver(apiVersion) === getMajorSemver(SUPPORTED_API_VERSION) &&
-    getMajorSemver(debugApiVersion) === getMajorSemver(SUPPORTED_DEBUG_API_VERSION)
-  )
+  return getMajorSemver(apiVersion) === getMajorSemver(SUPPORTED_API_VERSION)
 }
 
 /**
  * Returns object with all versions specified by the connected Bee node (properties prefixed with `bee*`)
  * and versions that bee-js supports (properties prefixed with `supported*`).
  *
- * @param ky
+ * @param requestOptions Options for making requests
  */
 export async function getVersions(requestOptions: BeeRequestOptions): Promise<BeeVersions> {
-  const { version, apiVersion, debugApiVersion } = await getHealth(requestOptions)
+  const { version, apiVersion } = await getHealth(requestOptions)
 
   return {
     supportedBeeVersion: SUPPORTED_BEE_VERSION_EXACT,
     supportedBeeApiVersion: SUPPORTED_API_VERSION,
-    supportedBeeDebugApiVersion: SUPPORTED_DEBUG_API_VERSION,
     beeVersion: version,
     beeApiVersion: apiVersion,
-    beeDebugApiVersion: debugApiVersion,
   }
 }

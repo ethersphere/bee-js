@@ -1,10 +1,9 @@
-/* eslint-disable prettier/prettier */
+import { Binary } from 'cafe-utility'
 import { BrandedType, PlainBytesReference } from '../types'
+import { Bytes, FlexBytes, assertFlexBytes, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { bmtHash } from './bmt'
-import { assertFlexBytes, Bytes, bytesEqual, FlexBytes, flexBytesAtOffset } from '../utils/bytes'
-import { serializeBytes } from './serialize'
-import { makeSpan, SPAN_SIZE } from './span'
+import { SPAN_SIZE, makeSpan } from './span'
 
 export const MIN_PAYLOAD_SIZE = 1
 export const MAX_PAYLOAD_SIZE = 4096
@@ -25,12 +24,14 @@ export interface Chunk {
   readonly data: Uint8Array
   span(): Bytes<8>
   payload(): FlexBytes<1, 4096>
-
   address(): PlainBytesReference
 }
 
 /** Define root chunk as parameter by the user */
-export interface ChunkParam { chunkPayload: Uint8Array; chunkSpan: Bytes<8> }
+export interface ChunkParam {
+  chunkPayload: Uint8Array
+  chunkSpan: Bytes<8>
+}
 
 type ValidChunkData = BrandedType<Uint8Array, 'ValidChunkData'>
 
@@ -42,7 +43,7 @@ type ValidChunkData = BrandedType<Uint8Array, 'ValidChunkData'>
 export function makeContentAddressedChunk(payloadBytes: Uint8Array, span?: Uint8Array): Chunk {
   span ||= makeSpan(payloadBytes.length)
   assertFlexBytes(payloadBytes, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE)
-  const data = serializeBytes(span, payloadBytes) as ValidChunkData
+  const data = Binary.concatBytes(span, payloadBytes) as ValidChunkData
 
   return {
     data,

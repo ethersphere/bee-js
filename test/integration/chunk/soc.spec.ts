@@ -1,11 +1,10 @@
-import { expect } from 'chai'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import { makeSingleOwnerChunk, makeSingleOwnerChunkFromData, uploadSingleOwnerChunk } from '../../../src/chunk/soc'
 import * as chunkAPI from '../../../src/modules/chunk'
-import { assertBytes, Bytes } from '../../../src/utils/bytes'
-import { bytesToHex, HexString, hexToBytes } from '../../../src/utils/hex'
-import { beeKyOptions, getPostageBatch, testIdentity, tryDeleteChunkFromLocalStorage } from '../../utils'
+import { Bytes, assertBytes } from '../../../src/utils/bytes'
+import { HexString, bytesToHex, hexToBytes } from '../../../src/utils/hex'
+import { beeKyOptions, getPostageBatch, testIdentity } from '../../utils'
 
 describe('soc', () => {
   const privateKey = hexToBytes(testIdentity.privateKey)
@@ -20,11 +19,9 @@ describe('soc', () => {
     const soc = await makeSingleOwnerChunk(cac, identifier, signer)
     const socAddress = bytesToHex(soc.address())
 
-    await tryDeleteChunkFromLocalStorage(socHash)
-
     const response = await uploadSingleOwnerChunk(beeKyOptions(), soc, getPostageBatch())
 
-    expect(response).to.eql(socAddress)
+    expect(response.reference).toBe(socAddress)
   })
 
   it('download single owner chunk', async function () {
@@ -34,6 +31,6 @@ describe('soc', () => {
     const soc = makeSingleOwnerChunkFromData(data, address)
     const socAddress = soc.address()
 
-    expect(socAddress).to.eql(address)
+    expect(socAddress).toStrictEqual(address)
   })
 })

@@ -3,20 +3,21 @@ import {
   BeeRequestOptions,
   Data,
   DownloadRedundancyOptions,
-  Reference,
   ReferenceResponse,
   UploadOptions,
+  UploadResult,
 } from '../types'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { extractDownloadHeaders, extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+import { makeTagUid } from '../utils/type'
 
 const socEndpoint = 'soc'
 
 /**
  * Upload single owner chunk (SOC) to a Bee node
  *
- * @param ky Ky instance
+ * @param requestOptions  Options for making requests
  * @param owner           Owner's ethereum address in hex
  * @param identifier      Arbitrary identifier in hex
  * @param signature       Signature in hex
@@ -32,7 +33,7 @@ export async function upload(
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const response = await http<ReferenceResponse>(requestOptions, {
     method: 'post',
     url: `${socEndpoint}/${owner}/${identifier}`,
@@ -45,14 +46,18 @@ export async function upload(
     params: { sig: signature },
   })
 
-  return response.data.reference
+  return {
+    reference: response.data.reference,
+    tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
+    historyAddress: response.headers['swarm-act-history-address'] || '',
+  }
 }
 
 /**
  * Download data as a byte array
  *
- * @param ky
- * @param hash Bee content reference
+ * @param requestOptions Options for making requests
+ *
  */
 export async function download(
   requestOptions: BeeRequestOptions,

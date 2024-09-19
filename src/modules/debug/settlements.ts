@@ -6,7 +6,7 @@ const settlementsEndpoint = 'settlements'
 /**
  * Get amount of sent and received from settlements with a peer
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param peer  Swarm address of peer
  */
 export async function getSettlements(requestOptions: BeeRequestOptions, peer: string): Promise<Settlements> {
@@ -21,7 +21,7 @@ export async function getSettlements(requestOptions: BeeRequestOptions, peer: st
 /**
  * Get settlements with all known peers and total amount sent or received
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getAllSettlements(requestOptions: BeeRequestOptions): Promise<AllSettlements> {
   const response = await http<AllSettlements>(requestOptions, {

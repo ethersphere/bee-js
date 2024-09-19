@@ -1,9 +1,8 @@
-import { assertBytes } from '../../../src/utils/bytes'
-import { makeContentAddressedChunk, assertValidChunkData } from '../../../src/chunk/cac'
-import { serializeBytes } from '../../../src/chunk/serialize'
+import { Binary } from 'cafe-utility'
+import { assertValidChunkData, makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { makeSpan } from '../../../src/chunk/span'
-import { hexToBytes, bytesToHex } from '../../../src/utils/hex'
-import { expect } from 'chai'
+import { assertBytes } from '../../../src/utils/bytes'
+import { bytesToHex, hexToBytes } from '../../../src/utils/hex'
 
 describe('cac', () => {
   const payload = new Uint8Array([1, 2, 3])
@@ -13,7 +12,7 @@ describe('cac', () => {
     const cac = makeContentAddressedChunk(payload)
     const address = cac.address()
 
-    expect(bytesToHex(address)).to.eql(contentHash)
+    expect(bytesToHex(address)).toBe(contentHash)
   })
 
   it('content address chunk verification', () => {
@@ -22,9 +21,9 @@ describe('cac', () => {
     const invalidAddress = hexToBytes('ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4335')
     assertBytes(invalidAddress, 32)
 
-    const data = serializeBytes(makeSpan(payload.length), payload)
+    const data = Binary.concatBytes(makeSpan(payload.length), payload)
 
-    expect(() => assertValidChunkData(data, validAddress)).not.to.throw()
-    expect(() => assertValidChunkData(data, invalidAddress)).to.throw()
+    expect(() => assertValidChunkData(data, validAddress)).toBeTruthy()
+    expect(() => assertValidChunkData(data, invalidAddress)).toThrow()
   })
 })

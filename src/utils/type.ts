@@ -1,4 +1,5 @@
 import { decodeCid, encodeReference, ReferenceType } from '@ethersphere/swarm-cid'
+import { Readable } from 'stream'
 import {
   Address,
   ADDRESS_HEX_LENGTH,
@@ -17,7 +18,6 @@ import {
   PssMessageHandler,
   PUBKEY_HEX_LENGTH,
   PublicKey,
-  Readable,
   Reference,
   REFERENCE_HEX_LENGTH,
   ReferenceOrEns,
@@ -31,7 +31,10 @@ import {
 import { BeeArgumentError, BeeError } from './error'
 import { isFile } from './file'
 import { assertHexString, assertPrefixedHexString, isHexString } from './hex'
-import { isReadable } from './stream'
+
+export function isReadable(obj: unknown): obj is Readable {
+  return typeof Readable !== 'undefined' && obj instanceof Readable
+}
 
 export function isUint8Array(obj: unknown): obj is Uint8Array {
   return obj instanceof Uint8Array
@@ -218,10 +221,6 @@ export function assertRequestOptions(value: unknown, name = 'RequestOptions'): a
   }
 
   const options = value as BeeRequestOptions
-
-  if (options.retry) {
-    assertNonNegativeInteger(options.retry, `${name}.retry`)
-  }
 
   if (options.timeout) {
     assertNonNegativeInteger(options.timeout, `${name}.timeout`)

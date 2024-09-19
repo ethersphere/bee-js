@@ -2,7 +2,6 @@
 import Path from 'path'
 import TerserPlugin from 'terser-webpack-plugin'
 import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack'
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 
 interface WebpackEnvParams {
   debug: boolean
@@ -94,7 +93,7 @@ export default async (env?: Partial<WebpackEnvParams>): Promise<Configuration> =
   if (nodeEnv == 'debug') {
     const config = {
       ...(await base(env)),
-      plugins: [new BundleAnalyzerPlugin()],
+      plugins: [],
       profile: true,
     }
 

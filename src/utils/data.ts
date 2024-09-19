@@ -1,11 +1,10 @@
-import BlobPolyfill from 'fetch-blob'
 import type { Data } from 'ws'
 
 function isBufferArray(buffer: unknown): buffer is Buffer[] {
   return Array.isArray(buffer) && buffer.length > 0 && buffer.every(data => data instanceof Buffer)
 }
 
-export async function prepareWebsocketData(data: Data | BlobPolyfill): Promise<Uint8Array> | never {
+export async function prepareWebsocketData(data: Data | Blob): Promise<Uint8Array> | never {
   if (typeof data === 'string') return new TextEncoder().encode(data)
 
   if (data instanceof Buffer) return new Uint8Array(data)

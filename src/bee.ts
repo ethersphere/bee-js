@@ -1,5 +1,6 @@
 import { ReferenceType } from '@ethersphere/swarm-cid'
-import { Objects } from 'cafe-utility'
+import { Objects, System } from 'cafe-utility'
+import { Readable } from 'stream'
 import { makeSigner } from './chunk/signer'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
 import { Index, IndexBytes, makeFeedReader, makeFeedWriter } from './feed'
@@ -10,48 +11,95 @@ import { DEFAULT_FEED_TYPE, FeedType, assertFeedType } from './feed/type'
 import * as bytes from './modules/bytes'
 import * as bzz from './modules/bzz'
 import * as chunk from './modules/chunk'
+import * as balance from './modules/debug/balance'
+import * as chequebook from './modules/debug/chequebook'
+import * as connectivity from './modules/debug/connectivity'
+import * as settlements from './modules/debug/settlements'
+import * as stake from './modules/debug/stake'
+import * as stamps from './modules/debug/stamps'
+import * as states from './modules/debug/states'
+import * as debugStatus from './modules/debug/status'
+import * as debugTag from './modules/debug/tag'
+import * as transactions from './modules/debug/transactions'
 import { createFeedManifest } from './modules/feed'
+import * as grantee from './modules/grantee'
 import * as pinning from './modules/pinning'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
 import * as stewardship from './modules/stewardship'
 import * as tag from './modules/tag'
 import type {
+  Address,
   AddressPrefix,
+  AllSettlements,
   AnyJson,
+  BalanceResponse,
   BatchId,
   BeeOptions,
   BeeRequestOptions,
+  BeeVersions,
+  ChainState,
+  ChequebookAddressResponse,
+  ChequebookBalanceResponse,
   CollectionUploadOptions,
   Data,
+  DebugStatus,
+  ExtendedTag,
   FeedReader,
   FeedWriter,
   FileData,
   FileUploadOptions,
+  GetGranteesResult,
+  GranteesResult,
+  Health,
   JsonFeedOptions,
+  LastCashoutActionResponse,
+  LastChequesForPeerResponse,
+  LastChequesResponse,
+  NodeAddresses,
+  NodeInfo,
+  NumberString,
+  Peer,
+  PeerBalance,
   Pin,
+  PingResponse,
+  PostageBatch,
+  PostageBatchBuckets,
   PssMessageHandler,
   PssSubscription,
   PublicKey,
+  RedistributionState,
   Reference,
+  RemovePeerResponse,
+  ReserveState,
   SOCReader,
   SOCWriter,
+  Settlements,
   Signer,
   Tag,
   Topic,
+  Topology,
+  TransactionHash,
+  TransactionInfo,
   UploadOptions,
   UploadRedundancyOptions,
   UploadResultWithCid,
+  WalletBalance,
 } from './types'
 import {
   AllTagsOptions,
   CHUNK_SIZE,
+  CashoutOptions,
   Collection,
   FeedManifestResult,
-  Readable,
+  PostageBatchOptions,
   ReferenceCidOrEns,
   ReferenceOrEns,
   SPAN_SIZE,
+  STAMPS_AMOUNT_MIN,
+  STAMPS_DEPTH_MAX,
+  STAMPS_DEPTH_MIN,
+  TransactionOptions,
   UploadResult,
 } from './types'
 import { wrapBytesWithHelpers } from './utils/bytes'
@@ -61,22 +109,30 @@ import { prepareWebsocketData } from './utils/data'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { EthAddress, makeEthAddress, makeHexEthAddress } from './utils/eth'
 import { fileArrayBuffer, isFile } from './utils/file'
-import { isReadable } from './utils/stream'
 import {
   addCidConversionFunction,
+  assertAddress,
   assertAddressPrefix,
   assertAllTagsOptions,
   assertBatchId,
+  assertCashoutOptions,
   assertCollectionUploadOptions,
   assertData,
   assertFileData,
   assertFileUploadOptions,
+  assertNonNegativeInteger,
+  assertPositiveInteger,
+  assertPostageBatchOptions,
   assertPssMessageHandler,
   assertPublicKey,
   assertReference,
   assertReferenceOrEns,
   assertRequestOptions,
+  assertTransactionHash,
+  assertTransactionOptions,
   assertUploadOptions,
+  isReadable,
+  isTag,
   makeReferenceOrEns,
   makeTagUid,
 } from './utils/type'
@@ -100,7 +156,7 @@ export class Bee {
   public readonly signer?: Signer
 
   /**
-   * Ky instance that defines connection to Bee node
+   * Options for making requests
    * @private
    */
   private readonly requestOptions: BeeRequestOptions
@@ -126,7 +182,6 @@ export class Bee {
       timeout: options?.timeout ?? false,
       headers: options?.headers,
       onRequest: options?.onRequest,
-      adapter: options?.adapter,
     }
   }
 
@@ -138,7 +193,7 @@ export class Bee {
    * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
    * @returns reference is a content hash of the data
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `POST /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes/post)
    */
   async uploadData(
@@ -149,8 +204,11 @@ export class Bee {
   ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
     assertData(data)
+    assertRequestOptions(requestOptions)
 
-    if (options) assertUploadOptions(options)
+    if (options) {
+      assertUploadOptions(options)
+    }
 
     return bytes.upload(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
   }
@@ -162,7 +220,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
   async downloadData(reference: ReferenceOrEns | string, options?: BeeRequestOptions): Promise<Data> {
@@ -179,7 +237,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
   async downloadReadableData(
@@ -200,7 +258,7 @@ export class Bee {
    * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
    * @returns reference is a content hash of the data
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `POST /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)
    */
   async uploadChunk(
@@ -208,8 +266,9 @@ export class Bee {
     data: Uint8Array,
     options?: UploadOptions,
     requestOptions?: BeeRequestOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
+    assertRequestOptions(requestOptions)
 
     if (!(data instanceof Uint8Array)) {
       throw new TypeError('Data has to be Uint8Array instance!')
@@ -223,7 +282,9 @@ export class Bee {
       throw new BeeArgumentError(`Chunk has to have size of at most ${CHUNK_SIZE}.`, data)
     }
 
-    if (options) assertUploadOptions(options)
+    if (options) {
+      assertUploadOptions(options)
+    }
 
     return chunk.upload(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
   }
@@ -235,8 +296,8 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `GET /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1{reference}/get)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `GET /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1{address}/get)
    */
   async downloadChunk(reference: ReferenceOrEns | string, options?: BeeRequestOptions): Promise<Data> {
     assertRequestOptions(options)
@@ -246,9 +307,75 @@ export class Bee {
   }
 
   /**
+   * Create a grantees list from the given array of public keys.
+   *
+   * The grantees list can be obtained with the `getGrantees` method.
+   *
+   * @param postageBatchId - The ID of the postage batch.
+   * @param grantees - An array of public keys representing the grantees.
+   * @param requestOptions - Optional request options.
+   * @returns A promise that resolves to a `GranteesResult` object.
+   */
+  async createGrantees(
+    postageBatchId: string | BatchId,
+    grantees: string[],
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    assertRequestOptions(requestOptions)
+    assertBatchId(postageBatchId)
+
+    return grantee.createGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
+  }
+
+  /**
+   * Retrieves the grantees for a given reference.
+   *
+   * @param reference - The reference.
+   * @param requestOptions - Optional request options.
+   * @returns A promise that resolves to a `GetGranteesResult` object.
+   */
+  async getGrantees(
+    reference: ReferenceOrEns | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GetGranteesResult> {
+    assertRequestOptions(requestOptions)
+
+    return grantee.getGrantees(reference, this.getRequestOptionsForCall(requestOptions))
+  }
+
+  /**
+   * Updates the grantees of a specific reference and history.
+   *
+   * @param reference - The reference.
+   * @param history - The history.
+   * @param postageBatchId - The ID of the postage batch.
+   * @param grantees - The grantees.
+   * @param requestOptions - Optional request options.
+   * @returns A Promise that resolves to to a `GranteesResult` object.
+   */
+  async patchGrantees(
+    postageBatchId: string | BatchId,
+    reference: Reference | string,
+    history: Reference | string,
+    grantees: { add?: string[]; revoke?: string[] },
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    assertRequestOptions(requestOptions)
+    assertBatchId(postageBatchId)
+
+    return grantee.patchGrantees(
+      postageBatchId,
+      reference,
+      history,
+      { add: grantees.add || [], revoke: grantees.revoke || [] },
+      this.getRequestOptionsForCall(requestOptions),
+    )
+  }
+
+  /**
    * Upload single file to a Bee node.
    *
-   * **To make sure that you won't loose critical data it is highly recommended to also
+   * **To make sure that you won't lose critical data it is highly recommended to also
    * locally pin the data with `options.pin = true`**
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
@@ -256,9 +383,9 @@ export class Bee {
    * @param name    Optional name of the uploaded file
    * @param options Additional options like tag, encryption, pinning, content-type and request options
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File/paths/~1bzz/post)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    * @returns reference is a content hash of the file
    */
   async uploadFile(
@@ -268,10 +395,13 @@ export class Bee {
     options?: FileUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
+    assertRequestOptions(requestOptions)
     assertBatchId(postageBatchId)
     assertFileData(data)
 
-    if (options) assertFileUploadOptions(options)
+    if (options) {
+      assertFileUploadOptions(options)
+    }
 
     if (name && typeof name !== 'string') {
       throw new TypeError('name has to be string or undefined!')
@@ -322,8 +452,8 @@ export class Bee {
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    * @see Data
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)
    */
   async downloadFile(
     reference: ReferenceCidOrEns | string,
@@ -345,8 +475,8 @@ export class Bee {
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    *
-   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/access-the-swarm/upload-and-download)
-   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz~1{reference}~1{path}/get)
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)
    */
   async downloadReadableFile(
     reference: ReferenceCidOrEns | string,
@@ -371,9 +501,9 @@ export class Bee {
    * @param fileList list of files to be uploaded
    * @param options Additional options like tag, encryption, pinning and request options
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory/)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   async uploadFiles(
     postageBatchId: string | BatchId,
@@ -381,9 +511,12 @@ export class Bee {
     options?: CollectionUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
+    assertRequestOptions(requestOptions)
     assertBatchId(postageBatchId)
 
-    if (options) assertCollectionUploadOptions(options)
+    if (options) {
+      assertCollectionUploadOptions(options)
+    }
 
     const data = await makeCollectionFromFileList(fileList)
 
@@ -405,16 +538,23 @@ export class Bee {
    */
   async uploadCollection(
     postageBatchId: string | BatchId,
-    collection: Collection<Uint8Array | Readable>,
+    collection: Collection,
     options?: CollectionUploadOptions & UploadRedundancyOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
+    assertRequestOptions(requestOptions)
     assertBatchId(postageBatchId)
     assertCollection(collection)
 
     if (options) assertCollectionUploadOptions(options)
 
     return addCidConversionFunction(
-      await bzz.uploadCollection(this.requestOptions, collection, postageBatchId, options),
+      await bzz.uploadCollection(
+        this.getRequestOptionsForCall(this.requestOptions),
+        collection,
+        postageBatchId,
+        options,
+      ),
       ReferenceType.MANIFEST,
     )
   }
@@ -431,9 +571,9 @@ export class Bee {
    * @param dir the path of the files to be uploaded
    * @param options Additional options like tag, encryption, pinning and request options
    *
-   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/access-the-swarm/keep-your-data-alive)
-   * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory/)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   async uploadFilesFromDirectory(
     postageBatchId: string | BatchId,
@@ -442,6 +582,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
+    assertRequestOptions(requestOptions)
 
     if (options) assertCollectionUploadOptions(options)
     const data = await makeCollectionFromFS(dir)
@@ -456,7 +597,7 @@ export class Bee {
    * Create a new Tag which is meant for tracking progres of syncing data across network.
    *
    * @param options Options that affects the request behavior
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `POST /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)
    */
   async createTag(options?: BeeRequestOptions): Promise<Tag> {
@@ -474,14 +615,14 @@ export class Bee {
    * @throws TypeError if limit or offset are not numbers or undefined
    * @throws BeeArgumentError if limit or offset have invalid options
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)
    */
-  async getAllTags(options?: AllTagsOptions): Promise<Tag[]> {
-    assertRequestOptions(options)
+  async getAllTags(options?: AllTagsOptions, requestOptions?: BeeRequestOptions): Promise<Tag[]> {
+    assertRequestOptions(requestOptions)
     assertAllTagsOptions(options)
 
-    return tag.getAllTags(this.getRequestOptionsForCall(options), options?.offset, options?.limit)
+    return tag.getAllTags(this.getRequestOptionsForCall(requestOptions), options?.offset, options?.limit)
   }
 
   /**
@@ -491,7 +632,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if tagUid is in not correct format
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/get)
    *
    */
@@ -511,7 +652,7 @@ export class Bee {
    * @throws TypeError if tagUid is in not correct format
    * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `DELETE /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/delete)
    */
   async deleteTag(tagUid: number | Tag, options?: BeeRequestOptions): Promise<void> {
@@ -534,7 +675,7 @@ export class Bee {
    * @throws TypeError if tagUid is in not correct format
    * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
    *
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `PATCH /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/patch)
    */
   async updateTag(tagUid: number | Tag, reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
@@ -553,7 +694,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
   async pin(reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
     assertRequestOptions(options)
@@ -569,7 +710,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if reference is in not correct format
    *
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
   async unpin(reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
     assertRequestOptions(options)
@@ -582,7 +723,7 @@ export class Bee {
    * Get list of all locally pinned references
    *
    * @param options Options that affects the request behavior
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
   async getAllPins(options?: BeeRequestOptions): Promise<Reference[]> {
     assertRequestOptions(options)
@@ -598,7 +739,7 @@ export class Bee {
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
    *
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
   async getPin(reference: Reference | string, options?: BeeRequestOptions): Promise<Pin> {
     assertRequestOptions(options)
@@ -673,7 +814,7 @@ export class Bee {
 
         return true
       } catch (e: any) {
-        if (e?.response?.status === 404) {
+        if (e?.status === 404 || e?.status === 500) {
           return false
         }
 
@@ -713,7 +854,7 @@ export class Bee {
    * @param options Options that affects the request behavior
    * @throws TypeError if `data`, `batchId`, `target` or `recipient` are in invalid format
    *
-   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
+   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/develop/tools-and-features/pss)
    * @see [Bee API reference - `POST /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1send~1{topic}~1{targets}/post)
    */
   async pssSend(
@@ -753,7 +894,7 @@ export class Bee {
    *
    * @returns Subscription to a given topic
    *
-   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
+   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/develop/tools-and-features/pss)
    * @see [Bee API reference - `GET /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1{topic}/get)
    */
   pssSubscribe(topic: string, handler: PssMessageHandler): PssSubscription {
@@ -822,7 +963,7 @@ export class Bee {
    *
    * @returns Message in byte array
    *
-   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/dapps-on-swarm/pss)
+   * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/develop/tools-and-features/pss)
    * @see [Bee API reference - `GET /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1{topic}/get)
    */
   async pssReceive(topic: string, timeoutMsec = 0): Promise<Data> {
@@ -871,7 +1012,7 @@ export class Bee {
    * @param owner           Owner's ethereum address in hex or bytes
    * @param options Options that affects the request behavior
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    * @see [Bee API reference - `POST /feeds`](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1{owner}~1{topic}/post)
    */
   async createFeedManifest(
@@ -893,9 +1034,6 @@ export class Bee {
       canonicalOwner,
       canonicalTopic,
       postageBatchId,
-      {
-        type,
-      },
     )
 
     return addCidConversionFunction({ reference }, ReferenceType.FEED)
@@ -909,7 +1047,7 @@ export class Bee {
    * @param owner   Owner's ethereum address in hex or bytes
    * @param options Options that affects the request behavior
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   makeFeedReader(
     type: FeedType,
@@ -934,7 +1072,7 @@ export class Bee {
    * @param signer  The signer's private key or a Signer instance that can sign data
    * @param options Options that affects the request behavior
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   makeFeedWriter(
     type: FeedType,
@@ -967,16 +1105,16 @@ export class Bee {
    *
    * @throws BeeError if `options.signer` is not specified nor the default Signer on Bee's instance is specified.
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   async setJsonFeed<T extends AnyJson>(
     postageBatchId: string | BatchId,
     topic: string,
     data: T,
-    options?: JsonFeedOptions,
+    options?: JsonFeedOptions & UploadOptions,
     requestOptions?: BeeRequestOptions,
-  ): Promise<Reference> {
-    assertRequestOptions(options, 'JsonFeedOptions')
+  ): Promise<UploadResult> {
+    assertRequestOptions(requestOptions, 'JsonFeedOptions')
     assertBatchId(postageBatchId)
 
     const hashedTopic = this.makeFeedTopic(topic)
@@ -1003,10 +1141,14 @@ export class Bee {
    * @param options.address Ethereum address of owner of the feed that signed it. This option is exclusive with `signer` option.
    * @param options.type Type of Feed
    *
-   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/dapps-on-swarm/feeds)
+   * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
-  async getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
-    assertRequestOptions(options, 'JsonFeedOptions')
+  async getJsonFeed<T extends AnyJson>(
+    topic: string,
+    options?: JsonFeedOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<T> {
+    assertRequestOptions(requestOptions)
 
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
@@ -1031,7 +1173,7 @@ export class Bee {
       }
     }
 
-    const reader = this.makeFeedReader(feedType, hashedTopic, address, options)
+    const reader = this.makeFeedReader(feedType, hashedTopic, address, requestOptions)
 
     return getJsonData(this, reader)
   }
@@ -1053,7 +1195,7 @@ export class Bee {
    *
    * @param ownerAddress The ethereum address of the owner
    * @param options Options that affects the request behavior
-   * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/dapps-on-swarm/chunk-types#single-owner-chunks)
+   * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/develop/tools-and-features/chunk-types#single-owner-chunks)
    */
   makeSOCReader(ownerAddress: EthAddress | Uint8Array | string, options?: BeeRequestOptions): SOCReader {
     assertRequestOptions(options)
@@ -1070,7 +1212,7 @@ export class Bee {
    *
    * @param signer The signer's private key or a Signer instance that can sign data
    * @param options Options that affects the request behavior
-   * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/dapps-on-swarm/chunk-types#single-owner-chunks)
+   * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/develop/tools-and-features/chunk-types#single-owner-chunks)
    */
   makeSOCWriter(signer?: Signer | Uint8Array | string, options?: BeeRequestOptions): SOCWriter {
     assertRequestOptions(options)
@@ -1113,6 +1255,672 @@ export class Bee {
     return true
   }
 
+  // Legacy debug API
+
+  async getNodeAddresses(options?: BeeRequestOptions): Promise<NodeAddresses> {
+    assertRequestOptions(options)
+
+    return connectivity.getNodeAddresses(this.getRequestOptionsForCall(options))
+  }
+
+  async getBlocklist(options?: BeeRequestOptions): Promise<Peer[]> {
+    assertRequestOptions(options)
+
+    return connectivity.getBlocklist(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Retrieve tag extended information from Bee node
+   *
+   * @param tagUid UID or tag object to be retrieved
+   * @throws TypeError if tagUid is in not correct format
+   *
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
+   * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/debug-api/#tag/Tag)
+   *
+   */
+  async retrieveExtendedTag(tagUid: number | Tag, options?: BeeRequestOptions): Promise<ExtendedTag> {
+    assertRequestOptions(options)
+
+    if (isTag(tagUid)) {
+      tagUid = tagUid.uid
+    } else if (typeof tagUid === 'number') {
+      assertNonNegativeInteger(tagUid, 'UID')
+    } else {
+      throw new TypeError('tagUid has to be either Tag or a number (UID)!')
+    }
+
+    return debugTag.retrieveExtendedTag(this.getRequestOptionsForCall(options), tagUid)
+  }
+
+  /**
+   * Get list of peers for this node
+   */
+  async getPeers(options?: BeeRequestOptions): Promise<Peer[]> {
+    assertRequestOptions(options)
+
+    return connectivity.getPeers(this.getRequestOptionsForCall(options))
+  }
+
+  async removePeer(peer: string | Address, options?: BeeRequestOptions): Promise<RemovePeerResponse> {
+    assertRequestOptions(options)
+    assertAddress(peer)
+
+    return connectivity.removePeer(this.getRequestOptionsForCall(options), peer)
+  }
+
+  async getTopology(options?: BeeRequestOptions): Promise<Topology> {
+    assertRequestOptions(options)
+
+    return connectivity.getTopology(this.getRequestOptionsForCall(options))
+  }
+
+  async pingPeer(peer: string | Address, options?: BeeRequestOptions): Promise<PingResponse> {
+    assertRequestOptions(options)
+    assertAddress(peer)
+
+    return connectivity.pingPeer(this.getRequestOptionsForCall(options), peer)
+  }
+
+  /*
+   * Balance endpoints
+   */
+
+  /**
+   * Get the balances with all known peers including prepaid services
+   */
+  async getAllBalances(options?: BeeRequestOptions): Promise<BalanceResponse> {
+    assertRequestOptions(options)
+
+    return balance.getAllBalances(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get the balances with a specific peer including prepaid services
+   *
+   * @param address Swarm address of peer
+   */
+  async getPeerBalance(address: Address | string, options?: BeeRequestOptions): Promise<PeerBalance> {
+    assertRequestOptions(options)
+    assertAddress(address)
+
+    return balance.getPeerBalance(this.getRequestOptionsForCall(options), address)
+  }
+
+  /**
+   * Get the past due consumption balances with all known peers
+   */
+  async getPastDueConsumptionBalances(options?: BeeRequestOptions): Promise<BalanceResponse> {
+    assertRequestOptions(options)
+
+    return balance.getPastDueConsumptionBalances(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get the past due consumption balance with a specific peer
+   *
+   * @param address Swarm address of peer
+   */
+  async getPastDueConsumptionPeerBalance(address: Address | string, options?: BeeRequestOptions): Promise<PeerBalance> {
+    assertRequestOptions(options)
+    assertAddress(address)
+
+    return balance.getPastDueConsumptionPeerBalance(this.getRequestOptionsForCall(options), address)
+  }
+
+  /*
+   * Chequebook endpoints
+   */
+
+  /**
+   * Get the address of the chequebook contract used.
+   *
+   * **Warning:** The address is returned with 0x prefix unlike all other calls.
+   * https://github.com/ethersphere/bee/issues/1443
+   */
+  async getChequebookAddress(options?: BeeRequestOptions): Promise<ChequebookAddressResponse> {
+    assertRequestOptions(options)
+
+    return chequebook.getChequebookAddress(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get the balance of the chequebook
+   */
+  async getChequebookBalance(options?: BeeRequestOptions): Promise<ChequebookBalanceResponse> {
+    assertRequestOptions(options)
+
+    return chequebook.getChequebookBalance(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get last cheques for all peers
+   */
+  async getLastCheques(options?: BeeRequestOptions): Promise<LastChequesResponse> {
+    assertRequestOptions(options)
+
+    return chequebook.getLastCheques(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get last cheques for the peer
+   *
+   * @param address  Swarm address of peer
+   */
+  async getLastChequesForPeer(
+    address: Address | string,
+    options?: BeeRequestOptions,
+  ): Promise<LastChequesForPeerResponse> {
+    assertRequestOptions(options)
+    assertAddress(address)
+
+    return chequebook.getLastChequesForPeer(this.getRequestOptionsForCall(options), address)
+  }
+
+  /**
+   * Get last cashout action for the peer
+   *
+   * @param address  Swarm address of peer
+   */
+  async getLastCashoutAction(
+    address: Address | string,
+    options?: BeeRequestOptions,
+  ): Promise<LastCashoutActionResponse> {
+    assertRequestOptions(options)
+    assertAddress(address)
+
+    return chequebook.getLastCashoutAction(this.getRequestOptionsForCall(options), address)
+  }
+
+  /**
+   * Cashout the last cheque for the peer
+   *
+   * @param address  Swarm address of peer
+   * @param options
+   * @param options.gasPrice Gas price for the cashout transaction in WEI
+   * @param options.gasLimit Gas limit for the cashout transaction in WEI
+   */
+  async cashoutLastCheque(
+    address: string | Address,
+    options?: CashoutOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<string> {
+    assertCashoutOptions(options)
+    assertAddress(address)
+    assertRequestOptions(requestOptions)
+
+    return chequebook.cashoutLastCheque(this.getRequestOptionsForCall(requestOptions), address, options)
+  }
+
+  /**
+   * Deposit tokens from overlay address into chequebook
+   *
+   * @param amount  Amount of tokens to deposit (must be positive integer)
+   * @param gasPrice Gas Price in WEI for the transaction call
+   * @return string  Hash of the transaction
+   */
+  async depositTokens(
+    amount: number | NumberString,
+    gasPrice?: NumberString,
+    options?: BeeRequestOptions,
+  ): Promise<string> {
+    assertRequestOptions(options)
+    assertNonNegativeInteger(amount)
+
+    if (gasPrice) {
+      assertNonNegativeInteger(gasPrice)
+    }
+
+    return chequebook.depositTokens(this.getRequestOptionsForCall(options), amount, gasPrice)
+  }
+
+  /**
+   * Withdraw tokens from the chequebook to the overlay address
+   *
+   * @param amount  Amount of tokens to withdraw (must be positive integer)
+   * @param gasPrice Gas Price in WEI for the transaction call
+   * @return string  Hash of the transaction
+   */
+  async withdrawTokens(
+    amount: number | NumberString,
+    gasPrice?: NumberString,
+    options?: BeeRequestOptions,
+  ): Promise<string> {
+    assertRequestOptions(options)
+    assertNonNegativeInteger(amount)
+
+    if (gasPrice) {
+      assertNonNegativeInteger(gasPrice)
+    }
+
+    return chequebook.withdrawTokens(this.getRequestOptionsForCall(options), amount, gasPrice)
+  }
+
+  /*
+   * Settlements endpoint
+   */
+
+  /**
+   * Get amount of sent and received from settlements with a peer
+   *
+   * @param address  Swarm address of peer
+   */
+  async getSettlements(address: Address | string, options?: BeeRequestOptions): Promise<Settlements> {
+    assertRequestOptions(options)
+    assertAddress(address)
+
+    return settlements.getSettlements(this.getRequestOptionsForCall(options), address)
+  }
+
+  /**
+   * Get settlements with all known peers and total amount sent or received
+   */
+  async getAllSettlements(options?: BeeRequestOptions): Promise<AllSettlements> {
+    assertRequestOptions(options)
+
+    return settlements.getAllSettlements(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get status of node
+   */
+  async getStatus(options?: BeeRequestOptions): Promise<DebugStatus> {
+    assertRequestOptions(options)
+
+    return debugStatus.getDebugStatus(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get health of node
+   */
+  async getHealth(options?: BeeRequestOptions): Promise<Health> {
+    assertRequestOptions(options)
+
+    return debugStatus.getHealth(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get readiness of node
+   */
+  async getReadiness(options?: BeeRequestOptions): Promise<boolean> {
+    assertRequestOptions(options)
+
+    return debugStatus.getReadiness(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get mode information of node
+   */
+  async getNodeInfo(options?: BeeRequestOptions): Promise<NodeInfo> {
+    assertRequestOptions(options)
+
+    return debugStatus.getNodeInfo(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Connnects to a node and checks if it is a supported Bee version by the bee-js
+   *
+   * @returns true if the Bee node version is supported
+   * @deprecated Use `BeeDebug.isSupportedExactVersion()` instead
+   */
+  async isSupportedVersion(options?: BeeRequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return debugStatus.isSupportedVersion(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Connects to a node and checks if its version matches with the one that bee-js supports.
+   *
+   * Be aware that this is the most strict version check and most probably
+   * you will want to use more relaxed API-versions based checks like
+   * `BeeDebug.isSupportedApiVersion()`, `BeeDebug.isSupportedMainApiVersion()` or `BeeDebug.isSupportedDebugApiVersion()`
+   * based on your use-case.
+   *
+   * @param options
+   */
+  async isSupportedExactVersion(options?: BeeRequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return debugStatus.isSupportedExactVersion(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Connects to a node and checks if its main's API version matches with the one that bee-js supports.
+   *
+   * This is useful if you are not using `BeeDebug` class (for anything else then this check)
+   * and want to make sure about compatibility.
+   *
+   * @param options
+   */
+  async isSupportedMainApiVersion(options?: BeeRequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return debugStatus.isSupportedMainApiVersion(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   *
+   * Connects to a node and checks if its Main API version matches with the one that bee-js supports.
+   *
+   * This should be the main way how to check compatibility for your app and Bee node.
+   *
+   * @param options
+   */
+  async isSupportedApiVersion(options?: BeeRequestOptions): Promise<boolean> | never {
+    assertRequestOptions(options)
+
+    return debugStatus.isSupportedApiVersion(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Returns object with all versions specified by the connected Bee node (properties prefixed with `bee*`)
+   * and versions that bee-js supports (properties prefixed with `supported*`).
+   *
+   * @param options
+   */
+  async getVersions(options?: BeeRequestOptions): Promise<BeeVersions> | never {
+    assertRequestOptions(options)
+
+    return debugStatus.getVersions(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get reserve state
+   */
+  async getReserveState(options?: BeeRequestOptions): Promise<ReserveState> {
+    assertRequestOptions(options)
+
+    return states.getReserveState(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get chain state
+   */
+  async getChainState(options?: BeeRequestOptions): Promise<ChainState> {
+    assertRequestOptions(options)
+
+    return states.getChainState(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Get wallet balances for xDai and BZZ of the Bee node
+   *
+   * @param options
+   */
+  async getWalletBalance(options?: BeeRequestOptions): Promise<WalletBalance> {
+    assertRequestOptions(options)
+
+    return states.getWalletBalance(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Creates new postage batch from the funds that the node has available in its Ethereum account.
+   *
+   * For better understanding what each parameter means and what are the optimal values please see
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction#keep-your-data-alive).
+   *
+   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
+   *
+   * @param amount Amount that represents the value per chunk, has to be greater or equal zero.
+   * @param depth Logarithm of the number of chunks that can be stamped with the batch.
+   * @param options Options for creation of postage batch
+   * @throws BeeArgumentError when negative amount or depth is specified
+   * @throws TypeError if non-integer value is passed to amount or depth
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee Debug API reference - `POST /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{amount}~1{depth}/post)
+   */
+  async createPostageBatch(
+    amount: NumberString,
+    depth: number,
+    options?: PostageBatchOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<BatchId> {
+    assertPostageBatchOptions(options)
+    assertPositiveInteger(amount)
+    assertNonNegativeInteger(depth)
+    assertRequestOptions(requestOptions)
+
+    if (depth < STAMPS_DEPTH_MIN) {
+      throw new BeeArgumentError(`Depth has to be at least ${STAMPS_DEPTH_MIN}`, depth)
+    }
+
+    if (depth > STAMPS_DEPTH_MAX) {
+      throw new BeeArgumentError(`Depth has to be at most ${STAMPS_DEPTH_MAX}`, depth)
+    }
+
+    if (parseInt(amount, 10) < STAMPS_AMOUNT_MIN) {
+      throw new BeeArgumentError(`Amount has to be at least ${STAMPS_AMOUNT_MIN} (1 day)`, amount)
+    }
+
+    const stamp = await stamps.createPostageBatch(this.getRequestOptionsForCall(requestOptions), amount, depth, options)
+
+    if (options?.waitForUsable !== false) {
+      await this.waitForUsablePostageStamp(stamp, options?.waitForUsableTimeout)
+    }
+
+    return stamp
+  }
+
+  /**
+   * Topup a fresh amount of BZZ to given Postage Batch.
+   *
+   * For better understanding what each parameter means and what are the optimal values please see
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive).
+   *
+   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
+   *
+   * @param postageBatchId Batch ID
+   * @param amount Amount to be added to the batch
+   * @param options Request options
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{id}~1{amount}/patch)
+   */
+  async topUpBatch(postageBatchId: BatchId | string, amount: NumberString, options?: BeeRequestOptions): Promise<void> {
+    assertRequestOptions(options)
+    assertNonNegativeInteger(amount, 'Amount')
+    assertBatchId(postageBatchId)
+
+    await stamps.topUpBatch(this.getRequestOptionsForCall(options), postageBatchId, amount)
+  }
+
+  /**
+   * Dilute given Postage Batch with new depth (that has to be bigger then the original depth), which allows
+   * the Postage Batch to be used for more chunks.
+   *
+   * For better understanding what each parameter means and what are the optimal values please see
+   * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive).
+   *
+   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
+   *
+   * @param postageBatchId Batch ID
+   * @param depth Amount to be added to the batch
+   * @param options Request options
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{id}~1{amount}/patch)
+   */
+  async diluteBatch(postageBatchId: BatchId | string, depth: number, options?: BeeRequestOptions): Promise<void> {
+    assertRequestOptions(options)
+    assertNonNegativeInteger(depth, 'Depth')
+    assertBatchId(postageBatchId)
+
+    await stamps.diluteBatch(this.getRequestOptionsForCall(options), postageBatchId, depth)
+  }
+
+  /**
+   * Return details for specific postage batch.
+   *
+   * @param postageBatchId Batch ID
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
+   */
+  async getPostageBatch(postageBatchId: BatchId | string, options?: BeeRequestOptions): Promise<PostageBatch> {
+    assertRequestOptions(options)
+    assertBatchId(postageBatchId)
+
+    return stamps.getPostageBatch(this.getRequestOptionsForCall(options), postageBatchId)
+  }
+
+  /**
+   * Return detailed information related to buckets for specific postage batch.
+   *
+   * @param postageBatchId Batch ID
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee Debug API reference - `GET /stamps/${id}/buckets`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}~1buckets/get)
+   */
+  async getPostageBatchBuckets(
+    postageBatchId: BatchId | string,
+    options?: BeeRequestOptions,
+  ): Promise<PostageBatchBuckets> {
+    assertRequestOptions(options)
+    assertBatchId(postageBatchId)
+
+    return stamps.getPostageBatchBuckets(this.getRequestOptionsForCall(options), postageBatchId)
+  }
+
+  /**
+   * Return all postage batches that has the node available.
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps/get)
+   */
+  async getAllPostageBatch(options?: BeeRequestOptions): Promise<PostageBatch[]> {
+    assertRequestOptions(options)
+
+    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Return all globally available postage batches.
+   */
+  async getAllGlobalPostageBatch(options?: BeeRequestOptions): Promise<PostageBatch[]> {
+    assertRequestOptions(options)
+
+    return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Return lists of all current pending transactions that the Bee made
+   */
+  async getAllPendingTransactions(options?: BeeRequestOptions): Promise<TransactionInfo[]> {
+    assertRequestOptions(options)
+
+    return transactions.getAllTransactions(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Return transaction information for specific transaction
+   * @param transactionHash
+   */
+  async getPendingTransaction(
+    transactionHash: TransactionHash | string,
+    options?: BeeRequestOptions,
+  ): Promise<TransactionInfo> {
+    assertRequestOptions(options)
+    assertTransactionHash(transactionHash)
+
+    return transactions.getTransaction(this.getRequestOptionsForCall(options), transactionHash)
+  }
+
+  /**
+   * Rebroadcast already created transaction.
+   * This is mainly needed when your transaction fall off mempool from other reason is not incorporated into block.
+   *
+   * @param transactionHash
+   */
+  async rebroadcastPendingTransaction(
+    transactionHash: TransactionHash | string,
+    options?: BeeRequestOptions,
+  ): Promise<TransactionHash> {
+    assertRequestOptions(options)
+    assertTransactionHash(transactionHash)
+
+    return transactions.rebroadcastTransaction(this.getRequestOptionsForCall(options), transactionHash)
+  }
+
+  /**
+   * Cancel currently pending transaction
+   * @param transactionHash
+   * @param gasPrice
+   */
+  async cancelPendingTransaction(
+    transactionHash: TransactionHash | string,
+    gasPrice?: NumberString,
+    options?: BeeRequestOptions,
+  ): Promise<TransactionHash> {
+    assertRequestOptions(options)
+    assertTransactionHash(transactionHash)
+
+    if (gasPrice) {
+      assertNonNegativeInteger(gasPrice)
+    }
+
+    return transactions.cancelTransaction(this.getRequestOptionsForCall(options), transactionHash, gasPrice)
+  }
+
+  /**
+   * Gets the staked amount of BZZ (in PLUR unit) as number string.
+   *
+   * @param options
+   */
+  async getStake(options?: BeeRequestOptions): Promise<NumberString> {
+    assertRequestOptions(options)
+
+    return stake.getStake(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Deposits given amount of BZZ token (in PLUR unit).
+   *
+   * Be aware that staked BZZ tokens can **not** be withdrawn.
+   *
+   * @param amount Amount of BZZ token (in PLUR unit) to be staked. Minimum is 100_000_000_000_000_000 PLUR (10 BZZ).
+   * @param options
+   */
+  async depositStake(
+    amount: NumberString,
+    options?: TransactionOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<void> {
+    assertTransactionOptions(options)
+    assertRequestOptions(requestOptions)
+
+    await stake.stake(this.getRequestOptionsForCall(requestOptions), amount, options)
+  }
+
+  /**
+   * Get current status of node in redistribution game
+   *
+   * @param options
+   */
+  async getRedistributionState(options?: BeeRequestOptions): Promise<RedistributionState> {
+    assertRequestOptions(options)
+
+    return stake.getRedistributionState(this.getRequestOptionsForCall(options))
+  }
+
+  private async waitForUsablePostageStamp(id: BatchId, timeout = 240_000): Promise<void> {
+    const TIME_STEP = 3_000
+    for (let time = 0; time < timeout; time += TIME_STEP) {
+      try {
+        const stamp = await this.getPostageBatch(id)
+
+        if (stamp.usable) {
+          return
+        }
+      } catch (error: any) {}
+
+      await System.sleepMillis(TIME_STEP)
+    }
+
+    throw new BeeError('Timeout on waiting for postage stamp to become usable')
+  }
+
   /**
    * @param signer
    * @private
@@ -1127,7 +1935,7 @@ export class Bee {
       return this.signer
     }
 
-    throw new BeeError('You have to pass Signer as property to either the method call or constructor! Non found.')
+    throw new TypeError('You have to pass Signer as property to either the method call or constructor! Non found.')
   }
 
   private getRequestOptionsForCall(options?: BeeRequestOptions): BeeRequestOptions {

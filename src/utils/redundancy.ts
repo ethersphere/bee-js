@@ -63,6 +63,7 @@ export function approximateOverheadForRedundancyLevel(chunks: number, level: Red
       : tables[RedundancyLevel.PARANOID]
   const table = encrypted ? tableType[1] : tableType[0]
   const [supportedChunks, parities] = table
+
   for (let i = 0; i < supportedChunks.length; i++) {
     if (chunks >= supportedChunks[i]) {
       return parities[i] / supportedChunks[i]

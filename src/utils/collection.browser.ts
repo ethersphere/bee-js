@@ -6,7 +6,7 @@ import { Collection } from '../types'
  *
  * @param dir path to the directory
  */
-export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint8Array>> {
+export async function makeCollectionFromFS(dir: string): Promise<Collection> {
   throw new Error('Creating Collection from File System is not supported in browsers!')
 }
 

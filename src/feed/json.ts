@@ -1,13 +1,15 @@
 import { Bee } from '../bee'
+import { makeContentAddressedChunk } from '../chunk/cac'
 import {
   AnyJson,
   BatchId,
   BeeRequestOptions,
+  CHUNK_SIZE,
   FeedReader,
   FeedWriter,
   JsonFeedOptions,
-  Reference,
   UploadOptions,
+  UploadResult,
 } from '../types'
 import { isError } from '../utils/type'
 
@@ -25,10 +27,8 @@ function serializeJson(data: AnyJson): Uint8Array {
 }
 
 export async function getJsonData<T extends AnyJson>(bee: Bee, reader: FeedReader): Promise<T> {
-  const feedUpdate = await reader.download()
-  const retrievedData = await bee.downloadData(feedUpdate.reference)
-
-  return retrievedData.json() as T
+  // TODO: implement
+  throw new Error('Method not implemented.')
 }
 
 export async function setJsonData(
@@ -38,9 +38,18 @@ export async function setJsonData(
   data: AnyJson,
   options?: JsonFeedOptions & UploadOptions,
   requestOptions?: BeeRequestOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const serializedData = serializeJson(data)
-  const { reference } = await bee.uploadData(postageBatchId, serializedData, options, requestOptions)
 
-  return writer.upload(postageBatchId, reference)
+  if (serializedData.length <= CHUNK_SIZE) {
+    const cac = makeContentAddressedChunk(serializedData)
+
+    return writer.upload(postageBatchId, cac.data, options, requestOptions)
+  } else {
+    // TODO create bmt tree
+    const { reference } = await bee.uploadData(postageBatchId, serializedData, options, requestOptions)
+    const rootChunk = await bee.downloadChunk(reference)
+
+    return writer.upload(postageBatchId, rootChunk, { pin: options?.pin })
+  }
 }

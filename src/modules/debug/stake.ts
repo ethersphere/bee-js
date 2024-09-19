@@ -17,7 +17,7 @@ interface GetStake {
 /**
  * Gets the staked amount
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getStake(requestOptions: BeeRequestOptions): Promise<NumberString> {
   const response = await http<GetStake>(requestOptions, {
@@ -32,7 +32,7 @@ export async function getStake(requestOptions: BeeRequestOptions): Promise<Numbe
 /**
  * Stake given amount of tokens.
  *
- * @param ky
+ * @param requestOptions Options for making requests
  * @param amount
  * @param options
  */
@@ -62,7 +62,7 @@ export async function stake(
 /**
  * Get current status of node in redistribution game
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getRedistributionState(requestOptions: BeeRequestOptions): Promise<RedistributionState> {
   const response = await http<RedistributionState>(requestOptions, {

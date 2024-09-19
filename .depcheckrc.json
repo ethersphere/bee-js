@@ -8,17 +8,13 @@
     "@babel/preset-typescript",
     "@commitlint/cli",
     "@commitlint/config-conventional",
-    "@types/content-disposition",
-    "@types/debug",
     "babel-jest",
     "babel-loader",
-    "bufferutil",
-    "cross-blob",
-    "debug",
     "husky",
     "ts-node",
-    "utf-8-validate",
     "webpack-cli",
-    "playwright-test"
+    "playwright-test",
+    "@types/jest",
+    "ts-jest"
   ]
 }

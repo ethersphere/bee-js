@@ -8,7 +8,7 @@ import { Collection } from '../types'
  *
  * @param dir path to the directory
  */
-export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint8Array>> {
+export async function makeCollectionFromFS(dir: string): Promise<Collection> {
   if (typeof dir !== 'string') {
     throw new TypeError('dir has to be string!')
   }
@@ -20,11 +20,11 @@ export async function makeCollectionFromFS(dir: string): Promise<Collection<Uint
   return buildCollectionRelative(dir, '')
 }
 
-async function buildCollectionRelative(dir: string, relativePath: string): Promise<Collection<Uint8Array>> {
+async function buildCollectionRelative(dir: string, relativePath: string): Promise<Collection> {
   // Handles case when the dir is not existing or it is a file ==> throws an error
   const dirname = path.join(dir, relativePath)
   const entries = await fs.promises.opendir(dirname)
-  let collection: Collection<Uint8Array> = []
+  let collection: Collection = []
 
   for await (const entry of entries) {
     const fullPath = path.join(dir, relativePath, entry.name)
@@ -33,7 +33,8 @@ async function buildCollectionRelative(dir: string, relativePath: string): Promi
     if (entry.isFile()) {
       collection.push({
         path: entryPath,
-        data: new Uint8Array(await fs.promises.readFile(fullPath)),
+        size: (await fs.promises.stat(fullPath)).size,
+        fsPath: fullPath,
       })
     } else if (entry.isDirectory()) {
       collection = [...(await buildCollectionRelative(dir, entryPath)), ...collection]

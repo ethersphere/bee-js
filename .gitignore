@@ -28,3 +28,8 @@ node_modules
 
 # Generated files
 docs
+
+*.shape
+shaper.ts
+
+test/primitives/32mb.bin
