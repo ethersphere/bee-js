@@ -339,6 +339,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<GetGranteesResult> {
     assertRequestOptions(requestOptions)
+
     return grantee.getGrantees(reference, this.getRequestOptionsForCall(requestOptions))
   }
 
