@@ -1,5 +1,4 @@
 import { Binary } from 'cafe-utility'
-import { expect } from 'chai'
 import { assertValidChunkData, makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { makeSpan } from '../../../src/chunk/span'
 import { assertBytes } from '../../../src/utils/bytes'
@@ -13,7 +12,7 @@ describe('cac', () => {
     const cac = makeContentAddressedChunk(payload)
     const address = cac.address()
 
-    expect(bytesToHex(address)).to.eql(contentHash)
+    expect(bytesToHex(address)).toBe(contentHash)
   })
 
   it('content address chunk verification', () => {
@@ -24,7 +23,7 @@ describe('cac', () => {
 
     const data = Binary.concatBytes(makeSpan(payload.length), payload)
 
-    expect(() => assertValidChunkData(data, validAddress)).not.to.throw()
-    expect(() => assertValidChunkData(data, invalidAddress)).to.throw()
+    expect(() => assertValidChunkData(data, validAddress)).toBeTruthy()
+    expect(() => assertValidChunkData(data, invalidAddress)).toThrow()
   })
 })

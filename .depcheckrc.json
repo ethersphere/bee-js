@@ -13,6 +13,8 @@
     "husky",
     "ts-node",
     "webpack-cli",
-    "playwright-test"
+    "playwright-test",
+    "@types/jest",
+    "ts-jest"
   ]
 }

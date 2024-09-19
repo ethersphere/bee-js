@@ -42,5 +42,5 @@ export async function setJsonData(
   const serializedData = serializeJson(data)
   const { reference } = await bee.uploadData(postageBatchId, serializedData, options, requestOptions)
 
-  return writer.upload(postageBatchId, reference)
+  return writer.upload(postageBatchId, reference, { pin: options?.pin })
 }

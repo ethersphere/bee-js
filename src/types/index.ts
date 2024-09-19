@@ -89,7 +89,6 @@ export type AddressPrefix = HexString
 export type BeeRequestOptions = {
   baseURL?: string
   timeout?: number | false
-  retry?: number | false
   headers?: Record<string, string>
   onRequest?: (request: BeeRequest) => void
 }

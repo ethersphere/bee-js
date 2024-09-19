@@ -11,7 +11,14 @@ export class BeeArgumentError extends BeeError {
 }
 
 export class BeeResponseError extends BeeError {
-  public constructor(message: string, public status?: number, public statusText?: string) {
+  public constructor(
+    public method: string,
+    public url: string,
+    message: string,
+    public responseBody?: any,
+    public status?: number,
+    public statusText?: string,
+  ) {
     super(message)
   }
 }

@@ -1,10 +1,9 @@
-import { Bytes, assertBytes } from '../../../src/utils/bytes'
-import { makeSingleOwnerChunk } from '../../../src/chunk/soc'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
-import { testIdentity } from '../../utils'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
-import { HexString, hexToBytes, bytesToHex } from '../../../src/utils/hex'
-import { expect } from 'chai'
+import { makeSingleOwnerChunk } from '../../../src/chunk/soc'
+import { Bytes, assertBytes } from '../../../src/utils/bytes'
+import { HexString, bytesToHex, hexToBytes } from '../../../src/utils/hex'
+import { testIdentity } from '../../utils'
 
 describe('soc', () => {
   const privateKey = hexToBytes(testIdentity.privateKey)
@@ -20,7 +19,7 @@ describe('soc', () => {
     const socAddress = bytesToHex(soc.address())
     const owner = soc.owner()
 
-    expect(socAddress).to.eql(socHash)
-    expect(owner).to.eql(signer.address)
+    expect(socAddress).toBe(socHash)
+    expect(owner).toBe(signer.address)
   })
 })

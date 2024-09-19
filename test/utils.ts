@@ -22,63 +22,36 @@ declare global {
  * Load common own Jest Matchers which can be used to check particular return values.
  */
 export function commonMatchers(): void {
-  // expect.extend({
-  //   toBeHashReference(received: string) {
-  //     const result = {
-  //       pass: false,
-  //       message: () => 'Given input is not a Swarm hash reference',
-  //     }
-  //
-  //     if (typeof received === 'string' && /^[0-9a-fA-F]{64}$/.test(received)) {
-  //       result.pass = true
-  //       result.message = () => 'Given string is semantically valid Swarm hash reference'
-  //     }
-  //
-  //     return result
-  //   },
-  //   toBeBeeResponse(received: BeeGenericResponse, expectedStatusCode: number) {
-  //     const result = {
-  //       pass: false,
-  //       message: () =>
-  //         `Bee response does not have status code ${expectedStatusCode}. Got: ${received.code}\nResponse message: ${received.message}`,
-  //     }
-  //
-  //     if (received.code === expectedStatusCode) {
-  //       result.pass = true
-  //       result.message = () => 'Bee response meets with its requirements'
-  //     }
-  //
-  //     return result
-  //   },
-  //   toBeType(received, argument) {
-  //     const initialType = typeof received
-  //     const isArray = Array.isArray(received) ? 'array' : initialType
-  //     const type = initialType === 'object' ? isArray : initialType
-  //
-  //     return type === argument
-  //       ? {
-  //           message: () => `expected ${received} to be type ${argument}`,
-  //           pass: true,
-  //         }
-  //       : {
-  //           message: () => `expected ${received} to be type ${argument}`,
-  //           pass: false,
-  //         }
-  //   },
-  //   toBeNumberString(received) {
-  //     const message = () => `expected ${received} to be a number in a string type`
-  //
-  //     return /^-?(0|[1-9][0-9]*)$/g.test(received)
-  //       ? {
-  //           message,
-  //           pass: true,
-  //         }
-  //       : {
-  //           message,
-  //           pass: false,
-  //         }
-  //   },
-  // })
+  expect.extend({
+    toBeType(received, argument) {
+      const initialType = typeof received
+      const isArray = Array.isArray(received) ? 'array' : initialType
+      const type = initialType === 'object' ? isArray : initialType
+
+      return type === argument
+        ? {
+            message: () => `expected ${received} to be type ${argument}`,
+            pass: true,
+          }
+        : {
+            message: () => `expected ${received} to be type ${argument}`,
+            pass: false,
+          }
+    },
+    toBeNumberString(received) {
+      const message = () => `expected ${received} to be a number in a string type`
+
+      return /^-?(0|[1-9][0-9]*)$/g.test(received)
+        ? {
+            message,
+            pass: true,
+          }
+        : {
+            message,
+            pass: false,
+          }
+    },
+  })
 }
 
 /**
@@ -249,7 +222,7 @@ export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 
   ])
 }
 
-const DEFAULT_BATCH_AMOUNT = '1'
+export const DEFAULT_BATCH_AMOUNT = '600000000'
 const DEFAULT_BATCH_DEPTH = 17
 
 /**

@@ -1,6 +1,4 @@
 /* eslint @typescript-eslint/no-empty-function: 0 */
-import { expect } from 'chai'
-import sinon from 'sinon'
 import { wrapBytesWithHelpers } from '../../../src/utils/bytes'
 import {
   capitalizeAddressERC55,
@@ -17,30 +15,30 @@ describe('eth', () => {
   describe('capitalizeAddressERC55', () => {
     it('should calculate checksum for address', () => {
       // All caps
-      expect(capitalizeAddressERC55('0x52908400098527886E0F7030069857D2E4169EE7')).to.be(
+      expect(capitalizeAddressERC55('0x52908400098527886E0F7030069857D2E4169EE7')).toBe(
         '0x52908400098527886E0F7030069857D2E4169EE7',
       )
-      expect(capitalizeAddressERC55('0x8617E340B3D01FA5F11F306F4090FD50E238070D')).to.be(
+      expect(capitalizeAddressERC55('0x8617E340B3D01FA5F11F306F4090FD50E238070D')).toBe(
         '0x8617E340B3D01FA5F11F306F4090FD50E238070D',
       )
       // All Lower
-      expect(capitalizeAddressERC55('0xde709f2102306220921060314715629080e2fb77')).to.be(
+      expect(capitalizeAddressERC55('0xde709f2102306220921060314715629080e2fb77')).toBe(
         '0xde709f2102306220921060314715629080e2fb77',
       )
-      expect(capitalizeAddressERC55('0x27b1fdb04752bbc536007a920d24acb045561c26')).to.be(
+      expect(capitalizeAddressERC55('0x27b1fdb04752bbc536007a920d24acb045561c26')).toBe(
         '0x27b1fdb04752bbc536007a920d24acb045561c26',
       )
       // Normal
-      expect(capitalizeAddressERC55('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed')).to.be(
+      expect(capitalizeAddressERC55('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed')).toBe(
         '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
       )
-      expect(capitalizeAddressERC55('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359')).to.be(
+      expect(capitalizeAddressERC55('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359')).toBe(
         '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
       )
-      expect(capitalizeAddressERC55('0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB')).to.be(
+      expect(capitalizeAddressERC55('0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB')).toBe(
         '0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB',
       )
-      expect(capitalizeAddressERC55('0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb')).to.be(
+      expect(capitalizeAddressERC55('0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb')).toBe(
         '0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb',
       )
     })
@@ -69,7 +67,7 @@ describe('eth', () => {
 
     testValues.forEach(({ value, result }) => {
       it(`should test if value ${value} is address: ${result}`, () => {
-        expect(isHexEthAddress(value as unknown as string)).to.eql(result)
+        expect(isHexEthAddress(value as unknown as string)).toBe(result)
       })
     })
   })
@@ -88,7 +86,7 @@ describe('eth', () => {
 
     testValues.forEach(({ value, result, pad }) => {
       it(`should conver value ${value}${pad ? ` with pad ${pad}` : ''} to ${result}`, () => {
-        expect(toLittleEndian(value, pad)).to.eql(result)
+        expect(toLittleEndian(value, pad)).toBe(result)
       })
     })
 
@@ -96,7 +94,7 @@ describe('eth', () => {
 
     wrongTestValues.forEach(value =>
       it(`should throw for non string or positive int values: ${value}`, () => {
-        expect(() => toLittleEndian(value as unknown as string)).to.throw()
+        expect(() => toLittleEndian(value as unknown as string)).toThrow()
       }),
     )
   })
@@ -111,7 +109,7 @@ describe('eth', () => {
         const bigEndian = fromLittleEndian(littleEndian1)
         const littleEndian2 = fromLittleEndian(bigEndian)
 
-        expect(littleEndian1).to.eql(littleEndian2)
+        expect(littleEndian1).toBe(littleEndian2)
       })
     })
 
@@ -122,7 +120,7 @@ describe('eth', () => {
         const bigEndian = fromLittleEndian(littleEndian1, 10)
         const littleEndian2 = fromLittleEndian(bigEndian, 10)
 
-        expect(littleEndian1).to.eql(littleEndian2)
+        expect(littleEndian1).toBe(littleEndian2)
       })
     })
   })
@@ -149,7 +147,7 @@ describe('eth', () => {
 
     testValues.forEach(({ value, result }) => {
       it(`should create from ${value} to ${result}`, () => {
-        expect(ethToSwarmAddress(value)).to.eql(result)
+        expect(ethToSwarmAddress(value)).toBe(result)
       })
     })
 
@@ -178,7 +176,7 @@ describe('eth', () => {
 
     wrongTestValues.forEach((address, netId) =>
       it(`should throw for incorrect values address ${address} netId ${netId}`, () => {
-        expect(() => ethToSwarmAddress(address as unknown as string, netId as unknown as number)).to.throw()
+        expect(() => ethToSwarmAddress(address as unknown as string, netId as unknown as number)).toThrow()
       }),
     )
   })
@@ -190,33 +188,33 @@ describe('eth', () => {
       '0x336d24afef78c5883b96ad9a62552a8db3d236105cb059ddd04dc49680869dc16234f6852c277087f025d4114c4fac6b40295ecffd1194a84cdb91bd571769491b' as HexString
 
     it('should detect valid interface', async function () {
-      await expect(makeEthereumWalletSigner({})).rejectedWith()
-      await expect(makeEthereumWalletSigner('' as unknown as JsonRPC)).rejectedWith(TypeError)
-      await expect(makeEthereumWalletSigner(1 as unknown as JsonRPC)).rejectedWith(TypeError)
-      await expect(makeEthereumWalletSigner(null as unknown as JsonRPC)).rejectedWith(TypeError)
-      await expect(makeEthereumWalletSigner(undefined as unknown as JsonRPC)).rejectedWith(TypeError)
+      await expect(makeEthereumWalletSigner({})).rejects.toThrow()
+      await expect(makeEthereumWalletSigner('' as unknown as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner(1 as unknown as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner(null as unknown as JsonRPC)).rejects.toThrow(TypeError)
+      await expect(makeEthereumWalletSigner(undefined as unknown as JsonRPC)).rejects.toThrow(TypeError)
     })
 
     it('should request address if not specified', async function () {
-      const providerMock = sinon.stub()
-      providerMock.returns(['0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a'])
+      const providerMock = jest.fn()
+      providerMock.mockReturnValue(['0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a'])
 
       const signer = await makeEthereumWalletSigner({ request: providerMock } as JsonRPC)
 
-      expect(signer.address).to.eql(hexToBytes('f1B07aC6E91A423d9c3c834cc9d938E89E19334a'))
-      expect(providerMock).to.be.calledOnceWith({ method: 'eth_requestAccounts' })
+      expect(signer.address).toStrictEqual(hexToBytes('f1B07aC6E91A423d9c3c834cc9d938E89E19334a'))
+      expect(providerMock).toHaveBeenCalledWith({ method: 'eth_requestAccounts' })
     })
 
     it('should request signature when sign() is called', async function () {
-      const providerMock = sinon.stub()
-      providerMock.returns(expectedSignatureHex)
+      const providerMock = jest.fn()
+      providerMock.mockReturnValue(expectedSignatureHex)
 
       const signer = await makeEthereumWalletSigner(
         { request: providerMock } as JsonRPC,
         '0xf1B07aC6E91A423d9c3c834cc9d938E89E19334a',
       )
-      await expect(signer.sign(dataToSignWithHelpers)).eventually.to.eql(expectedSignatureHex)
-      expect(providerMock).to.be.calledOnceWith({
+      expect(await signer.sign(dataToSignWithHelpers)).toBe(expectedSignatureHex)
+      expect(providerMock).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         method: 'personal_sign',
         params: [
@@ -227,15 +225,15 @@ describe('eth', () => {
     })
 
     it('should normalize hex prefix for address', async function () {
-      const providerMock = sinon.stub()
-      providerMock.returns(expectedSignatureHex)
+      const providerMock = jest.fn()
+      providerMock.mockReturnValue(expectedSignatureHex)
 
       const signer = await makeEthereumWalletSigner(
         { request: providerMock } as JsonRPC,
         'f1B07aC6E91A423d9c3c834cc9d938E89E19334a',
       )
-      await expect(signer.sign(dataToSignWithHelpers)).eventually.to.eql(expectedSignatureHex)
-      expect(providerMock).to.be.calledOnceWith({
+      expect(await signer.sign(dataToSignWithHelpers)).toBe(expectedSignatureHex)
+      expect(providerMock).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         method: 'personal_sign',
         params: [
@@ -246,12 +244,12 @@ describe('eth', () => {
     })
 
     it('should validate eth address', async function () {
-      const providerMock = sinon.stub()
-      providerMock.returns(expectedSignatureHex)
+      const providerMock = jest.fn()
+      providerMock.mockReturnValue(expectedSignatureHex)
 
       await expect(
         makeEthereumWalletSigner({ request: providerMock } as JsonRPC, '0x307aC6E91A423d9c3c834cc9d938E89E19334a'),
-      ).rejectedWith(TypeError)
+      ).rejects.toThrow(TypeError)
     })
   })
 })

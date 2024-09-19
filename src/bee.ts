@@ -204,8 +204,11 @@ export class Bee {
   ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
     assertData(data)
+    assertRequestOptions(requestOptions)
 
-    if (options) assertUploadOptions(options)
+    if (options) {
+      assertUploadOptions(options)
+    }
 
     return bytes.upload(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
   }
@@ -265,6 +268,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
     assertBatchId(postageBatchId)
+    assertRequestOptions(requestOptions)
 
     if (!(data instanceof Uint8Array)) {
       throw new TypeError('Data has to be Uint8Array instance!')
@@ -278,7 +282,9 @@ export class Bee {
       throw new BeeArgumentError(`Chunk has to have size of at most ${CHUNK_SIZE}.`, data)
     }
 
-    if (options) assertUploadOptions(options)
+    if (options) {
+      assertUploadOptions(options)
+    }
 
     return chunk.upload(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
   }
@@ -315,6 +321,7 @@ export class Bee {
     grantees: string[],
     requestOptions?: BeeRequestOptions,
   ): Promise<GranteesResult> {
+    assertRequestOptions(requestOptions)
     assertBatchId(postageBatchId)
 
     return grantee.createGrantees(this.getRequestOptionsForCall(requestOptions), postageBatchId, grantees)
@@ -331,6 +338,8 @@ export class Bee {
     reference: ReferenceOrEns | string,
     requestOptions?: BeeRequestOptions,
   ): Promise<GetGranteesResult> {
+    assertRequestOptions(requestOptions)
+
     return grantee.getGrantees(reference, this.getRequestOptionsForCall(requestOptions))
   }
 
@@ -351,6 +360,7 @@ export class Bee {
     grantees: { add?: string[]; revoke?: string[] },
     requestOptions?: BeeRequestOptions,
   ): Promise<GranteesResult> {
+    assertRequestOptions(requestOptions)
     assertBatchId(postageBatchId)
 
     return grantee.patchGrantees(
@@ -385,10 +395,13 @@ export class Bee {
     options?: FileUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
+    assertRequestOptions(requestOptions)
     assertBatchId(postageBatchId)
     assertFileData(data)
 
-    if (options) assertFileUploadOptions(options)
+    if (options) {
+      assertFileUploadOptions(options)
+    }
 
     if (name && typeof name !== 'string') {
       throw new TypeError('name has to be string or undefined!')
@@ -498,9 +511,12 @@ export class Bee {
     options?: CollectionUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
+    assertRequestOptions(requestOptions)
     assertBatchId(postageBatchId)
 
-    if (options) assertCollectionUploadOptions(options)
+    if (options) {
+      assertCollectionUploadOptions(options)
+    }
 
     const data = await makeCollectionFromFileList(fileList)
 
@@ -524,14 +540,21 @@ export class Bee {
     postageBatchId: string | BatchId,
     collection: Collection,
     options?: CollectionUploadOptions & UploadRedundancyOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
+    assertRequestOptions(requestOptions)
     assertBatchId(postageBatchId)
     assertCollection(collection)
 
     if (options) assertCollectionUploadOptions(options)
 
     return addCidConversionFunction(
-      await bzz.uploadCollection(this.requestOptions, collection, postageBatchId, options),
+      await bzz.uploadCollection(
+        this.getRequestOptionsForCall(this.requestOptions),
+        collection,
+        postageBatchId,
+        options,
+      ),
       ReferenceType.MANIFEST,
     )
   }
@@ -559,6 +582,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResultWithCid> {
     assertBatchId(postageBatchId)
+    assertRequestOptions(requestOptions)
 
     if (options) assertCollectionUploadOptions(options)
     const data = await makeCollectionFromFS(dir)
@@ -594,11 +618,11 @@ export class Bee {
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)
    */
-  async getAllTags(options?: AllTagsOptions): Promise<Tag[]> {
-    assertRequestOptions(options)
+  async getAllTags(options?: AllTagsOptions, requestOptions?: BeeRequestOptions): Promise<Tag[]> {
+    assertRequestOptions(requestOptions)
     assertAllTagsOptions(options)
 
-    return tag.getAllTags(this.getRequestOptionsForCall(options), options?.offset, options?.limit)
+    return tag.getAllTags(this.getRequestOptionsForCall(requestOptions), options?.offset, options?.limit)
   }
 
   /**
@@ -790,7 +814,7 @@ export class Bee {
 
         return true
       } catch (e: any) {
-        if (e?.response?.status === 404) {
+        if (e?.status === 404 || e?.status === 500) {
           return false
         }
 
@@ -1087,10 +1111,10 @@ export class Bee {
     postageBatchId: string | BatchId,
     topic: string,
     data: T,
-    options?: JsonFeedOptions,
+    options?: JsonFeedOptions & UploadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
-    assertRequestOptions(options, 'JsonFeedOptions')
+    assertRequestOptions(requestOptions, 'JsonFeedOptions')
     assertBatchId(postageBatchId)
 
     const hashedTopic = this.makeFeedTopic(topic)
@@ -1119,8 +1143,12 @@ export class Bee {
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
-  async getJsonFeed<T extends AnyJson>(topic: string, options?: JsonFeedOptions): Promise<T> {
-    assertRequestOptions(options, 'JsonFeedOptions')
+  async getJsonFeed<T extends AnyJson>(
+    topic: string,
+    options?: JsonFeedOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<T> {
+    assertRequestOptions(requestOptions)
 
     const hashedTopic = this.makeFeedTopic(topic)
     const feedType = options?.type ?? DEFAULT_FEED_TYPE
@@ -1145,7 +1173,7 @@ export class Bee {
       }
     }
 
-    const reader = this.makeFeedReader(feedType, hashedTopic, address, options)
+    const reader = this.makeFeedReader(feedType, hashedTopic, address, requestOptions)
 
     return getJsonData(this, reader)
   }
@@ -1419,6 +1447,7 @@ export class Bee {
   ): Promise<string> {
     assertCashoutOptions(options)
     assertAddress(address)
+    assertRequestOptions(requestOptions)
 
     return chequebook.cashoutLastCheque(this.getRequestOptionsForCall(requestOptions), address, options)
   }
@@ -1651,6 +1680,7 @@ export class Bee {
     assertPostageBatchOptions(options)
     assertPositiveInteger(amount)
     assertNonNegativeInteger(depth)
+    assertRequestOptions(requestOptions)
 
     if (depth < STAMPS_DEPTH_MIN) {
       throw new BeeArgumentError(`Depth has to be at least ${STAMPS_DEPTH_MIN}`, depth)
@@ -1857,8 +1887,8 @@ export class Bee {
     options?: TransactionOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<void> {
-    assertRequestOptions(options)
     assertTransactionOptions(options)
+    assertRequestOptions(requestOptions)
 
     await stake.stake(this.getRequestOptionsForCall(requestOptions), amount, options)
   }
@@ -1905,7 +1935,7 @@ export class Bee {
       return this.signer
     }
 
-    throw new BeeError('You have to pass Signer as property to either the method call or constructor! Non found.')
+    throw new TypeError('You have to pass Signer as property to either the method call or constructor! Non found.')
   }
 
   private getRequestOptionsForCall(options?: BeeRequestOptions): BeeRequestOptions {

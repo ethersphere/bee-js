@@ -31,3 +31,5 @@ docs
 
 *.shape
 shaper.ts
+
+test/primitives/32mb.bin
