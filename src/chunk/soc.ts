@@ -1,7 +1,15 @@
-import { isUint8Array } from 'util/types'
+import { Binary } from 'cafe-utility'
 import * as chunkAPI from '../modules/chunk'
 import * as socAPI from '../modules/soc'
-import { BatchId, BeeRequestOptions, PlainBytesReference, Reference, Signature, Signer, UploadOptions } from '../types'
+import {
+  BatchId,
+  BeeRequestOptions,
+  PlainBytesReference,
+  Signature,
+  Signer,
+  UploadOptions,
+  UploadResult,
+} from '../types'
 import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { EthAddress } from '../utils/eth'
@@ -17,7 +25,6 @@ import {
   MAX_PAYLOAD_SIZE,
   MIN_PAYLOAD_SIZE,
 } from './cac'
-import { serializeBytes } from './serialize'
 import { recoverAddress, sign } from './signer'
 import { SPAN_SIZE } from './span'
 
@@ -109,7 +116,7 @@ export async function makeSingleOwnerChunk(
 
   const digest = keccak256Hash(identifier, chunkAddress)
   const signature = await sign(signer, digest)
-  const data = serializeBytes(identifier, signature, chunk.span(), chunk.payload())
+  const data = Binary.concatBytes(identifier, signature, chunk.span(), chunk.payload())
   const address = makeSOCAddress(identifier, signer.address)
 
   return {
@@ -128,7 +135,7 @@ export async function makeSingleOwnerChunk(
  *
  * It uses the Chunk API and calculates the address before uploading.
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions  Options for making requests
  * @param chunk           A chunk object
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options         Upload options
@@ -138,11 +145,11 @@ export async function uploadSingleOwnerChunk(
   chunk: SingleOwnerChunk,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const owner = bytesToHex(chunk.owner())
   const identifier = bytesToHex(chunk.identifier())
   const signature = bytesToHex(chunk.signature())
-  const data = serializeBytes(chunk.span(), chunk.payload())
+  const data = Binary.concatBytes(chunk.span(), chunk.payload())
 
   return socAPI.upload(requestOptions, owner, identifier, signature, data, postageBatchId, options)
 }
@@ -150,7 +157,7 @@ export async function uploadSingleOwnerChunk(
 /**
  * Helper function to create and upload SOC.
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions  Options for making requests
  * @param signer          The singer interface for signing the chunk
  * @param postageBatchId
  * @param identifier      The identifier of the chunk
@@ -164,11 +171,11 @@ export async function uploadSingleOwnerChunkData(
   identifier: Identifier,
   payload: Uint8Array | ChunkParam,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   assertAddress(postageBatchId)
   let cac: Chunk
 
-  if (isUint8Array(payload)) {
+  if (payload instanceof Uint8Array) {
     cac = makeContentAddressedChunk(payload)
   } else {
     cac = makeContentAddressedChunk(payload.chunkPayload, payload.chunkSpan)

@@ -2,14 +2,15 @@ import type {
   BatchId,
   BeeRequestOptions,
   Data,
-  Reference,
   ReferenceOrEns,
   ReferenceResponse,
   UploadOptions,
+  UploadResult,
 } from '../types'
 import { wrapBytesWithHelpers } from '../utils/bytes'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+import { makeTagUid } from '../utils/type'
 
 const endpoint = 'chunks'
 
@@ -20,7 +21,7 @@ const endpoint = 'chunks'
  * The span stores the length of the payload in uint64 little endian encoding.
  * Upload expects the chuck data to be set accordingly.
  *
- * @param ky Ky instance
+ * @param requestOptions Options for making requests
  * @param data    Chunk data to be uploaded
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options Additional options like tag, encryption, pinning
@@ -30,7 +31,7 @@ export async function upload(
   data: Uint8Array,
   postageBatchId: BatchId,
   options?: UploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const response = await http<ReferenceResponse>(requestOptions, {
     method: 'post',
     url: `${endpoint}`,
@@ -42,13 +43,17 @@ export async function upload(
     responseType: 'json',
   })
 
-  return response.data.reference
+  return {
+    reference: response.data.reference,
+    tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
+    historyAddress: response.headers['swarm-act-history-address'] || '',
+  }
 }
 
 /**
  * Download chunk data as a byte array
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param hash Bee content reference
  *
  */

@@ -1,6 +1,91 @@
 # Changelog
 
 
+## [8.0.2](https://github.com/ethersphere/bee-js/compare/v8.0.1...v8.0.2) (2024-09-16)
+
+
+### Bug Fixes
+
+* handle bad request in feed index lookup ([#949](https://github.com/ethersphere/bee-js/issues/949)) ([a1730f9](https://github.com/ethersphere/bee-js/commit/a1730f907e90c77caaeb00a8b6306f04fc9e9f19))
+
+## [8.0.1](https://github.com/ethersphere/bee-js/compare/v8.0.0...v8.0.1) (2024-09-16)
+
+
+### Bug Fixes
+
+* allow collection items with zero size ([#947](https://github.com/ethersphere/bee-js/issues/947)) ([e5d9590](https://github.com/ethersphere/bee-js/commit/e5d9590774000acdea29eb1fa5409704e2b26a05))
+
+## [8.0.0](https://github.com/ethersphere/bee-js/compare/v7.1.2...v8.0.0) (2024-09-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* add act ([#942](https://github.com/ethersphere/bee-js/issues/942))
+
+### Features
+
+* add act ([#942](https://github.com/ethersphere/bee-js/issues/942)) ([09f22ee](https://github.com/ethersphere/bee-js/commit/09f22ee1b9cd462c6eb8bbc762ee58fdd1aa961e))
+
+## [7.1.2](https://github.com/ethersphere/bee-js/compare/v7.1.1...v7.1.2) (2024-09-10)
+
+
+### Bug Fixes
+
+* fix tar padding ([#943](https://github.com/ethersphere/bee-js/issues/943)) ([a40d5ec](https://github.com/ethersphere/bee-js/commit/a40d5ecab2e325353f8dc7a71adda0ab1c8b29a4))
+
+## [7.1.1](https://github.com/ethersphere/bee-js/compare/v7.1.0...v7.1.1) (2024-08-08)
+
+
+### Bug Fixes
+
+* correct jsdocs links ([#938](https://github.com/ethersphere/bee-js/issues/938)) ([105909d](https://github.com/ethersphere/bee-js/commit/105909db865ea29be449cba9d1e54c2b479138aa))
+
+## [7.1.0](https://github.com/ethersphere/bee-js/compare/v7.0.4...v7.1.0) (2024-07-17)
+
+
+### Features
+
+* add capitalizeAddressERC55 function ([#933](https://github.com/ethersphere/bee-js/issues/933)) ([8e06014](https://github.com/ethersphere/bee-js/commit/8e06014fe2be32e6435bdec3fc75c86dbbc77f10))
+
+## [7.0.4](https://github.com/ethersphere/bee-js/compare/v7.0.3...v7.0.4) (2024-07-17)
+
+
+### Bug Fixes
+
+* add chaintip field ([#931](https://github.com/ethersphere/bee-js/issues/931)) ([4a45a56](https://github.com/ethersphere/bee-js/commit/4a45a562c649d90cb6fa3668cd74bf033ca18ad5))
+
+## [7.0.3](https://github.com/ethersphere/bee-js/compare/v7.0.2...v7.0.3) (2024-06-18)
+
+
+### Bug Fixes
+
+* ignore errors while waiting for stamp ([#927](https://github.com/ethersphere/bee-js/issues/927)) ([ac2092e](https://github.com/ethersphere/bee-js/commit/ac2092e173fe122d66bca77ddb9bbd3be351942a))
+
+## [7.0.2](https://github.com/ethersphere/bee-js/compare/v7.0.1...v7.0.2) (2024-06-17)
+
+
+### Bug Fixes
+
+* allow falsy feed index ([#925](https://github.com/ethersphere/bee-js/issues/925)) ([4e63889](https://github.com/ethersphere/bee-js/commit/4e638894144ff1eae1f6d095f9022da8a80df9a8))
+
+## [7.0.1](https://github.com/ethersphere/bee-js/compare/v7.0.0...v7.0.1) (2024-06-17)
+
+
+### Bug Fixes
+
+* floor update feed timestamp ([#923](https://github.com/ethersphere/bee-js/issues/923)) ([7170b47](https://github.com/ethersphere/bee-js/commit/7170b47f0751fc2daf7ee481da8eba8b7fb5de47))
+
+## [7.0.0](https://github.com/ethersphere/bee-js/compare/v6.9.1...v7.0.0) (2024-06-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* merge api ([#920](https://github.com/ethersphere/bee-js/issues/920))
+
+### Features
+
+* merge api ([#920](https://github.com/ethersphere/bee-js/issues/920)) ([a7b68be](https://github.com/ethersphere/bee-js/commit/a7b68be04b859832c5a003cc95ab9ed598acb456))
+
 ## [6.9.1](https://github.com/ethersphere/bee-js/compare/v6.9.0...v6.9.1) (2024-04-24)
 
 

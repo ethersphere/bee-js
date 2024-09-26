@@ -1,7 +1,6 @@
 import { bmtHash } from '../../../src/chunk/bmt'
 import { makeSpan } from '../../../src/chunk/span'
 import { bytesToHex } from '../../../src/utils/hex'
-import { expect } from 'chai'
 
 describe('bmt', () => {
   it('should produce correct BMT hash', () => {
@@ -12,6 +11,6 @@ describe('bmt', () => {
 
     const result = bmtHash(data)
 
-    expect(bytesToHex(result)).to.eql(hash)
+    expect(bytesToHex(result)).toBe(hash)
   })
 })

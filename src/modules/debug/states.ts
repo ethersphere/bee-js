@@ -8,7 +8,7 @@ const CHAIN_STATE_ENDPOINT = 'chainstate'
 /**
  * Get state of reserve
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getReserveState(requestOptions: BeeRequestOptions): Promise<ReserveState> {
   const response = await http<ReserveState>(requestOptions, {
@@ -23,7 +23,7 @@ export async function getReserveState(requestOptions: BeeRequestOptions): Promis
 /**
  * Get state of reserve
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getChainState(requestOptions: BeeRequestOptions): Promise<ChainState> {
   const response = await http<ChainState>(requestOptions, {
@@ -38,7 +38,7 @@ export async function getChainState(requestOptions: BeeRequestOptions): Promise<
 /**
  * Get wallet balances for xDai and BZZ of the node
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  */
 export async function getWalletBalance(requestOptions: BeeRequestOptions): Promise<WalletBalance> {
   const response = await http<WalletBalance>(requestOptions, {
@@ -47,21 +47,5 @@ export async function getWalletBalance(requestOptions: BeeRequestOptions): Promi
     responseType: 'json',
   })
 
-  return mapWalletProperties(response.data)
-}
-
-/**
- * TODO: Remove on next break
- * @param data
- */
-function mapWalletProperties(data: WalletBalance): WalletBalance {
-  return {
-    // @ts-ignore: Needed for backward compatibility mapping
-    bzz: data.bzzBalance,
-    // @ts-ignore: Needed for backward compatibility mapping
-    xDai: data.nativeTokenBalance,
-    // @ts-ignore: Needed for backward compatibility mapping
-    contractAddress: data.chequebookContractAddress,
-    ...data,
-  }
+  return response.data
 }

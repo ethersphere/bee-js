@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import { assertValidChunkData, makeContentAddressedChunk } from '../../../src/chunk/cac'
 import * as chunkAPI from '../../../src/modules/chunk'
 import { assertBytes } from '../../../src/utils/bytes'
@@ -15,7 +14,7 @@ describe('cac', () => {
     const reference = bytesToHex(address)
     const response = await chunkAPI.upload(beeKyOptions(), cac.data, getPostageBatch())
 
-    expect(response).to.eql(reference)
+    expect(response.reference).toBe(reference)
   })
 
   it('download content address chunk', async function () {
@@ -23,6 +22,6 @@ describe('cac', () => {
     assertBytes(address, 32)
     const data = await chunkAPI.download(beeKyOptions(), contentHash)
 
-    expect(() => assertValidChunkData(data, address)).not.to.throw()
+    expect(() => assertValidChunkData(data, address)).not.toThrow()
   })
 })

@@ -3,14 +3,31 @@ import pkg from 'js-sha3'
 const { keccak256, sha3_256 } = pkg
 
 import { BrandedString, Data, Signer } from '../types'
-import { HexString, hexToBytes, intToHex, makeHexString, assertHexString } from './hex'
 import { Bytes, assertBytes } from './bytes'
+import { HexString, assertHexString, hexToBytes, intToHex, makeHexString } from './hex'
 
 export type OverlayAddress = BrandedString<'OverlayAddress'>
 export type EthAddress = Bytes<20>
 export type HexEthAddress = HexString<40>
 const ETH_ADDR_BYTES_LENGTH = 20
 const ETH_ADDR_HEX_LENGTH = 40
+
+export function capitalizeAddressERC55(address: string): string {
+  if (address.startsWith('0x')) {
+    address = address.slice(2)
+  }
+  const addressHash = keccak256(address.toLowerCase())
+  let result = '0x'
+  for (let i = 0; i < address.length; i++) {
+    if (parseInt(addressHash[i], 16) > 7) {
+      result += address[i].toUpperCase()
+    } else {
+      result += address[i].toLowerCase()
+    }
+  }
+
+  return result
+}
 
 export function makeEthAddress(address: EthAddress | Uint8Array | string | unknown): EthAddress {
   if (typeof address === 'string') {

@@ -1,4 +1,4 @@
-import { AxiosAdapter } from 'axios'
+import { ChunkParam } from '../chunk/cac'
 import type { Identifier, SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
 import type { FeedType } from '../feed/type'
@@ -7,11 +7,6 @@ import type { Bytes } from '../utils/bytes'
 import type { BeeError } from '../utils/error'
 import type { EthAddress, HexEthAddress } from '../utils/eth'
 import type { HexString } from '../utils/hex'
-
-import type { Readable as CompatibilityReadable } from 'readable-stream'
-import type { Readable as NativeReadable } from 'stream'
-import type { ReadableStream as ReadableStreamPonyfill } from 'web-streams-polyfill'
-import { ChunkParam } from '../chunk/cac'
 
 export * from './debug'
 
@@ -39,6 +34,11 @@ export const ENCRYPTED_REFERENCE_BYTES_LENGTH = 64
 export const STAMPS_DEPTH_MIN = 17
 
 /**
+ * Minimal amount that can be used for creation of postage batch
+ */
+export const STAMPS_AMOUNT_MIN = 24000 * 24 * 60 * 12
+
+/**
  * Maximal depth that can be used for creation of postage batch
  */
 export const STAMPS_DEPTH_MAX = 255
@@ -54,7 +54,7 @@ export const FEED_INDEX_HEX_LENGTH = 16
  *
  * Encrypted reference consists of two parts. The reference address itself (like non-encrypted reference) and decryption key.
  *
- * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
+ * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/develop/access-the-swarm/store-with-encryption)
  */
 export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
 
@@ -77,12 +77,6 @@ export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
 export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
 
 /**
- * Type representing Readable stream that abstracts away implementation especially the difference between
- * browser and NodeJS versions as both are supported.
- */
-export type Readable = NativeReadable | CompatibilityReadable | ReadableStream | ReadableStreamPonyfill
-
-/**
  * BatchId is result of keccak256 hash so 64 hex string without prefix.
  */
 export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
@@ -96,9 +90,7 @@ export type AddressPrefix = HexString
 export type BeeRequestOptions = {
   baseURL?: string
   timeout?: number | false
-  retry?: number | false
   headers?: Record<string, string>
-  adapter?: AxiosAdapter
   onRequest?: (request: BeeRequest) => void
 }
 
@@ -107,6 +99,19 @@ export interface BeeOptions extends BeeRequestOptions {
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   signer?: Signer | Uint8Array | string
+}
+
+export interface GranteesResult {
+  status: number
+  statusText: string
+  ref: Reference
+  historyref: Reference
+}
+
+export interface GetGranteesResult {
+  status: number
+  statusText: string
+  data: string[]
 }
 
 export interface UploadResultWithCid extends UploadResult {
@@ -132,24 +137,34 @@ export interface UploadResult {
    * Automatically created tag's UID.
    */
   tagUid?: number
+
+  /**
+   * History address of the uploaded data with ACT.
+   */
+  historyAddress: string
 }
 
 export interface UploadOptions {
+  /**
+   * If set to true, an ACT will be created for the uploaded data.
+   *
+   */
+  act?: boolean
   /**
    * Will pin the data locally in the Bee node as well.
    *
    * Locally pinned data is possible to reupload to network if it disappear.
    *
-   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/access-the-swarm/pinning)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   pin?: boolean
 
   /**
    * Will encrypt the uploaded data and return longer hash which also includes the decryption key.
    *
-   * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/access-the-swarm/store-with-encryption)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
+   * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/develop/access-the-swarm/store-with-encryption)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    * @see Reference
    */
   encrypt?: boolean
@@ -157,8 +172,8 @@ export interface UploadOptions {
   /**
    * Tags keep track of syncing the data with network. This option allows attach existing Tag UUID to the uploaded data.
    *
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/Collection/paths/~1bzz/post)
-   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
+   * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @link Tag
    */
   tag?: number
@@ -228,14 +243,14 @@ export interface FileUploadOptions extends UploadOptions {
   /**
    * Specifies Content-Length for the given data. It is required when uploading with Readable.
    *
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   size?: number
 
   /**
    * Specifies given Content-Type so when loaded in browser the file is correctly represented.
    *
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   contentType?: string
 }
@@ -244,21 +259,22 @@ export interface CollectionUploadOptions extends UploadOptions {
   /**
    * Default file to be returned when the root hash of collection is accessed.
    *
-   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   indexDocument?: string
 
   /**
    * Configure custom error document to be returned when a specified path can not be found in collection.
    *
-   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/access-the-swarm/upload-a-directory)
-   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/File)
+   * @see [Bee docs - Upload a directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
+   * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   errorDocument?: string
 }
 
 export interface UploadHeaders {
+  'swarm-act'?: string
   'swarm-pin'?: string
   'swarm-encrypt'?: string
   'swarm-tag'?: string
@@ -268,7 +284,7 @@ export interface UploadHeaders {
 /**
  * Object that contains infromation about progress of upload of data to network.
  *
- * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/access-the-swarm/syncing)
+ * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
  */
 export interface Tag {
   /**
@@ -358,19 +374,17 @@ export interface Data extends Uint8Array {
 /**
  * Object represents a file and some of its metadata in [[Directory]] object.
  */
-export interface CollectionEntry<T> {
-  data: T
-
-  /**
-   *
-   */
+export interface CollectionEntry {
   path: string
+  size: number
+  file?: File
+  fsPath?: string
 }
 
 /**
  * Represents Collections
  */
-export type Collection<T> = Array<CollectionEntry<T>>
+export type Collection = Array<CollectionEntry>
 
 export interface PssSubscription {
   readonly topic: string
@@ -478,13 +492,14 @@ export interface FeedWriter extends FeedReader {
    * @param payload   Lesser than one chunk payload or the root chunk of a chunk tree. Other than root chunk should be uploaded separately.
    * @param options   Additional options like `at`
    *
-   * @returns Reference that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
+   * @returns UpdateResult that points at Single Owner Chunk that contains the new update and pointer to the updated chunk reference.
    */
   upload(
     postageBatchId: string | BatchId,
     payload: Uint8Array | ChunkParam,
     options?: FeedUploadOptions,
-  ): Promise<Reference>
+    requestOptions?: BeeRequestOptions,
+  ): Promise<UploadResult>
 }
 
 /**
@@ -516,7 +531,7 @@ export interface SOCWriter extends SOCReader {
     identifier: Identifier,
     data: Uint8Array,
     options?: UploadOptions,
-  ) => Promise<Reference>
+  ) => Promise<UploadResult>
 }
 
 /**

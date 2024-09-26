@@ -1,5 +1,5 @@
-import { uploadSingleOwnerChunkData } from '../chunk/soc'
 import { ChunkParam } from '../chunk/cac'
+import { uploadSingleOwnerChunkData } from '../chunk/soc'
 import { FeedUpdateOptions, FetchFeedUpdateResponse, fetchLatestFeedUpdate } from '../modules/feed'
 import * as socAPI from '../modules/soc'
 import {
@@ -11,12 +11,13 @@ import {
   FeedReader,
   FeedWriter,
   PlainBytesReference,
-  Reference,
   Signer,
   Topic,
   UploadOptions,
+  UploadResult,
 } from '../types'
 import { Bytes, makeBytes } from '../utils/bytes'
+import { BeeResponseError } from '../utils/error'
 import { EthAddress, HexEthAddress, makeHexEthAddress } from '../utils/eth'
 import { keccak256Hash } from '../utils/hash'
 import { HexString, bytesToHex, hexToBytes, makeHexString } from '../utils/hex'
@@ -49,7 +50,7 @@ export async function findNextIndex(
 
     return makeHexString(feedUpdate.feedIndexNext, FEED_INDEX_HEX_LENGTH)
   } catch (e: any) {
-    if (e?.response?.status === 404) {
+    if (e instanceof BeeResponseError) {
       return bytesToHex(makeBytes(8))
     }
     throw e
@@ -63,9 +64,9 @@ export async function updateFeed(
   payload: Uint8Array | ChunkParam,
   postageBatchId: BatchId,
   options?: FeedUploadOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const ownerHex = makeHexEthAddress(signer.address)
-  const nextIndex = options?.index || (await findNextIndex(requestOptions, ownerHex, topic, options))
+  const nextIndex = options?.index ?? (await findNextIndex(requestOptions, ownerHex, topic, options))
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
 
@@ -101,7 +102,7 @@ export function makeFeedReader(
     topic,
     async download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse> {
       if (!options?.index && options?.index !== 0) {
-        return fetchLatestFeedUpdate(requestOptions, owner, topic, { ...options, type })
+        return fetchLatestFeedUpdate(requestOptions, owner, topic)
       }
 
       const update = await downloadFeedUpdate(requestOptions, hexToBytes(owner), topic, options.index)

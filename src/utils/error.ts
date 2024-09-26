@@ -1,5 +1,3 @@
-import { AxiosRequestConfig, AxiosResponse } from 'axios'
-
 export class BeeError extends Error {
   public constructor(message: string) {
     super(message)
@@ -14,13 +12,12 @@ export class BeeArgumentError extends BeeError {
 
 export class BeeResponseError extends BeeError {
   public constructor(
+    public method: string,
+    public url: string,
     message: string,
-    public code?: string,
-    public axiosStatus?: number,
+    public responseBody?: any,
     public status?: number,
-    public config?: AxiosRequestConfig,
-    public request?: any,
-    public response?: AxiosResponse,
+    public statusText?: string,
   ) {
     super(message)
   }

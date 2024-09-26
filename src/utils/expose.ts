@@ -27,6 +27,7 @@ export {
 
 export {
   EthAddress,
+  capitalizeAddressERC55,
   ethToSwarmAddress,
   fromLittleEndian,
   isHexEthAddress,
@@ -35,15 +36,6 @@ export {
   makeHexEthAddress,
   toLittleEndian,
 } from './eth'
-
-export {
-  isNodeReadable,
-  isReadable,
-  isReadableStream,
-  normalizeToReadableStream,
-  readableNodeToWeb,
-  readableWebToNode,
-} from './stream'
 
 export { keccak256Hash } from './hash'
 export { makeMaxTarget } from './pss'

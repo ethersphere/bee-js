@@ -19,7 +19,7 @@ const endpoint = 'bytes'
 /**
  * Upload data to a Bee node
  *
- * @param kyOptions Ky Options for making requests
+ * @param requestOptions Options for making requests
  * @param data            Data to be uploaded
  * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
  * @param options         Additional options like tag, encryption, pinning
@@ -44,13 +44,14 @@ export async function upload(
   return {
     reference: response.data.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
+    historyAddress: response.headers['swarm-act-history-address'] || '',
   }
 }
 
 /**
  * Download data as a byte array
  *
- * @param ky
+ * @param requestOptions Options for making requests
  * @param hash Bee content reference
  */
 export async function download(
@@ -70,7 +71,7 @@ export async function download(
 /**
  * Download data as a readable stream
  *
- * @param ky
+ * @param requestOptions Options for making requests
  * @param hash Bee content reference
  */
 export async function downloadReadable(

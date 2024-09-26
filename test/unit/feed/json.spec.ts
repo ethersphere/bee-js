@@ -1,10 +1,9 @@
 import { Arg, Substitute } from '@fluffy-spoon/substitute'
 import { AnyJson, Bee, FeedWriter, Reference } from '../../../src'
-import { testAddress, testBatchId, testChunkHash } from '../../utils'
 import { getJsonData, setJsonData } from '../../../src/feed/json'
 import { FetchFeedUpdateResponse } from '../../../src/modules/feed'
 import { wrapBytesWithHelpers } from '../../../src/utils/bytes'
-import { expect } from 'chai'
+import { testAddress, testBatchId, testChunkHash } from '../../utils'
 
 interface CircularReference {
   otherData: 123
@@ -12,7 +11,7 @@ interface CircularReference {
 }
 
 describe('JsonFeed', () => {
-  const DATA_REFERENCE = testChunkHash as Reference
+  const DATA_REFERENCE: Reference = testChunkHash
   const FEED_REFERENCE_HASH = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a1111' as Reference
   const FEED_REFERENCE = {
     reference: FEED_REFERENCE_HASH,
@@ -21,14 +20,14 @@ describe('JsonFeed', () => {
   function testSet(data: unknown, expectedBytes: Uint8Array): void {
     it(`should set feed for data: ${data}`, async () => {
       const bee = Substitute.for<Bee>()
-      bee.uploadData(Arg.all()).resolves({ reference: DATA_REFERENCE, tagUid: 0 })
+      bee.uploadData(Arg.all()).resolves({ reference: DATA_REFERENCE, tagUid: 0, historyAddress: '00'.repeat(32) })
 
       const writer = Substitute.for<FeedWriter>()
-      writer.upload(Arg.all()).resolves(FEED_REFERENCE_HASH)
+      writer.upload(Arg.all()).resolves({ reference: FEED_REFERENCE_HASH, historyAddress: '00'.repeat(32) })
 
-      await expect(setJsonData(bee, writer, testAddress, data as AnyJson)).eventually.to.eql(FEED_REFERENCE_HASH)
+      expect((await setJsonData(bee, writer, testAddress, data as AnyJson)).reference).toBe(FEED_REFERENCE_HASH)
       bee.received(1).uploadData(testAddress, expectedBytes)
-      writer.received(1).upload(testAddress, DATA_REFERENCE)
+      writer.received(1).upload(testAddress, DATA_REFERENCE, { pin: undefined })
     })
 
     it(`should get feed for data: ${data}`, async () => {
@@ -38,7 +37,7 @@ describe('JsonFeed', () => {
       const writer = Substitute.for<FeedWriter>()
       writer.download().resolves(FEED_REFERENCE)
 
-      await expect(getJsonData(bee, writer)).eventually.to.eql(data)
+      expect(await getJsonData(bee, writer)).toStrictEqual(data)
       bee.received(1).downloadData(FEED_REFERENCE_HASH)
       writer.received(1).download()
     })
@@ -63,12 +62,12 @@ describe('JsonFeed', () => {
   it(`should fail for non-serializable data`, async () => {
     const bee = Substitute.for<Bee>()
     const writer = Substitute.for<FeedWriter>()
-    await expect(setJsonData(bee, writer, testAddress, BigInt(123) as unknown as AnyJson)).rejectedWith(TypeError)
+    await expect(setJsonData(bee, writer, testAddress, BigInt(123) as unknown as AnyJson)).rejects.toThrow(TypeError)
 
     const circularReference: CircularReference = { otherData: 123 }
     circularReference.myself = circularReference
 
     // @ts-ignore: Circular references are detected with TS, so we have to ts-ignore to test it.
-    await expect(setJsonData(bee, writer, testBatchId, circularReference)).rejectedWith(TypeError)
+    await expect(setJsonData(bee, writer, testBatchId, circularReference)).rejects.toThrow(TypeError)
   })
 })

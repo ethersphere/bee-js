@@ -1,8 +1,7 @@
-import { expect } from 'chai'
 import * as chunk from '../../../src/modules/chunk'
-import { beeKyOptions, ERR_TIMEOUT, getPostageBatch, invalidReference } from '../../utils'
+import { beeKyOptions, getPostageBatch, invalidReference } from '../../utils'
 
-const BEE_KY_OPTIONS = beeKyOptions()
+const BEE_REQUEST_OPTIONS = beeKyOptions()
 
 describe('modules/chunk', () => {
   it('should store and retrieve data', async function () {
@@ -13,16 +12,16 @@ describe('modules/chunk', () => {
     // the hash is hardcoded because we would need the bmt hasher otherwise
     const reference = 'ca6357a08e317d15ec560fef34e4c45f8f19f01c372aa70f1da72bfa7f1a4338'
 
-    const response = await chunk.upload(BEE_KY_OPTIONS, data, getPostageBatch())
-    expect(response).to.eql(reference)
+    const uploadResult = await chunk.upload(BEE_REQUEST_OPTIONS, data, getPostageBatch())
+    expect(uploadResult.reference).toBe(reference)
 
-    const downloadedData = await chunk.download(BEE_KY_OPTIONS, response)
-    expect(downloadedData).to.eql(data)
+    const downloadedData = await chunk.download(BEE_REQUEST_OPTIONS, uploadResult.reference)
+    expect(JSON.stringify(downloadedData)).toBe(JSON.stringify(data))
   })
 
   it('should catch error', async function () {
-    this.timeout(ERR_TIMEOUT)
-
-    await expect(chunk.download(BEE_KY_OPTIONS, invalidReference)).rejectedWith('Request failed with status code 404')
+    await expect(chunk.download(BEE_REQUEST_OPTIONS, invalidReference)).rejects.toThrow(
+      'Request failed with status code 500',
+    )
   })
 })
