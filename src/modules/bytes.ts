@@ -4,6 +4,7 @@ import type {
   Data,
   DownloadRedundancyOptions,
   Reference,
+  ReferenceInformation,
   ReferenceOrEns,
   UploadOptions,
   UploadRedundancyOptions,
@@ -45,6 +46,24 @@ export async function upload(
     reference: response.data.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address'] || '',
+  }
+}
+
+/**
+ * Requests content length for a reference
+ *
+ * @param requestOptions Options for making requests
+ * @param hash Bee content reference
+ */
+export async function head(requestOptions: BeeRequestOptions, hash: ReferenceOrEns): Promise<ReferenceInformation> {
+  const response = await http<void>(requestOptions, {
+    url: `${endpoint}/${hash}`,
+    method: 'head',
+    responseType: 'json',
+  })
+
+  return {
+    contentLength: parseInt(response.headers['content-length'] as string),
   }
 }
 
