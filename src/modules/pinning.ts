@@ -64,5 +64,5 @@ export async function getAllPins(requestOptions: BeeRequestOptions): Promise<Ref
     url: `${PINNING_ENDPOINT}`,
   })
 
-  return response.data.references
+  return response.data?.references || []
 }
