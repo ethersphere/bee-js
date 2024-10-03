@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [8.1.0](https://github.com/ethersphere/bee-js/compare/v8.0.2...v8.1.0) (2024-10-03)
+
+
+### Features
+
+* harden internals ([#952](https://github.com/ethersphere/bee-js/issues/952)) ([a640272](https://github.com/ethersphere/bee-js/commit/a64027272cb5131d73a48369a50f66927712890e))
+
+
+### Bug Fixes
+
+* handle null pinnings as empty list ([#955](https://github.com/ethersphere/bee-js/issues/955)) ([62496f7](https://github.com/ethersphere/bee-js/commit/62496f733611fdeb23b5934d074c1204408474e1))
+
 ## [8.0.2](https://github.com/ethersphere/bee-js/compare/v8.0.1...v8.0.2) (2024-09-16)
 
 
