@@ -24,7 +24,6 @@ export interface Chunk {
   readonly data: Uint8Array
   span(): Bytes<8>
   payload(): FlexBytes<1, 4096>
-
   address(): PlainBytesReference
 }
 

@@ -22,14 +22,14 @@ const endpoint = 'chunks'
  * Upload expects the chuck data to be set accordingly.
  *
  * @param requestOptions Options for making requests
- * @param data    Chunk data to be uploaded
- * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
+ * @param data Chunk data to be uploaded
+ * @param stamp BatchId or marshaled stamp to be used for the upload
  * @param options Additional options like tag, encryption, pinning
  */
 export async function upload(
   requestOptions: BeeRequestOptions,
   data: Uint8Array,
-  postageBatchId: BatchId,
+  stamp: BatchId | Uint8Array | string,
   options?: UploadOptions,
 ): Promise<UploadResult> {
   const response = await http<ReferenceResponse>(requestOptions, {
@@ -38,7 +38,7 @@ export async function upload(
     data,
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractUploadHeaders(postageBatchId, options),
+      ...extractUploadHeaders(stamp, options),
     },
     responseType: 'json',
   })

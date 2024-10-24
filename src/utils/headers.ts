@@ -1,3 +1,4 @@
+import { Binary } from 'cafe-utility'
 import { BatchId, DownloadRedundancyOptions, FileHeaders, UploadOptions, UploadRedundancyOptions } from '../types'
 import { BeeError } from './error'
 
@@ -44,13 +45,20 @@ export function readFileHeaders(headers: Record<string, string>): FileHeaders {
   }
 }
 
-export function extractUploadHeaders(postageBatchId: BatchId, options?: UploadOptions): Record<string, string> {
-  if (!postageBatchId) {
-    throw new BeeError('Postage BatchID has to be specified!')
+export function extractUploadHeaders(
+  stamp: BatchId | Uint8Array | string,
+  options?: UploadOptions,
+): Record<string, string> {
+  if (!stamp) {
+    throw new BeeError('Stamp has to be specified!')
   }
 
-  const headers: Record<string, string> = {
-    'swarm-postage-batch-id': postageBatchId,
+  const headers: Record<string, string> = {}
+
+  if (stamp instanceof Uint8Array) {
+    headers['swarm-postage-stamp'] = Binary.uint8ArrayToHex(stamp)
+  } else {
+    headers['swarm-postage-batch-id'] = stamp
   }
 
   if (options?.act) {

@@ -21,7 +21,7 @@ import * as states from './modules/debug/states'
 import * as debugStatus from './modules/debug/status'
 import * as debugTag from './modules/debug/tag'
 import * as transactions from './modules/debug/transactions'
-import { EnvelopeResponse, postEnvelope } from './modules/envelope'
+import { postEnvelope } from './modules/envelope'
 import { createFeedManifest } from './modules/feed'
 import * as grantee from './modules/grantee'
 import * as pinning from './modules/pinning'
@@ -45,6 +45,7 @@ import type {
   CollectionUploadOptions,
   Data,
   DebugStatus,
+  Envelope,
   ExtendedTag,
   FeedReader,
   FeedWriter,
@@ -276,12 +277,11 @@ export class Bee {
    * @see [Bee API reference - `POST /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)
    */
   async uploadChunk(
-    postageBatchId: string | BatchId,
+    stamp: BatchId | Uint8Array | string,
     data: Uint8Array,
     options?: UploadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
-    assertBatchId(postageBatchId)
     assertRequestOptions(requestOptions)
 
     if (!(data instanceof Uint8Array)) {
@@ -300,7 +300,7 @@ export class Bee {
       assertUploadOptions(options)
     }
 
-    return chunk.upload(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
+    return chunk.upload(this.getRequestOptionsForCall(requestOptions), data, stamp, options)
   }
 
   /**
@@ -1030,7 +1030,7 @@ export class Bee {
    * @see [Bee API reference - `POST /feeds`](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1{owner}~1{topic}/post)
    */
   async createFeedManifest(
-    postageBatchId: string | BatchId,
+    stamp: BatchId | Uint8Array | string,
     type: FeedType,
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
@@ -1038,7 +1038,6 @@ export class Bee {
   ): Promise<FeedManifestResult> {
     assertRequestOptions(options)
     assertFeedType(type)
-    assertBatchId(postageBatchId)
 
     const canonicalTopic = makeTopic(topic)
     const canonicalOwner = makeHexEthAddress(owner)
@@ -1047,7 +1046,7 @@ export class Bee {
       this.getRequestOptionsForCall(options),
       canonicalOwner,
       canonicalTopic,
-      postageBatchId,
+      stamp,
     )
 
     return addCidConversionFunction({ reference }, ReferenceType.FEED)
@@ -1234,16 +1233,11 @@ export class Bee {
 
     return {
       ...this.makeSOCReader(canonicalSigner.address, options),
-
       upload: uploadSingleOwnerChunkData.bind(null, this.getRequestOptionsForCall(options), canonicalSigner),
     }
   }
 
-  async createEnvelope(
-    postageBatchId: BatchId,
-    reference: Reference,
-    options?: BeeRequestOptions,
-  ): Promise<EnvelopeResponse> {
+  async createEnvelope(postageBatchId: BatchId, reference: Reference, options?: BeeRequestOptions): Promise<Envelope> {
     assertRequestOptions(options)
 
     return postEnvelope(this.getRequestOptionsForCall(options), postageBatchId, reference)

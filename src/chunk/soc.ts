@@ -15,7 +15,6 @@ import { BeeError } from '../utils/error'
 import { EthAddress } from '../utils/eth'
 import { keccak256Hash } from '../utils/hash'
 import { bytesToHex } from '../utils/hex'
-import { assertAddress } from '../utils/type'
 import { bmtHash } from './bmt'
 import { Chunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, assertValidChunkData, makeContentAddressedChunk } from './cac'
 import { recoverAddress, sign } from './signer'
@@ -136,7 +135,7 @@ export async function makeSingleOwnerChunk(
 export async function uploadSingleOwnerChunk(
   requestOptions: BeeRequestOptions,
   chunk: SingleOwnerChunk,
-  postageBatchId: BatchId,
+  stamp: BatchId | Uint8Array | string,
   options?: UploadOptions,
 ): Promise<UploadResult> {
   const owner = bytesToHex(chunk.owner())
@@ -144,7 +143,7 @@ export async function uploadSingleOwnerChunk(
   const signature = bytesToHex(chunk.signature())
   const data = Binary.concatBytes(chunk.span(), chunk.payload())
 
-  return socAPI.upload(requestOptions, owner, identifier, signature, data, postageBatchId, options)
+  return socAPI.upload(requestOptions, owner, identifier, signature, data, stamp, options)
 }
 
 /**
@@ -160,16 +159,15 @@ export async function uploadSingleOwnerChunk(
 export async function uploadSingleOwnerChunkData(
   requestOptions: BeeRequestOptions,
   signer: Signer,
-  postageBatchId: BatchId | string,
+  stamp: BatchId | Uint8Array | string,
   identifier: Identifier,
   data: Uint8Array,
   options?: UploadOptions,
 ): Promise<UploadResult> {
-  assertAddress(postageBatchId)
   const cac = makeContentAddressedChunk(data)
   const soc = await makeSingleOwnerChunk(cac, identifier, signer)
 
-  return uploadSingleOwnerChunk(requestOptions, soc, postageBatchId, options)
+  return uploadSingleOwnerChunk(requestOptions, soc, stamp, options)
 }
 
 /**

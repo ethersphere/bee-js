@@ -53,13 +53,13 @@ export async function createFeedManifest(
   requestOptions: BeeRequestOptions,
   owner: HexEthAddress,
   topic: Topic,
-  postageBatchId: BatchId,
+  stamp: BatchId | Uint8Array | string,
 ): Promise<Reference> {
   const response = await http<ReferenceResponse>(requestOptions, {
     method: 'post',
     responseType: 'json',
     url: `${feedEndpoint}/${owner}/${topic}`,
-    headers: extractUploadHeaders(postageBatchId),
+    headers: extractUploadHeaders(stamp),
   })
 
   return response.data.reference

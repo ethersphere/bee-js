@@ -529,7 +529,7 @@ export interface SOCWriter extends SOCReader {
    * @param options     Upload options
    */
   upload: (
-    postageBatchId: string | BatchId,
+    stamp: BatchId | Uint8Array | string,
     identifier: Identifier,
     data: Uint8Array,
     options?: UploadOptions,
@@ -615,6 +615,13 @@ export interface PostageBatchOptions {
    * Default: 120s
    */
   waitForUsableTimeout?: number
+}
+
+export interface Envelope {
+  issuer: Uint8Array
+  index: Uint8Array
+  timestamp: Uint8Array
+  signature: Uint8Array
 }
 
 /**

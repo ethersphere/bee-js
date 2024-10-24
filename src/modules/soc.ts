@@ -22,7 +22,7 @@ export async function upload(
   identifier: string,
   signature: string,
   data: Uint8Array,
-  postageBatchId: BatchId,
+  stamp: BatchId | Uint8Array | string,
   options?: UploadOptions,
 ): Promise<UploadResult> {
   const response = await http<ReferenceResponse>(requestOptions, {
@@ -31,7 +31,7 @@ export async function upload(
     data,
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractUploadHeaders(postageBatchId, options),
+      ...extractUploadHeaders(stamp, options),
     },
     responseType: 'json',
     params: { sig: signature },
