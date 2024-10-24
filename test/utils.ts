@@ -222,7 +222,7 @@ export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 
   ])
 }
 
-export const DEFAULT_BATCH_AMOUNT = '600000000'
+export const DEFAULT_BATCH_AMOUNT = '1200000000'
 export const DEFAULT_BATCH_DEPTH = 22
 
 /**
