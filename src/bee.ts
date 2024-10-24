@@ -184,6 +184,8 @@ export class Bee {
       timeout: options?.timeout ?? false,
       headers: options?.headers,
       onRequest: options?.onRequest,
+      httpAgent: options?.httpAgent,
+      httpsAgent: options?.httpsAgent,
     }
   }
 
