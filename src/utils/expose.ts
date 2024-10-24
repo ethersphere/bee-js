@@ -1,33 +1,35 @@
+import { BatchId, Topic } from '..'
+
 export { getCollectionSize } from './collection'
 export { getFolderSize } from './collection.node'
 
 export {
-  Bytes,
-  FlexBytes,
   assertBytes,
   assertFlexBytes,
+  Bytes,
   bytesAtOffset,
   bytesEqual,
+  FlexBytes,
   flexBytesAtOffset,
   isBytes,
   isFlexBytes,
 } from './bytes'
 
 export {
-  HexString,
-  PrefixedHexString,
   assertHexString,
   assertPrefixedHexString,
   bytesToHex,
+  HexString,
   hexToBytes,
   intToHex,
   isHexString,
   makeHexString,
+  PrefixedHexString,
 } from './hex'
 
 export {
-  EthAddress,
   capitalizeAddressERC55,
+  EthAddress,
   ethToSwarmAddress,
   fromLittleEndian,
   isHexEthAddress,
@@ -52,3 +54,6 @@ export {
 } from './stamps'
 
 export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from './redundancy'
+
+export const NULL_STAMP: BatchId = '0000000000000000000000000000000000000000000000000000000000000000' as BatchId
+export const NULL_TOPIC: Topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
