@@ -624,6 +624,14 @@ describe('Bee class', () => {
     })
   })
 
+  describe('HEAD /bytes', () => {
+    it('should retrieve content length', async function () {
+      const uploadResult = await bee.uploadData(getPostageBatch(), '12345678')
+      const { contentLength } = await bee.probeData(uploadResult.reference)
+      expect(contentLength).toBe(8)
+    })
+  })
+
   describe('JsonFeed', () => {
     it('should set JSON to feed', async function () {
       const TOPIC = 'some=very%nice#topic'
