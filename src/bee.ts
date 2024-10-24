@@ -21,6 +21,7 @@ import * as states from './modules/debug/states'
 import * as debugStatus from './modules/debug/status'
 import * as debugTag from './modules/debug/tag'
 import * as transactions from './modules/debug/transactions'
+import { EnvelopeResponse, postEnvelope } from './modules/envelope'
 import { createFeedManifest } from './modules/feed'
 import * as grantee from './modules/grantee'
 import * as pinning from './modules/pinning'
@@ -1223,6 +1224,16 @@ export class Bee {
 
       upload: uploadSingleOwnerChunkData.bind(null, this.getRequestOptionsForCall(options), canonicalSigner),
     }
+  }
+
+  async createEnvelope(
+    postageBatchId: BatchId,
+    reference: Reference,
+    options?: BeeRequestOptions,
+  ): Promise<EnvelopeResponse> {
+    assertRequestOptions(options)
+
+    return postEnvelope(this.getRequestOptionsForCall(options), postageBatchId, reference)
   }
 
   /**
