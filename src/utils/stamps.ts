@@ -135,11 +135,11 @@ export function marshalStamp(
   }
 
   if (timestamp.length !== 8) {
-    throw Error('invalid signature length')
+    throw Error('invalid timestamp length')
   }
 
   if (index.length !== 8) {
-    throw Error('invalid signature length')
+    throw Error('invalid index length')
   }
 
   return Binary.concatBytes(batchID, index, timestamp, signature)
