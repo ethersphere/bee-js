@@ -1,4 +1,3 @@
-import { ReferenceType } from '@ethersphere/swarm-cid'
 import { Objects, System } from 'cafe-utility'
 import { Readable } from 'stream'
 import { makeSigner } from './chunk/signer'
@@ -435,7 +434,7 @@ export class Bee {
           fileName,
           fileOptions,
         ),
-        ReferenceType.MANIFEST,
+        'manifest',
       )
     } else if (isReadable(data) && options?.tag && !options.size) {
       // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
@@ -448,11 +447,11 @@ export class Bee {
       )
       await this.updateTag(options.tag, result.reference)
 
-      return addCidConversionFunction(result, ReferenceType.MANIFEST)
+      return addCidConversionFunction(result, 'manifest')
     } else {
       return addCidConversionFunction(
         await bzz.uploadFile(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, name, options),
-        ReferenceType.MANIFEST,
+        'manifest',
       )
     }
   }
@@ -475,7 +474,7 @@ export class Bee {
     options?: BeeRequestOptions,
   ): Promise<FileData<Data>> {
     assertRequestOptions(options)
-    reference = makeReferenceOrEns(reference, ReferenceType.MANIFEST)
+    reference = makeReferenceOrEns(reference, 'manifest')
 
     return bzz.downloadFile(this.getRequestOptionsForCall(options), reference, path)
   }
@@ -498,7 +497,7 @@ export class Bee {
     options?: BeeRequestOptions,
   ): Promise<FileData<ReadableStream<Uint8Array>>> {
     assertRequestOptions(options)
-    reference = makeReferenceOrEns(reference, ReferenceType.MANIFEST)
+    reference = makeReferenceOrEns(reference, 'manifest')
 
     return bzz.downloadFileReadable(this.getRequestOptionsForCall(options), reference, path)
   }
@@ -536,7 +535,7 @@ export class Bee {
 
     return addCidConversionFunction(
       await bzz.uploadCollection(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options),
-      ReferenceType.MANIFEST,
+      'manifest',
     )
   }
 
@@ -569,7 +568,7 @@ export class Bee {
         postageBatchId,
         options,
       ),
-      ReferenceType.MANIFEST,
+      'manifest',
     )
   }
 
@@ -603,7 +602,7 @@ export class Bee {
 
     return addCidConversionFunction(
       await bzz.uploadCollection(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options),
-      ReferenceType.MANIFEST,
+      'manifest',
     )
   }
 
@@ -1049,7 +1048,7 @@ export class Bee {
       stamp,
     )
 
-    return addCidConversionFunction({ reference }, ReferenceType.FEED)
+    return addCidConversionFunction({ reference }, 'feed')
   }
 
   /**

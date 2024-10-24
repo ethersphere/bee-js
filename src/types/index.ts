@@ -118,7 +118,6 @@ export interface UploadResultWithCid extends UploadResult {
    * Function that converts the reference into Swarm CIDs
    *
    * @throws TypeError if the reference is encrypted reference (eq. 128 chars long) which is not supported in CID
-   * @see https://github.com/ethersphere/swarm-cid-js
    */
   cid: () => string
 }
@@ -449,8 +448,6 @@ export interface FeedManifestResult {
 
   /**
    * Function that converts the reference into Swarm Feed CID.
-   *
-   * @see https://github.com/ethersphere/swarm-cid-js
    */
   cid: () => string
 }

@@ -61,9 +61,8 @@
     "bee": "npx @fairdatasociety/fdp-play@3.2.0 start --detach --fresh"
   },
   "dependencies": {
-    "@ethersphere/swarm-cid": "^0.1.0",
     "axios": "^0.28.1",
-    "cafe-utility": "^23.7.0",
+    "cafe-utility": "^23.10.0",
     "elliptic": "^6.5.4",
     "isomorphic-ws": "^4.0.1",
     "js-sha3": "^0.8.0",
