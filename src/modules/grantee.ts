@@ -26,7 +26,7 @@ export async function createGrantees(
   const response = await http<GranteesResult>(requestOptions, {
     method: 'post',
     url: granteeEndpoint,
-    data: { grantees: grantees },
+    data: { grantees },
     headers: {
       ...extractRedundantUploadHeaders(postageBatchId),
     },

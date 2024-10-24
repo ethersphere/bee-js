@@ -9,10 +9,6 @@ import type { HexString } from '../utils/hex'
 
 export * from './debug'
 
-export interface Dictionary<T> {
-  [Key: string]: T
-}
-
 export const SPAN_SIZE = 8
 export const SECTION_SIZE = 32
 export const BRANCHES = 128
@@ -145,9 +141,9 @@ export interface UploadResult {
 export interface UploadOptions {
   /**
    * If set to true, an ACT will be created for the uploaded data.
-   *
    */
   act?: boolean
+
   /**
    * Will pin the data locally in the Bee node as well.
    *
