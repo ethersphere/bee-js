@@ -1,0 +1,5 @@
+import { BatchId, Topic } from '..'
+
+export const SWARM_GATEWAY_URL = 'https://api.gateway.ethswarm.org'
+export const NULL_STAMP: BatchId = '0000000000000000000000000000000000000000000000000000000000000000' as BatchId
+export const NULL_TOPIC: Topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic

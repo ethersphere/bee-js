@@ -1,3 +1,4 @@
+import { NULL_TOPIC } from '../../../src'
 import { makeContentAddressedChunk } from '../../../src/chunk/cac'
 import { makePrivateKeySigner } from '../../../src/chunk/signer'
 import { downloadFeedUpdate, FeedUploadOptions, findNextIndex, updateFeed } from '../../../src/feed'
@@ -5,7 +6,6 @@ import * as chunkAPI from '../../../src/modules/chunk'
 import { fetchLatestFeedUpdate } from '../../../src/modules/feed'
 import type { BeeRequestOptions, BytesReference, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
 import { assertBytes, Bytes } from '../../../src/utils/bytes'
-import { NULL_TOPIC } from '../../../src/utils/expose'
 import { hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeKyOptions, getPostageBatch, testIdentity } from '../../utils'
 

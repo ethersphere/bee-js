@@ -2,6 +2,7 @@ import { Bee } from './bee'
 
 export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './modules/debug/status'
 export * from './types'
+export * from './utils/constants'
 export * from './utils/error'
 export * as Utils from './utils/expose'
 export { Bee }
