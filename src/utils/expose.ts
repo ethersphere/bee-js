@@ -1,5 +1,3 @@
-import { BatchId, Topic } from '..'
-
 export { getCollectionSize } from './collection'
 export { getFolderSize } from './collection.node'
 
@@ -54,6 +52,3 @@ export {
 } from './stamps'
 
 export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from './redundancy'
-
-export const NULL_STAMP: BatchId = '0000000000000000000000000000000000000000000000000000000000000000' as BatchId
-export const NULL_TOPIC: Topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic

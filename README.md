@@ -67,6 +67,20 @@ Loading this module through a script tag will make the `BeeJs` object available 
 
 ## Usage
 
+### Upload via Swarm Gateway
+
+```js
+import { Bee, NULL_STAMP, SWARM_GATEWAY_URL } from '@ethersphere/bee-js'
+
+main()
+
+async function main() {
+  const bee = new Bee(SWARM_GATEWAY_URL)
+  const { reference } = await bee.uploadData(NULL_STAMP, 'Hello, World!')
+  console.log(reference)
+}
+```
+
 ### Create or select an existing postage batch
 
 Swarm incentivizes nodes in the network to store content, therefor all uploads require a paid

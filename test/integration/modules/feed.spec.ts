@@ -1,7 +1,7 @@
+import { NULL_TOPIC } from '../../../src'
 import { createFeedManifest, fetchLatestFeedUpdate } from '../../../src/modules/feed'
 import { upload as uploadSOC } from '../../../src/modules/soc'
 import type { Topic } from '../../../src/types'
-import { NULL_TOPIC } from '../../../src/utils/expose'
 import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeKyOptions, commonMatchers, getPostageBatch, testIdentity } from '../../utils'
 
