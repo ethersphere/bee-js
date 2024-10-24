@@ -1,6 +1,16 @@
 # Changelog
 
 
+## [8.2.0](https://github.com/ethersphere/bee-js/compare/v8.1.0...v8.2.0) (2024-10-24)
+
+
+### Features
+
+* add envelope endpoint ([#956](https://github.com/ethersphere/bee-js/issues/956)) ([67ef011](https://github.com/ethersphere/bee-js/commit/67ef0110fe19ba126223b883812df135306fa9bf))
+* add head bytes endpoint ([#941](https://github.com/ethersphere/bee-js/issues/941)) ([89bed32](https://github.com/ethersphere/bee-js/commit/89bed32a438d8d8521a402ffeb8a46bd9a3bacfe))
+* add null_topic and null_stamp ([#958](https://github.com/ethersphere/bee-js/issues/958)) ([2f1072b](https://github.com/ethersphere/bee-js/commit/2f1072b26177ba6775265a486cb925b554939af7))
+* support marshaled stamps ([#959](https://github.com/ethersphere/bee-js/issues/959)) ([562f54b](https://github.com/ethersphere/bee-js/commit/562f54b6730efc5fd5f46f110126aa5d0ebc9f52))
+
 ## [8.1.0](https://github.com/ethersphere/bee-js/compare/v8.0.2...v8.1.0) (2024-10-03)
 
 
