@@ -5,6 +5,9 @@ export class TarStream {
   currentFileSize = 0
 
   beginFile(path: string, size: number) {
+    if (path.length > 100) {
+      throw new Error(`File name too long: ${path}`)
+    }
     const header = createHeader(path, size)
     this.output.write(header)
     this.currentFileSize = 0
