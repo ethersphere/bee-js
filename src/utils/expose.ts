@@ -2,32 +2,32 @@ export { getCollectionSize } from './collection'
 export { getFolderSize } from './collection.node'
 
 export {
+  Bytes,
+  FlexBytes,
   assertBytes,
   assertFlexBytes,
-  Bytes,
   bytesAtOffset,
   bytesEqual,
-  FlexBytes,
   flexBytesAtOffset,
   isBytes,
   isFlexBytes,
 } from './bytes'
 
 export {
+  HexString,
+  PrefixedHexString,
   assertHexString,
   assertPrefixedHexString,
   bytesToHex,
-  HexString,
   hexToBytes,
   intToHex,
   isHexString,
   makeHexString,
-  PrefixedHexString,
 } from './hex'
 
 export {
-  capitalizeAddressERC55,
   EthAddress,
+  capitalizeAddressERC55,
   ethToSwarmAddress,
   fromLittleEndian,
   isHexEthAddress,
@@ -52,3 +52,5 @@ export {
 } from './stamps'
 
 export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from './redundancy'
+
+export { convertCidToReference, convertReferenceToCid } from './cid'
