@@ -2,7 +2,7 @@ import { makePrivateKeySigner, makeSigner, recoverAddress, sign } from '../../..
 import type { Signature, Signer } from '../../../src/types'
 import { assertBytes, makeBytes, wrapBytesWithHelpers } from '../../../src/utils/bytes'
 import { bytesToHex, HexString, hexToBytes } from '../../../src/utils/hex'
-import { shorten, testIdentity } from '../../utils'
+import { testIdentity } from '../../utils'
 
 describe('signer', () => {
   const dataToSignBytes = hexToBytes('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae' as HexString)
@@ -101,7 +101,7 @@ describe('signer', () => {
     })
 
     function testSignerConversion(input: HexString, output: Uint8Array): void {
-      it(`should convert sign result ${shorten(input)}`, async () => {
+      it(`should convert sign result ${input.slice(0, 8)}`, async () => {
         const signer = {
           sign: () => {
             return input
@@ -118,7 +118,7 @@ describe('signer', () => {
     testSignerConversion(`0x${expectedSignatureHex}`, expectedSignatureBytes)
 
     function testSignerThrowing(input: unknown): void {
-      it(`should throw for invalid result ${shorten(input)}`, async () => {
+      it(`should throw for invalid result ${input}`, async () => {
         const signer = {
           sign: () => {
             return input

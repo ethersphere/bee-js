@@ -1,5 +1,4 @@
 import { Readable } from 'stream'
-
 import * as stamps from '../src/modules/debug/stamps'
 import type { Address, BatchId, BeeGenericResponse, BeeRequestOptions, PostageBatch, Reference } from '../src/types'
 import { HexString } from '../src/utils/hex'
@@ -186,22 +185,6 @@ export function getPostageBatch(url = beeUrl()): BatchId {
   return stamp
 }
 
-/**
- * Formatting utility for displaying long strings like hexstrings.
- *
- * @param inputStr
- * @param len
- */
-export function shorten(inputStr: unknown, len = 17): string {
-  const str = typeof inputStr === 'string' ? inputStr : (inputStr as string).toString()
-
-  if (str.length <= len) {
-    return str
-  }
-
-  return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
-}
-
 export const DEFAULT_BATCH_AMOUNT = '1200000000'
 export const DEFAULT_BATCH_DEPTH = 22
 
@@ -287,14 +270,6 @@ export const createdResponse: BeeGenericResponse = {
   code: 201,
   message: 'Created',
 }
-
-const USABLE_TIMEOUT = 7_000
-export const ERR_TIMEOUT = 40_000
-export const BIG_FILE_TIMEOUT = 100_000
-export const PSS_TIMEOUT = 120_000
-export const FEED_TIMEOUT = 120_000
-export const BLOCKCHAIN_TRANSACTION_TIMEOUT = 40_000
-export const WAITING_USABLE_STAMP_TIMEOUT = 130_000
 
 export const testChunkPayload = new Uint8Array([1, 2, 3])
 // span is the payload length encoded as uint64 little endian
