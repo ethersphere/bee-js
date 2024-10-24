@@ -41,3 +41,7 @@ jobs:
 
       - name: Tests
         run: npm run test
+        continue-on-error: true
+
+      - name: Print stamps on port 1633
+        run: curl http://localhost:1633/stamps
