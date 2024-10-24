@@ -71,6 +71,7 @@ import type {
   PublicKey,
   RedistributionState,
   Reference,
+  ReferenceInformation,
   RemovePeerResponse,
   ReserveState,
   SOCReader,
@@ -212,6 +213,18 @@ export class Bee {
     }
 
     return bytes.upload(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
+  }
+
+  /**
+   * Requests content length for a `/bytes` reference
+   *
+   * @see [Bee API reference - `HEAD /bytes/`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1%7Breference%7D/head)
+   */
+  async probeData(reference: ReferenceOrEns | string, options?: BeeRequestOptions): Promise<ReferenceInformation> {
+    assertRequestOptions(options)
+    assertReferenceOrEns(reference)
+
+    return bytes.head(this.getRequestOptionsForCall(options), reference)
   }
 
   /**
