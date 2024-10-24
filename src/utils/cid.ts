@@ -15,7 +15,7 @@ export type DecodedCID = {
 }
 
 export function convertReferenceToCid(reference: Reference | string, type: 'feed' | 'manifest'): string {
-  if (reference.length !== 32) {
+  if (reference.length !== 64) {
     throw TypeError('Only 32-byte, non-encrypted references are supported')
   }
   const base32 = 'b'
