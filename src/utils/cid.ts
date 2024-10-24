@@ -34,8 +34,8 @@ export function convertReferenceToCid(reference: Reference | string, type: 'feed
 }
 
 export function convertCidToReference(cid: string): DecodedCID {
-  const bytes = Binary.base32ToUint8Array(cid.toLowerCase())
-  const codec = bytes[2]
+  const bytes = Binary.base32ToUint8Array(cid.toUpperCase().slice(1))
+  const codec = bytes[1]
 
   if (!CODEC_TABLE[codec]) {
     throw new Error('Unknown codec')
