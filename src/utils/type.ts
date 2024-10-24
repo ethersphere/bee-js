@@ -36,10 +36,6 @@ export function isReadable(obj: unknown): obj is Readable {
   return typeof Readable !== 'undefined' && obj instanceof Readable
 }
 
-export function isUint8Array(obj: unknown): obj is Uint8Array {
-  return obj instanceof Uint8Array
-}
-
 export function isInteger(value: unknown): value is number | NumberString {
   return (
     (typeof value === 'string' && /^-?(0|[1-9][0-9]*)$/g.test(value)) ||

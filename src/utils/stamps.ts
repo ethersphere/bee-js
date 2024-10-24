@@ -1,4 +1,5 @@
-import { NumberString } from '../types'
+import { Binary } from 'cafe-utility'
+import { BatchId, Envelope, NumberString } from '../types'
 
 /**
  * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.
@@ -113,4 +114,33 @@ export function getAmountForTtl(days: number): NumberString {
  */
 export function getDepthForCapacity(gigabytes: number): number {
   return gigabytes <= 1 ? 18 : Math.ceil(Math.log2(Math.ceil(gigabytes)) + 18)
+}
+
+export function convertEnvelopeToMarshaledStamp(batchID: BatchId, envelope: Envelope): Uint8Array {
+  return marshalStamp(envelope.signature, Binary.hexToUint8Array(batchID), envelope.timestamp, envelope.index)
+}
+
+export function marshalStamp(
+  signature: Uint8Array,
+  batchID: Uint8Array,
+  timestamp: Uint8Array,
+  index: Uint8Array,
+): Uint8Array {
+  if (signature.length !== 65) {
+    throw Error('invalid signature length')
+  }
+
+  if (batchID.length !== 32) {
+    throw Error('invalid batch ID length')
+  }
+
+  if (timestamp.length !== 8) {
+    throw Error('invalid timestamp length')
+  }
+
+  if (index.length !== 8) {
+    throw Error('invalid index length')
+  }
+
+  return Binary.concatBytes(batchID, index, timestamp, signature)
 }

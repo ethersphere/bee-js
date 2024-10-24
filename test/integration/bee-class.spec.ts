@@ -1,11 +1,13 @@
-import { System } from 'cafe-utility'
+import { Binary, System } from 'cafe-utility'
 import { Bee, BytesReference, Collection, PssSubscription } from '../../src'
+import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import { makeSigner } from '../../src/chunk/signer'
 import { uploadSingleOwnerChunkData } from '../../src/chunk/soc'
 import * as bzz from '../../src/modules/bzz'
-import { REFERENCE_HEX_LENGTH } from '../../src/types'
+import { Reference, REFERENCE_HEX_LENGTH } from '../../src/types'
 import { makeBytes } from '../../src/utils/bytes'
-import { HexString, bytesToHex } from '../../src/utils/hex'
+import { bytesToHex, HexString } from '../../src/utils/hex'
+import { convertEnvelopeToMarshaledStamp } from '../../src/utils/stamps'
 import {
   beeKyOptions,
   beePeerUrl,
@@ -613,14 +615,19 @@ describe('Bee class', () => {
     })
   })
 
-  describe('Envelope', () => {
+  describe('POST /envelope', () => {
     it('should post envelope', async function () {
-      const uploadResult = await bee.uploadData(getPostageBatch(), 'Envelope')
-      const envelopeResult = await bee.createEnvelope(getPostageBatch(), uploadResult.reference)
-      expect(envelopeResult.index).toHaveLength(16)
-      expect(envelopeResult.issuer).toHaveLength(40)
-      expect(envelopeResult.signature).toHaveLength(130)
-      expect(envelopeResult.timestamp).toHaveLength(16)
+      const payload = new TextEncoder().encode('Marshaled upload')
+      const cac = makeContentAddressedChunk(payload)
+      const address = Binary.uint8ArrayToHex(cac.address()) as Reference
+      const envelope = await bee.createEnvelope(getPostageBatch(), address)
+      expect(envelope.index).toHaveLength(8)
+      expect(envelope.issuer).toHaveLength(20)
+      expect(envelope.signature).toHaveLength(65)
+      expect(envelope.timestamp).toHaveLength(8)
+      const stamp = convertEnvelopeToMarshaledStamp(getPostageBatch(), envelope)
+      const chunk = await bee.uploadChunk(stamp, cac.data)
+      expect(chunk.reference).toBe(address)
     })
   })
 
