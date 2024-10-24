@@ -613,6 +613,17 @@ describe('Bee class', () => {
     })
   })
 
+  describe('Envelope', () => {
+    it('should post envelope', async function () {
+      const uploadResult = await bee.uploadData(getPostageBatch(), 'Envelope')
+      const envelopeResult = await bee.createEnvelope(getPostageBatch(), uploadResult.reference)
+      expect(envelopeResult.index).toHaveLength(16)
+      expect(envelopeResult.issuer).toHaveLength(40)
+      expect(envelopeResult.signature).toHaveLength(130)
+      expect(envelopeResult.timestamp).toHaveLength(16)
+    })
+  })
+
   describe('JsonFeed', () => {
     it('should set JSON to feed', async function () {
       const TOPIC = 'some=very%nice#topic'
