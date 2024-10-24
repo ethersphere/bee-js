@@ -5,6 +5,7 @@ import * as chunkAPI from '../../../src/modules/chunk'
 import { fetchLatestFeedUpdate } from '../../../src/modules/feed'
 import type { BeeRequestOptions, BytesReference, PrivateKeyBytes, Signer, Topic } from '../../../src/types'
 import { assertBytes, Bytes } from '../../../src/utils/bytes'
+import { NULL_TOPIC } from '../../../src/utils/expose'
 import { hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeKyOptions, getPostageBatch, testIdentity } from '../../utils'
 
@@ -44,7 +45,7 @@ describe('feed', () => {
   const BEE_REQUEST_OPTIONS = beeKyOptions()
   const owner = makeHexString(testIdentity.address, 40)
   const signer = makePrivateKeySigner(hexToBytes(testIdentity.privateKey) as PrivateKeyBytes)
-  const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
+  const topic = NULL_TOPIC
 
   it('empty feed update', async function () {
     const emptyTopic = '1000000000000000000000000000000000000000000000000000000000000000' as Topic

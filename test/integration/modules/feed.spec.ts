@@ -1,6 +1,7 @@
 import { createFeedManifest, fetchLatestFeedUpdate } from '../../../src/modules/feed'
 import { upload as uploadSOC } from '../../../src/modules/soc'
 import type { Topic } from '../../../src/types'
+import { NULL_TOPIC } from '../../../src/utils/expose'
 import { HexString, hexToBytes, makeHexString } from '../../../src/utils/hex'
 import { beeKyOptions, commonMatchers, getPostageBatch, testIdentity } from '../../utils'
 
@@ -9,7 +10,7 @@ commonMatchers()
 describe('modules/feed', () => {
   const BEE_REQUEST_OPTIONS = beeKyOptions()
   const owner = makeHexString(testIdentity.address, 40)
-  const topic = '0000000000000000000000000000000000000000000000000000000000000000' as Topic
+  const topic = NULL_TOPIC
 
   it('feed manifest creation', async function () {
     const reference = '92442c3e08a308aeba8e2d231733ec57011a203354cad24129e7e0c37bac0cbe'
