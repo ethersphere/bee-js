@@ -1,4 +1,3 @@
-import { System } from 'cafe-utility'
 import { Readable } from 'stream'
 
 import * as stamps from '../src/modules/debug/stamps'
@@ -203,25 +202,6 @@ export function shorten(inputStr: unknown, len = 17): string {
   return `${str.slice(0, 6)}...${str.slice(-6)} (length: ${str.length})`
 }
 
-async function timeout(ms: number, message = 'Execution reached timeout!'): Promise<Error> {
-  await System.sleepMillis(ms)
-  throw new Error(message)
-}
-
-export async function waitForBatchToBeUsable(batchId: string, pollingInterval = 200): Promise<void> {
-  await Promise.race([
-    timeout(USABLE_TIMEOUT, 'Awaiting of usable postage batch timed out!'),
-    async () => {
-      let stamp
-
-      do {
-        await System.sleepMillis(pollingInterval)
-        stamp = await stamps.getPostageBatch(beeKyOptions(), batchId as BatchId)
-      } while (!stamp.usable)
-    },
-  ])
-}
-
 export const DEFAULT_BATCH_AMOUNT = '1200000000'
 export const DEFAULT_BATCH_DEPTH = 22
 
@@ -247,9 +227,8 @@ export async function getOrCreatePostageBatch(
       beeKyOptions(),
       amount ?? DEFAULT_BATCH_AMOUNT,
       depth ?? DEFAULT_BATCH_DEPTH,
+      { waitForUsable: true },
     )
-
-    await waitForBatchToBeUsable(batchId)
 
     return stamps.getPostageBatch(beeKyOptions(), batchId)
   }
@@ -287,9 +266,8 @@ export async function getOrCreatePostageBatch(
     beeKyOptions(),
     amount ?? DEFAULT_BATCH_AMOUNT,
     depth ?? DEFAULT_BATCH_DEPTH,
+    { waitForUsable: true },
   )
-
-  await waitForBatchToBeUsable(batchId)
 
   return stamps.getPostageBatch(beeKyOptions(), batchId)
 }
