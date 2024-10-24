@@ -158,6 +158,18 @@ const bee = new Bee('http://localhost:1633')
 const uploadResult = await bee.uploadFilesFromDirectory(batchId, './path/to/gallery/')
 ```
 
+### Customize http/https agent and headers
+
+```js
+const bee = new Bee('http://localhost:1633', {
+  httpAgent: new http.Agent({ keepAlive: true }),
+  httpsAgent: new https.Agent({ keepAlive: true }),
+  headers: {
+    Authorization: 'Basic ' + Buffer.from('username:password').toString('base64'),
+  },
+})
+```
+
 [**Check out our examples repo for some more ideas on how to use `bee-js`**](https://github.com/ethersphere/examples-js)
 
 ## Documentation
