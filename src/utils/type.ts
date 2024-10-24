@@ -1,4 +1,3 @@
-import { decodeCid, encodeReference, ReferenceType } from '@ethersphere/swarm-cid'
 import { Readable } from 'stream'
 import {
   Address,
@@ -28,6 +27,7 @@ import {
   TransactionOptions,
   UploadOptions,
 } from '../types'
+import { convertCidToReference, convertReferenceToCid } from './cid'
 import { BeeArgumentError, BeeError } from './error'
 import { isFile } from './file'
 import { assertHexString, assertPrefixedHexString, isHexString } from './hex'
@@ -158,13 +158,13 @@ export function assertReferenceOrEns(value: unknown): asserts value is Reference
  * @param value
  * @param expectedCidType
  */
-export function makeReferenceOrEns(value: unknown, expectedCidType: ReferenceType): ReferenceOrEns {
+export function makeReferenceOrEns(value: unknown, expectedCidType: 'feed' | 'manifest'): ReferenceOrEns {
   if (typeof value !== 'string') {
     throw new TypeError('ReferenceCidOrEns has to be a string!')
   }
 
   try {
-    const result = decodeCid(value)
+    const result = convertCidToReference(value)
 
     if (result.type !== expectedCidType) {
       throw new BeeError(
@@ -185,16 +185,16 @@ export function makeReferenceOrEns(value: unknown, expectedCidType: ReferenceTyp
 /**
  * Function that adds getter which converts the reference into CID base32 encoded string.
  * @param result
- * @param cidType Type as described in the @ethersphere/swarm-cids-js -> ReferenceType
+ * @param cidType feed or manifest
  */
 export function addCidConversionFunction<T extends { reference: string }>(
   result: T,
-  cidType: ReferenceType,
+  cidType: 'feed' | 'manifest',
 ): T & { cid: () => string } {
   return {
     ...result,
     cid() {
-      return encodeReference(result.reference, cidType).toString()
+      return convertReferenceToCid(result.reference, cidType)
     },
   }
 }

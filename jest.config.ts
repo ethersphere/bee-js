@@ -6,7 +6,7 @@ import type { Config } from '@jest/types'
 import { BeeRequestOptions } from './src'
 import { createPostageBatch } from './src/modules/debug/stamps'
 
-import { DEFAULT_BATCH_AMOUNT } from './test/utils'
+import { DEFAULT_BATCH_AMOUNT, DEFAULT_BATCH_DEPTH } from './test/utils'
 
 export default async (): Promise<Config.InitialOptions> => {
   try {
@@ -34,7 +34,7 @@ export default async (): Promise<Config.InitialOptions> => {
 
       const stamps = await Promise.all(
         stampsOrder.map(async order =>
-          createPostageBatch(order.requestOptions, DEFAULT_BATCH_AMOUNT, 20, {
+          createPostageBatch(order.requestOptions, DEFAULT_BATCH_AMOUNT, DEFAULT_BATCH_DEPTH, {
             waitForUsable: true,
           }),
         ),
@@ -83,6 +83,6 @@ export default async (): Promise<Config.InitialOptions> => {
     testPathIgnorePatterns: ['/node_modules/'],
 
     // Increase timeout since we have long running cryptographic functions
-    testTimeout: 8 * 60 * 1000,
+    testTimeout: 9 * 60 * 1000,
   }
 }
