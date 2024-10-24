@@ -1,6 +1,20 @@
 # Changelog
 
 
+## [8.3.0](https://github.com/ethersphere/bee-js/compare/v8.2.0...v8.3.0) (2024-10-24)
+
+
+### Features
+
+* add gateway constant ([#962](https://github.com/ethersphere/bee-js/issues/962)) ([c44c2cd](https://github.com/ethersphere/bee-js/commit/c44c2cdfa082226d0f9406e6bd654f0357956032))
+* add support for custom http and https agents ([#966](https://github.com/ethersphere/bee-js/issues/966)) ([7c5662b](https://github.com/ethersphere/bee-js/commit/7c5662b3b72be91e221d0207d9d4cbd2ad59c0a1))
+
+
+### Bug Fixes
+
+* do not wrap array in data object ([#965](https://github.com/ethersphere/bee-js/issues/965)) ([6e695b7](https://github.com/ethersphere/bee-js/commit/6e695b7d9e476845c56bbb13cda7869b57a9e0f0))
+* throw error for too long tar entry ([#968](https://github.com/ethersphere/bee-js/issues/968)) ([710f6eb](https://github.com/ethersphere/bee-js/commit/710f6eb25222432e796394329a0497414a68816e))
+
 ## [8.2.0](https://github.com/ethersphere/bee-js/compare/v8.1.0...v8.2.0) (2024-10-24)
 
 
