@@ -23,12 +23,6 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     maybeRunOnRequestHook(options, requestConfig)
     const response = await axios(requestConfig)
 
-    // Axios does not parse array of strings as JSON
-    if (Array.isArray(response.data) && response.data.every(element => typeof element === 'string')) {
-      const array = response.data as string[]
-      response.data = { data: array } as any
-    }
-
     // TODO: https://github.com/axios/axios/pull/6253
     return response as AxiosResponse<T>
   } catch (e: unknown) {

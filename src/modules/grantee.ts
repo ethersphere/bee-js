@@ -5,7 +5,7 @@ import { http } from '../utils/http'
 const granteeEndpoint = 'grantee'
 
 export async function getGrantees(reference: string, requestOptions: BeeRequestOptions): Promise<GetGranteesResult> {
-  const response = await http<GetGranteesResult>(requestOptions, {
+  const response = await http<string[]>(requestOptions, {
     method: 'get',
     url: `${granteeEndpoint}/${reference}`,
     responseType: 'json',
@@ -14,7 +14,7 @@ export async function getGrantees(reference: string, requestOptions: BeeRequestO
   return {
     status: response.status,
     statusText: response.statusText,
-    data: response.data.data,
+    data: response.data,
   }
 }
 
@@ -26,7 +26,7 @@ export async function createGrantees(
   const response = await http<GranteesResult>(requestOptions, {
     method: 'post',
     url: granteeEndpoint,
-    data: { grantees: grantees },
+    data: { grantees },
     headers: {
       ...extractRedundantUploadHeaders(postageBatchId),
     },
