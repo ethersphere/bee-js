@@ -3,9 +3,9 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 import type { Config } from '@jest/types'
-import { BeeRequestOptions } from './src'
-import { createPostageBatch } from './src/modules/debug/stamps'
+import { Bee, BeeRequestOptions } from './src'
 
+import { Types } from 'cafe-utility'
 import { DEFAULT_BATCH_AMOUNT, DEFAULT_BATCH_DEPTH } from './test/utils'
 
 export default async (): Promise<Config.InitialOptions> => {
@@ -33,11 +33,12 @@ export default async (): Promise<Config.InitialOptions> => {
       }
 
       const stamps = await Promise.all(
-        stampsOrder.map(async order =>
-          createPostageBatch(order.requestOptions, DEFAULT_BATCH_AMOUNT, DEFAULT_BATCH_DEPTH, {
+        stampsOrder.map(async order => {
+          const bee = new Bee(Types.asString(order.requestOptions.baseURL))
+          return bee.createPostageBatch(DEFAULT_BATCH_AMOUNT, DEFAULT_BATCH_DEPTH, {
             waitForUsable: true,
-          }),
-        ),
+          })
+        }),
       )
 
       for (let i = 0; i < stamps.length; i++) {
