@@ -206,6 +206,21 @@ describe('Bee class', () => {
       expect(file.name).toBe(directoryStructure[0].path)
       expect(file.data.text()).toBe('hello-CID-world')
     })
+
+    it('should upload files', async function () {
+      const files: File[] = [
+        {
+          arrayBuffer: async () => new Uint8Array([1, 2, 3]),
+          name: 'hello.txt',
+          type: 'text/plain',
+          lastModified: Date.now(),
+          size: 3,
+        },
+      ] as unknown as File[]
+      const uploadResult = await bee.uploadFiles(getPostageBatch(), files)
+      const data = await bee.downloadFile(uploadResult.reference, files[0].name)
+      expect(data.data.hex()).toBe('010203')
+    })
   })
 
   describe('tags', () => {
@@ -680,21 +695,6 @@ describe('Bee class', () => {
 
       const fetchedData = await bee.getJsonFeed(TOPIC, { address: testIdentity.address })
       expect(fetchedData).toEqual(data)
-    })
-
-    it('should upload files', async function () {
-      const files: File[] = [
-        {
-          arrayBuffer: async () => new Uint8Array([1, 2, 3]),
-          name: 'hello.txt',
-          type: 'text/plain',
-          lastModified: Date.now(),
-          size: 3,
-        },
-      ] as unknown as File[]
-      const uploadResult = await bee.uploadFiles(getPostageBatch(), files)
-      const data = await bee.downloadFile(uploadResult.reference, files[0].name)
-      expect(data.data.hex()).toBe('010203')
     })
   })
 })
