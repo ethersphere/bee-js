@@ -3,7 +3,7 @@ import { PassThrough } from 'stream'
 import * as NodeTar from '../../src/utils/tar'
 import * as BrowserTar from '../../src/utils/tar.browser'
 
-function passThroughToUint8Array(passThrough: PassThrough): Promise<Uint8Array> {
+async function passThroughToUint8Array(passThrough: PassThrough): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = []
     passThrough.on('data', (chunk: Uint8Array) => {
