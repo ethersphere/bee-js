@@ -1,4 +1,5 @@
 import { BeeRequestOptions, Reference, Tag } from '../types'
+import { EthAddress } from '../utils/eth'
 import { http } from '../utils/http'
 
 const endpoint = 'tags'
@@ -12,11 +13,12 @@ interface GetAllTagsResponse {
  *
  * @param url Bee tag URL
  */
-export async function createTag(requestOptions: BeeRequestOptions): Promise<Tag> {
+export async function createTag(requestOptions: BeeRequestOptions, address?: EthAddress | string): Promise<Tag> {
   const response = await http<Tag>(requestOptions, {
     method: 'post',
     url: endpoint,
     responseType: 'json',
+    params: address,
   })
 
   return response.data
