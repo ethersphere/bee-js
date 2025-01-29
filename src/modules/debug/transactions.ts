@@ -1,15 +1,10 @@
-import { BeeRequestOptions, NumberString, TransactionHash, TransactionInfo } from '../../types'
+import { Types } from 'cafe-utility'
+import { BeeRequestOptions, NumberString, TransactionInfo } from '../../types'
 import { http } from '../../utils/http'
+import { asNumberString } from '../../utils/type'
+import { TransactionId } from '../../utils/typed-bytes'
 
 const transactionsEndpoint = 'transactions'
-
-interface PendingTransactionsResponse {
-  pendingTransactions: TransactionInfo[]
-}
-
-interface TransactionResponse {
-  transactionHash: TransactionHash
-}
 
 /**
  * Get list of all pending transactions
@@ -17,12 +12,15 @@ interface TransactionResponse {
  * @param requestOptions Options for making requests
  */
 export async function getAllTransactions(requestOptions: BeeRequestOptions): Promise<TransactionInfo[]> {
-  const response = await http<PendingTransactionsResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: transactionsEndpoint,
     responseType: 'json',
   })
 
-  return response.data.pendingTransactions
+  const body = Types.asObject(response.data, { name: 'response.data' })
+  const pendingTransactions = Types.asArray(body.pendingTransactions, { name: 'pendingTransactions' })
+
+  return pendingTransactions.map(toTransaction)
 }
 
 /**
@@ -33,14 +31,32 @@ export async function getAllTransactions(requestOptions: BeeRequestOptions): Pro
  */
 export async function getTransaction(
   requestOptions: BeeRequestOptions,
-  transactionHash: TransactionHash,
+  transactionHash: TransactionId,
 ): Promise<TransactionInfo> {
-  const response = await http<TransactionInfo>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return toTransaction(body)
+}
+
+function toTransaction(value: unknown) {
+  const object = Types.asObject(value, { name: 'transaction' })
+
+  return {
+    transactionHash: new TransactionId(Types.asString(object.transactionHash, { name: 'transactionHash' })),
+    to: Types.asString(object.to, { name: 'to' }),
+    nonce: Types.asNumber(object.nonce, { name: 'nonce' }),
+    gasPrice: asNumberString(object.gasPrice, { name: 'gasPrice' }),
+    gasLimit: Types.asNumber(object.gasLimit, { name: 'gasLimit' }),
+    data: Types.asString(object.data, { name: 'data' }),
+    created: Types.asString(object.created, { name: 'created' }),
+    description: Types.asString(object.description, { name: 'description' }),
+    value: asNumberString(object.value, { name: 'value' }),
+  }
 }
 
 /**
@@ -51,15 +67,17 @@ export async function getTransaction(
  */
 export async function rebroadcastTransaction(
   requestOptions: BeeRequestOptions,
-  transactionHash: TransactionHash,
-): Promise<TransactionHash> {
-  const response = await http<TransactionResponse>(requestOptions, {
+  transactionHash: TransactionId,
+): Promise<TransactionId> {
+  const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.data.transactionHash
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
 }
 
 /**
@@ -71,20 +89,22 @@ export async function rebroadcastTransaction(
  */
 export async function cancelTransaction(
   requestOptions: BeeRequestOptions,
-  transactionHash: TransactionHash,
+  transactionHash: TransactionId,
   gasPrice?: NumberString,
-): Promise<TransactionHash> {
+): Promise<TransactionId> {
   const headers: Record<string, string | number> = {}
 
   if (gasPrice) {
     headers['gas-price'] = gasPrice
   }
-  const response = await http<TransactionResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'delete',
     headers,
     url: `${transactionsEndpoint}/${transactionHash}`,
     responseType: 'json',
   })
 
-  return response.data.transactionHash
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
 }

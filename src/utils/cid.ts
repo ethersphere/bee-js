@@ -1,5 +1,6 @@
 import { Binary } from 'cafe-utility'
-import { Reference } from '..'
+import { Bytes } from './bytes'
+import { Reference } from './typed-bytes'
 
 export const SWARM_MANIFEST_CODEC = 0xfa
 export const SWARM_FEED_CODEC = 0xfb
@@ -14,10 +15,8 @@ export type DecodedCID = {
   reference: Reference
 }
 
-export function convertReferenceToCid(reference: Reference | string, type: 'feed' | 'manifest'): string {
-  if (reference.length !== 64) {
-    throw TypeError('Only 32-byte, non-encrypted references are supported')
-  }
+export function convertReferenceToCid(reference: string | Uint8Array | Bytes, type: 'feed' | 'manifest'): string {
+  reference = new Reference(reference)
   const base32 = 'b'
   const version = new Uint8Array([1])
   const codec = new Uint8Array([type === 'feed' ? SWARM_FEED_CODEC : SWARM_MANIFEST_CODEC])
@@ -28,7 +27,7 @@ export function convertReferenceToCid(reference: Reference | string, type: 'feed
     /\=+$/,
     '',
   )
-  const hash = Binary.uint8ArrayToBase32(Binary.hexToUint8Array(reference)).replace(/\=+$/, '')
+  const hash = reference.toBase32().replace(/\=+$/, '')
 
   return `${base32}${header}${hash}`.toLowerCase()
 }
@@ -40,10 +39,10 @@ export function convertCidToReference(cid: string): DecodedCID {
   if (!CODEC_TABLE[codec]) {
     throw new Error('Unknown codec')
   }
-  const reference = bytes.slice(-32)
+  const reference = new Reference(bytes.slice(-32))
 
   return {
     type: CODEC_TABLE[codec] as 'feed' | 'manifest',
-    reference: Binary.uint8ArrayToHex(reference) as Reference,
+    reference,
   }
 }

@@ -1,8 +1,9 @@
-import { BatchId, BeeRequestOptions, Collection, CollectionUploadOptions, Reference, UploadRedundancyOptions } from '..'
+import { BeeRequestOptions, Collection, CollectionUploadOptions, UploadRedundancyOptions } from '..'
 import { extractCollectionUploadHeaders } from '../modules/bzz'
 import { http } from './http'
 import { TarStream } from './tar'
 import { writeTar } from './tar-writer'
+import { BatchId } from './typed-bytes'
 
 const bzzEndpoint = 'bzz'
 
@@ -13,7 +14,7 @@ export async function uploadTar(
   options?: CollectionUploadOptions & UploadRedundancyOptions,
 ) {
   const tarStream = new TarStream()
-  const responsePromise = http<{ reference: Reference }>(requestOptions, {
+  const responsePromise = http<unknown>(requestOptions, {
     method: 'post',
     url: bzzEndpoint,
     data: tarStream.output,

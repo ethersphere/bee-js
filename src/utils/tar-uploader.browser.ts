@@ -1,8 +1,10 @@
-import { BatchId, BeeRequestOptions, Collection, CollectionUploadOptions, Reference, UploadRedundancyOptions } from '..'
+import { Types } from 'cafe-utility'
+import { BeeRequestOptions, Collection, CollectionUploadOptions, UploadRedundancyOptions } from '..'
 import { extractCollectionUploadHeaders } from '../modules/bzz'
 import { http } from './http'
 import { TarStream } from './tar'
 import { writeTar } from './tar-writer'
+import { BatchId, Reference } from './typed-bytes'
 
 const bzzEndpoint = 'bzz'
 
@@ -15,7 +17,7 @@ export async function uploadTar(
   const tarStream = new TarStream()
   await writeTar(collection, tarStream)
   await tarStream.end()
-  const response = await http<{ reference: Reference }>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: bzzEndpoint,
     data: tarStream.output,
@@ -27,5 +29,9 @@ export async function uploadTar(
     },
   })
 
-  return response
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    reference: new Reference(Types.asString(body.reference, { name: 'reference' })),
+  }
 }

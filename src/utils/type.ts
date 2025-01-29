@@ -1,39 +1,32 @@
+import { Types } from 'cafe-utility'
 import { Readable } from 'stream'
 import {
-  Address,
-  ADDRESS_HEX_LENGTH,
-  AddressPrefix,
   AllTagsOptions,
-  BATCH_ID_HEX_LENGTH,
-  BatchId,
   BeeRequestOptions,
   CashoutOptions,
   CollectionUploadOptions,
-  ENCRYPTED_REFERENCE_HEX_LENGTH,
   FileUploadOptions,
   NumberString,
   PostageBatchOptions,
-  PSS_TARGET_HEX_LENGTH_MAX,
   PssMessageHandler,
-  PUBKEY_HEX_LENGTH,
-  PublicKey,
-  Reference,
-  REFERENCE_HEX_LENGTH,
-  ReferenceOrEns,
   Tag,
   TAGS_LIMIT_MAX,
   TAGS_LIMIT_MIN,
-  TransactionHash,
   TransactionOptions,
   UploadOptions,
 } from '../types'
-import { convertCidToReference, convertReferenceToCid } from './cid'
-import { BeeArgumentError, BeeError } from './error'
+import { BeeArgumentError } from './error'
 import { isFile } from './file'
-import { assertHexString, assertPrefixedHexString, isHexString } from './hex'
 
 export function isReadable(obj: unknown): obj is Readable {
   return typeof Readable !== 'undefined' && obj instanceof Readable
+}
+
+export function asNumberString(value: any, options?: { name?: string; min?: bigint; max?: bigint }): NumberString {
+  if (typeof value === 'bigint') {
+    value = value.toString()
+  }
+  return Types.asIntegerString(value, options) as NumberString
 }
 
 export function isInteger(value: unknown): value is number | NumberString {
@@ -52,15 +45,6 @@ export function isObject(value: unknown): value is Record<string, unknown> {
 
 export function isStrictlyObject(value: unknown): value is Record<string, unknown> {
   return isObject(value) && !Array.isArray(value)
-}
-
-/**
- * Asserts if object is Error
- *
- * @param e
- */
-export function isError(e: unknown): e is Error {
-  return e instanceof Error
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -82,129 +66,6 @@ export function assertNonNegativeInteger(value: unknown, name = 'Value'): assert
   assertInteger(value, name)
 
   if (Number(value) < 0) throw new BeeArgumentError(`${name} has to be bigger or equal to zero`, value)
-}
-
-export function assertPositiveInteger(value: unknown, name = 'Value'): asserts value is number | NumberString {
-  assertInteger(value, name)
-
-  if (Number(value) <= 0) throw new BeeArgumentError(`${name} has to be bigger then zero`, value)
-}
-
-export function assertReference(value: unknown): asserts value is Reference {
-  try {
-    assertHexString(value, REFERENCE_HEX_LENGTH)
-  } catch (e) {
-    assertHexString(value, ENCRYPTED_REFERENCE_HEX_LENGTH)
-  }
-}
-
-export function assertReferenceOrEns(value: unknown): asserts value is ReferenceOrEns {
-  if (typeof value !== 'string') {
-    throw new TypeError('ReferenceOrEns has to be a string!')
-  }
-
-  if (isHexString(value)) {
-    assertReference(value)
-
-    return
-  }
-
-  /**
-   * a.asdf - VALID
-   * test.eth - VALID
-   * ADAM.ETH - VALID
-   * ADAM UHLIR.ETH - INVALID
-   * test.whatever.eth - VALID
-   * -adg.ets - INVALID
-   * adg-.ets - INVALID
-   * as-a.com - VALID
-   * ethswarm.org - VALID
-   * http://asdf.asf - INVALID
-   * řš+ýí.šě+ř.čě - VALID
-   * tsg.asg?asg - INVALID
-   * tsg.asg:1599 - INVALID
-   * ethswarm.something- - INVALID
-   * ethswarm.-something - INVALID
-   * ethswarm.some-thing - VALID
-   *
-   * The idea of this regex is to match strings that are 1 to 63 characters long and do not start or end with dash character
-   *
-   * This part matches 2-63 character string that does not start or end with -
-   * [^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]   <regexp1>
-   *
-   * For 1 character long string we use the part after |
-   * [^-.\/?:\s]   <regexp2>
-   *
-   * This is terminated in a group with . character an repeated at least once
-   * (<regexp1>|<regexp2>\.)+
-   *
-   * This covers everything but top level domain which is 2 to 63 characters long so we can just use the <regexp2> again
-   * ^(<regexp1>|<regexp2>\.)+<regexp1>$
-   */
-  const DOMAIN_REGEX =
-    /^(?:(?:[^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]|[^-.\/?:\s]{1,2})\.)+[^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]$/
-
-  // We are doing best-effort validation of domain here. The proper way would be to do validation using IDNA UTS64 standard
-  // but that would give us high penalty to our dependencies as the library (idna-uts46-hx) that does this validation and translation
-  // adds 160kB minified size which is significant. We expects that full validation will be done on Bee side.
-  if (!DOMAIN_REGEX.test(value)) {
-    throw new TypeError('ReferenceOrEns is not valid Reference, but also not valid ENS domain.')
-  }
-}
-
-/**
- * Function that mainly converts Swarm CID into hex encoded Swarm Reference
- *
- * @param value
- * @param expectedCidType
- */
-export function makeReferenceOrEns(value: unknown, expectedCidType: 'feed' | 'manifest'): ReferenceOrEns {
-  if (typeof value !== 'string') {
-    throw new TypeError('ReferenceCidOrEns has to be a string!')
-  }
-
-  try {
-    const result = convertCidToReference(value)
-
-    if (result.type !== expectedCidType) {
-      throw new BeeError(
-        `CID was expected to be of type ${expectedCidType}, but got instead ${result.type ?? 'non-Swarm CID'}`,
-      )
-    }
-
-    return result.reference
-  } catch (e) {
-    if (e instanceof BeeError) throw e
-  }
-
-  assertReferenceOrEns(value)
-
-  return value
-}
-
-/**
- * Function that adds getter which converts the reference into CID base32 encoded string.
- * @param result
- * @param cidType feed or manifest
- */
-export function addCidConversionFunction<T extends { reference: string }>(
-  result: T,
-  cidType: 'feed' | 'manifest',
-): T & { cid: () => string } {
-  return {
-    ...result,
-    cid() {
-      return convertReferenceToCid(result.reference, cidType)
-    },
-  }
-}
-
-export function assertAddress(value: unknown): asserts value is Address {
-  assertHexString(value, ADDRESS_HEX_LENGTH, 'Address')
-}
-
-export function assertBatchId(value: unknown): asserts value is BatchId {
-  assertHexString(value, BATCH_ID_HEX_LENGTH, 'BatchId')
 }
 
 export function assertRequestOptions(value: unknown, name = 'RequestOptions'): asserts value is BeeRequestOptions {
@@ -289,44 +150,6 @@ export function isTag(value: unknown): value is Tag {
   return Boolean(value.uid)
 }
 
-export function assertTag(value: unknown): asserts value is Tag {
-  if (!isStrictlyObject(value)) {
-    throw new TypeError('Tag is not an object!')
-  }
-
-  const tag = value as Record<string, unknown>
-
-  const numberProperties = ['total', 'processed', 'synced', 'uid']
-  for (const numberProperty of numberProperties) {
-    if (!tag[numberProperty]) {
-      throw new TypeError(`Tag's property '${numberProperty}' has to be specified!`)
-    }
-
-    if (typeof tag[numberProperty] !== 'number') {
-      throw new TypeError(`Tag's property '${numberProperty}' has to be number!`)
-    }
-  }
-
-  if (!tag.startedAt) {
-    throw new TypeError("Tag's property 'startedAt' has to be specified!")
-  }
-
-  if (typeof tag.startedAt !== 'string') {
-    throw new TypeError("Tag's property 'startedAt' has to be string!")
-  }
-}
-
-export function assertAddressPrefix(value: unknown): asserts value is AddressPrefix {
-  assertHexString(value, undefined, 'AddressPrefix')
-
-  if (value.length > PSS_TARGET_HEX_LENGTH_MAX) {
-    throw new BeeArgumentError(
-      `AddressPrefix must have length of ${PSS_TARGET_HEX_LENGTH_MAX} at most! Got string with ${value.length}`,
-      value,
-    )
-  }
-}
-
 export function assertPssMessageHandler(value: unknown): asserts value is PssMessageHandler {
   if (!isStrictlyObject(value)) {
     throw new TypeError('PssMessageHandler has to be object!')
@@ -341,10 +164,6 @@ export function assertPssMessageHandler(value: unknown): asserts value is PssMes
   if (typeof handler.onError !== 'function') {
     throw new TypeError('onError property of PssMessageHandler has to be function!')
   }
-}
-
-export function assertPublicKey(value: unknown): asserts value is PublicKey {
-  assertHexString(value, PUBKEY_HEX_LENGTH, 'PublicKey')
 }
 
 export function assertPostageBatchOptions(value: unknown): asserts value is PostageBatchOptions {
@@ -490,17 +309,4 @@ export function makeTagUid(tagUid: number | Tag | string | null | undefined): nu
   }
 
   throw new TypeError('tagUid has to be either Tag or a number (UID)!')
-}
-
-export function assertTransactionHash(transactionHash: unknown): asserts transactionHash is TransactionHash {
-  if (typeof transactionHash !== 'string') {
-    throw new TypeError('TransactionHash has to be a string!')
-  }
-
-  assertPrefixedHexString(transactionHash, 'TransactionHash')
-
-  // Hash is 64 long + '0x' prefix = 66
-  if (transactionHash.length !== 66) {
-    throw new TypeError('TransactionHash has to be prefixed hex string with total length 66 (prefix including)')
-  }
 }

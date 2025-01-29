@@ -1,11 +1,7 @@
-import {
-  BeeGenericResponse,
-  BeeRequestOptions,
-  NumberString,
-  RedistributionState,
-  TransactionOptions,
-} from '../../types'
+import { Types } from 'cafe-utility'
+import { BeeRequestOptions, NumberString, RedistributionState, TransactionOptions } from '../../types'
 import { http } from '../../utils/http'
+import { asNumberString } from '../../utils/type'
 
 const STAKE_ENDPOINT = 'stake'
 const REDISTRIBUTION_ENDPOINT = 'redistributionstate'
@@ -20,13 +16,15 @@ interface GetStake {
  * @param requestOptions Options for making requests
  */
 export async function getStake(requestOptions: BeeRequestOptions): Promise<NumberString> {
-  const response = await http<GetStake>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'get',
     responseType: 'json',
     url: `${STAKE_ENDPOINT}`,
   })
 
-  return response.data.stakedAmount.toString()
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return asNumberString(body.stakedAmount, { name: 'stakedAmount' })
 }
 
 /**
@@ -51,7 +49,7 @@ export async function stake(
     headers['gas-limit'] = options.gasLimit.toString()
   }
 
-  await http<BeeGenericResponse>(requestOptions, {
+  await http<unknown>(requestOptions, {
     method: 'post',
     responseType: 'json',
     url: `${STAKE_ENDPOINT}/${amount}`,
@@ -65,11 +63,29 @@ export async function stake(
  * @param requestOptions Options for making requests
  */
 export async function getRedistributionState(requestOptions: BeeRequestOptions): Promise<RedistributionState> {
-  const response = await http<RedistributionState>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'get',
     responseType: 'json',
     url: REDISTRIBUTION_ENDPOINT,
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    minimumGasFunds: asNumberString(body.minimumGasFunds, { name: 'minimumGasFunds' }),
+    hasSufficientFunds: Types.asBoolean(body.hasSufficientFunds, { name: 'hasSufficientFunds' }),
+    isFrozen: Types.asBoolean(body.isFrozen, { name: 'isFrozen' }),
+    isFullySynced: Types.asBoolean(body.isFullySynced, { name: 'isFullySynced' }),
+    phase: Types.asString(body.phase, { name: 'phase' }),
+    round: Types.asNumber(body.round, { name: 'round' }),
+    lastWonRound: Types.asNumber(body.lastWonRound, { name: 'lastWonRound' }),
+    lastPlayedRound: Types.asNumber(body.lastPlayedRound, { name: 'lastPlayedRound' }),
+    lastFrozenRound: Types.asNumber(body.lastFrozenRound, { name: 'lastFrozenRound' }),
+    lastSelectedRound: Types.asNumber(body.lastSelectedRound, { name: 'lastSelectedRound' }),
+    lastSampleDurationSeconds: Types.asNumber(body.lastSampleDurationSeconds, { name: 'lastSampleDurationSeconds' }),
+    block: Types.asNumber(body.block, { name: 'block' }),
+    reward: asNumberString(body.reward, { name: 'reward' }),
+    fees: asNumberString(body.fees, { name: 'fees' }),
+    isHealthy: Types.asBoolean(body.isHealthy, { name: 'isHealthy' }),
+  }
 }

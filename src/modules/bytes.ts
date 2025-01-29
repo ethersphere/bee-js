@@ -1,19 +1,17 @@
+import { Types } from 'cafe-utility'
 import type {
-  BatchId,
   BeeRequestOptions,
-  Data,
   DownloadRedundancyOptions,
-  Reference,
   ReferenceInformation,
-  ReferenceOrEns,
   UploadOptions,
   UploadRedundancyOptions,
 } from '../types'
 import { UploadResult } from '../types'
-import { wrapBytesWithHelpers } from '../utils/bytes'
+import { Bytes } from '../utils/bytes'
 import { extractDownloadHeaders, extractRedundantUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { makeTagUid } from '../utils/type'
+import { BatchId, Reference } from '../utils/typed-bytes'
 
 const endpoint = 'bytes'
 
@@ -31,7 +29,7 @@ export async function upload(
   postageBatchId: BatchId,
   options?: UploadOptions & UploadRedundancyOptions,
 ): Promise<UploadResult> {
-  const response = await http<{ reference: Reference }>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: endpoint,
     method: 'post',
     responseType: 'json',
@@ -42,8 +40,10 @@ export async function upload(
     },
   })
 
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
   return {
-    reference: response.data.reference,
+    reference: new Reference(Types.asHexString(body.reference)),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address'] || '',
   }
@@ -55,9 +55,14 @@ export async function upload(
  * @param requestOptions Options for making requests
  * @param hash Bee content reference
  */
-export async function head(requestOptions: BeeRequestOptions, hash: ReferenceOrEns): Promise<ReferenceInformation> {
+export async function head(
+  requestOptions: BeeRequestOptions,
+  reference: Reference | Uint8Array | string,
+): Promise<ReferenceInformation> {
+  reference = new Reference(reference)
+
   const response = await http<void>(requestOptions, {
-    url: `${endpoint}/${hash}`,
+    url: `${endpoint}/${reference}`,
     method: 'head',
     responseType: 'json',
   })
@@ -75,16 +80,19 @@ export async function head(requestOptions: BeeRequestOptions, hash: ReferenceOrE
  */
 export async function download(
   requestOptions: BeeRequestOptions,
-  hash: ReferenceOrEns,
+  reference: Reference | Uint8Array | string,
   options?: DownloadRedundancyOptions,
-): Promise<Data> {
-  const response = await http<ArrayBuffer>(requestOptions, {
+): Promise<Bytes> {
+  reference = new Reference(reference)
+
+  const response = await http<unknown>(requestOptions, {
     responseType: 'arraybuffer',
-    url: `${endpoint}/${hash}`,
+    url: `${endpoint}/${reference}`,
     headers: extractDownloadHeaders(options),
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.data))
+  // TODO this is a lie
+  return new Bytes(response.data as ArrayBuffer)
 }
 
 /**
@@ -95,12 +103,14 @@ export async function download(
  */
 export async function downloadReadable(
   requestOptions: BeeRequestOptions,
-  hash: ReferenceOrEns,
+  reference: Reference | Uint8Array | string,
   options?: DownloadRedundancyOptions,
 ): Promise<ReadableStream<Uint8Array>> {
+  reference = new Reference(reference)
+
   const response = await http<ReadableStream<Uint8Array>>(requestOptions, {
     responseType: 'stream',
-    url: `${endpoint}/${hash}`,
+    url: `${endpoint}/${reference}`,
     headers: extractDownloadHeaders(options),
   })
 

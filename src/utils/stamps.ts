@@ -1,5 +1,7 @@
 import { Binary } from 'cafe-utility'
-import { BatchId, Envelope, NumberString } from '../types'
+import { EnvelopeWithBatchId, NumberString } from '../types'
+import { Bytes } from './bytes'
+import { asNumberString } from './type'
 
 /**
  * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.
@@ -65,19 +67,22 @@ export function getStampEffectiveBytes(depth: number): number {
  *
  * @returns {number} The cost of the postage batch in PLUR (10000000000000000 [1e16] PLUR = 1 BZZ)
  */
-export function getStampCostInPlur(depth: number, amount: number): number {
-  return 2 ** depth * amount
+export function getStampCostInPlur(depth: number, amount: NumberString | string | bigint): bigint {
+  const amountBigint = BigInt(asNumberString(amount))
+  return 2n ** BigInt(depth) * amountBigint
 }
 
 /**
  * Utility function that calculates the cost of a postage batch based on its depth and amount.
  *
+ * The returned number is lossy and should be used for display purposes only.
+ *
  * @returns {number} The cost of the postage batch in BZZ (1 BZZ = 10000000000000000 [1e16] PLUR)
  */
-export function getStampCostInBzz(depth: number, amount: number): number {
+export function getStampCostInBzz(depth: number, amount: NumberString | string | bigint): number {
   const BZZ_UNIT = 10 ** 16
 
-  return getStampCostInPlur(depth, amount) / BZZ_UNIT
+  return Number(getStampCostInPlur(depth, amount)) / BZZ_UNIT
 }
 
 /**
@@ -87,8 +92,13 @@ export function getStampCostInBzz(depth: number, amount: number): number {
  *
  * @returns {number} The TTL of the postage batch in seconds.
  */
-export function getStampTtlSeconds(amount: number, pricePerBlock = 24_000, blockTime = 5): number {
-  return (amount * blockTime) / pricePerBlock
+export function getStampTtlSeconds(
+  amount: NumberString | string | bigint,
+  pricePerBlock = 24_000,
+  blockTime = 5,
+): bigint {
+  const amountBigint = BigInt(asNumberString(amount))
+  return (amountBigint * BigInt(blockTime)) / BigInt(pricePerBlock)
 }
 
 /**
@@ -99,9 +109,8 @@ export function getStampTtlSeconds(amount: number, pricePerBlock = 24_000, block
  * @param {number} days - The Time To Live (TTL) in days.
  * @returns {NumberString} The estimated amount of tokens needed for the specified TTL.
  */
-export function getAmountForTtl(days: number): NumberString {
-  // 414720000 = (24 * 60 * 60 * 24_000) / 5
-  return ((days <= 0 ? 1 : days) * 414720000).toString() as NumberString
+export function getAmountForTtl(days: number, pricePerBlock = 24_000, blockTime = 5): bigint {
+  return (days <= 0 ? 1n : BigInt(days)) * ((24n * 60n * 60n * BigInt(pricePerBlock)) / BigInt(blockTime))
 }
 
 /**
@@ -116,21 +125,21 @@ export function getDepthForCapacity(gigabytes: number): number {
   return gigabytes <= 1 ? 18 : Math.ceil(Math.log2(Math.ceil(gigabytes)) + 18)
 }
 
-export function convertEnvelopeToMarshaledStamp(batchID: BatchId, envelope: Envelope): Uint8Array {
-  return marshalStamp(envelope.signature, Binary.hexToUint8Array(batchID), envelope.timestamp, envelope.index)
+export function convertEnvelopeToMarshaledStamp(envelope: EnvelopeWithBatchId): Bytes {
+  return marshalStamp(envelope.signature, envelope.batchId.toUint8Array(), envelope.timestamp, envelope.index)
 }
 
 export function marshalStamp(
   signature: Uint8Array,
-  batchID: Uint8Array,
+  batchId: Uint8Array,
   timestamp: Uint8Array,
   index: Uint8Array,
-): Uint8Array {
+): Bytes {
   if (signature.length !== 65) {
     throw Error('invalid signature length')
   }
 
-  if (batchID.length !== 32) {
+  if (batchId.length !== 32) {
     throw Error('invalid batch ID length')
   }
 
@@ -142,5 +151,5 @@ export function marshalStamp(
     throw Error('invalid index length')
   }
 
-  return Binary.concatBytes(batchID, index, timestamp, signature)
+  return new Bytes(Binary.concatBytes(batchId, index, timestamp, signature))
 }

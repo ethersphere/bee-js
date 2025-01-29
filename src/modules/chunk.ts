@@ -1,16 +1,9 @@
-import type {
-  BatchId,
-  BeeRequestOptions,
-  Data,
-  ReferenceOrEns,
-  ReferenceResponse,
-  UploadOptions,
-  UploadResult,
-} from '../types'
-import { wrapBytesWithHelpers } from '../utils/bytes'
+import { Types } from 'cafe-utility'
+import type { BeeRequestOptions, EnvelopeWithBatchId, UploadOptions, UploadResult } from '../types'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { makeTagUid } from '../utils/type'
+import { BatchId, Reference } from '../utils/typed-bytes'
 
 const endpoint = 'chunks'
 
@@ -29,10 +22,10 @@ const endpoint = 'chunks'
 export async function upload(
   requestOptions: BeeRequestOptions,
   data: Uint8Array,
-  stamp: BatchId | Uint8Array | string,
+  stamp: EnvelopeWithBatchId | BatchId | Uint8Array | string,
   options?: UploadOptions,
 ): Promise<UploadResult> {
-  const response = await http<ReferenceResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: `${endpoint}`,
     data,
@@ -43,8 +36,10 @@ export async function upload(
     responseType: 'json',
   })
 
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
   return {
-    reference: response.data.reference,
+    reference: new Reference(Types.asString(body.reference, { name: 'reference' })),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address'] || '',
   }
@@ -57,11 +52,16 @@ export async function upload(
  * @param hash Bee content reference
  *
  */
-export async function download(requestOptions: BeeRequestOptions, hash: ReferenceOrEns): Promise<Data> {
+export async function download(
+  requestOptions: BeeRequestOptions,
+  reference: Reference | string | Uint8Array,
+): Promise<Uint8Array> {
+  reference = new Reference(reference)
+
   const response = await http<ArrayBuffer>(requestOptions, {
     responseType: 'arraybuffer',
-    url: `${endpoint}/${hash}`,
+    url: `${endpoint}/${reference}`,
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.data))
+  return new Uint8Array(response.data)
 }

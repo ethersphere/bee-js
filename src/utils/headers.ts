@@ -1,6 +1,14 @@
-import { Binary } from 'cafe-utility'
-import { BatchId, DownloadRedundancyOptions, FileHeaders, UploadOptions, UploadRedundancyOptions } from '../types'
+import { Types } from 'cafe-utility'
+import {
+  DownloadRedundancyOptions,
+  EnvelopeWithBatchId,
+  FileHeaders,
+  UploadOptions,
+  UploadRedundancyOptions,
+} from '../types'
 import { BeeError } from './error'
+import { convertEnvelopeToMarshaledStamp } from './stamps'
+import { BatchId } from './typed-bytes'
 
 /**
  * Read the filename from the content-disposition header
@@ -46,7 +54,7 @@ export function readFileHeaders(headers: Record<string, string>): FileHeaders {
 }
 
 export function extractUploadHeaders(
-  stamp: BatchId | Uint8Array | string,
+  stamp: EnvelopeWithBatchId | BatchId | Uint8Array | string,
   options?: UploadOptions,
 ): Record<string, string> {
   if (!stamp) {
@@ -55,10 +63,11 @@ export function extractUploadHeaders(
 
   const headers: Record<string, string> = {}
 
-  if (stamp instanceof Uint8Array) {
-    headers['swarm-postage-stamp'] = Binary.uint8ArrayToHex(stamp)
+  if (isEnvelopeWithBatchId(stamp)) {
+    headers['swarm-postage-stamp'] = convertEnvelopeToMarshaledStamp(stamp).toHex()
   } else {
-    headers['swarm-postage-batch-id'] = stamp
+    stamp = new BatchId(stamp)
+    headers['swarm-postage-batch-id'] = stamp.toHex()
   }
 
   if (options?.act) {
@@ -82,6 +91,22 @@ export function extractUploadHeaders(
   }
 
   return headers
+}
+
+function isEnvelopeWithBatchId(value: unknown): value is EnvelopeWithBatchId {
+  if (!Types.isObject(value)) {
+    return false
+  }
+
+  const envelope = value as EnvelopeWithBatchId
+
+  return (
+    envelope.issuer !== undefined &&
+    envelope.index !== undefined &&
+    envelope.signature !== undefined &&
+    envelope.timestamp !== undefined &&
+    envelope.batchId !== undefined
+  )
 }
 
 export function extractRedundantUploadHeaders(

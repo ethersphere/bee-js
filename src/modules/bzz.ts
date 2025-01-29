@@ -1,25 +1,23 @@
+import { Types } from 'cafe-utility'
 import { Readable } from 'stream'
 import {
-  BatchId,
   BeeRequestOptions,
   Collection,
   CollectionUploadOptions,
-  Data,
   DownloadRedundancyOptions,
   FileData,
   FileUploadOptions,
-  Reference,
-  ReferenceOrEns,
   UploadHeaders,
   UploadRedundancyOptions,
   UploadResult,
 } from '../types'
-import { wrapBytesWithHelpers } from '../utils/bytes'
+import { Bytes } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
 import { extractDownloadHeaders, extractRedundantUploadHeaders, readFileHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { uploadTar } from '../utils/tar-uploader'
 import { isReadable, makeTagUid } from '../utils/type'
+import { BatchId, Reference } from '../utils/typed-bytes'
 
 const bzzEndpoint = 'bzz'
 
@@ -64,7 +62,7 @@ export async function uploadFile(
     options.contentType = 'application/octet-stream'
   }
 
-  const response = await http<{ reference: Reference }>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: bzzEndpoint,
     data,
@@ -75,8 +73,10 @@ export async function uploadFile(
     responseType: 'json',
   })
 
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
   return {
-    reference: response.data.reference,
+    reference: new Reference(Types.asHexString(body.reference)),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address'] || '',
   }
@@ -91,19 +91,21 @@ export async function uploadFile(
  */
 export async function downloadFile(
   requestOptions: BeeRequestOptions,
-  hash: ReferenceOrEns,
+  reference: Reference | string | Uint8Array,
   path = '',
   options?: DownloadRedundancyOptions,
-): Promise<FileData<Data>> {
+): Promise<FileData<Bytes>> {
+  reference = new Reference(reference)
+
   const response = await http<ArrayBuffer>(requestOptions, {
     method: 'GET',
     responseType: 'arraybuffer',
-    url: `${bzzEndpoint}/${hash}/${path}`,
+    url: `${bzzEndpoint}/${reference}/${path}`,
     headers: extractDownloadHeaders(options),
   })
   const file = {
     ...readFileHeaders(response.headers as Record<string, string>),
-    data: wrapBytesWithHelpers(new Uint8Array(response.data)),
+    data: new Bytes(response.data),
   }
 
   return file
@@ -118,14 +120,16 @@ export async function downloadFile(
  */
 export async function downloadFileReadable(
   requestOptions: BeeRequestOptions,
-  hash: ReferenceOrEns,
+  reference: Reference,
   path = '',
   options?: DownloadRedundancyOptions,
 ): Promise<FileData<ReadableStream<Uint8Array>>> {
+  reference = new Reference(reference)
+
   const response = await http<ReadableStream<Uint8Array>>(requestOptions, {
     method: 'GET',
     responseType: 'stream',
-    url: `${bzzEndpoint}/${hash}/${path}`,
+    url: `${bzzEndpoint}/${reference}/${path}`,
     headers: extractDownloadHeaders(options),
   })
   const file = {
@@ -178,8 +182,10 @@ export async function uploadCollection(
   assertCollection(collection)
   const response = await uploadTar(requestOptions, collection, postageBatchId, options)
 
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
   return {
-    reference: response.data.reference,
+    reference: new Reference(Types.asHexString(body.reference)),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address'] || '',
   }

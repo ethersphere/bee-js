@@ -1,15 +1,12 @@
 import { Binary } from 'cafe-utility'
-import { BrandedType, PlainBytesReference } from '../types'
-import { Bytes, FlexBytes, assertFlexBytes, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
-import { BeeError } from '../utils/error'
-import { bmtHash } from './bmt'
-import { SPAN_SIZE, makeSpan } from './span'
+import { Bytes } from '../utils/bytes'
+import { Reference, Span } from '../utils/typed-bytes'
+import { calculateChunkAddress } from './bmt'
 
 export const MIN_PAYLOAD_SIZE = 1
 export const MAX_PAYLOAD_SIZE = 4096
 
-const CAC_SPAN_OFFSET = 0
-const CAC_PAYLOAD_OFFSET = CAC_SPAN_OFFSET + SPAN_SIZE
+const ENCODER = new TextEncoder()
 
 /**
  * General chunk interface for Swarm
@@ -22,55 +19,34 @@ const CAC_PAYLOAD_OFFSET = CAC_SPAN_OFFSET + SPAN_SIZE
  */
 export interface Chunk {
   readonly data: Uint8Array
-  span(): Bytes<8>
-  payload(): FlexBytes<1, 4096>
-  address(): PlainBytesReference
+  span: Span
+  payload: Bytes
+  address: Reference
 }
-
-type ValidChunkData = BrandedType<Uint8Array, 'ValidChunkData'>
 
 /**
  * Creates a content addressed chunk and verifies the payload size.
  *
  * @param payloadBytes the data to be stored in the chunk
  */
-export function makeContentAddressedChunk(payloadBytes: Uint8Array): Chunk {
-  const span = makeSpan(payloadBytes.length)
-  assertFlexBytes(payloadBytes, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE)
-  const data = Binary.concatBytes(span, payloadBytes) as ValidChunkData
+export function makeContentAddressedChunk(payloadBytes: Uint8Array | string): Chunk {
+  if (!(payloadBytes instanceof Uint8Array)) {
+    payloadBytes = ENCODER.encode(payloadBytes)
+  }
+
+  if (payloadBytes.length < MIN_PAYLOAD_SIZE || payloadBytes.length > MAX_PAYLOAD_SIZE) {
+    throw new RangeError(
+      `payload size ${payloadBytes.length} exceeds limits [${MIN_PAYLOAD_SIZE}, ${MAX_PAYLOAD_SIZE}]`,
+    )
+  }
+
+  const span = Span.fromBigInt(BigInt(payloadBytes.length))
+  const data = Binary.concatBytes(span.toUint8Array(), payloadBytes)
 
   return {
     data,
-    span: () => span,
-    payload: () => flexBytesAtOffset(data, CAC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE),
-    address: () => bmtHash(data),
-  }
-}
-
-/**
- * Type guard for valid content addressed chunk data
- *
- * @param data          The chunk data
- * @param chunkAddress  The address of the chunk
- */
-export function isValidChunkData(data: unknown, chunkAddress: PlainBytesReference): data is ValidChunkData {
-  if (!(data instanceof Uint8Array)) return false
-
-  const address = bmtHash(data)
-
-  return bytesEqual(address, chunkAddress)
-}
-
-/**
- * Asserts if data are representing given address of its chunk.
- *
- * @param data          The chunk data
- * @param chunkAddress  The address of the chunk
- *
- * @returns a valid content addressed chunk or throws error
- */
-export function assertValidChunkData(data: unknown, chunkAddress: PlainBytesReference): asserts data is ValidChunkData {
-  if (!isValidChunkData(data, chunkAddress)) {
-    throw new BeeError('Address of content address chunk does not match given data!')
+    span,
+    payload: Bytes.fromSlice(data, Span.LENGTH),
+    address: calculateChunkAddress(data),
   }
 }

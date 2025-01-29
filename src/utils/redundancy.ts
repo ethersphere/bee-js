@@ -53,6 +53,9 @@ const tables = {
  * redundancy level.
  */
 export function approximateOverheadForRedundancyLevel(chunks: number, level: RedundancyLevel, encrypted: boolean) {
+  if (level === RedundancyLevel.OFF) {
+    return 0
+  }
   const tableType =
     level === RedundancyLevel.MEDIUM
       ? tables[RedundancyLevel.MEDIUM]

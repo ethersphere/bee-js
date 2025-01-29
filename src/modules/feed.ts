@@ -1,16 +1,12 @@
-import { Index } from '../feed'
-import { FeedType } from '../feed/type'
-import { BatchId, BeeRequestOptions, Reference, ReferenceResponse, Topic } from '../types'
+import { Types } from 'cafe-utility'
+import { BeeRequestOptions, UploadOptions } from '../types'
+import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
-import { HexEthAddress } from '../utils/eth'
 import { extractUploadHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+import { BatchId, EthAddress, FeedIndex, Reference, Topic } from '../utils/typed-bytes'
 
 const feedEndpoint = 'feeds'
-
-export interface CreateFeedOptions {
-  type?: FeedType
-}
 
 export interface FeedUpdateOptions {
   /**
@@ -18,27 +14,28 @@ export interface FeedUpdateOptions {
    */
   at?: number
 
-  type?: FeedType
-
   /**
    * Fetch specific previous Feed's update (default fetches latest update)
    */
-  index?: Index
+  index?: FeedIndex | number
 }
 
 interface FeedUpdateHeaders {
   /**
    * The current feed's index
    */
-  feedIndex: Index
+  feedIndex: FeedIndex
 
   /**
    * The feed's index for next update.
    * Only set for the latest update. If update is fetched using previous index, then this is an empty string.
    */
-  feedIndexNext: string
+  feedIndexNext?: FeedIndex
 }
-export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHeaders {}
+
+export interface FetchFeedUpdateResponse extends FeedUpdateHeaders {
+  payload: Bytes
+}
 
 /**
  * Create an initial feed root manifest
@@ -51,18 +48,21 @@ export interface FetchFeedUpdateResponse extends ReferenceResponse, FeedUpdateHe
  */
 export async function createFeedManifest(
   requestOptions: BeeRequestOptions,
-  owner: HexEthAddress,
+  owner: EthAddress,
   topic: Topic,
   stamp: BatchId | Uint8Array | string,
+  options?: UploadOptions,
 ): Promise<Reference> {
-  const response = await http<ReferenceResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'post',
     responseType: 'json',
     url: `${feedEndpoint}/${owner}/${topic}`,
-    headers: extractUploadHeaders(stamp),
+    headers: extractUploadHeaders(stamp, options),
   })
 
-  return response.data.reference
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new Reference(Types.asHexString(body.reference))
 }
 
 function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeaders {
@@ -78,8 +78,8 @@ function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeade
   }
 
   return {
-    feedIndex,
-    feedIndexNext,
+    feedIndex: new FeedIndex(feedIndex),
+    feedIndexNext: new FeedIndex(feedIndexNext),
   }
 }
 
@@ -98,18 +98,18 @@ function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeade
  */
 export async function fetchLatestFeedUpdate(
   requestOptions: BeeRequestOptions,
-  owner: HexEthAddress,
+  owner: EthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
 ): Promise<FetchFeedUpdateResponse> {
-  const response = await http<ReferenceResponse>(requestOptions, {
-    responseType: 'json',
+  const response = await http<ArrayBuffer>(requestOptions, {
+    responseType: 'arraybuffer',
     url: `${feedEndpoint}/${owner}/${topic}`,
     params: options as any,
   })
 
   return {
-    ...response.data,
+    payload: new Bytes(response.data),
     ...readFeedUpdateHeaders(response.headers as Record<string, string>),
   }
 }

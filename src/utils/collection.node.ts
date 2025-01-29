@@ -21,7 +21,6 @@ export async function makeCollectionFromFS(dir: string): Promise<Collection> {
 }
 
 async function buildCollectionRelative(dir: string, relativePath: string): Promise<Collection> {
-  // Handles case when the dir is not existing or it is a file ==> throws an error
   const dirname = path.join(dir, relativePath)
   const entries = await fs.promises.opendir(dirname)
   let collection: Collection = []

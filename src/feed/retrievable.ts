@@ -1,25 +1,7 @@
-import { Binary } from 'cafe-utility'
 import { Bee } from '../bee'
-import { BeeRequestOptions, Reference, Topic } from '../types'
-import { EthAddress } from '../utils/eth'
-import { bytesToHex } from '../utils/hex'
-import { Index, getFeedUpdateChunkReference } from './index'
-
-function makeNumericIndex(index: Index): number {
-  if (index instanceof Uint8Array) {
-    return Binary.uint64BEToNumber(index)
-  }
-
-  if (typeof index === 'string') {
-    return parseInt(index)
-  }
-
-  if (typeof index === 'number') {
-    return index
-  }
-
-  throw new TypeError('Unknown type of index!')
-}
+import { BeeRequestOptions } from '../types'
+import { EthAddress, FeedIndex, Reference, Topic } from '../utils/typed-bytes'
+import { getFeedUpdateChunkReference } from './index'
 
 /**
  * Function that checks if a chunk is retrievable by actually downloading it.
@@ -29,9 +11,9 @@ function makeNumericIndex(index: Index): number {
  * @param ref
  * @param options
  */
-async function isChunkRetrievable(bee: Bee, ref: Reference, requestOptions: BeeRequestOptions): Promise<boolean> {
+async function isChunkRetrievable(bee: Bee, reference: Reference, requestOptions: BeeRequestOptions): Promise<boolean> {
   try {
-    await bee.downloadChunk(ref, requestOptions)
+    await bee.downloadChunk(reference, requestOptions)
 
     return true
   } catch (e: any) {
@@ -50,12 +32,12 @@ async function isChunkRetrievable(bee: Bee, ref: Reference, requestOptions: BeeR
  * @param topic
  * @param index
  */
-function getAllSequenceUpdateReferences(owner: EthAddress, topic: Topic, index: Index): Reference[] {
-  const numIndex = makeNumericIndex(index)
-  const updateReferences: Reference[] = new Array(numIndex + 1)
+function getAllSequenceUpdateReferences(owner: EthAddress, topic: Topic, index: FeedIndex): Reference[] {
+  const count = index.toBigInt()
+  const updateReferences: Reference[] = []
 
-  for (let i = 0; i <= numIndex; i++) {
-    updateReferences[i] = bytesToHex(getFeedUpdateChunkReference(owner, topic, i))
+  for (let i = 0n; i <= count; i++) {
+    updateReferences.push(getFeedUpdateChunkReference(owner, topic, FeedIndex.fromBigInt(i)))
   }
 
   return updateReferences
@@ -65,11 +47,11 @@ export async function areAllSequentialFeedsUpdateRetrievable(
   bee: Bee,
   owner: EthAddress,
   topic: Topic,
-  index: Index,
+  index: FeedIndex,
   requestOptions: BeeRequestOptions,
 ): Promise<boolean> {
-  const chunkRetrievablePromises = getAllSequenceUpdateReferences(owner, topic, index).map(async ref =>
-    isChunkRetrievable(bee, ref, requestOptions),
+  const chunkRetrievablePromises = getAllSequenceUpdateReferences(owner, topic, index).map(async reference =>
+    isChunkRetrievable(bee, reference, requestOptions),
   )
 
   return (await Promise.all(chunkRetrievablePromises)).every(result => result)

@@ -1,13 +1,4 @@
 import { BeeArgumentError } from './error'
-import { isObject } from './type'
-
-interface NodeJsError {
-  code: string
-}
-
-function isNodeJsError(e: unknown): e is NodeJsError {
-  return isObject(e) && typeof e.code === 'string'
-}
 
 /**
  * Validates that passed string is valid URL of Bee.

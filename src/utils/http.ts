@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { Objects, Strings } from 'cafe-utility'
+import { Objects, Strings, System } from 'cafe-utility'
 import { BeeRequestOptions, BeeResponseError } from '../index'
 
 const { AxiosError } = axios
@@ -18,25 +18,31 @@ export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
  * @param config Internal settings and/or Bee settings
  */
 export async function http<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-  try {
-    const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
-    maybeRunOnRequestHook(options, requestConfig)
-    const response = await axios(requestConfig)
+  while (true) {
+    try {
+      const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+      maybeRunOnRequestHook(options, requestConfig)
+      const response = await axios(requestConfig)
 
-    // TODO: https://github.com/axios/axios/pull/6253
-    return response as AxiosResponse<T>
-  } catch (e: unknown) {
-    if (e instanceof AxiosError) {
-      throw new BeeResponseError(
-        config.method || 'get',
-        config.url || '<unknown>',
-        e.message,
-        e.response?.data,
-        e.response?.status,
-        e.code,
-      )
+      // TODO: https://github.com/axios/axios/pull/6253
+      return response as AxiosResponse<T>
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        if (e.code === 'ECONNABORTED' && options.endlesslyRetry) {
+          await System.sleepMillis(200)
+          continue
+        }
+        throw new BeeResponseError(
+          config.method || 'get',
+          config.url || '<unknown>',
+          e.message,
+          e.response?.data,
+          e.response?.status,
+          e.code,
+        )
+      }
+      throw e
     }
-    throw e
   }
 }
 
