@@ -14,6 +14,9 @@ export async function writeTar(collection: Collection, tarStream: TarStream) {
       }
       await tarStream.endFile()
       stream.close()
+    } else if (item.file) {
+      await tarStream.appendFile(new Uint8Array(await item.file.arrayBuffer()))
+      await tarStream.endFile()
     } else {
       throw new Error('Invalid collection item')
     }

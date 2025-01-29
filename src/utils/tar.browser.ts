@@ -48,7 +48,7 @@ function createHeader(path: string, size: number): Uint8Array {
   }
 
   // Initialize header with zeros
-  const header = new Uint8Array()
+  const header = new Uint8Array(512)
   header.fill(0, 0, 512)
 
   // File name, truncated to 100 characters if necessary
