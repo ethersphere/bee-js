@@ -68,7 +68,7 @@ export async function getAllPins(requestOptions: BeeRequestOptions): Promise<Ref
 
   const body = Types.asObject(response.data, { name: 'response.data' })
 
-  // TODO
+  // TODO: https://github.com/ethersphere/bee/issues/4964
   if (body.references === null) {
     return []
   }

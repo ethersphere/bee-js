@@ -5,7 +5,7 @@ import { MantarayNode } from '../manifest/manifest'
 import { totalChunks } from './chunk-size'
 import { makeCollectionFromFS } from './collection.node'
 import { mimes } from './mime'
-import { BatchId } from './typed-bytes'
+import { BatchId, Reference } from './typed-bytes'
 import { UploadProgress } from './upload-progress'
 
 export async function hashDirectory(dir: string) {
@@ -81,4 +81,14 @@ function maybeEnrichMime(mime: string) {
   }
 
   return mime
+}
+
+export async function streamFiles(
+  bee: Bee,
+  files: File[] | FileList,
+  postageBatchId: BatchId,
+  onUploadProgress?: (progress: UploadProgress) => void,
+  options?: UploadOptions,
+): Promise<Reference> {
+  throw new Error('Streaming files is not supported in Node.js')
 }

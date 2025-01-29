@@ -129,7 +129,7 @@ test('GET settlements', async () => {
 
   const response = await bee.getAllSettlements()
 
-  // todo light mode should also run this
+  // TODO: light mode should also run this
   if (currentBeeMode() === 'full') {
     expect(response.settlements.length).toBeGreaterThan(0)
 

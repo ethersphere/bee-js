@@ -1,18 +1,33 @@
 import { Chunk, MerkleTree, Strings } from 'cafe-utility'
-import { Bee, UploadOptions } from '..'
+import { Bee, BeeRequestOptions, UploadOptions } from '..'
 import { MantarayNode } from '../manifest/manifest'
 import { totalChunks } from './chunk-size'
 import { mimes } from './mime'
-import { BatchId } from './typed-bytes'
+import { BatchId, Reference } from './typed-bytes'
 import { UploadProgress } from './upload-progress'
 
-export async function streamFiles(
+export async function hashDirectory(dir: string) {
+  throw new Error('Hashing directories is not supported in browsers!')
+}
+
+export async function streamDirectory(
   bee: Bee,
-  files: File[],
+  dir: string,
   postageBatchId: BatchId | string | Uint8Array,
   onUploadProgress?: (progress: UploadProgress) => void,
   options?: UploadOptions,
-) {
+  requestOptions?: BeeRequestOptions,
+): Promise<Reference> {
+  throw new Error('Streaming directories is not supported in browsers!')
+}
+
+export async function streamFiles(
+  bee: Bee,
+  files: File[] | FileList,
+  postageBatchId: BatchId,
+  onUploadProgress?: (progress: UploadProgress) => void,
+  options?: UploadOptions,
+): Promise<Reference> {
   let total = 0
   let processed = 0
   for (const file of files) {
@@ -35,9 +50,11 @@ export async function streamFiles(
         reject(reader.error)
       }
 
-      const readNextChunk = () => {
+      const readNextChunk = async () => {
         if (offset >= file.size) {
-          tree.finalize().then(resolve)
+          const rootChunk = await tree.finalize()
+          resolve(rootChunk)
+          return
         }
 
         const slice = file.slice(offset, offset + 4096)
@@ -51,7 +68,7 @@ export async function streamFiles(
         }
         const data = event.target.result
         if (data) {
-          tree.append(new Uint8Array(data as ArrayBuffer))
+          await tree.append(new Uint8Array(data as ArrayBuffer))
           offset += 4096
         }
         readNextChunk()

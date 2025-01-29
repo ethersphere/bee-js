@@ -3,7 +3,7 @@ import { arbitraryReference } from '../utils'
 
 const ENCODER = new TextEncoder()
 
-test('MantarayNode', () => {
+test('MantarayNode basic', () => {
   const node = new MantarayNode()
   node.addFork('foo', arbitraryReference())
   node.addFork('foobar', arbitraryReference())
@@ -32,4 +32,26 @@ test('MantarayNode', () => {
 
   node.removeFork('foobarbaz')
   expect(node.find('foobarbaz')).toBeNull()
+})
+
+test('MantarayNode long', () => {
+  const htmlPath = '/Code/Swarm/bee-js/test/coverage/lcov-report/index.html'
+  const jsPath = '/Code/Swarm/bee-js/test/coverage/lcov-report/index.js'
+  const dsStorePath = '/Code/Swarm/bee-js/test/coverage/.DS_Store'
+
+  const node = new MantarayNode()
+
+  node.addFork(htmlPath, arbitraryReference())
+  node.addFork(jsPath, arbitraryReference())
+  node.addFork(dsStorePath, arbitraryReference())
+
+  expect(node.find(htmlPath)).toBeDefined()
+  expect(node.find(jsPath)).toBeDefined()
+  expect(node.find(dsStorePath)).toBeDefined()
+
+  node.removeFork(dsStorePath)
+
+  expect(node.find(htmlPath)).toBeDefined()
+  expect(node.find(jsPath)).toBeDefined()
+  expect(node.find(dsStorePath)).toBeNull()
 })

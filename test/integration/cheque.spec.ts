@@ -14,7 +14,7 @@ test('GET chequebook status', async () => {
 test('GET chequebook/cheque', async () => {
   const { lastcheques } = await bee.getLastCheques()
 
-  // TODO enable this in light mode once it has cheques
+  // TODO: enable this in light mode once it has cheques
   if (currentBeeMode() !== 'full') {
     return
   }

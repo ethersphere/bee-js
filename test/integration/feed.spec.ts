@@ -1,4 +1,4 @@
-import { Strings, System } from 'cafe-utility'
+import { Dates, Strings, System } from 'cafe-utility'
 import { NULL_TOPIC } from '../../src'
 import { FeedIndex, PrivateKey, Reference } from '../../src/utils/typed-bytes'
 import { batch, makeBee } from '../utils'
@@ -20,12 +20,12 @@ test('POST feed (reader)', async () => {
 
   await feedWriter.upload(batch(), response2.reference, { deferred: false })
 
-  // TODO no sleep
-  await System.sleepMillis(5000)
+  // TODO: no sleep
+  await System.sleepMillis(Dates.seconds(5))
 
   expect((await feedReader.download()).payload.toUtf8()).toBe('Second update')
 
-  // TODO this is a reference...
+  // TODO: this is a reference... should it be auto-resolved?
   const reference1 = new Reference((await feedReader.download({ index: 0 })).payload)
   expect((await bee.downloadData(reference1)).toUtf8()).toBe('First update')
 
@@ -52,8 +52,8 @@ test('POST feed (manifest)', async () => {
 
   await feedWriter.upload(batch(), response2.reference, { deferred: false })
 
-  // TODO no sleep
-  await System.sleepMillis(5000)
+  // TODO: no sleep
+  await System.sleepMillis(Dates.seconds(5))
 
   expect((await bee.downloadFile(manifest)).data.toUtf8()).toBe('Second update')
 

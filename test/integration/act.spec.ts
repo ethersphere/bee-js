@@ -36,7 +36,7 @@ test('CRUD grantee', async () => {
   const data = 'hello act grantees!'
   const uploadResult = await bee.uploadFile(batch(), data, filename, { act: true })
 
-  await System.sleepMillis(Dates.seconds(4))
+  await System.sleepMillis(Dates.seconds(5))
 
   const patchResponse = await bee.patchGrantees(batch(), createResponse.ref, uploadResult.historyAddress, patchGrantees)
 

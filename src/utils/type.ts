@@ -1,5 +1,5 @@
 import { Types } from 'cafe-utility'
-import { Readable } from 'stream'
+import * as stream from 'stream'
 import {
   AllTagsOptions,
   BeeRequestOptions,
@@ -18,8 +18,8 @@ import {
 import { BeeArgumentError } from './error'
 import { isFile } from './file'
 
-export function isReadable(obj: unknown): obj is Readable {
-  return typeof Readable !== 'undefined' && obj instanceof Readable
+export function isReadable(obj: unknown): obj is stream.Readable {
+  return typeof stream.Readable !== 'undefined' && obj instanceof stream.Readable
 }
 
 export function asNumberString(value: any, options?: { name?: string; min?: bigint; max?: bigint }): NumberString {
@@ -241,7 +241,7 @@ export function assertData(value: unknown): asserts value is string | Uint8Array
  * @param value
  * @throws TypeError if not valid
  */
-export function assertFileData(value: unknown): asserts value is string | Uint8Array | Readable | File {
+export function assertFileData(value: unknown): asserts value is string | Uint8Array | stream.Readable | File {
   if (typeof value !== 'string' && !(value instanceof Uint8Array) && !isFile(value) && !isReadable(value)) {
     throw new TypeError('Data must be either string, Readable, Uint8Array or File!')
   }

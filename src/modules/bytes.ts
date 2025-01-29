@@ -91,7 +91,6 @@ export async function download(
     headers: extractDownloadHeaders(options),
   })
 
-  // TODO this is a lie
   return new Bytes(response.data as ArrayBuffer)
 }
 

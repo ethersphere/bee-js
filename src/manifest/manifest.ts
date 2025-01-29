@@ -178,20 +178,26 @@ export class MantarayNode {
   ) {
     this.selfAddress = null
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
-    reference = new Reference(reference)
-    const newFork = new Fork(
-      path,
-      new MantarayNode({
-        targetAddress: reference.toUint8Array(),
-        metadata,
-        path,
-      }),
-    )
-    const existing = this.forks.get(path[0])
-    if (existing) {
-      this.forks.set(path[0], existing.split(newFork, existing))
-    } else {
-      this.forks.set(path[0], newFork)
+    let tip: MantarayNode = this
+    while (path.length) {
+      const prefix = path.slice(0, 30)
+      path = path.slice(30)
+      const last = path.length === 0
+      const newFork = new Fork(
+        prefix,
+        new MantarayNode({
+          targetAddress: last ? new Reference(reference).toUint8Array() : undefined,
+          metadata: last ? metadata : undefined,
+          path: prefix,
+        }),
+      )
+      const existing = this.forks.get(prefix[0])
+      if (existing) {
+        tip.forks.set(prefix[0], existing.split(newFork, existing))
+      } else {
+        tip.forks.set(prefix[0], newFork)
+      }
+      tip = newFork.node
     }
   }
 

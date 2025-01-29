@@ -16,7 +16,7 @@ test('POST encrypted data', async () => {
   const response = await bee.uploadData(batch(), data, { encrypt: true })
   expect(response.reference.length).toBe(64)
 
-  // TODO ts is confused about [Symbol.asyncIterator]()
+  // TODO: ts is confused about [Symbol.asyncIterator]()
   const stream = (await bee.downloadReadableData(response.reference)) as unknown as ReadStream
 
   const chunks: Uint8Array[] = []
@@ -32,7 +32,7 @@ test('POST encrypted file', async () => {
   const response = await bee.uploadFile(batch(), file, 'secret.txt', { encrypt: true })
 
   const download = await bee.downloadReadableFile(response.reference)
-  // TODO ts is confused about [Symbol.asyncIterator]()
+  // TODO: ts is confused about [Symbol.asyncIterator]()
   const stream = download.data as unknown as ReadStream
 
   const chunks: Uint8Array[] = []

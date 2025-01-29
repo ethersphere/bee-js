@@ -13,6 +13,7 @@ cat >dist/cjs/package.json <<!EOF
       "./utils/tar.js": "./utils/tar.browser.js",
       "./utils/tar-writer.js": "./utils/tar-writer.browser.js",
       "./utils/tar-uploader.js": "./utils/tar-uploader.browser.js",
+      "./utils/chunk-stream.js": "./utils/chunk-stream.browser.js",
       "./utils/data.js": "./utils/data.browser.js",
       "./utils/collection.node.js": "./utils/collection.browser.js"
     }
@@ -27,7 +28,8 @@ cat >dist/mjs/package.json <<!EOF
      "fs": false,
      "./utils/tar.js": "./utils/tar.browser.js",
      "./utils/tar-writer.js": "./utils/tar-writer.browser.js",
-      "./utils/tar-uploader.js": "./utils/tar-uploader.browser.js",
+     "./utils/tar-uploader.js": "./utils/tar-uploader.browser.js",
+     "./utils/chunk-stream.js": "./utils/chunk-stream.browser.js",
      "./utils/data.js": "./utils/data.browser.js",
      "./utils/collection.node.js": "./utils/collection.browser.js"
     }

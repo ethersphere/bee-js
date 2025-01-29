@@ -86,7 +86,7 @@ import {
   UploadResult,
 } from './types'
 import { Bytes } from './utils/bytes'
-import { hashDirectory, streamDirectory } from './utils/chunk-stream'
+import { hashDirectory, streamDirectory, streamFiles } from './utils/chunk-stream'
 import { assertCollection, makeCollectionFromFileList } from './utils/collection'
 import { makeCollectionFromFS } from './utils/collection.node'
 import { prepareWebsocketData } from './utils/data'
@@ -521,6 +521,8 @@ export class Bee {
     options?: UploadOptions,
     requestOptions?: BeeRequestOptions,
   ) {
+    postageBatchId = new BatchId(postageBatchId)
+
     return streamDirectory(
       this,
       dir,
@@ -529,6 +531,17 @@ export class Bee {
       options,
       this.getRequestOptionsForCall(requestOptions),
     )
+  }
+
+  async streamFiles(
+    postageBatchId: BatchId | string | Uint8Array,
+    files: File[] | FileList,
+    onUploadProgress?: (progress: UploadProgress) => void,
+    options?: UploadOptions,
+  ) {
+    postageBatchId = new BatchId(postageBatchId)
+
+    return streamFiles(this, files, postageBatchId, onUploadProgress, options)
   }
 
   /**
