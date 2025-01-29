@@ -185,7 +185,7 @@ export class Bee {
    * @see [Bee API reference - `POST /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes/post)
    */
   async uploadData(
-    postageBatchId: string | BatchId,
+    postageBatchId: BatchId | Uint8Array | string,
     data: string | Uint8Array,
     options?: UploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
@@ -310,7 +310,7 @@ export class Bee {
    * @returns A promise that resolves to a `GranteesResult` object.
    */
   async createGrantees(
-    postageBatchId: string | BatchId,
+    postageBatchId: BatchId | Uint8Array | string,
     grantees: string[],
     requestOptions?: BeeRequestOptions,
   ): Promise<GranteesResult> {
@@ -345,9 +345,9 @@ export class Bee {
    * @returns A Promise that resolves to to a `GranteesResult` object.
    */
   async patchGrantees(
-    postageBatchId: string | BatchId,
-    reference: Reference | string,
-    history: Reference | string,
+    postageBatchId: BatchId | Uint8Array | string,
+    reference: Reference | Uint8Array | string,
+    history: Reference | Uint8Array | string,
     grantees: { add?: string[]; revoke?: string[] },
     requestOptions?: BeeRequestOptions,
   ): Promise<GranteesResult> {
@@ -382,7 +382,7 @@ export class Bee {
    * @returns reference is a content hash of the file
    */
   async uploadFile(
-    postageBatchId: string | BatchId,
+    postageBatchId: BatchId | Uint8Array | string,
     data: string | Uint8Array | Readable | File,
     name?: string,
     options?: FileUploadOptions & UploadRedundancyOptions,
@@ -493,7 +493,7 @@ export class Bee {
    * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   async uploadFiles(
-    postageBatchId: string | BatchId,
+    postageBatchId: BatchId | Uint8Array | string,
     fileList: FileList | File[],
     options?: CollectionUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
@@ -515,7 +515,7 @@ export class Bee {
   }
 
   async streamDirectory(
-    postageBatchId: BatchId | string | Uint8Array,
+    postageBatchId: BatchId | Uint8Array | string,
     dir: string,
     onUploadProgress?: (progress: UploadProgress) => void,
     options?: UploadOptions,
@@ -534,7 +534,7 @@ export class Bee {
   }
 
   async streamFiles(
-    postageBatchId: BatchId | string | Uint8Array,
+    postageBatchId: BatchId | Uint8Array | string,
     files: File[] | FileList,
     onUploadProgress?: (progress: UploadProgress) => void,
     options?: UploadOptions,
@@ -555,7 +555,7 @@ export class Bee {
    * @param options Collections and request options
    */
   async uploadCollection(
-    postageBatchId: string | BatchId,
+    postageBatchId: BatchId | Uint8Array | string,
     collection: Collection,
     options?: CollectionUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
@@ -586,7 +586,7 @@ export class Bee {
    * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   async uploadFilesFromDirectory(
-    postageBatchId: string | BatchId,
+    postageBatchId: BatchId | Uint8Array | string,
     dir: string,
     options?: CollectionUploadOptions & UploadRedundancyOptions,
     requestOptions?: BeeRequestOptions,
@@ -703,7 +703,7 @@ export class Bee {
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
-  async pin(reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
+  async pin(reference: Reference | Uint8Array | string, options?: BeeRequestOptions): Promise<void> {
     reference = new Reference(reference)
     assertRequestOptions(options)
 
@@ -719,7 +719,7 @@ export class Bee {
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
-  async unpin(reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
+  async unpin(reference: Reference | Uint8Array | string, options?: BeeRequestOptions): Promise<void> {
     reference = new Reference(reference)
     assertRequestOptions(options)
 
@@ -748,7 +748,7 @@ export class Bee {
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
-  async getPin(reference: Reference | string, options?: BeeRequestOptions): Promise<Pin> {
+  async getPin(reference: Reference | Uint8Array | string, options?: BeeRequestOptions): Promise<Pin> {
     reference = new Reference(reference)
     assertRequestOptions(options)
 
@@ -767,15 +767,15 @@ export class Bee {
    * @see [Bee API reference - `PUT /stewardship`](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1{reference}/put)
    */
   async reuploadPinnedData(
-    batch: BatchId | Uint8Array | string,
+    postageBatchId: BatchId | Uint8Array | string,
     reference: Reference | Uint8Array | string,
     options?: BeeRequestOptions,
   ): Promise<void> {
-    batch = new BatchId(batch)
+    postageBatchId = new BatchId(postageBatchId)
     reference = new Reference(reference)
     assertRequestOptions(options)
 
-    await stewardship.reupload(this.getRequestOptionsForCall(options), batch, reference)
+    await stewardship.reupload(this.getRequestOptionsForCall(options), postageBatchId, reference)
   }
 
   /**
@@ -862,7 +862,7 @@ export class Bee {
    * @see [Bee API reference - `POST /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1send~1{topic}~1{targets}/post)
    */
   async pssSend(
-    postageBatchId: string | BatchId,
+    postageBatchId: BatchId | Uint8Array | string,
     topic: Topic,
     target: string,
     data: string | Uint8Array,
@@ -1104,8 +1104,8 @@ export class Bee {
   }
 
   async createEnvelope(
-    postageBatchId: BatchId | string | Uint8Array,
-    reference: Reference | string | Uint8Array,
+    postageBatchId: BatchId | Uint8Array | string,
+    reference: Reference | Uint8Array | string,
     options?: BeeRequestOptions,
   ): Promise<EnvelopeWithBatchId> {
     postageBatchId = new BatchId(postageBatchId)
@@ -1168,7 +1168,7 @@ export class Bee {
     return connectivity.getPeers(this.getRequestOptionsForCall(options))
   }
 
-  async removePeer(peer: string | PeerAddress, options?: BeeRequestOptions): Promise<RemovePeerResponse> {
+  async removePeer(peer: PeerAddress | string, options?: BeeRequestOptions): Promise<RemovePeerResponse> {
     peer = new PeerAddress(peer)
     assertRequestOptions(options)
 
@@ -1181,7 +1181,7 @@ export class Bee {
     return connectivity.getTopology(this.getRequestOptionsForCall(options))
   }
 
-  async pingPeer(peer: string | PeerAddress, options?: BeeRequestOptions): Promise<PingResponse> {
+  async pingPeer(peer: PeerAddress | string, options?: BeeRequestOptions): Promise<PingResponse> {
     peer = new PeerAddress(peer)
     assertRequestOptions(options)
 
@@ -1310,7 +1310,7 @@ export class Bee {
    * @param options.gasLimit Gas limit for the cashout transaction in WEI
    */
   async cashoutLastCheque(
-    address: string | PeerAddress,
+    address: PeerAddress | string,
     options?: CashoutOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<TransactionId> {
@@ -1565,7 +1565,7 @@ export class Bee {
    * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{id}~1{amount}/patch)
    */
   async topUpBatch(
-    postageBatchId: BatchId | string,
+    postageBatchId: BatchId | Uint8Array | string,
     amount: NumberString | string | bigint,
     options?: BeeRequestOptions,
   ): Promise<void> {
@@ -1592,7 +1592,11 @@ export class Bee {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{id}~1{amount}/patch)
    */
-  async diluteBatch(postageBatchId: BatchId | string, depth: number, options?: BeeRequestOptions): Promise<void> {
+  async diluteBatch(
+    postageBatchId: BatchId | Uint8Array | string,
+    depth: number,
+    options?: BeeRequestOptions,
+  ): Promise<void> {
     postageBatchId = new BatchId(postageBatchId)
     assertRequestOptions(options)
     assertNonNegativeInteger(depth, 'Depth')
@@ -1608,7 +1612,10 @@ export class Bee {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}/get)
    */
-  async getPostageBatch(postageBatchId: BatchId | string, options?: BeeRequestOptions): Promise<PostageBatch> {
+  async getPostageBatch(
+    postageBatchId: BatchId | Uint8Array | string,
+    options?: BeeRequestOptions,
+  ): Promise<PostageBatch> {
     postageBatchId = new BatchId(postageBatchId)
     assertRequestOptions(options)
 
@@ -1624,7 +1631,7 @@ export class Bee {
    * @see [Bee Debug API reference - `GET /stamps/${id}/buckets`](https://docs.ethswarm.org/debug-api/#tag/Postage-Stamps/paths/~1stamps~1{id}~1buckets/get)
    */
   async getPostageBatchBuckets(
-    postageBatchId: BatchId | string,
+    postageBatchId: BatchId | Uint8Array | string,
     options?: BeeRequestOptions,
   ): Promise<PostageBatchBuckets> {
     postageBatchId = new BatchId(postageBatchId)
@@ -1668,7 +1675,7 @@ export class Bee {
    * @param transactionHash
    */
   async getPendingTransaction(
-    transactionHash: TransactionId | string,
+    transactionHash: TransactionId | Uint8Array | string,
     options?: BeeRequestOptions,
   ): Promise<TransactionInfo> {
     transactionHash = new TransactionId(transactionHash)
@@ -1684,7 +1691,7 @@ export class Bee {
    * @param transactionHash
    */
   async rebroadcastPendingTransaction(
-    transactionHash: TransactionId | string | Uint8Array,
+    transactionHash: TransactionId | Uint8Array | string,
     options?: BeeRequestOptions,
   ): Promise<TransactionId> {
     transactionHash = new TransactionId(transactionHash)
@@ -1734,7 +1741,7 @@ export class Bee {
    * @param options
    */
   async depositStake(
-    amount: string | NumberString,
+    amount: NumberString | string | bigint,
     options?: TransactionOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<void> {
