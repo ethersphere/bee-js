@@ -215,29 +215,29 @@ The `toString` method uses `toHex`.
 
 #### General
 
-- getCollectionSize
-- getFolderSize
+- `getCollectionSize`
+- `getFolderSize`
 
 #### PSS
 
-makeMaxTarget
+- `makeMaxTarget`
 
 #### Erasure Coding
 
-- approximateOverheadForRedundancyLevel
-- getRedundancyStat
-- getRedundancyStats
+- `approximateOverheadForRedundancyLevel`
+- `getRedundancyStat`
+- `getRedundancyStats`
 
 #### Stamps
 
-- getAmountForTtl
-- getDepthForCapacity
-- getStampCostInBzz
-- getStampCostInPlur
-- getStampEffectiveBytes
-- getStampMaximumCapacityBytes
-- getStampTtlSeconds
-- getStampUsage
+- `getAmountForTtl`
+- `getDepthForCapacity`
+- `getStampCostInBzz`
+- `getStampCostInPlur`
+- `getStampEffectiveBytes`
+- `getStampMaximumCapacityBytes`
+- `getStampTtlSeconds`
+- `getStampUsage`
 
 ## Usage
 
@@ -290,7 +290,7 @@ const bee = new Bee('http://localhost:1633')
 const uploadResult = await bee.uploadData(batchId, 'Bee is awesome!')
 const data = await bee.downloadData(uploadResult.reference)
 
-console.log(data.text()) // prints 'Bee is awesome!'
+console.log(data.toUtf8()) // prints 'Bee is awesome!'
 ```
 
 ### Upload data from a file input (React)
