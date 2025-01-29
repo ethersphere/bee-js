@@ -14,10 +14,6 @@ import { BatchId, EthAddress } from '../../utils/typed-bytes'
 const STAMPS_ENDPOINT = 'stamps'
 const BATCHES_ENDPOINT = 'batches'
 
-interface StampResponse {
-  batchID: BatchId
-}
-
 export async function getGlobalPostageBatches(requestOptions: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
   const response = await http<unknown>(requestOptions, {
     method: 'get',

@@ -25,17 +25,22 @@ export class Fork {
 
   split(a: Fork, b: Fork): Fork {
     const commonPart = Binary.commonPrefix(a.prefix, b.prefix)
+
     if (Binary.equals(commonPart, a.prefix)) {
       a.node.addFork(b.prefix.slice(commonPart.length), b.node.targetAddress, b.node.metadata)
+
       return a
     }
+
     if (Binary.equals(commonPart, b.prefix)) {
       b.node.addFork(a.prefix.slice(commonPart.length), a.node.targetAddress, a.node.metadata)
+
       return b
     }
     const node = new MantarayNode({ path: commonPart })
     node.addFork(a.prefix.slice(commonPart.length), a.node.targetAddress, a.node.metadata)
     node.addFork(b.prefix.slice(commonPart.length), b.node.targetAddress, b.node.metadata)
+
     return new Fork(commonPart, node)
   }
 
@@ -47,10 +52,12 @@ export class Fork {
     data.push(new Uint8Array([this.node.determineType()]))
     data.push(Binary.numberToUint8(this.prefix.length))
     data.push(this.prefix)
+
     if (this.prefix.length < 30) {
       data.push(new Uint8Array(30 - this.prefix.length))
     }
     data.push(this.node.selfAddress)
+
     if (this.node.metadata) {
       const metadataBytes = Binary.padEndToMultiple(
         new Uint8Array([0x00, 0x00, ...ENCODER.encode(JSON.stringify(this.node.metadata))]),
@@ -61,6 +68,7 @@ export class Fork {
       metadataBytes.set(metadataLengthBytes, 0)
       data.push(metadataBytes)
     }
+
     return Binary.concatBytes(...data)
   }
 
@@ -71,10 +79,12 @@ export class Fork {
     reader.read(30 - prefixLength)
     const targetAddress = reader.read(32)
     let metadata: Record<string, string> | undefined = undefined
+
     if (isType(type, TYPE_WITH_METADATA)) {
       const metadataLength = Binary.uint16ToNumber(reader.read(2), 'BE')
       metadata = JSON.parse(DECODER.decode(reader.read(metadataLength)))
     }
+
     return new Fork(prefix, new MantarayNode({ targetAddress, metadata, path: prefix }))
   }
 }
@@ -99,15 +109,19 @@ export class MantarayNode {
     if (options?.targetAddress) {
       this.targetAddress = options.targetAddress
     }
+
     if (options?.selfAddress) {
       this.selfAddress = options.selfAddress
     }
+
     if (options?.metadata) {
       this.metadata = options.metadata
     }
+
     if (options?.obfuscationKey) {
       this.obfuscationKey = options.obfuscationKey
     }
+
     if (options?.path) {
       this.path = options.path
     }
@@ -148,6 +162,7 @@ export class MantarayNode {
       ),
       this.obfuscationKey,
     )
+
     return Binary.concatBytes(this.obfuscationKey, data)
   }
 
@@ -156,6 +171,7 @@ export class MantarayNode {
     const decrypted = Binary.xorCypher(data.subarray(32), obfuscationKey)
     const reader = new Uint8ArrayReader(decrypted)
     const versionHash = reader.read(31)
+
     if (!Binary.equals(versionHash, VERSION_02_HASH.slice(0, 31))) {
       throw new Error('MantarayNode#unmarshal invalid version hash')
     }
@@ -168,6 +184,7 @@ export class MantarayNode {
         node.forks.set(i, Fork.unmarshal(reader))
       }
     }
+
     return node
   }
 
@@ -178,6 +195,8 @@ export class MantarayNode {
   ) {
     this.selfAddress = null
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
+    // TODO: this should not be ignored
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let tip: MantarayNode = this
     while (path.length) {
       const prefix = path.slice(0, 30)
@@ -192,6 +211,7 @@ export class MantarayNode {
         }),
       )
       const existing = this.forks.get(prefix[0])
+
       if (existing) {
         tip.forks.set(prefix[0], existing.split(newFork, existing))
       } else {
@@ -204,10 +224,12 @@ export class MantarayNode {
   removeFork(path: string | Uint8Array) {
     this.selfAddress = null
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
+
     if (path.length === 0) {
       throw Error('MantarayNode#removeFork [path] parameter cannot be empty')
     }
     const existing = this.find(path)
+
     if (!existing) {
       return
     }
@@ -221,6 +243,7 @@ export class MantarayNode {
     if (this.selfAddress) {
       return new Reference(this.selfAddress)
     }
+
     return new Reference((await MerkleTree.root(await this.marshal())).hash())
   }
 
@@ -235,6 +258,7 @@ export class MantarayNode {
     }
     const result = await bee.uploadData(postageBatchId, await this.marshal(), options, requestOptions)
     this.selfAddress = result.reference.toUint8Array()
+
     return new Reference(this.selfAddress)
   }
 
@@ -250,33 +274,42 @@ export class MantarayNode {
 
   find(path: string | Uint8Array): MantarayNode | null {
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
+
     if (path.length === 0) {
       return null
     }
     const fork = this.forks.get(path[0])
+
     if (!fork) {
       return null
     }
+
     if (Binary.equals(fork.prefix, path)) {
       return fork.node
     }
+
     return fork.node.find(path.slice(fork.prefix.length))
   }
 
   determineType() {
     let type = 0
+
     if (!Binary.equals(this.targetAddress, NULL_ADDRESS) || Binary.equals(this.path, PATH_SEPARATOR)) {
       type |= TYPE_VALUE
     }
+
     if (this.forks.size > 0) {
       type |= TYPE_EDGE
     }
+
     if (Binary.indexOf(this.path, PATH_SEPARATOR) !== -1 && !Binary.equals(this.path, PATH_SEPARATOR)) {
       type |= TYPE_WITH_PATH_SEPARATOR
     }
+
     if (this.metadata) {
       type |= TYPE_WITH_METADATA
     }
+
     return type
   }
 }

@@ -44,6 +44,7 @@ test('deposit/withdraw from chequebook', async () => {
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
+
       return pendingTransactions.length === 0
     },
     Dates.seconds(1),
@@ -54,6 +55,7 @@ test('deposit/withdraw from chequebook', async () => {
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
+
       return pendingTransactions.length === 0
     },
     Dates.seconds(1),

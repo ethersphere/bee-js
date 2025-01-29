@@ -13,6 +13,7 @@ export async function hashDirectory(dir: string) {
   const mantaray = new MantarayNode()
   for (const file of files) {
     const tree = new MerkleTree(MerkleTree.NOOP)
+
     if (!file.fsPath) {
       throw Error('File does not have fsPath, which should never happen in node. Please report this issue.')
     }
@@ -27,6 +28,7 @@ export async function hashDirectory(dir: string) {
       Filename: filename,
     })
   }
+
   return mantaray.calculateSelfAddress()
 }
 
@@ -46,19 +48,19 @@ export async function streamDirectory(
   for (const file of files) {
     total += totalChunks(file.size)
   }
+
+  async function onChunk(chunk: Chunk) {
+    await queue.enqueue(async () => {
+      await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
+      onUploadProgress?.({ total, processed: ++processed })
+    })
+  }
   const mantaray = new MantarayNode()
   for (const file of files) {
     if (!file.fsPath) {
       throw Error('File does not have fsPath, which should never happen in node. Please report this issue.')
     }
     const readStream = createReadStream(file.fsPath)
-
-    async function onChunk(chunk: Chunk) {
-      await queue.enqueue(async () => {
-        await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
-        onUploadProgress?.({ total, processed: ++processed })
-      })
-    }
 
     const tree = new MerkleTree(onChunk)
     for await (const data of readStream) {
@@ -72,6 +74,7 @@ export async function streamDirectory(
       Filename: filename,
     })
   }
+
   return mantaray.saveRecursively(bee, postageBatchId, options, requestOptions)
 }
 
@@ -84,11 +87,11 @@ function maybeEnrichMime(mime: string) {
 }
 
 export async function streamFiles(
-  bee: Bee,
-  files: File[] | FileList,
-  postageBatchId: BatchId,
-  onUploadProgress?: (progress: UploadProgress) => void,
-  options?: UploadOptions,
+  _bee: Bee,
+  _files: File[] | FileList,
+  _postageBatchId: BatchId,
+  _onUploadProgress?: (progress: UploadProgress) => void,
+  _options?: UploadOptions,
 ): Promise<Reference> {
   throw new Error('Streaming files is not supported in Node.js')
 }

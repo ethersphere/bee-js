@@ -37,7 +37,7 @@ export async function findNextIndex(
     }
 
     return feedUpdate.feedIndexNext
-  } catch (e: any) {
+  } catch (e) {
     if (e instanceof BeeResponseError) {
       return FeedIndex.fromBigInt(0n)
     }

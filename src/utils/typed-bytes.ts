@@ -12,6 +12,7 @@ export class PrivateKey extends Bytes {
 
   publicKey(): PublicKey {
     const [x, y] = Elliptic.privateKeyToPublicKey(Binary.uint256ToNumber(this.bytes, 'BE'))
+
     return new PublicKey(Binary.concatBytes(Binary.numberToUint256(x, 'BE'), Binary.numberToUint256(y, 'BE')))
   }
 
@@ -32,6 +33,7 @@ export class PublicKey extends Bytes {
   static readonly LENGTH = 64
   constructor(bytes: Uint8Array | string | Bytes) {
     const b = new Bytes(bytes)
+
     if (b.length === 33) {
       const [x, y] = Elliptic.publicKeyFromCompressed(b.toUint8Array())
       super(Binary.concatBytes(Binary.numberToUint256(x, 'BE'), Binary.numberToUint256(y, 'BE')), 64)
@@ -43,12 +45,14 @@ export class PublicKey extends Bytes {
   address(): EthAddress {
     const x = Binary.uint256ToNumber(this.bytes.slice(0, 32), 'BE')
     const y = Binary.uint256ToNumber(this.bytes.slice(32, 64), 'BE')
+
     return new EthAddress(Elliptic.publicKeyToAddress([x, y]))
   }
 
   toCompressedUint8Array(): Uint8Array {
     const x = Binary.uint256ToNumber(this.bytes.slice(0, 32), 'BE')
     const y = Binary.uint256ToNumber(this.bytes.slice(32, 64), 'BE')
+
     return Elliptic.compressPublicKey([x, y])
   }
 

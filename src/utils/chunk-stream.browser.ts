@@ -6,17 +6,17 @@ import { mimes } from './mime'
 import { BatchId, Reference } from './typed-bytes'
 import { UploadProgress } from './upload-progress'
 
-export async function hashDirectory(dir: string) {
+export async function hashDirectory(_dir: string) {
   throw new Error('Hashing directories is not supported in browsers!')
 }
 
 export async function streamDirectory(
-  bee: Bee,
-  dir: string,
-  postageBatchId: BatchId | string | Uint8Array,
-  onUploadProgress?: (progress: UploadProgress) => void,
-  options?: UploadOptions,
-  requestOptions?: BeeRequestOptions,
+  _bee: Bee,
+  _dir: string,
+  _postageBatchId: BatchId | string | Uint8Array,
+  _onUploadProgress?: (progress: UploadProgress) => void,
+  _options?: UploadOptions,
+  _requestOptions?: BeeRequestOptions,
 ): Promise<Reference> {
   throw new Error('Streaming directories is not supported in browsers!')
 }
@@ -34,13 +34,15 @@ export async function streamFiles(
     total += totalChunks(file.size)
   }
   postageBatchId = new BatchId(postageBatchId)
+
+  async function onChunk(chunk: Chunk) {
+    await bee.uploadChunk(postageBatchId, chunk.build(), options)
+    onUploadProgress?.({ total, processed: ++processed })
+  }
   const mantaray = new MantarayNode()
   for (const file of files) {
     const rootChunk = await new Promise<Chunk>((resolve, reject) => {
-      const tree = new MerkleTree(async chunk => {
-        await bee.uploadChunk(postageBatchId, chunk.build(), options)
-        onUploadProgress?.({ total, processed: ++processed })
-      })
+      const tree = new MerkleTree(onChunk)
 
       let offset = 0
 
@@ -54,6 +56,7 @@ export async function streamFiles(
         if (offset >= file.size) {
           const rootChunk = await tree.finalize()
           resolve(rootChunk)
+
           return
         }
 
@@ -64,9 +67,11 @@ export async function streamFiles(
       reader.onload = async event => {
         if (!event.target) {
           reject('No event target')
+
           return
         }
         const data = event.target.result
+
         if (data) {
           await tree.append(new Uint8Array(data as ArrayBuffer))
           offset += 4096
@@ -82,5 +87,6 @@ export async function streamFiles(
       Filename: filename,
     })
   }
+
   return mantaray.saveRecursively(bee, postageBatchId)
 }

@@ -29,6 +29,7 @@ test('POST stamps', async () => {
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
+
       return pendingTransactions.length === 0
     },
     Dates.seconds(1),
@@ -40,6 +41,7 @@ test('POST stamps', async () => {
   await System.waitFor(
     async () => {
       const stamp = await bee.getPostageBatch(response)
+
       return stamp.depth === 18
     },
     Dates.seconds(1),

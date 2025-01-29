@@ -34,7 +34,6 @@ import type {
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
   CollectionUploadOptions,
-  Data,
   DebugStatus,
   EnvelopeWithBatchId,
   FeedReader,
@@ -193,7 +192,10 @@ export class Bee {
     postageBatchId = new BatchId(postageBatchId)
     assertData(data)
     assertRequestOptions(requestOptions)
-    options && assertUploadOptions(options)
+
+    if (options) {
+      assertUploadOptions(options)
+    }
 
     return bytes.upload(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
   }
@@ -269,7 +271,10 @@ export class Bee {
   ): Promise<UploadResult> {
     data = data instanceof Uint8Array ? data : data.data
     assertRequestOptions(requestOptions)
-    options && assertUploadOptions(options)
+
+    if (options) {
+      assertUploadOptions(options)
+    }
 
     if (data.length < Span.LENGTH) {
       throw new BeeArgumentError(`Chunk has to have size of at least ${Span.LENGTH}.`, data)
@@ -564,7 +569,9 @@ export class Bee {
     assertRequestOptions(requestOptions)
     assertCollection(collection)
 
-    options && assertCollectionUploadOptions(options)
+    if (options) {
+      assertCollectionUploadOptions(options)
+    }
 
     return bzz.uploadCollection(this.getRequestOptionsForCall(this.requestOptions), collection, postageBatchId, options)
   }
@@ -827,8 +834,10 @@ export class Bee {
         await this.makeFeedReader(topic, owner).download()
 
         return true
-      } catch (e: any) {
-        if (e?.status === 404 || e?.status === 500) {
+      } catch (e: unknown) {
+        const status = Objects.getDeep(e, 'status')
+
+        if (status === 404 || status === 500) {
           return false
         }
 
@@ -1015,7 +1024,10 @@ export class Bee {
     postageBatchId = new BatchId(postageBatchId)
     topic = new Topic(topic)
     owner = new EthAddress(owner)
-    options && assertUploadOptions(options)
+
+    if (options) {
+      assertUploadOptions(options)
+    }
     assertRequestOptions(requestOptions)
 
     return createFeedManifest(this.getRequestOptionsForCall(requestOptions), owner, topic, postageBatchId, options)
@@ -1058,6 +1070,7 @@ export class Bee {
   ): FeedWriter {
     topic = new Topic(topic)
     signer = signer ? new PrivateKey(signer) : this.signer
+
     if (!signer) {
       throw Error('No signer provided')
     }
@@ -1092,6 +1105,7 @@ export class Bee {
    */
   makeSOCWriter(signer?: PrivateKey | Uint8Array | string, options?: BeeRequestOptions): SOCWriter {
     signer = signer ? new PrivateKey(signer) : this.signer
+
     if (!signer) {
       throw Error('No signer provided')
     }
@@ -1337,6 +1351,7 @@ export class Bee {
     assertRequestOptions(options)
 
     let gasPriceString
+
     if (gasPrice) {
       gasPriceString = asNumberString(amount, { min: 0n, name: 'gasPrice' })
     }
@@ -1360,6 +1375,7 @@ export class Bee {
     assertRequestOptions(options)
 
     let gasPriceString
+
     if (gasPrice) {
       gasPriceString = asNumberString(amount, { min: 0n, name: 'gasPrice' })
     }
@@ -1714,6 +1730,7 @@ export class Bee {
     assertRequestOptions(options)
 
     let gasPriceString
+
     if (gasPrice) {
       gasPriceString = asNumberString(gasPrice, { min: 0n, name: 'gasPrice' })
     }
@@ -1772,7 +1789,9 @@ export class Bee {
         if (stamp.usable) {
           return
         }
-      } catch (error: any) {}
+      } catch (error) {
+        // ignore error
+      }
 
       await System.sleepMillis(TIME_STEP)
     }

@@ -1,3 +1,4 @@
+import { Objects } from 'cafe-utility'
 import { Bee } from '../bee'
 import { BeeRequestOptions } from '../types'
 import { EthAddress, FeedIndex, Reference, Topic } from '../utils/typed-bytes'
@@ -16,8 +17,10 @@ async function isChunkRetrievable(bee: Bee, reference: Reference, requestOptions
     await bee.downloadChunk(reference, requestOptions)
 
     return true
-  } catch (e: any) {
-    if (e?.status === 404 || e?.status === 500) {
+  } catch (e: unknown) {
+    const status = Objects.getDeep(e, 'status')
+
+    if (status === 404 || status === 500) {
       return false
     }
 

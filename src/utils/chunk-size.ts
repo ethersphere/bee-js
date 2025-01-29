@@ -7,9 +7,11 @@ export function totalChunks(fileSize: number) {
       return chunkCount
     }
     const upperLevelChunks = Math.ceil(chunkCount / hashesPerChunk)
+
     return chunkCount + chunksAtLevel(upperLevelChunks)
   }
 
   const baseLevelChunks = Math.ceil(fileSize / chunkSize)
+
   return chunksAtLevel(baseLevelChunks)
 }

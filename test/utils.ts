@@ -13,6 +13,7 @@ export function batch() {
   if (currentBeeMode() === 'light') {
     return Types.asString(process.env.JEST_LIGHT_BATCH_ID)
   }
+
   if (currentBeeMode() === 'full') {
     return Types.asString(process.env.JEST_FULL_BATCH_ID)
   }
@@ -31,6 +32,8 @@ function selectBeeUrl() {
       return Types.asString(process.env.JEST_BEE_LIGHT_URL)
     case 'ultra-light':
       return Types.asString(process.env.JEST_BEE_ULTRA_LIGHT_URL)
+    default:
+      throw Error('Invalid mode')
   }
 }
 

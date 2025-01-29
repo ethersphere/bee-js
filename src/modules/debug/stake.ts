@@ -6,10 +6,6 @@ import { asNumberString } from '../../utils/type'
 const STAKE_ENDPOINT = 'stake'
 const REDISTRIBUTION_ENDPOINT = 'redistributionstate'
 
-interface GetStake {
-  stakedAmount: NumberString
-}
-
 /**
  * Gets the staked amount
  *

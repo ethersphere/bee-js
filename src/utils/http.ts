@@ -1,8 +1,11 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { Objects, Strings, System } from 'cafe-utility'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { Dates, Objects, Strings, System } from 'cafe-utility'
 import { BeeRequestOptions, BeeResponseError } from '../index'
 
-const { AxiosError } = axios
+const MAX_FAILED_ATTEMPTS = 100_000
+const DELAY_FAST = 200
+const DELAY_SLOW = 1000
+const DELAY_THRESHOLD = Dates.minutes(1) / DELAY_FAST
 
 export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
   headers: {
@@ -18,32 +21,35 @@ export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
  * @param config Internal settings and/or Bee settings
  */
 export async function http<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-  while (true) {
+  let failedAttempts = 0
+  while (failedAttempts < MAX_FAILED_ATTEMPTS) {
     try {
       const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
       maybeRunOnRequestHook(options, requestConfig)
       const response = await axios(requestConfig)
 
-      // TODO: https://github.com/axios/axios/pull/6253
       return response as AxiosResponse<T>
     } catch (e: unknown) {
       if (e instanceof AxiosError) {
         if (e.code === 'ECONNABORTED' && options.endlesslyRetry) {
-          await System.sleepMillis(200)
-          continue
+          failedAttempts++
+          await System.sleepMillis(failedAttempts < DELAY_THRESHOLD ? DELAY_FAST : DELAY_SLOW)
+        } else {
+          throw new BeeResponseError(
+            config.method || 'get',
+            config.url || '<unknown>',
+            e.message,
+            e.response?.data,
+            e.response?.status,
+            e.code,
+          )
         }
-        throw new BeeResponseError(
-          config.method || 'get',
-          config.url || '<unknown>',
-          e.message,
-          e.response?.data,
-          e.response?.status,
-          e.code,
-        )
+      } else {
+        throw e
       }
-      throw e
     }
   }
+  throw Error('Max number of failed attempts reached')
 }
 
 function maybeRunOnRequestHook(options: BeeRequestOptions, requestConfig: AxiosRequestConfig) {

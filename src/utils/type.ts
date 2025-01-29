@@ -22,10 +22,11 @@ export function isReadable(obj: unknown): obj is stream.Readable {
   return typeof stream.Readable !== 'undefined' && obj instanceof stream.Readable
 }
 
-export function asNumberString(value: any, options?: { name?: string; min?: bigint; max?: bigint }): NumberString {
+export function asNumberString(value: unknown, options?: { name?: string; min?: bigint; max?: bigint }): NumberString {
   if (typeof value === 'bigint') {
     value = value.toString()
   }
+
   return Types.asIntegerString(value, options) as NumberString
 }
 
@@ -47,7 +48,6 @@ export function isStrictlyObject(value: unknown): value is Record<string, unknow
   return isObject(value) && !Array.isArray(value)
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function assertStrictlyObject(value: unknown, name = 'value'): asserts value is object {
   if (!isStrictlyObject(value)) {
     throw new TypeError(`${name} has to be an object that is not null nor array!`)

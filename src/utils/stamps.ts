@@ -69,6 +69,7 @@ export function getStampEffectiveBytes(depth: number): number {
  */
 export function getStampCostInPlur(depth: number, amount: NumberString | string | bigint): bigint {
   const amountBigint = BigInt(asNumberString(amount))
+
   return 2n ** BigInt(depth) * amountBigint
 }
 
@@ -98,6 +99,7 @@ export function getStampTtlSeconds(
   blockTime = 5,
 ): bigint {
   const amountBigint = BigInt(asNumberString(amount))
+
   return (amountBigint * BigInt(blockTime)) / BigInt(pricePerBlock)
 }
 

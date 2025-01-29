@@ -18,6 +18,7 @@ export class Bytes {
       this.bytes = bytes
     }
     this.length = this.bytes.length
+
     if (byteLength) {
       if (Array.isArray(byteLength)) {
         if (!byteLength.includes(this.length)) {

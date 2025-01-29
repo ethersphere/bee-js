@@ -33,8 +33,8 @@ export type BeeRequestOptions = {
   timeout?: number | false
   headers?: Record<string, string>
   onRequest?: (request: BeeRequest) => void
-  httpAgent?: any
-  httpsAgent?: any
+  httpAgent?: unknown
+  httpsAgent?: unknown
   endlesslyRetry?: boolean
 }
 
