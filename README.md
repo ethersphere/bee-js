@@ -37,12 +37,6 @@ Supported types are `node`, `node-esm`, `node-ts` and `vite-tsx`. Replace `my-da
 npm install @ethersphere/bee-js
 ```
 
-or
-
-```sh
-yarn add @ethersphere/bee-js
-```
-
 ## Import
 
 ### CJS
@@ -70,8 +64,7 @@ Loading this module through a script tag will make the `BeeJs` object available 
 ### Type interfaces
 
 `NumberString` is a branded type for marking strings that represent numbers. It interops with `string` and `bigint`
-types. Where `NumberString` is present, it is not allowed to use `number` directly in order to avoid pitfalls with
-unsafe large numbers.
+types. Where `NumberString` is present, `number` is disallowed in order to avoid pitfalls with unsafe large values.
 
 ### Byte primitives
 
@@ -120,12 +113,12 @@ The `toString` method uses `toHex`.
 
 ### Swarm objects
 
-| Name       | Description             | Methods |
-| ---------- | ----------------------- | ------- |
-| SOCWriter  | SingleOwnerChunk writer | -       |
-| SOCReader  | SingleOwnerChunk reader | -       |
-| FeedWriter | Feed writer             | -       |
-| FeedReader | Feed reader             | -       |
+| Name       | Description             | Creation             |
+| ---------- | ----------------------- | -------------------- |
+| SOCWriter  | SingleOwnerChunk writer | `bee.makeSOCWriter`  |
+| SOCReader  | SingleOwnerChunk reader | `bee.makeSOCReader`  |
+| FeedWriter | Feed writer             | `bee.makeFeedWriter` |
+| FeedReader | Feed reader             | `bee.makeFeedReader` |
 
 ### Bee API
 
@@ -344,13 +337,6 @@ const bee = new Bee('http://localhost:1633', {
 })
 ```
 
-[**Check out our examples repo for some more ideas on how to use `bee-js`**](https://github.com/ethersphere/examples-js)
-
-## Documentation
-
-You can find the full documentation [here](https://bee-js.ethswarm.org/docs). The API reference documentation can be
-found [here](https://bee-js.ethswarm.org/docs/api).
-
 ## Contribute
 
 Stay up to date by joining the [official Discord](https://discord.gg/GU22h2utj6) and by keeping an eye on the
@@ -365,48 +351,24 @@ There are some ways you can make this module better:
 
 ### Setup
 
-Install project dependencies with
+Install project dependencies:
 
 ```sh
-npm i
+npm install
 ```
+
+Build the project:
+
+```sh
+npm run build
+```
+
+After making changes, link the package to your project by running `npm link` in the Bee-JS project root, and
+`npm link @ethersphere/bee-js` in your project root.
 
 ### Test
 
-The tests run in both context: node and dom with Jest.
-
-To run the integration tests, you need to spin up local Bee cluster using our
-[`fdp-play`](https://github.com/fairDataSociety/fdp-play/) project. In order to do that you have to have locally Docker
-running on your machine, but afterwards you can just simply run `npm run bee`, which spins up the cluster and display
-Queen's logs. If you want to exit hit `CTRL+C`.
-
-If you want to skip creation of postage stamps every run of integration tests you can create stamps for both nodes and
-set them under env. variables `BEE_POSTAGE` and `BEE_PEER_POSTAGE`.
-
-By default, for integration tests two bee nodes are expected to run on localhost on addresses `http://localhost:1633`
-and `http://localhost:11633`. These are the default values for the `fdp-play` script. If you want to use custom setup,
-you can change the behavior of tests to different addresses using environment variables `BEE_API_URL` and
-`BEE_PEER_API_URL`.
-
-There are also browser tests by Puppeteer, which also provide integrity testing.
-
-```sh
-npm run test:browser
-```
-
-The test HTML file which Puppeteer uses is the [test/testpage/testpage.html](test/testpage/testpage.html). To open and
-manually test BeeJS with developer console, it is necessary to build the library first with `npm run compile:browser`
-(running the browser tests `npm run test:browser` also builds the library).
-
-### Compile code
-
-In order to compile NodeJS code run
-
-`npm run compile:node`
-
-or for Browsers
-
-`npm run compile:browser`
+Tests are currently run against a mainnet Bee nodes. This is temporary and this section will be revised in the future.
 
 ## License
 
