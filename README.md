@@ -106,10 +106,10 @@ The `toString` method uses `toHex`.
 
 ### Swarm primitives
 
-| Name         | Description                                          | Methods                                                                                                               |
-| ------------ | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| MantarayNode | Compact trie with reference values and JSON metadata | `addFork`, `removeFork`, `calculateSelfAddress`, `find`, `marshal`, `unmarshal`, `saveRecursively`, `loadRecursively` |
-| MerkleTree   | Streaming BMT of chunks                              | `append`, `finalize`, `static root`                                                                                   |
+| Name         | Description                                          | Methods                                                                                                                                         |
+| ------------ | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| MantarayNode | Compact trie with reference values and JSON metadata | `addFork`, `removeFork`, `calculateSelfAddress`, `find`, `findClosest`, `collect`, `marshal`, `unmarshal`, `saveRecursively`, `loadRecursively` |
+| MerkleTree   | Streaming BMT of chunks                              | `append`, `finalize`, `static root`                                                                                                             |
 
 ### Swarm objects
 

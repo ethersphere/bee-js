@@ -23,23 +23,20 @@ export class Fork {
     this.node = node
   }
 
-  split(a: Fork, b: Fork): Fork {
+  static split(a: Fork, b: Fork): Fork {
     const commonPart = Binary.commonPrefix(a.prefix, b.prefix)
-
-    if (Binary.equals(commonPart, a.prefix)) {
-      a.node.addFork(b.prefix.slice(commonPart.length), b.node.targetAddress, b.node.metadata)
-
-      return a
-    }
-
-    if (Binary.equals(commonPart, b.prefix)) {
-      b.node.addFork(a.prefix.slice(commonPart.length), a.node.targetAddress, a.node.metadata)
-
-      return b
-    }
     const node = new MantarayNode({ path: commonPart })
-    node.addFork(a.prefix.slice(commonPart.length), a.node.targetAddress, a.node.metadata)
-    node.addFork(b.prefix.slice(commonPart.length), b.node.targetAddress, b.node.metadata)
+
+    const newAFork = new Fork(a.prefix.slice(commonPart.length), a.node)
+    const newBFork = new Fork(b.prefix.slice(commonPart.length), b.node)
+
+    a.node.path = a.prefix.slice(commonPart.length)
+    b.node.path = b.prefix.slice(commonPart.length)
+    a.prefix = a.prefix.slice(commonPart.length)
+    b.prefix = b.prefix.slice(commonPart.length)
+
+    node.forks.set(newAFork.prefix[0], newAFork)
+    node.forks.set(newBFork.prefix[0], newBFork)
 
     return new Fork(commonPart, node)
   }
@@ -166,7 +163,8 @@ export class MantarayNode {
     return Binary.concatBytes(this.obfuscationKey, data)
   }
 
-  static unmarshal(data: Uint8Array): MantarayNode {
+  static async unmarshal(bee: Bee, reference: Reference | Uint8Array | string): Promise<MantarayNode> {
+    const data = (await bee.downloadData(reference)).toUint8Array()
     const obfuscationKey = data.subarray(0, 32)
     const decrypted = Binary.xorCypher(data.subarray(32), obfuscationKey)
     const reader = new Uint8ArrayReader(decrypted)
@@ -201,23 +199,39 @@ export class MantarayNode {
     while (path.length) {
       const prefix = path.slice(0, 30)
       path = path.slice(30)
-      const last = path.length === 0
+      const isLast = path.length === 0
+
+      const [bestMatch, matchedPath] = tip.findClosest(prefix)
+      const remainingPath = prefix.slice(matchedPath.length)
+
+      if (matchedPath.length) {
+        tip = bestMatch
+      }
+      if (!remainingPath.length) {
+        continue
+      }
+
       const newFork = new Fork(
-        prefix,
+        remainingPath,
         new MantarayNode({
-          targetAddress: last ? new Reference(reference).toUint8Array() : undefined,
-          metadata: last ? metadata : undefined,
-          path: prefix,
+          targetAddress: isLast ? new Reference(reference).toUint8Array() : undefined,
+          metadata: isLast ? metadata : undefined,
+          path: remainingPath,
         }),
       )
-      const existing = this.forks.get(prefix[0])
+
+      const existing = bestMatch.forks.get(remainingPath[0])
 
       if (existing) {
-        tip.forks.set(prefix[0], existing.split(newFork, existing))
+        const fork = Fork.split(newFork, existing)
+        tip.forks.set(remainingPath[0], fork)
+        tip.selfAddress = null
+        tip = newFork.node
       } else {
-        tip.forks.set(prefix[0], newFork)
+        tip.forks.set(remainingPath[0], newFork)
+        tip.selfAddress = null
+        tip = newFork.node
       }
-      tip = newFork.node
     }
   }
 
@@ -228,14 +242,18 @@ export class MantarayNode {
     if (path.length === 0) {
       throw Error('MantarayNode#removeFork [path] parameter cannot be empty')
     }
-    const existing = this.find(path)
 
-    if (!existing) {
-      return
+    const match = this.find(path)
+
+    if (!match) {
+      throw Error('MantarayNode#removeFork fork not found')
     }
-    this.forks.delete(path[0])
-    for (const fork of existing.forks.values()) {
-      this.addFork(Binary.concatBytes(existing.path, fork.prefix), fork.node.targetAddress, fork.node.metadata)
+
+    const [parent, matchedPath] = this.findClosest(path.slice(0, path.length - 1))
+
+    parent.forks.delete(path.slice(matchedPath.length)[0])
+    for (const fork of match.forks.values()) {
+      parent.addFork(Binary.concatBytes(match.path, fork.prefix), fork.node.targetAddress, fork.node.metadata)
     }
   }
 
@@ -264,7 +282,7 @@ export class MantarayNode {
 
   async loadRecursively(bee: Bee): Promise<void> {
     for (const fork of this.forks.values()) {
-      const node = MantarayNode.unmarshal((await bee.downloadData(fork.node.targetAddress)).toUint8Array())
+      const node = await MantarayNode.unmarshal(bee, fork.node.targetAddress)
       fork.node.targetAddress = node.targetAddress
       fork.node.forks = node.forks
       fork.node.path = fork.prefix
@@ -273,22 +291,34 @@ export class MantarayNode {
   }
 
   find(path: string | Uint8Array): MantarayNode | null {
+    const [closest, match] = this.findClosest(path)
+    return match.length === path.length ? closest : null
+  }
+
+  findClosest(path: string | Uint8Array, current: Uint8Array = new Uint8Array()): [MantarayNode, Uint8Array] {
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
 
     if (path.length === 0) {
-      return null
+      return [this, current]
     }
+
     const fork = this.forks.get(path[0])
 
-    if (!fork) {
-      return null
+    if (fork && Binary.commonPrefix(fork.prefix, path).length === fork.prefix.length) {
+      return fork.node.findClosest(path.slice(fork.prefix.length), Binary.concatBytes(current, fork.prefix))
     }
 
-    if (Binary.equals(fork.prefix, path)) {
-      return fork.node
-    }
+    return [this, current]
+  }
 
-    return fork.node.find(path.slice(fork.prefix.length))
+  collect(nodes: MantarayNode[] = []): MantarayNode[] {
+    for (const fork of this.forks.values()) {
+      if (!Binary.equals(fork.node.targetAddress, NULL_ADDRESS)) {
+        nodes.push(fork.node)
+      }
+      fork.node.collect(nodes)
+    }
+    return nodes
   }
 
   determineType() {

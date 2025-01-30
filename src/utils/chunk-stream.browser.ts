@@ -1,7 +1,8 @@
-import { Chunk, MerkleTree, Strings } from 'cafe-utility'
-import { Bee, BeeRequestOptions, UploadOptions } from '..'
+import { AsyncQueue, Chunk, MerkleTree, Strings } from 'cafe-utility'
+import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions } from '..'
 import { MantarayNode } from '../manifest/manifest'
 import { totalChunks } from './chunk-size'
+import { makeFilePath } from './collection'
 import { mimes } from './mime'
 import { BatchId, Reference } from './typed-bytes'
 import { UploadProgress } from './upload-progress'
@@ -28,6 +29,7 @@ export async function streamFiles(
   onUploadProgress?: (progress: UploadProgress) => void,
   options?: UploadOptions,
 ): Promise<Reference> {
+  const queue = new AsyncQueue(64, 64)
   let total = 0
   let processed = 0
   for (const file of files) {
@@ -36,8 +38,10 @@ export async function streamFiles(
   postageBatchId = new BatchId(postageBatchId)
 
   async function onChunk(chunk: Chunk) {
-    await bee.uploadChunk(postageBatchId, chunk.build(), options)
-    onUploadProgress?.({ total, processed: ++processed })
+    await queue.enqueue(async () => {
+      await bee.uploadChunk(postageBatchId, chunk.build(), options)
+      onUploadProgress?.({ total, processed: ++processed })
+    })
   }
   const mantaray = new MantarayNode()
   for (const file of files) {
@@ -81,12 +85,26 @@ export async function streamFiles(
 
       readNextChunk()
     })
+    await queue.drain()
     const { filename, extension } = Strings.parseFilename(file.name)
-    mantaray.addFork(file.name, rootChunk.hash(), {
-      'Content-Type': mimes[extension.toLowerCase()] || 'application/octet-stream',
+    mantaray.addFork(makeFilePath(file), rootChunk.hash(), {
+      'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,
     })
+    if (file.name === 'index.html') {
+      mantaray.addFork('/', NULL_ADDRESS, {
+        'website-index-document': 'index.html',
+      })
+    }
   }
 
   return mantaray.saveRecursively(bee, postageBatchId)
+}
+
+function maybeEnrichMime(mime: string) {
+  if (['text/html', 'text/css'].includes(mime)) {
+    return `${mime}; charset=utf-8`
+  }
+
+  return mime
 }

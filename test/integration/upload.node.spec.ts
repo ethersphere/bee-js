@@ -4,14 +4,14 @@ import { batch, makeBee } from '../utils'
 const bee = makeBee()
 
 test('upload files from directory', async () => {
-  const expectedHash = '9d851bda0f5d681f8acb81f7e2e26c0e8084be4322e52f0d8152904a4321ae84'
+  const expectedHash = '237865537469cc454a0d2d8ae913b1402f360af045d956caccf1f1724f597118'
 
   // use bzz api with streaming tar
   const response = await bee.uploadFilesFromDirectory(batch(), 'test/data')
   expect(response.reference.toHex()).toBe(expectedHash)
 
   // reconstruct the data with unmarshal
-  const unmarshalled = MantarayNode.unmarshal((await bee.downloadData(response.reference)).toUint8Array())
+  const unmarshalled = await MantarayNode.unmarshal(bee, response.reference)
   await unmarshalled.loadRecursively(bee)
   expect((await unmarshalled.calculateSelfAddress()).toHex()).toBe(expectedHash)
 

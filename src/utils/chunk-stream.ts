@@ -1,6 +1,6 @@
 import { AsyncQueue, Chunk, MerkleTree, Strings } from 'cafe-utility'
 import { createReadStream } from 'fs'
-import { Bee, BeeRequestOptions, UploadOptions } from '..'
+import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions } from '..'
 import { MantarayNode } from '../manifest/manifest'
 import { totalChunks } from './chunk-size'
 import { makeCollectionFromFS } from './collection.node'
@@ -73,6 +73,11 @@ export async function streamDirectory(
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,
     })
+    if (file.path === 'index.html') {
+      mantaray.addFork('/', NULL_ADDRESS, {
+        'website-index-document': 'index.html',
+      })
+    }
   }
 
   return mantaray.saveRecursively(bee, postageBatchId, options, requestOptions)

@@ -87,7 +87,7 @@ test('POST bzz', async () => {
   expect(response.reference.toHex()).toBe(expectedHash)
 
   // reconstruct the data with unmarshal
-  const unmarshalled = MantarayNode.unmarshal((await bee.downloadData(response.reference)).toUint8Array())
+  const unmarshalled = await MantarayNode.unmarshal(bee, response.reference)
   await unmarshalled.loadRecursively(bee)
   expect((await unmarshalled.calculateSelfAddress()).toHex()).toBe(expectedHash)
 
@@ -128,7 +128,7 @@ test('bee.uploadFiles', async () => {
   const file1 = new File(['Hello, Swarm!'], 'index.html', { type: 'text/html' })
   const file2 = new File(['Hello, World!'], 'hello.txt', { type: 'text/plain' })
   const response = await bee.uploadFiles(batch(), [file1, file2])
-  expect(response.reference).toBeDefined()
+  expect(response.reference).toBeTruthy()
 })
 
 test('bee.uploadCollection', async () => {
@@ -136,5 +136,5 @@ test('bee.uploadCollection', async () => {
   const file2 = new File(['Hello, World!'], 'hello.txt', { type: 'text/plain' })
   const collection = await makeCollectionFromFileList([file1, file2])
   const response = await bee.uploadCollection(batch(), collection)
-  expect(response.reference).toBeDefined()
+  expect(response.reference).toBeTruthy()
 })

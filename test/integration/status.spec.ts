@@ -43,7 +43,7 @@ test('GET redistribution state', async () => {
   }
 
   const redistributionState = await bee.getRedistributionState()
-  expect(redistributionState).toBeDefined()
+  expect(redistributionState).toBeTruthy()
 })
 
 test('GET reserve state', async () => {
@@ -69,12 +69,12 @@ test('GET wallet', async () => {
   }
 
   const wallet = await bee.getWalletBalance()
-  expect(wallet).toBeDefined()
+  expect(wallet).toBeTruthy()
 })
 
 test('GET status', async () => {
   const status = await bee.getStatus()
-  expect(status).toBeDefined()
+  expect(status).toBeTruthy()
 })
 
 test('GET topology', async () => {
@@ -86,12 +86,12 @@ test('GET topology', async () => {
 
 test('GET addresses', async () => {
   const addresses = await bee.getNodeAddresses()
-  expect(addresses).toBeDefined()
+  expect(addresses).toBeTruthy()
 })
 
 test('GET peers', async () => {
   const peers = await bee.getPeers()
-  expect(peers).toBeDefined()
+  expect(peers).toBeTruthy()
 })
 
 test('GET balances', async () => {

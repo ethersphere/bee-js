@@ -15,7 +15,7 @@ export function assertCollection(data: unknown): asserts data is Collection {
   }
 }
 
-function makeFilePath(file: File) {
+export function makeFilePath(file: File) {
   if (file.webkitRelativePath && file.webkitRelativePath !== '') {
     return file.webkitRelativePath.replace(/.*?\//i, '')
   }
