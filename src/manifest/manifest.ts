@@ -207,6 +207,7 @@ export class MantarayNode {
       if (matchedPath.length) {
         tip = bestMatch
       }
+
       if (!remainingPath.length) {
         continue
       }
@@ -292,6 +293,7 @@ export class MantarayNode {
 
   find(path: string | Uint8Array): MantarayNode | null {
     const [closest, match] = this.findClosest(path)
+
     return match.length === path.length ? closest : null
   }
 
@@ -318,6 +320,7 @@ export class MantarayNode {
       }
       fork.node.collect(nodes)
     }
+
     return nodes
   }
 

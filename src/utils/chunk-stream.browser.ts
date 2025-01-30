@@ -91,6 +91,7 @@ export async function streamFiles(
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,
     })
+
     if (file.name === 'index.html') {
       mantaray.addFork('/', NULL_ADDRESS, {
         'website-index-document': 'index.html',
