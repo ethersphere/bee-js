@@ -211,14 +211,14 @@ export interface NodeInfo {
   /**
    * Indicates whether the Bee node has its own deployed chequebook.
    *
-   * @see [Bee docs - Chequebook](https://docs.ethswarm.org/docs/learn/glossary#cheques--chequebook)
+   * @see [Bee docs - Chequebook](https://docs.ethswarm.org/docs/references/glossary/#cheques--chequebook)
    */
   chequebookEnabled: boolean
 
   /**
    * Indicates whether SWAP is enabled for the Bee node.
    *
-   * @see [Bee docs - SWAP](https://docs.ethswarm.org/docs/learn/glossary#swap)
+   * @see [Bee docs - SWAP](https://docs.ethswarm.org/docs/references/glossary/#swap)
    */
   swapEnabled: boolean
 }
