@@ -6,8 +6,8 @@ const bee = makeBee()
 test('GET chequebook status', async () => {
   const chequebookBalance = await bee.getChequebookBalance()
   const chequebookAddress = await bee.getChequebookAddress()
-  expect(parseInt(chequebookBalance.availableBalance, 10)).toBeGreaterThan(0)
-  expect(parseInt(chequebookBalance.totalBalance, 10)).toBeGreaterThan(0)
+  expect(chequebookBalance.availableBalance.toPLURBigInt()).toBeGreaterThan(0n)
+  expect(chequebookBalance.totalBalance.toPLURBigInt()).toBeGreaterThan(0n)
   expect(chequebookAddress.chequebookAddress).toHaveLength(42)
 })
 

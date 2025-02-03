@@ -1,6 +1,7 @@
 import { Types } from 'cafe-utility'
 import type { AllSettlements, BeeRequestOptions, Settlements } from '../../types'
 import { http } from '../../utils/http'
+import { BZZ } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
 import { PeerAddress } from '../../utils/typed-bytes'
 
@@ -22,8 +23,8 @@ export async function getSettlements(requestOptions: BeeRequestOptions, peer: Pe
 
   return {
     peer: Types.asString(body.peer, { name: 'peer' }),
-    sent: asNumberString(body.sent, { name: 'sent' }),
-    received: asNumberString(body.received, { name: 'received' }),
+    sent: BZZ.fromPLUR(asNumberString(body.sent, { name: 'sent' })),
+    received: BZZ.fromPLUR(asNumberString(body.received, { name: 'received' })),
   }
 }
 
@@ -40,8 +41,8 @@ export async function getAllSettlements(requestOptions: BeeRequestOptions): Prom
 
   const body = Types.asObject(response.data, { name: 'response.data' })
 
-  const totalSent = asNumberString(body.totalSent, { name: 'totalSent' })
-  const totalReceived = asNumberString(body.totalReceived, { name: 'totalReceived' })
+  const totalSent = BZZ.fromPLUR(asNumberString(body.totalSent, { name: 'totalSent' }))
+  const totalReceived = BZZ.fromPLUR(asNumberString(body.totalReceived, { name: 'totalReceived' }))
   const settlements = Types.asArray(body.settlements, { name: 'settlements' }).map(x =>
     Types.asObject(x, { name: 'settlement' }),
   )
@@ -51,8 +52,8 @@ export async function getAllSettlements(requestOptions: BeeRequestOptions): Prom
     totalReceived,
     settlements: settlements.map(x => ({
       peer: Types.asString(x.peer, { name: 'peer' }),
-      sent: asNumberString(x.sent, { name: 'sent' }),
-      received: asNumberString(x.received, { name: 'received' }),
+      sent: BZZ.fromPLUR(asNumberString(x.sent, { name: 'sent' })),
+      received: BZZ.fromPLUR(asNumberString(x.received, { name: 'received' })),
     })),
   }
 }

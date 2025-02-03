@@ -1,6 +1,6 @@
 {
-  "name": "@ethersphere/bee-js",
-  "version": "8.3.0",
+  "name": "@upcoming/bee-js",
+  "version": "0.1.0",
   "description": "Javascript client for Bee",
   "keywords": [
     "bee",
@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "axios": "^0.28.1",
-    "cafe-utility": "^27.5.0",
+    "cafe-utility": "^27.5.1",
     "isomorphic-ws": "^4.0.1",
     "semver": "^7.3.5",
     "ws": "^8.7.0"

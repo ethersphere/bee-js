@@ -1,6 +1,7 @@
 import { Types } from 'cafe-utility'
 import { BeeRequestOptions, ChainState, ReserveState, WalletBalance } from '../../types'
 import { http } from '../../utils/http'
+import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
 
 const RESERVE_STATE_ENDPOINT = 'reservestate'
@@ -65,8 +66,8 @@ export async function getWalletBalance(requestOptions: BeeRequestOptions): Promi
   const body = Types.asObject(response.data, { name: 'response.data' })
 
   return {
-    bzzBalance: asNumberString(body.bzzBalance, { name: 'bzzBalance' }),
-    nativeTokenBalance: asNumberString(body.nativeTokenBalance, { name: 'nativeTokenBalance' }),
+    bzzBalance: BZZ.fromPLUR(asNumberString(body.bzzBalance, { name: 'bzzBalance' })),
+    nativeTokenBalance: DAI.fromWei(asNumberString(body.nativeTokenBalance, { name: 'nativeTokenBalance' })),
     chainID: Types.asNumber(body.chainID, { name: 'chainID' }),
     chequebookContractAddress: Types.asString(body.chequebookContractAddress, { name: 'chequebookContractAddress' }),
     walletAddress: Types.asString(body.walletAddress, { name: 'walletAddress' }),

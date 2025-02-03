@@ -12,10 +12,10 @@ test('MantarayNode basic', () => {
   expect(node.forks.size).toBe(1)
   expect(node.collect()).toHaveLength(4)
 
-  expect(node.find('foo')).toBeTruthy()
-  expect(node.find('foobar')).toBeTruthy()
-  expect(node.find('foobarbaz')).toBeTruthy()
-  expect(node.find('fooxyz')).toBeTruthy()
+  expect(node.find('foo')).toHaveProperty('fullPath', ENCODER.encode('foo'))
+  expect(node.find('foobar')).toHaveProperty('fullPath', ENCODER.encode('foobar'))
+  expect(node.find('foobarbaz')).toHaveProperty('fullPath', ENCODER.encode('foobarbaz'))
+  expect(node.find('fooxyz')).toHaveProperty('fullPath', ENCODER.encode('fooxyz'))
 
   const fooNode = node.find('foo')!
   expect(fooNode.path).toEqual(ENCODER.encode('foo'))
@@ -57,13 +57,14 @@ test('MantarayNode long', () => {
   node.addFork(dsStorePath, arbitraryReference())
   expect(node.collect()).toHaveLength(3)
 
-  expect(node.find(htmlPath)).toBeTruthy()
-  expect(node.find(jsPath)).toBeTruthy()
-  expect(node.find(dsStorePath)).toBeTruthy()
+  expect(node.find(htmlPath)).toHaveProperty('fullPath', ENCODER.encode(htmlPath))
+  expect(node.find(jsPath)).toHaveProperty('fullPath', ENCODER.encode(jsPath))
+  expect(node.find(dsStorePath)).toHaveProperty('fullPath', ENCODER.encode(dsStorePath))
 
   node.removeFork(dsStorePath)
 
-  expect(node.find(htmlPath)).toBeTruthy()
-  expect(node.find(jsPath)).toBeTruthy()
+  expect(node.find(htmlPath)).toHaveProperty('fullPath', ENCODER.encode(htmlPath))
+  expect(node.find(jsPath)).toHaveProperty('fullPath', ENCODER.encode(jsPath))
   expect(node.find(dsStorePath)).toBeNull()
+  expect(node.collect()).toHaveLength(2)
 })

@@ -91,6 +91,7 @@ import { makeCollectionFromFS } from './utils/collection.node'
 import { prepareWebsocketData } from './utils/data'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { fileArrayBuffer, isFile } from './utils/file'
+import { BZZ } from './utils/tokens'
 import {
   asNumberString,
   assertAllTagsOptions,
@@ -1743,7 +1744,7 @@ export class Bee {
    *
    * @param options
    */
-  async getStake(options?: BeeRequestOptions): Promise<NumberString> {
+  async getStake(options?: BeeRequestOptions): Promise<BZZ> {
     assertRequestOptions(options)
 
     return stake.getStake(this.getRequestOptionsForCall(options))

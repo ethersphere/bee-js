@@ -8,6 +8,7 @@ export { Bytes } from './utils/bytes'
 export * from './utils/constants'
 export * from './utils/error'
 export * as Utils from './utils/expose'
+export * from './utils/tokens'
 export * from './utils/typed-bytes'
 export { Bee }
 

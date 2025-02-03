@@ -12,6 +12,7 @@ import type {
   NumberString,
 } from '../../types'
 import { http } from '../../utils/http'
+import { BZZ } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
 import { EthAddress, PeerAddress, TransactionId } from '../../utils/typed-bytes'
 
@@ -49,8 +50,8 @@ export async function getChequebookBalance(requestOptions: BeeRequestOptions): P
   const body = Types.asObject(response.data, { name: 'response.data' })
 
   return {
-    availableBalance: asNumberString(body.availableBalance, { name: 'availableBalance' }),
-    totalBalance: asNumberString(body.totalBalance, { name: 'totalBalance' }),
+    availableBalance: BZZ.fromPLUR(asNumberString(body.availableBalance, { name: 'availableBalance' })),
+    totalBalance: BZZ.fromPLUR(asNumberString(body.totalBalance, { name: 'totalBalance' })),
   }
 }
 
@@ -73,7 +74,7 @@ export async function getLastCashoutAction(
 
   return {
     peer: Types.asString(body.peer, { name: 'peer' }),
-    uncashedAmount: asNumberString(body.uncashedAmount, { name: 'uncashedAmount' }),
+    uncashedAmount: BZZ.fromPLUR(asNumberString(body.uncashedAmount, { name: 'uncashedAmount' })),
     transactionHash: Types.asNullableString(body.transactionHash),
     lastCashedCheque: Types.asNullable(x => asCheque(x), body.lastCashedCheque),
     result: Types.asNullable(x => asCashoutResult(x), body.result),
@@ -169,7 +170,7 @@ function asCheque(x: unknown): Cheque {
   return {
     beneficiary: new EthAddress(Types.asString(object.beneficiary, { name: 'beneficiary' })),
     chequebook: new EthAddress(Types.asString(object.chequebook, { name: 'chequebook' })),
-    payout: asNumberString(object.payout, { name: 'payout' }),
+    payout: BZZ.fromPLUR(asNumberString(object.payout, { name: 'payout' })),
   }
 }
 
@@ -178,7 +179,7 @@ function asCashoutResult(x: unknown): CashoutResult {
 
   return {
     recipient: Types.asString(object.recipient, { name: 'recipient' }),
-    lastPayout: asNumberString(object.lastPayout, { name: 'lastPayout' }),
+    lastPayout: BZZ.fromPLUR(asNumberString(object.lastPayout, { name: 'lastPayout' })),
     bounced: Types.asBoolean(object.bounced, { name: 'bounced' }),
   }
 }

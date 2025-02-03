@@ -1,6 +1,7 @@
 import { Binary } from 'cafe-utility'
 import { EnvelopeWithBatchId, NumberString } from '../types'
 import { Bytes } from './bytes'
+import { BZZ } from './tokens'
 import { asNumberString } from './type'
 
 /**
@@ -64,26 +65,11 @@ export function getStampEffectiveBytes(depth: number): number {
 
 /**
  * Utility function that calculates the cost of a postage batch based on its depth and amount.
- *
- * @returns {number} The cost of the postage batch in PLUR (10000000000000000 [1e16] PLUR = 1 BZZ)
  */
-export function getStampCostInPlur(depth: number, amount: NumberString | string | bigint): bigint {
-  const amountBigint = BigInt(asNumberString(amount))
+export function getStampCost(depth: number, amount: NumberString | string | bigint): BZZ {
+  const amountBigInt = BigInt(asNumberString(amount))
 
-  return 2n ** BigInt(depth) * amountBigint
-}
-
-/**
- * Utility function that calculates the cost of a postage batch based on its depth and amount.
- *
- * The returned number is lossy and should be used for display purposes only.
- *
- * @returns {number} The cost of the postage batch in BZZ (1 BZZ = 10000000000000000 [1e16] PLUR)
- */
-export function getStampCostInBzz(depth: number, amount: NumberString | string | bigint): number {
-  const BZZ_UNIT = 10 ** 16
-
-  return Number(getStampCostInPlur(depth, amount)) / BZZ_UNIT
+  return BZZ.fromPLUR(2n ** BigInt(depth) * amountBigInt)
 }
 
 /**
@@ -98,9 +84,9 @@ export function getStampTtlSeconds(
   pricePerBlock = 24_000,
   blockTime = 5,
 ): bigint {
-  const amountBigint = BigInt(asNumberString(amount))
+  const amountBigInt = BigInt(asNumberString(amount))
 
-  return (amountBigint * BigInt(blockTime)) / BigInt(pricePerBlock)
+  return (amountBigInt * BigInt(blockTime)) / BigInt(pricePerBlock)
 }
 
 /**

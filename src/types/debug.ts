@@ -1,15 +1,16 @@
+import { BZZ, DAI } from '../utils/tokens'
 import { EthAddress, PublicKey, TransactionId } from '../utils/typed-bytes'
 import { NumberString } from './index'
 
 export interface Settlements {
   peer: string
-  received: NumberString
-  sent: NumberString
+  received: BZZ
+  sent: BZZ
 }
 
 export interface AllSettlements {
-  totalReceived: NumberString
-  totalSent: NumberString
+  totalReceived: BZZ
+  totalSent: BZZ
   settlements: Settlements[]
 }
 
@@ -31,8 +32,8 @@ export interface ChequebookAddressResponse {
 }
 
 export interface ChequebookBalanceResponse {
-  totalBalance: NumberString
-  availableBalance: NumberString
+  totalBalance: BZZ
+  availableBalance: BZZ
 }
 
 export interface TransactionOptions {
@@ -51,13 +52,13 @@ export type CashoutOptions = TransactionOptions
 
 export interface CashoutResult {
   recipient: string
-  lastPayout: NumberString
+  lastPayout: BZZ
   bounced: boolean
 }
 
 export interface LastCashoutActionResponse {
   peer: string
-  uncashedAmount: NumberString
+  uncashedAmount: BZZ
   transactionHash: string | null
   lastCashedCheque: Cheque | null
   result: CashoutResult | null
@@ -70,7 +71,7 @@ export interface TransactionResponse {
 export interface Cheque {
   beneficiary: EthAddress
   chequebook: EthAddress
-  payout: NumberString
+  payout: BZZ
 }
 
 export interface LastChequesForPeerResponse {
@@ -150,7 +151,7 @@ export function toBeeMode(value: string) {
 }
 
 export interface RedistributionState {
-  minimumGasFunds: NumberString
+  minimumGasFunds: DAI
   hasSufficientFunds: boolean
   isFrozen: boolean
   isFullySynced: boolean
@@ -162,8 +163,8 @@ export interface RedistributionState {
   lastSelectedRound: number
   lastSampleDurationSeconds: number
   block: number
-  reward: NumberString
-  fees: NumberString
+  reward: BZZ
+  fees: DAI
   isHealthy: boolean
 }
 
@@ -266,8 +267,8 @@ export interface ChainState {
 }
 
 export interface WalletBalance {
-  bzzBalance: NumberString
-  nativeTokenBalance: NumberString
+  bzzBalance: BZZ
+  nativeTokenBalance: DAI
   chainID: number
   chequebookContractAddress: string
   walletAddress: string

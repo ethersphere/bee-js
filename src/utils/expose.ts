@@ -5,8 +5,7 @@ export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancy
 export {
   getAmountForTtl,
   getDepthForCapacity,
-  getStampCostInBzz,
-  getStampCostInPlur,
+  getStampCost,
   getStampEffectiveBytes,
   getStampMaximumCapacityBytes,
   getStampTtlSeconds,

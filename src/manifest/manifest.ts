@@ -38,6 +38,9 @@ export class Fork {
     node.forks.set(newAFork.prefix[0], newAFork)
     node.forks.set(newBFork.prefix[0], newBFork)
 
+    newAFork.node.parent = node
+    newBFork.node.parent = node
+
     return new Fork(commonPart, node)
   }
 
@@ -92,6 +95,7 @@ interface MantarayNodeOptions {
   obfuscationKey?: Uint8Array
   metadata?: Record<string, string> | null
   path?: Uint8Array | null
+  parent?: MantarayNode | null
 }
 
 export class MantarayNode {
@@ -101,6 +105,7 @@ export class MantarayNode {
   public metadata: Record<string, string> | undefined | null = null
   public path: Uint8Array = new Uint8Array(0)
   public forks: Map<number, Fork> = new Map()
+  public parent: MantarayNode | null = null
 
   constructor(options?: MantarayNodeOptions) {
     if (options?.targetAddress) {
@@ -122,6 +127,14 @@ export class MantarayNode {
     if (options?.path) {
       this.path = options.path
     }
+
+    if (options?.parent) {
+      this.parent = options.parent
+    }
+  }
+
+  get fullPath(): Uint8Array {
+    return Binary.concatBytes(this.parent?.fullPath ?? new Uint8Array(0), this.path)
   }
 
   async marshal(): Promise<Uint8Array> {
@@ -179,7 +192,9 @@ export class MantarayNode {
     const forkBitmap = reader.read(32)
     for (let i = 0; i < 256; i++) {
       if (Binary.getBit(forkBitmap, i, 'LE')) {
-        node.forks.set(i, Fork.unmarshal(reader))
+        const newFork = Fork.unmarshal(reader)
+        node.forks.set(i, newFork)
+        newFork.node.parent = node
       }
     }
 
@@ -226,10 +241,12 @@ export class MantarayNode {
       if (existing) {
         const fork = Fork.split(newFork, existing)
         tip.forks.set(remainingPath[0], fork)
+        fork.node.parent = tip
         tip.selfAddress = null
         tip = newFork.node
       } else {
         tip.forks.set(remainingPath[0], newFork)
+        newFork.node.parent = tip
         tip.selfAddress = null
         tip = newFork.node
       }

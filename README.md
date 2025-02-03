@@ -97,6 +97,13 @@ The `toString` method uses `toHex`.
 | BatchId       | 32 bytes batch ID                   | -                               |
 | Span          | 8 bytes span (LE)                   | `static fromBigInt`, `toBigInt` |
 
+### Tokens
+
+| Name | Description                 | Methods                                                                                          |
+| ---- | --------------------------- | ------------------------------------------------------------------------------------------------ |
+| DAI  | ERC20 DAI token (18 digits) | `static fromDecimalString`, `static fromWei`, `toWeiString`, `toWeiBigInt`, `toDecimalString`    |
+| BZZ  | ERC20 BZZ token (16 digits) | `static fromDecimalString`, `static fromPLUR`, `toPLURString`, `toPLURBigInt`, `toDecimalString` |
+
 ### Swarm chunks
 
 | Name             | Description                                                                                     | Creation                    |
@@ -225,8 +232,7 @@ The `toString` method uses `toHex`.
 
 - `getAmountForTtl`
 - `getDepthForCapacity`
-- `getStampCostInBzz`
-- `getStampCostInPlur`
+- `getStampCost`
 - `getStampEffectiveBytes`
 - `getStampMaximumCapacityBytes`
 - `getStampTtlSeconds`

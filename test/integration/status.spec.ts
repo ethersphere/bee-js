@@ -69,7 +69,10 @@ test('GET wallet', async () => {
   }
 
   const wallet = await bee.getWalletBalance()
-  expect(wallet).toBeTruthy()
+  expect(parseFloat(wallet.bzzBalance.toDecimalString())).toBeGreaterThan(100)
+  expect(parseFloat(wallet.bzzBalance.toDecimalString())).toBeLessThan(150)
+  expect(parseFloat(wallet.nativeTokenBalance.toDecimalString())).toBeGreaterThan(4)
+  expect(parseFloat(wallet.nativeTokenBalance.toDecimalString())).toBeLessThan(5)
 })
 
 test('GET status', async () => {
@@ -136,7 +139,7 @@ test('GET settlements', async () => {
     const settlement = response.settlements[0]
     const settlementResponse = await bee.getSettlements(settlement.peer)
     expect(settlementResponse.peer).toBe(settlement.peer)
-    expect(settlementResponse.sent).toBe(settlement.sent)
-    expect(settlementResponse.received).toBe(settlement.received)
+    expect(settlementResponse.sent.toPLURBigInt()).toBe(settlement.sent.toPLURBigInt())
+    expect(settlementResponse.received.toPLURBigInt()).toBe(settlement.received.toPLURBigInt())
   }
 })

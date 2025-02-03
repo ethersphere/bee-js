@@ -49,12 +49,11 @@ test('Utils.getDepthForCapacity', () => {
   expect(Utils.getDepthForCapacity(8)).toBe(21)
 })
 
-test('Utils.getStampCostInBzz', () => {
-  expect(Utils.getStampCostInBzz(17, '414720000')).toBe(0.005435817984)
-})
-
-test('Utils.getStampCostInPlur', () => {
-  expect(Utils.getStampCostInPlur(17, '414720000')).toBe(54358179840000n)
+test('Utils.getStampCost', () => {
+  const cost = Utils.getStampCost(17, '414720000')
+  expect(cost.toPLURBigInt()).toBe(54358179840000n)
+  expect(cost.toPLURString()).toBe('54358179840000')
+  expect(cost.toDecimalString()).toBe('0.0054358179840000')
 })
 
 test('Utils.getStampEffectiveBytes', () => {
