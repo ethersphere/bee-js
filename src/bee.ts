@@ -106,7 +106,6 @@ import {
   assertRequestOptions,
   assertTransactionOptions,
   assertUploadOptions,
-  isReadable,
   makeTagUid,
 } from './utils/type'
 import {
@@ -374,9 +373,6 @@ export class Bee {
   /**
    * Upload single file to a Bee node.
    *
-   * **To make sure that you won't lose critical data it is highly recommended to also
-   * locally pin the data with `options.pin = true`**
-   *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data or file to be uploaded
    * @param name    Optional name of the uploaded file
@@ -419,18 +415,6 @@ export class Bee {
         fileName,
         fileOptions,
       )
-    } else if (isReadable(data) && options?.tag && !options.size) {
-      // TODO: Needed until https://github.com/ethersphere/bee/issues/2317 is resolved
-      const result = await bzz.uploadFile(
-        this.getRequestOptionsForCall(requestOptions),
-        data,
-        postageBatchId,
-        name,
-        options,
-      )
-      await this.updateTag(options.tag, result.reference)
-
-      return result
     } else {
       return bzz.uploadFile(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, name, options)
     }
