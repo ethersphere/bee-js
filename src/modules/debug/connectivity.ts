@@ -20,7 +20,7 @@ export async function getNodeAddresses(requestOptions: BeeRequestOptions): Promi
   const body = Types.asObject(response.data, { name: 'response.data' })
 
   return {
-    overlay: Types.asString(body.overlay, { name: 'overlay' }),
+    overlay: new PeerAddress(Types.asString(body.overlay, { name: 'overlay' })),
     underlay: Types.asArray(body.underlay, { name: 'underlay' }).map(x => Types.asString(x, { name: 'underlay' })),
     ethereum: new EthAddress(Types.asString(body.ethereum, { name: 'ethereum' })),
     publicKey: new PublicKey(Types.asString(body.publicKey, { name: 'publicKey' })),

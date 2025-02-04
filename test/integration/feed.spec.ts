@@ -20,10 +20,14 @@ test('POST feed (reader)', async () => {
 
   await feedWriter.upload(batch(), response2.reference, { deferred: false })
 
-  // TODO: no sleep
-  await System.sleepMillis(Dates.seconds(5))
-
-  expect((await feedReader.download()).payload.toUtf8()).toBe('Second update')
+  await System.waitFor(
+    async () => {
+      const payload = (await feedReader.download()).payload.toUtf8()
+      return payload === 'Second update'
+    },
+    Dates.seconds(1),
+    60,
+  )
 
   // TODO: this is a reference... should it be auto-resolved?
   const reference1 = new Reference((await feedReader.download({ index: 0 })).payload)
@@ -52,10 +56,14 @@ test('POST feed (manifest)', async () => {
 
   await feedWriter.upload(batch(), response2.reference, { deferred: false })
 
-  // TODO: no sleep
-  await System.sleepMillis(Dates.seconds(5))
-
-  expect((await bee.downloadFile(manifest)).data.toUtf8()).toBe('Second update')
+  await System.waitFor(
+    async () => {
+      const payload = (await bee.downloadFile(manifest)).data.toUtf8()
+      return payload === 'Second update'
+    },
+    Dates.seconds(1),
+    60,
+  )
 
   expect(await bee.isFeedRetrievable(owner, NULL_TOPIC)).toBe(true)
   expect(await bee.isFeedRetrievable(owner, NULL_TOPIC, FeedIndex.fromBigInt(1n))).toBe(true)

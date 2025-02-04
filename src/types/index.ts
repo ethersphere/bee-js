@@ -303,6 +303,16 @@ export interface PssMessageHandler {
   onError: (error: BeeError, subscription: PssSubscription) => void
 }
 
+export interface GsocSubscription {
+  readonly address: EthAddress
+  cancel: () => void
+}
+
+export interface GsocMessageHandler {
+  onMessage: (message: Bytes, subscription: GsocSubscription) => void
+  onError: (error: BeeError, subscription: GsocSubscription) => void
+}
+
 export interface ReferenceResponse {
   reference: Reference
 }

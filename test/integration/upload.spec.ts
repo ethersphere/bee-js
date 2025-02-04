@@ -120,7 +120,7 @@ test('POST soc', async () => {
 
   // reconstruct the data with makeSingleOwnerChunk
   const cac = makeContentAddressedChunk(data)
-  const soc = await makeSingleOwnerChunk(cac, identifier, privateKey)
+  const soc = makeSingleOwnerChunk(cac, identifier, privateKey)
   expect(soc.address.toHex()).toBe(expectedHash)
 })
 

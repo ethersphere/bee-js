@@ -1,7 +1,7 @@
-import { Objects, System } from 'cafe-utility'
+import { Binary, Objects, System } from 'cafe-utility'
 import { Readable } from 'stream'
-import { Chunk } from './chunk/cac'
-import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
+import { Chunk, makeContentAddressedChunk } from './chunk/cac'
+import { downloadSingleOwnerChunk, makeSOCAddress, makeSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
 import * as bytes from './modules/bytes'
@@ -19,6 +19,7 @@ import * as transactions from './modules/debug/transactions'
 import { postEnvelope } from './modules/envelope'
 import { createFeedManifest } from './modules/feed'
 import * as grantee from './modules/grantee'
+import * as gsoc from './modules/gsoc'
 import * as pinning from './modules/pinning'
 import * as pss from './modules/pss'
 import * as status from './modules/status'
@@ -43,6 +44,8 @@ import type {
   GetGranteesResult,
   GlobalPostageBatch,
   GranteesResult,
+  GsocMessageHandler,
+  GsocSubscription,
   Health,
   LastCashoutActionResponse,
   LastChequesForPeerResponse,
@@ -100,6 +103,7 @@ import {
   assertData,
   assertFileData,
   assertFileUploadOptions,
+  assertGsocMessageHandler,
   assertNonNegativeInteger,
   assertPostageBatchOptions,
   assertPssMessageHandler,
@@ -112,6 +116,7 @@ import {
   BatchId,
   EthAddress,
   FeedIndex,
+  Identifier,
   PeerAddress,
   PrivateKey,
   PublicKey,
@@ -984,6 +989,90 @@ export class Bee {
         }, timeoutMsec)
       }
     })
+  }
+
+  gsocMine(
+    targetOverlay: PeerAddress | Uint8Array | string,
+    identifier: Identifier | Uint8Array | string,
+    proximity = 16,
+  ): PrivateKey {
+    targetOverlay = new PeerAddress(targetOverlay)
+    identifier = new Identifier(identifier)
+    const start = 0xb33n
+    for (let i = 0n; i < 0xffffn; i++) {
+      const signer = new PrivateKey(Binary.numberToUint256(start + i, 'BE'))
+      const socAddress = makeSOCAddress(identifier, signer.publicKey().address())
+      const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), targetOverlay.toUint8Array(), 256)
+      if (actualProximity <= 256 - proximity) {
+        return signer
+      }
+    }
+    throw Error('Could not mine a valid signer')
+  }
+
+  async gsocSend(
+    postageBatchId: BatchId | Uint8Array | string,
+    signer: PrivateKey | Uint8Array | string,
+    identifier: Identifier | Uint8Array | string,
+    data: string | Uint8Array,
+    options?: UploadOptions,
+    requestOptions?: BeeRequestOptions,
+  ) {
+    postageBatchId = new BatchId(postageBatchId)
+    signer = new PrivateKey(signer)
+    identifier = new Identifier(identifier)
+
+    const cac = makeContentAddressedChunk(data)
+    const soc = makeSingleOwnerChunk(cac, identifier, signer)
+
+    return gsoc.send(this.getRequestOptionsForCall(requestOptions), soc, postageBatchId, options)
+  }
+
+  gsocSubscribe(
+    address: EthAddress | Uint8Array | string,
+    identifier: Identifier | Uint8Array | string,
+    handler: GsocMessageHandler,
+  ): GsocSubscription {
+    address = new EthAddress(address)
+    identifier = new Identifier(identifier)
+    assertGsocMessageHandler(handler)
+
+    const socAddress = makeSOCAddress(identifier, address)
+
+    const ws = gsoc.subscribe(this.url, socAddress, this.requestOptions.headers)
+
+    let cancelled = false
+    const cancel = () => {
+      if (cancelled === false) {
+        cancelled = true
+
+        if (ws.terminate) {
+          ws.terminate()
+        } else {
+          ws.close()
+        }
+      }
+    }
+
+    const subscription = {
+      address,
+      cancel,
+    }
+
+    ws.onmessage = async event => {
+      const data = await prepareWebsocketData(event.data)
+
+      if (data.length) {
+        handler.onMessage(new Bytes(data), subscription)
+      }
+    }
+    ws.onerror = event => {
+      if (!cancelled) {
+        handler.onError(new BeeError(event.message), subscription)
+      }
+    }
+
+    return subscription
   }
 
   /**

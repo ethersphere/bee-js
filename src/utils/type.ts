@@ -6,6 +6,7 @@ import {
   CashoutOptions,
   CollectionUploadOptions,
   FileUploadOptions,
+  GsocMessageHandler,
   NumberString,
   PostageBatchOptions,
   PssMessageHandler,
@@ -151,19 +152,15 @@ export function isTag(value: unknown): value is Tag {
 }
 
 export function assertPssMessageHandler(value: unknown): asserts value is PssMessageHandler {
-  if (!isStrictlyObject(value)) {
-    throw new TypeError('PssMessageHandler has to be object!')
-  }
+  const object = Types.asObject(value, { name: 'PssMessageHandler' })
+  Types.asFunction(object.onMessage, { name: 'onMessage' })
+  Types.asFunction(object.onError, { name: 'onError' })
+}
 
-  const handler = value as unknown as PssMessageHandler
-
-  if (typeof handler.onMessage !== 'function') {
-    throw new TypeError('onMessage property of PssMessageHandler has to be function!')
-  }
-
-  if (typeof handler.onError !== 'function') {
-    throw new TypeError('onError property of PssMessageHandler has to be function!')
-  }
+export function assertGsocMessageHandler(value: unknown): asserts value is GsocMessageHandler {
+  const object = Types.asObject(value, { name: 'GsocMessageHandler' })
+  Types.asFunction(object.onMessage, { name: 'onMessage' })
+  Types.asFunction(object.onError, { name: 'onError' })
 }
 
 export function assertPostageBatchOptions(value: unknown): asserts value is PostageBatchOptions {

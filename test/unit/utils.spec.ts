@@ -38,7 +38,7 @@ test('Utils.getRedundancyStats', () => {
 })
 
 test('Utils.makeMaxTarget', () => {
-  expect(Utils.makeMaxTarget('0x1234567890abcdef')).toBe('1234')
+  expect(Utils.makeMaxTarget('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef')).toBe('1234')
 })
 
 test('Utils.getAmountForTtl', () => {

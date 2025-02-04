@@ -87,11 +87,11 @@ export function makeSOCAddress(identifier: Identifier, address: EthAddress): Ref
  * @param identifier  The identifier of the chunk
  * @param signer      The signer interface for signing the chunk
  */
-export async function makeSingleOwnerChunk(
+export function makeSingleOwnerChunk(
   chunk: Chunk,
   identifier: Identifier | Uint8Array | string,
   signer: PrivateKey | Uint8Array | string,
-): Promise<SingleOwnerChunk> {
+): SingleOwnerChunk {
   identifier = new Identifier(identifier)
   signer = new PrivateKey(signer)
   const address = makeSOCAddress(identifier, signer.publicKey().address())
@@ -154,7 +154,7 @@ export async function uploadSingleOwnerChunkData(
   signer = new PrivateKey(signer)
   identifier = new Identifier(identifier)
   const cac = makeContentAddressedChunk(data)
-  const soc = await makeSingleOwnerChunk(cac, identifier, signer)
+  const soc = makeSingleOwnerChunk(cac, identifier, signer)
 
   return uploadSingleOwnerChunk(requestOptions, soc, stamp, options)
 }

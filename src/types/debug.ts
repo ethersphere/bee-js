@@ -1,5 +1,5 @@
 import { BZZ, DAI } from '../utils/tokens'
-import { EthAddress, PublicKey, TransactionId } from '../utils/typed-bytes'
+import { EthAddress, PeerAddress, PublicKey, TransactionId } from '../utils/typed-bytes'
 import { NumberString } from './index'
 
 export interface Settlements {
@@ -15,7 +15,7 @@ export interface AllSettlements {
 }
 
 export interface NodeAddresses {
-  overlay: string
+  overlay: PeerAddress
   underlay: string[]
   ethereum: EthAddress
   publicKey: PublicKey
