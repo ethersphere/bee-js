@@ -21,10 +21,11 @@ export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
  * @param config Internal settings and/or Bee settings
  */
 export async function http<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+
   let failedAttempts = 0
   while (failedAttempts < MAX_FAILED_ATTEMPTS) {
     try {
-      const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
       maybeRunOnRequestHook(options, requestConfig)
       const response = await axios(requestConfig)
 

@@ -137,6 +137,10 @@ export class MantarayNode {
     return Binary.concatBytes(this.parent?.fullPath ?? new Uint8Array(0), this.path)
   }
 
+  get fullPathString(): string {
+    return DECODER.decode(this.fullPath)
+  }
+
   async marshal(): Promise<Uint8Array> {
     for (const fork of this.forks.values()) {
       if (!fork.node.selfAddress) {

@@ -1,9 +1,9 @@
-import { Bytes, GsocSubscription } from '../../src'
+import { Bytes, GsocSubscription, NULL_IDENTIFIER } from '../../src'
 import { batch, makeBee } from '../utils'
 
 test('gsoc', async () => {
   const bee = makeBee()
-  const identifier = new Uint8Array(32)
+  const identifier = NULL_IDENTIFIER
   const { overlay } = await bee.getNodeAddresses()
 
   const signer = bee.gsocMine(overlay, identifier)
