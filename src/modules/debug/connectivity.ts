@@ -130,7 +130,7 @@ export async function pingPeer(requestOptions: BeeRequestOptions, peer: PeerAddr
   return response.data
 }
 
-function asBin(value: unknown, name: string): Bin {
+export function asBin(value: unknown, name: string): Bin {
   const bin = Types.asObject(value, { name })
 
   if (!bin.disconnectedPeers) {

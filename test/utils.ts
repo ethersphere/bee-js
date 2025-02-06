@@ -1,7 +1,10 @@
 import { Strings, Types } from 'cafe-utility'
-import { Bee } from '../src'
+import { Bee, BeeDev } from '../src'
 
 export function makeBee() {
+  if (currentBeeMode() === 'dev') {
+    return new BeeDev('http://localhost:1633')
+  }
   return new Bee(selectBeeUrl(), {
     headers: {
       authorization: Types.asString(process.env.JEST_BEE_SECRET),
@@ -17,10 +20,14 @@ export function batch() {
   if (currentBeeMode() === 'full') {
     return Types.asString(process.env.JEST_FULL_BATCH_ID)
   }
+
+  if (currentBeeMode() === 'dev') {
+    return '29c91093cbbdaa1a126d2a24c3ee2c70e7c36c7653ba156829a06d07a9ccc4a4'
+  }
   throw Error('Batch ID not available in ultra-light mode')
 }
 
-export function currentBeeMode(): 'full' | 'light' | 'ultra-light' {
+export function currentBeeMode(): 'full' | 'light' | 'ultra-light' | 'dev' {
   return 'full'
 }
 

@@ -1873,7 +1873,7 @@ export class Bee {
     throw new BeeError('Timeout on waiting for postage stamp to become usable')
   }
 
-  private getRequestOptionsForCall(options?: BeeRequestOptions): BeeRequestOptions {
+  protected getRequestOptionsForCall(options?: BeeRequestOptions): BeeRequestOptions {
     return options ? Objects.deepMerge2(this.requestOptions, options) : this.requestOptions
   }
 }
