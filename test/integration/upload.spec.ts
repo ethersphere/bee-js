@@ -157,4 +157,6 @@ test('redundancy levels', async () => {
   await bee.uploadFile(batch(), message, undefined, { redundancyLevel: 1 }, requestOptions)
   await bee.uploadFiles(batch(), [file], { redundancyLevel: 1 }, requestOptions)
   await bee.uploadCollection(batch(), collection, { redundancyLevel: 1 }, requestOptions)
+
+  expect(runs).toBe(4)
 })

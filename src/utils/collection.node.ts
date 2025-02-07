@@ -4,7 +4,6 @@ import { Collection } from '../types'
 
 /**
  * Creates array in the format of Collection with data loaded from directory on filesystem.
- * The function loads all the data into memory!
  *
  * @param dir path to the directory
  */

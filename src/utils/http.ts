@@ -23,6 +23,16 @@ export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
 export async function http<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
   const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
 
+  if (requestConfig.params) {
+    const keys = Object.keys(requestConfig.params)
+    for (const key of keys) {
+      const value = requestConfig.params[key]
+      if (value === undefined) {
+        delete requestConfig.params[key]
+      }
+    }
+  }
+
   let failedAttempts = 0
   while (failedAttempts < MAX_FAILED_ATTEMPTS) {
     try {

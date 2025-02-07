@@ -1630,11 +1630,11 @@ export class Bee {
     postageBatchId: BatchId | Uint8Array | string,
     amount: NumberString | string | bigint,
     options?: BeeRequestOptions,
-  ): Promise<void> {
+  ): Promise<BatchId> {
     postageBatchId = new BatchId(postageBatchId)
     const amountString = asNumberString(amount, { min: 1n, name: 'amount' })
 
-    await stamps.topUpBatch(this.getRequestOptionsForCall(options), postageBatchId, amountString)
+    return stamps.topUpBatch(this.getRequestOptionsForCall(options), postageBatchId, amountString)
   }
 
   /**
@@ -1657,11 +1657,11 @@ export class Bee {
     postageBatchId: BatchId | Uint8Array | string,
     depth: number,
     options?: BeeRequestOptions,
-  ): Promise<void> {
+  ): Promise<BatchId> {
     postageBatchId = new BatchId(postageBatchId)
     depth = Types.asNumber(depth, { name: 'depth', min: 18, max: 255 })
 
-    await stamps.diluteBatch(this.getRequestOptionsForCall(options), postageBatchId, depth)
+    return stamps.diluteBatch(this.getRequestOptionsForCall(options), postageBatchId, depth)
   }
 
   /**
