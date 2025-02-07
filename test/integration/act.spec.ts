@@ -1,4 +1,5 @@
 import { Dates, System } from 'cafe-utility'
+import { PublicKey } from '../../src'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()
@@ -25,9 +26,9 @@ test('CRUD grantee', async () => {
 
   // get
   const list = await bee.getGrantees(createResponse.ref)
-  expect(list.data).toHaveLength(grantees.length)
-  list.data.forEach((element: string) => {
-    expect(grantees.includes(element)).toBeTruthy()
+  expect(list.grantees).toHaveLength(grantees.length)
+  list.grantees.forEach((grantee: PublicKey) => {
+    expect(grantees.some(x => x === grantee.toCompressedHex())).toBeTruthy()
   })
 
   // patch and upload
@@ -38,19 +39,21 @@ test('CRUD grantee', async () => {
 
   await System.sleepMillis(Dates.seconds(5))
 
-  const patchResponse = await bee.patchGrantees(batch(), createResponse.ref, uploadResult.historyAddress, patchGrantees)
+  const patchResponse = await bee.patchGrantees(
+    batch(),
+    createResponse.ref,
+    uploadResult.historyAddress.getOrThrow(),
+    patchGrantees,
+  )
 
   const listAfterPatch = await bee.getGrantees(patchResponse.ref)
-  expect(listAfterPatch.data).toHaveLength(1)
-  expect(listAfterPatch.data[0]).toBe(patchGrantees.add[0])
+  expect(listAfterPatch.grantees).toHaveLength(1)
+  expect(listAfterPatch.grantees[0].toCompressedHex()).toBe(patchGrantees.add[0])
 
   const file = await bee.downloadFile(uploadResult.reference, filename, {
-    headers: {
-      'swarm-act': 'true',
-      'swarm-act-publisher': publicKey.toCompressedHex(),
-      'swarm-act-history-address': uploadResult.historyAddress,
-      'swarm-act-timestamp': '1',
-    },
+    actPublisher: publicKey,
+    actHistoryAddress: uploadResult.historyAddress.getOrThrow(),
+    actTimestamp: 1,
   })
   expect(file.data.toUtf8()).toBe(data)
 })

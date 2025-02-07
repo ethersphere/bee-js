@@ -1,9 +1,19 @@
+import { Optional } from 'cafe-utility'
 import type { SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
 import type { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
 import { Bytes } from '../utils/bytes'
 import type { BeeError } from '../utils/error'
-import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Topic, TransactionId } from '../utils/typed-bytes'
+import {
+  BatchId,
+  EthAddress,
+  Identifier,
+  PrivateKey,
+  PublicKey,
+  Reference,
+  Topic,
+  TransactionId,
+} from '../utils/typed-bytes'
 
 export * from './debug'
 
@@ -30,7 +40,7 @@ export const FEED_INDEX_HEX_LENGTH = 16
 
 export type BeeRequestOptions = {
   baseURL?: string
-  timeout?: number | false
+  timeout?: number
   headers?: Record<string, string>
   onRequest?: (request: BeeRequest) => void
   httpAgent?: unknown
@@ -55,7 +65,7 @@ export interface GranteesResult {
 export interface GetGranteesResult {
   status: number
   statusText: string
-  data: string[]
+  grantees: PublicKey[]
 }
 
 /**
@@ -75,7 +85,7 @@ export interface UploadResult {
   /**
    * History address of the uploaded data with ACT.
    */
-  historyAddress: string
+  historyAddress: Optional<Reference>
 }
 
 export interface UploadOptions {
@@ -137,7 +147,7 @@ export enum RedundancyLevel {
   PARANOID = 4,
 }
 
-export interface UploadRedundancyOptions {
+export interface RedundantUploadOptions extends UploadOptions {
   redundancyLevel?: RedundancyLevel
 }
 
@@ -158,7 +168,7 @@ export enum RedundancyStrategy {
   RACE = 3,
 }
 
-export interface DownloadRedundancyOptions {
+export interface DownloadOptions {
   /**
    * Specify the retrieve strategy on redundant data.
    */
@@ -171,6 +181,12 @@ export interface DownloadRedundancyOptions {
    * Specify the timeout for chunk retrieval. The default is 30 seconds.
    */
   timeoutMs?: number
+
+  actPublisher?: PublicKey | Uint8Array | string
+
+  actHistoryAddress?: Reference | Uint8Array | string
+
+  actTimestamp?: string | number
 }
 
 export interface FileUploadOptions extends UploadOptions {
@@ -187,6 +203,8 @@ export interface FileUploadOptions extends UploadOptions {
    * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   contentType?: string
+
+  redundancyLevel?: RedundancyLevel
 }
 
 export interface CollectionUploadOptions extends UploadOptions {
@@ -205,6 +223,8 @@ export interface CollectionUploadOptions extends UploadOptions {
    * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   errorDocument?: string
+
+  redundancyLevel?: RedundancyLevel
 }
 
 export interface UploadHeaders {

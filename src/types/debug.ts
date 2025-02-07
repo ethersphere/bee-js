@@ -48,8 +48,6 @@ export interface TransactionOptions {
   gasLimit?: NumberString
 }
 
-export type CashoutOptions = TransactionOptions
-
 export interface CashoutResult {
   recipient: string
   lastPayout: BZZ

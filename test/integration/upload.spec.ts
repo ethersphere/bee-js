@@ -1,6 +1,6 @@
-import { Binary, MerkleTree } from 'cafe-utility'
+import { Binary, MerkleTree, Types } from 'cafe-utility'
 import { ReadStream } from 'fs'
-import { MantarayNode, NULL_ADDRESS } from '../../src'
+import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import { makeSingleOwnerChunk } from '../../src/chunk/soc'
 import { makeCollectionFromFileList } from '../../src/utils/collection'
@@ -134,7 +134,27 @@ test('bee.uploadFiles', async () => {
 test('bee.uploadCollection', async () => {
   const file1 = new File(['Hello, Swarm!'], 'index.html', { type: 'text/html' })
   const file2 = new File(['Hello, World!'], 'hello.txt', { type: 'text/plain' })
-  const collection = await makeCollectionFromFileList([file1, file2])
+  const collection = makeCollectionFromFileList([file1, file2])
   const response = await bee.uploadCollection(batch(), collection)
   expect(response.reference).toBeTruthy()
+})
+
+test('redundancy levels', async () => {
+  const message = 'Hello, Swarm!'
+  const file = new File(['Hello, Swarm!'], 'index.html', { type: 'text/html' })
+  const collection = makeCollectionFromFileList([file])
+
+  let runs = 0
+
+  const requestOptions: BeeRequestOptions = {
+    onRequest: (request: BeeRequest) => {
+      expect(Types.asObject(request.headers)['swarm-redundancy-level']).toBe('1')
+      runs++
+    },
+  }
+
+  await bee.uploadData(batch(), message, { redundancyLevel: 1 }, requestOptions)
+  await bee.uploadFile(batch(), message, undefined, { redundancyLevel: 1 }, requestOptions)
+  await bee.uploadFiles(batch(), [file], { redundancyLevel: 1 }, requestOptions)
+  await bee.uploadCollection(batch(), collection, { redundancyLevel: 1 }, requestOptions)
 })

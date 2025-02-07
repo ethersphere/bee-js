@@ -1,7 +1,6 @@
 import { Types } from 'cafe-utility'
 import type {
   BeeRequestOptions,
-  CashoutOptions,
   CashoutResult,
   Cheque,
   ChequebookAddressResponse,
@@ -10,6 +9,7 @@ import type {
   LastChequesForPeerResponse,
   LastChequesResponse,
   NumberString,
+  TransactionOptions,
 } from '../../types'
 import { http } from '../../utils/http'
 import { BZZ } from '../../utils/tokens'
@@ -91,7 +91,7 @@ export async function getLastCashoutAction(
 export async function cashoutLastCheque(
   requestOptions: BeeRequestOptions,
   peer: PeerAddress,
-  options?: CashoutOptions,
+  options?: TransactionOptions,
 ): Promise<TransactionId> {
   const headers: Record<string, string> = {}
 

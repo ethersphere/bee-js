@@ -1,43 +1,23 @@
-import { Types } from 'cafe-utility'
+import { Optional, Types } from 'cafe-utility'
 import { Readable } from 'stream'
 import {
   BeeRequestOptions,
   Collection,
   CollectionUploadOptions,
-  DownloadRedundancyOptions,
+  DownloadOptions,
   FileData,
   FileUploadOptions,
-  UploadHeaders,
-  UploadRedundancyOptions,
   UploadResult,
 } from '../types'
 import { Bytes } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
-import { extractDownloadHeaders, extractRedundantUploadHeaders, readFileHeaders } from '../utils/headers'
+import { prepareRequestHeaders, readFileHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { uploadTar } from '../utils/tar-uploader'
 import { isReadable, makeTagUid } from '../utils/type'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
 const bzzEndpoint = 'bzz'
-
-interface FileUploadHeaders extends UploadHeaders {
-  'content-length'?: string
-  'content-type'?: string
-}
-
-function extractFileUploadHeaders(
-  postageBatchId: BatchId,
-  options?: FileUploadOptions & UploadRedundancyOptions,
-): FileUploadHeaders {
-  const headers: FileUploadHeaders = extractRedundantUploadHeaders(postageBatchId, options)
-
-  if (options?.size) headers['content-length'] = String(options.size)
-
-  if (options?.contentType) headers['content-type'] = options.contentType
-
-  return headers
-}
 
 /**
  * Upload single file
@@ -53,7 +33,7 @@ export async function uploadFile(
   data: string | Uint8Array | Readable | ArrayBuffer,
   postageBatchId: BatchId,
   name?: string,
-  options?: FileUploadOptions & UploadRedundancyOptions,
+  options?: FileUploadOptions,
 ): Promise<UploadResult> {
   if (isReadable(data) && !options?.contentType) {
     if (!options) {
@@ -66,9 +46,7 @@ export async function uploadFile(
     method: 'post',
     url: bzzEndpoint,
     data,
-    headers: {
-      ...extractFileUploadHeaders(postageBatchId, options),
-    },
+    headers: prepareRequestHeaders(postageBatchId, options),
     params: { name },
     responseType: 'json',
   })
@@ -78,7 +56,9 @@ export async function uploadFile(
   return {
     reference: new Reference(Types.asHexString(body.reference)),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
-    historyAddress: response.headers['swarm-act-history-address'] || '',
+    historyAddress: response.headers['swarm-act-history-address']
+      ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
+      : Optional.empty(),
   }
 }
 
@@ -93,7 +73,7 @@ export async function downloadFile(
   requestOptions: BeeRequestOptions,
   reference: Reference | string | Uint8Array,
   path = '',
-  options?: DownloadRedundancyOptions,
+  options?: DownloadOptions,
 ): Promise<FileData<Bytes>> {
   reference = new Reference(reference)
 
@@ -101,7 +81,7 @@ export async function downloadFile(
     method: 'GET',
     responseType: 'arraybuffer',
     url: `${bzzEndpoint}/${reference}/${path}`,
-    headers: extractDownloadHeaders(options),
+    headers: prepareRequestHeaders(null, options),
   })
   const file = {
     ...readFileHeaders(response.headers as Record<string, string>),
@@ -122,7 +102,7 @@ export async function downloadFileReadable(
   requestOptions: BeeRequestOptions,
   reference: Reference,
   path = '',
-  options?: DownloadRedundancyOptions,
+  options?: DownloadOptions,
 ): Promise<FileData<ReadableStream<Uint8Array>>> {
   reference = new Reference(reference)
 
@@ -130,7 +110,7 @@ export async function downloadFileReadable(
     method: 'GET',
     responseType: 'stream',
     url: `${bzzEndpoint}/${reference}/${path}`,
-    headers: extractDownloadHeaders(options),
+    headers: prepareRequestHeaders(null, options),
   })
   const file = {
     ...readFileHeaders(response.headers as Record<string, string>),
@@ -144,28 +124,6 @@ export async function downloadFileReadable(
 
 // Collections
 
-export interface CollectionUploadHeaders extends UploadHeaders {
-  'swarm-index-document'?: string
-  'swarm-error-document'?: string
-}
-
-export function extractCollectionUploadHeaders(
-  postageBatchId: BatchId,
-  options?: CollectionUploadOptions & UploadRedundancyOptions,
-): CollectionUploadHeaders & UploadRedundancyOptions {
-  const headers: CollectionUploadHeaders = extractRedundantUploadHeaders(postageBatchId, options)
-
-  if (options?.indexDocument) {
-    headers['swarm-index-document'] = options.indexDocument
-  }
-
-  if (options?.errorDocument) {
-    headers['swarm-error-document'] = options.errorDocument
-  }
-
-  return headers
-}
-
 /**
  * Upload collection
  * @param requestOptions Options for making requests
@@ -177,7 +135,7 @@ export async function uploadCollection(
   requestOptions: BeeRequestOptions,
   collection: Collection,
   postageBatchId: BatchId,
-  options?: CollectionUploadOptions & UploadRedundancyOptions,
+  options?: CollectionUploadOptions,
 ): Promise<UploadResult> {
   assertCollection(collection)
   const response = await uploadTar(requestOptions, collection, postageBatchId, options)
@@ -187,6 +145,8 @@ export async function uploadCollection(
   return {
     reference: new Reference(Types.asHexString(body.reference)),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
-    historyAddress: response.headers['swarm-act-history-address'] || '',
+    historyAddress: response.headers['swarm-act-history-address']
+      ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
+      : Optional.empty(),
   }
 }

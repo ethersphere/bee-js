@@ -27,7 +27,7 @@ export function makeFilePath(file: File) {
   throw new TypeError('file is not valid File object')
 }
 
-export async function makeCollectionFromFileList(fileList: FileList | File[]): Promise<Collection> {
+export function makeCollectionFromFileList(fileList: FileList | File[]): Collection {
   return Array.from(fileList).map(file => ({
     path: makeFilePath(file),
     size: file.size,

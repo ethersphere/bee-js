@@ -1,5 +1,5 @@
-import { BeeRequestOptions, Collection, CollectionUploadOptions, UploadRedundancyOptions } from '..'
-import { extractCollectionUploadHeaders } from '../modules/bzz'
+import { BeeRequestOptions, Collection, CollectionUploadOptions } from '..'
+import { prepareRequestHeaders } from './headers'
 import { http } from './http'
 import { TarStream } from './tar'
 import { writeTar } from './tar-writer'
@@ -11,7 +11,7 @@ export async function uploadTar(
   requestOptions: BeeRequestOptions,
   collection: Collection,
   postageBatchId: BatchId,
-  options?: CollectionUploadOptions & UploadRedundancyOptions,
+  options?: CollectionUploadOptions,
 ) {
   const tarStream = new TarStream()
   await writeTar(collection, tarStream)
@@ -24,7 +24,7 @@ export async function uploadTar(
     headers: {
       'content-type': 'application/x-tar',
       'swarm-collection': 'true',
-      ...extractCollectionUploadHeaders(postageBatchId, options),
+      ...prepareRequestHeaders(postageBatchId, options),
     },
   })
 

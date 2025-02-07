@@ -1,6 +1,6 @@
-import { Types } from 'cafe-utility'
+import { Optional, Types } from 'cafe-utility'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
-import { extractUploadHeaders } from '../utils/headers'
+import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { makeTagUid } from '../utils/type'
 import { BatchId, EthAddress, Identifier, Reference, Signature } from '../utils/typed-bytes'
@@ -33,7 +33,7 @@ export async function upload(
     data,
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractUploadHeaders(stamp, options),
+      ...prepareRequestHeaders(stamp, options),
     },
     responseType: 'json',
     params: { sig: signature.toHex() },
@@ -44,6 +44,8 @@ export async function upload(
   return {
     reference: new Reference(Types.asHexString(body.reference)),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
-    historyAddress: response.headers['swarm-act-history-address'] || '',
+    historyAddress: response.headers['swarm-act-history-address']
+      ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
+      : Optional.empty(),
   }
 }

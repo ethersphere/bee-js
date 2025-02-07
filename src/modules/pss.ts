@@ -1,6 +1,6 @@
 import WebSocket from 'isomorphic-ws'
 import type { BeeRequestOptions } from '../types'
-import { extractUploadHeaders } from '../utils/headers'
+import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { BatchId, PublicKey, Topic } from '../utils/typed-bytes'
 
@@ -31,7 +31,7 @@ export async function send(
     data,
     responseType: 'json',
     params: { recipient },
-    headers: extractUploadHeaders(postageBatchId),
+    headers: prepareRequestHeaders(postageBatchId),
   })
 }
 

@@ -1,6 +1,6 @@
 import { Objects } from 'cafe-utility'
 import { Bee } from '../bee'
-import { BeeRequestOptions } from '../types'
+import { BeeRequestOptions, DownloadOptions } from '../types'
 import { EthAddress, FeedIndex, Reference, Topic } from '../utils/typed-bytes'
 import { getFeedUpdateChunkReference } from './index'
 
@@ -12,9 +12,14 @@ import { getFeedUpdateChunkReference } from './index'
  * @param ref
  * @param options
  */
-async function isChunkRetrievable(bee: Bee, reference: Reference, requestOptions: BeeRequestOptions): Promise<boolean> {
+async function isChunkRetrievable(
+  bee: Bee,
+  reference: Reference,
+  options: DownloadOptions | undefined,
+  requestOptions: BeeRequestOptions,
+): Promise<boolean> {
   try {
-    await bee.downloadChunk(reference, requestOptions)
+    await bee.downloadChunk(reference, options, requestOptions)
 
     return true
   } catch (e: unknown) {
@@ -51,10 +56,11 @@ export async function areAllSequentialFeedsUpdateRetrievable(
   owner: EthAddress,
   topic: Topic,
   index: FeedIndex,
+  options: DownloadOptions | undefined,
   requestOptions: BeeRequestOptions,
 ): Promise<boolean> {
   const chunkRetrievablePromises = getAllSequenceUpdateReferences(owner, topic, index).map(async reference =>
-    isChunkRetrievable(bee, reference, requestOptions),
+    isChunkRetrievable(bee, reference, options, requestOptions),
   )
 
   return (await Promise.all(chunkRetrievablePromises)).every(result => result)

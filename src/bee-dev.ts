@@ -2,12 +2,9 @@ import { Types } from 'cafe-utility'
 import { Bee, BeeRequestOptions, EthAddress, NodeAddresses, PeerAddress, PublicKey, Topology } from '.'
 import { asBin } from './modules/debug/connectivity'
 import { http } from './utils/http'
-import { assertRequestOptions } from './utils/type'
 
 export class BeeDev extends Bee {
   async getNodeAddresses(options?: BeeRequestOptions): Promise<NodeAddresses> {
-    assertRequestOptions(options)
-
     const requestOptions = super.getRequestOptionsForCall(options)
 
     const response = await http<unknown>(requestOptions, {
@@ -27,8 +24,6 @@ export class BeeDev extends Bee {
   }
 
   async getTopology(options?: BeeRequestOptions): Promise<Topology> {
-    assertRequestOptions(options)
-
     const requestOptions = super.getRequestOptionsForCall(options)
 
     const response = await http<unknown>(requestOptions, {

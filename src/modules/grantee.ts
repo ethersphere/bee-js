@@ -1,8 +1,8 @@
 import { Types } from 'cafe-utility'
 import { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
-import { extractRedundantUploadHeaders } from '../utils/headers'
+import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { BatchId, Reference } from '../utils/typed-bytes'
+import { BatchId, PublicKey, Reference } from '../utils/typed-bytes'
 
 const granteeEndpoint = 'grantee'
 
@@ -13,27 +13,27 @@ export async function getGrantees(reference: Reference, requestOptions: BeeReque
     responseType: 'json',
   })
 
-  const body = Types.asArray(response.data, { name: 'response.data' }).map(x => Types.asString(x, { name: 'grantee' }))
+  const body = Types.asArray(response.data, { name: 'response.data' }).map(
+    x => new PublicKey(Types.asString(x, { name: 'grantee' })),
+  )
 
   return {
     status: response.status,
     statusText: response.statusText,
-    data: body,
+    grantees: body,
   }
 }
 
 export async function createGrantees(
   requestOptions: BeeRequestOptions,
   postageBatchId: BatchId,
-  grantees: string[],
+  grantees: PublicKey[],
 ): Promise<GranteesResult> {
   const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: granteeEndpoint,
-    data: { grantees },
-    headers: {
-      ...extractRedundantUploadHeaders(postageBatchId),
-    },
+    data: { grantees: grantees.map(x => x.toCompressedHex()) },
+    headers: prepareRequestHeaders(postageBatchId),
     responseType: 'json',
   })
 
@@ -51,15 +51,18 @@ export async function patchGrantees(
   postageBatchId: BatchId,
   reference: Reference,
   historyRef: Reference,
-  grantees: { add?: string[]; revoke?: string[] },
+  grantees: { add?: PublicKey[]; revoke?: PublicKey[] },
   requestOptions: BeeRequestOptions,
 ): Promise<GranteesResult> {
   const response = await http<unknown>(requestOptions, {
     method: 'patch',
     url: `${granteeEndpoint}/${reference}`,
-    data: grantees,
+    data: {
+      add: grantees.add?.map(x => x.toCompressedHex()),
+      revoke: grantees.revoke?.map(x => x.toCompressedHex()),
+    },
     headers: {
-      ...extractRedundantUploadHeaders(postageBatchId),
+      ...prepareRequestHeaders(postageBatchId),
       'swarm-act-history-address': historyRef.toHex(),
     },
     responseType: 'json',

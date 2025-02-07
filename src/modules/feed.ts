@@ -2,7 +2,7 @@ import { Types } from 'cafe-utility'
 import { BeeRequestOptions, UploadOptions } from '../types'
 import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
-import { extractUploadHeaders } from '../utils/headers'
+import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { BatchId, EthAddress, FeedIndex, Reference, Topic } from '../utils/typed-bytes'
 
@@ -57,7 +57,7 @@ export async function createFeedManifest(
     method: 'post',
     responseType: 'json',
     url: `${feedEndpoint}/${owner}/${topic}`,
-    headers: extractUploadHeaders(stamp, options),
+    headers: prepareRequestHeaders(stamp, options),
   })
 
   const body = Types.asObject(response.data, { name: 'response.data' })

@@ -1,14 +1,8 @@
 import { Types } from 'cafe-utility'
-import {
-  DownloadRedundancyOptions,
-  EnvelopeWithBatchId,
-  FileHeaders,
-  UploadOptions,
-  UploadRedundancyOptions,
-} from '../types'
+import { EnvelopeWithBatchId, FileHeaders } from '../types'
 import { BeeError } from './error'
 import { convertEnvelopeToMarshaledStamp } from './stamps'
-import { BatchId } from './typed-bytes'
+import { BatchId, PublicKey, Reference } from './typed-bytes'
 
 /**
  * Read the filename from the content-disposition header
@@ -53,41 +47,91 @@ export function readFileHeaders(headers: Record<string, string>): FileHeaders {
   }
 }
 
-export function extractUploadHeaders(
-  stamp: EnvelopeWithBatchId | BatchId | Uint8Array | string,
-  options?: UploadOptions,
+export function prepareRequestHeaders(
+  stamp: BatchId | Uint8Array | string | EnvelopeWithBatchId | null,
+  nullableOptions?: unknown,
 ): Record<string, string> {
-  if (!stamp) {
-    throw new BeeError('Stamp has to be specified!')
-  }
-
   const headers: Record<string, string> = {}
 
   if (isEnvelopeWithBatchId(stamp)) {
     headers['swarm-postage-stamp'] = convertEnvelopeToMarshaledStamp(stamp).toHex()
-  } else {
+  } else if (stamp) {
     stamp = new BatchId(stamp)
     headers['swarm-postage-batch-id'] = stamp.toHex()
   }
 
-  if (options?.act) {
+  if (!nullableOptions) {
+    return headers
+  }
+
+  const options = Types.asObject(nullableOptions)
+
+  if (options.size) {
+    headers['content-length'] = String(options.size)
+  }
+
+  if (options.contentType) {
+    headers['content-type'] = String(options.contentType)
+  }
+
+  if (options.redundancyLevel) {
+    headers['swarm-redundancy-level'] = String(options.redundancyLevel)
+  }
+
+  if (Types.isBoolean(options.act)) {
     headers['swarm-act'] = String(options.act)
   }
 
-  if (options?.pin) {
+  if (Types.isBoolean(options.pin)) {
     headers['swarm-pin'] = String(options.pin)
   }
 
-  if (options?.encrypt) {
-    headers['swarm-encrypt'] = String(options.encrypt)
+  if (Types.isBoolean(options.encrypt)) {
+    headers['swarm-encrypt'] = options.encrypt.toString()
   }
 
-  if (options?.tag) {
+  if (options.tag) {
     headers['swarm-tag'] = String(options.tag)
   }
 
-  if (typeof options?.deferred === 'boolean') {
+  if (Types.isBoolean(options.deferred)) {
     headers['swarm-deferred-upload'] = options.deferred.toString()
+  }
+
+  if (options.redundancyStrategy) {
+    headers['swarm-redundancy-strategy'] = String(options.redundancyStrategy)
+  }
+
+  if (Types.isBoolean(options.fallback)) {
+    headers['swarm-redundancy-fallback-mode'] = options.fallback.toString()
+  }
+
+  if (options.timeoutMs) {
+    headers['swarm-chunk-retrieval-timeout'] = String(options.timeoutMs)
+  }
+
+  if (options.indexDocument) {
+    headers['swarm-index-document'] = String(options.indexDocument)
+  }
+
+  if (options.errorDocument) {
+    headers['swarm-error-document'] = String(options.errorDocument)
+  }
+
+  if (options.actPublisher) {
+    headers['swarm-act-publisher'] = new PublicKey(options.actPublisher as any).toCompressedHex()
+  }
+
+  if (options.actHistoryAddress) {
+    headers['swarm-act-history-address'] = new Reference(options.actHistoryAddress as any).toHex()
+  }
+
+  if (options.actTimestamp) {
+    headers['swarm-act-timestamp'] = String(options.actTimestamp)
+  }
+
+  if (options.actPublisher || options.actHistoryAddress || options.actTimestamp) {
+    headers['swarm-act'] = 'true'
   }
 
   return headers
@@ -107,35 +151,4 @@ function isEnvelopeWithBatchId(value: unknown): value is EnvelopeWithBatchId {
     envelope.timestamp !== undefined &&
     envelope.batchId !== undefined
   )
-}
-
-export function extractRedundantUploadHeaders(
-  postageBatchId: BatchId,
-  options?: UploadOptions & UploadRedundancyOptions,
-): Record<string, string> {
-  const headers = extractUploadHeaders(postageBatchId, options)
-
-  if (options?.redundancyLevel) {
-    headers['swarm-redundancy-level'] = String(options.redundancyLevel)
-  }
-
-  return headers
-}
-
-export function extractDownloadHeaders(options?: DownloadRedundancyOptions): Record<string, string> {
-  const headers: Record<string, string> = {}
-
-  if (options?.redundancyStrategy) {
-    headers['swarm-redundancy-strategy'] = String(options.redundancyStrategy)
-  }
-
-  if (options?.fallback === false) {
-    headers['swarm-redundancy-fallback-mode'] = 'false'
-  }
-
-  if (options?.timeoutMs !== undefined) {
-    headers['swarm-chunk-retrieval-timeout'] = String(options.timeoutMs)
-  }
-
-  return headers
 }

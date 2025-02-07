@@ -1,6 +1,6 @@
-import { Types } from 'cafe-utility'
-import type { BeeRequestOptions, EnvelopeWithBatchId, UploadOptions, UploadResult } from '../types'
-import { extractUploadHeaders } from '../utils/headers'
+import { Optional, Types } from 'cafe-utility'
+import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions, UploadResult } from '../types'
+import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { makeTagUid } from '../utils/type'
 import { BatchId, Reference } from '../utils/typed-bytes'
@@ -31,7 +31,7 @@ export async function upload(
     data,
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractUploadHeaders(stamp, options),
+      ...prepareRequestHeaders(stamp, options),
     },
     responseType: 'json',
   })
@@ -41,7 +41,9 @@ export async function upload(
   return {
     reference: new Reference(Types.asString(body.reference, { name: 'reference' })),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
-    historyAddress: response.headers['swarm-act-history-address'] || '',
+    historyAddress: response.headers['swarm-act-history-address']
+      ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
+      : Optional.empty(),
   }
 }
 
@@ -55,12 +57,14 @@ export async function upload(
 export async function download(
   requestOptions: BeeRequestOptions,
   reference: Reference | string | Uint8Array,
+  options?: DownloadOptions,
 ): Promise<Uint8Array> {
   reference = new Reference(reference)
 
   const response = await http<ArrayBuffer>(requestOptions, {
     responseType: 'arraybuffer',
     url: `${endpoint}/${reference}`,
+    headers: prepareRequestHeaders(null, options),
   })
 
   return new Uint8Array(response.data)
