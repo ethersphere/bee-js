@@ -420,7 +420,6 @@ export class Bee {
     assertFileData(data)
 
     if (options) {
-      // TODO: does this discard redundancy options?
       options = prepareFileUploadOptions(options)
     }
 
@@ -519,7 +518,7 @@ export class Bee {
   async uploadFiles(
     postageBatchId: BatchId | Uint8Array | string,
     fileList: FileList | File[],
-    options?: RedundantUploadOptions,
+    options?: CollectionUploadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
     postageBatchId = new BatchId(postageBatchId)
