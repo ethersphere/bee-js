@@ -2,7 +2,7 @@ import { Types } from 'cafe-utility'
 import { BeeRequest, BeeRequestOptions } from '../../src'
 import { batch, makeBee } from '../utils'
 
-test('bee-js-376 - Hooks: explicit undefined values in params', async () => {
+test('bee-js/376 - Hooks: explicit undefined values in params', async () => {
   const bee = makeBee()
 
   let runs = 0

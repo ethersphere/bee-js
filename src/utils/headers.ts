@@ -4,14 +4,18 @@ import { BeeError } from './error'
 import { convertEnvelopeToMarshaledStamp } from './stamps'
 import { BatchId, PublicKey, Reference } from './typed-bytes'
 
-/**
- * Read the filename from the content-disposition header
- * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
- *
- * @param header the content-disposition header value
- *
- * @returns the filename
- */
+export function readFileHeaders(headers: Record<string, string>): FileHeaders {
+  const name = readContentDispositionFilename(headers['content-disposition'])
+  const tagUid = readTagUid(headers['swarm-tag-uid'])
+  const contentType = headers['content-type'] || undefined
+
+  return {
+    name,
+    tagUid,
+    contentType,
+  }
+}
+
 function readContentDispositionFilename(header: string | null): string {
   if (!header) {
     throw new BeeError('missing content-disposition header')
@@ -33,18 +37,6 @@ function readTagUid(header: string | null): number | undefined {
   }
 
   return parseInt(header, 10)
-}
-
-export function readFileHeaders(headers: Record<string, string>): FileHeaders {
-  const name = readContentDispositionFilename(headers['content-disposition'])
-  const tagUid = readTagUid(headers['swarm-tag-uid'])
-  const contentType = headers['content-type'] || undefined
-
-  return {
-    name,
-    tagUid,
-    contentType,
-  }
 }
 
 export function prepareRequestHeaders(
