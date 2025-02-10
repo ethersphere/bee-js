@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [8.3.2](https://github.com/ethersphere/bee-js/compare/v8.3.1...v8.3.2) (2025-02-10)
+
+
+### Bug Fixes
+
+* wrong JSDoc links ([#978](https://github.com/ethersphere/bee-js/issues/978)) ([8c801e9](https://github.com/ethersphere/bee-js/commit/8c801e9d07280939f7448df5f5798883a401af76))
+
 ## [8.3.1](https://github.com/ethersphere/bee-js/compare/v8.3.0...v8.3.1) (2024-11-06)
 
 
