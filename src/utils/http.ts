@@ -1,6 +1,8 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Dates, Objects, Strings, System } from 'cafe-utility'
 import { BeeRequestOptions, BeeResponseError } from '../index'
+
+const { AxiosError } = axios
 
 const MAX_FAILED_ATTEMPTS = 100_000
 const DELAY_FAST = 200
