@@ -126,6 +126,14 @@ export function prepareRequestHeaders(
     headers['swarm-act'] = 'true'
   }
 
+  if (options.gasPrice) {
+    headers['gas-price'] = String(options.gasPrice)
+  }
+
+  if (options.gasLimit) {
+    headers['gas-limit'] = String(options.gasLimit)
+  }
+
   return headers
 }
 

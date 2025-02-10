@@ -20,8 +20,8 @@ import {
 import { isFile } from './file'
 import { PublicKey, Reference } from './typed-bytes'
 
-export function isReadable(obj: unknown): obj is stream.Readable {
-  return typeof stream.Readable !== 'undefined' && obj instanceof stream.Readable
+export function isReadable(value: unknown): value is stream.Readable {
+  return typeof stream.Readable !== 'undefined' && value instanceof stream.Readable
 }
 
 export function asNumberString(value: unknown, options?: { name?: string; min?: bigint; max?: bigint }): NumberString {

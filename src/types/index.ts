@@ -480,7 +480,11 @@ export interface PostageBatchOptions {
   /**
    * Sets gas price in Wei for the transaction that creates the postage batch
    */
-  gasPrice?: NumberString
+  gasPrice?: NumberString | string | bigint
+
+  /**
+   * Controls whether data can be overwritten that was uploaded with this postage batch.
+   */
   immutableFlag?: boolean
 
   /**

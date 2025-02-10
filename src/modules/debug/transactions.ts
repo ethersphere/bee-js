@@ -90,12 +90,12 @@ export async function rebroadcastTransaction(
 export async function cancelTransaction(
   requestOptions: BeeRequestOptions,
   transactionHash: TransactionId,
-  gasPrice?: NumberString,
+  gasPrice?: NumberString | string | bigint,
 ): Promise<TransactionId> {
   const headers: Record<string, string | number> = {}
 
   if (gasPrice) {
-    headers['gas-price'] = gasPrice
+    headers['gas-price'] = gasPrice.toString()
   }
   const response = await http<unknown>(requestOptions, {
     method: 'delete',

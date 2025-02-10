@@ -40,12 +40,12 @@ export interface TransactionOptions {
   /**
    * Gas price for the cashout transaction in WEI
    */
-  gasPrice?: NumberString
+  gasPrice?: NumberString | string | bigint
 
   /**
    * Gas limit for the cashout transaction in WEI
    */
-  gasLimit?: NumberString
+  gasLimit?: NumberString | string | bigint
 }
 
 export interface CashoutResult {

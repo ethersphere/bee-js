@@ -1,5 +1,6 @@
 import { Types } from 'cafe-utility'
 import { BeeRequestOptions, NumberString, RedistributionState, TransactionOptions } from '../../types'
+import { prepareRequestHeaders } from '../../utils/headers'
 import { http } from '../../utils/http'
 import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
@@ -36,21 +37,11 @@ export async function stake(
   amount: NumberString,
   options?: TransactionOptions,
 ): Promise<void> {
-  const headers: Record<string, string> = {}
-
-  if (options?.gasPrice) {
-    headers['gas-price'] = options.gasPrice.toString()
-  }
-
-  if (options?.gasLimit) {
-    headers['gas-limit'] = options.gasLimit.toString()
-  }
-
   await http<unknown>(requestOptions, {
     method: 'post',
     responseType: 'json',
     url: `${STAKE_ENDPOINT}/${amount}`,
-    headers,
+    headers: prepareRequestHeaders(null, options),
   })
 }
 

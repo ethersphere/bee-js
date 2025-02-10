@@ -11,6 +11,7 @@ import type {
   NumberString,
   TransactionOptions,
 } from '../../types'
+import { prepareRequestHeaders } from '../../utils/headers'
 import { http } from '../../utils/http'
 import { BZZ } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
@@ -93,21 +94,11 @@ export async function cashoutLastCheque(
   peer: PeerAddress,
   options?: TransactionOptions,
 ): Promise<TransactionId> {
-  const headers: Record<string, string> = {}
-
-  if (options?.gasPrice) {
-    headers['gas-price'] = options.gasPrice.toString()
-  }
-
-  if (options?.gasLimit) {
-    headers['gas-limit'] = options.gasLimit.toString()
-  }
-
   const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
-    headers,
+    headers: prepareRequestHeaders(null, options),
   })
 
   const body = Types.asObject(response.data, { name: 'response.data' })
@@ -195,7 +186,7 @@ function asCashoutResult(x: unknown): CashoutResult {
 export async function depositTokens(
   requestOptions: BeeRequestOptions,
   amount: number | NumberString,
-  gasPrice?: NumberString,
+  gasPrice?: NumberString | string | bigint,
 ): Promise<TransactionId> {
   const headers: Record<string, string> = {}
 
@@ -227,7 +218,7 @@ export async function depositTokens(
 export async function withdrawTokens(
   requestOptions: BeeRequestOptions,
   amount: number | NumberString,
-  gasPrice?: NumberString,
+  gasPrice?: NumberString | string | bigint,
 ): Promise<TransactionId> {
   const headers: Record<string, string> = {}
 
