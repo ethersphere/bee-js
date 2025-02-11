@@ -1,5 +1,5 @@
 import { Binary, MerkleTree, Uint8ArrayReader } from 'cafe-utility'
-import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions } from '..'
+import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions } from '..'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
@@ -180,8 +180,13 @@ export class MantarayNode {
     return Binary.concatBytes(this.obfuscationKey, data)
   }
 
-  static async unmarshal(bee: Bee, reference: Reference | Uint8Array | string): Promise<MantarayNode> {
-    const data = (await bee.downloadData(reference)).toUint8Array()
+  static async unmarshal(
+    bee: Bee,
+    reference: Reference | Uint8Array | string,
+    options?: DownloadOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<MantarayNode> {
+    const data = (await bee.downloadData(reference, options, requestOptions)).toUint8Array()
     const obfuscationKey = data.subarray(0, 32)
     const decrypted = Binary.xorCypher(data.subarray(32), obfuscationKey)
     const reader = new Uint8ArrayReader(decrypted)
@@ -302,13 +307,14 @@ export class MantarayNode {
     return new Reference(this.selfAddress)
   }
 
-  async loadRecursively(bee: Bee): Promise<void> {
+  async loadRecursively(bee: Bee, options?: DownloadOptions, requestOptions?: BeeRequestOptions): Promise<void> {
     for (const fork of this.forks.values()) {
-      const node = await MantarayNode.unmarshal(bee, fork.node.targetAddress)
+      const node = await MantarayNode.unmarshal(bee, fork.node.targetAddress, options, requestOptions)
       fork.node.targetAddress = node.targetAddress
       fork.node.forks = node.forks
       fork.node.path = fork.prefix
-      await fork.node.loadRecursively(bee)
+      fork.node.parent = this
+      await fork.node.loadRecursively(bee, options, requestOptions)
     }
   }
 
