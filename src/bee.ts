@@ -560,10 +560,18 @@ export class Bee {
     files: File[] | FileList,
     onUploadProgress?: (progress: UploadProgress) => void,
     options?: UploadOptions,
+    requestOptions?: BeeRequestOptions,
   ) {
     postageBatchId = new BatchId(postageBatchId)
 
-    return streamFiles(this, files, postageBatchId, onUploadProgress, options)
+    return streamFiles(
+      this,
+      files,
+      postageBatchId,
+      onUploadProgress,
+      options,
+      this.getRequestOptionsForCall(requestOptions),
+    )
   }
 
   /**
