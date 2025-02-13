@@ -1810,7 +1810,6 @@ export class Bee {
       options = prepareTransactionOptions(options)
     }
 
-    // TODO: Add test for response
     return stake.stake(this.getRequestOptionsForCall(requestOptions), amountString, options)
   }
 

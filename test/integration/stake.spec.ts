@@ -17,6 +17,6 @@ test('POST stake', async () => {
     return
   }
 
-  await bee.depositStake('1')
-  // bee accepted the request
+  const transactionId = await bee.depositStake('1')
+  expect(transactionId.toHex()).toHaveLength(64)
 })
