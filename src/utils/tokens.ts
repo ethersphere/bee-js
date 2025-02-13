@@ -29,6 +29,60 @@ export class BZZ {
   public toDecimalString() {
     return this.state.toDecimalString()
   }
+
+  public toSignificantDigits(digits: number) {
+    return this.toDecimalString().slice(0, this.toDecimalString().indexOf('.') + digits + 1)
+  }
+
+  /**
+   * Does not mutate the current BZZ instance.
+   *
+   * @param other BZZ instance, or amount in PLUR
+   * @returns New BZZ instance
+   */
+  public plus(other: BZZ | NumberString | string | bigint) {
+    return new BZZ(this.state.add(other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)))
+  }
+
+  /**
+   * Does not mutate the current BZZ instance.
+   *
+   * @param other BZZ instance, or amount in PLUR
+   * @returns New BZZ instance
+   */
+  public minus(other: BZZ | NumberString | string | bigint) {
+    return new BZZ(this.state.subtract(other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)))
+  }
+
+  /**
+   * Does not mutate the current BZZ instance.
+   *
+   * @param other Divisor
+   * @returns New BZZ instance
+   */
+  public divide(other: bigint) {
+    return new BZZ(this.state.divide(other)[0])
+  }
+
+  public gt(other: BZZ) {
+    return this.state.value > (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+  }
+
+  public gte(other: BZZ) {
+    return this.state.value >= (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+  }
+
+  public lt(other: BZZ) {
+    return this.state.value < (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+  }
+
+  public lte(other: BZZ) {
+    return this.state.value <= (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+  }
+
+  public eq(other: BZZ) {
+    return this.state.value === (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+  }
 }
 
 export class DAI {
@@ -58,5 +112,59 @@ export class DAI {
 
   public toDecimalString() {
     return this.state.toDecimalString()
+  }
+
+  public toSignificantDigits(digits: number) {
+    return this.toDecimalString().slice(0, this.toDecimalString().indexOf('.') + digits + 1)
+  }
+
+  /**
+   * Does not mutate the current DAI instance.
+   *
+   * @param other DAI instance, or amount in PLUR
+   * @returns New DAI instance
+   */
+  public plus(other: DAI | NumberString | string | bigint) {
+    return new DAI(this.state.add(other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)))
+  }
+
+  /**
+   * Does not mutate the current DAI instance.
+   *
+   * @param other DAI instance, or amount in PLUR
+   * @returns New DAI instance
+   */
+  public minus(other: DAI | NumberString | string | bigint) {
+    return new DAI(this.state.subtract(other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)))
+  }
+
+  /**
+   * Does not mutate the current DAI instance.
+   *
+   * @param other Divisor
+   * @returns New DAI instance
+   */
+  public divide(other: bigint) {
+    return new DAI(this.state.divide(other)[0])
+  }
+
+  public gt(other: DAI) {
+    return this.state.value > (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+  }
+
+  public gte(other: DAI) {
+    return this.state.value >= (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+  }
+
+  public lt(other: DAI) {
+    return this.state.value < (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+  }
+
+  public lte(other: DAI) {
+    return this.state.value <= (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+  }
+
+  public eq(other: DAI) {
+    return this.state.value === (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
   }
 }

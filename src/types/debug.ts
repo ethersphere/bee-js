@@ -84,7 +84,7 @@ export interface LastChequesResponse {
 
 export interface PeerBalance {
   peer: string
-  balance: NumberString
+  balance: BZZ
 }
 
 export interface BalanceResponse {

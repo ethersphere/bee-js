@@ -108,7 +108,7 @@ test('GET balances', async () => {
   const balance = balances[0]
   const balanceResponse = await bee.getPeerBalance(balance.peer)
   expect(balanceResponse.peer).toBe(balance.peer)
-  expect(balanceResponse.balance).toBe(balance.balance)
+  expect(balanceResponse.balance.toPLURString()).toBe(balance.balance.toPLURString())
 })
 
 test('GET consumed', async () => {
@@ -122,7 +122,7 @@ test('GET consumed', async () => {
   const balance = balances[0]
   const balanceResponse = await bee.getPastDueConsumptionPeerBalance(balance.peer)
   expect(balanceResponse.peer).toBe(balance.peer)
-  expect(balanceResponse.balance).toBe(balance.balance)
+  expect(balanceResponse.balance.toPLURString()).toBe(balance.balance.toPLURString())
 })
 
 test('GET settlements', async () => {

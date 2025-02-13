@@ -4,6 +4,7 @@ import { prepareRequestHeaders } from '../../utils/headers'
 import { http } from '../../utils/http'
 import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
+import { TransactionId } from '../../utils/typed-bytes'
 
 const STAKE_ENDPOINT = 'stake'
 const REDISTRIBUTION_ENDPOINT = 'redistributionstate'
@@ -34,15 +35,19 @@ export async function getStake(requestOptions: BeeRequestOptions): Promise<BZZ> 
  */
 export async function stake(
   requestOptions: BeeRequestOptions,
-  amount: NumberString,
+  amount: NumberString | string | bigint,
   options?: TransactionOptions,
-): Promise<void> {
-  await http<unknown>(requestOptions, {
+): Promise<TransactionId> {
+  const repsonse = await http<unknown>(requestOptions, {
     method: 'post',
     responseType: 'json',
     url: `${STAKE_ENDPOINT}/${amount}`,
     headers: prepareRequestHeaders(null, options),
   })
+
+  const body = Types.asObject(repsonse.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asHexString(body.txHash, { name: 'txHash' }))
 }
 
 /**

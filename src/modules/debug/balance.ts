@@ -1,6 +1,7 @@
 import { Types } from 'cafe-utility'
 import type { BalanceResponse, BeeRequestOptions, PeerBalance } from '../../types'
 import { http } from '../../utils/http'
+import { BZZ } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
 import { PeerAddress } from '../../utils/typed-bytes'
 
@@ -24,7 +25,7 @@ export async function getAllBalances(requestOptions: BeeRequestOptions): Promise
   return {
     balances: balances.map(x => ({
       peer: Types.asString(x.peer, { name: 'peer' }),
-      balance: asNumberString(x.balance, { name: 'balance' }),
+      balance: BZZ.fromPLUR(asNumberString(x.balance, { name: 'balance' })),
     })),
   }
 }
@@ -45,7 +46,7 @@ export async function getPeerBalance(requestOptions: BeeRequestOptions, address:
 
   return {
     peer: Types.asString(body.peer, { name: 'peer' }),
-    balance: asNumberString(body.balance, { name: 'balance' }),
+    balance: BZZ.fromPLUR(asNumberString(body.balance, { name: 'balance' })),
   }
 }
 
@@ -66,7 +67,7 @@ export async function getPastDueConsumptionBalances(requestOptions: BeeRequestOp
   return {
     balances: balances.map(x => ({
       peer: Types.asString(x.peer, { name: 'peer' }),
-      balance: asNumberString(x.balance, { name: 'balance' }),
+      balance: BZZ.fromPLUR(asNumberString(x.balance, { name: 'balance' })),
     })),
   }
 }
@@ -90,6 +91,6 @@ export async function getPastDueConsumptionPeerBalance(
 
   return {
     peer: Types.asString(body.peer, { name: 'peer' }),
-    balance: asNumberString(body.balance, { name: 'balance' }),
+    balance: BZZ.fromPLUR(asNumberString(body.balance, { name: 'balance' })),
   }
 }

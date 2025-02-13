@@ -98,6 +98,7 @@ export async function streamFiles(
   _postageBatchId: BatchId,
   _onUploadProgress?: (progress: UploadProgress) => void,
   _options?: UploadOptions,
+  _requestOptions?: BeeRequestOptions,
 ): Promise<Reference> {
   throw new Error('Streaming files is not supported in Node.js')
 }

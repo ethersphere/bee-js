@@ -2,6 +2,8 @@ import { Binary, Elliptic } from 'cafe-utility'
 import { Bytes } from './bytes'
 import { convertCidToReference, convertReferenceToCid } from './cid'
 
+// TODO: add JSdocs for each class
+
 const ENCODER = new TextEncoder()
 
 export class PrivateKey extends Bytes {
@@ -92,6 +94,15 @@ export class Reference extends Bytes {
 
   toCid(type: 'feed' | 'manifest'): string {
     return convertReferenceToCid(this.bytes, type)
+  }
+
+  static isValid(value: string): boolean {
+    try {
+      new Reference(value)
+      return true
+    } catch {
+      return false
+    }
   }
 }
 

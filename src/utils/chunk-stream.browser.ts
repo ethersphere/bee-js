@@ -28,6 +28,7 @@ export async function streamFiles(
   postageBatchId: BatchId,
   onUploadProgress?: (progress: UploadProgress) => void,
   options?: UploadOptions,
+  requestOptions?: BeeRequestOptions,
 ): Promise<Reference> {
   const queue = new AsyncQueue(64, 64)
   let total = 0
@@ -39,7 +40,7 @@ export async function streamFiles(
 
   async function onChunk(chunk: Chunk) {
     await queue.enqueue(async () => {
-      await bee.uploadChunk(postageBatchId, chunk.build(), options)
+      await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
       onUploadProgress?.({ total, processed: ++processed })
     })
   }
@@ -99,7 +100,7 @@ export async function streamFiles(
     }
   }
 
-  return mantaray.saveRecursively(bee, postageBatchId)
+  return mantaray.saveRecursively(bee, postageBatchId, options, requestOptions)
 }
 
 function maybeEnrichMime(mime: string) {

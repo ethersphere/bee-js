@@ -185,7 +185,7 @@ function asCashoutResult(x: unknown): CashoutResult {
  */
 export async function depositTokens(
   requestOptions: BeeRequestOptions,
-  amount: number | NumberString,
+  amount: NumberString | string | bigint,
   gasPrice?: NumberString | string | bigint,
 ): Promise<TransactionId> {
   const headers: Record<string, string> = {}
@@ -217,7 +217,7 @@ export async function depositTokens(
  */
 export async function withdrawTokens(
   requestOptions: BeeRequestOptions,
-  amount: number | NumberString,
+  amount: NumberString | string | bigint,
   gasPrice?: NumberString | string | bigint,
 ): Promise<TransactionId> {
   const headers: Record<string, string> = {}

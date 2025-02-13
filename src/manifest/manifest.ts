@@ -1,4 +1,4 @@
-import { Binary, MerkleTree, Uint8ArrayReader } from 'cafe-utility'
+import { Binary, MerkleTree, Optional, Uint8ArrayReader } from 'cafe-utility'
 import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions } from '..'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
@@ -139,6 +139,16 @@ export class MantarayNode {
 
   get fullPathString(): string {
     return DECODER.decode(this.fullPath)
+  }
+
+  getRootMetadata(): Optional<Record<string, string>> {
+    const node = this.find('/')
+
+    if (node && node.metadata) {
+      return Optional.of(node.metadata)
+    }
+
+    return Optional.empty()
   }
 
   async marshal(): Promise<Uint8Array> {

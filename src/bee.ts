@@ -1411,11 +1411,12 @@ export class Bee {
    * @return string  Hash of the transaction
    */
   async depositTokens(
-    amount: NumberString | string | bigint,
+    amount: BZZ | NumberString | string | bigint,
     gasPrice?: NumberString | string | bigint,
     options?: BeeRequestOptions,
   ): Promise<TransactionId> {
-    const amountString = asNumberString(amount, { min: 1n, name: 'amount' })
+    const amountString =
+      amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
 
     let gasPriceString
 
@@ -1434,11 +1435,13 @@ export class Bee {
    * @return string  Hash of the transaction
    */
   async withdrawTokens(
-    amount: NumberString | string | bigint,
+    amount: BZZ | NumberString | string | bigint,
     gasPrice?: NumberString | string | bigint,
     options?: BeeRequestOptions,
   ): Promise<TransactionId> {
-    const amountString = asNumberString(amount, { min: 1n, name: 'amount' })
+    // TODO: check BZZ in tests
+    const amountString =
+      amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
 
     let gasPriceString
 
@@ -1788,17 +1791,19 @@ export class Bee {
    * @param options
    */
   async depositStake(
-    amount: NumberString | string | bigint,
+    amount: BZZ | NumberString | string | bigint,
     options?: TransactionOptions,
     requestOptions?: BeeRequestOptions,
-  ): Promise<void> {
-    const amountString = asNumberString(amount, { min: 1n, name: 'amount' })
+  ): Promise<TransactionId> {
+    const amountString =
+      amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
 
     if (options) {
       options = prepareTransactionOptions(options)
     }
 
-    await stake.stake(this.getRequestOptionsForCall(requestOptions), amountString, options)
+    // TODO: Add test for response
+    return stake.stake(this.getRequestOptionsForCall(requestOptions), amountString, options)
   }
 
   /**
