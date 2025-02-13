@@ -18,7 +18,7 @@ test('manifest spec', async () => {
 
   const root = await node.saveRecursively(bee, batch())
 
-  const unmarshaled = await MantarayNode.unmarshal(bee, root)
+  const unmarshaled = await MantarayNode.unmarshal(bee, root.reference)
   await unmarshaled.loadRecursively(bee)
 
   const unmarshaledValues = unmarshaled.collect()

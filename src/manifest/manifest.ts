@@ -1,5 +1,5 @@
 import { Binary, MerkleTree, Optional, Uint8ArrayReader } from 'cafe-utility'
-import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions } from '..'
+import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
@@ -307,14 +307,14 @@ export class MantarayNode {
     postageBatchId: string | BatchId,
     options?: UploadOptions,
     requestOptions?: BeeRequestOptions,
-  ): Promise<Reference> {
+  ): Promise<UploadResult> {
     for (const fork of this.forks.values()) {
       await fork.node.saveRecursively(bee, postageBatchId, options, requestOptions)
     }
     const result = await bee.uploadData(postageBatchId, await this.marshal(), options, requestOptions)
     this.selfAddress = result.reference.toUint8Array()
 
-    return new Reference(this.selfAddress)
+    return result
   }
 
   async loadRecursively(bee: Bee, options?: DownloadOptions, requestOptions?: BeeRequestOptions): Promise<void> {

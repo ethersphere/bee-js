@@ -1,11 +1,11 @@
 import { AsyncQueue, Chunk, MerkleTree, Strings } from 'cafe-utility'
 import { createReadStream } from 'fs'
-import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions } from '..'
+import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { MantarayNode } from '../manifest/manifest'
 import { totalChunks } from './chunk-size'
 import { makeCollectionFromFS } from './collection.node'
 import { mimes } from './mime'
-import { BatchId, Reference } from './typed-bytes'
+import { BatchId } from './typed-bytes'
 import { UploadProgress } from './upload-progress'
 
 export async function hashDirectory(dir: string) {
@@ -99,6 +99,6 @@ export async function streamFiles(
   _onUploadProgress?: (progress: UploadProgress) => void,
   _options?: UploadOptions,
   _requestOptions?: BeeRequestOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   throw new Error('Streaming files is not supported in Node.js')
 }

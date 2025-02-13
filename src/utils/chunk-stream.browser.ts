@@ -1,5 +1,5 @@
 import { AsyncQueue, Chunk, MerkleTree, Strings } from 'cafe-utility'
-import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions } from '..'
+import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { MantarayNode } from '../manifest/manifest'
 import { totalChunks } from './chunk-size'
 import { makeFilePath } from './collection'
@@ -29,7 +29,7 @@ export async function streamFiles(
   onUploadProgress?: (progress: UploadProgress) => void,
   options?: UploadOptions,
   requestOptions?: BeeRequestOptions,
-): Promise<Reference> {
+): Promise<UploadResult> {
   const queue = new AsyncQueue(64, 64)
   let total = 0
   let processed = 0
