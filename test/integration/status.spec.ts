@@ -34,7 +34,7 @@ test('GET chain state', async () => {
   expect(chainState.chainTip).toBeGreaterThanOrEqual(38226606)
   expect(chainState.block).toBeGreaterThanOrEqual(38226606)
   expect(parseInt(chainState.totalAmount)).not.toBeNaN()
-  expect(parseInt(chainState.currentPrice)).not.toBeNaN()
+  expect(chainState.currentPrice).not.toBeNaN()
 })
 
 test('GET redistribution state', async () => {

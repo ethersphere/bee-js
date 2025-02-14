@@ -47,7 +47,7 @@ export async function getChainState(requestOptions: BeeRequestOptions): Promise<
     block: Types.asNumber(body.block, { name: 'block' }),
     chainTip: Types.asNumber(body.chainTip, { name: 'chainTip' }),
     totalAmount: asNumberString(body.totalAmount, { name: 'totalAmount' }),
-    currentPrice: asNumberString(body.currentPrice, { name: 'currentPrice' }),
+    currentPrice: Types.asNumber(body.currentPrice, { name: 'currentPrice' }),
   }
 }
 

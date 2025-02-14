@@ -65,23 +65,23 @@ export class BZZ {
   }
 
   public gt(other: BZZ) {
-    return this.state.value > (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+    return this.state.compare(other.state) === 1
   }
 
   public gte(other: BZZ) {
-    return this.state.value >= (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+    return this.state.compare(other.state) !== -1
   }
 
   public lt(other: BZZ) {
-    return this.state.value < (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+    return this.state.compare(other.state) === -1
   }
 
   public lte(other: BZZ) {
-    return this.state.value <= (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+    return this.state.compare(other.state) !== 1
   }
 
   public eq(other: BZZ) {
-    return this.state.value === (other instanceof BZZ ? other.state : new FixedPointNumber(other, BZZ.DIGITS)).value
+    return this.state.compare(other.state) === 0
   }
 }
 
@@ -149,22 +149,22 @@ export class DAI {
   }
 
   public gt(other: DAI) {
-    return this.state.value > (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+    return this.state.compare(other.state) === 1
   }
 
   public gte(other: DAI) {
-    return this.state.value >= (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+    return this.state.compare(other.state) !== -1
   }
 
   public lt(other: DAI) {
-    return this.state.value < (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+    return this.state.compare(other.state) === -1
   }
 
   public lte(other: DAI) {
-    return this.state.value <= (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+    return this.state.compare(other.state) !== 1
   }
 
   public eq(other: DAI) {
-    return this.state.value === (other instanceof DAI ? other.state : new FixedPointNumber(other, DAI.DIGITS)).value
+    return this.state.compare(other.state) === 0
   }
 }

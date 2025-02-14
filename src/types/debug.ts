@@ -261,7 +261,7 @@ export interface ChainState {
   chainTip: number
   block: number
   totalAmount: NumberString
-  currentPrice: NumberString
+  currentPrice: number
 }
 
 export interface WalletBalance {
