@@ -47,3 +47,7 @@ function selectBeeUrl() {
 export function arbitraryReference() {
   return Strings.randomHex(64)
 }
+
+export function arbitraryPrivateKey() {
+  return Strings.randomHex(64)
+}

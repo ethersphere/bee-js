@@ -1,5 +1,6 @@
 import { Binary, MerkleTree, Optional, Uint8ArrayReader } from 'cafe-utility'
 import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
+import { FetchFeedUpdateResponse } from '../modules/feed'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
@@ -141,6 +142,9 @@ export class MantarayNode {
     return DECODER.decode(this.fullPath)
   }
 
+  /**
+   * Returns the metadata at the `/` path to access idiomatic properties.
+   */
   getRootMetadata(): Optional<Record<string, string>> {
     const node = this.find('/')
 
@@ -151,6 +155,44 @@ export class MantarayNode {
     return Optional.empty()
   }
 
+  /**
+   * Returns the `swarm-index-document` and `swarm-error-document` metadata values.
+   */
+  getDocsMetadata(): {
+    indexDocument: string | null
+    errorDocument: string | null
+  } {
+    const node = this.find('/')
+
+    if (!node || !node.metadata) {
+      return { indexDocument: null, errorDocument: null }
+    }
+
+    return {
+      indexDocument: node.metadata['website-index-document'] ?? null,
+      errorDocument: node.metadata['website-error-document'] ?? null,
+    }
+  }
+
+  /**
+   * Attempts to resolve the manifest as a feed, returning the latest update.
+   */
+  async resolveFeed(bee: Bee, requestOptions?: BeeRequestOptions): Promise<Optional<FetchFeedUpdateResponse>> {
+    const node = this.find('/')
+
+    if (!node || !node.metadata) {
+      return Optional.empty()
+    }
+
+    const owner = node.metadata['swarm-feed-owner']
+    const topic = node.metadata['swarm-feed-topic']
+
+    return Optional.of(await bee.fetchLatestFeedUpdate(topic, owner, requestOptions))
+  }
+
+  /**
+   * Gets the binary representation of the node.
+   */
   async marshal(): Promise<Uint8Array> {
     for (const fork of this.forks.values()) {
       if (!fork.node.selfAddress) {
@@ -190,6 +232,11 @@ export class MantarayNode {
     return Binary.concatBytes(this.obfuscationKey, data)
   }
 
+  /**
+   * Downloads and unmarshals a MantarayNode from the given reference.
+   *
+   * Do not forget calling `loadRecursively` on the returned node to load the entire tree.
+   */
   static async unmarshal(
     bee: Bee,
     reference: Reference | Uint8Array | string,
@@ -197,6 +244,15 @@ export class MantarayNode {
     requestOptions?: BeeRequestOptions,
   ): Promise<MantarayNode> {
     const data = (await bee.downloadData(reference, options, requestOptions)).toUint8Array()
+    return this.unmarshalFromData(data)
+  }
+
+  /**
+   * Unmarshals a MantarayNode from the given data.
+   *
+   * Do not forget calling `loadRecursively` on the returned node to load the entire tree.
+   */
+  static unmarshalFromData(data: Uint8Array): MantarayNode {
     const obfuscationKey = data.subarray(0, 32)
     const decrypted = Binary.xorCypher(data.subarray(32), obfuscationKey)
     const reader = new Uint8ArrayReader(decrypted)
@@ -220,6 +276,9 @@ export class MantarayNode {
     return node
   }
 
+  /**
+   * Adds a fork to the node.
+   */
   addFork(
     path: string | Uint8Array,
     reference: string | Uint8Array | Bytes | Reference,
@@ -272,6 +331,9 @@ export class MantarayNode {
     }
   }
 
+  /**
+   * Removes a fork from the node.
+   */
   removeFork(path: string | Uint8Array) {
     this.selfAddress = null
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
@@ -294,6 +356,9 @@ export class MantarayNode {
     }
   }
 
+  /**
+   * Calculates the self address of the node.
+   */
   async calculateSelfAddress(): Promise<Reference> {
     if (this.selfAddress) {
       return new Reference(this.selfAddress)
@@ -302,6 +367,9 @@ export class MantarayNode {
     return new Reference((await MerkleTree.root(await this.marshal())).hash())
   }
 
+  /**
+   * Saves the node and its children recursively.
+   */
   async saveRecursively(
     bee: Bee,
     postageBatchId: string | BatchId,
@@ -317,6 +385,9 @@ export class MantarayNode {
     return result
   }
 
+  /**
+   * Loads the node and its children recursively.
+   */
   async loadRecursively(bee: Bee, options?: DownloadOptions, requestOptions?: BeeRequestOptions): Promise<void> {
     for (const fork of this.forks.values()) {
       const node = await MantarayNode.unmarshal(bee, fork.node.targetAddress, options, requestOptions)
@@ -328,12 +399,18 @@ export class MantarayNode {
     }
   }
 
+  /**
+   * Finds a node in the tree by its path.
+   */
   find(path: string | Uint8Array): MantarayNode | null {
     const [closest, match] = this.findClosest(path)
 
     return match.length === path.length ? closest : null
   }
 
+  /**
+   * Finds the closest node in the tree to the given path.
+   */
   findClosest(path: string | Uint8Array, current: Uint8Array = new Uint8Array()): [MantarayNode, Uint8Array] {
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
 
@@ -350,6 +427,11 @@ export class MantarayNode {
     return [this, current]
   }
 
+  /**
+   * Returns an array of all nodes in the tree which have a target address set.
+   *
+   * Must be called after `loadRecursively`.
+   */
   collect(nodes: MantarayNode[] = []): MantarayNode[] {
     for (const fork of this.forks.values()) {
       if (!Binary.equals(fork.node.targetAddress, NULL_ADDRESS)) {
@@ -359,6 +441,22 @@ export class MantarayNode {
     }
 
     return nodes
+  }
+
+  /**
+   * Returns a path:reference map of all nodes in the tree which have a target address set.
+   *
+   * Must be called after `loadRecursively`.
+   */
+  collectAndMap(): Record<string, string> {
+    const nodes = this.collect()
+    const result: Record<string, string> = {}
+
+    for (const node of nodes) {
+      result[node.fullPathString] = new Reference(node.targetAddress).toHex()
+    }
+
+    return result
   }
 
   determineType() {

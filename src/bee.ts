@@ -17,7 +17,7 @@ import * as states from './modules/debug/states'
 import * as debugStatus from './modules/debug/status'
 import * as transactions from './modules/debug/transactions'
 import { postEnvelope } from './modules/envelope'
-import { createFeedManifest } from './modules/feed'
+import { FetchFeedUpdateResponse, createFeedManifest, fetchLatestFeedUpdate } from './modules/feed'
 import * as grantee from './modules/grantee'
 import * as gsoc from './modules/gsoc'
 import * as pinning from './modules/pinning'
@@ -1182,6 +1182,17 @@ export class Bee {
     }
 
     return makeFeedWriter(this.getRequestOptionsForCall(options), topic, signer)
+  }
+
+  async fetchLatestFeedUpdate(
+    topic: Topic | Uint8Array | string,
+    owner: EthAddress | Uint8Array | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<FetchFeedUpdateResponse> {
+    topic = new Topic(topic)
+    owner = new EthAddress(owner)
+
+    return fetchLatestFeedUpdate(this.getRequestOptionsForCall(requestOptions), owner, topic)
   }
 
   /**
