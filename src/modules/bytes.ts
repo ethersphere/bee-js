@@ -4,6 +4,7 @@ import { UploadResult } from '../types'
 import { Bytes } from '../utils/bytes'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+import { ResourceLocator } from '../utils/resource-locator'
 import { makeTagUid, prepareDownloadOptions } from '../utils/type'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
@@ -76,18 +77,16 @@ export async function head(
  */
 export async function download(
   requestOptions: BeeRequestOptions,
-  reference: Reference | Uint8Array | string,
+  resource: ResourceLocator,
   options?: DownloadOptions,
 ): Promise<Bytes> {
-  reference = new Reference(reference)
-
   if (options) {
     options = prepareDownloadOptions(options)
   }
 
   const response = await http<unknown>(requestOptions, {
     responseType: 'arraybuffer',
-    url: `${endpoint}/${reference}`,
+    url: `${endpoint}/${resource}`,
     headers: prepareRequestHeaders(null, options),
   })
 
@@ -102,18 +101,16 @@ export async function download(
  */
 export async function downloadReadable(
   requestOptions: BeeRequestOptions,
-  reference: Reference | Uint8Array | string,
+  resource: ResourceLocator,
   options?: DownloadOptions,
 ): Promise<ReadableStream<Uint8Array>> {
-  reference = new Reference(reference)
-
   if (options) {
     options = prepareDownloadOptions(options)
   }
 
   const response = await http<ReadableStream<Uint8Array>>(requestOptions, {
     responseType: 'stream',
-    url: `${endpoint}/${reference}`,
+    url: `${endpoint}/${resource}`,
     headers: prepareRequestHeaders(null, options),
   })
 

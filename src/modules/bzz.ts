@@ -13,6 +13,7 @@ import { Bytes } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
 import { prepareRequestHeaders, readFileHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+import { ResourceLocator } from '../utils/resource-locator'
 import { uploadTar } from '../utils/tar-uploader'
 import { isReadable, makeTagUid } from '../utils/type'
 import { BatchId, Reference } from '../utils/typed-bytes'
@@ -71,16 +72,14 @@ export async function uploadFile(
  */
 export async function downloadFile(
   requestOptions: BeeRequestOptions,
-  reference: Reference | string | Uint8Array,
+  resource: ResourceLocator,
   path = '',
   options?: DownloadOptions,
 ): Promise<FileData<Bytes>> {
-  reference = new Reference(reference)
-
   const response = await http<ArrayBuffer>(requestOptions, {
     method: 'GET',
     responseType: 'arraybuffer',
-    url: `${bzzEndpoint}/${reference}/${path}`,
+    url: `${bzzEndpoint}/${resource}/${path}`,
     headers: prepareRequestHeaders(null, options),
   })
   const file = {

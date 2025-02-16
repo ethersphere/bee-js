@@ -94,6 +94,7 @@ import { makeCollectionFromFS } from './utils/collection.node'
 import { prepareWebsocketData } from './utils/data'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { fileArrayBuffer, isFile } from './utils/file'
+import { ResourceLocator } from './utils/resource-locator'
 import { BZZ } from './utils/tokens'
 import {
   asNumberString,
@@ -221,7 +222,7 @@ export class Bee {
   /**
    * Download data as a byte array
    *
-   * @param reference Bee data reference in hex string (either 64 or 128 chars long) or ENS domain.
+   * @param resource Swarm reference, Swarm CID, or ENS domain
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
@@ -229,23 +230,21 @@ export class Bee {
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
   async downloadData(
-    reference: Reference | string | Uint8Array,
+    resource: Reference | string | Uint8Array,
     options?: DownloadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<Bytes> {
-    reference = new Reference(reference)
-
     if (options) {
       options = prepareDownloadOptions(options)
     }
 
-    return bytes.download(this.getRequestOptionsForCall(requestOptions), reference, options)
+    return bytes.download(this.getRequestOptionsForCall(requestOptions), new ResourceLocator(resource), options)
   }
 
   /**
    * Download data as a Readable stream
    *
-   * @param reference Bee data reference in hex string (either 64 or 128 chars long) or ENS domain.
+   * @param resource Swarm reference, Swarm CID, or ENS domain
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
    * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
@@ -253,17 +252,15 @@ export class Bee {
    * @see [Bee API reference - `GET /bytes`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1{reference}/get)
    */
   async downloadReadableData(
-    reference: Reference | Uint8Array | string,
+    resource: Reference | Uint8Array | string,
     options?: DownloadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<ReadableStream<Uint8Array>> {
-    reference = new Reference(reference)
-
     if (options) {
       options = prepareDownloadOptions(options)
     }
 
-    return bytes.downloadReadable(this.getRequestOptionsForCall(requestOptions), reference, options)
+    return bytes.downloadReadable(this.getRequestOptionsForCall(requestOptions), new ResourceLocator(resource), options)
   }
 
   /**
@@ -448,7 +445,7 @@ export class Bee {
   /**
    * Download single file.
    *
-   * @param reference Bee file reference in hex string (either 64 or 128 chars long), ENS domain or Swarm CID.
+   * @param resource Swarm reference, Swarm CID, or ENS domain
    * @param path If reference points to manifest, then this parameter defines path to the file
    * @param options Options that affects the request behavior
    * @throws TypeError if some of the input parameters is not expected type
@@ -458,18 +455,16 @@ export class Bee {
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)
    */
   async downloadFile(
-    reference: Reference | Uint8Array | string,
+    resource: Reference | Uint8Array | string,
     path = '',
     options?: DownloadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<FileData<Bytes>> {
-    reference = new Reference(reference)
-
     if (options) {
       options = prepareDownloadOptions(options)
     }
 
-    return bzz.downloadFile(this.getRequestOptionsForCall(requestOptions), reference, path, options)
+    return bzz.downloadFile(this.getRequestOptionsForCall(requestOptions), new ResourceLocator(resource), path, options)
   }
 
   /**
