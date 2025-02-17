@@ -101,3 +101,16 @@ test('Manifest feed resolver', async () => {
 
   expect(docs.indexDocument).toBe('update.txt')
 })
+
+test('Manifest no feed to resolve', async () => {
+  const bee = makeBee()
+
+  const uploadResult = await bee.uploadFile(batch(), 'This is not a feed', 'feed.txt')
+
+  const node = await MantarayNode.unmarshal(bee, uploadResult.reference)
+  await node.loadRecursively(bee)
+
+  const feedUpdate = await node.resolveFeed(bee)
+
+  expect(feedUpdate.value).toBeNull()
+})

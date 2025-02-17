@@ -187,6 +187,10 @@ export class MantarayNode {
     const owner = node.metadata['swarm-feed-owner']
     const topic = node.metadata['swarm-feed-topic']
 
+    if (!owner || !topic) {
+      return Optional.empty()
+    }
+
     return Optional.of(await bee.fetchLatestFeedUpdate(topic, owner, requestOptions))
   }
 
