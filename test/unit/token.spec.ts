@@ -27,3 +27,15 @@ test('DAI arithmetic', () => {
   const total = DAI.fromWei(nativeTokenBalance).minus(fees)
   expect(total.plus(DAI.fromDecimalString('1')).toDecimalString()).toBe('5.328448363353627885')
 })
+
+test('DAI to BZZ', () => {
+  const exchangeRate = DAI.fromDecimalString('0.3659')
+  const bzz = BZZ.fromDecimalString('1000')
+  expect(bzz.exchangeToDAI(exchangeRate).toDecimalString()).toBe('365.900000000000000000')
+})
+
+test('BZZ to DAI', () => {
+  const exchangeRate = DAI.fromDecimalString('0.3659')
+  const dai = DAI.fromDecimalString('2.591923154542010243')
+  expect(dai.exchangeToBZZ(exchangeRate).toDecimalString()).toBe('7.0836926880076803')
+})

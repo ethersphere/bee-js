@@ -61,7 +61,7 @@ export class BZZ {
    * @returns New BZZ instance
    */
   public divide(other: bigint) {
-    return new BZZ(this.state.divide(other)[0])
+    return new BZZ(this.state.divmod(other)[0])
   }
 
   public gt(other: BZZ) {
@@ -82,6 +82,12 @@ export class BZZ {
 
   public eq(other: BZZ) {
     return this.state.compare(other.state) === 0
+  }
+
+  public exchangeToDAI(daiPerBzz: DAI): DAI {
+    return DAI.fromWei(
+      this.state.exchange('*', new FixedPointNumber(daiPerBzz.toWeiBigInt(), DAI.DIGITS), DAI.DIGITS).value,
+    )
   }
 }
 
@@ -145,7 +151,7 @@ export class DAI {
    * @returns New DAI instance
    */
   public divide(other: bigint) {
-    return new DAI(this.state.divide(other)[0])
+    return new DAI(this.state.divmod(other)[0])
   }
 
   public gt(other: DAI) {
@@ -166,5 +172,11 @@ export class DAI {
 
   public eq(other: DAI) {
     return this.state.compare(other.state) === 0
+  }
+
+  public exchangeToBZZ(daiPerBzz: DAI): BZZ {
+    return BZZ.fromPLUR(
+      this.state.exchange('/', new FixedPointNumber(daiPerBzz.toWeiBigInt(), DAI.DIGITS), BZZ.DIGITS).value,
+    )
   }
 }
