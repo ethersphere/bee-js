@@ -1,4 +1,4 @@
-import { RedundancyLevel, Utils } from '../../src'
+import { Duration, RedundancyLevel, Utils } from '../../src'
 
 test('Utils.getCollectionSize', () => {
   const files = [
@@ -41,14 +41,6 @@ test('Utils.makeMaxTarget', () => {
   expect(Utils.makeMaxTarget('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef')).toBe('1234')
 })
 
-test('Utils.getAmountForTtl', () => {
-  expect(Utils.getAmountForTtl(1)).toBe(414720000n)
-})
-
-test('Utils.getDepthForCapacity', () => {
-  expect(Utils.getDepthForCapacity(8)).toBe(21)
-})
-
 test('Utils.getStampCost', () => {
   const cost = Utils.getStampCost(17, '414720000')
   expect(cost.toPLURBigInt()).toBe(54358179840000n)
@@ -62,13 +54,13 @@ test('Utils.getStampEffectiveBytes', () => {
 })
 
 test('Utils.getStampMaximumCapacityBytes', () => {
-  expect(Utils.getStampMaximumCapacityBytes(17)).toBe(536870912) // 512 MB
-  expect(Utils.getStampEffectiveBytes(35) / Utils.getStampMaximumCapacityBytes(35)).toBe(0.990000000000002)
+  expect(Utils.getStampTheoreticalBytes(17)).toBe(536870912) // 512 MB
+  expect(Utils.getStampEffectiveBytes(35) / Utils.getStampTheoreticalBytes(35)).toBe(0.990000000000002)
 })
 
-test('Utils.getStampTtlSeconds', () => {
-  expect(Utils.getStampTtlSeconds(414720000n)).toBe(86400n)
-  expect(Utils.getStampTtlSeconds(Utils.getAmountForTtl(365))).toBe(86400n * 365n)
+test('Utils.getStampDuration', () => {
+  expect(Utils.getStampDuration(414720000n, 24000).toSeconds()).toBe(86400)
+  expect(Utils.getStampDuration(Utils.getAmountForDuration(Duration.fromDays(365), 24000), 24000).toDays()).toBe(365)
 })
 
 test('Utils.getStampUsage', () => {

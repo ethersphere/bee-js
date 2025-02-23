@@ -17,20 +17,14 @@ export function getStampUsage(utilization: number, depth: number, bucketDepth: n
 }
 
 /**
- * Utility function that calculates the theoritical maximum capacity of a postage batch based on its depth.
+ * Utility function that calculates the theoritical maximum size of a postage batch based on its depth.
  *
- * For smaller depths (up to 20), this may provide less accurate results.
+ * For smaller depths (up to 22), this may provide less accurate results.
  *
- * @deprecated Use `getStampTheoreticalBytes` instead.
- *
- * @returns {number} The maximum capacity of the postage batch in bytes.
+ * @returns {number} The maximum theoretical size of the postage batch in bytes.
  */
-export function getStampMaximumCapacityBytes(depth: number): number {
-  return 2 ** depth * 4096
-}
-
-export function getStampTheoreticalBytes(depth: number): bigint {
-  return 4096n * 2n ** BigInt(depth)
+export function getStampTheoreticalBytes(depth: number): number {
+  return 4096 * 2 ** depth
 }
 
 /**
@@ -82,7 +76,7 @@ export function getStampEffectiveBytes(depth: number): number {
 
   const utilRate = utilisationRateMap[depth] ?? 0.99
 
-  return Math.ceil(getStampMaximumCapacityBytes(depth) * utilRate)
+  return Math.ceil(getStampTheoreticalBytes(depth) * utilRate)
 }
 
 /**
@@ -99,30 +93,16 @@ export function getStampCost(depth: number, amount: NumberString | string | bigi
  *
  * For more accurate results, get the price per block and block time from the Bee node or the blockchain.
  *
- * @returns {number} The TTL of the postage batch in seconds.
+ * @returns {number} The TTL of the postage batch.
  */
-export function getStampTtlSeconds(
+export function getStampDuration(
   amount: NumberString | string | bigint,
-  pricePerBlock = 24_000,
+  pricePerBlock: number,
   blockTime = 5,
-): bigint {
+): Duration {
   const amountBigInt = BigInt(asNumberString(amount))
 
-  return (amountBigInt * BigInt(blockTime)) / BigInt(pricePerBlock)
-}
-
-/**
- * Utility function that calculates the amount of tokens required to maintain a given Time To Live (TTL) for a postage batch.
- *
- * This function estimates the required amount based on the provided TTL in days.
- *
- * @deprecated Use `getAmountForDuration` instead.
- *
- * @param {number} days - The Time To Live (TTL) in days.
- * @returns {NumberString} The estimated amount of tokens needed for the specified TTL.
- */
-export function getAmountForTtl(days: number, pricePerBlock = 24_000, blockTime = 5): bigint {
-  return (days <= 0 ? 1n : BigInt(days)) * ((24n * 60n * 60n * BigInt(pricePerBlock)) / BigInt(blockTime))
+  return Duration.fromSeconds(Number((amountBigInt * BigInt(blockTime)) / BigInt(pricePerBlock)))
 }
 
 /**
@@ -134,20 +114,6 @@ export function getAmountForTtl(days: number, pricePerBlock = 24_000, blockTime 
  */
 export function getAmountForDuration(duration: Duration, pricePerBlock: number, blockTime = 5): bigint {
   return (BigInt(duration.toSeconds()) / BigInt(blockTime)) * BigInt(pricePerBlock)
-}
-
-/**
- * Utility function that calculates the depth required for a postage batch to achieve the specified capacity in gigabytes.
- *
- * The depth is determined based on the given gigabytes, and the result is adjusted to a minimum depth of 18.
- *
- * @deprecated Use `getDepthForSize` instead.
- *
- * @param {number} gigabytes - The desired capacity of the postage batch in gigabytes.
- * @returns {number} The calculated depth necessary to achieve the specified capacity.
- */
-export function getDepthForCapacity(gigabytes: number): number {
-  return gigabytes <= 1 ? 18 : Math.ceil(Math.log2(Math.ceil(gigabytes)) + 18)
 }
 
 /**

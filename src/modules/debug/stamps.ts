@@ -9,7 +9,7 @@ import type {
 } from '../../types'
 import { Duration } from '../../utils/duration'
 import { http } from '../../utils/http'
-import { getStampEffectiveBytes, getStampMaximumCapacityBytes, getStampUsage } from '../../utils/stamps'
+import { getStampEffectiveBytes, getStampTheoreticalBytes, getStampUsage } from '../../utils/stamps'
 import { asNumberString } from '../../utils/type'
 import { BatchId, EthAddress } from '../../utils/typed-bytes'
 
@@ -66,12 +66,10 @@ export async function getAllPostageBatches(requestOptions: BeeRequestOptions): P
       bucketDepth,
       blockNumber: Types.asNumber(x.blockNumber, { name: 'blockNumber' }),
       immutableFlag: Types.asBoolean(x.immutableFlag, { name: 'immutableFlag' }),
-      exists: Types.asBoolean(x.exists, { name: 'exists' }),
-      batchTTL,
       usage,
       size: getStampEffectiveBytes(depth),
       remainingSize: Math.ceil(getStampEffectiveBytes(depth) * (1 - usage)),
-      theoreticalSize: getStampMaximumCapacityBytes(depth),
+      theoreticalSize: getStampTheoreticalBytes(depth),
       duration,
     }
   })
@@ -106,12 +104,10 @@ export async function getPostageBatch(
     bucketDepth,
     blockNumber: Types.asNumber(body.blockNumber, { name: 'blockNumber' }),
     immutableFlag: Types.asBoolean(body.immutableFlag, { name: 'immutableFlag' }),
-    exists: Types.asBoolean(body.exists, { name: 'exists' }),
-    batchTTL,
     usage,
     size: getStampEffectiveBytes(depth),
     remainingSize: Math.ceil(getStampEffectiveBytes(depth) * (1 - usage)),
-    theoreticalSize: getStampMaximumCapacityBytes(depth),
+    theoreticalSize: getStampTheoreticalBytes(depth),
     duration,
   }
 }

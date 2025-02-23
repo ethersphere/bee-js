@@ -435,6 +435,14 @@ export interface GlobalPostageBatch {
 
 export interface PostageBatch {
   batchID: BatchId
+  /**
+   * Represents how much of the batch is used up.
+   *
+   * Max utilization = `2 ** (depth - bucketDepth)`
+   *
+   * Since the smallest depth is 17, and one batch has 65,536 buckets, and one chunk is 4,096 bytes,
+   * the 512MB theoretical max size for the smallest stamp comes from `2 * 65536 * 4096 = 512MB`
+   */
   utilization: number
   usable: boolean
   label: string
@@ -443,29 +451,24 @@ export interface PostageBatch {
   bucketDepth: number
   blockNumber: number
   immutableFlag: boolean
-  exists: boolean
-  /**
-   * @deprecated Use `duration` instead
-   */
-  batchTTL: number
   /**
    * Estimated time until the batch expires
    */
   duration: Duration
   /**
-   * 0..1, where 0 is no usage and 1 is 100% used up
+   * A floating point number from 0 to 1, where 0 is no usage, 1 is full usage.
    */
   usage: number
   /**
-   * In bytes
+   * Effective size in bytes
    */
   size: number
   /**
-   * In bytes
+   * Estimated remaining size in bytes
    */
   remainingSize: number
   /**
-   * In bytes
+   * Theoretical size in bytes
    */
   theoreticalSize: number
 }

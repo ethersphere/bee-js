@@ -4,12 +4,10 @@ export { makeMaxTarget } from './pss'
 export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from './redundancy'
 export {
   getAmountForDuration,
-  getAmountForTtl,
-  getDepthForCapacity,
   getDepthForSize,
   getStampCost,
+  getStampDuration,
   getStampEffectiveBytes,
-  getStampMaximumCapacityBytes,
-  getStampTtlSeconds,
+  getStampTheoreticalBytes,
   getStampUsage,
 } from './stamps'
