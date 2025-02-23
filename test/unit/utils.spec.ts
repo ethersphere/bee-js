@@ -58,12 +58,12 @@ test('Utils.getStampCost', () => {
 
 test('Utils.getStampEffectiveBytes', () => {
   expect(Utils.getStampEffectiveBytes(21)).toBe(0)
-  expect(Utils.getStampEffectiveBytes(22)).toBe(4925468495.0528) // 4.93 GB
+  expect(Utils.getStampEffectiveBytes(22)).toBe(4925468496) // 4.93 GB
 })
 
 test('Utils.getStampMaximumCapacityBytes', () => {
   expect(Utils.getStampMaximumCapacityBytes(17)).toBe(536870912) // 512 MB
-  expect(Utils.getStampEffectiveBytes(35) / Utils.getStampMaximumCapacityBytes(35)).toBe(0.99)
+  expect(Utils.getStampEffectiveBytes(35) / Utils.getStampMaximumCapacityBytes(35)).toBe(0.990000000000002)
 })
 
 test('Utils.getStampTtlSeconds', () => {

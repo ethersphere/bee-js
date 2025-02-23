@@ -7,7 +7,9 @@ import type {
   PostageBatchBuckets,
   PostageBatchOptions,
 } from '../../types'
+import { Duration } from '../../utils/duration'
 import { http } from '../../utils/http'
+import { getStampEffectiveBytes, getStampMaximumCapacityBytes, getStampUsage } from '../../utils/stamps'
 import { asNumberString } from '../../utils/type'
 import { BatchId, EthAddress } from '../../utils/typed-bytes'
 
@@ -46,19 +48,33 @@ export async function getAllPostageBatches(requestOptions: BeeRequestOptions): P
   const body = Types.asObject(response.data, { name: 'response.data' })
   const stamps = Types.asArray(body.stamps, { name: 'stamps' }).map(x => Types.asObject(x, { name: 'stamp' }))
 
-  return stamps.map(x => ({
-    batchID: new BatchId(Types.asString(x.batchID, { name: 'batchID' })),
-    utilization: Types.asNumber(x.utilization, { name: 'utilization' }),
-    usable: Types.asBoolean(x.usable, { name: 'usable' }),
-    label: Types.asEmptiableString(x.label, { name: 'label' }),
-    depth: Types.asNumber(x.depth, { name: 'depth' }),
-    amount: asNumberString(x.amount, { name: 'amount' }),
-    bucketDepth: Types.asNumber(x.bucketDepth, { name: 'bucketDepth' }),
-    blockNumber: Types.asNumber(x.blockNumber, { name: 'blockNumber' }),
-    immutableFlag: Types.asBoolean(x.immutableFlag, { name: 'immutableFlag' }),
-    exists: Types.asBoolean(x.exists, { name: 'exists' }),
-    batchTTL: Types.asNumber(x.batchTTL, { name: 'batchTTL' }),
-  }))
+  return stamps.map(x => {
+    const utilization = Types.asNumber(x.utilization, { name: 'utilization' })
+    const depth = Types.asNumber(x.depth, { name: 'depth' })
+    const bucketDepth = Types.asNumber(x.bucketDepth, { name: 'bucketDepth' })
+    const usage = getStampUsage(utilization, depth, bucketDepth)
+    const batchTTL = Types.asNumber(x.batchTTL, { name: 'batchTTL' })
+    const duration = Duration.fromSeconds(batchTTL)
+
+    return {
+      batchID: new BatchId(Types.asString(x.batchID, { name: 'batchID' })),
+      utilization,
+      usable: Types.asBoolean(x.usable, { name: 'usable' }),
+      label: Types.asEmptiableString(x.label, { name: 'label' }),
+      depth,
+      amount: asNumberString(x.amount, { name: 'amount' }),
+      bucketDepth,
+      blockNumber: Types.asNumber(x.blockNumber, { name: 'blockNumber' }),
+      immutableFlag: Types.asBoolean(x.immutableFlag, { name: 'immutableFlag' }),
+      exists: Types.asBoolean(x.exists, { name: 'exists' }),
+      batchTTL,
+      usage,
+      size: getStampEffectiveBytes(depth),
+      remainingSize: Math.ceil(getStampEffectiveBytes(depth) * (1 - usage)),
+      theoreticalSize: getStampMaximumCapacityBytes(depth),
+      duration,
+    }
+  })
 }
 
 export async function getPostageBatch(
@@ -73,18 +89,30 @@ export async function getPostageBatch(
 
   const body = Types.asObject(response.data, { name: 'response.data' })
 
+  const utilization = Types.asNumber(body.utilization, { name: 'utilization' })
+  const depth = Types.asNumber(body.depth, { name: 'depth' })
+  const bucketDepth = Types.asNumber(body.bucketDepth, { name: 'bucketDepth' })
+  const usage = getStampUsage(utilization, depth, bucketDepth)
+  const batchTTL = Types.asNumber(body.batchTTL, { name: 'batchTTL' })
+  const duration = Duration.fromSeconds(batchTTL)
+
   return {
     batchID: new BatchId(Types.asString(body.batchID, { name: 'batchID' })),
-    utilization: Types.asNumber(body.utilization, { name: 'utilization' }),
+    utilization,
     usable: Types.asBoolean(body.usable, { name: 'usable' }),
     label: Types.asEmptiableString(body.label, { name: 'label' }),
-    depth: Types.asNumber(body.depth, { name: 'depth' }),
+    depth,
     amount: asNumberString(body.amount, { name: 'amount' }),
-    bucketDepth: Types.asNumber(body.bucketDepth, { name: 'bucketDepth' }),
+    bucketDepth,
     blockNumber: Types.asNumber(body.blockNumber, { name: 'blockNumber' }),
     immutableFlag: Types.asBoolean(body.immutableFlag, { name: 'immutableFlag' }),
     exists: Types.asBoolean(body.exists, { name: 'exists' }),
-    batchTTL: Types.asNumber(body.batchTTL, { name: 'batchTTL' }),
+    batchTTL,
+    usage,
+    size: getStampEffectiveBytes(depth),
+    remainingSize: Math.ceil(getStampEffectiveBytes(depth) * (1 - usage)),
+    theoreticalSize: getStampMaximumCapacityBytes(depth),
+    duration,
   }
 }
 

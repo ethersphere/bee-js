@@ -7,6 +7,7 @@ export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './modules/de
 export * from './types'
 export { Bytes } from './utils/bytes'
 export * from './utils/constants'
+export { Duration } from './utils/duration'
 export * from './utils/error'
 export * as Utils from './utils/expose'
 export * from './utils/tokens'
@@ -21,12 +22,24 @@ declare global {
       Bee: typeof import('./bee').Bee
       BeeDev: typeof import('./bee-dev').BeeDev
       Utils: typeof import('./utils/expose')
+      Duration: typeof import('./utils/duration').Duration
       BeeError: typeof import('./utils/error').BeeError
       BeeArgumentError: typeof import('./utils/error').BeeArgumentError
       BeeResponseError: typeof import('./utils/error').BeeResponseError
       MantarayNode: typeof import('./manifest/manifest').MantarayNode
       MerkleTree: typeof import('cafe-utility').MerkleTree
+      PrivateKey: typeof import('./utils/typed-bytes').PrivateKey
+      PublicKey: typeof import('./utils/typed-bytes').PublicKey
+      EthAddress: typeof import('./utils/typed-bytes').EthAddress
+      Identifier: typeof import('./utils/typed-bytes').Identifier
       Reference: typeof import('./utils/typed-bytes').Reference
+      TransactionId: typeof import('./utils/typed-bytes').TransactionId
+      Span: typeof import('./utils/typed-bytes').Span
+      PeerAddress: typeof import('./utils/typed-bytes').PeerAddress
+      BatchId: typeof import('./utils/typed-bytes').BatchId
+      Signature: typeof import('./utils/typed-bytes').Signature
+      Topic: typeof import('./utils/typed-bytes').Topic
+      FeedIndex: typeof import('./utils/typed-bytes').FeedIndex
     }
   }
 }

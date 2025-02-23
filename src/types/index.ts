@@ -3,6 +3,7 @@ import type { SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
 import type { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
 import { Bytes } from '../utils/bytes'
+import { Duration } from '../utils/duration'
 import type { BeeError } from '../utils/error'
 import {
   BatchId,
@@ -93,6 +94,8 @@ export interface UploadOptions {
    * If set to true, an ACT will be created for the uploaded data.
    */
   act?: boolean
+
+  actHistoryAddress?: Reference | Uint8Array | string
 
   /**
    * Will pin the data locally in the Bee node as well.
@@ -441,7 +444,30 @@ export interface PostageBatch {
   blockNumber: number
   immutableFlag: boolean
   exists: boolean
+  /**
+   * @deprecated Use `duration` instead
+   */
   batchTTL: number
+  /**
+   * Estimated time until the batch expires
+   */
+  duration: Duration
+  /**
+   * 0..1, where 0 is no usage and 1 is 100% used up
+   */
+  usage: number
+  /**
+   * In bytes
+   */
+  size: number
+  /**
+   * In bytes
+   */
+  remainingSize: number
+  /**
+   * In bytes
+   */
+  theoreticalSize: number
 }
 
 export interface BatchBucket {

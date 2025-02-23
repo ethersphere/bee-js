@@ -92,9 +92,11 @@ import { hashDirectory, streamDirectory, streamFiles } from './utils/chunk-strea
 import { assertCollection, makeCollectionFromFileList } from './utils/collection'
 import { makeCollectionFromFS } from './utils/collection.node'
 import { prepareWebsocketData } from './utils/data'
+import { Duration } from './utils/duration'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { ResourceLocator } from './utils/resource-locator'
+import { getAmountForDuration, getDepthForSize, getStampCost } from './utils/stamps'
 import { BZZ } from './utils/tokens'
 import {
   asNumberString,
@@ -1627,13 +1629,96 @@ export class Bee {
     return stamp
   }
 
+  async buyStorage(
+    gigabytes: number,
+    duration: Duration,
+    options?: PostageBatchOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<BatchId> {
+    const chainState = await this.getChainState(requestOptions)
+    const amount = getAmountForDuration(duration, chainState.currentPrice)
+    const depth = getDepthForSize(gigabytes)
+
+    if (options) {
+      options = preparePostageBatchOptions(options)
+    }
+
+    return this.createPostageBatch(amount, depth, options, requestOptions)
+  }
+
+  async getStorageCost(gigabytes: number, duration: Duration, options?: BeeRequestOptions): Promise<BZZ> {
+    const chainState = await this.getChainState(options)
+    const amount = getAmountForDuration(duration, chainState.currentPrice)
+    const depth = getDepthForSize(gigabytes)
+
+    return getStampCost(depth, amount)
+  }
+
+  async extendStorageSize(
+    postageBatchId: BatchId | Uint8Array | string,
+    gigabytes: number,
+    options?: BeeRequestOptions,
+  ) {
+    const batch = await this.getPostageBatch(postageBatchId, options)
+    const depth = getDepthForSize(gigabytes)
+    const delta = depth - batch.depth
+
+    if (delta <= 0) {
+      throw new BeeArgumentError('New depth has to be greater than the original depth', depth)
+    }
+
+    await this.topUpBatch(batch.batchID, BigInt(batch.amount) * 2n ** BigInt(delta - 1), options)
+
+    return this.diluteBatch(batch.batchID, depth, options)
+  }
+
+  async extendStorageDuration(
+    postageBatchId: BatchId | Uint8Array | string,
+    duration: Duration,
+    options?: BeeRequestOptions,
+  ) {
+    const batch = await this.getPostageBatch(postageBatchId, options)
+    const chainState = await this.getChainState(options)
+    const amount = getAmountForDuration(duration, chainState.currentPrice)
+
+    return this.topUpBatch(batch.batchID, amount, options)
+  }
+
+  async getSizeExtensionCost(
+    postageBatchId: BatchId | Uint8Array | string,
+    gigabytes: number,
+    options?: BeeRequestOptions,
+  ): Promise<BZZ> {
+    const batch = await this.getPostageBatch(postageBatchId, options)
+    const depth = getDepthForSize(gigabytes)
+    const delta = depth - batch.depth
+
+    if (delta <= 0) {
+      throw new BeeArgumentError('New depth has to be greater than the original depth', depth)
+    }
+
+    const currentPaid = getStampCost(batch.depth, batch.amount)
+    const newPaid = getStampCost(depth, batch.amount)
+    return newPaid.minus(currentPaid)
+  }
+
+  async getDurationExtensionCost(
+    postageBatchId: BatchId | Uint8Array | string,
+    duration: Duration,
+    options?: BeeRequestOptions,
+  ): Promise<BZZ> {
+    const batch = await this.getPostageBatch(postageBatchId, options)
+    const chainState = await this.getChainState(options)
+    const amount = getAmountForDuration(duration, chainState.currentPrice)
+
+    return getStampCost(batch.depth, amount)
+  }
+
   /**
    * Topup a fresh amount of BZZ to given Postage Batch.
    *
    * For better understanding what each parameter means and what are the optimal values please see
    * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive).
-   *
-   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
    *
    * @param postageBatchId Batch ID
    * @param amount Amount to be added to the batch
@@ -1659,8 +1744,6 @@ export class Bee {
    *
    * For better understanding what each parameter means and what are the optimal values please see
    * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive).
-   *
-   * **WARNING: THIS CREATES TRANSACTIONS THAT SPENDS MONEY**
    *
    * @param postageBatchId Batch ID
    * @param depth Amount to be added to the batch
