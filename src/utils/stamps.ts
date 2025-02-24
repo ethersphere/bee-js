@@ -83,9 +83,7 @@ export function getStampEffectiveBytes(depth: number): number {
  * Utility function that calculates the cost of a postage batch based on its depth and amount.
  */
 export function getStampCost(depth: number, amount: NumberString | string | bigint): BZZ {
-  const amountBigInt = BigInt(asNumberString(amount))
-
-  return BZZ.fromPLUR(2n ** BigInt(depth) * amountBigInt)
+  return BZZ.fromPLUR(2n ** BigInt(depth) * BigInt(amount))
 }
 
 /**
