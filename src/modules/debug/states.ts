@@ -3,6 +3,7 @@ import { BeeRequestOptions, ChainState, ReserveState, WalletBalance } from '../.
 import { http } from '../../utils/http'
 import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
+import { normalizeCurrentPrice } from '../../utils/workaround'
 
 const RESERVE_STATE_ENDPOINT = 'reservestate'
 const WALLET_ENDPOINT = 'wallet'
@@ -47,7 +48,7 @@ export async function getChainState(requestOptions: BeeRequestOptions): Promise<
     block: Types.asNumber(body.block, { name: 'block' }),
     chainTip: Types.asNumber(body.chainTip, { name: 'chainTip' }),
     totalAmount: asNumberString(body.totalAmount, { name: 'totalAmount' }),
-    currentPrice: Types.asNumber(body.currentPrice, { name: 'currentPrice' }),
+    currentPrice: normalizeCurrentPrice(Types.asNumber(body.currentPrice, { name: 'currentPrice' })),
   }
 }
 

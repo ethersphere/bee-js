@@ -12,6 +12,7 @@ import { http } from '../../utils/http'
 import { getStampEffectiveBytes, getStampTheoreticalBytes, getStampUsage } from '../../utils/stamps'
 import { asNumberString } from '../../utils/type'
 import { BatchId, EthAddress } from '../../utils/typed-bytes'
+import { normalizeBatchTTL } from '../../utils/workaround'
 
 const STAMPS_ENDPOINT = 'stamps'
 const BATCHES_ENDPOINT = 'batches'
@@ -53,7 +54,7 @@ export async function getAllPostageBatches(requestOptions: BeeRequestOptions): P
     const depth = Types.asNumber(x.depth, { name: 'depth' })
     const bucketDepth = Types.asNumber(x.bucketDepth, { name: 'bucketDepth' })
     const usage = getStampUsage(utilization, depth, bucketDepth)
-    const batchTTL = Types.asNumber(x.batchTTL, { name: 'batchTTL' })
+    const batchTTL = normalizeBatchTTL(Types.asNumber(x.batchTTL, { name: 'batchTTL' }))
     const duration = Duration.fromSeconds(batchTTL)
 
     return {
@@ -91,7 +92,7 @@ export async function getPostageBatch(
   const depth = Types.asNumber(body.depth, { name: 'depth' })
   const bucketDepth = Types.asNumber(body.bucketDepth, { name: 'bucketDepth' })
   const usage = getStampUsage(utilization, depth, bucketDepth)
-  const batchTTL = Types.asNumber(body.batchTTL, { name: 'batchTTL' })
+  const batchTTL = normalizeBatchTTL(Types.asNumber(body.batchTTL, { name: 'batchTTL' }))
   const duration = Duration.fromSeconds(batchTTL)
 
   return {
