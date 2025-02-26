@@ -1,5 +1,6 @@
 import { Bee } from './bee'
 import { BeeDev } from './bee-dev'
+import { Stamper } from './stamper/stamper'
 
 export { MerkleTree } from 'cafe-utility'
 export { MantarayNode } from './manifest/manifest'
@@ -12,7 +13,7 @@ export * from './utils/error'
 export * as Utils from './utils/expose'
 export * from './utils/tokens'
 export * from './utils/typed-bytes'
-export { Bee, BeeDev }
+export { Bee, BeeDev, Stamper }
 
 // for require-like imports
 declare global {
@@ -21,6 +22,7 @@ declare global {
     BeeJs: {
       Bee: typeof import('./bee').Bee
       BeeDev: typeof import('./bee-dev').BeeDev
+      Stamper: typeof import('./stamper/stamper').Stamper
       Utils: typeof import('./utils/expose')
       Duration: typeof import('./utils/duration').Duration
       BeeError: typeof import('./utils/error').BeeError
