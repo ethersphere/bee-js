@@ -1,7 +1,7 @@
 import { Bytes, GsocSubscription, NULL_IDENTIFIER } from '../../src'
 import { batch, makeBee } from '../utils'
 
-test('gsoc', async () => {
+test('GSOC - end to end test', async () => {
   const bee = makeBee()
   const identifier = NULL_IDENTIFIER
   const { overlay } = await bee.getNodeAddresses()

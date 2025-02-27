@@ -1,6 +1,6 @@
 import { Binary, MerkleTree, Optional, Uint8ArrayReader } from 'cafe-utility'
 import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
-import { FetchFeedUpdateResponse } from '../modules/feed'
+import { FeedPayloadResult } from '../modules/feed'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
@@ -177,7 +177,7 @@ export class MantarayNode {
   /**
    * Attempts to resolve the manifest as a feed, returning the latest update.
    */
-  async resolveFeed(bee: Bee, requestOptions?: BeeRequestOptions): Promise<Optional<FetchFeedUpdateResponse>> {
+  async resolveFeed(bee: Bee, requestOptions?: BeeRequestOptions): Promise<Optional<FeedPayloadResult>> {
     const node = this.find('/')
 
     if (!node || !node.metadata) {

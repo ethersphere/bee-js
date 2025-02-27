@@ -79,6 +79,10 @@ export class Identifier extends Bytes {
   constructor(bytes: Uint8Array | string | Bytes) {
     super(bytes, 32)
   }
+
+  static fromString(value: string): Identifier {
+    return new Identifier(Binary.keccak256(ENCODER.encode(value)))
+  }
 }
 
 export class Reference extends Bytes {
@@ -172,6 +176,12 @@ export class Signature extends Bytes {
 
     return new PublicKey(Binary.concatBytes(Binary.numberToUint256(x, 'BE'), Binary.numberToUint256(y, 'BE')))
   }
+
+  isValid(digest: Uint8Array | string, expectedAddress: EthAddress | Uint8Array | string): boolean {
+    const publicKey = this.recoverPublicKey(digest)
+    const address = publicKey.address()
+    return address.equals(expectedAddress)
+  }
 }
 
 export class Topic extends Bytes {
@@ -187,6 +197,8 @@ export class Topic extends Bytes {
 
 export class FeedIndex extends Bytes {
   static readonly LENGTH = 8
+  static readonly MINUS_ONE = new FeedIndex(new Uint8Array(8).fill(0xff, 0, 8))
+
   constructor(bytes: Uint8Array | string | Bytes) {
     super(bytes, 8)
   }

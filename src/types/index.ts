@@ -1,7 +1,7 @@
 import { Optional } from 'cafe-utility'
 import type { SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
-import type { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
+import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../modules/feed'
 import { Bytes } from '../utils/bytes'
 import { Duration } from '../utils/duration'
 import type { BeeError } from '../utils/error'
@@ -364,10 +364,21 @@ export interface BeeResponse {
 export interface FeedReader {
   readonly owner: EthAddress
   readonly topic: Topic
+
   /**
-   * Download the latest feed update
+   * @deprecated Use `downloadReference` or `downloadPayload` instead to disambiguate how the data should be interpreted.
    */
-  download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
+  download(options?: FeedUpdateOptions): Promise<FeedPayloadResult>
+
+  /**
+   * Downloads the feed update (latest if no index is specified) and returns it as a reference.
+   */
+  downloadReference(options?: FeedUpdateOptions): Promise<FeedReferenceResult>
+
+  /**
+   * Downloads the feed update (latest if no index is specified) and returns it as a payload.
+   */
+  downloadPayload(options?: FeedUpdateOptions): Promise<FeedPayloadResult>
 }
 
 /**
@@ -376,6 +387,8 @@ export interface FeedReader {
 export interface FeedWriter extends FeedReader {
   /**
    * Upload a new feed update
+   *
+   * @deprecated Use `uploadReference` or `uploadPayload` instead to disambiguate how the data should be interpreted.
    *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param reference The reference to be stored in the new update
@@ -386,6 +399,18 @@ export interface FeedWriter extends FeedReader {
   upload(
     postageBatchId: string | BatchId,
     reference: Reference | string | Uint8Array,
+    options?: FeedUploadOptions,
+  ): Promise<UploadResult>
+
+  uploadReference(
+    postageBatchId: string | BatchId,
+    reference: Reference | string | Uint8Array,
+    options?: FeedUploadOptions,
+  ): Promise<UploadResult>
+
+  uploadPayload(
+    postageBatchId: string | BatchId,
+    payload: Uint8Array | string,
     options?: FeedUploadOptions,
   ): Promise<UploadResult>
 }

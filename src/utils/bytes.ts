@@ -79,4 +79,8 @@ export class Bytes {
   public toJSON(): unknown {
     return JSON.parse(this.toUtf8())
   }
+
+  public equals(other: Bytes | Uint8Array | string): boolean {
+    return this.toHex() === new Bytes(other).toHex()
+  }
 }

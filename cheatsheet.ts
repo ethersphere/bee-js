@@ -113,7 +113,7 @@ async function main() {
       bee,
       '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     )
-    console.log(newManifestAddress.toHex())
+    console.log(newManifestAddress.reference.toHex())
     // 0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef (dummy)
   }
 

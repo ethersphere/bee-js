@@ -18,6 +18,11 @@ export interface FeedUpdateOptions {
    * Fetch specific previous Feed's update (default fetches latest update)
    */
   index?: FeedIndex | number
+
+  /**
+   * Whether the first 8 bytes of the payload are a timestamp
+   */
+  hasTimestamp?: boolean
 }
 
 interface FeedUpdateHeaders {
@@ -33,8 +38,12 @@ interface FeedUpdateHeaders {
   feedIndexNext?: FeedIndex
 }
 
-export interface FetchFeedUpdateResponse extends FeedUpdateHeaders {
+export interface FeedPayloadResult extends FeedUpdateHeaders {
   payload: Bytes
+}
+
+export interface FeedReferenceResult extends FeedUpdateHeaders {
+  reference: Reference
 }
 
 /**
@@ -92,8 +101,8 @@ function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeade
  * index of the subsequent update.
  *
  * @param requestOptions Options for making requests
- * @param owner          Owner's ethereum address in hex
- * @param topic          Topic in hex
+ * @param owner          Owner's ethereum address
+ * @param topic          Topic
  * @param options        Additional options, like index, at, type
  */
 export async function fetchLatestFeedUpdate(
@@ -101,7 +110,7 @@ export async function fetchLatestFeedUpdate(
   owner: EthAddress,
   topic: Topic,
   options?: FeedUpdateOptions,
-): Promise<FetchFeedUpdateResponse> {
+): Promise<FeedPayloadResult> {
   const response = await http<ArrayBuffer>(requestOptions, {
     responseType: 'arraybuffer',
     url: `${feedEndpoint}/${owner}/${topic}`,
@@ -112,4 +121,20 @@ export async function fetchLatestFeedUpdate(
     payload: new Bytes(response.data),
     ...readFeedUpdateHeaders(response.headers as Record<string, string>),
   }
+}
+
+export async function probeFeed(
+  requestOptions: BeeRequestOptions,
+  owner: EthAddress,
+  topic: Topic,
+): Promise<FeedUpdateHeaders> {
+  const response = await http<ArrayBuffer>(requestOptions, {
+    responseType: 'arraybuffer',
+    url: `${feedEndpoint}/${owner}/${topic}`,
+    params: {
+      'Swarm-Only-Root-Chunk': true,
+    },
+  })
+
+  return readFeedUpdateHeaders(response.headers as Record<string, string>)
 }
