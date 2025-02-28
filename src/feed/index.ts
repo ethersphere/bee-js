@@ -1,5 +1,11 @@
 import { Binary, Optional, Types } from 'cafe-utility'
-import { makeSingleOwnerChunkFromData, uploadSingleOwnerChunkData } from '../chunk/soc'
+import { asContentAddressedChunk, Chunk } from '../chunk/cac'
+import {
+  makeSingleOwnerChunkFromData,
+  uploadSingleOwnerChunkData,
+  uploadSingleOwnerChunkWithWrappedChunk,
+} from '../chunk/soc'
+import * as bytes from '../modules/bytes'
 import * as chunkAPI from '../modules/chunk'
 import {
   FeedPayloadResult,
@@ -11,7 +17,17 @@ import {
 import { BeeRequestOptions, FeedReader, FeedWriter, UploadOptions, UploadResult } from '../types'
 import { Bytes } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
-import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from '../utils/typed-bytes'
+import { ResourceLocator } from '../utils/resource-locator'
+import {
+  BatchId,
+  EthAddress,
+  FeedIndex,
+  Identifier,
+  PrivateKey,
+  Reference,
+  Signature,
+  Topic,
+} from '../utils/typed-bytes'
 import { makeFeedIdentifier } from './identifier'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
@@ -82,6 +98,19 @@ export async function updateFeedWithPayload(
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
 
+  if (data.length > 4096) {
+    const uploadResult = await bytes.upload(requestOptions, data, postageBatchId, options)
+    const rootChunk = await chunkAPI.download(requestOptions, uploadResult.reference)
+    return uploadSingleOwnerChunkWithWrappedChunk(
+      requestOptions,
+      signer,
+      postageBatchId,
+      identifier,
+      rootChunk,
+      options,
+    )
+  }
+
   return uploadSingleOwnerChunkData(
     requestOptions,
     signer,
@@ -122,6 +151,19 @@ export async function downloadFeedUpdate(
   }
 }
 
+export async function downloadFeedUpdateAsCAC(
+  requestOptions: BeeRequestOptions,
+  owner: EthAddress,
+  topic: Topic,
+  index: FeedIndex | number,
+): Promise<Chunk> {
+  index = typeof index === 'number' ? FeedIndex.fromBigInt(BigInt(index)) : index
+  const address = getFeedUpdateChunkReference(owner, topic, index)
+  const data = await chunkAPI.download(requestOptions, address)
+
+  return asContentAddressedChunk(data.slice(Identifier.LENGTH + Signature.LENGTH))
+}
+
 export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, owner: EthAddress): FeedReader {
   // TODO: remove after enough time has passed in deprecated version
   const download = async (options?: FeedUpdateOptions): Promise<FeedPayloadResult> => {
@@ -144,12 +186,17 @@ export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, 
       return fetchLatestFeedUpdate(requestOptions, owner, topic)
     }
 
-    const update = await downloadFeedUpdate(requestOptions, owner, topic, options.index, options.hasTimestamp)
+    const cac = await downloadFeedUpdateAsCAC(requestOptions, owner, topic, options.index)
+
+    const payload =
+      cac.span.toBigInt() <= 4096n
+        ? cac.payload
+        : await bytes.download(requestOptions, new ResourceLocator(cac.address))
 
     const feedIndex = typeof options.index === 'number' ? FeedIndex.fromBigInt(BigInt(options.index)) : options.index
 
     return {
-      payload: update.payload,
+      payload,
       feedIndex,
     }
   }

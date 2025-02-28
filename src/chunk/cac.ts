@@ -50,3 +50,21 @@ export function makeContentAddressedChunk(payloadBytes: Uint8Array | string): Ch
     address: calculateChunkAddress(data),
   }
 }
+
+export function asContentAddressedChunk(chunkBytes: Uint8Array): Chunk {
+  if (chunkBytes.length < MIN_PAYLOAD_SIZE + Span.LENGTH || chunkBytes.length > MAX_PAYLOAD_SIZE + Span.LENGTH) {
+    throw new RangeError(
+      `chunk size ${chunkBytes.length} exceeds limits [${MIN_PAYLOAD_SIZE + Span.LENGTH}, ${Span.LENGTH}]`,
+    )
+  }
+
+  const span = Span.fromSlice(chunkBytes, 0)
+  const data = Binary.concatBytes(span.toUint8Array(), chunkBytes.slice(Span.LENGTH))
+
+  return {
+    data,
+    span,
+    payload: Bytes.fromSlice(data, Span.LENGTH),
+    address: calculateChunkAddress(data),
+  }
+}
