@@ -48,6 +48,17 @@ test('bee.getSizeExtensionCost', async () => {
   })
 })
 
+test('bee.getExtensionCost', async () => {
+  await mocked(async (bee: Bee) => {
+    const cost = await bee.getExtensionCost(
+      'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
+      18,
+      Duration.fromYears(1),
+    )
+    expect(cost.toDecimalString()).toBe('209.0182760562950144')
+  })
+})
+
 test('bee.buyStorage with extensions', async () => {
   const calls = await mocked(async (bee: Bee) => {
     const batchId = await bee.buyStorage(1, Duration.fromDays(1))

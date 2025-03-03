@@ -1684,6 +1684,23 @@ export class Bee {
     return this.topUpBatch(batch.batchID, amount, options)
   }
 
+  async getExtensionCost(
+    postageBatchId: BatchId | Uint8Array | string,
+    gigabytes: number,
+    duration: Duration,
+    options?: BeeRequestOptions,
+  ): Promise<BZZ> {
+    const batch = await this.getPostageBatch(postageBatchId, options)
+    const chainState = await this.getChainState(options)
+    const amount = getAmountForDuration(duration, chainState.currentPrice)
+    const depth = getDepthForSize(gigabytes)
+
+    const currentValue = getStampCost(batch.depth, batch.amount)
+    const newValue = getStampCost(depth, amount)
+
+    return newValue.minus(currentValue)
+  }
+
   async getSizeExtensionCost(
     postageBatchId: BatchId | Uint8Array | string,
     gigabytes: number,
