@@ -1025,7 +1025,7 @@ export class Bee {
   gsocMine(
     targetOverlay: PeerAddress | Uint8Array | string,
     identifier: Identifier | Uint8Array | string,
-    proximity = 16,
+    proximity = 12,
   ): PrivateKey {
     targetOverlay = new PeerAddress(targetOverlay)
     identifier = new Identifier(identifier)
