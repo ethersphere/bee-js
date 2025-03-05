@@ -9,6 +9,7 @@ import type {
 } from '../../types'
 import { Duration } from '../../utils/duration'
 import { http } from '../../utils/http'
+import { Size } from '../../utils/size'
 import { getStampEffectiveBytes, getStampTheoreticalBytes, getStampUsage } from '../../utils/stamps'
 import { asNumberString } from '../../utils/type'
 import { BatchId, EthAddress } from '../../utils/typed-bytes'
@@ -68,9 +69,10 @@ export async function getAllPostageBatches(requestOptions: BeeRequestOptions): P
       blockNumber: Types.asNumber(x.blockNumber, { name: 'blockNumber' }),
       immutableFlag: Types.asBoolean(x.immutableFlag, { name: 'immutableFlag' }),
       usage,
-      size: getStampEffectiveBytes(depth),
-      remainingSize: Math.ceil(getStampEffectiveBytes(depth) * (1 - usage)),
-      theoreticalSize: getStampTheoreticalBytes(depth),
+      usageText: `${Math.round(usage * 100)}%`,
+      size: Size.fromBytes(getStampEffectiveBytes(depth)),
+      remainingSize: Size.fromBytes(Math.ceil(getStampEffectiveBytes(depth) * (1 - usage))),
+      theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(depth)),
       duration,
     }
   })
@@ -106,9 +108,10 @@ export async function getPostageBatch(
     blockNumber: Types.asNumber(body.blockNumber, { name: 'blockNumber' }),
     immutableFlag: Types.asBoolean(body.immutableFlag, { name: 'immutableFlag' }),
     usage,
-    size: getStampEffectiveBytes(depth),
-    remainingSize: Math.ceil(getStampEffectiveBytes(depth) * (1 - usage)),
-    theoreticalSize: getStampTheoreticalBytes(depth),
+    usageText: `${Math.round(usage * 100)}%`,
+    size: Size.fromBytes(getStampEffectiveBytes(depth)),
+    remainingSize: Size.fromBytes(Math.ceil(getStampEffectiveBytes(depth) * (1 - usage))),
+    theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(depth)),
     duration,
   }
 }

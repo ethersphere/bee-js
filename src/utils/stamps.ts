@@ -2,6 +2,7 @@ import { Binary } from 'cafe-utility'
 import { EnvelopeWithBatchId, NumberString } from '../types'
 import { Bytes } from './bytes'
 import { Duration } from './duration'
+import { Size } from './size'
 import { BZZ } from './tokens'
 import { asNumberString } from './type'
 
@@ -125,14 +126,14 @@ export function getAmountForDuration(duration: Duration, pricePerBlock: number, 
 }
 
 /**
- * Utility function that calculates the depth required for a postage batch to achieve the specified effective size in gigabytes.
+ * Utility function that calculates the depth required for a postage batch to achieve the specified effective size
  *
- * @param gigabytes
+ * @param size The effective size of the postage batch
  * @returns
  */
-export function getDepthForSize(gigabytes: number): number {
-  for (const [depth, size] of effectiveSizeBreakpoints) {
-    if (gigabytes <= size) {
+export function getDepthForSize(size: Size): number {
+  for (const [depth, sizeBreakpoint] of effectiveSizeBreakpoints) {
+    if (size.toGigabytes() <= sizeBreakpoint) {
       return depth
     }
   }

@@ -11,6 +11,7 @@ export * from './utils/constants'
 export { Duration } from './utils/duration'
 export * from './utils/error'
 export * as Utils from './utils/expose'
+export { Size } from './utils/size'
 export * from './utils/tokens'
 export * from './utils/typed-bytes'
 export { Bee, BeeDev, Stamper }
@@ -25,6 +26,7 @@ declare global {
       Stamper: typeof import('./stamper/stamper').Stamper
       Utils: typeof import('./utils/expose')
       Duration: typeof import('./utils/duration').Duration
+      Size: typeof import('./utils/size').Size
       BeeError: typeof import('./utils/error').BeeError
       BeeArgumentError: typeof import('./utils/error').BeeArgumentError
       BeeResponseError: typeof import('./utils/error').BeeResponseError

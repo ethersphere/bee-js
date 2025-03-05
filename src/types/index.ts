@@ -5,6 +5,7 @@ import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '
 import { Bytes } from '../utils/bytes'
 import { Duration } from '../utils/duration'
 import type { BeeError } from '../utils/error'
+import { Size } from '../utils/size'
 import {
   BatchId,
   EthAddress,
@@ -485,17 +486,21 @@ export interface PostageBatch {
    */
   usage: number
   /**
-   * Effective size in bytes
+   * Human readable usage text, like "50%" or "100%", no fractions
    */
-  size: number
+  usageText: string
   /**
-   * Estimated remaining size in bytes
+   * Effective size
    */
-  remainingSize: number
+  size: Size
+  /**
+   * Estimated remaining size
+   */
+  remainingSize: Size
   /**
    * Theoretical size in bytes
    */
-  theoreticalSize: number
+  theoreticalSize: Size
 }
 
 export interface BatchBucket {

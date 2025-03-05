@@ -96,6 +96,7 @@ import { Duration } from './utils/duration'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { ResourceLocator } from './utils/resource-locator'
+import { Size } from './utils/size'
 import { getAmountForDuration, getDepthForSize, getStampCost } from './utils/stamps'
 import { BZZ } from './utils/tokens'
 import {
@@ -1630,14 +1631,14 @@ export class Bee {
   }
 
   async buyStorage(
-    gigabytes: number,
+    size: Size,
     duration: Duration,
     options?: PostageBatchOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<BatchId> {
     const chainState = await this.getChainState(requestOptions)
     const amount = getAmountForDuration(duration, chainState.currentPrice)
-    const depth = getDepthForSize(gigabytes)
+    const depth = getDepthForSize(size)
 
     if (options) {
       options = preparePostageBatchOptions(options)
@@ -1646,21 +1647,17 @@ export class Bee {
     return this.createPostageBatch(amount, depth, options, requestOptions)
   }
 
-  async getStorageCost(gigabytes: number, duration: Duration, options?: BeeRequestOptions): Promise<BZZ> {
+  async getStorageCost(size: Size, duration: Duration, options?: BeeRequestOptions): Promise<BZZ> {
     const chainState = await this.getChainState(options)
     const amount = getAmountForDuration(duration, chainState.currentPrice)
-    const depth = getDepthForSize(gigabytes)
+    const depth = getDepthForSize(size)
 
     return getStampCost(depth, amount)
   }
 
-  async extendStorageSize(
-    postageBatchId: BatchId | Uint8Array | string,
-    gigabytes: number,
-    options?: BeeRequestOptions,
-  ) {
+  async extendStorageSize(postageBatchId: BatchId | Uint8Array | string, size: Size, options?: BeeRequestOptions) {
     const batch = await this.getPostageBatch(postageBatchId, options)
-    const depth = getDepthForSize(gigabytes)
+    const depth = getDepthForSize(size)
     const delta = depth - batch.depth
 
     if (delta <= 0) {
@@ -1686,14 +1683,14 @@ export class Bee {
 
   async getExtensionCost(
     postageBatchId: BatchId | Uint8Array | string,
-    gigabytes: number,
+    size: Size,
     duration: Duration,
     options?: BeeRequestOptions,
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
     const chainState = await this.getChainState(options)
     const amount = getAmountForDuration(duration, chainState.currentPrice)
-    const depth = getDepthForSize(gigabytes)
+    const depth = getDepthForSize(size)
 
     const currentValue = getStampCost(batch.depth, batch.amount)
     const newValue = getStampCost(depth, amount)
@@ -1703,11 +1700,11 @@ export class Bee {
 
   async getSizeExtensionCost(
     postageBatchId: BatchId | Uint8Array | string,
-    gigabytes: number,
+    size: Size,
     options?: BeeRequestOptions,
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
-    const depth = getDepthForSize(gigabytes)
+    const depth = getDepthForSize(size)
     const delta = depth - batch.depth
 
     if (delta <= 0) {

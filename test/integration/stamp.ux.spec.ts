@@ -1,16 +1,16 @@
-import { Bee, Utils } from '../../src'
+import { Bee, Size, Utils } from '../../src'
 import { Duration } from '../../src/utils/duration'
 import { mocked } from '../mocks'
 
 test('Utils.getDepthForSize', () => {
-  expect(Utils.getDepthForSize(0)).toBe(22)
-  expect(Utils.getDepthForSize(1)).toBe(22)
-  expect(Utils.getDepthForSize(2)).toBe(22)
-  expect(Utils.getDepthForSize(3)).toBe(22)
-  expect(Utils.getDepthForSize(4)).toBe(22)
-  expect(Utils.getDepthForSize(5)).toBe(23)
-  expect(Utils.getDepthForSize(17)).toBe(23)
-  expect(Utils.getDepthForSize(18)).toBe(24)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(0))).toBe(22)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(1))).toBe(22)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(2))).toBe(22)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(3))).toBe(22)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(4))).toBe(22)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(5))).toBe(23)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(17))).toBe(23)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(18))).toBe(24)
 })
 
 test('Utils.getAmountForDuration', () => {
@@ -22,7 +22,7 @@ test('Utils.getAmountForDuration', () => {
 
 test('bee.getStorageCost', async () => {
   await mocked(async (bee: Bee) => {
-    const bzz = await bee.getStorageCost(4, Duration.fromDays(1))
+    const bzz = await bee.getStorageCost(Size.fromGigabytes(4), Duration.fromDays(1))
     expect(bzz.toSignificantDigits(3)).toBe('0.192')
   })
 })
@@ -39,11 +39,17 @@ test('bee.getDurationExtensionCost', async () => {
 
 test('bee.getSizeExtensionCost', async () => {
   await mocked(async (bee: Bee) => {
-    const cost = await bee.getSizeExtensionCost('f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa', 18)
+    const cost = await bee.getSizeExtensionCost(
+      'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
+      Size.fromGigabytes(18),
+    )
     expect(cost.toSignificantDigits(3)).toBe('72.011')
 
     await expect(() =>
-      bee.getSizeExtensionCost('f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa', 1),
+      bee.getSizeExtensionCost(
+        'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
+        Size.fromGigabytes(1),
+      ),
     ).rejects.toThrow('New depth has to be greater than the original depth')
   })
 })
@@ -52,7 +58,7 @@ test('bee.getExtensionCost', async () => {
   await mocked(async (bee: Bee) => {
     const cost = await bee.getExtensionCost(
       'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
-      18,
+      Size.fromGigabytes(18),
       Duration.fromYears(1),
     )
     expect(cost.toDecimalString()).toBe('209.0182760562950144')
@@ -61,12 +67,12 @@ test('bee.getExtensionCost', async () => {
 
 test('bee.buyStorage with extensions', async () => {
   const calls = await mocked(async (bee: Bee) => {
-    const batchId = await bee.buyStorage(1, Duration.fromDays(1))
-    await bee.buyStorage(1, Duration.fromDays(1), { waitForUsable: false })
+    const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(1))
+    await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(1), { waitForUsable: false })
     await bee.extendStorageDuration(batchId, Duration.fromDays(1))
-    await bee.extendStorageSize(batchId, 8)
-    await bee.extendStorageSize(batchId, 24)
-    await expect(() => bee.extendStorageSize(batchId, 1)).rejects.toThrow(
+    await bee.extendStorageSize(batchId, Size.fromGigabytes(8))
+    await bee.extendStorageSize(batchId, Size.fromGigabytes(24))
+    await expect(() => bee.extendStorageSize(batchId, Size.fromGigabytes(1))).rejects.toThrow(
       'New depth has to be greater than the original depth',
     )
   })
@@ -101,8 +107,7 @@ test('getStampEffectiveBytesBreakpoints', () => {
   const breakpoints = Utils.getStampEffectiveBytesBreakpoints()
 
   for (const [depth, bytes] of breakpoints) {
-    const gigabytes = bytes / 1e9
-    const uxDepth = Utils.getDepthForSize(gigabytes)
+    const uxDepth = Utils.getDepthForSize(Size.fromBytes(bytes))
     expect(uxDepth).toBe(depth)
   }
 
