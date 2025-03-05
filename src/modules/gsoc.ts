@@ -1,3 +1,4 @@
+import { System } from 'cafe-utility'
 import WebSocket from 'isomorphic-ws'
 import { BeeRequestOptions, UploadOptions } from '..'
 import { SingleOwnerChunk, uploadSingleOwnerChunk } from '../chunk/soc'
@@ -16,6 +17,10 @@ export async function send(
 
 export function subscribe(url: string, reference: Reference, headers?: Record<string, string>) {
   const wsUrl = url.replace(/^http/i, 'ws')
+
+  if (System.whereAmI() === 'browser') {
+    return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${reference.toHex()}`)
+  }
 
   return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${reference.toHex()}`, {
     headers,

@@ -1,3 +1,4 @@
+import { System } from 'cafe-utility'
 import WebSocket from 'isomorphic-ws'
 import type { BeeRequestOptions } from '../types'
 import { prepareRequestHeaders } from '../utils/headers'
@@ -43,6 +44,10 @@ export async function send(
  */
 export function subscribe(url: string, topic: Topic, headers?: Record<string, string>): WebSocket {
   const wsUrl = url.replace(/^http/i, 'ws')
+
+  if (System.whereAmI() === 'browser') {
+    return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${topic.toHex()}`)
+  }
 
   return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${topic.toHex()}`, {
     headers,
