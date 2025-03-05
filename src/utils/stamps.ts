@@ -51,14 +51,14 @@ const effectiveSizeBreakpoints = [
   [23, 17.03],
   [24, 44.21],
   [25, 102.78],
-  [26, 225.86],
-  [27, 480.43],
-  [28, 1.0],
-  [29, 2.06],
-  [30, 4.2],
-  [31, 8.52],
-  [32, 17.2],
-  [33, 34.63],
+  [26, 225.87],
+  [27, 480.44],
+  [28, 1001.44],
+  [29, 2060.27],
+  [30, 4201.9],
+  [31, 8519.02],
+  [32, 17199.89],
+  [33, 34628.46],
 ]
 
 /**
@@ -77,6 +77,16 @@ export function getStampEffectiveBytes(depth: number): number {
   const utilRate = utilisationRateMap[depth] ?? 0.99
 
   return Math.ceil(getStampTheoreticalBytes(depth) * utilRate)
+}
+
+export function getStampEffectiveBytesBreakpoints(): Map<number, number> {
+  const map = new Map<number, number>()
+
+  for (let i = 22; i < 35; i++) {
+    map.set(i, getStampEffectiveBytes(i))
+  }
+
+  return map
 }
 
 /**

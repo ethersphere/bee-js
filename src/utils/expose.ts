@@ -8,6 +8,7 @@ export {
   getStampCost,
   getStampDuration,
   getStampEffectiveBytes,
+  getStampEffectiveBytesBreakpoints,
   getStampTheoreticalBytes,
   getStampUsage,
 } from './stamps'

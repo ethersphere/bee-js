@@ -96,3 +96,20 @@ test('bee.buyStorage with extensions', async () => {
     'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
   ])
 })
+
+test('getStampEffectiveBytesBreakpoints', () => {
+  const breakpoints = Utils.getStampEffectiveBytesBreakpoints()
+
+  for (const [depth, bytes] of breakpoints) {
+    const gigabytes = bytes / 1e9
+    const uxDepth = Utils.getDepthForSize(gigabytes)
+    expect(uxDepth).toBe(depth)
+  }
+
+  const values = [...breakpoints.values()]
+
+  expect(values).toEqual([
+    4925468496, 17028686336, 44207239385, 102776849407, 225867176136, 480431605757, 1001435190579, 2060264888127,
+    4201893636709, 8519016092009, 17199880295626, 34628459009829, 69587651117292,
+  ])
+})
