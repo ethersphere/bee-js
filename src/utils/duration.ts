@@ -8,6 +8,10 @@ export class Duration {
     }
   }
 
+  static fromMilliseconds(milliseconds: number): Duration {
+    return new Duration(milliseconds / 1000)
+  }
+
   static fromSeconds(seconds: number): Duration {
     return new Duration(seconds)
   }
