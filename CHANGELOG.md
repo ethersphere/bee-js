@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.0.1](https://github.com/ethersphere/bee-js/compare/v9.0.0...v9.0.1) (2025-03-10)
+
+
+### Bug Fixes
+
+* fail Reference.isValid for odd-length hex strings ([#982](https://github.com/ethersphere/bee-js/issues/982)) ([cdfa692](https://github.com/ethersphere/bee-js/commit/cdfa6924d09a26244fa0894935026f06e64eecb3))
+
 ## [9.0.0](https://github.com/ethersphere/bee-js/compare/v8.3.1...v9.0.0) (2025-03-10)
 
 
