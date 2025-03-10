@@ -250,7 +250,7 @@ main()
 async function main() {
   const bee = new Bee(SWARM_GATEWAY_URL)
   const { reference } = await bee.uploadData(NULL_STAMP, 'Hello, World!')
-  console.log(reference)
+  console.log(reference.toHex())
 }
 ```
 
@@ -272,7 +272,7 @@ async function getOrCreatePostageBatch() {
   if (usable) {
     batchId = usable.batchID
   } else {
-    batchId = await bee.createPostageBatch('500000000', 20)
+    batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(1))
   }
 }
 ```
