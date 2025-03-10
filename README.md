@@ -272,7 +272,7 @@ async function getOrCreatePostageBatch() {
   if (usable) {
     batchId = usable.batchID
   } else {
-    batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(1))
+    batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(7))
   }
 }
 ```
