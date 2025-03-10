@@ -21,10 +21,10 @@ test('GET batches', async () => {
 })
 
 test('POST stamps', async () => {
-  const response = await bee.createPostageBatch('660000000', 17, { waitForUsable: true })
+  const response = await bee.createPostageBatch('670000000', 17, { waitForUsable: true })
   expect(response.toHex()).toHaveLength(64)
 
-  await bee.topUpBatch(response, '660000000')
+  await bee.topUpBatch(response, '670000000')
 
   await System.waitFor(
     async () => {

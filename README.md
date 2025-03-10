@@ -13,7 +13,7 @@
 
 > Write your code in CJS, MJS or TypeScript.
 
-> Intended to be used with Bee version 2.4.0.
+> Intended to be used with Bee version 2.5.0.
 
 ## Quick start
 
