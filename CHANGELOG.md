@@ -1,6 +1,22 @@
 # Changelog
 
 
+## [9.0.0](https://github.com/ethersphere/bee-js/compare/v8.3.1...v9.0.0) (2025-03-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* rework library for better developer experience ([#977](https://github.com/ethersphere/bee-js/issues/977))
+
+### Features
+
+* rework library for better developer experience ([#977](https://github.com/ethersphere/bee-js/issues/977)) ([925c208](https://github.com/ethersphere/bee-js/commit/925c2080d8f8f8082725c3c2738406d8a5016204))
+
+
+### Bug Fixes
+
+* wrong JSDoc links ([#978](https://github.com/ethersphere/bee-js/issues/978)) ([8c801e9](https://github.com/ethersphere/bee-js/commit/8c801e9d07280939f7448df5f5798883a401af76))
+
 ## [8.3.0](https://github.com/ethersphere/bee-js/compare/v8.2.0...v8.3.0) (2024-10-24)
 
 
