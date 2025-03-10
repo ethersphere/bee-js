@@ -1,409 +1,177 @@
-import { Readable } from 'stream'
+import { Types } from 'cafe-utility'
+import * as stream from 'stream'
 import {
-  Address,
-  ADDRESS_HEX_LENGTH,
-  AddressPrefix,
   AllTagsOptions,
-  BATCH_ID_HEX_LENGTH,
-  BatchId,
   BeeRequestOptions,
-  CashoutOptions,
   CollectionUploadOptions,
-  ENCRYPTED_REFERENCE_HEX_LENGTH,
+  DownloadOptions,
   FileUploadOptions,
+  GsocMessageHandler,
   NumberString,
   PostageBatchOptions,
-  PSS_TARGET_HEX_LENGTH_MAX,
   PssMessageHandler,
-  PUBKEY_HEX_LENGTH,
-  PublicKey,
-  Reference,
-  REFERENCE_HEX_LENGTH,
-  ReferenceOrEns,
+  RedundantUploadOptions,
   Tag,
   TAGS_LIMIT_MAX,
   TAGS_LIMIT_MIN,
-  TransactionHash,
   TransactionOptions,
   UploadOptions,
 } from '../types'
-import { convertCidToReference, convertReferenceToCid } from './cid'
-import { BeeArgumentError, BeeError } from './error'
 import { isFile } from './file'
-import { assertHexString, assertPrefixedHexString, isHexString } from './hex'
+import { PublicKey, Reference } from './typed-bytes'
 
-export function isReadable(obj: unknown): obj is Readable {
-  return typeof Readable !== 'undefined' && obj instanceof Readable
+export function isReadable(value: unknown): value is stream.Readable {
+  return typeof stream.Readable !== 'undefined' && value instanceof stream.Readable
 }
 
-export function isInteger(value: unknown): value is number | NumberString {
-  return (
-    (typeof value === 'string' && /^-?(0|[1-9][0-9]*)$/g.test(value)) ||
-    (typeof value === 'number' &&
-      value > Number.MIN_SAFE_INTEGER &&
-      value < Number.MAX_SAFE_INTEGER &&
-      Number.isInteger(value))
-  )
-}
-
-export function isObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object'
-}
-
-export function isStrictlyObject(value: unknown): value is Record<string, unknown> {
-  return isObject(value) && !Array.isArray(value)
-}
-
-/**
- * Asserts if object is Error
- *
- * @param e
- */
-export function isError(e: unknown): e is Error {
-  return e instanceof Error
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function assertStrictlyObject(value: unknown, name = 'value'): asserts value is object {
-  if (!isStrictlyObject(value)) {
-    throw new TypeError(`${name} has to be an object that is not null nor array!`)
-  }
-}
-
-export function assertBoolean(value: unknown, name = 'value'): asserts value is boolean {
-  if (value !== true && value !== false) throw new TypeError(`${name} is not boolean`)
-}
-
-export function assertInteger(value: unknown, name = 'value'): asserts value is number | NumberString {
-  if (!isInteger(value)) throw new TypeError(`${name} is not integer`)
-}
-
-export function assertNonNegativeInteger(value: unknown, name = 'Value'): asserts value is number | NumberString {
-  assertInteger(value, name)
-
-  if (Number(value) < 0) throw new BeeArgumentError(`${name} has to be bigger or equal to zero`, value)
-}
-
-export function assertPositiveInteger(value: unknown, name = 'Value'): asserts value is number | NumberString {
-  assertInteger(value, name)
-
-  if (Number(value) <= 0) throw new BeeArgumentError(`${name} has to be bigger then zero`, value)
-}
-
-export function assertReference(value: unknown): asserts value is Reference {
-  try {
-    assertHexString(value, REFERENCE_HEX_LENGTH)
-  } catch (e) {
-    assertHexString(value, ENCRYPTED_REFERENCE_HEX_LENGTH)
-  }
-}
-
-export function assertReferenceOrEns(value: unknown): asserts value is ReferenceOrEns {
-  if (typeof value !== 'string') {
-    throw new TypeError('ReferenceOrEns has to be a string!')
+export function asNumberString(value: unknown, options?: { name?: string; min?: bigint; max?: bigint }): NumberString {
+  if (typeof value === 'bigint') {
+    value = value.toString()
   }
 
-  if (isHexString(value)) {
-    assertReference(value)
-
-    return
-  }
-
-  /**
-   * a.asdf - VALID
-   * test.eth - VALID
-   * ADAM.ETH - VALID
-   * ADAM UHLIR.ETH - INVALID
-   * test.whatever.eth - VALID
-   * -adg.ets - INVALID
-   * adg-.ets - INVALID
-   * as-a.com - VALID
-   * ethswarm.org - VALID
-   * http://asdf.asf - INVALID
-   * řš+ýí.šě+ř.čě - VALID
-   * tsg.asg?asg - INVALID
-   * tsg.asg:1599 - INVALID
-   * ethswarm.something- - INVALID
-   * ethswarm.-something - INVALID
-   * ethswarm.some-thing - VALID
-   *
-   * The idea of this regex is to match strings that are 1 to 63 characters long and do not start or end with dash character
-   *
-   * This part matches 2-63 character string that does not start or end with -
-   * [^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]   <regexp1>
-   *
-   * For 1 character long string we use the part after |
-   * [^-.\/?:\s]   <regexp2>
-   *
-   * This is terminated in a group with . character an repeated at least once
-   * (<regexp1>|<regexp2>\.)+
-   *
-   * This covers everything but top level domain which is 2 to 63 characters long so we can just use the <regexp2> again
-   * ^(<regexp1>|<regexp2>\.)+<regexp1>$
-   */
-  const DOMAIN_REGEX =
-    /^(?:(?:[^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]|[^-.\/?:\s]{1,2})\.)+[^-.\/?:\s][^.\/?:\s]{0,61}[^-.\/?:\s]$/
-
-  // We are doing best-effort validation of domain here. The proper way would be to do validation using IDNA UTS64 standard
-  // but that would give us high penalty to our dependencies as the library (idna-uts46-hx) that does this validation and translation
-  // adds 160kB minified size which is significant. We expects that full validation will be done on Bee side.
-  if (!DOMAIN_REGEX.test(value)) {
-    throw new TypeError('ReferenceOrEns is not valid Reference, but also not valid ENS domain.')
-  }
+  return Types.asIntegerString(value, options) as NumberString
 }
 
-/**
- * Function that mainly converts Swarm CID into hex encoded Swarm Reference
- *
- * @param value
- * @param expectedCidType
- */
-export function makeReferenceOrEns(value: unknown, expectedCidType: 'feed' | 'manifest'): ReferenceOrEns {
-  if (typeof value !== 'string') {
-    throw new TypeError('ReferenceCidOrEns has to be a string!')
-  }
+export function prepareBeeRequestOptions(value: unknown): BeeRequestOptions {
+  const object = Types.asObject(value, { name: 'BeeRequestOptions' })
 
-  try {
-    const result = convertCidToReference(value)
-
-    if (result.type !== expectedCidType) {
-      throw new BeeError(
-        `CID was expected to be of type ${expectedCidType}, but got instead ${result.type ?? 'non-Swarm CID'}`,
-      )
-    }
-
-    return result.reference
-  } catch (e) {
-    if (e instanceof BeeError) throw e
-  }
-
-  assertReferenceOrEns(value)
-
-  return value
-}
-
-/**
- * Function that adds getter which converts the reference into CID base32 encoded string.
- * @param result
- * @param cidType feed or manifest
- */
-export function addCidConversionFunction<T extends { reference: string }>(
-  result: T,
-  cidType: 'feed' | 'manifest',
-): T & { cid: () => string } {
   return {
-    ...result,
-    cid() {
-      return convertReferenceToCid(result.reference, cidType)
-    },
+    baseURL: Types.asOptional(x => Types.asString(x, { name: 'baseURL' }), object.baseURL),
+    timeout: Types.asOptional(x => Types.asInteger(x, { name: 'timeout', min: 0 }), object.timeout),
+    headers: Types.asOptional(x => Types.asStringMap(x, { name: 'headers' }), object.headers),
+    onRequest: Types.asOptional(x => Types.asFunction(x, { name: 'onRequest' }), object.onRequest) as
+      | BeeRequestOptions['onRequest']
+      | undefined,
+    httpAgent: object.httpAgent,
+    httpsAgent: object.httpsAgent,
+    endlesslyRetry: Types.asOptional(x => Types.asBoolean(x, { name: 'endlesslyRetry' }), object.endlesslyRetry),
   }
 }
 
-export function assertAddress(value: unknown): asserts value is Address {
-  assertHexString(value, ADDRESS_HEX_LENGTH, 'Address')
-}
+export function prepareDownloadOptions(value: unknown): DownloadOptions {
+  const object = Types.asObject(value, { name: 'DownloadOptions' })
 
-export function assertBatchId(value: unknown): asserts value is BatchId {
-  assertHexString(value, BATCH_ID_HEX_LENGTH, 'BatchId')
-}
-
-export function assertRequestOptions(value: unknown, name = 'RequestOptions'): asserts value is BeeRequestOptions {
-  if (value === undefined) {
-    return
-  }
-
-  if (!isStrictlyObject(value)) {
-    throw new TypeError(`${name} has to be an object!`)
-  }
-
-  const options = value as BeeRequestOptions
-
-  if (options.timeout) {
-    assertNonNegativeInteger(options.timeout, `${name}.timeout`)
+  return {
+    redundancyStrategy: Types.asOptional(
+      x => Types.asInteger(x, { name: 'redundancyStrategy' }),
+      object.redundancyStrategy,
+    ),
+    fallback: Types.asOptional(x => Types.asBoolean(x, { name: 'fallback' }), object.fallback),
+    timeoutMs: Types.asOptional(x => Types.asInteger(x, { name: 'timeoutMs', min: 0 }), object.timeoutMs),
+    actPublisher: Types.asOptional(x => new PublicKey(x), object.actPublisher),
+    actHistoryAddress: Types.asOptional(x => new Reference(x), object.actHistoryAddress),
+    actTimestamp: Types.asOptional(x => Types.asNumber(x, { name: 'actTimestamp' }), object.actTimestamp),
   }
 }
 
-export function assertUploadOptions(value: unknown, name = 'UploadOptions'): asserts value is UploadOptions {
-  if (!isStrictlyObject(value)) {
-    throw new TypeError(`${name} has to be an object!`)
-  }
+export function prepareUploadOptions(value: unknown, name = 'UploadOptions'): UploadOptions {
+  const object = Types.asObject(value, { name })
 
-  assertRequestOptions(value, name)
-
-  const options = value as UploadOptions
-
-  if (options.pin && typeof options.pin !== 'boolean') {
-    throw new TypeError(`options.pin property in ${name} has to be boolean or undefined!`)
-  }
-
-  if (options.encrypt && typeof options.encrypt !== 'boolean') {
-    throw new TypeError(`options.encrypt property in ${name} has to be boolean or undefined!`)
-  }
-
-  if (options.tag) {
-    if (typeof options.tag !== 'number') {
-      throw new TypeError(`options.tag property in ${name} has to be number or undefined!`)
-    }
-
-    assertNonNegativeInteger(options.tag, 'options.tag')
+  return {
+    act: Types.asOptional(x => Types.asBoolean(x, { name: 'act' }), object.act),
+    deferred: Types.asOptional(x => Types.asBoolean(x, { name: 'deferred' }), object.deferred),
+    encrypt: Types.asOptional(x => Types.asBoolean(x, { name: 'encrypt' }), object.encrypt),
+    pin: Types.asOptional(x => Types.asBoolean(x, { name: 'pin' }), object.pin),
+    tag: Types.asOptional(x => Types.asInteger(x, { name: 'tag', min: 0 }), object.tag),
   }
 }
 
-export function assertFileUploadOptions(value: unknown): asserts value is FileUploadOptions {
-  assertUploadOptions(value, 'FileUploadOptions')
+export function prepareRedundantUploadOptions(value: unknown, name = 'UploadOptions'): RedundantUploadOptions {
+  const uploadOptions = prepareUploadOptions(value, name)
 
-  const options = value as FileUploadOptions
+  const object = Types.asObject(value, { name })
 
-  if (options.size) {
-    if (typeof options.size !== 'number') {
-      throw new TypeError('tag property in FileUploadOptions has to be number or undefined!')
-    }
-
-    assertNonNegativeInteger(options.size, 'options.size')
-  }
-
-  if (options.contentType && typeof options.contentType !== 'string') {
-    throw new TypeError('contentType property in FileUploadOptions has to be string or undefined!')
+  return {
+    ...uploadOptions,
+    redundancyLevel: Types.asOptional(
+      x => Types.asInteger(x, { name: 'redundancyLevel', min: 0 }),
+      object.redundancyLevel,
+    ),
   }
 }
 
-export function assertCollectionUploadOptions(value: unknown): asserts value is CollectionUploadOptions {
-  assertUploadOptions(value, 'CollectionUploadOptions')
+export function prepareFileUploadOptions(value: unknown): FileUploadOptions {
+  const uploadOptions = prepareUploadOptions(value, 'FileUploadOptions')
 
-  const options = value as CollectionUploadOptions
+  const object = Types.asObject(value, { name: 'FileUploadOptions' })
 
-  if (options.indexDocument && typeof options.indexDocument !== 'string') {
-    throw new TypeError('indexDocument property in CollectionUploadOptions has to be string or undefined!')
+  return {
+    ...uploadOptions,
+    size: Types.asOptional(x => Types.asInteger(x, { name: 'size', min: 0 }), object.size),
+    contentType: Types.asOptional(x => Types.asString(x, { name: 'contentType' }), object.contentType),
+    redundancyLevel: Types.asOptional(
+      x => Types.asInteger(x, { name: 'redundancyLevel', min: 0 }),
+      object.redundancyLevel,
+    ),
   }
+}
 
-  if (options.errorDocument && typeof options.errorDocument !== 'string') {
-    throw new TypeError('errorDocument property in CollectionUploadOptions has to be string or undefined!')
+export function prepareCollectionUploadOptions(value: unknown): CollectionUploadOptions {
+  const uploadOptions = prepareUploadOptions(value, 'CollectionUploadOptions')
+
+  const object = Types.asObject(value, { name: 'CollectionUploadOptions' })
+
+  return {
+    ...uploadOptions,
+    errorDocument: Types.asOptional(x => Types.asString(x, { name: 'errorDocument' }), object.errorDocument),
+    indexDocument: Types.asOptional(x => Types.asString(x, { name: 'indexDocument' }), object.indexDocument),
+    redundancyLevel: Types.asOptional(
+      x => Types.asInteger(x, { name: 'redundancyLevel', min: 0 }),
+      object.redundancyLevel,
+    ),
   }
 }
 
 export function isTag(value: unknown): value is Tag {
-  if (!isStrictlyObject(value)) {
+  try {
+    const object = Types.asObject(value, { name: 'Tag' })
+    Types.asInteger(object.uid, { name: 'Tag.uid' })
+    return true
+  } catch {
     return false
   }
-
-  return Boolean(value.uid)
 }
 
-export function assertTag(value: unknown): asserts value is Tag {
-  if (!isStrictlyObject(value)) {
-    throw new TypeError('Tag is not an object!')
-  }
+export function preparePssMessageHandler(value: unknown): PssMessageHandler {
+  const object = Types.asObject(value, { name: 'PssMessageHandler' })
 
-  const tag = value as Record<string, unknown>
-
-  const numberProperties = ['total', 'processed', 'synced', 'uid']
-  for (const numberProperty of numberProperties) {
-    if (!tag[numberProperty]) {
-      throw new TypeError(`Tag's property '${numberProperty}' has to be specified!`)
-    }
-
-    if (typeof tag[numberProperty] !== 'number') {
-      throw new TypeError(`Tag's property '${numberProperty}' has to be number!`)
-    }
-  }
-
-  if (!tag.startedAt) {
-    throw new TypeError("Tag's property 'startedAt' has to be specified!")
-  }
-
-  if (typeof tag.startedAt !== 'string') {
-    throw new TypeError("Tag's property 'startedAt' has to be string!")
+  return {
+    onMessage: Types.asFunction(object.onMessage, { name: 'onMessage' }) as PssMessageHandler['onMessage'],
+    onError: Types.asFunction(object.onError, { name: 'onError' }) as PssMessageHandler['onError'],
   }
 }
 
-export function assertAddressPrefix(value: unknown): asserts value is AddressPrefix {
-  assertHexString(value, undefined, 'AddressPrefix')
+export function prepareGsocMessageHandler(value: unknown): GsocMessageHandler {
+  const object = Types.asObject(value, { name: 'GsocMessageHandler' })
 
-  if (value.length > PSS_TARGET_HEX_LENGTH_MAX) {
-    throw new BeeArgumentError(
-      `AddressPrefix must have length of ${PSS_TARGET_HEX_LENGTH_MAX} at most! Got string with ${value.length}`,
-      value,
-    )
+  return {
+    onMessage: Types.asFunction(object.onMessage, { name: 'onMessage' }) as GsocMessageHandler['onMessage'],
+    onError: Types.asFunction(object.onError, { name: 'onError' }) as GsocMessageHandler['onError'],
   }
 }
 
-export function assertPssMessageHandler(value: unknown): asserts value is PssMessageHandler {
-  if (!isStrictlyObject(value)) {
-    throw new TypeError('PssMessageHandler has to be object!')
-  }
+export function preparePostageBatchOptions(value: unknown): PostageBatchOptions {
+  const object = Types.asObject(value, { name: 'PostageBatchOptions' })
 
-  const handler = value as unknown as PssMessageHandler
-
-  if (typeof handler.onMessage !== 'function') {
-    throw new TypeError('onMessage property of PssMessageHandler has to be function!')
-  }
-
-  if (typeof handler.onError !== 'function') {
-    throw new TypeError('onError property of PssMessageHandler has to be function!')
-  }
-}
-
-export function assertPublicKey(value: unknown): asserts value is PublicKey {
-  assertHexString(value, PUBKEY_HEX_LENGTH, 'PublicKey')
-}
-
-export function assertPostageBatchOptions(value: unknown): asserts value is PostageBatchOptions {
-  if (value === undefined) {
-    return
-  }
-
-  assertStrictlyObject(value)
-
-  const options = value as PostageBatchOptions
-  assertRequestOptions(options, 'PostageBatchOptions')
-
-  if (options?.gasPrice) {
-    assertNonNegativeInteger(options.gasPrice)
-  }
-
-  if (options?.immutableFlag !== undefined) {
-    assertBoolean(options.immutableFlag)
-  }
-
-  if (options?.waitForUsable !== undefined) {
-    assertBoolean(options.waitForUsable)
-  }
-
-  if (options?.waitForUsableTimeout !== undefined) {
-    assertNonNegativeInteger(options.waitForUsableTimeout, 'options.waitForUsableTimeout')
+  return {
+    gasPrice: Types.asOptional(x => asNumberString(x, { name: 'gasPrice' }), object.gasPrice),
+    immutableFlag: Types.asOptional(x => Types.asBoolean(x, { name: 'immutableFlag' }), object.immutableFlag),
+    label: Types.asOptional(x => Types.asString(x, { name: 'label' }), object.label),
+    waitForUsable: Types.asOptional(x => Types.asBoolean(x, { name: 'waitForUsable' }), object.waitForUsable),
+    waitForUsableTimeout: Types.asOptional(
+      x => Types.asInteger(x, { name: 'waitForUsableTimeout', min: 0 }),
+      object.waitForUsableTimeout,
+    ),
   }
 }
 
-export function assertTransactionOptions(
-  value: unknown,
-  name = 'TransactionOptions',
-): asserts value is TransactionOptions {
-  if (value === undefined) {
-    return
+export function prepareTransactionOptions(value: unknown, name = 'TransactionOptions'): TransactionOptions {
+  const object = Types.asObject(value, { name })
+
+  return {
+    gasLimit: Types.asOptional(x => asNumberString(x, { name: 'gasLimit', min: 0n }), object.gasLimit),
+    gasPrice: Types.asOptional(x => asNumberString(x, { name: 'gasPrice', min: 0n }), object.gasPrice),
   }
-
-  assertStrictlyObject(value, name)
-  const options = value as TransactionOptions
-
-  if (options?.gasLimit) {
-    assertNonNegativeInteger(options.gasLimit, name)
-  }
-
-  if (options?.gasPrice) {
-    assertNonNegativeInteger(options.gasPrice, name)
-  }
-}
-
-export function assertCashoutOptions(value: unknown): asserts value is CashoutOptions {
-  if (value === undefined) {
-    return
-  }
-
-  assertStrictlyObject(value)
-
-  const options = value as CashoutOptions
-  assertRequestOptions(options, 'CashoutOptions')
-  assertTransactionOptions(options, 'CashoutOptions')
 }
 
 /**
@@ -422,7 +190,7 @@ export function assertData(value: unknown): asserts value is string | Uint8Array
  * @param value
  * @throws TypeError if not valid
  */
-export function assertFileData(value: unknown): asserts value is string | Uint8Array | Readable | File {
+export function assertFileData(value: unknown): asserts value is string | Uint8Array | stream.Readable | File {
   if (typeof value !== 'string' && !(value instanceof Uint8Array) && !isFile(value) && !isReadable(value)) {
     throw new TypeError('Data must be either string, Readable, Uint8Array or File!')
   }
@@ -432,31 +200,15 @@ export function assertFileData(value: unknown): asserts value is string | Uint8A
  * Checks whether optional options for AllTags query are valid
  * @param options
  */
-export function assertAllTagsOptions(entry: unknown): asserts entry is AllTagsOptions {
-  if (entry !== undefined && !isStrictlyObject(entry)) {
-    throw new TypeError('options has to be an object or undefined!')
-  }
+export function prepareAllTagsOptions(value: unknown): AllTagsOptions {
+  const object = Types.asObject(value, { name: 'AllTagsOptions' })
 
-  assertRequestOptions(entry, 'AllTagsOptions')
-
-  const options = entry as AllTagsOptions
-
-  if (options?.limit !== undefined) {
-    if (typeof options.limit !== 'number') {
-      throw new TypeError('AllTagsOptions.limit has to be a number or undefined!')
-    }
-
-    if (options.limit < TAGS_LIMIT_MIN) {
-      throw new BeeArgumentError(`AllTagsOptions.limit has to be at least ${TAGS_LIMIT_MIN}`, options.limit)
-    }
-
-    if (options.limit > TAGS_LIMIT_MAX) {
-      throw new BeeArgumentError(`AllTagsOptions.limit has to be at most ${TAGS_LIMIT_MAX}`, options.limit)
-    }
-  }
-
-  if (options?.offset !== undefined) {
-    assertNonNegativeInteger(options.offset, 'AllTagsOptions.offset')
+  return {
+    limit: Types.asOptional(
+      x => Types.asInteger(x, { name: 'limit', min: TAGS_LIMIT_MIN, max: TAGS_LIMIT_MAX }),
+      object.limit,
+    ),
+    offset: Types.asOptional(x => Types.asInteger(x, { name: 'offset', min: 0 }), object.offset),
   }
 }
 
@@ -466,41 +218,14 @@ export function assertAllTagsOptions(entry: unknown): asserts entry is AllTagsOp
  */
 export function makeTagUid(tagUid: number | Tag | string | null | undefined): number {
   if (tagUid === undefined || tagUid === null) {
-    throw new TypeError('TagUid was expected but got undefined or null instead!')
+    throw new TypeError(`Expected number | Tag | string from tagUid, got: ${tagUid}`)
   }
 
   if (isTag(tagUid)) {
     return tagUid.uid
-  } else if (typeof tagUid === 'number') {
-    assertNonNegativeInteger(tagUid, 'UID')
-
-    return tagUid
-  } else if (typeof tagUid === 'string') {
-    const int = parseInt(tagUid)
-
-    if (isNaN(int)) {
-      throw new TypeError('Passed tagUid string is not valid integer!')
-    }
-
-    if (int < 0) {
-      throw new TypeError(`TagUid was expected to be positive non-negative integer! Got ${int}`)
-    }
-
-    return int
+  } else if (typeof tagUid === 'number' || typeof tagUid === 'string') {
+    return Types.asNumber(tagUid, { name: 'tagUid', min: 0 })
   }
 
-  throw new TypeError('tagUid has to be either Tag or a number (UID)!')
-}
-
-export function assertTransactionHash(transactionHash: unknown): asserts transactionHash is TransactionHash {
-  if (typeof transactionHash !== 'string') {
-    throw new TypeError('TransactionHash has to be a string!')
-  }
-
-  assertPrefixedHexString(transactionHash, 'TransactionHash')
-
-  // Hash is 64 long + '0x' prefix = 66
-  if (transactionHash.length !== 66) {
-    throw new TypeError('TransactionHash has to be prefixed hex string with total length 66 (prefix including)')
-  }
+  throw new TypeError(`Expected number | Tag | string from tagUid, got: ${tagUid}`)
 }

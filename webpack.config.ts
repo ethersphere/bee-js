@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import Path from 'path'
 import TerserPlugin from 'terser-webpack-plugin'
 import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack'

@@ -1,160 +1,86 @@
-/**
- * Helper type for dealing with fixed size byte arrays.
- *
- * It changes the type of `length` property of `Uint8Array` to the
- * generic `Length` type parameter which is runtime compatible with
- * the original, because it extends from the `number` type.
- */
-import { Data } from '../types'
-import { bytesToHex } from './hex'
+import { Binary, Types } from 'cafe-utility'
 
-export interface Bytes<Length extends number> extends Uint8Array {
-  readonly length: Length
-}
+const DECODER = new TextDecoder()
+const ENCODER = new TextEncoder()
 
-/**
- * Helper type for dealing with flexible sized byte arrays.
- *
- * The actual min and and max values are not stored in runtime, they
- * are only there to differentiate the type from the Uint8Array at
- * compile time.
- * @see BrandedType
- */
-export interface FlexBytes<Min extends number, Max extends number> extends Uint8Array {
-  readonly __min__: Min
-  readonly __max__: Max
-}
+export class Bytes {
+  protected readonly bytes: Uint8Array
+  public readonly length: number
 
-/**
- * Type guard for `Bytes<T>` type
- *
- * @param b       The byte array
- * @param length  The length of the byte array
- */
-export function isBytes<Length extends number>(b: unknown, length: Length): b is Bytes<Length> {
-  return b instanceof Uint8Array && b.length === length
-}
+  constructor(bytes: Uint8Array | ArrayBuffer | string | Bytes, byteLength?: number | number[]) {
+    if (bytes instanceof Bytes) {
+      this.bytes = bytes.bytes
+    } else if (typeof bytes === 'string') {
+      this.bytes = Binary.hexToUint8Array(Types.asHexString(bytes, { name: 'Bytes#constructor(bytes)' }))
+    } else if (bytes instanceof ArrayBuffer) {
+      this.bytes = new Uint8Array(bytes)
+    } else {
+      this.bytes = bytes
+    }
+    this.length = this.bytes.length
 
-/**
- * Function that verifies if passed data are Bytes and if the array has "length" number of bytes under given offset.
- * @param data
- * @param offset
- * @param length
- */
-export function hasBytesAtOffset(data: unknown, offset: number, length: number): boolean {
-  if (!(data instanceof Uint8Array)) {
-    throw new TypeError('Data has to an Uint8Array!')
+    if (byteLength) {
+      if (Array.isArray(byteLength)) {
+        if (!byteLength.includes(this.length)) {
+          throw new Error(
+            `Bytes#checkByteLength: bytes length is ${this.length} but expected ${byteLength.join(' or ')}`,
+          )
+        }
+      } else if (this.length !== byteLength) {
+        throw new Error(`Bytes#checkByteLength: bytes length is ${this.length} but expected ${byteLength}`)
+      }
+    }
   }
 
-  const offsetBytes = data.slice(offset, offset + length)
-
-  return isBytes(offsetBytes, length)
-}
-
-/**
- * Verifies if a byte array has a certain length
- *
- * @param b       The byte array
- * @param length  The specified length
- */
-export function assertBytes<Length extends number>(b: unknown, length: Length): asserts b is Bytes<Length> {
-  if (!isBytes(b, length)) {
-    throw new TypeError(`Parameter is not valid Bytes of length: ${length} !== ${(b as Uint8Array).length}`)
+  static keccak256(bytes: Uint8Array | ArrayBuffer | string | Bytes): Bytes {
+    return new Bytes(Binary.keccak256(new Bytes(bytes).toUint8Array()))
   }
-}
 
-/**
- * Type guard for FlexBytes<Min,Max> type
- *
- * @param b       The byte array
- * @param min     Minimum size of the array
- * @param max     Maximum size of the array
- */
-export function isFlexBytes<Min extends number, Max extends number = Min>(
-  b: unknown,
-  min: Min,
-  max: Max,
-): b is FlexBytes<Min, Max> {
-  return b instanceof Uint8Array && b.length >= min && b.length <= max
-}
-
-/**
- * Verifies if a byte array has a certain length between min and max
- *
- * @param b       The byte array
- * @param min     Minimum size of the array
- * @param max     Maximum size of the array
- */
-export function assertFlexBytes<Min extends number, Max extends number = Min>(
-  b: unknown,
-  min: Min,
-  max: Max,
-): asserts b is FlexBytes<Min, Max> {
-  if (!isFlexBytes(b, min, max)) {
-    throw new TypeError(
-      `Parameter is not valid FlexBytes of  min: ${min}, max: ${max}, length: ${(b as Uint8Array).length}`,
-    )
+  static fromUtf8(utf8: string): Bytes {
+    return new Bytes(ENCODER.encode(utf8))
   }
-}
 
-/**
- * Return `length` bytes starting from `offset`
- *
- * @param data   The original data
- * @param offset The offset to start from
- * @param length The length of data to be returned
- */
-export function bytesAtOffset<Length extends number>(data: Uint8Array, offset: number, length: Length): Bytes<Length> {
-  const offsetBytes = data.slice(offset, offset + length) as Bytes<Length>
+  static fromSlice(bytes: Uint8Array, start: number, length?: number): Bytes {
+    if (length === undefined) {
+      return new Bytes(bytes.slice(start))
+    }
 
-  // We are returning strongly typed Bytes so we have to verify that length is really what we claim
-  assertBytes<Length>(offsetBytes, length)
+    return new Bytes(bytes.slice(start, start + length))
+  }
 
-  return offsetBytes
-}
+  offset(index: number): Uint8Array {
+    return new Uint8Array(this.bytes.slice(index))
+  }
 
-/**
- * Return flex bytes starting from `offset`
- *
- * @param data   The original data
- * @param offset The offset to start from
- * @param _min   The minimum size of the data
- * @param _max   The maximum size of the data
- */
-export function flexBytesAtOffset<Min extends number, Max extends number>(
-  data: Uint8Array,
-  offset: number,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _min: Min,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _max: Max,
-): FlexBytes<Min, Max> {
-  return data.slice(offset) as FlexBytes<Min, Max>
-}
+  public toUint8Array(): Uint8Array {
+    return new Uint8Array(this.bytes)
+  }
 
-/**
- * Returns true if two byte arrays are equal
- *
- * @param a Byte array to compare
- * @param b Byte array to compare
- */
-export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
-  return a.length === b.length && a.every((value, index) => value === b[index])
-}
+  public toHex(): string {
+    return Binary.uint8ArrayToHex(this.bytes)
+  }
 
-/**
- * Returns a new byte array filled with zeroes with the specified length
- *
- * @param length The length of data to be returned
- */
-export function makeBytes<Length extends number>(length: Length): Bytes<Length> {
-  return new Uint8Array(length) as Bytes<Length>
-}
+  public toBase64(): string {
+    return Binary.uint8ArrayToBase64(this.bytes)
+  }
 
-export function wrapBytesWithHelpers(data: Uint8Array): Data {
-  return Object.assign(data, {
-    text: () => new TextDecoder('utf-8').decode(data),
-    json: () => JSON.parse(new TextDecoder('utf-8').decode(data)),
-    hex: () => bytesToHex(data),
-  })
+  public toBase32(): string {
+    return Binary.uint8ArrayToBase32(this.bytes)
+  }
+
+  public toString(): string {
+    return this.toHex()
+  }
+
+  public toUtf8(): string {
+    return DECODER.decode(this.bytes)
+  }
+
+  public toJSON(): unknown {
+    return JSON.parse(this.toUtf8())
+  }
+
+  public equals(other: Bytes | Uint8Array | string): boolean {
+    return this.toHex() === new Bytes(other).toHex()
+  }
 }

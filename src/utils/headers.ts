@@ -1,15 +1,21 @@
-import { Binary } from 'cafe-utility'
-import { BatchId, DownloadRedundancyOptions, FileHeaders, UploadOptions, UploadRedundancyOptions } from '../types'
+import { Types } from 'cafe-utility'
+import { EnvelopeWithBatchId, FileHeaders } from '../types'
 import { BeeError } from './error'
+import { convertEnvelopeToMarshaledStamp } from './stamps'
+import { BatchId, PublicKey, Reference } from './typed-bytes'
 
-/**
- * Read the filename from the content-disposition header
- * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
- *
- * @param header the content-disposition header value
- *
- * @returns the filename
- */
+export function readFileHeaders(headers: Record<string, string>): FileHeaders {
+  const name = readContentDispositionFilename(headers['content-disposition'])
+  const tagUid = readTagUid(headers['swarm-tag-uid'])
+  const contentType = headers['content-type'] || undefined
+
+  return {
+    name,
+    tagUid,
+    contentType,
+  }
+}
+
 function readContentDispositionFilename(header: string | null): string {
   if (!header) {
     throw new BeeError('missing content-disposition header')
@@ -33,84 +39,116 @@ function readTagUid(header: string | null): number | undefined {
   return parseInt(header, 10)
 }
 
-export function readFileHeaders(headers: Record<string, string>): FileHeaders {
-  const name = readContentDispositionFilename(headers['content-disposition'])
-  const tagUid = readTagUid(headers['swarm-tag-uid'])
-  const contentType = headers['content-type'] || undefined
-
-  return {
-    name,
-    tagUid,
-    contentType,
-  }
-}
-
-export function extractUploadHeaders(
-  stamp: BatchId | Uint8Array | string,
-  options?: UploadOptions,
+export function prepareRequestHeaders(
+  stamp: BatchId | Uint8Array | string | EnvelopeWithBatchId | null,
+  nullableOptions?: unknown,
 ): Record<string, string> {
-  if (!stamp) {
-    throw new BeeError('Stamp has to be specified!')
-  }
-
   const headers: Record<string, string> = {}
 
-  if (stamp instanceof Uint8Array) {
-    headers['swarm-postage-stamp'] = Binary.uint8ArrayToHex(stamp)
-  } else {
-    headers['swarm-postage-batch-id'] = stamp
+  if (isEnvelopeWithBatchId(stamp)) {
+    headers['swarm-postage-stamp'] = convertEnvelopeToMarshaledStamp(stamp).toHex()
+  } else if (stamp) {
+    stamp = new BatchId(stamp)
+    headers['swarm-postage-batch-id'] = stamp.toHex()
   }
 
-  if (options?.act) {
-    headers['swarm-act'] = String(options.act)
+  if (!nullableOptions) {
+    return headers
   }
 
-  if (options?.pin) {
-    headers['swarm-pin'] = String(options.pin)
+  const options = Types.asObject(nullableOptions)
+
+  if (options.size) {
+    headers['content-length'] = String(options.size)
   }
 
-  if (options?.encrypt) {
-    headers['swarm-encrypt'] = String(options.encrypt)
+  if (options.contentType) {
+    headers['content-type'] = String(options.contentType)
   }
 
-  if (options?.tag) {
-    headers['swarm-tag'] = String(options.tag)
-  }
-
-  if (typeof options?.deferred === 'boolean') {
-    headers['swarm-deferred-upload'] = options.deferred.toString()
-  }
-
-  return headers
-}
-
-export function extractRedundantUploadHeaders(
-  postageBatchId: BatchId,
-  options?: UploadOptions & UploadRedundancyOptions,
-): Record<string, string> {
-  const headers = extractUploadHeaders(postageBatchId, options)
-
-  if (options?.redundancyLevel) {
+  if (options.redundancyLevel) {
     headers['swarm-redundancy-level'] = String(options.redundancyLevel)
   }
 
-  return headers
-}
+  if (Types.isBoolean(options.act)) {
+    headers['swarm-act'] = String(options.act)
+  }
 
-export function extractDownloadHeaders(options?: DownloadRedundancyOptions): Record<string, string> {
-  const headers: Record<string, string> = {}
+  if (Types.isBoolean(options.pin)) {
+    headers['swarm-pin'] = String(options.pin)
+  }
 
-  if (options?.redundancyStrategy) {
+  if (Types.isBoolean(options.encrypt)) {
+    headers['swarm-encrypt'] = options.encrypt.toString()
+  }
+
+  if (options.tag) {
+    headers['swarm-tag'] = String(options.tag)
+  }
+
+  if (Types.isBoolean(options.deferred)) {
+    headers['swarm-deferred-upload'] = options.deferred.toString()
+  }
+
+  if (options.redundancyStrategy) {
     headers['swarm-redundancy-strategy'] = String(options.redundancyStrategy)
   }
 
-  if (options?.fallback === false) {
-    headers['swarm-redundancy-fallback-mode'] = 'false'
+  if (Types.isBoolean(options.fallback)) {
+    headers['swarm-redundancy-fallback-mode'] = options.fallback.toString()
   }
 
-  if (options?.timeoutMs !== undefined) {
+  if (options.timeoutMs) {
     headers['swarm-chunk-retrieval-timeout'] = String(options.timeoutMs)
   }
 
+  if (options.indexDocument) {
+    headers['swarm-index-document'] = String(options.indexDocument)
+  }
+
+  if (options.errorDocument) {
+    headers['swarm-error-document'] = String(options.errorDocument)
+  }
+
+  if (options.actPublisher) {
+    headers['swarm-act-publisher'] = new PublicKey(options.actPublisher as any).toCompressedHex()
+  }
+
+  if (options.actHistoryAddress) {
+    headers['swarm-act-history-address'] = new Reference(options.actHistoryAddress as any).toHex()
+  }
+
+  if (options.actTimestamp) {
+    headers['swarm-act-timestamp'] = String(options.actTimestamp)
+  }
+
+  if (options.actPublisher || options.actHistoryAddress || options.actTimestamp) {
+    headers['swarm-act'] = 'true'
+  }
+
+  if (options.gasPrice) {
+    headers['gas-price'] = String(options.gasPrice)
+  }
+
+  if (options.gasLimit) {
+    headers['gas-limit'] = String(options.gasLimit)
+  }
+
   return headers
+}
+
+function isEnvelopeWithBatchId(value: unknown): value is EnvelopeWithBatchId {
+  if (!Types.isObject(value)) {
+    return false
+  }
+
+  const envelope = value as EnvelopeWithBatchId
+
+  return (
+    envelope.issuer !== undefined &&
+    envelope.index !== undefined &&
+    envelope.signature !== undefined &&
+    envelope.timestamp !== undefined &&
+    envelope.batchId !== undefined
+  )
 }

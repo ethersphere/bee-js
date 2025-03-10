@@ -15,7 +15,7 @@ export class BeeResponseError extends BeeError {
     public method: string,
     public url: string,
     message: string,
-    public responseBody?: any,
+    public responseBody?: unknown,
     public status?: number,
     public statusText?: string,
   ) {

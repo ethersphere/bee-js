@@ -1,5 +1,9 @@
+import { Types } from 'cafe-utility'
 import type { AllSettlements, BeeRequestOptions, Settlements } from '../../types'
 import { http } from '../../utils/http'
+import { BZZ } from '../../utils/tokens'
+import { asNumberString } from '../../utils/type'
+import { PeerAddress } from '../../utils/typed-bytes'
 
 const settlementsEndpoint = 'settlements'
 
@@ -9,13 +13,19 @@ const settlementsEndpoint = 'settlements'
  * @param requestOptions Options for making requests
  * @param peer  Swarm address of peer
  */
-export async function getSettlements(requestOptions: BeeRequestOptions, peer: string): Promise<Settlements> {
-  const response = await http<Settlements>(requestOptions, {
+export async function getSettlements(requestOptions: BeeRequestOptions, peer: PeerAddress): Promise<Settlements> {
+  const response = await http<unknown>(requestOptions, {
     url: `${settlementsEndpoint}/${peer}`,
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    peer: Types.asString(body.peer, { name: 'peer' }),
+    sent: BZZ.fromPLUR(asNumberString(body.sent, { name: 'sent' })),
+    received: BZZ.fromPLUR(asNumberString(body.received, { name: 'received' })),
+  }
 }
 
 /**
@@ -24,10 +34,26 @@ export async function getSettlements(requestOptions: BeeRequestOptions, peer: st
  * @param requestOptions Options for making requests
  */
 export async function getAllSettlements(requestOptions: BeeRequestOptions): Promise<AllSettlements> {
-  const response = await http<AllSettlements>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: settlementsEndpoint,
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  const totalSent = BZZ.fromPLUR(asNumberString(body.totalSent, { name: 'totalSent' }))
+  const totalReceived = BZZ.fromPLUR(asNumberString(body.totalReceived, { name: 'totalReceived' }))
+  const settlements = Types.asArray(body.settlements, { name: 'settlements' }).map(x =>
+    Types.asObject(x, { name: 'settlement' }),
+  )
+
+  return {
+    totalSent,
+    totalReceived,
+    settlements: settlements.map(x => ({
+      peer: Types.asString(x.peer, { name: 'peer' }),
+      sent: BZZ.fromPLUR(asNumberString(x.sent, { name: 'sent' })),
+      received: BZZ.fromPLUR(asNumberString(x.received, { name: 'received' })),
+    })),
+  }
 }

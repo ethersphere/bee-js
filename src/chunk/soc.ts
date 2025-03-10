@@ -1,34 +1,16 @@
 import { Binary } from 'cafe-utility'
 import * as chunkAPI from '../modules/chunk'
 import * as socAPI from '../modules/soc'
-import {
-  BatchId,
-  BeeRequestOptions,
-  PlainBytesReference,
-  Signature,
-  Signer,
-  UploadOptions,
-  UploadResult,
-} from '../types'
-import { Bytes, bytesAtOffset, bytesEqual, flexBytesAtOffset } from '../utils/bytes'
+import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
+import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
-import { EthAddress } from '../utils/eth'
-import { keccak256Hash } from '../utils/hash'
-import { bytesToHex } from '../utils/hex'
-import { bmtHash } from './bmt'
-import { Chunk, MAX_PAYLOAD_SIZE, MIN_PAYLOAD_SIZE, assertValidChunkData, makeContentAddressedChunk } from './cac'
-import { recoverAddress, sign } from './signer'
-import { SPAN_SIZE } from './span'
+import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Signature, Span } from '../utils/typed-bytes'
+import { calculateChunkAddress } from './bmt'
+import { asContentAddressedChunk, Chunk, makeContentAddressedChunk } from './cac'
 
-const IDENTIFIER_SIZE = 32
-const SIGNATURE_SIZE = 65
-
-const SOC_IDENTIFIER_OFFSET = 0
-const SOC_SIGNATURE_OFFSET = SOC_IDENTIFIER_OFFSET + IDENTIFIER_SIZE
-const SOC_SPAN_OFFSET = SOC_SIGNATURE_OFFSET + SIGNATURE_SIZE
-const SOC_PAYLOAD_OFFSET = SOC_SPAN_OFFSET + SPAN_SIZE
-
-export type Identifier = Bytes<32>
+const SOC_SIGNATURE_OFFSET = Identifier.LENGTH
+const SOC_SPAN_OFFSET = SOC_SIGNATURE_OFFSET + Signature.LENGTH
+const SOC_PAYLOAD_OFFSET = SOC_SPAN_OFFSET + Span.LENGTH
 
 /**
  * With single owner chunks, a user can assign arbitrary data to an
@@ -39,18 +21,18 @@ export type Identifier = Bytes<32>
  * and the owner of the chunk.
  */
 export interface SingleOwnerChunk extends Chunk {
-  identifier: () => Identifier
-  signature: () => Signature
-  owner: () => EthAddress
+  identifier: Identifier
+  signature: Signature
+  owner: EthAddress
 }
 
 function recoverChunkOwner(data: Uint8Array): EthAddress {
   const cacData = data.slice(SOC_SPAN_OFFSET)
-  const chunkAddress = bmtHash(cacData)
-  const signature = bytesAtOffset(data, SOC_SIGNATURE_OFFSET, SIGNATURE_SIZE)
-  const identifier = bytesAtOffset(data, SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE)
-  const digest = keccak256Hash(identifier, chunkAddress)
-  const ownerAddress = recoverAddress(signature, digest)
+  const chunkAddress = calculateChunkAddress(cacData)
+  const signature = Signature.fromSlice(data, SOC_SIGNATURE_OFFSET)
+  const identifier = Bytes.fromSlice(data, 0, Identifier.LENGTH)
+  const digest = Binary.concatBytes(identifier.toUint8Array(), chunkAddress.toUint8Array())
+  const ownerAddress = signature.recoverPublicKey(digest).address()
 
   return ownerAddress
 }
@@ -63,32 +45,39 @@ function recoverChunkOwner(data: Uint8Array): EthAddress {
  *
  * @returns a single owner chunk or throws error
  */
-export function makeSingleOwnerChunkFromData(data: Uint8Array, address: PlainBytesReference): SingleOwnerChunk {
+export function makeSingleOwnerChunkFromData(
+  data: Bytes | Uint8Array,
+  address: Reference | Uint8Array | string,
+): SingleOwnerChunk {
+  data = data instanceof Bytes ? data.toUint8Array() : data
+  address = new Reference(address)
   const ownerAddress = recoverChunkOwner(data)
-  const identifier = bytesAtOffset(data, SOC_IDENTIFIER_OFFSET, IDENTIFIER_SIZE)
-  const socAddress = keccak256Hash(identifier, ownerAddress)
+  const identifier = Bytes.fromSlice(data, 0, Identifier.LENGTH)
+  const socAddress = new Reference(
+    Binary.keccak256(Binary.concatBytes(identifier.toUint8Array(), ownerAddress.toUint8Array())),
+  )
 
-  if (!bytesEqual(address, socAddress)) {
+  if (!Binary.equals(address.toUint8Array(), socAddress.toUint8Array())) {
     throw new BeeError('SOC Data does not match given address!')
   }
 
-  const signature = () => bytesAtOffset(data, SOC_SIGNATURE_OFFSET, SIGNATURE_SIZE)
-  const span = () => bytesAtOffset(data, SOC_SPAN_OFFSET, SPAN_SIZE)
-  const payload = () => flexBytesAtOffset(data, SOC_PAYLOAD_OFFSET, MIN_PAYLOAD_SIZE, MAX_PAYLOAD_SIZE)
+  const signature = Signature.fromSlice(data, SOC_SIGNATURE_OFFSET)
+  const span = Span.fromSlice(data, SOC_SPAN_OFFSET)
+  const payload = Bytes.fromSlice(data, SOC_PAYLOAD_OFFSET)
 
   return {
     data,
-    identifier: () => identifier,
+    identifier,
     signature,
     span,
     payload,
-    address: () => socAddress,
-    owner: () => ownerAddress,
+    address: socAddress,
+    owner: ownerAddress,
   }
 }
 
-export function makeSOCAddress(identifier: Identifier, address: EthAddress): PlainBytesReference {
-  return keccak256Hash(identifier, address)
+export function makeSOCAddress(identifier: Identifier, address: EthAddress): Reference {
+  return new Reference(Binary.keccak256(Binary.concatBytes(identifier.toUint8Array(), address.toUint8Array())))
 }
 
 /**
@@ -96,29 +85,30 @@ export function makeSOCAddress(identifier: Identifier, address: EthAddress): Pla
  *
  * @param chunk       A chunk object used for the span and payload
  * @param identifier  The identifier of the chunk
- * @param signer      The singer interface for signing the chunk
+ * @param signer      The signer interface for signing the chunk
  */
-export async function makeSingleOwnerChunk(
+export function makeSingleOwnerChunk(
   chunk: Chunk,
-  identifier: Identifier,
-  signer: Signer,
-): Promise<SingleOwnerChunk> {
-  const chunkAddress = chunk.address()
-  assertValidChunkData(chunk.data, chunkAddress)
+  identifier: Identifier | Uint8Array | string,
+  signer: PrivateKey | Uint8Array | string,
+): SingleOwnerChunk {
+  identifier = new Identifier(identifier)
+  signer = new PrivateKey(signer)
+  const address = makeSOCAddress(identifier, signer.publicKey().address())
+  const signature = signer.sign(Binary.concatBytes(identifier.toUint8Array(), chunk.address.toUint8Array()))
+  const data = Binary.concatBytes(identifier.toUint8Array(), signature.toUint8Array(), chunk.data)
 
-  const digest = keccak256Hash(identifier, chunkAddress)
-  const signature = await sign(signer, digest)
-  const data = Binary.concatBytes(identifier, signature, chunk.span(), chunk.payload())
-  const address = makeSOCAddress(identifier, signer.address)
+  const span = Span.fromSlice(chunk.data, 0)
+  const payload = Bytes.fromSlice(chunk.data, Span.LENGTH)
 
   return {
     data,
-    identifier: () => identifier,
-    signature: () => signature,
-    span: () => chunk.span(),
-    payload: () => chunk.payload(),
-    address: () => address,
-    owner: () => signer.address,
+    identifier,
+    signature,
+    span,
+    payload,
+    address,
+    owner: signer.publicKey().address(),
   }
 }
 
@@ -129,7 +119,7 @@ export async function makeSingleOwnerChunk(
  *
  * @param requestOptions  Options for making requests
  * @param chunk           A chunk object
- * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
+ * @param stamp  Postage BatchId that will be assigned to uploaded data
  * @param options         Upload options
  */
 export async function uploadSingleOwnerChunk(
@@ -138,19 +128,16 @@ export async function uploadSingleOwnerChunk(
   stamp: BatchId | Uint8Array | string,
   options?: UploadOptions,
 ): Promise<UploadResult> {
-  const owner = bytesToHex(chunk.owner())
-  const identifier = bytesToHex(chunk.identifier())
-  const signature = bytesToHex(chunk.signature())
-  const data = Binary.concatBytes(chunk.span(), chunk.payload())
+  const data = Binary.concatBytes(chunk.span.toUint8Array(), chunk.payload.toUint8Array())
 
-  return socAPI.upload(requestOptions, owner, identifier, signature, data, stamp, options)
+  return socAPI.upload(requestOptions, chunk.owner, chunk.identifier, chunk.signature, data, stamp, options)
 }
 
 /**
  * Helper function to create and upload SOC.
  *
  * @param requestOptions  Options for making requests
- * @param signer          The singer interface for signing the chunk
+ * @param signer          The signer interface for signing the chunk
  * @param postageBatchId
  * @param identifier      The identifier of the chunk
  * @param data            The chunk data
@@ -158,14 +145,31 @@ export async function uploadSingleOwnerChunk(
  */
 export async function uploadSingleOwnerChunkData(
   requestOptions: BeeRequestOptions,
-  signer: Signer,
+  signer: PrivateKey | Uint8Array | string,
   stamp: BatchId | Uint8Array | string,
-  identifier: Identifier,
+  identifier: Identifier | Uint8Array | string,
   data: Uint8Array,
   options?: UploadOptions,
 ): Promise<UploadResult> {
+  signer = new PrivateKey(signer)
+  identifier = new Identifier(identifier)
   const cac = makeContentAddressedChunk(data)
-  const soc = await makeSingleOwnerChunk(cac, identifier, signer)
+  const soc = makeSingleOwnerChunk(cac, identifier, signer)
+
+  return uploadSingleOwnerChunk(requestOptions, soc, stamp, options)
+}
+
+export async function uploadSingleOwnerChunkWithWrappedChunk(
+  requestOptions: BeeRequestOptions,
+  signer: PrivateKey | Uint8Array | string,
+  stamp: BatchId | Uint8Array | string,
+  identifier: Identifier | Uint8Array | string,
+  rootChunk: Uint8Array,
+  options?: UploadOptions,
+): Promise<UploadResult> {
+  signer = new PrivateKey(signer)
+  identifier = new Identifier(identifier)
+  const soc = makeSingleOwnerChunk(asContentAddressedChunk(rootChunk), identifier, signer)
 
   return uploadSingleOwnerChunk(requestOptions, soc, stamp, options)
 }
@@ -174,16 +178,18 @@ export async function uploadSingleOwnerChunkData(
  * Helper function to download SOC.
  *
  * @param url           The url of the Bee service
- * @param ownerAddress  The singer interface for signing the chunk
+ * @param ownerAddress  The signer interface for signing the chunk
  * @param identifier    The identifier of the chunk
  */
 export async function downloadSingleOwnerChunk(
   requestOptions: BeeRequestOptions,
-  ownerAddress: EthAddress,
-  identifier: Identifier,
+  ownerAddress: EthAddress | Uint8Array | string,
+  identifier: Identifier | Uint8Array | string,
 ): Promise<SingleOwnerChunk> {
+  identifier = new Identifier(identifier)
+  ownerAddress = new EthAddress(ownerAddress)
   const address = makeSOCAddress(identifier, ownerAddress)
-  const data = await chunkAPI.download(requestOptions, bytesToHex(address))
+  const cac = await chunkAPI.download(requestOptions, address.toHex())
 
-  return makeSingleOwnerChunkFromData(data, address)
+  return makeSingleOwnerChunkFromData(cac, address)
 }

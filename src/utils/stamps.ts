@@ -1,5 +1,10 @@
 import { Binary } from 'cafe-utility'
-import { BatchId, Envelope, NumberString } from '../types'
+import { EnvelopeWithBatchId, NumberString } from '../types'
+import { Bytes } from './bytes'
+import { Duration } from './duration'
+import { Size } from './size'
+import { BZZ } from './tokens'
+import { asNumberString } from './type'
 
 /**
  * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.
@@ -13,14 +18,14 @@ export function getStampUsage(utilization: number, depth: number, bucketDepth: n
 }
 
 /**
- * Utility function that calculates the theoritical maximum capacity of a postage batch based on its depth.
+ * Utility function that calculates the theoritical maximum size of a postage batch based on its depth.
  *
- * For smaller depths (up to 20), this may provide less accurate results.
+ * For smaller depths (up to 22), this may provide less accurate results.
  *
- * @returns {number} The maximum capacity of the postage batch in bytes.
+ * @returns {number} The maximum theoretical size of the postage batch in bytes.
  */
-export function getStampMaximumCapacityBytes(depth: number): number {
-  return 2 ** depth * 4096
+export function getStampTheoreticalBytes(depth: number): number {
+  return 4096 * 2 ** depth
 }
 
 /**
@@ -42,13 +47,28 @@ const utilisationRateMap: Record<number, number> = {
   34: 0.9889,
 }
 
+const effectiveSizeBreakpoints = [
+  [22, 4.93],
+  [23, 17.03],
+  [24, 44.21],
+  [25, 102.78],
+  [26, 225.87],
+  [27, 480.44],
+  [28, 1001.44],
+  [29, 2060.27],
+  [30, 4201.9],
+  [31, 8519.02],
+  [32, 17199.89],
+  [33, 34628.46],
+]
+
 /**
- * Utility function that calculates the effective volume of a postage batch based on its depth.
+ * Utility function that calculates the effective size of a postage batch based on its depth.
  *
- * Below 22 depth the effective volume is 0
+ * Below 22 depth the effective size is 0
  * Above 34 it's always > 99%
  *
- * @returns {number} The effective volume of the postage batch in bytes.
+ * @returns {number} The effective size of the postage batch in bytes.
  */
 export function getStampEffectiveBytes(depth: number): number {
   if (depth < 22) {
@@ -57,27 +77,24 @@ export function getStampEffectiveBytes(depth: number): number {
 
   const utilRate = utilisationRateMap[depth] ?? 0.99
 
-  return getStampMaximumCapacityBytes(depth) * utilRate
+  return Math.ceil(getStampTheoreticalBytes(depth) * utilRate)
+}
+
+export function getStampEffectiveBytesBreakpoints(): Map<number, number> {
+  const map = new Map<number, number>()
+
+  for (let i = 22; i < 35; i++) {
+    map.set(i, getStampEffectiveBytes(i))
+  }
+
+  return map
 }
 
 /**
  * Utility function that calculates the cost of a postage batch based on its depth and amount.
- *
- * @returns {number} The cost of the postage batch in PLUR (10000000000000000 [1e16] PLUR = 1 BZZ)
  */
-export function getStampCostInPlur(depth: number, amount: number): number {
-  return 2 ** depth * amount
-}
-
-/**
- * Utility function that calculates the cost of a postage batch based on its depth and amount.
- *
- * @returns {number} The cost of the postage batch in BZZ (1 BZZ = 10000000000000000 [1e16] PLUR)
- */
-export function getStampCostInBzz(depth: number, amount: number): number {
-  const BZZ_UNIT = 10 ** 16
-
-  return getStampCostInPlur(depth, amount) / BZZ_UNIT
+export function getStampCost(depth: number, amount: NumberString | string | bigint): BZZ {
+  return BZZ.fromPLUR(2n ** BigInt(depth) * BigInt(amount))
 }
 
 /**
@@ -85,52 +102,60 @@ export function getStampCostInBzz(depth: number, amount: number): number {
  *
  * For more accurate results, get the price per block and block time from the Bee node or the blockchain.
  *
- * @returns {number} The TTL of the postage batch in seconds.
+ * @returns {number} The TTL of the postage batch.
  */
-export function getStampTtlSeconds(amount: number, pricePerBlock = 24_000, blockTime = 5): number {
-  return (amount * blockTime) / pricePerBlock
+export function getStampDuration(
+  amount: NumberString | string | bigint,
+  pricePerBlock: number,
+  blockTime = 5,
+): Duration {
+  const amountBigInt = BigInt(asNumberString(amount))
+
+  return Duration.fromSeconds(Number((amountBigInt * BigInt(blockTime)) / BigInt(pricePerBlock)))
 }
 
 /**
- * Utility function that calculates the amount of tokens required to maintain a given Time To Live (TTL) for a postage batch.
+ * Get the postage batch `amount` required for a given `duration`.
  *
- * This function estimates the required amount based on the provided TTL in days.
- *
- * @param {number} days - The Time To Live (TTL) in days.
- * @returns {NumberString} The estimated amount of tokens needed for the specified TTL.
+ * @param duration A duration object representing the duration of the storage.
+ * @param pricePerBlock The price per block in PLUR.
+ * @param blockTime The block time in seconds.
  */
-export function getAmountForTtl(days: number): NumberString {
-  // 414720000 = (24 * 60 * 60 * 24_000) / 5
-  return ((days <= 0 ? 1 : days) * 414720000).toString() as NumberString
+export function getAmountForDuration(duration: Duration, pricePerBlock: number, blockTime = 5): bigint {
+  return (BigInt(duration.toSeconds()) / BigInt(blockTime)) * BigInt(pricePerBlock)
 }
 
 /**
- * Utility function that calculates the depth required for a postage batch to achieve the specified capacity in gigabytes.
+ * Utility function that calculates the depth required for a postage batch to achieve the specified effective size
  *
- * The depth is determined based on the given gigabytes, and the result is adjusted to a minimum depth of 18.
- *
- * @param {number} gigabytes - The desired capacity of the postage batch in gigabytes.
- * @returns {number} The calculated depth necessary to achieve the specified capacity.
+ * @param size The effective size of the postage batch
+ * @returns
  */
-export function getDepthForCapacity(gigabytes: number): number {
-  return gigabytes <= 1 ? 18 : Math.ceil(Math.log2(Math.ceil(gigabytes)) + 18)
+export function getDepthForSize(size: Size): number {
+  for (const [depth, sizeBreakpoint] of effectiveSizeBreakpoints) {
+    if (size.toGigabytes() <= sizeBreakpoint) {
+      return depth
+    }
+  }
+
+  return 34
 }
 
-export function convertEnvelopeToMarshaledStamp(batchID: BatchId, envelope: Envelope): Uint8Array {
-  return marshalStamp(envelope.signature, Binary.hexToUint8Array(batchID), envelope.timestamp, envelope.index)
+export function convertEnvelopeToMarshaledStamp(envelope: EnvelopeWithBatchId): Bytes {
+  return marshalStamp(envelope.signature, envelope.batchId.toUint8Array(), envelope.timestamp, envelope.index)
 }
 
 export function marshalStamp(
   signature: Uint8Array,
-  batchID: Uint8Array,
+  batchId: Uint8Array,
   timestamp: Uint8Array,
   index: Uint8Array,
-): Uint8Array {
+): Bytes {
   if (signature.length !== 65) {
     throw Error('invalid signature length')
   }
 
-  if (batchID.length !== 32) {
+  if (batchId.length !== 32) {
     throw Error('invalid batch ID length')
   }
 
@@ -142,5 +167,5 @@ export function marshalStamp(
     throw Error('invalid index length')
   }
 
-  return Binary.concatBytes(batchID, index, timestamp, signature)
+  return new Bytes(Binary.concatBytes(batchId, index, timestamp, signature))
 }

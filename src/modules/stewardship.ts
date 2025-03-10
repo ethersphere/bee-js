@@ -1,5 +1,7 @@
-import type { BeeRequestOptions, ReferenceOrEns } from '../types'
+import { Types } from 'cafe-utility'
+import type { BeeRequestOptions } from '../types'
 import { http } from '../utils/http'
+import { BatchId, Reference } from '../utils/typed-bytes'
 
 const stewardshipEndpoint = 'stewardship'
 
@@ -7,26 +9,29 @@ const stewardshipEndpoint = 'stewardship'
  * Reupload locally pinned data
  * @param requestOptions Options for making requests
  * @param reference
- * @param options
  * @throws BeeResponseError if not locally pinned or invalid data
  */
-export async function reupload(requestOptions: BeeRequestOptions, reference: ReferenceOrEns): Promise<void> {
+export async function reupload(requestOptions: BeeRequestOptions, stamp: BatchId, reference: Reference): Promise<void> {
   await http(requestOptions, {
     method: 'put',
     url: `${stewardshipEndpoint}/${reference}`,
+    headers: { 'swarm-postage-batch-id': stamp.toHex() },
   })
 }
 
-interface IsRetrievableResponse {
-  isRetrievable: boolean
-}
+export async function isRetrievable(
+  requestOptions: BeeRequestOptions,
+  reference: Reference | Uint8Array | string,
+): Promise<boolean> {
+  reference = new Reference(reference)
 
-export async function isRetrievable(requestOptions: BeeRequestOptions, reference: ReferenceOrEns): Promise<boolean> {
-  const response = await http<IsRetrievableResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'get',
     responseType: 'json',
     url: `${stewardshipEndpoint}/${reference}`,
   })
 
-  return response.data.isRetrievable
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return Types.asBoolean(body.isRetrievable, { name: 'isRetrievable' })
 }

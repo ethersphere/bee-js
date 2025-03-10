@@ -1,7 +1,9 @@
+import { System } from 'cafe-utility'
 import WebSocket from 'isomorphic-ws'
-import type { BatchId, BeeGenericResponse, BeeRequestOptions, PublicKey } from '../types'
-import { extractUploadHeaders } from '../utils/headers'
+import type { BeeRequestOptions } from '../types'
+import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
+import { BatchId, PublicKey, Topic } from '../utils/typed-bytes'
 
 const endpoint = 'pss'
 
@@ -18,19 +20,19 @@ const endpoint = 'pss'
  */
 export async function send(
   requestOptions: BeeRequestOptions,
-  topic: string,
+  topic: Topic,
   target: string,
   data: string | Uint8Array,
   postageBatchId: BatchId,
   recipient?: PublicKey,
 ): Promise<void> {
-  await http<BeeGenericResponse>(requestOptions, {
+  await http<unknown>(requestOptions, {
     method: 'post',
     url: `${endpoint}/send/${topic}/${target}`,
     data,
     responseType: 'json',
     params: { recipient },
-    headers: extractUploadHeaders(postageBatchId),
+    headers: prepareRequestHeaders(postageBatchId),
   })
 }
 
@@ -40,8 +42,14 @@ export async function send(
  * @param url Bee node URL
  * @param topic Topic name
  */
-export function subscribe(url: string, topic: string): WebSocket {
+export function subscribe(url: string, topic: Topic, headers?: Record<string, string>): WebSocket {
   const wsUrl = url.replace(/^http/i, 'ws')
 
-  return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${topic}`)
+  if (System.whereAmI() === 'browser') {
+    return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${topic.toHex()}`)
+  }
+
+  return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${topic.toHex()}`, {
+    headers,
+  })
 }

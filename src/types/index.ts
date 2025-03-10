@@ -1,37 +1,34 @@
-import type { Identifier, SingleOwnerChunk } from '../chunk/soc'
+import { Optional } from 'cafe-utility'
+import type { SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
-import type { FeedType } from '../feed/type'
-import type { FeedUpdateOptions, FetchFeedUpdateResponse } from '../modules/feed'
-import type { Bytes } from '../utils/bytes'
+import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../modules/feed'
+import { Bytes } from '../utils/bytes'
+import { Duration } from '../utils/duration'
 import type { BeeError } from '../utils/error'
-import type { EthAddress, HexEthAddress } from '../utils/eth'
-import type { HexString } from '../utils/hex'
+import { Size } from '../utils/size'
+import {
+  BatchId,
+  EthAddress,
+  Identifier,
+  PrivateKey,
+  PublicKey,
+  Reference,
+  Topic,
+  TransactionId,
+} from '../utils/typed-bytes'
 
 export * from './debug'
 
-export const SPAN_SIZE = 8
 export const SECTION_SIZE = 32
 export const BRANCHES = 128
 export const CHUNK_SIZE = SECTION_SIZE * BRANCHES
 
-export const ADDRESS_HEX_LENGTH = 64
-export const PSS_TARGET_HEX_LENGTH_MAX = 6
-export const PUBKEY_HEX_LENGTH = 66
-export const BATCH_ID_HEX_LENGTH = 64
-export const REFERENCE_HEX_LENGTH = 64
-export const ENCRYPTED_REFERENCE_HEX_LENGTH = 128
-export const REFERENCE_BYTES_LENGTH = 32
-export const ENCRYPTED_REFERENCE_BYTES_LENGTH = 64
+export const PSS_TARGET_HEX_LENGTH_MAX = 4
 
 /**
  * Minimal depth that can be used for creation of postage batch
  */
 export const STAMPS_DEPTH_MIN = 17
-
-/**
- * Minimal amount that can be used for creation of postage batch
- */
-export const STAMPS_AMOUNT_MIN = 24000 * 24 * 60 * 12
 
 /**
  * Maximal depth that can be used for creation of postage batch
@@ -43,59 +40,21 @@ export const TAGS_LIMIT_MAX = 1000
 
 export const FEED_INDEX_HEX_LENGTH = 16
 
-/**
- * Generic reference that can be either non-encrypted reference which is a hex string of length 64 or encrypted
- * reference which is a hex string of length 128.
- *
- * Encrypted reference consists of two parts. The reference address itself (like non-encrypted reference) and decryption key.
- *
- * @see [Bee docs - Store with Encryption](https://docs.ethswarm.org/docs/develop/access-the-swarm/store-with-encryption)
- */
-export type Reference = HexString<typeof REFERENCE_HEX_LENGTH> | HexString<typeof ENCRYPTED_REFERENCE_HEX_LENGTH>
-
-/**
- * Type that represents either Swarm's reference in hex string or ESN domain (something.eth).
- */
-export type ReferenceOrEns = Reference | string
-
-/**
- * Type that represents either Swarm's reference in hex string, ESN domain (something.eth) or CID using one of the Swarm's codecs.
- */
-export type ReferenceCidOrEns = ReferenceOrEns | string
-
-export type PlainBytesReference = Bytes<typeof REFERENCE_BYTES_LENGTH>
-export type EncryptedBytesReference = Bytes<typeof ENCRYPTED_REFERENCE_BYTES_LENGTH>
-export type BytesReference = PlainBytesReference | EncryptedBytesReference
-
-export type PublicKey = HexString<typeof PUBKEY_HEX_LENGTH>
-
-export type Address = HexString<typeof ADDRESS_HEX_LENGTH>
-
-/**
- * BatchId is result of keccak256 hash so 64 hex string without prefix.
- */
-export type BatchId = HexString<typeof BATCH_ID_HEX_LENGTH>
-
-/**
- * AddressPrefix is an HexString of length equal or smaller then ADDRESS_HEX_LENGTH.
- * It represents PSS Address Prefix that is used to define address neighborhood that will receive the PSS message.
- */
-export type AddressPrefix = HexString
-
 export type BeeRequestOptions = {
   baseURL?: string
-  timeout?: number | false
+  timeout?: number
   headers?: Record<string, string>
   onRequest?: (request: BeeRequest) => void
-  httpAgent?: any
-  httpsAgent?: any
+  httpAgent?: unknown
+  httpsAgent?: unknown
+  endlesslyRetry?: boolean
 }
 
 export interface BeeOptions extends BeeRequestOptions {
   /**
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
-  signer?: Signer | Uint8Array | string
+  signer?: PrivateKey | Uint8Array | string
 }
 
 export interface GranteesResult {
@@ -108,16 +67,7 @@ export interface GranteesResult {
 export interface GetGranteesResult {
   status: number
   statusText: string
-  data: string[]
-}
-
-export interface UploadResultWithCid extends UploadResult {
-  /**
-   * Function that converts the reference into Swarm CIDs
-   *
-   * @throws TypeError if the reference is encrypted reference (eq. 128 chars long) which is not supported in CID
-   */
-  cid: () => string
+  grantees: PublicKey[]
 }
 
 /**
@@ -137,7 +87,7 @@ export interface UploadResult {
   /**
    * History address of the uploaded data with ACT.
    */
-  historyAddress: string
+  historyAddress: Optional<Reference>
 }
 
 export interface UploadOptions {
@@ -145,6 +95,8 @@ export interface UploadOptions {
    * If set to true, an ACT will be created for the uploaded data.
    */
   act?: boolean
+
+  actHistoryAddress?: Reference | Uint8Array | string
 
   /**
    * Will pin the data locally in the Bee node as well.
@@ -199,7 +151,7 @@ export enum RedundancyLevel {
   PARANOID = 4,
 }
 
-export interface UploadRedundancyOptions {
+export interface RedundantUploadOptions extends UploadOptions {
   redundancyLevel?: RedundancyLevel
 }
 
@@ -220,7 +172,7 @@ export enum RedundancyStrategy {
   RACE = 3,
 }
 
-export interface DownloadRedundancyOptions {
+export interface DownloadOptions {
   /**
    * Specify the retrieve strategy on redundant data.
    */
@@ -233,6 +185,12 @@ export interface DownloadRedundancyOptions {
    * Specify the timeout for chunk retrieval. The default is 30 seconds.
    */
   timeoutMs?: number
+
+  actPublisher?: PublicKey | Uint8Array | string
+
+  actHistoryAddress?: Reference | Uint8Array | string
+
+  actTimestamp?: string | number
 }
 
 export interface FileUploadOptions extends UploadOptions {
@@ -249,6 +207,8 @@ export interface FileUploadOptions extends UploadOptions {
    * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   contentType?: string
+
+  redundancyLevel?: RedundancyLevel
 }
 
 export interface CollectionUploadOptions extends UploadOptions {
@@ -267,6 +227,8 @@ export interface CollectionUploadOptions extends UploadOptions {
    * @see [Bee API reference - `POST /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)
    */
   errorDocument?: string
+
+  redundancyLevel?: RedundancyLevel
 }
 
 export interface UploadHeaders {
@@ -283,44 +245,13 @@ export interface UploadHeaders {
  * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
  */
 export interface Tag {
-  /**
-   * Number of chunks created by the splitter.
-   */
   split: number
-
-  /**
-   * Number of chunks that are already uploaded with same reference and same postage batch. These don't need to be synced again.
-   */
   seen: number
-
-  /**
-   * Number of chunks that were stored locally as they lie in the uploader node's neighborhood. This is only applicable for full nodes.
-   */
   stored: number
-
-  /**
-   * Number of chunks sent on the network to peers as a part of the upload. Chunks could be sent multiple times because of failures or replication.
-   */
   sent: number
-
-  /**
-   * Number of chunks that were pushed with a valid receipt. The receipt will also show if they were stored at the correct depth.
-   */
   synced: number
-
-  /**
-   * Unique identifier
-   */
   uid: number
-
-  /**
-   * Swarm hash of the uploaded data
-   */
   address: string
-
-  /**
-   * When the upload process started
-   */
   startedAt: string
 }
 
@@ -340,7 +271,7 @@ export interface FileData<T> extends FileHeaders {
 }
 
 export interface Pin {
-  reference: string
+  reference: Reference
 }
 
 export interface ReferenceInformation {
@@ -363,7 +294,7 @@ export interface Data extends Uint8Array {
   /**
    * Converts the binary data into hex-string.
    */
-  hex(): HexString
+  hex(): string
 
   /**
    * Converts the binary data into string which is then parsed into JSON.
@@ -387,18 +318,23 @@ export interface CollectionEntry {
 export type Collection = Array<CollectionEntry>
 
 export interface PssSubscription {
-  readonly topic: string
+  readonly topic: Topic
   cancel: () => void
 }
 
 export interface PssMessageHandler {
-  onMessage: (message: Data, subscription: PssSubscription) => void
+  onMessage: (message: Bytes, subscription: PssSubscription) => void
   onError: (error: BeeError, subscription: PssSubscription) => void
 }
 
-export interface BeeGenericResponse {
-  message: string
-  code: number
+export interface GsocSubscription {
+  readonly address: EthAddress
+  cancel: () => void
+}
+
+export interface GsocMessageHandler {
+  onMessage: (message: Bytes, subscription: GsocSubscription) => void
+  onError: (error: BeeError, subscription: GsocSubscription) => void
 }
 
 export interface ReferenceResponse {
@@ -423,60 +359,27 @@ export interface BeeResponse {
   request: BeeRequest
 }
 
-/*********************************************************
- * Writers and Readers interfaces
- */
-
-export const TOPIC_BYTES_LENGTH = 32
-export const TOPIC_HEX_LENGTH = 64
-
-/**
- * Hex string of length 64 chars without prefix that specifies topics for feed.
- */
-export type Topic = HexString<typeof TOPIC_HEX_LENGTH>
-
-/**
- * Result of upload calls.
- */
-export interface FeedManifestResult {
-  /**
-   * Reference of the uploaded data
-   */
-  reference: Reference
-
-  /**
-   * Function that converts the reference into Swarm Feed CID.
-   */
-  cid: () => string
-}
-
 /**
  * FeedReader is an interface for downloading feed updates
  */
 export interface FeedReader {
-  readonly type: FeedType
-  readonly owner: HexEthAddress
+  readonly owner: EthAddress
   readonly topic: Topic
-  /**
-   * Download the latest feed update
-   */
-  download(options?: FeedUpdateOptions): Promise<FetchFeedUpdateResponse>
-}
-
-export interface JsonFeedOptions {
-  /**
-   * Valid only for `get` action, where either this `address` or `signer` has
-   * to be specified.
-   */
-  address?: EthAddress | Uint8Array | string
 
   /**
-   * Custom Signer object or private key in either binary or hex form.
-   * This required for `set` action, and optional for `get` although
-   * if not specified for `get` then `address` option has to be specified.
+   * @deprecated Use `downloadReference` or `downloadPayload` instead to disambiguate how the data should be interpreted.
    */
-  signer?: Signer | Uint8Array | string
-  type?: FeedType
+  download(options?: FeedUpdateOptions): Promise<FeedPayloadResult>
+
+  /**
+   * Downloads the feed update (latest if no index is specified) and returns it as a reference.
+   */
+  downloadReference(options?: FeedUpdateOptions): Promise<FeedReferenceResult>
+
+  /**
+   * Downloads the feed update (latest if no index is specified) and returns it as a payload.
+   */
+  downloadPayload(options?: FeedUpdateOptions): Promise<FeedPayloadResult>
 }
 
 /**
@@ -486,6 +389,8 @@ export interface FeedWriter extends FeedReader {
   /**
    * Upload a new feed update
    *
+   * @deprecated Use `uploadReference` or `uploadPayload` instead to disambiguate how the data should be interpreted.
+   *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param reference The reference to be stored in the new update
    * @param options   Additional options like `at`
@@ -494,7 +399,19 @@ export interface FeedWriter extends FeedReader {
    */
   upload(
     postageBatchId: string | BatchId,
-    reference: BytesReference | Reference,
+    reference: Reference | string | Uint8Array,
+    options?: FeedUploadOptions,
+  ): Promise<UploadResult>
+
+  uploadReference(
+    postageBatchId: string | BatchId,
+    reference: Reference | string | Uint8Array,
+    options?: FeedUploadOptions,
+  ): Promise<UploadResult>
+
+  uploadPayload(
+    postageBatchId: string | BatchId,
+    payload: Uint8Array | string,
     options?: FeedUploadOptions,
   ): Promise<UploadResult>
 }
@@ -503,13 +420,13 @@ export interface FeedWriter extends FeedReader {
  * Interface for downloading single owner chunks
  */
 export interface SOCReader {
-  readonly owner: HexEthAddress
+  readonly owner: EthAddress
   /**
    * Downloads a single owner chunk
    *
    * @param identifier  The identifier of the chunk
    */
-  download: (identifier: Identifier) => Promise<SingleOwnerChunk>
+  download: (identifier: Identifier | Uint8Array | string) => Promise<SingleOwnerChunk>
 }
 
 /**
@@ -525,31 +442,65 @@ export interface SOCWriter extends SOCReader {
    */
   upload: (
     stamp: BatchId | Uint8Array | string,
-    identifier: Identifier,
+    identifier: Identifier | Uint8Array | string,
     data: Uint8Array,
     options?: UploadOptions,
   ) => Promise<UploadResult>
 }
 
-/**
- * Interface representing Postage stamp batch.
- */
+export interface GlobalPostageBatch {
+  batchID: BatchId
+  value: NumberString
+  start: number
+  owner: EthAddress
+  depth: number
+  bucketDepth: number
+  immutable: boolean
+  batchTTL: number
+}
+
 export interface PostageBatch {
   batchID: BatchId
+  /**
+   * Represents how much of the batch is used up.
+   *
+   * Max utilization = `2 ** (depth - bucketDepth)`
+   *
+   * Since the smallest depth is 17, and one batch has 65,536 buckets, and one chunk is 4,096 bytes,
+   * the 512MB theoretical max size for the smallest stamp comes from `2 * 65536 * 4096 = 512MB`
+   */
   utilization: number
   usable: boolean
-  label: '' | string
+  label: string
   depth: number
-  amount: string
+  amount: NumberString
   bucketDepth: number
   blockNumber: number
   immutableFlag: boolean
   /**
-   * The time (in seconds) remaining until the batch expires; -1 signals that the batch never expires; 0 signals that the batch has already expired.
+   * Estimated time until the batch expires
    */
-  batchTTL: number
-
-  exists: boolean
+  duration: Duration
+  /**
+   * A floating point number from 0 to 1, where 0 is no usage, 1 is full usage.
+   */
+  usage: number
+  /**
+   * Human readable usage text, like "50%" or "100%", no fractions
+   */
+  usageText: string
+  /**
+   * Effective size
+   */
+  size: Size
+  /**
+   * Estimated remaining size
+   */
+  remainingSize: Size
+  /**
+   * Theoretical size in bytes
+   */
+  theoreticalSize: Size
 }
 
 export interface BatchBucket {
@@ -561,14 +512,12 @@ export interface PostageBatchBuckets {
   depth: number
   bucketDepth: number
   bucketUpperBound: number
-  buckets?: BatchBucket[]
+  buckets: BatchBucket[]
 }
 
-export type TransactionHash = BrandedString<'TransactionHash'>
-
 export interface TransactionInfo {
-  transactionHash: TransactionHash
-  to: HexEthAddress
+  transactionHash: TransactionId
+  to: string
   nonce: number
   gasPrice: NumberString
   gasLimit: number
@@ -590,7 +539,11 @@ export interface PostageBatchOptions {
   /**
    * Sets gas price in Wei for the transaction that creates the postage batch
    */
-  gasPrice?: NumberString
+  gasPrice?: NumberString | string | bigint
+
+  /**
+   * Controls whether data can be overwritten that was uploaded with this postage batch.
+   */
   immutableFlag?: boolean
 
   /**
@@ -619,68 +572,11 @@ export interface Envelope {
   signature: Uint8Array
 }
 
+export interface EnvelopeWithBatchId extends Envelope {
+  batchId: BatchId
+}
+
 /**
  * With this type a number should be represented in a string
  */
-export type NumberString = FlavoredType<string, 'NumberString'>
-
-/*********************************************************
- * Ethereum compatible signing interfaces and definitions
- */
-
-export const SIGNATURE_HEX_LENGTH = 130
-export const SIGNATURE_BYTES_LENGTH = 65
-
-export type Signature = Bytes<typeof SIGNATURE_BYTES_LENGTH>
-export type PrivateKeyBytes = Bytes<32>
-
-/**
- * Signing function that takes digest in Uint8Array  to be signed that has helpers to convert it
- * conveniently into other types like hex-string (non prefix).
- * Result of the signing can be returned either in Uint8Array or hex string form.
- *
- * @see Data
- */
-type SyncSigner = (digest: Data) => Signature | HexString<typeof SIGNATURE_HEX_LENGTH> | string
-type AsyncSigner = (digest: Data) => Promise<Signature | HexString<typeof SIGNATURE_HEX_LENGTH> | string>
-
-/**
- * Interface for implementing Ethereum compatible signing.
- *
- * In order to be compatible with Ethereum and its signing method `personal_sign`, the data
- * that are passed to sign() function should be prefixed with: `\x19Ethereum Signed Message:\n${data.length}`, hashed
- * and only then signed.
- * If you are wrapping another signer tool/library (like Metamask or some other Ethereum wallet), you might not have
- * to do this prefixing manually if you use the `personal_sign` method. Check documentation of the tool!
- * If you are writing your own storage for keys, then you have to prefix the data manually otherwise the Bee node
- * will reject the chunks signed by you!
- *
- * For example see the hashWithEthereumPrefix() function.
- *
- * @property sign     The sign function that can be sync or async. This function takes non-prefixed data. See above.
- * @property address  The ethereum address of the signer in bytes.
- * @see hashWithEthereumPrefix
- */
-export type Signer = {
-  sign: SyncSigner | AsyncSigner
-  address: EthAddress
-}
-
-/**
- * These type are used to create new nominal types
- *
- * See https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
- */
-export type BrandedType<Type, Name> = Type & { __tag__: Name }
-
-export type BrandedString<Name> = BrandedType<string, Name>
-
-export type FlavoredType<Type, Name> = Type & { __tag__?: Name }
-
-// JSON typings
-// by @indiescripter at https://github.com/microsoft/TypeScript/issues/1897#issuecomment-338650717
-export type AnyJson = boolean | number | string | null | JsonArray | JsonMap
-interface JsonMap {
-  [key: string]: AnyJson
-}
-type JsonArray = Array<AnyJson>
+export type NumberString = string & { __numberString: never }

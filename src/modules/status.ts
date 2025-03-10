@@ -7,7 +7,7 @@ import { http } from '../utils/http'
  * @param requestOptions Options for making requests
  */
 export async function checkConnection(requestOptions: BeeRequestOptions): Promise<void> | never {
-  await http<string>(requestOptions, {
+  await http<unknown>(requestOptions, {
     url: '',
   })
 }

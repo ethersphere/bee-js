@@ -31,7 +31,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
 
       - name: Install npm deps
         run: npm install -g npm && npm ci && npm install -g @fairdatasociety/fdp-play

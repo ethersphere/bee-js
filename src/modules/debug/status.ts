@@ -1,15 +1,13 @@
+import { Types } from 'cafe-utility'
 import getMajorSemver from 'semver/functions/major.js'
 import { BeeRequestOptions } from '../../index'
-import type { DebugStatus, Health, NodeInfo } from '../../types/debug'
-import { BeeVersions } from '../../types/debug'
+import type { DebugStatus, Health, NodeInfo, Readiness } from '../../types/debug'
+import { BeeVersions, toBeeMode } from '../../types/debug'
 import { http } from '../../utils/http'
 
-// Following lines bellow are automatically updated with GitHub Action when Bee version is updated
-// so if you are changing anything about them change the `update_bee` action accordingly!
-export const SUPPORTED_BEE_VERSION_EXACT = '2.2.0-06a0aca7'
-export const SUPPORTED_API_VERSION = '7.1.0'
-
+export const SUPPORTED_BEE_VERSION_EXACT = '2.4.0-390a402e'
 export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.split('-')[0]
+export const SUPPORTED_API_VERSION = '7.2.0'
 
 const NODE_INFO_URL = 'node'
 const STATUS_URL = 'status'
@@ -17,13 +15,29 @@ const HEALTH_URL = 'health'
 const READINESS_URL = 'readiness'
 
 export async function getDebugStatus(requestOptions: BeeRequestOptions): Promise<DebugStatus> {
-  const response = await http<DebugStatus>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'get',
     url: STATUS_URL,
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    overlay: Types.asString(body.overlay, { name: 'overlay' }),
+    proximity: Types.asNumber(body.proximity, { name: 'proximity' }),
+    beeMode: toBeeMode(Types.asString(body.beeMode, { name: 'beeMode' })),
+    reserveSize: Types.asNumber(body.reserveSize, { name: 'reserveSize' }),
+    reserveSizeWithinRadius: Types.asNumber(body.reserveSizeWithinRadius, { name: 'reserveSizeWithinRadius' }),
+    pullsyncRate: Types.asNumber(body.pullsyncRate, { name: 'pullsyncRate' }),
+    storageRadius: Types.asNumber(body.storageRadius, { name: 'storageRadius' }),
+    connectedPeers: Types.asNumber(body.connectedPeers, { name: 'connectedPeers' }),
+    neighborhoodSize: Types.asNumber(body.neighborhoodSize, { name: 'neighborhoodSize' }),
+    batchCommitment: Types.asNumber(body.batchCommitment, { name: 'batchCommitment' }),
+    isReachable: Types.asBoolean(body.isReachable, { name: 'isReachable' }),
+    lastSyncedBlock: Types.asNumber(body.lastSyncedBlock, { name: 'lastSyncedBlock' }),
+    committedDepth: Types.asNumber(body.committedDepth, { name: 'committedDepth' }),
+  }
 }
 
 /**
@@ -32,13 +46,19 @@ export async function getDebugStatus(requestOptions: BeeRequestOptions): Promise
  * @param requestOptions Options for making requests
  */
 export async function getHealth(requestOptions: BeeRequestOptions): Promise<Health> {
-  const response = await http<Health>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'get',
     url: HEALTH_URL,
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    apiVersion: Types.asString(body.apiVersion, { name: 'apiVersion' }),
+    version: Types.asString(body.version, { name: 'version' }),
+    status: Types.asString(body.status, { name: 'status' }) as 'ok',
+  }
 }
 
 /**
@@ -46,16 +66,18 @@ export async function getHealth(requestOptions: BeeRequestOptions): Promise<Heal
  *
  * @param requestOptions Options for making requests
  */
-export async function getReadiness(requestOptions: BeeRequestOptions): Promise<boolean> {
-  try {
-    const response = await http<void>(requestOptions, {
-      method: 'get',
-      url: READINESS_URL,
-    })
+export async function getReadiness(requestOptions: BeeRequestOptions): Promise<Readiness> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'get',
+    url: READINESS_URL,
+  })
 
-    return response.status === 200
-  } catch {
-    return false
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    apiVersion: Types.asString(body.apiVersion, { name: 'apiVersion' }),
+    version: Types.asString(body.version, { name: 'version' }),
+    status: Types.asString(body.status, { name: 'status' }),
   }
 }
 
@@ -65,34 +87,26 @@ export async function getReadiness(requestOptions: BeeRequestOptions): Promise<b
  * @param requestOptions Options for making requests
  */
 export async function getNodeInfo(requestOptions: BeeRequestOptions): Promise<NodeInfo> {
-  const response = await http<NodeInfo>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'get',
     url: NODE_INFO_URL,
     responseType: 'json',
   })
 
-  return response.data
-}
+  const body = Types.asObject(response.data, { name: 'response.data' })
 
-/**
- * Connects to a node and checks if it is a supported Bee version by the bee-js
- *
- * @param requestOptions Options for making requests
- * @returns true if the Bee node version is supported
- * @deprecated Use `isSupportedExactVersion` instead
- */
-// TODO: Remove on break
-export async function isSupportedVersion(requestOptions: BeeRequestOptions): Promise<boolean> {
-  return isSupportedExactVersion(requestOptions)
+  return {
+    beeMode: toBeeMode(Types.asString(body.beeMode, { name: 'beeMode' })),
+    chequebookEnabled: Types.asBoolean(body.chequebookEnabled, { name: 'chequebookEnabled' }),
+    swapEnabled: Types.asBoolean(body.swapEnabled, { name: 'swapEnabled' }),
+  }
 }
 
 /**
  * Connects to a node and checks if its version matches with the one that bee-js supports.
  *
- * Be aware that this is the most strict version check and most probably
- * you will want to use more relaxed API-versions based checks like
- * `isSupportedApiVersion`, `isSupportedMainApiVersion` or `isSupportedDebugApiVersion`
- * based on your use-case.
+ * This is the most strict version check and most probably you will
+ * want to use the relaxed API-versions check `isSupportedApiVersion`.
  *
  * @param requestOptions Options for making requests
  */
@@ -100,20 +114,6 @@ export async function isSupportedExactVersion(requestOptions: BeeRequestOptions)
   const { version } = await getHealth(requestOptions)
 
   return version === SUPPORTED_BEE_VERSION_EXACT
-}
-
-/**
- * Connects to a node and checks if its main's API version matches with the one that bee-js supports.
- *
- * This is useful if you are not using `Bee` class (for anything else then this check)
- * and want to make sure about compatibility.
- *
- * @param requestOptions Options for making requests
- */
-export async function isSupportedMainApiVersion(requestOptions: BeeRequestOptions): Promise<boolean> {
-  const { apiVersion } = await getHealth(requestOptions)
-
-  return getMajorSemver(apiVersion) === getMajorSemver(SUPPORTED_API_VERSION)
 }
 
 /**

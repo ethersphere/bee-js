@@ -1,80 +1,30 @@
-import { HexEthAddress } from '../utils/eth'
-import { NumberString, PublicKey, Reference, TransactionHash } from './index'
-
-/**
- * Object that contains information about progress of upload of data to network.
- *
- * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
- */
-export interface ExtendedTag {
-  /**
-   * Number of all chunks that the data will be split into.
-   */
-  total: number
-
-  /**
-   * Number of chunks already processed by splitter for hashing
-   */
-  split: number
-
-  /**
-   * Number of chunks already seen
-   */
-  seen: number
-
-  /**
-   * Number of chunks already stored locally
-   */
-  stored: number
-
-  /**
-   * Number of chunks sent for push syncing
-   */
-  sent: number
-
-  /**
-   * Number of chunks synced with proof
-   */
-  synced: number
-
-  /**
-   * Unique identifier
-   */
-  uid: number
-
-  /**
-   * The associated swarm hash for this tag
-   */
-  address: Reference
-
-  /**
-   * When the upload process started
-   */
-  startedAt: string
-}
+import { BZZ, DAI } from '../utils/tokens'
+import { EthAddress, PeerAddress, PublicKey, TransactionId } from '../utils/typed-bytes'
+import { NumberString } from './index'
 
 export interface Settlements {
   peer: string
-  received: NumberString
-  sent: NumberString
+  received: BZZ
+  sent: BZZ
 }
 
 export interface AllSettlements {
-  totalReceived: NumberString
-  totalSent: NumberString
+  totalReceived: BZZ
+  totalSent: BZZ
   settlements: Settlements[]
 }
 
 export interface NodeAddresses {
-  overlay: string
+  overlay: PeerAddress
   underlay: string[]
-  ethereum: HexEthAddress
+  ethereum: EthAddress
   publicKey: PublicKey
   pssPublicKey: PublicKey
 }
 
 export interface Peer {
   address: string
+  fullNode?: boolean
 }
 
 export interface ChequebookAddressResponse {
@@ -82,52 +32,50 @@ export interface ChequebookAddressResponse {
 }
 
 export interface ChequebookBalanceResponse {
-  totalBalance: NumberString
-  availableBalance: NumberString
+  totalBalance: BZZ
+  availableBalance: BZZ
 }
 
 export interface TransactionOptions {
   /**
    * Gas price for the cashout transaction in WEI
    */
-  gasPrice?: NumberString
+  gasPrice?: NumberString | string | bigint
 
   /**
    * Gas limit for the cashout transaction in WEI
    */
-  gasLimit?: NumberString
+  gasLimit?: NumberString | string | bigint
 }
-
-export type CashoutOptions = TransactionOptions
 
 export interface CashoutResult {
   recipient: string
-  lastPayout: NumberString
+  lastPayout: BZZ
   bounced: boolean
 }
 
 export interface LastCashoutActionResponse {
   peer: string
-  uncashedAmount: NumberString
+  uncashedAmount: BZZ
   transactionHash: string | null
   lastCashedCheque: Cheque | null
   result: CashoutResult | null
 }
 
 export interface TransactionResponse {
-  transactionHash: TransactionHash
+  transactionHash: TransactionId
 }
 
 export interface Cheque {
-  beneficiary: string
-  chequebook: string
-  payout: NumberString
+  beneficiary: EthAddress
+  chequebook: EthAddress
+  payout: BZZ
 }
 
 export interface LastChequesForPeerResponse {
   peer: string
-  lastreceived: Cheque
-  lastsent: Cheque
+  lastreceived: Cheque | null
+  lastsent: Cheque | null
 }
 
 export interface LastChequesResponse {
@@ -136,7 +84,7 @@ export interface LastChequesResponse {
 
 export interface PeerBalance {
   peer: string
-  balance: NumberString
+  balance: BZZ
 }
 
 export interface BalanceResponse {
@@ -144,20 +92,29 @@ export interface BalanceResponse {
 }
 
 export interface DebugStatus {
-  peer: string
+  overlay: string
   proximity: number
   beeMode: BeeModes
   reserveSize: number
+  reserveSizeWithinRadius: number
   pullsyncRate: number
   storageRadius: number
   connectedPeers: number
   neighborhoodSize: number
   batchCommitment: number
   isReachable: boolean
+  lastSyncedBlock: number
+  committedDepth: number
 }
 
 export interface Health {
   status: 'ok'
+  version: string
+  apiVersion: string
+}
+
+export interface Readiness {
+  status: 'ready' | string
   version: string
   apiVersion: string
 }
@@ -176,8 +133,23 @@ export enum BeeModes {
   DEV = 'dev',
 }
 
+export function toBeeMode(value: string) {
+  switch (value) {
+    case 'full':
+      return BeeModes.FULL
+    case 'light':
+      return BeeModes.LIGHT
+    case 'ultra-light':
+      return BeeModes.ULTRA_LIGHT
+    case 'dev':
+      return BeeModes.DEV
+    default:
+      throw new Error(`Unknown Bee mode: ${value}`)
+  }
+}
+
 export interface RedistributionState {
-  minimumGasFunds: NumberString
+  minimumGasFunds: DAI
   hasSufficientFunds: boolean
   isFrozen: boolean
   isFullySynced: boolean
@@ -187,22 +159,17 @@ export interface RedistributionState {
   lastPlayedRound: number
   lastFrozenRound: number
   lastSelectedRound: number
-  lastSampleDuration: string
+  lastSampleDurationSeconds: number
   block: number
-  reward: NumberString
-  fees: NumberString
+  reward: BZZ
+  fees: DAI
+  isHealthy: boolean
 }
 
 /**
  * Information about Bee node and its configuration
  */
 export interface NodeInfo {
-  /**
-   * Indicates whether the node is in a Gateway mode.
-   * Gateway mode is a restricted mode where some features are not available.
-   */
-  gatewayMode: boolean
-
   /**
    * Indicates in what mode Bee is running.
    */
@@ -242,6 +209,8 @@ export interface Topology {
   timestamp: string
   nnLowWatermark: number
   depth: number
+  reachability: string
+  networkAvailability: string
   bins: {
     bin_0: Bin
     bin_1: Bin
@@ -259,6 +228,22 @@ export interface Topology {
     bin_13: Bin
     bin_14: Bin
     bin_15: Bin
+    bin_16: Bin
+    bin_17: Bin
+    bin_18: Bin
+    bin_19: Bin
+    bin_20: Bin
+    bin_21: Bin
+    bin_22: Bin
+    bin_23: Bin
+    bin_24: Bin
+    bin_25: Bin
+    bin_26: Bin
+    bin_27: Bin
+    bin_28: Bin
+    bin_29: Bin
+    bin_30: Bin
+    bin_31: Bin
   }
 }
 
@@ -268,61 +253,21 @@ export interface PingResponse {
 
 export interface ReserveState {
   radius: number
-  commitment: number
   storageRadius: number
+  commitment: number
 }
 
 export interface ChainState {
-  block: number
   chainTip: number
+  block: number
   totalAmount: NumberString
-  currentPrice: NumberString
+  currentPrice: number
 }
 
 export interface WalletBalance {
-  /**
-   * Balance of BZZ tokens
-   *
-   * @deprecated: Use bzzBalance property instead
-   */
-  bzz: NumberString
-
-  /**
-   * Balance of BZZ tokens
-   */
-  bzzBalance: NumberString
-
-  /**
-   * Balance of xDai
-   *
-   * @deprecated: Use nativeTokenBalance property instead
-   */
-  xDai: NumberString
-
-  /**
-   * Balance of xDai
-   */
-  nativeTokenBalance: NumberString
-
-  /**
-   * Chain network ID to which the Bee node is connected
-   */
+  bzzBalance: BZZ
+  nativeTokenBalance: DAI
   chainID: number
-
-  /**
-   * Chequebook contract address
-   *
-   * @deprecated: Use chequebookContractAddress property instead
-   */
-  contractAddress: string
-
-  /**
-   * Chequebook contract address
-   */
   chequebookContractAddress: string
-
-  /**
-   * Node's wallet address
-   */
   walletAddress: string
 }

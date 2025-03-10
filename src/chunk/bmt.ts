@@ -1,14 +1,9 @@
-// For ESM compatibility
-import pkg from 'js-sha3'
-const { keccak256 } = pkg
+import { Binary } from 'cafe-utility'
 import { BeeArgumentError } from '../utils/error'
-import { Bytes } from '../utils/bytes'
-import { keccak256Hash } from '../utils/hash'
+import { Reference, Span } from '../utils/typed-bytes'
 
 const MAX_CHUNK_PAYLOAD_SIZE = 4096
 const SEGMENT_SIZE = 32
-const SEGMENT_PAIR_SIZE = 2 * SEGMENT_SIZE
-const HASH_SIZE = 32
 
 /**
  * Calculate a Binary Merkle Tree hash for a chunk
@@ -24,34 +19,24 @@ const HASH_SIZE = 32
  *
  * @returns the keccak256 hash in a byte array
  */
-export function bmtHash(chunkContent: Uint8Array): Bytes<32> {
-  const span = chunkContent.slice(0, 8)
-  const payload = chunkContent.slice(8)
-  const rootHash = bmtRootHash(payload)
-  const chunkHashInput = new Uint8Array([...span, ...rootHash])
-  const chunkHash = keccak256Hash(chunkHashInput)
+export function calculateChunkAddress(chunkContent: Uint8Array): Reference {
+  const span = chunkContent.slice(0, Span.LENGTH)
+  const payload = chunkContent.slice(Span.LENGTH)
+  const rootHash = calculateBmtRootHash(payload)
+  const chunkHash = Binary.keccak256(Binary.concatBytes(span, rootHash))
 
-  return chunkHash
+  return new Reference(chunkHash)
 }
 
-function bmtRootHash(payload: Uint8Array): Uint8Array {
+function calculateBmtRootHash(payload: Uint8Array): Uint8Array {
   if (payload.length > MAX_CHUNK_PAYLOAD_SIZE) {
-    throw new BeeArgumentError('invalid data length', payload)
+    throw new BeeArgumentError(
+      `payload size ${payload.length} exceeds maximum chunk payload size ${MAX_CHUNK_PAYLOAD_SIZE}`,
+      payload,
+    )
   }
+  const input = new Uint8Array(MAX_CHUNK_PAYLOAD_SIZE)
+  input.set(payload)
 
-  // create an input buffer padded with zeros
-  let input = new Uint8Array([...payload, ...new Uint8Array(MAX_CHUNK_PAYLOAD_SIZE - payload.length)])
-  while (input.length !== HASH_SIZE) {
-    const output = new Uint8Array(input.length / 2)
-
-    // in each round we hash the segment pairs together
-    for (let offset = 0; offset < input.length; offset += SEGMENT_PAIR_SIZE) {
-      const hashNumbers = keccak256.array(input.slice(offset, offset + SEGMENT_PAIR_SIZE))
-      output.set(hashNumbers, offset / 2)
-    }
-
-    input = output
-  }
-
-  return input
+  return Binary.log2Reduce(Binary.partition(input, SEGMENT_SIZE), (a, b) => Binary.keccak256(Binary.concatBytes(a, b)))
 }

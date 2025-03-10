@@ -39,13 +39,6 @@ const encParanoidTable = [
   [88, 85, 82, 79, 76, 72, 69, 66, 62, 59, 55, 51, 48, 44, 39, 35, 30, 24],
 ]
 
-const tables = {
-  [RedundancyLevel.MEDIUM]: [mediumTable, encMediumTable],
-  [RedundancyLevel.STRONG]: [strongTable, encStrongTable],
-  [RedundancyLevel.INSANE]: [insaneTable, encInsaneTable],
-  [RedundancyLevel.PARANOID]: [paranoidTable, encParanoidTable],
-}
-
 /**
  * Returns an approximate multiplier for the overhead of a given redundancy level.
  * Redundancy level is a tradeoff between storage overhead and fault tolerance.
@@ -53,15 +46,11 @@ const tables = {
  * redundancy level.
  */
 export function approximateOverheadForRedundancyLevel(chunks: number, level: RedundancyLevel, encrypted: boolean) {
-  const tableType =
-    level === RedundancyLevel.MEDIUM
-      ? tables[RedundancyLevel.MEDIUM]
-      : level === RedundancyLevel.STRONG
-      ? tables[RedundancyLevel.STRONG]
-      : level === RedundancyLevel.INSANE
-      ? tables[RedundancyLevel.INSANE]
-      : tables[RedundancyLevel.PARANOID]
-  const table = encrypted ? tableType[1] : tableType[0]
+  if (level === RedundancyLevel.OFF) {
+    return 0
+  }
+
+  const table = selectTable(level, encrypted)
   const [supportedChunks, parities] = table
 
   for (let i = 0; i < supportedChunks.length; i++) {
@@ -71,6 +60,21 @@ export function approximateOverheadForRedundancyLevel(chunks: number, level: Red
   }
 
   return parities[parities.length - 1] / supportedChunks[supportedChunks.length - 1]
+}
+
+function selectTable(level: RedundancyLevel, encrypted: boolean) {
+  switch (level) {
+    case RedundancyLevel.MEDIUM:
+      return encrypted ? encMediumTable : mediumTable
+    case RedundancyLevel.STRONG:
+      return encrypted ? encStrongTable : strongTable
+    case RedundancyLevel.INSANE:
+      return encrypted ? encInsaneTable : insaneTable
+    case RedundancyLevel.PARANOID:
+      return encrypted ? encParanoidTable : paranoidTable
+    default:
+      throw new Error(`Unknown redundancy level ${level}`)
+  }
 }
 
 interface RedundancyStats {

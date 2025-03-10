@@ -6,7 +6,7 @@ import { Collection } from '../types'
  *
  * @param dir path to the directory
  */
-export async function makeCollectionFromFS(dir: string): Promise<Collection> {
+export async function makeCollectionFromFS(_dir: string): Promise<Collection> {
   throw new Error('Creating Collection from File System is not supported in browsers!')
 }
 
@@ -16,6 +16,6 @@ export async function makeCollectionFromFS(dir: string): Promise<Collection> {
  * @param dir the path to the folder to check
  * @returns size in bytes
  */
-export async function getFolderSize(dir: string): Promise<number> {
+export async function getFolderSize(_dir: string): Promise<number> {
   throw new Error('Creating Collection from File System is not supported in browsers!')
 }

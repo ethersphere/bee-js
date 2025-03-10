@@ -15,7 +15,7 @@ export function assertCollection(data: unknown): asserts data is Collection {
   }
 }
 
-function makeFilePath(file: File) {
+export function makeFilePath(file: File) {
   if (file.webkitRelativePath && file.webkitRelativePath !== '') {
     return file.webkitRelativePath.replace(/.*?\//i, '')
   }
@@ -27,7 +27,7 @@ function makeFilePath(file: File) {
   throw new TypeError('file is not valid File object')
 }
 
-export async function makeCollectionFromFileList(fileList: FileList | File[]): Promise<Collection> {
+export function makeCollectionFromFileList(fileList: FileList | File[]): Collection {
   return Array.from(fileList).map(file => ({
     path: makeFilePath(file),
     size: file.size,

@@ -1,16 +1,21 @@
+import { Types } from 'cafe-utility'
 import type {
   BeeRequestOptions,
-  CashoutOptions,
+  CashoutResult,
+  Cheque,
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
   LastCashoutActionResponse,
   LastChequesForPeerResponse,
   LastChequesResponse,
   NumberString,
-  TransactionHash,
-  TransactionResponse,
+  TransactionOptions,
 } from '../../types'
+import { prepareRequestHeaders } from '../../utils/headers'
 import { http } from '../../utils/http'
+import { BZZ } from '../../utils/tokens'
+import { asNumberString } from '../../utils/type'
+import { EthAddress, PeerAddress, TransactionId } from '../../utils/typed-bytes'
 
 const chequebookEndpoint = 'chequebook'
 
@@ -20,12 +25,16 @@ const chequebookEndpoint = 'chequebook'
  * @param requestOptions Options for making requests
  */
 export async function getChequebookAddress(requestOptions: BeeRequestOptions): Promise<ChequebookAddressResponse> {
-  const response = await http<ChequebookAddressResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: chequebookEndpoint + '/address',
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    chequebookAddress: Types.asString(body.chequebookAddress, { name: 'chequebookAddress' }),
+  }
 }
 
 /**
@@ -34,12 +43,17 @@ export async function getChequebookAddress(requestOptions: BeeRequestOptions): P
  * @param requestOptions Options for making requests
  */
 export async function getChequebookBalance(requestOptions: BeeRequestOptions): Promise<ChequebookBalanceResponse> {
-  const response = await http<ChequebookBalanceResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: chequebookEndpoint + '/balance',
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    availableBalance: BZZ.fromPLUR(asNumberString(body.availableBalance, { name: 'availableBalance' })),
+    totalBalance: BZZ.fromPLUR(asNumberString(body.totalBalance, { name: 'totalBalance' })),
+  }
 }
 
 /**
@@ -50,14 +64,22 @@ export async function getChequebookBalance(requestOptions: BeeRequestOptions): P
  */
 export async function getLastCashoutAction(
   requestOptions: BeeRequestOptions,
-  peer: string,
+  peer: PeerAddress,
 ): Promise<LastCashoutActionResponse> {
-  const response = await http<LastCashoutActionResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    peer: Types.asString(body.peer, { name: 'peer' }),
+    uncashedAmount: BZZ.fromPLUR(asNumberString(body.uncashedAmount, { name: 'uncashedAmount' })),
+    transactionHash: Types.asNullableString(body.transactionHash),
+    lastCashedCheque: Types.asNullable(x => asCheque(x), body.lastCashedCheque),
+    result: Types.asNullable(x => asCashoutResult(x), body.result),
+  }
 }
 
 /**
@@ -69,27 +91,19 @@ export async function getLastCashoutAction(
  */
 export async function cashoutLastCheque(
   requestOptions: BeeRequestOptions,
-  peer: string,
-  options?: CashoutOptions,
-): Promise<TransactionHash> {
-  const headers: Record<string, string> = {}
-
-  if (options?.gasPrice) {
-    headers['gas-price'] = options.gasPrice.toString()
-  }
-
-  if (options?.gasLimit) {
-    headers['gas-limit'] = options.gasLimit.toString()
-  }
-
-  const response = await http<TransactionResponse>(requestOptions, {
+  peer: PeerAddress,
+  options?: TransactionOptions,
+): Promise<TransactionId> {
+  const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: chequebookEndpoint + `/cashout/${peer}`,
     responseType: 'json',
-    headers,
+    headers: prepareRequestHeaders(null, options),
   })
 
-  return response.data.transactionHash
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
 }
 
 /**
@@ -100,14 +114,20 @@ export async function cashoutLastCheque(
  */
 export async function getLastChequesForPeer(
   requestOptions: BeeRequestOptions,
-  peer: string,
+  peer: PeerAddress,
 ): Promise<LastChequesForPeerResponse> {
-  const response = await http<LastChequesForPeerResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: chequebookEndpoint + `/cheque/${peer}`,
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return {
+    peer: Types.asString(body.peer, { name: 'peer' }),
+    lastreceived: Types.asNullable(x => asCheque(x), body.lastreceived),
+    lastsent: Types.asNullable(x => asCheque(x), body.lastsent),
+  }
 }
 
 /**
@@ -116,12 +136,43 @@ export async function getLastChequesForPeer(
  * @param requestOptions Options for making requests
  */
 export async function getLastCheques(requestOptions: BeeRequestOptions): Promise<LastChequesResponse> {
-  const response = await http<LastChequesResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: chequebookEndpoint + '/cheque',
     responseType: 'json',
   })
 
-  return response.data
+  const body = Types.asObject(response.data, { name: 'response.data' })
+  const lastcheques = Types.asArray(body.lastcheques, { name: 'lastcheques' }).map(x =>
+    Types.asObject(x, { name: 'lastcheque' }),
+  )
+
+  return {
+    lastcheques: lastcheques.map(x => ({
+      peer: Types.asString(x.peer, { name: 'peer' }),
+      lastreceived: Types.asNullable(y => asCheque(y), x.lastreceived),
+      lastsent: Types.asNullable(y => asCheque(y), x.lastsent),
+    })),
+  }
+}
+
+function asCheque(x: unknown): Cheque {
+  const object = Types.asObject(x, { name: 'cheque' })
+
+  return {
+    beneficiary: new EthAddress(Types.asString(object.beneficiary, { name: 'beneficiary' })),
+    chequebook: new EthAddress(Types.asString(object.chequebook, { name: 'chequebook' })),
+    payout: BZZ.fromPLUR(asNumberString(object.payout, { name: 'payout' })),
+  }
+}
+
+function asCashoutResult(x: unknown): CashoutResult {
+  const object = Types.asObject(x, { name: 'cashout result' })
+
+  return {
+    recipient: Types.asString(object.recipient, { name: 'recipient' }),
+    lastPayout: BZZ.fromPLUR(asNumberString(object.lastPayout, { name: 'lastPayout' })),
+    bounced: Types.asBoolean(object.bounced, { name: 'bounced' }),
+  }
 }
 
 /**
@@ -134,16 +185,16 @@ export async function getLastCheques(requestOptions: BeeRequestOptions): Promise
  */
 export async function depositTokens(
   requestOptions: BeeRequestOptions,
-  amount: number | NumberString,
-  gasPrice?: NumberString,
-): Promise<TransactionHash> {
+  amount: NumberString | string | bigint,
+  gasPrice?: NumberString | string | bigint,
+): Promise<TransactionId> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await http<TransactionResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: chequebookEndpoint + '/deposit',
     responseType: 'json',
@@ -151,7 +202,9 @@ export async function depositTokens(
     headers,
   })
 
-  return response.data.transactionHash
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
 }
 
 /**
@@ -164,16 +217,16 @@ export async function depositTokens(
  */
 export async function withdrawTokens(
   requestOptions: BeeRequestOptions,
-  amount: number | NumberString,
-  gasPrice?: NumberString,
-): Promise<TransactionHash> {
+  amount: NumberString | string | bigint,
+  gasPrice?: NumberString | string | bigint,
+): Promise<TransactionId> {
   const headers: Record<string, string> = {}
 
   if (gasPrice) {
     headers['gas-price'] = gasPrice.toString()
   }
 
-  const response = await http<TransactionResponse>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     method: 'post',
     url: chequebookEndpoint + '/withdraw',
     responseType: 'json',
@@ -181,5 +234,7 @@ export async function withdrawTokens(
     headers,
   })
 
-  return response.data.transactionHash
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
 }

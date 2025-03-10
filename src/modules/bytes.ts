@@ -1,19 +1,12 @@
-import type {
-  BatchId,
-  BeeRequestOptions,
-  Data,
-  DownloadRedundancyOptions,
-  Reference,
-  ReferenceInformation,
-  ReferenceOrEns,
-  UploadOptions,
-  UploadRedundancyOptions,
-} from '../types'
+import { Optional, Types } from 'cafe-utility'
+import type { BeeRequestOptions, DownloadOptions, RedundantUploadOptions, ReferenceInformation } from '../types'
 import { UploadResult } from '../types'
-import { wrapBytesWithHelpers } from '../utils/bytes'
-import { extractDownloadHeaders, extractRedundantUploadHeaders } from '../utils/headers'
+import { Bytes } from '../utils/bytes'
+import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { makeTagUid } from '../utils/type'
+import { ResourceLocator } from '../utils/resource-locator'
+import { makeTagUid, prepareDownloadOptions } from '../utils/type'
+import { BatchId, Reference } from '../utils/typed-bytes'
 
 const endpoint = 'bytes'
 
@@ -29,23 +22,27 @@ export async function upload(
   requestOptions: BeeRequestOptions,
   data: string | Uint8Array,
   postageBatchId: BatchId,
-  options?: UploadOptions & UploadRedundancyOptions,
+  options?: RedundantUploadOptions,
 ): Promise<UploadResult> {
-  const response = await http<{ reference: Reference }>(requestOptions, {
+  const response = await http<unknown>(requestOptions, {
     url: endpoint,
     method: 'post',
     responseType: 'json',
     data,
     headers: {
       'content-type': 'application/octet-stream',
-      ...extractRedundantUploadHeaders(postageBatchId, options),
+      ...prepareRequestHeaders(postageBatchId, options),
     },
   })
 
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
   return {
-    reference: response.data.reference,
+    reference: new Reference(Types.asHexString(body.reference)),
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
-    historyAddress: response.headers['swarm-act-history-address'] || '',
+    historyAddress: response.headers['swarm-act-history-address']
+      ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
+      : Optional.empty(),
   }
 }
 
@@ -55,9 +52,14 @@ export async function upload(
  * @param requestOptions Options for making requests
  * @param hash Bee content reference
  */
-export async function head(requestOptions: BeeRequestOptions, hash: ReferenceOrEns): Promise<ReferenceInformation> {
+export async function head(
+  requestOptions: BeeRequestOptions,
+  reference: Reference | Uint8Array | string,
+): Promise<ReferenceInformation> {
+  reference = new Reference(reference)
+
   const response = await http<void>(requestOptions, {
-    url: `${endpoint}/${hash}`,
+    url: `${endpoint}/${reference}`,
     method: 'head',
     responseType: 'json',
   })
@@ -75,16 +77,20 @@ export async function head(requestOptions: BeeRequestOptions, hash: ReferenceOrE
  */
 export async function download(
   requestOptions: BeeRequestOptions,
-  hash: ReferenceOrEns,
-  options?: DownloadRedundancyOptions,
-): Promise<Data> {
-  const response = await http<ArrayBuffer>(requestOptions, {
+  resource: ResourceLocator,
+  options?: DownloadOptions,
+): Promise<Bytes> {
+  if (options) {
+    options = prepareDownloadOptions(options)
+  }
+
+  const response = await http<unknown>(requestOptions, {
     responseType: 'arraybuffer',
-    url: `${endpoint}/${hash}`,
-    headers: extractDownloadHeaders(options),
+    url: `${endpoint}/${resource}`,
+    headers: prepareRequestHeaders(null, options),
   })
 
-  return wrapBytesWithHelpers(new Uint8Array(response.data))
+  return new Bytes(response.data as ArrayBuffer)
 }
 
 /**
@@ -95,13 +101,17 @@ export async function download(
  */
 export async function downloadReadable(
   requestOptions: BeeRequestOptions,
-  hash: ReferenceOrEns,
-  options?: DownloadRedundancyOptions,
+  resource: ResourceLocator,
+  options?: DownloadOptions,
 ): Promise<ReadableStream<Uint8Array>> {
+  if (options) {
+    options = prepareDownloadOptions(options)
+  }
+
   const response = await http<ReadableStream<Uint8Array>>(requestOptions, {
     responseType: 'stream',
-    url: `${endpoint}/${hash}`,
-    headers: extractDownloadHeaders(options),
+    url: `${endpoint}/${resource}`,
+    headers: prepareRequestHeaders(null, options),
   })
 
   return response.data

@@ -1,13 +1,6 @@
 # Changelog
 
 
-## [8.3.1](https://github.com/ethersphere/bee-js/compare/v8.3.0...v8.3.1) (2024-11-06)
-
-
-### Bug Fixes
-
-* set tar header size ([#972](https://github.com/ethersphere/bee-js/issues/972)) ([dc1ab57](https://github.com/ethersphere/bee-js/commit/dc1ab57b1a65bd9f3eae94795fdf38f4f89c2f10))
-
 ## [8.3.0](https://github.com/ethersphere/bee-js/compare/v8.2.0...v8.3.0) (2024-10-24)
 
 
