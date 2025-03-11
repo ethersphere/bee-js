@@ -69,6 +69,7 @@ export function prepareUploadOptions(value: unknown, name = 'UploadOptions'): Up
 
   return {
     act: Types.asOptional(x => Types.asBoolean(x, { name: 'act' }), object.act),
+    actHistoryAddress: Types.asOptional(x => new Reference(x), object.actHistoryAddress),
     deferred: Types.asOptional(x => Types.asBoolean(x, { name: 'deferred' }), object.deferred),
     encrypt: Types.asOptional(x => Types.asBoolean(x, { name: 'encrypt' }), object.encrypt),
     pin: Types.asOptional(x => Types.asBoolean(x, { name: 'pin' }), object.pin),

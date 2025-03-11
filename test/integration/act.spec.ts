@@ -1,4 +1,4 @@
-import { Dates, System } from 'cafe-utility'
+import { Dates, Strings, System } from 'cafe-utility'
 import { PublicKey } from '../../src'
 import { batch, makeBee } from '../utils'
 
@@ -56,4 +56,22 @@ test('CRUD grantee', async () => {
     actTimestamp: 1,
   })
   expect(file.data.toUtf8()).toBe(data)
+})
+
+test('ACT upload history address', async () => {
+  const bee = makeBee()
+  const data = Strings.randomHex(2000)
+
+  const upload = await bee.uploadFile(batch(), data, 'README.md', { act: true })
+
+  const uploadAgain = await bee.uploadFile(batch(), data, 'README.md', {
+    act: true,
+    actHistoryAddress: upload.historyAddress.getOrThrow(),
+  })
+
+  // same history address
+  expect(upload.historyAddress.getOrThrow().toHex()).toBe(uploadAgain.historyAddress.getOrThrow().toHex())
+
+  // different reference
+  expect(upload.reference.toHex()).not.toBe(uploadAgain.reference.toHex())
 })
