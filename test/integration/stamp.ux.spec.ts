@@ -21,14 +21,14 @@ test('Utils.getAmountForDuration', () => {
 })
 
 test('bee.getStorageCost', async () => {
-  await mocked(async (bee: Bee) => {
+  await mocked(async bee => {
     const bzz = await bee.getStorageCost(Size.fromGigabytes(4), Duration.fromDays(1))
     expect(bzz.toSignificantDigits(3)).toBe('0.192')
   })
 })
 
 test('bee.getDurationExtensionCost', async () => {
-  await mocked(async (bee: Bee) => {
+  await mocked(async bee => {
     const cost = await bee.getDurationExtensionCost(
       'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
       Duration.fromDays(31),
@@ -38,7 +38,7 @@ test('bee.getDurationExtensionCost', async () => {
 })
 
 test('bee.getSizeExtensionCost', async () => {
-  await mocked(async (bee: Bee) => {
+  await mocked(async bee => {
     const cost = await bee.getSizeExtensionCost(
       'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
       Size.fromGigabytes(18),
@@ -76,7 +76,7 @@ test('bee.buyStorage with extensions', async () => {
       'New depth has to be greater than the original depth',
     )
   })
-  expect(calls).toEqual([
+  expect(calls.map(x => `${x.method} ${x.url}`)).toEqual([
     // create stamp
     'GET /chainstate',
     'GET /chainstate',
