@@ -77,12 +77,25 @@ responses.set(
   }),
 )
 
-export async function mocked(runnable: (bee: Bee) => Promise<void>): Promise<string[]> {
-  const calls: string[] = []
-  return new Promise((resolve, reject) => {
+responses.set(
+  'POST /bzz?name=filename.txt',
+  JSON.stringify({
+    reference: 'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
+  }),
+)
+
+interface MockedCall {
+  method: string
+  url: string
+  headers: Record<string, string | string[] | undefined>
+}
+
+export async function mocked(runnable: (bee: Bee) => Promise<void>): Promise<MockedCall[]> {
+  const calls: MockedCall[] = []
+  return new Promise(resolve => {
     const server = createServer((req, res) => {
       const identifier = (req.method || 'GET') + ' ' + (req.url || '/')
-      calls.push(identifier)
+      calls.push({ method: req.method || 'GET', url: req.url || '/', headers: req.headers })
       const response = responses.get(identifier)
       if (!response) {
         res.end('Not found - ' + identifier)
