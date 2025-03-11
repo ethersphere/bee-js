@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.0.2](https://github.com/ethersphere/bee-js/compare/v9.0.1...v9.0.2) (2025-03-11)
+
+
+### Bug Fixes
+
+* do not discard actHistoryAddress header for uploads ([#984](https://github.com/ethersphere/bee-js/issues/984)) ([af31f0c](https://github.com/ethersphere/bee-js/commit/af31f0c31ec2445507c46b4243a4033b1ff46c8a))
+
 ## [9.0.1](https://github.com/ethersphere/bee-js/compare/v9.0.0...v9.0.1) (2025-03-10)
 
 
