@@ -62,16 +62,32 @@ test('ACT upload history address', async () => {
   const bee = makeBee()
   const data = Strings.randomHex(2000)
 
-  const upload = await bee.uploadFile(batch(), data, 'README.md', { act: true })
+  const upload = await bee.uploadFile(batch(), data, 'README.md')
 
-  const uploadAgain = await bee.uploadFile(batch(), data, 'README.md', {
+  const actUpload1 = await bee.uploadFile(batch(), data, 'README.md', { act: true })
+  const actUploadAgain1 = await bee.uploadFile(batch(), data, 'README.md', {
     act: true,
-    actHistoryAddress: upload.historyAddress.getOrThrow(),
+    actHistoryAddress: actUpload1.historyAddress.getOrThrow(),
   })
 
-  // same history address
-  expect(upload.historyAddress.getOrThrow().toHex()).toBe(uploadAgain.historyAddress.getOrThrow().toHex())
+  const actUpload2 = await bee.uploadFile(batch(), data, 'README.md', { act: true })
+  const actUploadAgain2 = await bee.uploadFile(batch(), data, 'README.md', {
+    act: true,
+    actHistoryAddress: actUpload2.historyAddress.getOrThrow(),
+  })
 
-  // different reference
-  expect(upload.reference.toHex()).not.toBe(uploadAgain.reference.toHex())
+  expect(upload.reference.toHex()).not.toBe(actUpload1.reference.toHex())
+  expect(upload.reference.toHex()).not.toBe(actUpload2.reference.toHex())
+  expect(actUpload1.reference.toHex()).not.toBe(actUpload2.reference.toHex())
+
+  expect(actUpload1.historyAddress.getOrThrow().toHex()).toBe(actUploadAgain1.historyAddress.getOrThrow().toHex())
+  expect(actUpload2.historyAddress.getOrThrow().toHex()).toBe(actUploadAgain2.historyAddress.getOrThrow().toHex())
+
+  expect(actUpload1.historyAddress.getOrThrow().toHex()).not.toBe(actUpload2.historyAddress.getOrThrow().toHex())
+  expect(actUploadAgain1.historyAddress.getOrThrow().toHex()).not.toBe(
+    actUploadAgain2.historyAddress.getOrThrow().toHex(),
+  )
+
+  expect(actUpload1.reference.toHex()).toBe(actUploadAgain1.reference.toHex())
+  expect(actUpload2.reference.toHex()).toBe(actUploadAgain2.reference.toHex())
 })
