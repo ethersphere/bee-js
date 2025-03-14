@@ -178,6 +178,7 @@ export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, 
     return {
       payload: update.payload,
       feedIndex,
+      feedIndexNext: feedIndex.next(),
     }
   }
 
@@ -198,6 +199,7 @@ export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, 
     return {
       payload,
       feedIndex,
+      feedIndexNext: feedIndex.next(),
     }
   }
 
@@ -213,6 +215,7 @@ export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, 
     return {
       reference: new Reference(payload.payload.toUint8Array()),
       feedIndex: payload.feedIndex,
+      feedIndexNext: payload.feedIndexNext ?? payload.feedIndex.next(),
     }
   }
 
