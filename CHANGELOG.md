@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [9.0.3](https://github.com/ethersphere/bee-js/compare/v9.0.2...v9.0.3) (2025-03-14)
+
+
+### Bug Fixes
+
+* add missing feedIndexNext fields ([#991](https://github.com/ethersphere/bee-js/issues/991)) ([5ca2e35](https://github.com/ethersphere/bee-js/commit/5ca2e359900085689734ecc616cf4fa82fc4af93))
+* update return type of Span.fromBigInt ([#989](https://github.com/ethersphere/bee-js/issues/989)) ([69ca260](https://github.com/ethersphere/bee-js/commit/69ca260db169e1420b0fedecad9e2b5194dfe3cb))
+
 ## [9.0.2](https://github.com/ethersphere/bee-js/compare/v9.0.1...v9.0.2) (2025-03-11)
 
 
