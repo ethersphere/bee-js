@@ -123,7 +123,7 @@ export class Span extends Bytes {
     super(bytes, 8)
   }
 
-  static fromBigInt(number: bigint): FeedIndex {
+  static fromBigInt(number: bigint): Span {
     return new Span(Binary.numberToUint64(number, 'LE'))
   }
 
