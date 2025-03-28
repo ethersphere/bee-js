@@ -10,7 +10,6 @@ export default async (): Promise<Config.InitialOptions> => {
   Types.asString(process.env.JEST_BEE_FULL_URL, { name: 'JEST_BEE_FULL_URL' })
   Types.asString(process.env.JEST_BEE_LIGHT_URL, { name: 'JEST_BEE_LIGHT_URL' })
   Types.asString(process.env.JEST_BEE_ULTRA_LIGHT_URL, { name: 'JEST_BEE_ULTRA_LIGHT_URL' })
-  Types.asString(process.env.JEST_BEE_SECRET, { name: 'JEST_BEE_SECRET' })
   Types.asHexString(process.env.JEST_FULL_BATCH_ID, { name: 'JEST_FULL_BATCH_ID', byteLength: 32 })
   Types.asHexString(process.env.JEST_LIGHT_BATCH_ID, { name: 'JEST_LIGHT_BATCH_ID', byteLength: 32 })
 

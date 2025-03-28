@@ -8,6 +8,7 @@ export class ResourceLocator {
     if (Types.isString(this.raw) && this.raw.includes('.eth')) {
       return this.raw
     }
+
     return new Reference(this.raw).toHex()
   }
 }

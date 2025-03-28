@@ -150,6 +150,11 @@ export class Bee {
   public readonly signer?: PrivateKey
 
   /**
+   * Network on which the Bee node is running
+   */
+  public readonly network: 'gnosis' | 'sepolia'
+
+  /**
    * Options for making requests
    * @private
    */
@@ -170,6 +175,8 @@ export class Bee {
     if (options?.signer) {
       this.signer = new PrivateKey(options.signer)
     }
+
+    this.network = options?.network ?? 'gnosis'
 
     this.requestOptions = {
       baseURL: this.url,
@@ -1035,6 +1042,7 @@ export class Bee {
       const signer = new PrivateKey(Binary.numberToUint256(start + i, 'BE'))
       const socAddress = makeSOCAddress(identifier, signer.publicKey().address())
       const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), targetOverlay.toUint8Array(), 256)
+
       if (actualProximity <= 256 - proximity) {
         return signer
       }
@@ -1637,7 +1645,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<BatchId> {
     const chainState = await this.getChainState(requestOptions)
-    const amount = getAmountForDuration(duration, chainState.currentPrice)
+    const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
     const depth = getDepthForSize(size)
 
     if (options) {
@@ -1649,7 +1657,7 @@ export class Bee {
 
   async getStorageCost(size: Size, duration: Duration, options?: BeeRequestOptions): Promise<BZZ> {
     const chainState = await this.getChainState(options)
-    const amount = getAmountForDuration(duration, chainState.currentPrice)
+    const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
     const depth = getDepthForSize(size)
 
     return getStampCost(depth, amount)
@@ -1676,7 +1684,7 @@ export class Bee {
   ) {
     const batch = await this.getPostageBatch(postageBatchId, options)
     const chainState = await this.getChainState(options)
-    const amount = getAmountForDuration(duration, chainState.currentPrice)
+    const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
 
     return this.topUpBatch(batch.batchID, amount, options)
   }
@@ -1689,7 +1697,7 @@ export class Bee {
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
     const chainState = await this.getChainState(options)
-    const amount = getAmountForDuration(duration, chainState.currentPrice)
+    const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
     const depth = getDepthForSize(size)
 
     const currentValue = getStampCost(batch.depth, batch.amount)
@@ -1713,6 +1721,7 @@ export class Bee {
 
     const currentPaid = getStampCost(batch.depth, batch.amount)
     const newPaid = getStampCost(depth, batch.amount)
+
     return newPaid.minus(currentPaid)
   }
 
@@ -1723,7 +1732,7 @@ export class Bee {
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
     const chainState = await this.getChainState(options)
-    const amount = getAmountForDuration(duration, chainState.currentPrice)
+    const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
 
     return getStampCost(batch.depth, amount)
   }

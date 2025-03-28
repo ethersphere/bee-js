@@ -23,6 +23,7 @@ test('POST feed (reader)', async () => {
   await System.waitFor(
     async () => {
       const payload = (await feedReader.download()).payload.toUtf8()
+
       return payload === 'Second update'
     },
     Dates.seconds(1),
@@ -59,6 +60,7 @@ test('POST feed (manifest)', async () => {
   await System.waitFor(
     async () => {
       const payload = (await bee.downloadFile(manifest)).data.toUtf8()
+
       return payload === 'Second update'
     },
     Dates.seconds(1),

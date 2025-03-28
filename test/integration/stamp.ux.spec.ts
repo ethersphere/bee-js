@@ -14,10 +14,10 @@ test('Utils.getDepthForSize', () => {
 })
 
 test('Utils.getAmountForDuration', () => {
-  expect(Utils.getAmountForDuration(Duration.fromHours(25), 24000)).toBe((414720000n / 24n) * 25n)
-  expect(Utils.getAmountForDuration(Duration.fromDays(1), 24000)).toBe(414720000n)
-  expect(Utils.getAmountForDuration(Duration.fromWeeks(1), 24000)).toBe(414720000n * 7n)
-  expect(Utils.getAmountForDuration(Duration.fromYears(1), 24000)).toBe(414720000n * 365n)
+  expect(Utils.getAmountForDuration(Duration.fromHours(25), 24000, 5)).toBe((414720000n / 24n) * 25n)
+  expect(Utils.getAmountForDuration(Duration.fromDays(1), 24000, 5)).toBe(414720000n)
+  expect(Utils.getAmountForDuration(Duration.fromWeeks(1), 24000, 5)).toBe(414720000n * 7n)
+  expect(Utils.getAmountForDuration(Duration.fromYears(1), 24000, 5)).toBe(414720000n * 365n)
 })
 
 test('bee.getStorageCost', async () => {

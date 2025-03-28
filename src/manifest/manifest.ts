@@ -248,6 +248,7 @@ export class MantarayNode {
     requestOptions?: BeeRequestOptions,
   ): Promise<MantarayNode> {
     const data = (await bee.downloadData(reference, options, requestOptions)).toUint8Array()
+
     return this.unmarshalFromData(data)
   }
 
