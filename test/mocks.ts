@@ -92,11 +92,14 @@ interface MockedCall {
 
 export async function mocked(runnable: (bee: Bee) => Promise<void>): Promise<MockedCall[]> {
   const calls: MockedCall[] = []
+
   return new Promise(resolve => {
     const server = createServer((req, res) => {
       const identifier = (req.method || 'GET') + ' ' + (req.url || '/')
       calls.push({ method: req.method || 'GET', url: req.url || '/', headers: req.headers })
+
       const response = responses.get(identifier)
+
       if (!response) {
         res.end('Not found - ' + identifier)
       }

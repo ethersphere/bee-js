@@ -107,7 +107,7 @@ export function getStampCost(depth: number, amount: NumberString | string | bigi
 export function getStampDuration(
   amount: NumberString | string | bigint,
   pricePerBlock: number,
-  blockTime = 5,
+  blockTime: number,
 ): Duration {
   const amountBigInt = BigInt(asNumberString(amount))
 
@@ -121,7 +121,7 @@ export function getStampDuration(
  * @param pricePerBlock The price per block in PLUR.
  * @param blockTime The block time in seconds.
  */
-export function getAmountForDuration(duration: Duration, pricePerBlock: number, blockTime = 5): bigint {
+export function getAmountForDuration(duration: Duration, pricePerBlock: number, blockTime: number): bigint {
   return (BigInt(duration.toSeconds()) / BigInt(blockTime)) * BigInt(pricePerBlock)
 }
 

@@ -29,6 +29,7 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     const keys = Object.keys(requestConfig.params)
     for (const key of keys) {
       const value = requestConfig.params[key]
+
       if (value === undefined) {
         delete requestConfig.params[key]
       }

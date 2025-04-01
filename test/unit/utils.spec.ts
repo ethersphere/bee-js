@@ -59,8 +59,10 @@ test('Utils.getStampMaximumCapacityBytes', () => {
 })
 
 test('Utils.getStampDuration', () => {
-  expect(Utils.getStampDuration(414720000n, 24000).toSeconds()).toBe(86400)
-  expect(Utils.getStampDuration(Utils.getAmountForDuration(Duration.fromDays(365), 24000), 24000).toDays()).toBe(365)
+  expect(Utils.getStampDuration(414720000n, 24000, 5).toSeconds()).toBe(86400)
+  expect(Utils.getStampDuration(Utils.getAmountForDuration(Duration.fromDays(365), 24000, 5), 24000, 5).toDays()).toBe(
+    365,
+  )
 })
 
 test('Utils.getStampUsage', () => {

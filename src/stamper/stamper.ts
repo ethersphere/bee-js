@@ -39,6 +39,7 @@ export class Stamper {
     const address = chunk.hash()
     const bucket = Binary.uint16ToNumber(address, 'BE')
     const height = this.buckets[bucket]
+
     if (height >= this.maxSlot) {
       throw Error('Bucket is full')
     }

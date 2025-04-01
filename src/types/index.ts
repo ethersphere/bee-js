@@ -55,6 +55,10 @@ export interface BeeOptions extends BeeRequestOptions {
    * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
    */
   signer?: PrivateKey | Uint8Array | string
+  /**
+   * Default gnosis when unspecified.
+   */
+  network?: 'gnosis' | 'sepolia'
 }
 
 export interface GranteesResult {

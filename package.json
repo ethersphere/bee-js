@@ -56,9 +56,8 @@
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
     "build:browser": "webpack --progress",
     "test": "jest --config=jest.config.ts --runInBand --verbose",
-    "check:types": "tsc --project tsconfig.test.json",
-    "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" && prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "lint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "check": "tsc --project tsconfig.test.json",
+    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "depcheck": "depcheck ."
   },
   "dependencies": {

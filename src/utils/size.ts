@@ -12,6 +12,7 @@ export class Size {
 
   private constructor(bytes: number) {
     this.bytes = Math.ceil(bytes)
+
     if (bytes < 0) {
       throw Error('Size must be at least 0')
     }

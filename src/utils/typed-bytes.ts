@@ -103,6 +103,7 @@ export class Reference extends Bytes {
   static isValid(value: string): boolean {
     try {
       new Reference(value)
+
       return true
     } catch {
       return false
@@ -180,6 +181,7 @@ export class Signature extends Bytes {
   isValid(digest: Uint8Array | string, expectedAddress: EthAddress | Uint8Array | string): boolean {
     const publicKey = this.recoverPublicKey(digest)
     const address = publicKey.address()
+
     return address.equals(expectedAddress)
   }
 }

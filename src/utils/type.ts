@@ -127,6 +127,7 @@ export function isTag(value: unknown): value is Tag {
   try {
     const object = Types.asObject(value, { name: 'Tag' })
     Types.asInteger(object.uid, { name: 'Tag.uid' })
+
     return true
   } catch {
     return false

@@ -32,7 +32,7 @@ jobs:
         uses: wagoid/commitlint-github-action@v2
 
       - name: Code linting
-        run: npm run lint:check
+        run: npm run lint
         env:
           CI: true
 
@@ -40,7 +40,7 @@ jobs:
         run: npm run depcheck
 
       - name: Check typings
-        run: npm run check:types
+        run: npm run check
 
       - name: Check build
         run: npm run build

@@ -3,6 +3,7 @@ export class Duration {
 
   private constructor(seconds: number) {
     this.seconds = Math.ceil(seconds)
+
     if (seconds <= 0) {
       throw Error('Duration must be greater than 0')
     }

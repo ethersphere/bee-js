@@ -101,6 +101,7 @@ export async function updateFeedWithPayload(
   if (data.length > 4096) {
     const uploadResult = await bytes.upload(requestOptions, data, postageBatchId, options)
     const rootChunk = await chunkAPI.download(requestOptions, uploadResult.reference)
+
     return uploadSingleOwnerChunkWithWrappedChunk(
       requestOptions,
       signer,

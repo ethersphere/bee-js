@@ -5,11 +5,8 @@ export function makeBee() {
   if (currentBeeMode() === 'dev') {
     return new BeeDev('http://localhost:1633')
   }
-  return new Bee(selectBeeUrl(), {
-    headers: {
-      authorization: Types.asString(process.env.JEST_BEE_SECRET),
-    },
-  })
+
+  return new Bee(selectBeeUrl())
 }
 
 export function batch() {
