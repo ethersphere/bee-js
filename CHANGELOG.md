@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [9.1.0](https://github.com/ethersphere/bee-js/compare/v9.0.3...v9.1.0) (2025-04-01)
+
+
+### Features
+
+* add network option, require explicit block time ([#998](https://github.com/ethersphere/bee-js/issues/998)) ([1b3eace](https://github.com/ethersphere/bee-js/commit/1b3eace2b3b9790746118b39455adeb4d282add2))
+
+
+### Bug Fixes
+
+* apply axios vulnerability fix ([#1000](https://github.com/ethersphere/bee-js/issues/1000)) ([0c8b476](https://github.com/ethersphere/bee-js/commit/0c8b47662a1251ef8f157d11cd85e3ce87c360a8))
+
 ## [9.0.3](https://github.com/ethersphere/bee-js/compare/v9.0.2...v9.0.3) (2025-03-14)
 
 
