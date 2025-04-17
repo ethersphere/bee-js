@@ -26,6 +26,25 @@ export class Fork {
 
   static split(a: Fork, b: Fork): Fork {
     const commonPart = Binary.commonPrefix(a.prefix, b.prefix)
+
+    if (commonPart.length === a.prefix.length) {
+      const remainingB = b.prefix.slice(commonPart.length)
+      b.node.path = b.prefix.slice(commonPart.length)
+      b.prefix = b.prefix.slice(commonPart.length)
+      b.node.parent = a.node
+      a.node.forks.set(remainingB[0], b)
+      return a
+    }
+
+    if (commonPart.length === b.prefix.length) {
+      const remainingA = a.prefix.slice(commonPart.length)
+      a.node.path = a.prefix.slice(commonPart.length)
+      a.prefix = a.prefix.slice(commonPart.length)
+      a.node.parent = b.node
+      b.node.forks.set(remainingA[0], a)
+      return b
+    }
+
     const node = new MantarayNode({ path: commonPart })
 
     const newAFork = new Fork(a.prefix.slice(commonPart.length), a.node)
@@ -78,7 +97,7 @@ export class Fork {
     const prefixLength = Binary.uint8ToNumber(reader.read(1))
     const prefix = reader.read(prefixLength)
     reader.read(30 - prefixLength)
-    const targetAddress = reader.read(32)
+    const selfAddress = reader.read(32)
     let metadata: Record<string, string> | undefined = undefined
 
     if (isType(type, TYPE_WITH_METADATA)) {
@@ -86,7 +105,7 @@ export class Fork {
       metadata = JSON.parse(DECODER.decode(reader.read(metadataLength)))
     }
 
-    return new Fork(prefix, new MantarayNode({ targetAddress, metadata, path: prefix }))
+    return new Fork(prefix, new MantarayNode({ selfAddress, metadata, path: prefix }))
   }
 }
 
@@ -247,9 +266,10 @@ export class MantarayNode {
     options?: DownloadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<MantarayNode> {
+    reference = new Reference(reference)
     const data = (await bee.downloadData(reference, options, requestOptions)).toUint8Array()
 
-    return this.unmarshalFromData(data)
+    return this.unmarshalFromData(data, reference.toUint8Array())
   }
 
   /**
@@ -257,7 +277,7 @@ export class MantarayNode {
    *
    * Do not forget calling `loadRecursively` on the returned node to load the entire tree.
    */
-  static unmarshalFromData(data: Uint8Array): MantarayNode {
+  static unmarshalFromData(data: Uint8Array, selfAddress: Uint8Array): MantarayNode {
     const obfuscationKey = data.subarray(0, 32)
     const decrypted = Binary.xorCypher(data.subarray(32), obfuscationKey)
     const reader = new Uint8ArrayReader(decrypted)
@@ -268,7 +288,7 @@ export class MantarayNode {
     }
     const targetAddressLength = Binary.uint8ToNumber(reader.read(1))
     const targetAddress = targetAddressLength === 0 ? NULL_ADDRESS : reader.read(targetAddressLength)
-    const node = new MantarayNode({ targetAddress, obfuscationKey })
+    const node = new MantarayNode({ selfAddress, targetAddress, obfuscationKey })
     const forkBitmap = reader.read(32)
     for (let i = 0; i < 256; i++) {
       if (Binary.getBit(forkBitmap, i, 'LE')) {
@@ -395,7 +415,10 @@ export class MantarayNode {
    */
   async loadRecursively(bee: Bee, options?: DownloadOptions, requestOptions?: BeeRequestOptions): Promise<void> {
     for (const fork of this.forks.values()) {
-      const node = await MantarayNode.unmarshal(bee, fork.node.targetAddress, options, requestOptions)
+      if (!fork.node.selfAddress) {
+        throw Error('MantarayNode#loadRecursively fork.node.selfAddress is not set')
+      }
+      const node = await MantarayNode.unmarshal(bee, fork.node.selfAddress, options, requestOptions)
       fork.node.targetAddress = node.targetAddress
       fork.node.forks = node.forks
       fork.node.path = fork.prefix

@@ -1,6 +1,6 @@
 import { Binary } from 'cafe-utility'
 import { ReadStream } from 'fs'
-import { MantarayNode } from '../../src'
+import { MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeBee } from '../utils'
 
 test('GET bzz (ENS)', async () => {
@@ -18,7 +18,7 @@ test('GET bytes (ENS)', async () => {
 
   const data = await bee.downloadData('deadcafe.eth')
 
-  const manifest = MantarayNode.unmarshalFromData(data.toUint8Array())
+  const manifest = MantarayNode.unmarshalFromData(data.toUint8Array(), NULL_ADDRESS)
   await manifest.loadRecursively(bee)
 
   const docs = manifest.getDocsMetadata()
@@ -38,7 +38,7 @@ test('GET readable bytes (ENS)', async () => {
 
   const data = Binary.concatBytes(...parts)
 
-  const manifest = MantarayNode.unmarshalFromData(data)
+  const manifest = MantarayNode.unmarshalFromData(data, NULL_ADDRESS)
   await manifest.loadRecursively(bee)
 
   const docs = manifest.getDocsMetadata()

@@ -1,4 +1,4 @@
-import { MantarayNode, PrivateKey, Topic } from '../../src'
+import { MantarayNode, NULL_ADDRESS, PrivateKey, Topic } from '../../src'
 import { arbitraryPrivateKey, arbitraryReference, batch, makeBee } from '../utils'
 
 test('Manifest save/load/collect', async () => {
@@ -94,7 +94,7 @@ test('Manifest feed resolver', async () => {
   })
 
   const feedUpdate = (await node.resolveFeed(bee)).getOrThrow()
-  const resolved = MantarayNode.unmarshalFromData(feedUpdate.payload.toUint8Array())
+  const resolved = MantarayNode.unmarshalFromData(feedUpdate.payload.toUint8Array(), NULL_ADDRESS)
   await resolved.loadRecursively(bee)
 
   const docs = resolved.getDocsMetadata()
