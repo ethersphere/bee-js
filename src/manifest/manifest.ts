@@ -26,6 +26,25 @@ export class Fork {
 
   static split(a: Fork, b: Fork): Fork {
     const commonPart = Binary.commonPrefix(a.prefix, b.prefix)
+
+    if (commonPart.length === a.prefix.length) {
+      const remainingB = b.prefix.slice(commonPart.length)
+      b.node.path = b.prefix.slice(commonPart.length)
+      b.prefix = b.prefix.slice(commonPart.length)
+      b.node.parent = a.node
+      a.node.forks.set(remainingB[0], b)
+      return a
+    }
+
+    if (commonPart.length === b.prefix.length) {
+      const remainingA = a.prefix.slice(commonPart.length)
+      a.node.path = a.prefix.slice(commonPart.length)
+      a.prefix = a.prefix.slice(commonPart.length)
+      a.node.parent = b.node
+      b.node.forks.set(remainingA[0], a)
+      return b
+    }
+
     const node = new MantarayNode({ path: commonPart })
 
     const newAFork = new Fork(a.prefix.slice(commonPart.length), a.node)
