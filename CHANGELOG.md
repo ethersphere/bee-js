@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.1.1](https://github.com/ethersphere/bee-js/compare/v9.1.0...v9.1.1) (2025-04-17)
+
+
+### Bug Fixes
+
+* handle case when manifest fork fully contains the new path ([#1017](https://github.com/ethersphere/bee-js/issues/1017)) ([a0c8b28](https://github.com/ethersphere/bee-js/commit/a0c8b2808dc70f6418d40cc5d7386af69b002af2))
+
 ## [9.1.0](https://github.com/ethersphere/bee-js/compare/v9.0.3...v9.1.0) (2025-04-01)
 
 
