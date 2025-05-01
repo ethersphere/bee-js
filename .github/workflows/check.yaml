@@ -46,7 +46,7 @@ jobs:
         run: npm run build
 
       - name: Trigger API Docs update PR
-        uses: peter-evans/repository-dispatch@v1
+        uses: peter-evans/repository-dispatch@v3
         if: github.ref == 'refs/heads/master'
         with:
           token: ${{ secrets.REPO_GHA_PAT }}
