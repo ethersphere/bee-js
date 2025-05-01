@@ -1615,7 +1615,7 @@ export class Bee {
     }
 
     const chainState = await this.getChainState()
-    const minimumAmount = BigInt(chainState.currentPrice) * 17280n
+    const minimumAmount = BigInt(chainState.currentPrice) * 17280n + 1n
 
     if (BigInt(amountString) < minimumAmount) {
       throw new BeeArgumentError(
