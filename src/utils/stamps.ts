@@ -122,7 +122,7 @@ export function getStampDuration(
  * @param blockTime The block time in seconds.
  */
 export function getAmountForDuration(duration: Duration, pricePerBlock: number, blockTime: number): bigint {
-  return (BigInt(duration.toSeconds()) / BigInt(blockTime)) * BigInt(pricePerBlock)
+  return (BigInt(duration.toSeconds()) / BigInt(blockTime)) * BigInt(pricePerBlock) + 1n
 }
 
 /**

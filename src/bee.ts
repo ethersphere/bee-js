@@ -1672,7 +1672,7 @@ export class Bee {
       throw new BeeArgumentError('New depth has to be greater than the original depth', depth)
     }
 
-    await this.topUpBatch(batch.batchID, BigInt(batch.amount) * 2n ** BigInt(delta - 1), options)
+    await this.topUpBatch(batch.batchID, BigInt(batch.amount) * 2n ** BigInt(delta - 1) + 1n, options)
 
     return this.diluteBatch(batch.batchID, depth, options)
   }

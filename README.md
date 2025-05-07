@@ -374,6 +374,8 @@ After making changes, link the package to your project by running `npm link` in 
 
 ### Test
 
+[Code coverage](https://bah5acgza26tlmya36bdiu5cdfs3hh22hqthkhfv6cvq2ugxqrv5aw267ydlq.bzz.limo/)
+
 Tests are currently run against a mainnet Bee nodes. This is temporary and this section will be revised in the future.
 
 ## License

@@ -14,10 +14,10 @@ test('Utils.getDepthForSize', () => {
 })
 
 test('Utils.getAmountForDuration', () => {
-  expect(Utils.getAmountForDuration(Duration.fromHours(25), 24000, 5)).toBe((414720000n / 24n) * 25n)
-  expect(Utils.getAmountForDuration(Duration.fromDays(1), 24000, 5)).toBe(414720000n)
-  expect(Utils.getAmountForDuration(Duration.fromWeeks(1), 24000, 5)).toBe(414720000n * 7n)
-  expect(Utils.getAmountForDuration(Duration.fromYears(1), 24000, 5)).toBe(414720000n * 365n)
+  expect(Utils.getAmountForDuration(Duration.fromHours(25), 24000, 5)).toBe((414720000n / 24n) * 25n + 1n)
+  expect(Utils.getAmountForDuration(Duration.fromDays(1), 24000, 5)).toBe(414720000n + 1n)
+  expect(Utils.getAmountForDuration(Duration.fromWeeks(1), 24000, 5)).toBe(414720000n * 7n + 1n)
+  expect(Utils.getAmountForDuration(Duration.fromYears(1), 24000, 5)).toBe(414720000n * 365n + 1n)
 })
 
 test('bee.getStorageCost', async () => {
@@ -61,7 +61,7 @@ test('bee.getExtensionCost', async () => {
       Size.fromGigabytes(18),
       Duration.fromYears(1),
     )
-    expect(cost.toDecimalString()).toBe('209.0182760562950144')
+    expect(cost.toDecimalString()).toBe('209.0182760579727360')
   })
 })
 
@@ -80,23 +80,23 @@ test('bee.buyStorage with extensions', async () => {
     // create stamp
     'GET /chainstate',
     'GET /chainstate',
-    'POST /stamps/458922240/22',
+    'POST /stamps/458922241/22',
     'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
     // create stamp, do not wait for usable
     'GET /chainstate',
     'GET /chainstate',
-    'POST /stamps/458922240/22',
+    'POST /stamps/458922241/22',
     // extend duration
     'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
     'GET /chainstate',
-    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/458922240',
+    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/458922241',
     // extend size +1 depth
     'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
-    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/458922240',
+    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/458922241',
     'PATCH /stamps/dilute/b330000000000000000000000000000000000000000000000000000000000000/23',
     // extend size +2 depth
     'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
-    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/917844480',
+    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/917844481',
     'PATCH /stamps/dilute/b330000000000000000000000000000000000000000000000000000000000000/24',
     // error case
     'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
