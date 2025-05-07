@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.1.2](https://github.com/ethersphere/bee-js/compare/v9.1.1...v9.1.2) (2025-05-07)
+
+
+### Bug Fixes
+
+* fix minimum postage batch amount being off by one ([#1021](https://github.com/ethersphere/bee-js/issues/1021)) ([dd786f6](https://github.com/ethersphere/bee-js/commit/dd786f6556e6f49ae4cc7adcece070983838e0e7))
+
 ## [9.1.1](https://github.com/ethersphere/bee-js/compare/v9.1.0...v9.1.1) (2025-04-17)
 
 
