@@ -348,6 +348,9 @@ const bee = new Bee('http://localhost:1633', {
 Stay up to date by joining the [official Discord](https://discord.gg/GU22h2utj6) and by keeping an eye on the
 [releases tab](https://github.com/ethersphere/bee-js/releases).
 
+We are using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for our commit messages and pull
+requests, following the [Semantic Versioning](https://semver.org/) rules.
+
 There are some ways you can make this module better:
 
 - Consult our [open issues](https://github.com/ethersphere/bee-js/issues) and take on one of them
