@@ -108,7 +108,6 @@ test('getStampEffectiveBytesBreakpoints', () => {
 
   for (const [depth, bytes] of breakpoints) {
     const uxDepth = Utils.getDepthForSize(Size.fromBytes(bytes))
-    console.log(depth, bytes, uxDepth)
     expect(uxDepth).toBe(depth)
   }
 
