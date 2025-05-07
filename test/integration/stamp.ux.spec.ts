@@ -3,14 +3,14 @@ import { Duration } from '../../src/utils/duration'
 import { mocked } from '../mocks'
 
 test('Utils.getDepthForSize', () => {
-  expect(Utils.getDepthForSize(Size.fromGigabytes(0))).toBe(22)
-  expect(Utils.getDepthForSize(Size.fromGigabytes(1))).toBe(22)
-  expect(Utils.getDepthForSize(Size.fromGigabytes(2))).toBe(22)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(0))).toBe(17)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(1))).toBe(21)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(2))).toBe(21)
   expect(Utils.getDepthForSize(Size.fromGigabytes(3))).toBe(22)
-  expect(Utils.getDepthForSize(Size.fromGigabytes(4))).toBe(22)
-  expect(Utils.getDepthForSize(Size.fromGigabytes(5))).toBe(23)
-  expect(Utils.getDepthForSize(Size.fromGigabytes(17))).toBe(23)
-  expect(Utils.getDepthForSize(Size.fromGigabytes(18))).toBe(24)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(7))).toBe(22)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(8))).toBe(23)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(18))).toBe(23)
+  expect(Utils.getDepthForSize(Size.fromGigabytes(19))).toBe(24)
 })
 
 test('Utils.getAmountForDuration', () => {
@@ -41,7 +41,7 @@ test('bee.getSizeExtensionCost', async () => {
   await mocked(async bee => {
     const cost = await bee.getSizeExtensionCost(
       'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
-      Size.fromGigabytes(18),
+      Size.fromGigabytes(19),
     )
     expect(cost.toSignificantDigits(3)).toBe('72.011')
 
@@ -61,7 +61,7 @@ test('bee.getExtensionCost', async () => {
       Size.fromGigabytes(18),
       Duration.fromYears(1),
     )
-    expect(cost.toDecimalString()).toBe('209.0182760579727360')
+    expect(cost.toDecimalString()).toBe('68.5035408119037952')
   })
 })
 
@@ -80,12 +80,12 @@ test('bee.buyStorage with extensions', async () => {
     // create stamp
     'GET /chainstate',
     'GET /chainstate',
-    'POST /stamps/458922241/22',
+    'POST /stamps/458922241/21',
     'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
     // create stamp, do not wait for usable
     'GET /chainstate',
     'GET /chainstate',
-    'POST /stamps/458922241/22',
+    'POST /stamps/458922241/21',
     // extend duration
     'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
     'GET /chainstate',
@@ -114,7 +114,23 @@ test('getStampEffectiveBytesBreakpoints', () => {
   const values = [...breakpoints.values()]
 
   expect(values).toEqual([
-    4925468496, 17028686336, 44207239385, 102776849407, 225867176136, 480431605757, 1001435190579, 2060264888127,
-    4201893636709, 8519016092009, 17199880295626, 34628459009829, 69587651117292,
+    Size.fromKilobytes(40.89).toBytes(),
+    Size.fromMegabytes(6.09).toBytes(),
+    Size.fromMegabytes(102.49).toBytes(),
+    Size.fromMegabytes(628.91).toBytes(),
+    Size.fromGigabytes(2.38).toBytes(),
+    Size.fromGigabytes(7.07).toBytes(),
+    Size.fromGigabytes(18.24).toBytes(),
+    Size.fromGigabytes(43.04).toBytes(),
+    Size.fromGigabytes(96.5).toBytes(),
+    Size.fromGigabytes(208.52).toBytes(),
+    Size.fromGigabytes(435.98).toBytes(),
+    Size.fromGigabytes(908.81).toBytes(),
+    Size.fromGigabytes(1870).toBytes(),
+    Size.fromGigabytes(3810).toBytes(),
+    Size.fromGigabytes(7730).toBytes(),
+    Size.fromGigabytes(15610).toBytes(),
+    Size.fromGigabytes(31430).toBytes(),
+    Size.fromGigabytes(63150).toBytes(),
   ])
 })

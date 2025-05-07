@@ -22,6 +22,14 @@ export class Size {
     return new Size(bytes)
   }
 
+  static fromKilobytes(kilobytes: number): Size {
+    return new Size(kilobytes * 1000)
+  }
+
+  static fromMegabytes(megabytes: number): Size {
+    return new Size(megabytes * 1000 * 1000)
+  }
+
   static fromGigabytes(gigabytes: number): Size {
     return new Size(gigabytes * 1000 * 1000 * 1000)
   }

@@ -6,6 +6,8 @@ import { Size } from './size'
 import { BZZ } from './tokens'
 import { asNumberString } from './type'
 
+const MAX_UTILIZATION = 0.9
+
 /**
  * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.
  *
@@ -30,36 +32,27 @@ export function getStampTheoreticalBytes(depth: number): number {
 
 /**
  * Based on https://docs.ethswarm.org/docs/learn/technology/contracts/postage-stamp/#effective-utilisation-table
+ * Optimised for encrypted, medium erasure coding
  */
-const utilisationRateMap: Record<number, number> = {
-  22: 0.2867,
-  23: 0.4956,
-  24: 0.6433,
-  25: 0.7478,
-  26: 0.8217,
-  27: 0.8739,
-  28: 0.9108,
-  29: 0.9369,
-  30: 0.9554,
-  31: 0.9685,
-  32: 0.9777,
-  33: 0.9842,
-  34: 0.9889,
-}
-
 const effectiveSizeBreakpoints = [
-  [22, 4.93],
-  [23, 17.03],
-  [24, 44.21],
-  [25, 102.78],
-  [26, 225.87],
-  [27, 480.44],
-  [28, 1001.44],
-  [29, 2060.27],
-  [30, 4201.9],
-  [31, 8519.02],
-  [32, 17199.89],
-  [33, 34628.46],
+  [17, 0.00004089],
+  [18, 0.00609],
+  [19, 0.10249],
+  [20, 0.62891],
+  [21, 2.38],
+  [22, 7.07],
+  [23, 18.24],
+  [24, 43.04],
+  [25, 96.5],
+  [26, 208.52],
+  [27, 435.98],
+  [28, 908.81],
+  [29, 1870],
+  [30, 3810],
+  [31, 7730],
+  [32, 15610],
+  [33, 31430],
+  [34, 63150],
 ]
 
 /**
@@ -71,19 +64,27 @@ const effectiveSizeBreakpoints = [
  * @returns {number} The effective size of the postage batch in bytes.
  */
 export function getStampEffectiveBytes(depth: number): number {
-  if (depth < 22) {
+  if (depth < 17) {
     return 0
   }
 
-  const utilRate = utilisationRateMap[depth] ?? 0.99
+  const breakpoint = effectiveSizeBreakpoints.find(([d, size]) => {
+    if (depth === d) {
+      return size
+    }
+  })
 
-  return Math.ceil(getStampTheoreticalBytes(depth) * utilRate)
+  if (breakpoint) {
+    return breakpoint[1] * 1000 * 1000 * 1000
+  }
+
+  return Math.ceil(getStampTheoreticalBytes(depth) * MAX_UTILIZATION)
 }
 
 export function getStampEffectiveBytesBreakpoints(): Map<number, number> {
   const map = new Map<number, number>()
 
-  for (let i = 22; i < 35; i++) {
+  for (let i = 17; i < 35; i++) {
     map.set(i, getStampEffectiveBytes(i))
   }
 
@@ -133,12 +134,12 @@ export function getAmountForDuration(duration: Duration, pricePerBlock: number, 
  */
 export function getDepthForSize(size: Size): number {
   for (const [depth, sizeBreakpoint] of effectiveSizeBreakpoints) {
-    if (size.toGigabytes() <= sizeBreakpoint) {
+    if (size.toBytes() <= sizeBreakpoint * 1000 * 1000 * 1000) {
       return depth
     }
   }
 
-  return 34
+  return 35
 }
 
 export function convertEnvelopeToMarshaledStamp(envelope: EnvelopeWithBatchId): Bytes {

@@ -28,7 +28,7 @@ responses.set(
 )
 
 responses.set(
-  'POST /stamps/458922241/22',
+  'POST /stamps/458922241/21',
   JSON.stringify({ batchID: 'b330000000000000000000000000000000000000000000000000000000000000' }),
 )
 
