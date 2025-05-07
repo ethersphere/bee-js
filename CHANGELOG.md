@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.2.1](https://github.com/ethersphere/bee-js/compare/v9.2.0...v9.2.1) (2025-05-07)
+
+
+### Bug Fixes
+
+* rename get batch methods ([#1029](https://github.com/ethersphere/bee-js/issues/1029)) ([da15d10](https://github.com/ethersphere/bee-js/commit/da15d1067bd50775514bb8d9761aeca5325b8e67))
+
 ## [9.2.0](https://github.com/ethersphere/bee-js/compare/v9.1.2...v9.2.0) (2025-05-07)
 
 
