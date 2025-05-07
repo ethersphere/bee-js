@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.2.0](https://github.com/ethersphere/bee-js/compare/v9.1.2...v9.2.0) (2025-05-07)
+
+
+### Features
+
+* update effective batch thresholds ([#1027](https://github.com/ethersphere/bee-js/issues/1027)) ([1535617](https://github.com/ethersphere/bee-js/commit/153561737b16a8124c5f5ac233781858f8db7cbb))
+
 ## [9.1.2](https://github.com/ethersphere/bee-js/compare/v9.1.1...v9.1.2) (2025-05-07)
 
 
