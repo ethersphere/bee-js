@@ -1825,15 +1825,34 @@ export class Bee {
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
+   * @deprecated Use `getPostageBatches` instead
    */
   async getAllPostageBatch(options?: BeeRequestOptions): Promise<PostageBatch[]> {
+    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(options)) // TODO: remove in June 2025
+  }
+
+  /**
+   * Return all globally available postage batches.
+   * @deprecated Use `getGlobalPostageBatches` instead
+   */
+  async getAllGlobalPostageBatch(options?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
+    return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(options)) // TODO: remove in June 2025
+  }
+
+  /**
+   * Return all postage batches that belong to the node.
+   *
+   * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
+   * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
+   */
+  async getPostageBatches(options?: BeeRequestOptions): Promise<PostageBatch[]> {
     return stamps.getAllPostageBatches(this.getRequestOptionsForCall(options))
   }
 
   /**
    * Return all globally available postage batches.
    */
-  async getAllGlobalPostageBatch(options?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
+  async getGlobalPostageBatches(options?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
     return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(options))
   }
 
