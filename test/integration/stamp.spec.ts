@@ -5,7 +5,7 @@ import { batch, makeBee } from '../utils'
 const bee = makeBee()
 
 test('GET stamps', async () => {
-  const stamps = await bee.getAllPostageBatch()
+  const stamps = await bee.getPostageBatches()
   expect(stamps.length).toBeGreaterThan(0)
 
   const stamp = await bee.getPostageBatch(stamps[0].batchID)
@@ -16,7 +16,7 @@ test('GET stamps', async () => {
 })
 
 test('GET batches', async () => {
-  const batches = await bee.getAllGlobalPostageBatch()
+  const batches = await bee.getGlobalPostageBatches()
   expect(batches.length).toBeGreaterThan(0)
 })
 
