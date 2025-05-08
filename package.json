@@ -64,7 +64,7 @@
     "axios": "^0.30.0",
     "cafe-utility": "^27.14.2",
     "isomorphic-ws": "^4.0.1",
-    "semver": "^7.3.5",
+    "semver": "^7.7.1",
     "ws": "^8.7.0"
   },
   "devDependencies": {
@@ -80,7 +80,7 @@
     "@naholyr/cross-env": "^1.0.0",
     "@types/jest": "^29.5.13",
     "@types/node": "^18.11.11",
-    "@types/semver": "^7.3.9",
+    "@types/semver": "^7.7.0",
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.46.0",
     "@typescript-eslint/parser": "^5.46.0",
