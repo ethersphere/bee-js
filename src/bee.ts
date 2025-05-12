@@ -22,6 +22,7 @@ import * as grantee from './modules/grantee'
 import * as gsoc from './modules/gsoc'
 import * as pinning from './modules/pinning'
 import * as pss from './modules/pss'
+import { rchash } from './modules/rchash'
 import * as status from './modules/status'
 import * as stewardship from './modules/stewardship'
 import * as tag from './modules/tag'
@@ -1246,6 +1247,13 @@ export class Bee {
     reference = new Reference(reference)
 
     return postEnvelope(this.getRequestOptionsForCall(options), postageBatchId, reference)
+  }
+
+  /**
+   * Get reserve commitment hash duration seconds
+   */
+  async rchash(depth: number, anchor1: string, anchor2: string, options?: BeeRequestOptions): Promise<number> {
+    return rchash(this.getRequestOptionsForCall(options), depth, anchor1, anchor2)
   }
 
   /**
