@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.3.0](https://github.com/ethersphere/bee-js/compare/v9.2.1...v9.3.0) (2025-05-12)
+
+
+### Features
+
+* add rchash method ([#1035](https://github.com/ethersphere/bee-js/issues/1035)) ([e72bb63](https://github.com/ethersphere/bee-js/commit/e72bb635a1f3ee5f7723bbfc61ff64ada4d0af30))
+
 ## [9.2.1](https://github.com/ethersphere/bee-js/compare/v9.2.0...v9.2.1) (2025-05-07)
 
 
