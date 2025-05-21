@@ -20,7 +20,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
