@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.4.0](https://github.com/ethersphere/bee-js/compare/v9.3.0...v9.4.0) (2025-05-29)
+
+
+### Features
+
+* add represent convenience function to data classes ([#1037](https://github.com/ethersphere/bee-js/issues/1037)) ([21a4a54](https://github.com/ethersphere/bee-js/commit/21a4a5498179fcc19ab9dfa489fc6c7ad6e47ff5))
+
 ## [9.3.0](https://github.com/ethersphere/bee-js/compare/v9.2.1...v9.3.0) (2025-05-12)
 
 
