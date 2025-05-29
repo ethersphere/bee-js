@@ -45,4 +45,8 @@ export class Size {
   toFormattedString(): string {
     return Numbers.convertBytes(this.bytes, 1000)
   }
+
+  represent(): string {
+    return this.toFormattedString()
+  }
 }

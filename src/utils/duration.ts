@@ -1,3 +1,5 @@
+import { Dates } from 'cafe-utility'
+
 export class Duration {
   private seconds: number
 
@@ -59,5 +61,9 @@ export class Duration {
 
   toEndDate(startDate?: Date): Date {
     return new Date((startDate ?? new Date()).getTime() + this.seconds * 1000)
+  }
+
+  represent(): string {
+    return Dates.secondsToHumanTime(this.seconds)
   }
 }

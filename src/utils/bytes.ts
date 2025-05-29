@@ -83,4 +83,8 @@ export class Bytes {
   public equals(other: Bytes | Uint8Array | string): boolean {
     return this.toHex() === new Bytes(other).toHex()
   }
+
+  public represent(): string {
+    return this.toHex()
+  }
 }
