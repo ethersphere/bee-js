@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.4.1](https://github.com/ethersphere/bee-js/compare/v9.4.0...v9.4.1) (2025-06-23)
+
+
+### Bug Fixes
+
+* fix property merging when request body is a large buffer ([#1039](https://github.com/ethersphere/bee-js/issues/1039)) ([865ab68](https://github.com/ethersphere/bee-js/commit/865ab6835a9de1e484d37293f8a957b92ac89f37))
+
 ## [9.4.0](https://github.com/ethersphere/bee-js/compare/v9.3.0...v9.4.0) (2025-05-29)
 
 
