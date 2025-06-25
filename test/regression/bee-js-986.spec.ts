@@ -32,7 +32,7 @@ test('bee-js/986 - Headers not merging properly', async () => {
       host: 'localhost:11633',
       'swarm-act': 'true',
       'swarm-encrypt': 'true',
-      'swarm-postage-batch-id': 'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
+      'swarm-postage-batch-id': 'b961413232c96eedae48947a71c99e454e51c4b5bf93a77c59f958af1229a932',
       'swarm-tag': '1337',
       'user-agent': 'axios/0.30.0',
     },
