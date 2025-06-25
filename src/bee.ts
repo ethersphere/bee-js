@@ -1984,7 +1984,7 @@ export class Bee {
   }
 
   /**
-   * Gets the amount of withdrawable staked BZZ
+   * Gets the amount of withdrawable staked BZZ.
    *
    * @param options HTTP request options, such as `headers` or `timeout`
    */
@@ -1999,7 +1999,7 @@ export class Bee {
    *
    * @param options HTTP request options, such as `headers` or `timeout`
    */
-  async withdrawSurpluStake(options?: BeeRequestOptions): Promise<TransactionId> {
+  async withdrawSurplusStake(options?: BeeRequestOptions): Promise<TransactionId> {
     return stake.withdrawSurplusStake(this.getRequestOptionsForCall(options))
   }
 
