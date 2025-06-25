@@ -99,7 +99,7 @@ import { fileArrayBuffer, isFile } from './utils/file'
 import { ResourceLocator } from './utils/resource-locator'
 import { Size } from './utils/size'
 import { getAmountForDuration, getDepthForSize, getStampCost } from './utils/stamps'
-import { BZZ } from './utils/tokens'
+import { BZZ, DAI } from './utils/tokens'
 import {
   asNumberString,
   assertData,
@@ -1437,13 +1437,29 @@ export class Bee {
   }
 
   /**
-   * Deposit tokens from overlay address into chequebook
+   * Deposit tokens from node wallet into chequebook
+   *
+   * @param amount  Amount of tokens to deposit (must be positive integer)
+   * @param gasPrice Gas Price in WEI for the transaction call
+   * @return string  Hash of the transaction
+   * @deprecated Use `depositBZZToChequebook` instead.
+   */
+  async depositTokens(
+    amount: BZZ | NumberString | string | bigint,
+    gasPrice?: NumberString | string | bigint,
+    options?: BeeRequestOptions,
+  ): Promise<TransactionId> {
+    return this.depositBZZToChequebook(amount, gasPrice, options)
+  }
+
+  /**
+   * Deposit tokens from node wallet into chequebook
    *
    * @param amount  Amount of tokens to deposit (must be positive integer)
    * @param gasPrice Gas Price in WEI for the transaction call
    * @return string  Hash of the transaction
    */
-  async depositTokens(
+  async depositBZZToChequebook(
     amount: BZZ | NumberString | string | bigint,
     gasPrice?: NumberString | string | bigint,
     options?: BeeRequestOptions,
@@ -1461,13 +1477,29 @@ export class Bee {
   }
 
   /**
-   * Withdraw tokens from the chequebook to the overlay address
+   * Withdraw tokens from the chequebook to the node wallet
+   *
+   * @param amount  Amount of tokens to withdraw (must be positive integer)
+   * @param gasPrice Gas Price in WEI for the transaction call
+   * @return string  Hash of the transaction
+   * @deprecated Use `withdrawBZZFromChequebook` instead.
+   */
+  async withdrawTokens(
+    amount: BZZ | NumberString | string | bigint,
+    gasPrice?: NumberString | string | bigint,
+    options?: BeeRequestOptions,
+  ): Promise<TransactionId> {
+    return this.withdrawBZZFromChequebook(amount, gasPrice, options)
+  }
+
+  /**
+   * Withdraw tokens from the chequebook to the node wallet
    *
    * @param amount  Amount of tokens to withdraw (must be positive integer)
    * @param gasPrice Gas Price in WEI for the transaction call
    * @return string  Hash of the transaction
    */
-  async withdrawTokens(
+  async withdrawBZZFromChequebook(
     amount: BZZ | NumberString | string | bigint,
     gasPrice?: NumberString | string | bigint,
     options?: BeeRequestOptions,
@@ -1483,6 +1515,28 @@ export class Bee {
     }
 
     return chequebook.withdrawTokens(this.getRequestOptionsForCall(options), amountString, gasPriceString)
+  }
+
+  async withdrawBZZToExternalWallet(
+    amount: BZZ | NumberString | string | bigint,
+    address: EthAddress | Uint8Array | string,
+    options?: BeeRequestOptions,
+  ): Promise<TransactionId> {
+    amount = amount instanceof BZZ ? amount : BZZ.fromPLUR(amount)
+    address = new EthAddress(address)
+
+    return states.withdrawBZZ(this.getRequestOptionsForCall(options), amount, address)
+  }
+
+  async withdrawDAIToExternalWallet(
+    amount: DAI | NumberString | string | bigint,
+    address: EthAddress | Uint8Array | string,
+    options?: BeeRequestOptions,
+  ): Promise<TransactionId> {
+    amount = amount instanceof DAI ? amount : DAI.fromWei(amount)
+    address = new EthAddress(address)
+
+    return states.withdrawDAI(this.getRequestOptionsForCall(options), amount, address)
   }
 
   /*
@@ -1581,7 +1635,7 @@ export class Bee {
   }
 
   /**
-   * Get wallet balances for xDai and BZZ of the Bee node
+   * Get wallet balances for DAI and BZZ of the Bee node
    *
    * @param options
    */

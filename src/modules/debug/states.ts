@@ -3,6 +3,7 @@ import { BeeRequestOptions, ChainState, ReserveState, WalletBalance } from '../.
 import { http } from '../../utils/http'
 import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
+import { EthAddress, TransactionId } from '../../utils/typed-bytes'
 import { normalizeCurrentPrice } from '../../utils/workaround'
 
 const RESERVE_STATE_ENDPOINT = 'reservestate'
@@ -73,4 +74,38 @@ export async function getWalletBalance(requestOptions: BeeRequestOptions): Promi
     chequebookContractAddress: Types.asString(body.chequebookContractAddress, { name: 'chequebookContractAddress' }),
     walletAddress: Types.asString(body.walletAddress, { name: 'walletAddress' }),
   }
+}
+
+export async function withdrawBZZ(
+  requestOptions: BeeRequestOptions,
+  amount: BZZ,
+  address: EthAddress,
+): Promise<TransactionId> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'post',
+    url: `${WALLET_ENDPOINT}/withdraw/bzz`,
+    responseType: 'json',
+    params: { amount: amount.toPLURString(), address: address.toHex() },
+  })
+
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
+}
+
+export async function withdrawDAI(
+  requestOptions: BeeRequestOptions,
+  amount: DAI,
+  address: EthAddress,
+): Promise<TransactionId> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'post',
+    url: `${WALLET_ENDPOINT}/withdraw/nativetoken`,
+    responseType: 'json',
+    params: { amount: amount.toWeiString(), address: address.toHex() },
+  })
+
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
 }
