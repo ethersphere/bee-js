@@ -10,7 +10,7 @@ const STAKE_ENDPOINT = 'stake'
 const REDISTRIBUTION_ENDPOINT = 'redistributionstate'
 
 /**
- * Gets the staked amount
+ * Gets the amount of staked BZZ
  *
  * @param requestOptions Options for making requests
  */
@@ -27,11 +27,51 @@ export async function getStake(requestOptions: BeeRequestOptions): Promise<BZZ> 
 }
 
 /**
+ * Gets the amount of withdrawable staked BZZ
+ *
+ * @param requestOptions Options for making requests
+ */
+export async function getWithdrawableStake(requestOptions: BeeRequestOptions): Promise<BZZ> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'get',
+    responseType: 'json',
+    url: `${STAKE_ENDPOINT}/withdrawable`,
+  })
+
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return BZZ.fromPLUR(asNumberString(body.withdrawableAmount, { name: 'withdrawableAmount' }))
+}
+
+export async function withdrawSurplusStake(requestOptions: BeeRequestOptions): Promise<TransactionId> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'delete',
+    responseType: 'json',
+    url: `${STAKE_ENDPOINT}/withdrawable`,
+  })
+
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asHexString(body.txHash, { name: 'txHash' }))
+}
+
+export async function migrateStake(requestOptions: BeeRequestOptions): Promise<TransactionId> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'delete',
+    responseType: 'json',
+    url: STAKE_ENDPOINT,
+  })
+
+  const body = Types.asObject(response.data, { name: 'response.data' })
+
+  return new TransactionId(Types.asHexString(body.txHash, { name: 'txHash' }))
+}
+
+/**
  * Stake given amount of tokens.
  *
  * @param requestOptions Options for making requests
  * @param amount
- * @param options
  */
 export async function stake(
   requestOptions: BeeRequestOptions,

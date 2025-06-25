@@ -1954,7 +1954,7 @@ export class Bee {
   }
 
   /**
-   * Cancel currently pending transaction
+   * Cancels a currently pending transaction
    * @param transactionHash
    * @param gasPrice
    */
@@ -1975,21 +1975,52 @@ export class Bee {
   }
 
   /**
-   * Gets the staked amount of BZZ (in PLUR unit) as number string.
+   * Gets the amount of staked BZZ
    *
-   * @param options
+   * @param options HTTP request options, such as `headers` or `timeout`
    */
   async getStake(options?: BeeRequestOptions): Promise<BZZ> {
     return stake.getStake(this.getRequestOptionsForCall(options))
   }
 
   /**
-   * Deposits given amount of BZZ token (in PLUR unit).
+   * Gets the amount of withdrawable staked BZZ.
+   *
+   * @param options HTTP request options, such as `headers` or `timeout`
+   */
+  async getWithdrawableStake(options?: BeeRequestOptions): Promise<BZZ> {
+    return stake.getWithdrawableStake(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Withdraws ALL surplus staked BZZ to the node wallet.
+   *
+   * Use the `getWithdrawableStake` method to check how much surplus stake is available.
+   *
+   * @param options HTTP request options, such as `headers` or `timeout`
+   */
+  async withdrawSurplusStake(options?: BeeRequestOptions): Promise<TransactionId> {
+    return stake.withdrawSurplusStake(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Withdraws all staked BZZ to the node wallet.
+   *
+   * **Only available when the staking contract is paused and is in the process of being migrated to a new contract!**
+   *
+   * @param options HTTP request options, such as `headers` or `timeout`
+   */
+  async migrateStake(options?: BeeRequestOptions): Promise<TransactionId> {
+    return stake.migrateStake(this.getRequestOptionsForCall(options))
+  }
+
+  /**
+   * Stakes the given amount of BZZ. Initial deposit must be at least 10 BZZ.
    *
    * Be aware that staked BZZ tokens can **not** be withdrawn.
    *
-   * @param amount Amount of BZZ token (in PLUR unit) to be staked. Minimum is 100_000_000_000_000_000 PLUR (10 BZZ).
-   * @param options
+   * @param amount Amount of BZZ tokens to be staked. If not providing a `BZZ` instance, the amount is denoted in PLUR.
+   * @param options HTTP request options, such as `headers` or `timeout`
    */
   async depositStake(
     amount: BZZ | NumberString | string | bigint,
@@ -2007,9 +2038,9 @@ export class Bee {
   }
 
   /**
-   * Get current status of node in redistribution game
+   * Gets current status of node in redistribution game
    *
-   * @param options
+   * @param options HTTP request options, such as `headers` or `timeout`
    */
   async getRedistributionState(options?: BeeRequestOptions): Promise<RedistributionState> {
     return stake.getRedistributionState(this.getRequestOptionsForCall(options))

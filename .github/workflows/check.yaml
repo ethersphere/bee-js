@@ -31,11 +31,6 @@ jobs:
       - name: Commit linting
         uses: wagoid/commitlint-github-action@v2
 
-      - name: Code linting
-        run: npm run lint
-        env:
-          CI: true
-
       - name: Dependency check
         run: npm run depcheck
 
@@ -44,6 +39,11 @@ jobs:
 
       - name: Check build
         run: npm run build
+
+      - name: Code linting
+        run: npm run lint
+        env:
+          CI: true
 
       - name: Trigger API Docs update PR
         uses: peter-evans/repository-dispatch@v1
