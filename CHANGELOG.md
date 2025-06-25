@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [9.5.0](https://github.com/ethersphere/bee-js/compare/v9.4.1...v9.5.0) (2025-06-25)
+
+
+### Features
+
+* add withdrawable stake related methods ([#1044](https://github.com/ethersphere/bee-js/issues/1044)) ([a22d9ec](https://github.com/ethersphere/bee-js/commit/a22d9ec8a0e46931600c1fd715698b2b447739bd))
+* add withdrawal to external wallets ([#1042](https://github.com/ethersphere/bee-js/issues/1042)) ([05a681b](https://github.com/ethersphere/bee-js/commit/05a681b0b01d58274f62165c249ee9fde20ee225))
+
 ## [9.4.1](https://github.com/ethersphere/bee-js/compare/v9.4.0...v9.4.1) (2025-06-23)
 
 
