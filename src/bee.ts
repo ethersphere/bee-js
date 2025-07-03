@@ -1282,6 +1282,18 @@ export class Bee {
     return true
   }
 
+  /**
+   * Checks the `/gateway` endpoint to see if the remote API is a gateway.
+   *
+   * Do note that this is not a standard way to check for gateway nodes,
+   * but some of the gateway tooling expose this endpoint.
+   *
+   * @param options
+   */
+  async isGateway(options?: BeeRequestOptions): Promise<boolean> {
+    return status.isGateway(this.getRequestOptionsForCall(options))
+  }
+
   // Legacy debug API
 
   async getNodeAddresses(options?: BeeRequestOptions): Promise<NodeAddresses> {
