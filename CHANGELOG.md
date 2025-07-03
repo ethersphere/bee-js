@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.6.0](https://github.com/ethersphere/bee-js/compare/v9.5.0...v9.6.0) (2025-07-03)
+
+
+### Features
+
+* add isGateway method ([#1046](https://github.com/ethersphere/bee-js/issues/1046)) ([24b870b](https://github.com/ethersphere/bee-js/commit/24b870b4f62d7964f2c4fb4e193adcfff764488b))
+
 ## [9.5.0](https://github.com/ethersphere/bee-js/compare/v9.4.1...v9.5.0) (2025-06-25)
 
 
