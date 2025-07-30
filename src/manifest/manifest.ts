@@ -92,12 +92,12 @@ export class Fork {
     return Binary.concatBytes(...data)
   }
 
-  static unmarshal(reader: Uint8ArrayReader): Fork {
+  static unmarshal(reader: Uint8ArrayReader, addressLength: number): Fork {
     const type = Binary.uint8ToNumber(reader.read(1))
     const prefixLength = Binary.uint8ToNumber(reader.read(1))
     const prefix = reader.read(prefixLength)
     reader.read(30 - prefixLength)
-    const selfAddress = reader.read(32)
+    const selfAddress = reader.read(addressLength)
     let metadata: Record<string, string> | undefined = undefined
 
     if (isType(type, TYPE_WITH_METADATA)) {
@@ -292,7 +292,7 @@ export class MantarayNode {
     const forkBitmap = reader.read(32)
     for (let i = 0; i < 256; i++) {
       if (Binary.getBit(forkBitmap, i, 'LE')) {
-        const newFork = Fork.unmarshal(reader)
+        const newFork = Fork.unmarshal(reader, targetAddressLength)
         node.forks.set(i, newFork)
         newFork.node.parent = node
       }
