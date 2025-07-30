@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.6.1](https://github.com/ethersphere/bee-js/compare/v9.6.0...v9.6.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* allow unmarshaling encrypted manifests ([#1052](https://github.com/ethersphere/bee-js/issues/1052)) ([8e7dd8e](https://github.com/ethersphere/bee-js/commit/8e7dd8e4ecbb08da8cc9ef5f2d1723ca5367b1bd))
+
 ## [9.6.0](https://github.com/ethersphere/bee-js/compare/v9.5.0...v9.6.0) (2025-07-03)
 
 
