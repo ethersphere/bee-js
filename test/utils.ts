@@ -15,7 +15,7 @@ export function batch() {
   }
 
   if (currentBeeMode() === 'full') {
-    return Types.asString(process.env.JEST_FULL_BATCH_ID)
+    return Types.asString(process.env.JEST_MANAGED_BATCH_ID)
   }
 
   if (currentBeeMode() === 'dev') {
@@ -31,11 +31,11 @@ export function currentBeeMode(): 'full' | 'light' | 'ultra-light' | 'dev' {
 function selectBeeUrl() {
   switch (currentBeeMode()) {
     case 'full':
-      return Types.asString(process.env.JEST_BEE_FULL_URL)
+      return Types.asString(process.env.JEST_BEE_URL)
     case 'light':
-      return Types.asString(process.env.JEST_BEE_LIGHT_URL)
+      return Types.asString(process.env.JEST_LIGHT_BEE_URL)
     case 'ultra-light':
-      return Types.asString(process.env.JEST_BEE_ULTRA_LIGHT_URL)
+      return Types.asString(process.env.JEST_ULTRA_LIGHT_BEE_URL)
     default:
       throw Error('Invalid mode')
   }

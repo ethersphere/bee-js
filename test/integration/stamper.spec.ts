@@ -6,8 +6,8 @@ test('Stamper', async () => {
   const bee = makeBee()
 
   const stamper = Stamper.fromBlank(
-    Types.asString(process.env.JEST_BEE_FULL_PK),
-    'b24b3f3ac5c7727cb9ad17b15167e75df33708f201c947f3cc6658348c2df31d',
+    Types.asString(process.env.JEST_BEE_SIGNER),
+    Types.asString(process.env.JEST_EXTERNAL_BATCH_ID),
     17,
   )
 
@@ -25,8 +25,8 @@ test('Stamper', async () => {
   expect(state.reduce((a, b) => a + b)).toBe(1)
 
   const nextStamper = Stamper.fromState(
-    Types.asString(process.env.JEST_BEE_FULL_PK),
-    'ae0b4d8548d17fb70672c5e7a9717de5f855d3f398a3cc2f0e445e2eecca2622',
+    Types.asString(process.env.JEST_BEE_SIGNER),
+    Types.asString(process.env.JEST_EXTERNAL_BATCH_ID),
     state,
     17,
   )

@@ -71,8 +71,8 @@ test('GET wallet', async () => {
   const wallet = await bee.getWalletBalance()
   expect(parseFloat(wallet.bzzBalance.toDecimalString())).toBeGreaterThan(20)
   expect(parseFloat(wallet.bzzBalance.toDecimalString())).toBeLessThan(200)
-  expect(parseFloat(wallet.nativeTokenBalance.toDecimalString())).toBeGreaterThan(4)
-  expect(parseFloat(wallet.nativeTokenBalance.toDecimalString())).toBeLessThan(5)
+  expect(parseFloat(wallet.nativeTokenBalance.toDecimalString())).toBeGreaterThan(1)
+  expect(parseFloat(wallet.nativeTokenBalance.toDecimalString())).toBeLessThan(2)
 })
 
 test('GET status', async () => {
