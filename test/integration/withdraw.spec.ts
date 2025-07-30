@@ -1,4 +1,4 @@
-import { Dates, System } from 'cafe-utility'
+import { Dates, System, Types } from 'cafe-utility'
 import { makeBee } from '../utils'
 
 const bee = makeBee()
@@ -6,7 +6,7 @@ const bee = makeBee()
 test('withdraw to external wallet', async () => {
   const walletBefore = await bee.getWalletBalance()
 
-  await bee.withdrawBZZToExternalWallet('1', process.env.JEST_WITHDRAW_ADDRESS!)
+  await bee.withdrawBZZToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
@@ -16,7 +16,7 @@ test('withdraw to external wallet', async () => {
     60,
   )
 
-  await bee.withdrawDAIToExternalWallet('1', process.env.JEST_WITHDRAW_ADDRESS!)
+  await bee.withdrawDAIToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
