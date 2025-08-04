@@ -55,7 +55,7 @@
     "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup && babel --plugins \"babel-plugin-add-import-extension\" --out-dir dist/mjs/ dist/mjs/",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
     "build:browser": "webpack --progress",
-    "test": "jest --config=jest.config.ts --runInBand --verbose",
+    "test": "jest --config=jest.config.ts --runInBand --verbose --detectOpenHandles",
     "check": "tsc --project tsconfig.test.json",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "depcheck": "depcheck ."
