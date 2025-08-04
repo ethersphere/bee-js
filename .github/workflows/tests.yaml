@@ -36,7 +36,10 @@ jobs:
         run: fdp-play start --detach --fresh --bee-version 2.6.0 --workers 1
 
       - name: Stake
-        run: swarm-cli stake deposit --bzz 10.1
+        run: swarm-cli stake deposit --bzz 10.1 --yes
+
+      - name: Deposit to chequebook
+        run: swarm-cli cheque deposit 1000000000000000
 
       - name: Create managed postage batch
         run: echo "JEST_MANAGED_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
