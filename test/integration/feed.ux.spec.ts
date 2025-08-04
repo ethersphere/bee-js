@@ -10,7 +10,7 @@ test('Feed read/write as payload', async () => {
   writer.uploadPayload(batch(), 'Feed payload', { deferred: false })
 
   await System.waitFor(
-    () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
+    async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
     Dates.seconds(1),
     30,
   )
@@ -32,7 +32,7 @@ test('Feed read/write as reference', async () => {
   await writer.uploadReference(batch(), uploadResult.reference)
 
   await System.waitFor(
-    () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
+    async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
     Dates.seconds(1),
     30,
   )
@@ -52,7 +52,7 @@ test('Feed read/write 40 bytes payload', async () => {
   writer.uploadPayload(batch(), 'This string is exactly 40 bytes in utf-8', { deferred: false })
 
   await System.waitFor(
-    () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
+    async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
     Dates.seconds(1),
     30,
   )
@@ -70,7 +70,7 @@ test('Feed read/write as payload when data does not fit into one chunk', async (
   writer.uploadPayload(batch(), text, { deferred: false })
 
   await System.waitFor(
-    () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
+    async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
     Dates.seconds(1),
     30,
   )

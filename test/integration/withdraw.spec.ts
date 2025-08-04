@@ -10,6 +10,7 @@ test('withdraw to external wallet', async () => {
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
+
       return pendingTransactions.length === 0
     },
     Dates.seconds(1),
@@ -20,6 +21,7 @@ test('withdraw to external wallet', async () => {
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
+
       return pendingTransactions.length === 0
     },
     Dates.seconds(1),
