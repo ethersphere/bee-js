@@ -78,6 +78,8 @@ test('GET wallet', async () => {
 test('GET status', async () => {
   const status = await bee.getStatus()
   expect(status).toBeTruthy()
+  expect(status.beeMode).toBe('full')
+  expect(status.isWarmingUp).toBe(false)
 })
 
 test('GET topology', async () => {
