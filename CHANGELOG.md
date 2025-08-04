@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.7.0](https://github.com/ethersphere/bee-js/compare/v9.6.1...v9.7.0) (2025-08-04)
+
+
+### Features
+
+* add isWarmingUp flag to getStatus ([#1054](https://github.com/ethersphere/bee-js/issues/1054)) ([837c0bd](https://github.com/ethersphere/bee-js/commit/837c0bd1e063f1accfc0e23b6654035fe3962ada))
+
 ## [9.6.1](https://github.com/ethersphere/bee-js/compare/v9.6.0...v9.6.1) (2025-07-30)
 
 
