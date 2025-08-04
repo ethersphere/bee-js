@@ -35,6 +35,9 @@ jobs:
       - name: Start fdp-play environment
         run: fdp-play start --detach --fresh --bee-version 2.6.0 --workers 1
 
+      - name: Stake
+        run: swarm-cli stake deposit --bzz 10.1
+
       - name: Create managed postage batch
         run: echo "JEST_MANAGED_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
 
