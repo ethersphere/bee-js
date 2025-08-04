@@ -21,7 +21,7 @@ export default async (): Promise<Config.InitialOptions> => {
 
   console.log('Waiting for Bee to warm up...')
   await System.waitFor(async () => (await bee.getStatus()).isWarmingUp === false, {
-    attempts: 30,
+    attempts: 600,
     waitMillis: Dates.seconds(1),
   })
 
