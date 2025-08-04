@@ -20,17 +20,10 @@ export default async (): Promise<Config.InitialOptions> => {
   Assertions.asTrue(await bee.isConnected())
 
   console.log('Waiting for Bee to warm up...')
-  await System.waitFor(async () => (await bee.getTopology()).depth !== 31, {
-    attempts: 600,
-    waitMillis: Dates.seconds(1),
-  })
-  // TODO: revert after check
-  /* 
   await System.waitFor(async () => (await bee.getStatus()).isWarmingUp === false, {
-    attempts: 600,
+    attempts: 30,
     waitMillis: Dates.seconds(1),
   })
-  */
 
   console.log('Bee is ready!')
 

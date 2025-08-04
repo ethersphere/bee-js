@@ -12,10 +12,6 @@ jobs:
   nodejs:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        bee-version: [2.5.0, 2.6.0]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,7 +33,7 @@ jobs:
         run: npm install --global @ethersphere/swarm-cli
 
       - name: Start fdp-play environment
-        run: fdp-play start --detach --fresh --bee-version ${{ matrix.bee-version }} --workers 1
+        run: fdp-play start --detach --fresh --bee-version 2.6.0 --workers 1
 
       - name: Create managed postage batch
         run: echo "JEST_MANAGED_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
