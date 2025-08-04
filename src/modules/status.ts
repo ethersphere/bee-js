@@ -19,6 +19,7 @@ export async function isGateway(requestOptions: BeeRequestOptions): Promise<bool
       url: '/gateway',
     })
     const data = Types.asObject(response.data)
+
     return Types.asBoolean(data.gateway)
   } catch (error) {
     return false

@@ -105,6 +105,7 @@ export interface DebugStatus {
   isReachable: boolean
   lastSyncedBlock: number
   committedDepth: number
+  isWarmingUp: boolean
 }
 
 export interface Health {

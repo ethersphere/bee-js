@@ -37,6 +37,7 @@ export async function getDebugStatus(requestOptions: BeeRequestOptions): Promise
     isReachable: Types.asBoolean(body.isReachable, { name: 'isReachable' }),
     lastSyncedBlock: Types.asNumber(body.lastSyncedBlock, { name: 'lastSyncedBlock' }),
     committedDepth: Types.asNumber(body.committedDepth, { name: 'committedDepth' }),
+    isWarmingUp: Types.asBoolean(body.isWarmingUp, { name: 'isWarmingUp' }),
   }
 }
 
