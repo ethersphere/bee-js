@@ -4,7 +4,8 @@
  */
 import type { Config } from '@jest/types'
 
-import { Dates, Types } from 'cafe-utility'
+import { Assertions, Dates, System, Types } from 'cafe-utility'
+import { Bee } from './src'
 
 export default async (): Promise<Config.InitialOptions> => {
   Types.asString(process.env.JEST_BEE_URL, { name: 'JEST_BEE_URL' })
@@ -12,6 +13,19 @@ export default async (): Promise<Config.InitialOptions> => {
   Types.asHexString(process.env.JEST_MANAGED_BATCH_ID, { name: 'JEST_MANAGED_BATCH_ID', byteLength: 32 })
   Types.asHexString(process.env.JEST_EXTERNAL_BATCH_ID, { name: 'JEST_EXTERNAL_BATCH_ID', byteLength: 32 })
   Types.asString(process.env.JEST_WITHDRAW_ADDRESS, { name: 'JEST_WITHDRAW_ADDRESS' })
+
+  const bee = new Bee(Types.asString(process.env.JEST_BEE_URL))
+
+  console.log(`Connecting to Bee at ${bee.url}...`)
+  Assertions.asTrue(await bee.isConnected())
+
+  console.log('Waiting for Bee to warm up...')
+  await System.waitFor(async () => (await bee.getStatus()).isWarmingUp === false, {
+    attempts: 30,
+    waitMillis: Dates.seconds(1),
+  })
+
+  console.log('Bee is ready!')
 
   return {
     collectCoverage: true,

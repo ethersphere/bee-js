@@ -77,7 +77,7 @@ function maybeRunOnRequestHook(options: BeeRequestOptions, requestConfig: AxiosR
   if (options.onRequest) {
     options.onRequest({
       method: requestConfig.method || 'GET',
-      url: Strings.joinUrl(requestConfig.baseURL as string, requestConfig.url as string),
+      url: Strings.joinUrl([requestConfig.baseURL as string, requestConfig.url as string]),
       headers: { ...requestConfig.headers } as Record<string, string>,
       params: requestConfig.params,
     })

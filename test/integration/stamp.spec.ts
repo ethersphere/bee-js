@@ -32,8 +32,7 @@ test('POST stamps', async () => {
 
       return pendingTransactions.length === 0
     },
-    Dates.seconds(1),
-    60,
+    { attempts: 60, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
   await bee.diluteBatch(response, 18)
@@ -44,8 +43,7 @@ test('POST stamps', async () => {
 
       return stamp.depth === 18
     },
-    Dates.seconds(1),
-    120,
+    { attempts: 180, waitMillis: Dates.seconds(1) },
   )
 
   const stamp = await bee.getPostageBatch(response)
