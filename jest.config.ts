@@ -43,7 +43,7 @@ export default async (): Promise<Config.InitialOptions> => {
     ] as unknown[] as string[],
     rootDir: 'test',
     testPathIgnorePatterns: ['/node_modules/'],
-    testTimeout: Dates.minutes(5),
+    testTimeout: Dates.minutes(4),
     verbose: true,
   }
 }
