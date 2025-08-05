@@ -47,8 +47,7 @@ test('deposit/withdraw from chequebook', async () => {
 
       return pendingTransactions.length === 0
     },
-    Dates.seconds(1),
-    60,
+    { attempts: 30, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
   await bee.withdrawTokens('1')
@@ -58,7 +57,6 @@ test('deposit/withdraw from chequebook', async () => {
 
       return pendingTransactions.length === 0
     },
-    Dates.seconds(1),
-    60,
+    { attempts: 30, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 })

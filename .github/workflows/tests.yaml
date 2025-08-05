@@ -8,35 +8,49 @@ on:
     branches:
       - '**'
 
-env:
-  BEE_API_URL: 'http://127.0.0.1:1633'
-  BEE_PEER_API_URL: 'http://127.0.0.1:11633'
-  BEE_TEST_CHEQUEBOOK: true
-
 jobs:
   nodejs:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20.x
 
-      - name: Install npm deps
-        run: npm install -g npm && npm ci && npm install -g @fairdatasociety/fdp-play
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install fdp-play
+        run: npm install --global @fairdatasociety/fdp-play
+
+      - name: Install swarm-cli
+        run: npm install --global @ethersphere/swarm-cli
 
       - name: Start fdp-play environment
-        run: npm run bee
+        run: fdp-play start --detach --fresh --bee-version 2.6.0 --workers 1
+
+      - name: Stake
+        if: false
+        run: swarm-cli stake deposit --bzz 10.1 --yes
+
+      - name: Deposit to chequebook
+        run: swarm-cli cheque deposit 1000000000000000
+
+      - name: Create managed postage batch
+        run: echo "JEST_MANAGED_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
+
+      - name: Create external postage batch
+        run: echo "JEST_EXTERNAL_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
 
       - name: Tests
-        run: npm run test
+        env:
+          JEST_BEE_URL: http://localhost:1633
+          JEST_BEE_SIGNER: '566058308ad5fa3888173c741a1fb902c9f1f19559b11fc2738dfc53637ce4e9'
+          JEST_WITHDRAW_ADDRESS: '0x0000000000000000000000000000000000000000'
+        run: npm test

@@ -26,8 +26,7 @@ test('POST feed (reader)', async () => {
 
       return payload === 'Second update'
     },
-    Dates.seconds(1),
-    60,
+    { attempts: 60, waitMillis: Dates.seconds(1) },
   )
 
   // TODO: this is a reference... should it be auto-resolved?
@@ -63,8 +62,7 @@ test('POST feed (manifest)', async () => {
 
       return payload === 'Second update'
     },
-    Dates.seconds(1),
-    60,
+    { attempts: 60, waitMillis: Dates.seconds(1) },
   )
 
   expect(await bee.isFeedRetrievable(owner, NULL_TOPIC)).toBe(true)
