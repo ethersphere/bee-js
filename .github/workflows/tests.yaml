@@ -36,7 +36,7 @@ jobs:
         run: fdp-play start --detach --fresh --bee-version 2.6.0 --workers 1
 
       - name: Stake
-        skip: true # Skip staking for now, gas issue
+        if: false
         run: swarm-cli stake deposit --bzz 10.1 --yes
 
       - name: Deposit to chequebook
