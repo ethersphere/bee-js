@@ -9,11 +9,10 @@ test('Feed read/write as payload', async () => {
   const writer = bee.makeFeedWriter(NULL_TOPIC, privateKey)
   writer.uploadPayload(batch(), 'Feed payload', { deferred: false })
 
-  await System.waitFor(
-    () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
-    Dates.seconds(1),
-    30,
-  )
+  await System.waitFor(async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
+    attempts: 60,
+    waitMillis: Dates.seconds(1),
+  })
 
   const explicitIndexReadResult = await writer.downloadPayload({ index: 0 })
   expect(explicitIndexReadResult.payload.toUtf8()).toBe('Feed payload')
@@ -31,11 +30,10 @@ test('Feed read/write as reference', async () => {
   const writer = bee.makeFeedWriter(NULL_TOPIC, privateKey)
   await writer.uploadReference(batch(), uploadResult.reference)
 
-  await System.waitFor(
-    () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
-    Dates.seconds(1),
-    30,
-  )
+  await System.waitFor(async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
+    attempts: 60,
+    waitMillis: Dates.seconds(1),
+  })
 
   const explicitIndexReadResult = await writer.downloadReference({ index: 0, hasTimestamp: true })
   expect(explicitIndexReadResult.reference.toHex()).toBe(uploadResult.reference.toHex())
@@ -51,11 +49,10 @@ test('Feed read/write 40 bytes payload', async () => {
   const writer = bee.makeFeedWriter(NULL_TOPIC, privateKey)
   writer.uploadPayload(batch(), 'This string is exactly 40 bytes in utf-8', { deferred: false })
 
-  await System.waitFor(
-    () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
-    Dates.seconds(1),
-    30,
-  )
+  await System.waitFor(async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
+    attempts: 60,
+    waitMillis: Dates.seconds(1),
+  })
 
   const latestReadResult = await writer.downloadPayload()
   expect(latestReadResult.payload.toUtf8()).toBe('This string is exactly 40 bytes in utf-8')
@@ -69,11 +66,10 @@ test('Feed read/write as payload when data does not fit into one chunk', async (
   const writer = bee.makeFeedWriter(NULL_TOPIC, privateKey)
   writer.uploadPayload(batch(), text, { deferred: false })
 
-  await System.waitFor(
-    () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)),
-    Dates.seconds(1),
-    30,
-  )
+  await System.waitFor(async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
+    attempts: 60,
+    waitMillis: Dates.seconds(1),
+  })
 
   const latestReadResult = await writer.downloadPayload()
   expect(latestReadResult.payload.toUtf8()).toHaveLength(5000)

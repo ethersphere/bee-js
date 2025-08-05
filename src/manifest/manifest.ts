@@ -33,6 +33,7 @@ export class Fork {
       b.prefix = b.prefix.slice(commonPart.length)
       b.node.parent = a.node
       a.node.forks.set(remainingB[0], b)
+
       return a
     }
 
@@ -42,6 +43,7 @@ export class Fork {
       a.prefix = a.prefix.slice(commonPart.length)
       a.node.parent = b.node
       b.node.forks.set(remainingA[0], a)
+
       return b
     }
 

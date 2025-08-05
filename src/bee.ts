@@ -1043,7 +1043,8 @@ export class Bee {
     for (let i = 0n; i < 0xffffn; i++) {
       const signer = new PrivateKey(Binary.numberToUint256(start + i, 'BE'))
       const socAddress = makeSOCAddress(identifier, signer.publicKey().address())
-      const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), targetOverlay.toUint8Array(), 256)
+      // TODO: test the significance of the hardcoded 256
+      const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), targetOverlay.toUint8Array())
 
       if (actualProximity <= 256 - proximity) {
         return signer

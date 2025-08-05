@@ -10,20 +10,20 @@ test('withdraw to external wallet', async () => {
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
+
       return pendingTransactions.length === 0
     },
-    Dates.seconds(1),
-    60,
+    { attempts: 60, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
   await bee.withdrawDAIToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
+
       return pendingTransactions.length === 0
     },
-    Dates.seconds(1),
-    60,
+    { attempts: 60, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
   const walletAfter = await bee.getWalletBalance()

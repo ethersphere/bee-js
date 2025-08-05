@@ -45,7 +45,7 @@ test('bee.getSizeExtensionCost', async () => {
     )
     expect(cost.toSignificantDigits(3)).toBe('72.011')
 
-    await expect(() =>
+    await expect(async () =>
       bee.getSizeExtensionCost(
         'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
         Size.fromGigabytes(1),
@@ -72,7 +72,7 @@ test('bee.buyStorage with extensions', async () => {
     await bee.extendStorageDuration(batchId, Duration.fromDays(1))
     await bee.extendStorageSize(batchId, Size.fromGigabytes(8))
     await bee.extendStorageSize(batchId, Size.fromGigabytes(24))
-    await expect(() => bee.extendStorageSize(batchId, Size.fromGigabytes(1))).rejects.toThrow(
+    await expect(async () => bee.extendStorageSize(batchId, Size.fromGigabytes(1))).rejects.toThrow(
       'New depth has to be greater than the original depth',
     )
   })

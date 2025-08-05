@@ -30,8 +30,7 @@ test('POST stake', async () => {
 
       return stake.eq(stakePreviously.plus('1'))
     },
-    Dates.seconds(1),
-    180,
+    { attempts: 180, waitMillis: Dates.seconds(1) },
   )
 
   transactionId = await bee.depositStake(BZZ.fromPLUR(1n))
@@ -43,7 +42,6 @@ test('POST stake', async () => {
 
       return stake.eq(stakePreviously.plus('2'))
     },
-    Dates.seconds(1),
-    180,
+    { attempts: 180, waitMillis: Dates.seconds(1) },
   )
 })

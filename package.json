@@ -1,6 +1,6 @@
 {
   "name": "@ethersphere/bee-js",
-  "version": "9.6.1",
+  "version": "9.7.0",
   "description": "Javascript client for Bee",
   "keywords": [
     "bee",
@@ -55,14 +55,14 @@
     "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup && babel --plugins \"babel-plugin-add-import-extension\" --out-dir dist/mjs/ dist/mjs/",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
     "build:browser": "webpack --progress",
-    "test": "jest --config=jest.config.ts --runInBand --verbose",
+    "test": "jest --config=jest.config.ts --runInBand --verbose --forceExit",
     "check": "tsc --project tsconfig.test.json",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "depcheck": "depcheck ."
   },
   "dependencies": {
     "axios": "^0.30.0",
-    "cafe-utility": "^28.1.0",
+    "cafe-utility": "^31.0.0",
     "isomorphic-ws": "^4.0.1",
     "semver": "^7.3.5",
     "ws": "^8.7.0"
