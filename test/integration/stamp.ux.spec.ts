@@ -104,7 +104,7 @@ test('bee.buyStorage with extensions', async () => {
 })
 
 test('getStampEffectiveBytesBreakpoints', () => {
-  const breakpoints = Utils.getStampEffectiveBytesBreakpoints()
+  const breakpoints = Utils.getStampEffectiveBytesBreakpoints(false)
 
   for (const [depth, bytes] of breakpoints) {
     const uxDepth = Utils.getDepthForSize(Size.fromBytes(bytes))

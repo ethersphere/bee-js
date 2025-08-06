@@ -65,6 +65,7 @@ import type {
   PssSubscription,
   Readiness,
   RedistributionState,
+  RedundancyLevel,
   RedundantUploadOptions,
   ReferenceInformation,
   RemovePeerResponse,
@@ -1718,10 +1719,12 @@ export class Bee {
     duration: Duration,
     options?: PostageBatchOptions,
     requestOptions?: BeeRequestOptions,
+    encryption?: boolean,
+    erasureCodeLevel?: RedundancyLevel,
   ): Promise<BatchId> {
     const chainState = await this.getChainState(requestOptions)
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
-    const depth = getDepthForSize(size)
+    const depth = getDepthForSize(size, encryption, erasureCodeLevel)
 
     if (options) {
       options = preparePostageBatchOptions(options)
@@ -1730,17 +1733,29 @@ export class Bee {
     return this.createPostageBatch(amount, depth, options, requestOptions)
   }
 
-  async getStorageCost(size: Size, duration: Duration, options?: BeeRequestOptions): Promise<BZZ> {
+  async getStorageCost(
+    size: Size,
+    duration: Duration,
+    options?: BeeRequestOptions,
+    encryption?: boolean,
+    erasureCodeLevel?: RedundancyLevel,
+  ): Promise<BZZ> {
     const chainState = await this.getChainState(options)
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
-    const depth = getDepthForSize(size)
+    const depth = getDepthForSize(size, encryption, erasureCodeLevel)
 
     return getStampCost(depth, amount)
   }
 
-  async extendStorageSize(postageBatchId: BatchId | Uint8Array | string, size: Size, options?: BeeRequestOptions) {
+  async extendStorageSize(
+    postageBatchId: BatchId | Uint8Array | string,
+    size: Size,
+    options?: BeeRequestOptions,
+    encryption?: boolean,
+    erasureCodeLevel?: RedundancyLevel,
+  ) {
     const batch = await this.getPostageBatch(postageBatchId, options)
-    const depth = getDepthForSize(size)
+    const depth = getDepthForSize(size, encryption, erasureCodeLevel)
     const delta = depth - batch.depth
 
     if (delta <= 0) {
@@ -1769,11 +1784,13 @@ export class Bee {
     size: Size,
     duration: Duration,
     options?: BeeRequestOptions,
+    encryption?: boolean,
+    erasureCodeLevel?: RedundancyLevel,
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
     const chainState = await this.getChainState(options)
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
-    const depth = getDepthForSize(size)
+    const depth = getDepthForSize(size, encryption, erasureCodeLevel)
 
     const currentValue = getStampCost(batch.depth, batch.amount)
     const newValue = getStampCost(depth, amount)
@@ -1785,9 +1802,11 @@ export class Bee {
     postageBatchId: BatchId | Uint8Array | string,
     size: Size,
     options?: BeeRequestOptions,
+    encryption?: boolean,
+    erasureCodeLevel?: RedundancyLevel,
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
-    const depth = getDepthForSize(size)
+    const depth = getDepthForSize(size, encryption, erasureCodeLevel)
     const delta = depth - batch.depth
 
     if (delta <= 0) {
