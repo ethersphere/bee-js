@@ -33,7 +33,7 @@ jobs:
         run: npm install --global @ethersphere/swarm-cli
 
       - name: Start fdp-play environment
-        run: fdp-play start --detach --fresh --bee-version 2.6.0 --workers 1
+        run: fdp-play start --detach --fresh --bee-version d0aa8b9-commit --workers 1
 
       - name: Stake
         if: false
