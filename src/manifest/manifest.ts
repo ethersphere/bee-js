@@ -107,6 +107,7 @@ export class Fork {
     const type = Binary.uint8ToNumber(reader.read(1))
     const prefixLength = Binary.uint8ToNumber(reader.read(1))
     const prefix = reader.read(prefixLength)
+
     if (prefixLength < 30) {
       reader.read(30 - prefixLength)
     }
