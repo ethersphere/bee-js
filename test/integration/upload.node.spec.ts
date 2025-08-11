@@ -30,3 +30,15 @@ test('upload files from directory', async () => {
 }
 `)
 })
+
+test('stream directory and document metadata', async () => {
+  const response = await bee.streamDirectory(batch(), 'test/data', () => {}, {
+    indexDocument: 'indexDocument.html',
+    errorDocument: 'errorDocument.html',
+  })
+  const manifest = await MantarayNode.unmarshal(bee, response.reference)
+  await manifest.loadRecursively(bee)
+  const metadata = manifest.getDocsMetadata()
+  expect(metadata.indexDocument).toBe('indexDocument.html')
+  expect(metadata.errorDocument).toBe('errorDocument.html')
+})
