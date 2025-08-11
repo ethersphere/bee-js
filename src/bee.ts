@@ -1747,6 +1747,34 @@ export class Bee {
     return getStampCost(depth, amount)
   }
 
+  async extendStorage(
+    postageBatchId: BatchId | Uint8Array | string,
+    size: Size,
+    duration: Duration,
+    options?: BeeRequestOptions,
+    encryption?: boolean,
+    erasureCodeLevel?: RedundancyLevel,
+  ) {
+    const batch = await this.getPostageBatch(postageBatchId, options)
+    const depth = getDepthForSize(size, encryption, erasureCodeLevel)
+    const chainState = await this.getChainState(options)
+    const depthDelta = depth - batch.depth
+    const multiplier = depthDelta === 0 ? 1n : 2n ** BigInt(depthDelta)
+    const targetAmount =
+      (BigInt(batch.amount) +
+        getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)) *
+      multiplier
+    const amountDelta = targetAmount - BigInt(batch.amount)
+
+    const transactionId = await this.topUpBatch(batch.batchID, amountDelta, options)
+
+    if (depthDelta) {
+      return this.diluteBatch(batch.batchID, depth, options)
+    }
+
+    return transactionId
+  }
+
   async extendStorageSize(
     postageBatchId: BatchId | Uint8Array | string,
     size: Size,
