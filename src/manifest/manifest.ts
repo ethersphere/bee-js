@@ -107,9 +107,13 @@ export class Fork {
     const type = Binary.uint8ToNumber(reader.read(1))
     const prefixLength = Binary.uint8ToNumber(reader.read(1))
     const prefix = reader.read(prefixLength)
-    reader.read(30 - prefixLength)
+
+    if (prefixLength < 30) {
+      reader.read(30 - prefixLength)
+    }
     const selfAddress = reader.read(addressLength)
     debug('unmarshalling fork', {
+      type,
       prefixLength,
       prefix: DECODER.decode(prefix),
       addressLength,
@@ -304,12 +308,12 @@ export class MantarayNode {
       throw new Error('MantarayNode#unmarshal invalid version hash')
     }
     const targetAddressLength = Binary.uint8ToNumber(reader.read(1))
-    const targetAddress = targetAddressLength === 0 ? NULL_ADDRESS : reader.read(targetAddressLength)
+    const targetAddress = targetAddressLength ? reader.read(targetAddressLength) : NULL_ADDRESS
     const node = new MantarayNode({ selfAddress, targetAddress, obfuscationKey })
     const forkBitmap = reader.read(32)
     for (let i = 0; i < 256; i++) {
       if (Binary.getBit(forkBitmap, i, 'LE')) {
-        const newFork = Fork.unmarshal(reader, targetAddressLength)
+        const newFork = Fork.unmarshal(reader, selfAddress.length)
         node.forks.set(i, newFork)
         newFork.node.parent = node
       }

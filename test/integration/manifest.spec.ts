@@ -114,3 +114,20 @@ test('Manifest no feed to resolve', async () => {
 
   expect(feedUpdate.value).toBeNull()
 })
+
+test('Manifest add fork with foreign path', async () => {
+  const bee = makeBee()
+
+  const manifest = new MantarayNode()
+  manifest.addFork('c/中文/index.xml', arbitraryReference())
+  manifest.addFork('c/中文/index.html', arbitraryReference())
+
+  const result = await manifest.saveRecursively(bee, batch())
+
+  const unmarshaled = await MantarayNode.unmarshal(bee, result.reference)
+  await unmarshaled.loadRecursively(bee)
+
+  const items = unmarshaled.collectAndMap()
+  expect(items['c/中文/index.xml']).toBeDefined()
+  expect(items['c/中文/index.html']).toBeDefined()
+})
