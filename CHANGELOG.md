@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [9.7.1](https://github.com/ethersphere/bee-js/compare/v9.7.0...v9.7.1) (2025-08-11)
+
+
+### Bug Fixes
+
+* allow setting index and error document in streamDirectory ([#1059](https://github.com/ethersphere/bee-js/issues/1059)) ([3a745e8](https://github.com/ethersphere/bee-js/commit/3a745e8187459f66591013e273d0f56594a4e697))
+
 ## [9.7.0](https://github.com/ethersphere/bee-js/compare/v9.6.1...v9.7.0) (2025-08-04)
 
 
