@@ -547,7 +547,7 @@ export class Bee {
     postageBatchId: BatchId | Uint8Array | string,
     dir: string,
     onUploadProgress?: (progress: UploadProgress) => void,
-    options?: UploadOptions,
+    options?: CollectionUploadOptions,
     requestOptions?: BeeRequestOptions,
   ) {
     postageBatchId = new BatchId(postageBatchId)

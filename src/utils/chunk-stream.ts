@@ -1,6 +1,6 @@
 import { AsyncQueue, Chunk, MerkleTree, Strings } from 'cafe-utility'
 import { createReadStream } from 'fs'
-import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
+import { Bee, BeeRequestOptions, CollectionUploadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { MantarayNode } from '../manifest/manifest'
 import { totalChunks } from './chunk-size'
 import { makeCollectionFromFS } from './collection.node'
@@ -37,7 +37,7 @@ export async function streamDirectory(
   dir: string,
   postageBatchId: BatchId | string | Uint8Array,
   onUploadProgress?: (progress: UploadProgress) => void,
-  options?: UploadOptions,
+  options?: CollectionUploadOptions,
   requestOptions?: BeeRequestOptions,
 ) {
   const queue = new AsyncQueue(64, 64)
@@ -48,6 +48,8 @@ export async function streamDirectory(
   for (const file of files) {
     total += totalChunks(file.size)
   }
+
+  let hasIndexHtml = false
 
   async function onChunk(chunk: Chunk) {
     await queue.enqueue(async () => {
@@ -75,10 +77,23 @@ export async function streamDirectory(
     })
 
     if (file.path === 'index.html') {
-      mantaray.addFork('/', NULL_ADDRESS, {
-        'website-index-document': 'index.html',
-      })
+      hasIndexHtml = true
     }
+  }
+
+  if (hasIndexHtml || options?.indexDocument || options?.errorDocument) {
+    const metadata: Record<string, string> = {}
+
+    if (options?.indexDocument) {
+      metadata['website-index-document'] = options.indexDocument
+    } else if (hasIndexHtml) {
+      metadata['website-index-document'] = 'index.html'
+    }
+
+    if (options?.errorDocument) {
+      metadata['website-error-document'] = options.errorDocument
+    }
+    mantaray.addFork('/', NULL_ADDRESS, metadata)
   }
 
   return mantaray.saveRecursively(bee, postageBatchId, options, requestOptions)
