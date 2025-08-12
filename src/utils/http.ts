@@ -1,6 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Dates, Objects, Strings, System } from 'cafe-utility'
+import _debug from 'debug'
 import { BeeRequestOptions, BeeResponseError } from '../index'
+
+const debug = _debug('bee-js:http')
 
 const { AxiosError } = axios
 
@@ -46,6 +49,13 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
   let failedAttempts = 0
   while (failedAttempts < MAX_FAILED_ATTEMPTS) {
     try {
+      debug(
+        `${requestConfig.method || 'get'} ${Strings.joinUrl([
+          requestConfig.baseURL as string,
+          requestConfig.url as string,
+        ])}`,
+        { headers: { ...requestConfig.headers } as Record<string, string>, params: requestConfig.params },
+      )
       maybeRunOnRequestHook(options, requestConfig)
       const response = await axios(requestConfig)
 

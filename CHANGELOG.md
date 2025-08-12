@@ -1,6 +1,20 @@
 # Changelog
 
 
+## [9.8.1](https://github.com/ethersphere/bee-js/compare/v9.8.0...v9.8.1) (2025-08-11)
+
+
+### Bug Fixes
+
+* fix reference length bug in manifest unmarshalling ([#1065](https://github.com/ethersphere/bee-js/issues/1065)) ([4a5d2b8](https://github.com/ethersphere/bee-js/commit/4a5d2b847dd8e54eb5f52e2239efc1fec132ca11))
+
+## [9.8.0](https://github.com/ethersphere/bee-js/compare/v9.7.1...v9.8.0) (2025-08-11)
+
+
+### Features
+
+* add debug package ([#1062](https://github.com/ethersphere/bee-js/issues/1062)) ([9eba48c](https://github.com/ethersphere/bee-js/commit/9eba48cdb11643ed6df907172052c986ff0f56ee))
+
 ## [9.7.1](https://github.com/ethersphere/bee-js/compare/v9.7.0...v9.7.1) (2025-08-11)
 
 
