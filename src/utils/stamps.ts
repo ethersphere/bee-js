@@ -1,6 +1,6 @@
 import { Binary } from 'cafe-utility'
-import { EnvelopeWithBatchId, NumberString } from '../types'
-import { Bytes } from './bytes'
+import { capacityBreakpoints, EnvelopeWithBatchId, NumberString, RedundancyLevel } from '../types'
+import { Bytes, parseSizeToBytes } from './bytes'
 import { Duration } from './duration'
 import { Size } from './size'
 import { BZZ } from './tokens'
@@ -63,29 +63,46 @@ const effectiveSizeBreakpoints = [
  *
  * @returns {number} The effective size of the postage batch in bytes.
  */
-export function getStampEffectiveBytes(depth: number): number {
+export function getStampEffectiveBytes(
+  depth: number,
+  encryption?: boolean,
+  erasureCodeLevel?: RedundancyLevel,
+): number {
   if (depth < 17) {
     return 0
   }
 
-  const breakpoint = effectiveSizeBreakpoints.find(([d, size]) => {
-    if (depth === d) {
-      return size
-    }
-  })
+  if (encryption !== undefined && erasureCodeLevel !== undefined) {
+    const encryptionKey = encryption ? 'ENCRYPTION_ON' : 'ENCRYPTION_OFF'
+    const breakpoints = capacityBreakpoints[encryptionKey][erasureCodeLevel]
+    const entry = breakpoints.find(item => item.batchDepth === depth)
 
-  if (breakpoint) {
-    return breakpoint[1] * 1000 * 1000 * 1000
+    if (entry?.effectiveVolume) {
+      return parseSizeToBytes(entry.effectiveVolume)
+    }
+  } else {
+    const breakpoint = effectiveSizeBreakpoints.find(([d, size]) => {
+      if (depth === d) {
+        return size
+      }
+    })
+
+    if (breakpoint) {
+      return breakpoint[1] * 1000 * 1000 * 1000
+    }
   }
 
   return Math.ceil(getStampTheoreticalBytes(depth) * MAX_UTILIZATION)
 }
 
-export function getStampEffectiveBytesBreakpoints(): Map<number, number> {
+export function getStampEffectiveBytesBreakpoints(
+  encryption: boolean,
+  erasureCodeLevel?: RedundancyLevel,
+): Map<number, number> {
   const map = new Map<number, number>()
 
   for (let i = 17; i < 35; i++) {
-    map.set(i, getStampEffectiveBytes(i))
+    map.set(i, getStampEffectiveBytes(i, encryption, erasureCodeLevel))
   }
 
   return map
@@ -132,10 +149,23 @@ export function getAmountForDuration(duration: Duration, pricePerBlock: number, 
  * @param size The effective size of the postage batch
  * @returns
  */
-export function getDepthForSize(size: Size): number {
-  for (const [depth, sizeBreakpoint] of effectiveSizeBreakpoints) {
-    if (size.toBytes() <= sizeBreakpoint * 1000 * 1000 * 1000) {
-      return depth
+export function getDepthForSize(size: Size, encryption?: boolean, erasureCodeLevel?: RedundancyLevel): number {
+  if (encryption !== undefined && erasureCodeLevel !== undefined) {
+    const encryptionKey = encryption ? 'ENCRYPTION_ON' : 'ENCRYPTION_OFF'
+    const breakpoints = capacityBreakpoints[encryptionKey][erasureCodeLevel]
+
+    const entry = breakpoints.find(item => {
+      return size.toBytes() <= parseSizeToBytes(item.effectiveVolume)
+    })
+
+    if (entry?.effectiveVolume) {
+      return entry.batchDepth
+    }
+  } else {
+    for (const [depth, sizeBreakpoint] of effectiveSizeBreakpoints) {
+      if (size.toBytes() <= sizeBreakpoint * 1000 * 1000 * 1000) {
+        return depth
+      }
     }
   }
 
