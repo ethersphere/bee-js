@@ -32,6 +32,9 @@ jobs:
       - name: Install swarm-cli
         run: npm install --global @ethersphere/swarm-cli
 
+      - name: Run bee-dev
+        run: npx bee-dev --port 16337 &
+
       - name: Start fdp-play environment
         run: fdp-play start --detach --fresh --bee-version d0aa8b9-commit
 

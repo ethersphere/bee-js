@@ -1,8 +1,11 @@
 import { Binary, MerkleTree, Optional, Uint8ArrayReader } from 'cafe-utility'
+import _debug from 'debug'
 import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { FeedPayloadResult } from '../modules/feed'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
+
+const debug = _debug('bee-js:manifest')
 
 const ENCODER = new TextEncoder()
 const DECODER = new TextDecoder()
@@ -80,6 +83,12 @@ export class Fork {
     }
     data.push(this.node.selfAddress)
 
+    debug('marshalling fork', {
+      prefixLength: this.prefix.length,
+      prefix: DECODER.decode(this.prefix),
+      address: Binary.uint8ArrayToHex(this.node.selfAddress),
+    })
+
     if (this.node.metadata) {
       const metadataBytes = Binary.padEndToMultiple(
         new Uint8Array([0x00, 0x00, ...ENCODER.encode(JSON.stringify(this.node.metadata))]),
@@ -98,8 +107,18 @@ export class Fork {
     const type = Binary.uint8ToNumber(reader.read(1))
     const prefixLength = Binary.uint8ToNumber(reader.read(1))
     const prefix = reader.read(prefixLength)
-    reader.read(30 - prefixLength)
+
+    if (prefixLength < 30) {
+      reader.read(30 - prefixLength)
+    }
     const selfAddress = reader.read(addressLength)
+    debug('unmarshalling fork', {
+      type,
+      prefixLength,
+      prefix: DECODER.decode(prefix),
+      addressLength,
+      address: Binary.uint8ArrayToHex(selfAddress),
+    })
     let metadata: Record<string, string> | undefined = undefined
 
     if (isType(type, TYPE_WITH_METADATA)) {
@@ -289,12 +308,12 @@ export class MantarayNode {
       throw new Error('MantarayNode#unmarshal invalid version hash')
     }
     const targetAddressLength = Binary.uint8ToNumber(reader.read(1))
-    const targetAddress = targetAddressLength === 0 ? NULL_ADDRESS : reader.read(targetAddressLength)
+    const targetAddress = targetAddressLength ? reader.read(targetAddressLength) : NULL_ADDRESS
     const node = new MantarayNode({ selfAddress, targetAddress, obfuscationKey })
     const forkBitmap = reader.read(32)
     for (let i = 0; i < 256; i++) {
       if (Binary.getBit(forkBitmap, i, 'LE')) {
-        const newFork = Fork.unmarshal(reader, targetAddressLength)
+        const newFork = Fork.unmarshal(reader, selfAddress.length)
         node.forks.set(i, newFork)
         newFork.node.parent = node
       }
@@ -313,6 +332,7 @@ export class MantarayNode {
   ) {
     this.selfAddress = null
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
+    debug('adding fork', { path: DECODER.decode(path), reference: new Reference(reference).represent() })
     // TODO: this should not be ignored
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let tip: MantarayNode = this
