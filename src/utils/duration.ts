@@ -2,12 +2,13 @@ import { Dates } from 'cafe-utility'
 
 export class Duration {
   private seconds: number
+  static ZERO: Duration = new Duration(0)
 
   private constructor(seconds: number) {
     this.seconds = Math.ceil(seconds)
 
-    if (seconds <= 0) {
-      throw Error('Duration must be greater than 0')
+    if (seconds < 0) {
+      throw Error('Duration cannot be negative')
     }
   }
 
@@ -65,5 +66,9 @@ export class Duration {
 
   represent(): string {
     return Dates.secondsToHumanTime(this.seconds)
+  }
+
+  isZero(): boolean {
+    return this.seconds === 0
   }
 }
