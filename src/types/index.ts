@@ -862,4 +862,3 @@ export const capacityBreakpoints = {
     ],
   },
 }
-
