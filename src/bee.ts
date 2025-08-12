@@ -1760,10 +1760,10 @@ export class Bee {
     const chainState = await this.getChainState(options)
     const depthDelta = depth - batch.depth
     const multiplier = depthDelta === 0 ? 1n : 2n ** BigInt(depthDelta)
-    const targetAmount =
-      (BigInt(batch.amount) +
-        getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)) *
-      multiplier
+    const additionalAmount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
+    const targetAmount = duration.isZero()
+      ? BigInt(batch.amount) * multiplier
+      : (BigInt(batch.amount) + additionalAmount) * multiplier
     const amountDelta = targetAmount - BigInt(batch.amount)
 
     const transactionId = await this.topUpBatch(batch.batchID, amountDelta, options)
@@ -1790,7 +1790,7 @@ export class Bee {
       throw new BeeArgumentError('New depth has to be greater than the original depth', depth)
     }
 
-    await this.topUpBatch(batch.batchID, BigInt(batch.amount) * 2n ** BigInt(delta - 1) + 1n, options)
+    await this.topUpBatch(batch.batchID, BigInt(batch.amount) * (2n ** BigInt(delta) - 1n) + 1n, options)
 
     return this.diluteBatch(batch.batchID, depth, options)
   }
@@ -1817,13 +1817,15 @@ export class Bee {
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
     const chainState = await this.getChainState(options)
-    const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
+    const amount = duration.isZero()
+      ? 0n
+      : getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
 
-    const currentValue = getStampCost(batch.depth, batch.amount)
-    const newValue = getStampCost(depth, amount)
+    const currentCost = getStampCost(batch.depth, batch.amount)
+    const newCost = getStampCost(depth, BigInt(batch.amount) + amount)
 
-    return newValue.minus(currentValue)
+    return newCost.minus(currentCost)
   }
 
   async getSizeExtensionCost(
@@ -1841,10 +1843,10 @@ export class Bee {
       throw new BeeArgumentError('New depth has to be greater than the original depth', depth)
     }
 
-    const currentPaid = getStampCost(batch.depth, batch.amount)
-    const newPaid = getStampCost(depth, batch.amount)
+    const currentCost = getStampCost(batch.depth, batch.amount)
+    const newCost = getStampCost(depth, batch.amount)
 
-    return newPaid.minus(currentPaid)
+    return newCost.minus(currentCost)
   }
 
   async getDurationExtensionCost(

@@ -1,6 +1,7 @@
 import { Bee, Size, Utils } from '../../src'
 import { Duration } from '../../src/utils/duration'
-import { mocked } from '../mocks'
+
+const bee = new Bee('http://localhost:16337')
 
 test('Utils.getDepthForSize', () => {
   expect(Utils.getDepthForSize(Size.fromGigabytes(0))).toBe(17)
@@ -21,86 +22,79 @@ test('Utils.getAmountForDuration', () => {
 })
 
 test('bee.getStorageCost', async () => {
-  await mocked(async bee => {
-    const bzz = await bee.getStorageCost(Size.fromGigabytes(4), Duration.fromDays(1))
-    expect(bzz.toSignificantDigits(3)).toBe('0.192')
-  })
+  const bzz = await bee.getStorageCost(Size.fromGigabytes(1), Duration.fromDays(2))
+  expect(bzz.toSignificantDigits(4)).toBe('0.1739')
+})
+
+test('bee.getDurationExtensionCost for 1GB/2days', async () => {
+  const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(2))
+  const bzz = await bee.getDurationExtensionCost(batchId, Duration.fromDays(2))
+  expect(bzz.toSignificantDigits(4)).toBe('0.1739')
+})
+
+test('bee.getSizeExtensionCost for 1GB/2days', async () => {
+  const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(2))
+  const bzz = await bee.getSizeExtensionCost(batchId, Size.fromGigabytes(3))
+  expect(bzz.toSignificantDigits(4)).toBe('0.1739')
+})
+
+test('bee.getExtensionCost (size) for 1GB/2days', async () => {
+  const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(2))
+  const bzz = await bee.getExtensionCost(batchId, Size.fromGigabytes(3), Duration.ZERO)
+  expect(bzz.toSignificantDigits(4)).toBe('0.1739')
+})
+
+test('bee.getExtensionCost (duration) for 1GB/2days', async () => {
+  const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(2))
+  const bzz = await bee.getExtensionCost(batchId, Size.fromGigabytes(1), Duration.fromDays(2))
+  expect(bzz.toSignificantDigits(4)).toBe('0.1739')
 })
 
 test('bee.getDurationExtensionCost', async () => {
-  await mocked(async bee => {
-    const cost = await bee.getDurationExtensionCost(
-      'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
-      Duration.fromDays(31),
-    )
-    expect(cost.toSignificantDigits(3)).toBe('11.934')
-  })
+  const batchId = await bee.buyStorage(Size.fromGigabytes(8), Duration.fromDays(1))
+  const cost = await bee.getDurationExtensionCost(batchId, Duration.fromDays(31))
+  expect(cost.toSignificantDigits(3)).toBe('10.784')
 })
 
 test('bee.getSizeExtensionCost', async () => {
-  await mocked(async bee => {
-    const cost = await bee.getSizeExtensionCost(
-      'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
-      Size.fromGigabytes(19),
-    )
-    expect(cost.toSignificantDigits(3)).toBe('72.011')
+  const batchId = await bee.buyStorage(Size.fromGigabytes(8), Duration.fromDays(31))
+  const cost = await bee.getSizeExtensionCost(batchId, Size.fromGigabytes(100))
+  expect(cost.toSignificantDigits(3)).toBe('75.492')
 
-    await expect(async () =>
-      bee.getSizeExtensionCost(
-        'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
-        Size.fromGigabytes(1),
-      ),
-    ).rejects.toThrow('New depth has to be greater than the original depth')
-  })
+  await expect(async () => bee.getSizeExtensionCost(batchId, Size.fromGigabytes(1))).rejects.toThrow(
+    'New depth has to be greater than the original depth',
+  )
 })
 
 test('bee.getExtensionCost', async () => {
-  await mocked(async (bee: Bee) => {
-    const cost = await bee.getExtensionCost(
-      'f8b2ad296d64824a8fe51a33ff15fe8668df13a20ad3d4eea4bb97ca600029aa',
-      Size.fromGigabytes(18),
-      Duration.fromYears(1),
-    )
-    expect(cost.toDecimalString()).toBe('68.5035408119037952')
-  })
+  const batchId = await bee.buyStorage(Size.fromGigabytes(8), Duration.fromDays(31))
+  const cost = await bee.getExtensionCost(batchId, Size.fromGigabytes(18), Duration.fromYears(1))
+  expect(cost.toDecimalString()).toBe('126.9807081070788608')
 })
 
-test('bee.buyStorage with extensions', async () => {
-  const calls = await mocked(async (bee: Bee) => {
-    const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(1))
-    await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(1), { waitForUsable: false })
-    await bee.extendStorageDuration(batchId, Duration.fromDays(1))
-    await bee.extendStorageSize(batchId, Size.fromGigabytes(8))
-    await bee.extendStorageSize(batchId, Size.fromGigabytes(24))
-    await expect(async () => bee.extendStorageSize(batchId, Size.fromGigabytes(1))).rejects.toThrow(
-      'New depth has to be greater than the original depth',
-    )
-  })
-  expect(calls.map(x => `${x.method} ${x.url}`)).toEqual([
-    // create stamp
-    'GET /chainstate',
-    'GET /chainstate',
-    'POST /stamps/458922241/21',
-    'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
-    // create stamp, do not wait for usable
-    'GET /chainstate',
-    'GET /chainstate',
-    'POST /stamps/458922241/21',
-    // extend duration
-    'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
-    'GET /chainstate',
-    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/458922241',
-    // extend size +1 depth
-    'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
-    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/458922241',
-    'PATCH /stamps/dilute/b330000000000000000000000000000000000000000000000000000000000000/23',
-    // extend size +2 depth
-    'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
-    'PATCH /stamps/topup/b330000000000000000000000000000000000000000000000000000000000000/917844481',
-    'PATCH /stamps/dilute/b330000000000000000000000000000000000000000000000000000000000000/24',
-    // error case
-    'GET /stamps/b330000000000000000000000000000000000000000000000000000000000000',
-  ])
+test('bee.buyStorage with extensions (extendStorageDuration, extendStorageSize)', async () => {
+  const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(1))
+  await bee.extendStorageDuration(batchId, Duration.fromDays(1))
+  await bee.extendStorageSize(batchId, Size.fromGigabytes(8))
+  await bee.extendStorageSize(batchId, Size.fromGigabytes(24))
+  await expect(async () => bee.extendStorageSize(batchId, Size.fromGigabytes(1))).rejects.toThrow(
+    'New depth has to be greater than the original depth',
+  )
+  const batch = await bee.getPostageBatch(batchId)
+  expect(batch.depth).toBe(24)
+  expect(batch.duration.toDays()).toBe(2)
+  expect(BigInt(batch.amount)).toBe(Utils.getAmountForDuration(Duration.fromDays(2), 24000, 5) + 1n)
+})
+
+test('bee.buyStorage with extensions (extendStorage)', async () => {
+  const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(1))
+  await bee.extendStorage(batchId, Size.fromGigabytes(1), Duration.fromDays(1))
+  await bee.extendStorage(batchId, Size.fromGigabytes(8), Duration.ZERO)
+  await bee.extendStorage(batchId, Size.fromGigabytes(24), Duration.ZERO)
+  const batch = await bee.getPostageBatch(batchId)
+  expect(batch.depth).toBe(24)
+  expect(batch.duration.toDays()).toBe(2)
+  expect(BigInt(batch.amount)).toBe(Utils.getAmountForDuration(Duration.fromDays(2), 24000, 5) + 1n)
 })
 
 test('getStampEffectiveBytesBreakpoints', () => {
