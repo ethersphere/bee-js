@@ -1746,7 +1746,6 @@ export class Bee {
 
     return getStampCost(depth, amount)
   }
-
   async extendStorage(
     postageBatchId: BatchId | Uint8Array | string,
     size: Size,
