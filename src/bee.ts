@@ -1759,11 +1759,12 @@ export class Bee {
     const chainState = await this.getChainState(options)
     const depthDelta = depth - batch.depth
     const multiplier = depthDelta <= 0 ? 1n : 2n ** BigInt(depthDelta)
-    const additionalAmount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
-    const targetAmount = duration.isZero()
-      ? BigInt(batch.amount) * multiplier
-      : (BigInt(batch.amount) + additionalAmount) * multiplier
-    const amountDelta = targetAmount - BigInt(batch.amount)
+    const blockTime = this.network === 'gnosis' ? 5 : 15
+    const additionalAmount = getAmountForDuration(duration, chainState.currentPrice, blockTime)
+    const currentAmount = getAmountForDuration(batch.duration, chainState.currentPrice, blockTime)
+    const targetAmount = duration.isZero() ? currentAmount * multiplier : currentAmount + additionalAmount * multiplier
+
+    const amountDelta = targetAmount - currentAmount
 
     const transactionId = await this.topUpBatch(batch.batchID, amountDelta, options)
 
@@ -1781,6 +1782,7 @@ export class Bee {
     encryption?: boolean,
     erasureCodeLevel?: RedundancyLevel,
   ) {
+    const chainState = await this.getChainState(options)
     const batch = await this.getPostageBatch(postageBatchId, options)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
     const delta = depth - batch.depth
@@ -1789,7 +1791,12 @@ export class Bee {
       throw new BeeArgumentError('New depth has to be greater than the original depth', depth)
     }
 
-    await this.topUpBatch(batch.batchID, BigInt(batch.amount) * (2n ** BigInt(delta) - 1n) + 1n, options)
+    const currentAmount = getAmountForDuration(
+      batch.duration,
+      chainState.currentPrice,
+      this.network === 'gnosis' ? 5 : 15,
+    )
+    await this.topUpBatch(batch.batchID, currentAmount * (2n ** BigInt(delta) - 1n) + 1n, options)
 
     return this.diluteBatch(batch.batchID, depth, options)
   }
@@ -1816,13 +1823,13 @@ export class Bee {
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
     const chainState = await this.getChainState(options)
-    const amount = duration.isZero()
-      ? 0n
-      : getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
+    const blockTime = this.network === 'gnosis' ? 5 : 15
+    const amount = duration.isZero() ? 0n : getAmountForDuration(duration, chainState.currentPrice, blockTime)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
 
-    const currentCost = getStampCost(batch.depth, batch.amount)
-    const newCost = getStampCost(depth, BigInt(batch.amount) + amount)
+    const currentAmount = getAmountForDuration(batch.duration, chainState.currentPrice, blockTime)
+    const currentCost = getStampCost(batch.depth, currentAmount)
+    const newCost = getStampCost(depth, currentAmount + amount)
 
     return newCost.minus(currentCost)
   }
@@ -1835,6 +1842,7 @@ export class Bee {
     erasureCodeLevel?: RedundancyLevel,
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, options)
+    const chainState = await this.getChainState(options)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
     const delta = depth - batch.depth
 
@@ -1842,8 +1850,13 @@ export class Bee {
       throw new BeeArgumentError('New depth has to be greater than the original depth', depth)
     }
 
-    const currentCost = getStampCost(batch.depth, batch.amount)
-    const newCost = getStampCost(depth, batch.amount)
+    const currentAmount = getAmountForDuration(
+      batch.duration,
+      chainState.currentPrice,
+      this.network === 'gnosis' ? 5 : 15,
+    )
+    const currentCost = getStampCost(batch.depth, currentAmount)
+    const newCost = getStampCost(depth, currentAmount)
 
     return newCost.minus(currentCost)
   }
