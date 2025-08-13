@@ -1758,7 +1758,7 @@ export class Bee {
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
     const chainState = await this.getChainState(options)
     const depthDelta = depth - batch.depth
-    const multiplier = depthDelta === 0 ? 1n : 2n ** BigInt(depthDelta)
+    const multiplier = depthDelta <= 0 ? 1n : 2n ** BigInt(depthDelta)
     const additionalAmount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
     const targetAmount = duration.isZero()
       ? BigInt(batch.amount) * multiplier
@@ -1767,7 +1767,7 @@ export class Bee {
 
     const transactionId = await this.topUpBatch(batch.batchID, amountDelta, options)
 
-    if (depthDelta) {
+    if (depthDelta > 0) {
       return this.diluteBatch(batch.batchID, depth, options)
     }
 
