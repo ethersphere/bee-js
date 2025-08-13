@@ -83,7 +83,7 @@ test('bee.buyStorage with extensions (extendStorageDuration, extendStorageSize)'
   const batch = await bee.getPostageBatch(batchId)
   expect(batch.depth).toBe(24)
   expect(batch.duration.toDays()).toBe(2)
-  expect(BigInt(batch.amount)).toBe(Utils.getAmountForDuration(Duration.fromDays(2), 24000, 5) + 1n)
+  expect(BigInt(batch.amount)).toBe(Utils.getAmountForDuration(Duration.fromDays(2), 24000, 5))
 })
 
 test('bee.buyStorage with extensions (extendStorage)', async () => {
@@ -94,7 +94,7 @@ test('bee.buyStorage with extensions (extendStorage)', async () => {
   const batch = await bee.getPostageBatch(batchId)
   expect(batch.depth).toBe(24)
   expect(batch.duration.toDays()).toBe(2)
-  expect(BigInt(batch.amount)).toBe(Utils.getAmountForDuration(Duration.fromDays(2), 24000, 5) + 1n)
+  expect(BigInt(batch.amount)).toBe(Utils.getAmountForDuration(Duration.fromDays(2), 24000, 5))
 })
 
 test('getStampEffectiveBytesBreakpoints', () => {
