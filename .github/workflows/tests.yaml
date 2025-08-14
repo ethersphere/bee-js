@@ -68,6 +68,7 @@ jobs:
           set -e
 
       - name: Coverage
+        if: always()
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           coverage-file: test/coverage/coverage-summary.json
