@@ -1,7 +1,22 @@
 import { Dates, System, Types } from 'cafe-utility'
+import { BeeResponseError } from '../../src'
 import { makeBee } from '../utils'
 
 const bee = makeBee()
+
+test('withdraw to unauthorized address', async () => {
+  try {
+    await bee.withdrawBZZToExternalWallet(
+      '1',
+      Types.asString(process.env.JEST_WITHDRAW_ADDRESS).replace('0x', '').split('').reverse().join(''),
+    )
+    throw Error('Expected an error to be thrown')
+  } catch (error: any) {
+    expect(error.message).toBe('Request failed with status code 400')
+    const beeResponseError = error as BeeResponseError
+    expect(beeResponseError.responseBody).toEqual({ code: 400, message: 'provided address not whitelisted' })
+  }
+})
 
 test('withdraw to external wallet', async () => {
   const walletBefore = await bee.getWalletBalance()
