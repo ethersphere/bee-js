@@ -28,10 +28,6 @@ export default async (): Promise<Config.InitialOptions> => {
   console.log('Bee is ready!')
 
   return {
-    collectCoverage: true,
-    coverageDirectory: 'coverage',
-    coverageReporters: ['lcov', 'json', 'json-summary'],
-    coveragePathIgnorePatterns: ['/node_modules/'],
     moduleDirectories: ['node_modules'],
     projects: [
       {
