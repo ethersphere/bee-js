@@ -31,7 +31,7 @@ export default async (): Promise<Config.InitialOptions> => {
     collectCoverage: true,
     coverageDirectory: 'coverage',
     coverageReporters: ['lcov'],
-    coveragePathIgnorePatterns: ['/node_modules/'],
+    collectCoverageFrom: ['src/**/*.ts'],
     moduleDirectories: ['node_modules'],
     projects: [
       {
