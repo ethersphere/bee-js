@@ -69,9 +69,9 @@ jobs:
           set -e
 
       - name: Compare coverage
-        if: always()
+        if: github.ref != 'refs/heads/main' && !matches(github.event.pull_request.title, '^chore.*release')
         run:
-          npx npxie@2.6.0-rc.3 coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
+          npx npxie coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
           "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Fail if tests failed
