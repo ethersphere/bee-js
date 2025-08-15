@@ -16,6 +16,9 @@ test('GSOC - end to end test', async () => {
       onError(error) {
         reject(error)
       },
+      onClose() {
+        void 0
+      },
     })
   })
 

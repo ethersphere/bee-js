@@ -943,17 +943,14 @@ export class Bee {
 
     let cancelled = false
     const cancel = () => {
-      if (cancelled === false) {
+      if (!cancelled) {
         cancelled = true
 
-        // although the WebSocket API offers a `close` function, it seems that
-        // with the library that we are using (isomorphic-ws) it doesn't close
-        // the websocket properly, whereas `terminate` does
         if (ws.terminate) {
           ws.terminate()
         } else {
           ws.close()
-        } // standard Websocket in browser does not have terminate function
+        }
       }
     }
 
@@ -970,10 +967,12 @@ export class Bee {
       }
     }
     ws.onerror = event => {
-      // ignore errors after subscription was cancelled
       if (!cancelled) {
         handler.onError(new BeeError(event.message), subscription)
       }
+    }
+    ws.onclose = () => {
+      handler.onClose(subscription)
     }
 
     return subscription
@@ -1020,6 +1019,10 @@ export class Bee {
           clearTimeout(timeout)
           subscription.cancel()
           resolve(message)
+        },
+        onClose: () => {
+          clearTimeout(timeout)
+          subscription.cancel()
         },
       })
 
@@ -1086,7 +1089,7 @@ export class Bee {
 
     let cancelled = false
     const cancel = () => {
-      if (cancelled === false) {
+      if (!cancelled) {
         cancelled = true
 
         if (ws.terminate) {
@@ -1113,6 +1116,9 @@ export class Bee {
       if (!cancelled) {
         handler.onError(new BeeError(event.message), subscription)
       }
+    }
+    ws.onclose = () => {
+      handler.onClose(subscription)
     }
 
     return subscription

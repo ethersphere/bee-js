@@ -140,6 +140,7 @@ export function preparePssMessageHandler(value: unknown): PssMessageHandler {
   return {
     onMessage: Types.asFunction(object.onMessage, { name: 'onMessage' }) as PssMessageHandler['onMessage'],
     onError: Types.asFunction(object.onError, { name: 'onError' }) as PssMessageHandler['onError'],
+    onClose: Types.asFunction(object.onClose, { name: 'onClose' }) as PssMessageHandler['onClose'],
   }
 }
 
@@ -149,6 +150,7 @@ export function prepareGsocMessageHandler(value: unknown): GsocMessageHandler {
   return {
     onMessage: Types.asFunction(object.onMessage, { name: 'onMessage' }) as GsocMessageHandler['onMessage'],
     onError: Types.asFunction(object.onError, { name: 'onError' }) as GsocMessageHandler['onError'],
+    onClose: Types.asFunction(object.onClose, { name: 'onClose' }) as GsocMessageHandler['onClose'],
   }
 }
 

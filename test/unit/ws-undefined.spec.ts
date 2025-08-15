@@ -13,6 +13,9 @@ test('WebSocket undefined headers', async () => {
     onError: () => {
       void 0
     },
+    onClose: () => {
+      void 0
+    },
   })
 
   subscription.cancel()

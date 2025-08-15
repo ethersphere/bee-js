@@ -329,6 +329,7 @@ export interface PssSubscription {
 export interface PssMessageHandler {
   onMessage: (message: Bytes, subscription: PssSubscription) => void
   onError: (error: BeeError, subscription: PssSubscription) => void
+  onClose: (subscription: PssSubscription) => void
 }
 
 export interface GsocSubscription {
@@ -339,6 +340,7 @@ export interface GsocSubscription {
 export interface GsocMessageHandler {
   onMessage: (message: Bytes, subscription: GsocSubscription) => void
   onError: (error: BeeError, subscription: GsocSubscription) => void
+  onClose: (subscription: GsocSubscription) => void
 }
 
 export interface ReferenceResponse {
