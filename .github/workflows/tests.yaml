@@ -71,7 +71,7 @@ jobs:
       - name: Compare coverage
         if: github.ref != 'refs/heads/master'
         run:
-          npx npxie@2.6.1-rc.2 coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
+          npx npxie@2.6.1-rc.3 coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
           "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Fail if tests failed
