@@ -1,6 +1,6 @@
 {
   "Total": {
-    "coveredNow": 2003,
+    "coveredNow": 1986,
     "totalNow": 2455,
     "coveredBefore": 0,
     "totalBefore": 0
@@ -12,7 +12,7 @@
     "totalBefore": 0
   },
   "bee.ts": {
-    "coveredNow": 366,
+    "coveredNow": 360,
     "totalNow": 445,
     "coveredBefore": 0,
     "totalBefore": 0
@@ -48,7 +48,7 @@
     "totalBefore": 0
   },
   "feed/index.ts": {
-    "coveredNow": 80,
+    "coveredNow": 82,
     "totalNow": 84,
     "coveredBefore": 0,
     "totalBefore": 0
@@ -108,7 +108,7 @@
     "totalBefore": 0
   },
   "modules/pinning.ts": {
-    "coveredNow": 19,
+    "coveredNow": 17,
     "totalNow": 20,
     "coveredBefore": 0,
     "totalBefore": 0
@@ -138,7 +138,7 @@
     "totalBefore": 0
   },
   "modules/stewardship.ts": {
-    "coveredNow": 11,
+    "coveredNow": 10,
     "totalNow": 11,
     "coveredBefore": 0,
     "totalBefore": 0
@@ -156,7 +156,7 @@
     "totalBefore": 0
   },
   "modules/debug/chequebook.ts": {
-    "coveredNow": 40,
+    "coveredNow": 35,
     "totalNow": 58,
     "coveredBefore": 0,
     "totalBefore": 0
@@ -168,7 +168,7 @@
     "totalBefore": 0
   },
   "modules/debug/settlements.ts": {
-    "coveredNow": 18,
+    "coveredNow": 13,
     "totalNow": 18,
     "coveredBefore": 0,
     "totalBefore": 0
