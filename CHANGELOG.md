@@ -1,6 +1,25 @@
 # Changelog
 
 
+## [10.0.0](https://github.com/ethersphere/bee-js/compare/v9.8.1...v10.0.0) (2025-08-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* add required onClose handler for pss and gsoc ([#1075](https://github.com/ethersphere/bee-js/issues/1075))
+
+### Features
+
+* add erasure code and encryption parameters to storage methods ([#1057](https://github.com/ethersphere/bee-js/issues/1057)) ([0ac68d4](https://github.com/ethersphere/bee-js/commit/0ac68d485e83851f5b5990b01cebd9e9bad4f284))
+* add generic extend storage method ([#1061](https://github.com/ethersphere/bee-js/issues/1061)) ([cc49b40](https://github.com/ethersphere/bee-js/commit/cc49b403557566c9d175ab00c6c888ee0db5b615))
+* add required onClose handler for pss and gsoc ([#1075](https://github.com/ethersphere/bee-js/issues/1075)) ([93419b3](https://github.com/ethersphere/bee-js/commit/93419b368d3c432e325e07b16598a095c126e802))
+
+
+### Bug Fixes
+
+* depend on batchTTL instead of amount in storage methods ([#1070](https://github.com/ethersphere/bee-js/issues/1070)) ([6f3d7a4](https://github.com/ethersphere/bee-js/commit/6f3d7a409485ae7ca66e21566d99f9539007bf8f))
+* handle negative depth delta gracefully in extendStorage ([#1069](https://github.com/ethersphere/bee-js/issues/1069)) ([1c5121f](https://github.com/ethersphere/bee-js/commit/1c5121fd542662709f704795f01b4992594af8b6))
+
 ## [9.8.1](https://github.com/ethersphere/bee-js/compare/v9.8.0...v9.8.1) (2025-08-11)
 
 
