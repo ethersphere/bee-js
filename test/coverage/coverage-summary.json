@@ -1,0 +1,428 @@
+{
+  "Total": {
+    "coveredNow": 2003,
+    "totalNow": 2455,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "bee-dev.ts": {
+    "coveredNow": 5,
+    "totalNow": 14,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "bee.ts": {
+    "coveredNow": 366,
+    "totalNow": 445,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "index.ts": {
+    "coveredNow": 16,
+    "totalNow": 16,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "chunk/bmt.ts": {
+    "coveredNow": 15,
+    "totalNow": 16,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "chunk/cac.ts": {
+    "coveredNow": 19,
+    "totalNow": 21,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "chunk/soc.ts": {
+    "coveredNow": 60,
+    "totalNow": 61,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "feed/identifier.ts": {
+    "coveredNow": 5,
+    "totalNow": 5,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "feed/index.ts": {
+    "coveredNow": 80,
+    "totalNow": 84,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "feed/retrievable.ts": {
+    "coveredNow": 18,
+    "totalNow": 19,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "manifest/manifest.ts": {
+    "coveredNow": 213,
+    "totalNow": 228,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/bytes.ts": {
+    "coveredNow": 20,
+    "totalNow": 25,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/bzz.ts": {
+    "coveredNow": 30,
+    "totalNow": 31,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/chunk.ts": {
+    "coveredNow": 14,
+    "totalNow": 14,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/envelope.ts": {
+    "coveredNow": 7,
+    "totalNow": 7,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/feed.ts": {
+    "coveredNow": 22,
+    "totalNow": 24,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/grantee.ts": {
+    "coveredNow": 21,
+    "totalNow": 21,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/gsoc.ts": {
+    "coveredNow": 10,
+    "totalNow": 11,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/pinning.ts": {
+    "coveredNow": 19,
+    "totalNow": 20,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/pss.ts": {
+    "coveredNow": 11,
+    "totalNow": 12,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/rchash.ts": {
+    "coveredNow": 5,
+    "totalNow": 7,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/soc.ts": {
+    "coveredNow": 10,
+    "totalNow": 10,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/status.ts": {
+    "coveredNow": 5,
+    "totalNow": 10,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/stewardship.ts": {
+    "coveredNow": 11,
+    "totalNow": 11,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/tag.ts": {
+    "coveredNow": 19,
+    "totalNow": 20,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/balance.ts": {
+    "coveredNow": 26,
+    "totalNow": 26,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/chequebook.ts": {
+    "coveredNow": 40,
+    "totalNow": 58,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/connectivity.ts": {
+    "coveredNow": 28,
+    "totalNow": 35,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/settlements.ts": {
+    "coveredNow": 18,
+    "totalNow": 18,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/stake.ts": {
+    "coveredNow": 21,
+    "totalNow": 32,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/stamps.ts": {
+    "coveredNow": 58,
+    "totalNow": 60,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/states.ts": {
+    "coveredNow": 24,
+    "totalNow": 29,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/status.ts": {
+    "coveredNow": 34,
+    "totalNow": 36,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "modules/debug/transactions.ts": {
+    "coveredNow": 18,
+    "totalNow": 27,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "stamper/stamper.ts": {
+    "coveredNow": 21,
+    "totalNow": 21,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "types/debug.ts": {
+    "coveredNow": 8,
+    "totalNow": 12,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "types/index.ts": {
+    "coveredNow": 22,
+    "totalNow": 22,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/bytes.ts": {
+    "coveredNow": 29,
+    "totalNow": 41,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/chunk-size.ts": {
+    "coveredNow": 9,
+    "totalNow": 9,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/chunk-stream.browser.ts": {
+    "coveredNow": 0,
+    "totalNow": 55,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/chunk-stream.ts": {
+    "coveredNow": 57,
+    "totalNow": 63,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/cid.ts": {
+    "coveredNow": 22,
+    "totalNow": 23,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/collection.browser.ts": {
+    "coveredNow": 0,
+    "totalNow": 4,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/collection.node.ts": {
+    "coveredNow": 29,
+    "totalNow": 33,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/collection.ts": {
+    "coveredNow": 14,
+    "totalNow": 18,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/constants.ts": {
+    "coveredNow": 7,
+    "totalNow": 7,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/data.browser.ts": {
+    "coveredNow": 0,
+    "totalNow": 8,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/data.ts": {
+    "coveredNow": 4,
+    "totalNow": 11,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/duration.ts": {
+    "coveredNow": 16,
+    "totalNow": 21,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/error.ts": {
+    "coveredNow": 12,
+    "totalNow": 12,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/expose.ts": {
+    "coveredNow": 13,
+    "totalNow": 13,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/file.ts": {
+    "coveredNow": 8,
+    "totalNow": 12,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/headers.ts": {
+    "coveredNow": 62,
+    "totalNow": 71,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/http.ts": {
+    "coveredNow": 32,
+    "totalNow": 37,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/mime.ts": {
+    "coveredNow": 1,
+    "totalNow": 1,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/pss.ts": {
+    "coveredNow": 5,
+    "totalNow": 5,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/redundancy.ts": {
+    "coveredNow": 32,
+    "totalNow": 44,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/resource-locator.ts": {
+    "coveredNow": 7,
+    "totalNow": 7,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/size.ts": {
+    "coveredNow": 10,
+    "totalNow": 13,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/stamps.ts": {
+    "coveredNow": 45,
+    "totalNow": 63,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/tar-uploader.browser.ts": {
+    "coveredNow": 0,
+    "totalNow": 11,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/tar-uploader.ts": {
+    "coveredNow": 12,
+    "totalNow": 12,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/tar-writer.browser.ts": {
+    "coveredNow": 0,
+    "totalNow": 8,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/tar-writer.ts": {
+    "coveredNow": 13,
+    "totalNow": 14,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/tar.browser.ts": {
+    "coveredNow": 0,
+    "totalNow": 40,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/tar.ts": {
+    "coveredNow": 36,
+    "totalNow": 39,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/tokens.ts": {
+    "coveredNow": 24,
+    "totalNow": 37,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/type.ts": {
+    "coveredNow": 78,
+    "totalNow": 100,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/typed-bytes.ts": {
+    "coveredNow": 85,
+    "totalNow": 86,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/url.ts": {
+    "coveredNow": 11,
+    "totalNow": 15,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  },
+  "utils/workaround.ts": {
+    "coveredNow": 11,
+    "totalNow": 14,
+    "coveredBefore": 0,
+    "totalBefore": 0
+  }
+}
