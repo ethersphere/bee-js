@@ -39,7 +39,6 @@ jobs:
         run: fdp-play start --detach --fresh --bee-version d0aa8b9-commit
 
       - name: Stake
-        if: false
         run: swarm-cli stake deposit --bzz 10.1 --yes
 
       - name: Deposit to chequebook
