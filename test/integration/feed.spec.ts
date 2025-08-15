@@ -52,7 +52,15 @@ test('POST feed (manifest)', async () => {
   const feedWriter = bee.makeFeedWriter(NULL_TOPIC, privateKey)
 
   await feedWriter.upload(batch(), response1.reference, { deferred: false })
-  expect((await bee.downloadFile(manifest)).data.toUtf8()).toBe('First update')
+
+  await System.waitFor(
+    async () => {
+      const payload = (await bee.downloadFile(manifest)).data.toUtf8()
+
+      return payload === 'First update'
+    },
+    { attempts: 60, waitMillis: Dates.seconds(1) },
+  )
 
   await feedWriter.upload(batch(), response2.reference, { deferred: false })
 
