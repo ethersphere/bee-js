@@ -8,7 +8,7 @@ export class Duration {
     this.seconds = Math.ceil(seconds)
 
     if (seconds < 0) {
-      throw Error('Duration cannot be negative')
+      this.seconds = 0
     }
   }
 
