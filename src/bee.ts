@@ -1473,7 +1473,9 @@ export class Bee {
   }
 
   /**
-   * Gets the balances with all known peers including prepaid services
+   * Gets the SWAP balances with all known peers including prepaid services.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1482,7 +1484,7 @@ export class Bee {
   }
 
   /**
-   * Gets the balances with a specific peer including prepaid services
+   * Gets the SWAP balances for a specific peer including prepaid services.
    *
    * @param address Swarm address of peer
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
@@ -1494,7 +1496,9 @@ export class Bee {
   }
 
   /**
-   * Gets the past due consumption balances with all known peers.
+   * Gets the past due consumption balances for all known peers.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1503,7 +1507,9 @@ export class Bee {
   }
 
   /**
-   * Gets the past due consumption balance with a specific peer.
+   * Gets the past due consumption balance for a specific peer.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param address Swarm address of peer
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
@@ -1518,7 +1524,7 @@ export class Bee {
   }
 
   /**
-   * Gets the address of the chequebook contract used.
+   * Gets the address of the deloyed chequebook.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1527,7 +1533,7 @@ export class Bee {
   }
 
   /**
-   * Get the balance of the chequebook
+   * Gets the balance of the chequebook.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1536,7 +1542,9 @@ export class Bee {
   }
 
   /**
-   * Get last cheques for all peers.
+   * Gets the last cheques for all peers.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1545,7 +1553,9 @@ export class Bee {
   }
 
   /**
-   * Get last cheques for the peer.
+   * Gets the last cheques for a specific peer.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param address Overlay address of peer.
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
@@ -1560,7 +1570,9 @@ export class Bee {
   }
 
   /**
-   * Get last cashout action for the peer.
+   * Gets the last cashout action for a specific peer.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param address Overlay address of peer.
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
@@ -1575,7 +1587,9 @@ export class Bee {
   }
 
   /**
-   * Cashout the last cheque for the peer
+   * Cashes out the last cheque for a specific peer.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param address  Swarm address of peer
    * @param options
@@ -1598,10 +1612,12 @@ export class Bee {
   }
 
   /**
-   * Deposit tokens from node wallet into chequebook.
+   * Deposits tokens from the node wallet into the chequebook.
    *
    * @param amount  Amount of tokens to deposit (must be positive integer)
    * @param gasPrice Gas Price in WEI for the transaction call
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @return string  Hash of the transaction
    * @deprecated Use `depositBZZToChequebook` instead.
    */
@@ -1614,7 +1630,7 @@ export class Bee {
   }
 
   /**
-   * Deposit tokens from node wallet into chequebook
+   * Deposits tokens from the node wallet into the chequebook.
    *
    * @param amount  Amount of tokens to deposit (must be positive integer)
    * @param gasPrice Gas Price in WEI for the transaction call
@@ -1640,7 +1656,7 @@ export class Bee {
   }
 
   /**
-   * Withdraw tokens from the chequebook to the node wallet
+   * Withdraws tokens from the chequebook to the node wallet.
    *
    * @param amount  Amount of tokens to withdraw (must be positive integer)
    * @param gasPrice Gas Price in WEI for the transaction call
@@ -1658,10 +1674,10 @@ export class Bee {
   }
 
   /**
-   * Withdraw tokens from the chequebook to the node wallet.
+   * Withdraws tokens from the chequebook to the node wallet.
    *
    * @param amount Amount of BZZ tokens to withdraw. If not providing a `BZZ` instance, the amount is denoted in PLUR.
-   * @param gasPrice Gas Price in WEI for the transaction call
+   * @param gasPrice Gas Price in WEI for the transaction call.
    * @return Transaction ID
    */
   async withdrawBZZFromChequebook(
@@ -1721,7 +1737,9 @@ export class Bee {
   }
 
   /**
-   * Get amount of sent and received from settlements with a peer
+   * Gets the amount of sent and received micropayments from settlements with a peer.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param address  Swarm address of peer
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
@@ -1733,7 +1751,9 @@ export class Bee {
   }
 
   /**
-   * Get settlements with all known peers and total amount sent or received
+   * Gets settlements with all known peers and total amount sent or received.
+   *
+   * This is related to the bandwidth incentives and the chequebook.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1742,7 +1762,7 @@ export class Bee {
   }
 
   /**
-   * Get status of node.
+   * Gets the general status of the node.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1751,7 +1771,7 @@ export class Bee {
   }
 
   /**
-   * Get health of node.
+   * Gets the health of the node.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1760,7 +1780,7 @@ export class Bee {
   }
 
   /**
-   * Get readiness of node.
+   * Gets the readiness status of the node.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -2336,7 +2356,7 @@ export class Bee {
   }
 
   /**
-   * Fetch the list of all current pending transactions for the Bee node.
+   * Fetches the list of all current pending transactions for the Bee node.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
