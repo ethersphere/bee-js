@@ -2,8 +2,6 @@ import { Strings, Types } from 'cafe-utility'
 import { Bytes, MerkleTree, Stamper } from '../../src'
 import { makeBee } from '../utils'
 
-test('Stamper ')
-
 test('Stamper utilization state', async () => {
   const bee = makeBee()
 
