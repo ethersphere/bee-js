@@ -8,7 +8,7 @@ test('GET chequebook status', async () => {
   const chequebookAddress = await bee.getChequebookAddress()
   expect(chequebookBalance.availableBalance.toPLURBigInt()).toBeGreaterThan(0n)
   expect(chequebookBalance.totalBalance.toPLURBigInt()).toBeGreaterThan(0n)
-  expect(chequebookAddress.chequebookAddress).toHaveLength(42)
+  expect(chequebookAddress.chequebookAddress.toString()).toHaveLength(40)
 })
 
 test('GET chequebook/cheque', async () => {
