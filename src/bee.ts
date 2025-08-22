@@ -238,15 +238,18 @@ export class Bee {
   /**
    * Fetches content length for a `/bytes` reference.
    *
+   * @param reference
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @see [Bee API reference - `HEAD /bytes/{reference}`](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1%7Breference%7D/head)
    */
   async probeData(
     reference: Reference | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<ReferenceInformation> {
     reference = new Reference(reference)
 
-    return bytes.head(this.getRequestOptionsForCall(options), reference)
+    return bytes.head(this.getRequestOptionsForCall(requestOptions), reference)
   }
 
   /**
@@ -354,8 +357,8 @@ export class Bee {
    *
    * @param reference Bee chunk reference in hex string (either 64 or 128 chars long) or ENS domain.
    * @param options Options that affects the request behavior
-   * @throws TypeError if some of the input parameters is not expected type
-   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /chunks`](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1{address}/get)
    */
@@ -417,7 +420,7 @@ export class Bee {
    * @param history - The history.
    * @param postageBatchId - The ID of the postage batch.
    * @param grantees - The grantees.
-   * @param requestOptions - Optional request options.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    * @returns A Promise that resolves to to a `GranteesResult` object.
    */
   async patchGrantees(
@@ -448,10 +451,16 @@ export class Bee {
   /**
    * Uploads a single file to a Bee node.
    *
+   * To download the file, use the {@link downloadFile} method.
+   *
+   * Use {@link uploadData} method to upload raw data that can be downloaded with the {@link downloadData} method.
+   * Use {@link uploadChunk} method to upload chunks that can be downloaded with the {@link downloadChunk} method.
+   *
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param data    Data or file to be uploaded
    * @param name    Optional name of the uploaded file
    * @param options Additional options like tag, encryption, pinning, content-type and request options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
@@ -500,9 +509,8 @@ export class Bee {
    * @param resource Swarm reference, Swarm CID, or ENS domain.
    * @param path If reference points to manifest, then this parameter defines path to the file
    * @param options Options that affects the request behavior
-   * @throws TypeError if some of the input parameters is not expected type
-   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
-   * @see Data
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)
    */
@@ -525,8 +533,7 @@ export class Bee {
    * @param reference Bee file reference in hex string (either 64 or 128 chars long), ENS domain or Swarm CID.
    * @param path If reference points to manifest / collections, then this parameter defines path to the file
    * @param options Options that affects the request behavior
-   * @throws TypeError if some of the input parameters is not expected type
-   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
    * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)
@@ -557,6 +564,7 @@ export class Bee {
    * @param postageBatchId Postage BatchId to be used to upload the data with
    * @param fileList list of files to be uploaded
    * @param options Additional options like tag, encryption, pinning and request options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee docs - Upload directory](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download#upload-a-directory)
@@ -579,10 +587,38 @@ export class Bee {
     return bzz.uploadCollection(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
   }
 
+  /**
+   * Hashes a directory locally and returns the root hash (Swarm reference).
+   *
+   * The actual Swarm reference may be different as there is no canonical hashing of directories.
+   * For example, metadata may have different casing, or the order of metadata may differ.
+   * Such small differences will result in different Swarm references.
+   *
+   * Different implementations of the Mantaray structure may also result in different Swarm references.
+   *
+   * @param dir
+   * @returns
+   */
   async hashDirectory(dir: string) {
     return hashDirectory(dir)
   }
 
+  /**
+   * Uploads a directory to the network. The difference between this method and {@link uploadFilesFromDirectory} is that
+   * this method streams the directory contents directly to the Bee node, which supports arbitrary directory sizes,
+   * but may be slower due to uploading chunks one by one.
+   *
+   * Options such as encryption, erasure coding and ACT are not yet available for this method.
+   *
+   * Only intended for the Node.js environment.
+   *
+   * @param postageBatchId
+   * @param dir
+   * @param onUploadProgress
+   * @param options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   */
   async streamDirectory(
     postageBatchId: BatchId | Uint8Array | string,
     dir: string,
@@ -602,6 +638,22 @@ export class Bee {
     )
   }
 
+  /**
+   * Uploads a collection of files to the network. The difference between this method and {@link uploadFiles} is that
+   * this method streams the files to the Bee node, which supports arbitrary sizes,
+   * but may be slower due to uploading chunks one by one.
+   *
+   * Options such as encryption, erasure coding and ACT are not yet available for this method.
+   *
+   * Only intended for the browser environment.
+   *
+   * @param postageBatchId
+   * @param files
+   * @param onUploadProgress
+   * @param options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   */
   async streamFiles(
     postageBatchId: BatchId | Uint8Array | string,
     files: File[] | FileList,
@@ -681,24 +733,24 @@ export class Bee {
   }
 
   /**
-   * Create a new Tag which is meant for tracking progres of syncing data across network.
+   * Creates a new Tag which is meant for tracking upload and synchronization progress.
    *
-   * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `POST /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)
    */
-  async createTag(options?: BeeRequestOptions): Promise<Tag> {
-    return tag.createTag(this.getRequestOptionsForCall(options))
+  async createTag(requestOptions?: BeeRequestOptions): Promise<Tag> {
+    return tag.createTag(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
-   * Fetches all tags.
+   * Fetches all tags in a paginated manner.
    *
    * The listing is limited by options.limit. So you have to iterate using options.offset to get all tags.
    *
-   * @param options Options that affects the request behavior
-   * @throws TypeError if limit or offset are not numbers or undefined
-   * @throws BeeArgumentError if limit or offset have invalid options
+   * @param options Specify `limit` and `offset` to paginate through the tags.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)
@@ -712,37 +764,34 @@ export class Bee {
   }
 
   /**
-   * Retrieve tag information from Bee node
+   * Retrieves tag information from Bee node.
    *
    * @param tagUid UID or tag object to be retrieved
-   * @param options Options that affects the request behavior
-   * @throws TypeError if tagUid is in not correct format
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `GET /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/get)
    *
    */
-  async retrieveTag(tagUid: number | Tag, options?: BeeRequestOptions): Promise<Tag> {
+  async retrieveTag(tagUid: number | Tag, requestOptions?: BeeRequestOptions): Promise<Tag> {
     tagUid = makeTagUid(tagUid)
 
-    return tag.retrieveTag(this.getRequestOptionsForCall(options), tagUid)
+    return tag.retrieveTag(this.getRequestOptionsForCall(requestOptions), tagUid)
   }
 
   /**
-   * Delete Tag
+   * Deletes Tag.
    *
    * @param tagUid UID or tag object to be retrieved
-   * @param options Options that affects the request behavior
-   * @throws TypeError if tagUid is in not correct format
-   * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `DELETE /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/delete)
    */
-  async deleteTag(tagUid: number | Tag, options?: BeeRequestOptions): Promise<void> {
+  async deleteTag(tagUid: number | Tag, requestOptions?: BeeRequestOptions): Promise<void> {
     tagUid = makeTagUid(tagUid)
 
-    return tag.deleteTag(this.getRequestOptionsForCall(options), tagUid)
+    return tag.deleteTag(this.getRequestOptionsForCall(requestOptions), tagUid)
   }
 
   /**
@@ -753,120 +802,115 @@ export class Bee {
    *
    * @param tagUid UID or tag object to be retrieved
    * @param reference The root reference that contains all the chunks to be counted
-   * @param options Options that affects the request behavior
-   * @throws TypeError if tagUid is in not correct format
-   * @throws BeeResponse error if something went wrong on the Bee node side while deleting the tag.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
    * @see [Bee API reference - `PATCH /tags/{uid}`](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1{uid}/patch)
    */
-  async updateTag(tagUid: number | Tag, reference: Reference | string, options?: BeeRequestOptions): Promise<void> {
+  async updateTag(
+    tagUid: number | Tag,
+    reference: Reference | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<void> {
     reference = new Reference(reference)
 
     tagUid = makeTagUid(tagUid)
 
-    return tag.updateTag(this.getRequestOptionsForCall(options), tagUid, reference)
+    return tag.updateTag(this.getRequestOptionsForCall(requestOptions), tagUid, reference)
   }
 
   /**
-   * Pin local data with given reference
+   * Pins local data with given reference.
    *
    * @param reference Data reference
-   * @param options Options that affects the request behavior
-   * @throws TypeError if reference is in not correct format
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
-  async pin(reference: Reference | Uint8Array | string, options?: BeeRequestOptions): Promise<void> {
+  async pin(reference: Reference | Uint8Array | string, requestOptions?: BeeRequestOptions): Promise<void> {
     reference = new Reference(reference)
 
-    return pinning.pin(this.getRequestOptionsForCall(options), reference)
+    return pinning.pin(this.getRequestOptionsForCall(requestOptions), reference)
   }
 
   /**
-   * Unpin local data with given reference
+   * Unpins local data with given reference.
    *
    * @param reference Data reference
-   * @param options Options that affects the request behavior
-   * @throws TypeError if reference is in not correct format
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
-  async unpin(reference: Reference | Uint8Array | string, options?: BeeRequestOptions): Promise<void> {
+  async unpin(reference: Reference | Uint8Array | string, requestOptions?: BeeRequestOptions): Promise<void> {
     reference = new Reference(reference)
 
-    return pinning.unpin(this.getRequestOptionsForCall(options), reference)
+    return pinning.unpin(this.getRequestOptionsForCall(requestOptions), reference)
   }
 
   /**
-   * Get list of all locally pinned references
+   * Gets list of all locally pinned references.
    *
-   * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
-  async getAllPins(options?: BeeRequestOptions): Promise<Reference[]> {
-    return pinning.getAllPins(this.getRequestOptionsForCall(options))
+  async getAllPins(requestOptions?: BeeRequestOptions): Promise<Reference[]> {
+    return pinning.getAllPins(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
    * Get pinning status of chunk with given reference
    *
    * @param reference Bee data reference in hex string (either 64 or 128 chars long) or ENS domain.
-   * @param options Options that affects the request behavior
-   * @throws TypeError if some of the input parameters is not expected type
-   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Pinning](https://docs.ethswarm.org/docs/develop/access-the-swarm/pinning)
    */
-  async getPin(reference: Reference | Uint8Array | string, options?: BeeRequestOptions): Promise<Pin> {
+  async getPin(reference: Reference | Uint8Array | string, requestOptions?: BeeRequestOptions): Promise<Pin> {
     reference = new Reference(reference)
 
-    return pinning.getPin(this.getRequestOptionsForCall(options), reference)
+    return pinning.getPin(this.getRequestOptionsForCall(requestOptions), reference)
   }
 
   /**
    * Instructs the Bee node to reupload a locally pinned data into the network.
    *
+   * @param postageBatchId Postage Batch ID that will be used to re-upload the data.
    * @param reference Bee data reference to be re-uploaded in hex string (either 64 or 128 chars long) or ENS domain.
-   * @param options Options that affects the request behavior
-   * @throws BeeArgumentError if the reference is not locally pinned
-   * @throws TypeError if some of the input parameters is not expected type
-   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee API reference - `PUT /stewardship`](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1{reference}/put)
    */
   async reuploadPinnedData(
     postageBatchId: BatchId | Uint8Array | string,
     reference: Reference | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<void> {
     postageBatchId = new BatchId(postageBatchId)
     reference = new Reference(reference)
 
-    await stewardship.reupload(this.getRequestOptionsForCall(options), postageBatchId, reference)
+    await stewardship.reupload(this.getRequestOptionsForCall(requestOptions), postageBatchId, reference)
   }
 
   /**
    * Checks if content specified by reference is retrievable from the network.
    *
    * @param reference Bee data reference to be checked in hex string (either 64 or 128 chars long) or ENS domain.
-   * @param options Options that affects the request behavior
-   * @throws TypeError if some of the input parameters is not expected type
-   * @throws BeeArgumentError if there is passed ENS domain with invalid unicode characters
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee API reference - `GET /stewardship`](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1{reference}/get)
    */
   async isReferenceRetrievable(
     reference: Reference | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<boolean> {
     reference = new Reference(reference)
 
-    return stewardship.isRetrievable(this.getRequestOptionsForCall(options), reference)
+    return stewardship.isRetrievable(this.getRequestOptionsForCall(requestOptions), reference)
   }
 
   /**
-   * Functions that validates if feed is retrievable in the network.
+   * Functions that validate if feed is retrievable in the network.
    *
    * If no index is passed then it check for "latest" update, which is a weaker guarantee as nobody can be really
    * sure what is the "latest" update.
@@ -928,16 +972,14 @@ export class Bee {
    * most likely for setting up an encrypted communication
    * channel by sending an one-off message.
    *
-   * **Warning! If the recipient Bee node is a light node, then he will never receive the message!**
-   * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
+   * **Warning! Only full nodes can accept PSS messages.**
    *
    * @param postageBatchId Postage BatchId that will be assigned to sent message
    * @param topic Topic name
    * @param target Target message address prefix. Has a limit on length. Recommend to use `Utils.Pss.makeMaxTarget()` to get the most specific target that Bee node will accept.
    * @param data Message to be sent
    * @param recipient Recipient public key
-   * @param options Options that affects the request behavior
-   * @throws TypeError if `data`, `batchId`, `target` or `recipient` are in invalid format
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - PSS](https://docs.ethswarm.org/docs/develop/tools-and-features/pss)
    * @see [Bee API reference - `POST /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1send~1{topic}~1{targets}/post)
@@ -948,7 +990,7 @@ export class Bee {
     target: string,
     data: string | Uint8Array,
     recipient?: string | PublicKey,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<void> {
     postageBatchId = new BatchId(postageBatchId)
     assertData(data)
@@ -956,17 +998,16 @@ export class Bee {
     if (recipient) {
       recipient = new PublicKey(recipient)
 
-      return pss.send(this.getRequestOptionsForCall(options), topic, target, data, postageBatchId, recipient)
+      return pss.send(this.getRequestOptionsForCall(requestOptions), topic, target, data, postageBatchId, recipient)
     } else {
-      return pss.send(this.getRequestOptionsForCall(options), topic, target, data, postageBatchId)
+      return pss.send(this.getRequestOptionsForCall(requestOptions), topic, target, data, postageBatchId)
     }
   }
 
   /**
-   * Subscribe to messages for given topic with Postal Service for Swarm
+   * Subscribes to messages for given topic with the Postal Service for Swarm.
    *
-   * **Warning! If connected Bee node is a light node, then he will never receive any message!**
-   * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
+   * **Warning! Only full nodes can accept PSS messages.**
    *
    * @param topic Topic name
    * @param handler Message handler interface
@@ -1019,20 +1060,14 @@ export class Bee {
   }
 
   /**
-   * Receive message with Postal Service for Swarm
-   *
-   * Because sending a PSS message is slow and CPU intensive,
-   * it is not supposed to be used for general messaging but
-   * most likely for setting up an encrypted communication
-   * channel by sending an one-off message.
+   * Receives message using the Postal Service for Swarm.
    *
    * This is a helper function to wait for exactly one message to
    * arrive and then cancel the subscription. Additionally a
    * timeout can be provided for the message to arrive or else
    * an error will be thrown.
    *
-   * **Warning! If connected Bee node is a light node, then he will never receive any message!**
-   * This is because light nodes does not fully participate in the data exchange in Swarm network and hence the message won't arrive to them.
+   * **Warning! Only full nodes can accept PSS messages.**
    *
    * @param topic Topic name
    * @param timeoutMsec Timeout in milliseconds
@@ -1165,14 +1200,15 @@ export class Bee {
   }
 
   /**
-   * Create feed manifest chunk and return the reference to it.
+   * Creates a feed manifest chunk and returns the reference to it.
    *
-   * Feed manifest chunk allows for a feed to be able to be resolved through `/bzz` endpoint.
+   * Feed manifest chunks allow for a feed to be able to be resolved through `/bzz` endpoint.
    *
    * @param postageBatchId  Postage BatchId to be used to create the Feed Manifest
    * @param topic           Topic in hex or bytes
    * @param owner           Owner's ethereum address in hex or bytes
    * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    * @see [Bee API reference - `POST /feeds`](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1{owner}~1{topic}/post)
@@ -1196,38 +1232,38 @@ export class Bee {
   }
 
   /**
-   * Make a new feed reader for downloading feed updates.
+   * Makes a new feed reader for downloading feed updates.
    *
    * @param topic   Topic in hex or bytes
    * @param owner   Owner's ethereum address in hex or bytes
-   * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   makeFeedReader(
     topic: Topic | Uint8Array | string,
     owner: EthAddress | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): FeedReader {
     topic = new Topic(topic)
     owner = new EthAddress(owner)
 
-    return makeFeedReader(this.getRequestOptionsForCall(options), topic, owner)
+    return makeFeedReader(this.getRequestOptionsForCall(requestOptions), topic, owner)
   }
 
   /**
-   * Make a new feed writer for updating feeds
+   * Makes a new feed writer for updating feeds
    *
    * @param topic   Topic in hex or bytes
    * @param signer  The signer's private key or a Signer instance that can sign data
-   * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Feeds](https://docs.ethswarm.org/docs/develop/tools-and-features/feeds)
    */
   makeFeedWriter(
     topic: Topic | Uint8Array | string,
     signer?: PrivateKey | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): FeedWriter {
     topic = new Topic(topic)
     signer = signer ? new PrivateKey(signer) : this.signer
@@ -1236,7 +1272,7 @@ export class Bee {
       throw Error('No signer provided')
     }
 
-    return makeFeedWriter(this.getRequestOptionsForCall(options), topic, signer)
+    return makeFeedWriter(this.getRequestOptionsForCall(requestOptions), topic, signer)
   }
 
   async fetchLatestFeedUpdate(
@@ -1254,15 +1290,15 @@ export class Bee {
    * Returns an object for reading single owner chunks
    *
    * @param ownerAddress The ethereum address of the owner
-   * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/develop/tools-and-features/chunk-types#single-owner-chunks)
    */
-  makeSOCReader(ownerAddress: EthAddress | Uint8Array | string, options?: BeeRequestOptions): SOCReader {
+  makeSOCReader(ownerAddress: EthAddress | Uint8Array | string, requestOptions?: BeeRequestOptions): SOCReader {
     ownerAddress = new EthAddress(ownerAddress)
 
     return {
       owner: ownerAddress,
-      download: downloadSingleOwnerChunk.bind(null, this.getRequestOptionsForCall(options), ownerAddress),
+      download: downloadSingleOwnerChunk.bind(null, this.getRequestOptionsForCall(requestOptions), ownerAddress),
     }
   }
 
@@ -1270,10 +1306,10 @@ export class Bee {
    * Returns an object for reading and writing single owner chunks
    *
    * @param signer The signer's private key or a Signer instance that can sign data
-   * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    * @see [Bee docs - Chunk Types](https://docs.ethswarm.org/docs/develop/tools-and-features/chunk-types#single-owner-chunks)
    */
-  makeSOCWriter(signer?: PrivateKey | Uint8Array | string, options?: BeeRequestOptions): SOCWriter {
+  makeSOCWriter(signer?: PrivateKey | Uint8Array | string, requestOptions?: BeeRequestOptions): SOCWriter {
     signer = signer ? new PrivateKey(signer) : this.signer
 
     if (!signer) {
@@ -1281,48 +1317,77 @@ export class Bee {
     }
 
     return {
-      ...this.makeSOCReader((signer as PrivateKey).publicKey().address(), options),
-      upload: uploadSingleOwnerChunkData.bind(null, this.getRequestOptionsForCall(options), signer),
+      ...this.makeSOCReader((signer as PrivateKey).publicKey().address(), requestOptions),
+      upload: uploadSingleOwnerChunkData.bind(null, this.getRequestOptionsForCall(requestOptions), signer),
     }
   }
 
+  /**
+   * Creates the postage batch signature for a specific chunk address.
+   *
+   * This is for advanced usage, where a pre-signed chunk can be uploaded
+   * through a different Bee node.
+   *
+   * @param postageBatchId
+   * @param reference
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
+   * @example
+   * const envelope = await bee.createEnvelope(batchId, chunk.address)
+   * await bee.uploadChunk(envelope, chunk)
+   *
+   * @returns
+   */
   async createEnvelope(
     postageBatchId: BatchId | Uint8Array | string,
     reference: Reference | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<EnvelopeWithBatchId> {
     postageBatchId = new BatchId(postageBatchId)
     reference = new Reference(reference)
 
-    return postEnvelope(this.getRequestOptionsForCall(options), postageBatchId, reference)
+    return postEnvelope(this.getRequestOptionsForCall(requestOptions), postageBatchId, reference)
   }
 
   /**
-   * Get reserve commitment hash duration seconds
-   */
-  async rchash(depth: number, anchor1: string, anchor2: string, options?: BeeRequestOptions): Promise<number> {
-    return rchash(this.getRequestOptionsForCall(options), depth, anchor1, anchor2)
-  }
-
-  /**
-   * Ping the Bee node to see if there is a live Bee node on the given URL.
+   * Gets reserve commitment hash duration seconds.
    *
-   * @param options Options that affects the request behavior
+   * To be able to participe in the storage incentives and not get frozen, this should
+   * ideally run under 5 minutes.
+   *
+   * This is a CPU intensice operation, as roughly 2^22 chunks are hashed in the process.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
+   * @example
+   * const addresses = await bee.getNodeAddresses()
+   * const topology = await bee.getTopology()
+   * const result = await bee.rchash(topology.depth, addresses.overlay.toHex(), addresses.overlay.toHex())
+   * // result is a number of seconds
+   */
+  async rchash(depth: number, anchor1: string, anchor2: string, requestOptions?: BeeRequestOptions): Promise<number> {
+    return rchash(this.getRequestOptionsForCall(requestOptions), depth, anchor1, anchor2)
+  }
+
+  /**
+   * Pings the Bee node to see if there is a live Bee node on the given URL.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    * @throws If connection was not successful throw error
    */
-  async checkConnection(options?: BeeRequestOptions): Promise<void> | never {
-    return status.checkConnection(this.getRequestOptionsForCall(options))
+  async checkConnection(requestOptions?: BeeRequestOptions): Promise<void> | never {
+    return status.checkConnection(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
-   * Ping the Bee node to see if there is a live Bee node on the given URL.
+   * Pings the Bee node to see if there is a live Bee node on the given URL.
    *
-   * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    * @returns true if successful, false on error
    */
-  async isConnected(options?: BeeRequestOptions): Promise<boolean> {
+  async isConnected(requestOptions?: BeeRequestOptions): Promise<boolean> {
     try {
-      await status.checkConnection(this.getRequestOptionsForCall(options))
+      await status.checkConnection(this.getRequestOptionsForCall(requestOptions))
     } catch (e) {
       return false
     }
@@ -1336,90 +1401,124 @@ export class Bee {
    * Do note that this is not a standard way to check for gateway nodes,
    * but some of the gateway tooling expose this endpoint.
    *
-   * @param options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
-  async isGateway(options?: BeeRequestOptions): Promise<boolean> {
-    return status.isGateway(this.getRequestOptionsForCall(options))
-  }
-
-  // Legacy debug API
-
-  async getNodeAddresses(options?: BeeRequestOptions): Promise<NodeAddresses> {
-    return connectivity.getNodeAddresses(this.getRequestOptionsForCall(options))
-  }
-
-  async getBlocklist(options?: BeeRequestOptions): Promise<Peer[]> {
-    return connectivity.getBlocklist(this.getRequestOptionsForCall(options))
+  async isGateway(requestOptions?: BeeRequestOptions): Promise<boolean> {
+    return status.isGateway(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
-   * Get list of peers for this node
+   * Fetches the overlay, underlay, Ethereum, and other addresses of the Bee node.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
    */
-  async getPeers(options?: BeeRequestOptions): Promise<Peer[]> {
-    return connectivity.getPeers(this.getRequestOptionsForCall(options))
+  async getNodeAddresses(requestOptions?: BeeRequestOptions): Promise<NodeAddresses> {
+    return connectivity.getNodeAddresses(this.getRequestOptionsForCall(requestOptions))
   }
 
-  async removePeer(peer: PeerAddress | string, options?: BeeRequestOptions): Promise<RemovePeerResponse> {
+  /**
+   * Fetches the list of blocked peers for this node.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   */
+  async getBlocklist(requestOptions?: BeeRequestOptions): Promise<Peer[]> {
+    return connectivity.getBlocklist(this.getRequestOptionsForCall(requestOptions))
+  }
+
+  /**
+   * Gets list of peers for this node.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async getPeers(requestOptions?: BeeRequestOptions): Promise<Peer[]> {
+    return connectivity.getPeers(this.getRequestOptionsForCall(requestOptions))
+  }
+
+  /**
+   * Disconnects from a specific peer.
+   *
+   * @param peer Overlay address of the peer to be removed.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   */
+  async removePeer(peer: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<RemovePeerResponse> {
     peer = new PeerAddress(peer)
 
-    return connectivity.removePeer(this.getRequestOptionsForCall(options), peer)
+    return connectivity.removePeer(this.getRequestOptionsForCall(requestOptions), peer)
   }
 
-  async getTopology(options?: BeeRequestOptions): Promise<Topology> {
-    return connectivity.getTopology(this.getRequestOptionsForCall(options))
+  /**
+   * Fetches topology and connectivity information of the Bee node.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   */
+  async getTopology(requestOptions?: BeeRequestOptions): Promise<Topology> {
+    return connectivity.getTopology(this.getRequestOptionsForCall(requestOptions))
   }
 
-  async pingPeer(peer: PeerAddress | string, options?: BeeRequestOptions): Promise<PingResponse> {
+  /**
+   * Pings a specific peer to check its availability.
+   *
+   * @param peer Overlay address of the peer to be pinged.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   */
+  async pingPeer(peer: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<PingResponse> {
     peer = new PeerAddress(peer)
 
-    return connectivity.pingPeer(this.getRequestOptionsForCall(options), peer)
-  }
-
-  /*
-   * Balance endpoints
-   */
-
-  /**
-   * Get the balances with all known peers including prepaid services
-   */
-  async getAllBalances(options?: BeeRequestOptions): Promise<BalanceResponse> {
-    return balance.getAllBalances(this.getRequestOptionsForCall(options))
+    return connectivity.pingPeer(this.getRequestOptionsForCall(requestOptions), peer)
   }
 
   /**
-   * Get the balances with a specific peer including prepaid services
+   * Gets the balances with all known peers including prepaid services
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async getAllBalances(requestOptions?: BeeRequestOptions): Promise<BalanceResponse> {
+    return balance.getAllBalances(this.getRequestOptionsForCall(requestOptions))
+  }
+
+  /**
+   * Gets the balances with a specific peer including prepaid services
    *
    * @param address Swarm address of peer
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
-  async getPeerBalance(address: PeerAddress | string, options?: BeeRequestOptions): Promise<PeerBalance> {
+  async getPeerBalance(address: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<PeerBalance> {
     address = new PeerAddress(address)
 
-    return balance.getPeerBalance(this.getRequestOptionsForCall(options), address)
+    return balance.getPeerBalance(this.getRequestOptionsForCall(requestOptions), address)
   }
 
   /**
-   * Get the past due consumption balances with all known peers
+   * Gets the past due consumption balances with all known peers.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
-  async getPastDueConsumptionBalances(options?: BeeRequestOptions): Promise<BalanceResponse> {
-    return balance.getPastDueConsumptionBalances(this.getRequestOptionsForCall(options))
+  async getPastDueConsumptionBalances(requestOptions?: BeeRequestOptions): Promise<BalanceResponse> {
+    return balance.getPastDueConsumptionBalances(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
-   * Get the past due consumption balance with a specific peer
+   * Gets the past due consumption balance with a specific peer.
    *
    * @param address Swarm address of peer
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getPastDueConsumptionPeerBalance(
     address: PeerAddress | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<PeerBalance> {
     address = new PeerAddress(address)
 
-    return balance.getPastDueConsumptionPeerBalance(this.getRequestOptionsForCall(options), address)
+    return balance.getPastDueConsumptionPeerBalance(this.getRequestOptionsForCall(requestOptions), address)
   }
 
   /**
-   * Get the address of the chequebook contract used.
+   * Gets the address of the chequebook contract used.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
@@ -1509,9 +1608,9 @@ export class Bee {
   async depositTokens(
     amount: BZZ | NumberString | string | bigint,
     gasPrice?: NumberString | string | bigint,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<TransactionId> {
-    return this.depositBZZToChequebook(amount, gasPrice, options)
+    return this.depositBZZToChequebook(amount, gasPrice, requestOptions)
   }
 
   /**
@@ -1519,12 +1618,14 @@ export class Bee {
    *
    * @param amount  Amount of tokens to deposit (must be positive integer)
    * @param gasPrice Gas Price in WEI for the transaction call
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @return string  Hash of the transaction
    */
   async depositBZZToChequebook(
     amount: BZZ | NumberString | string | bigint,
     gasPrice?: NumberString | string | bigint,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<TransactionId> {
     const amountString =
       amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
@@ -1535,7 +1636,7 @@ export class Bee {
       gasPriceString = asNumberString(amount, { min: 0n, name: 'gasPrice' })
     }
 
-    return chequebook.depositTokens(this.getRequestOptionsForCall(options), amountString, gasPriceString)
+    return chequebook.depositTokens(this.getRequestOptionsForCall(requestOptions), amountString, gasPriceString)
   }
 
   /**
@@ -1543,15 +1644,17 @@ export class Bee {
    *
    * @param amount  Amount of tokens to withdraw (must be positive integer)
    * @param gasPrice Gas Price in WEI for the transaction call
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @return string  Hash of the transaction
    * @deprecated Use `withdrawBZZFromChequebook` instead.
    */
   async withdrawTokens(
     amount: BZZ | NumberString | string | bigint,
     gasPrice?: NumberString | string | bigint,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<TransactionId> {
-    return this.withdrawBZZFromChequebook(amount, gasPrice, options)
+    return this.withdrawBZZFromChequebook(amount, gasPrice, requestOptions)
   }
 
   /**
@@ -1564,7 +1667,7 @@ export class Bee {
   async withdrawBZZFromChequebook(
     amount: BZZ | NumberString | string | bigint,
     gasPrice?: NumberString | string | bigint,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<TransactionId> {
     // TODO: check BZZ in tests
     const amountString =
@@ -1576,7 +1679,7 @@ export class Bee {
       gasPriceString = asNumberString(amount, { min: 0n, name: 'gasPrice' })
     }
 
-    return chequebook.withdrawTokens(this.getRequestOptionsForCall(options), amountString, gasPriceString)
+    return chequebook.withdrawTokens(this.getRequestOptionsForCall(requestOptions), amountString, gasPriceString)
   }
 
   /**
@@ -2007,15 +2110,33 @@ export class Bee {
     return newCost.minus(currentCost)
   }
 
+  /**
+   * Calculates the cost of extending the size of a postage batch.
+   *
+   * The size is ABSOLUTE, so if the postage batch already equals or is greater than the given size,
+   * the cost will be zero.
+   *
+   * Use {@link extendStorageSize} to extend the size of a postage batch.
+   *
+   * Use {@link getExtensionCost} to get the cost of extending both size and duration.
+   * Use {@link getDurationExtensionCost} to get the cost of extending only the duration.
+   *
+   * @param postageBatchId
+   * @param size
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @param encryption Assume the future uploaded data is encrypted, which skews the capacity of the postage batch.
+   * @param erasureCodeLevel Assume the future uploaded data is erasure coded, which skews the capacity of the postage batch.
+   * @returns
+   */
   async getSizeExtensionCost(
     postageBatchId: BatchId | Uint8Array | string,
     size: Size,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
     encryption?: boolean,
     erasureCodeLevel?: RedundancyLevel,
   ): Promise<BZZ> {
-    const batch = await this.getPostageBatch(postageBatchId, options)
-    const chainState = await this.getChainState(options)
+    const batch = await this.getPostageBatch(postageBatchId, requestOptions)
+    const chainState = await this.getChainState(requestOptions)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
     const delta = depth - batch.depth
 
@@ -2034,27 +2155,52 @@ export class Bee {
     return newCost.minus(currentCost)
   }
 
+  /**
+   * Calculates the cost of extending the duration of a postage batch.
+   *
+   * The duration is RELATIVE to the current duration of the postage batch,
+   * e.g. specifying `Duration.fromDays(30)` will extend the current duration by 30 days,
+   * regardless of the current duration.
+   *
+   * Use {@link extendStorageDuration} to extend the duration of a postage batch.
+   *
+   * Use {@link getExtensionCost} to get the cost of extending both size and duration.
+   * Use {@link getSizeExtensionCost} to get the cost of extending only the size.
+   *
+   * @param postageBatchId
+   * @param duration
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   */
   async getDurationExtensionCost(
     postageBatchId: BatchId | Uint8Array | string,
     duration: Duration,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<BZZ> {
-    const batch = await this.getPostageBatch(postageBatchId, options)
-    const chainState = await this.getChainState(options)
+    const batch = await this.getPostageBatch(postageBatchId, requestOptions)
+    const chainState = await this.getChainState(requestOptions)
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
 
     return getStampCost(batch.depth, amount)
   }
 
   /**
-   * Topup a fresh amount of BZZ to given Postage Batch.
+   * Increases the duration of a postage batch by increasing its amount.
+   *
+   * For a more convenient way to extend the postage batch, refer to the methods below.
+   *
+   * Use {@link getDurationExtensionCost}, {@link getSizeExtensionCost} or {@link getExtensionCost}
+   * to calculate the costs of extending the postage batch properties.
+   *
+   * Use {@link extendStorageDuration}, {@link extendStorageSize} or {@link extendStorage}
+   * to extend the postage batch properties.
    *
    * For better understanding what each parameter means and what are the optimal values please see
    * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive).
    *
    * @param postageBatchId Batch ID
    * @param amount Amount to be added to the batch
-   * @param options Request options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1topup~1{batch_id}~1{amount}/patch)
@@ -2062,24 +2208,37 @@ export class Bee {
   async topUpBatch(
     postageBatchId: BatchId | Uint8Array | string,
     amount: NumberString | string | bigint,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<BatchId> {
     postageBatchId = new BatchId(postageBatchId)
     const amountString = asNumberString(amount, { min: 1n, name: 'amount' })
 
-    return stamps.topUpBatch(this.getRequestOptionsForCall(options), postageBatchId, amountString)
+    return stamps.topUpBatch(this.getRequestOptionsForCall(requestOptions), postageBatchId, amountString)
   }
 
   /**
-   * Dilute given Postage Batch with new depth (that has to be bigger then the original depth), which allows
-   * the Postage Batch to be used for more chunks.
+   * Dilutes a postage batch to extend its capacity by increasing its depth.
+   *
+   * This is a free operation, as for every depth increase, the capacity is doubled,
+   * but the amount (duration) is halved.
+   *
+   * To increase the capacity of the postage batch while retaining the same amount (duration),
+   * you need to top up the postage batch first using {@link topUpBatch}.
+   *
+   * For a more convenient way to extend the postage batch, refer to the methods below.
+   *
+   * Use {@link getDurationExtensionCost}, {@link getSizeExtensionCost} or {@link getExtensionCost}
+   * to calculate the costs of extending the postage batch properties.
+   *
+   * Use {@link extendStorageDuration}, {@link extendStorageSize} or {@link extendStorage}
+   * to extend the postage batch properties.
    *
    * For better understanding what each parameter means and what are the optimal values please see
    * [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive).
    *
    * @param postageBatchId Batch ID
    * @param depth Amount to be added to the batch
-   * @param options Request options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `PATCH /stamps/topup/${id}/${amount}`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1dilute~1%7Bbatch_id%7D~1%7Bdepth%7D/patch)
@@ -2087,82 +2246,93 @@ export class Bee {
   async diluteBatch(
     postageBatchId: BatchId | Uint8Array | string,
     depth: number,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<BatchId> {
     postageBatchId = new BatchId(postageBatchId)
     depth = Types.asNumber(depth, { name: 'depth', min: 18, max: 255 })
 
-    return stamps.diluteBatch(this.getRequestOptionsForCall(options), postageBatchId, depth)
+    return stamps.diluteBatch(this.getRequestOptionsForCall(requestOptions), postageBatchId, depth)
   }
 
   /**
-   * Return details for specific postage batch.
+   * Returns details for specific postage batch.
    *
    * @param postageBatchId Batch ID
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bbatch_id%7D/get)
    */
   async getPostageBatch(
     postageBatchId: BatchId | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<PostageBatch> {
     postageBatchId = new BatchId(postageBatchId)
 
-    return stamps.getPostageBatch(this.getRequestOptionsForCall(options), postageBatchId)
+    return stamps.getPostageBatch(this.getRequestOptionsForCall(requestOptions), postageBatchId)
   }
 
   /**
    * Return detailed information related to buckets for specific postage batch.
    *
    * @param postageBatchId Batch ID
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}/buckets`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bbatch_id%7D~1buckets/get)
    */
   async getPostageBatchBuckets(
     postageBatchId: BatchId | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<PostageBatchBuckets> {
     postageBatchId = new BatchId(postageBatchId)
 
-    return stamps.getPostageBatchBuckets(this.getRequestOptionsForCall(options), postageBatchId)
+    return stamps.getPostageBatchBuckets(this.getRequestOptionsForCall(requestOptions), postageBatchId)
   }
 
   /**
-   * Return all postage batches that has the node available.
+   * Returns all postage batches that belongs to the node.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
    * @deprecated Use `getPostageBatches` instead
    */
-  async getAllPostageBatch(options?: BeeRequestOptions): Promise<PostageBatch[]> {
-    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(options)) // TODO: remove in June 2025
+  async getAllPostageBatch(requestOptions?: BeeRequestOptions): Promise<PostageBatch[]> {
+    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(requestOptions)) // TODO: remove in June 2025
   }
 
   /**
-   * Return all globally available postage batches.
+   * Returns all postage batches that are globally available on the Swarm network.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
    * @deprecated Use `getGlobalPostageBatches` instead
    */
-  async getAllGlobalPostageBatch(options?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
-    return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(options)) // TODO: remove in June 2025
+  async getAllGlobalPostageBatch(requestOptions?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
+    return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(requestOptions)) // TODO: remove in June 2025
   }
 
   /**
-   * Return all postage batches that belong to the node.
+   * Returns all postage batches that belong to the node.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
    */
-  async getPostageBatches(options?: BeeRequestOptions): Promise<PostageBatch[]> {
-    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(options))
+  async getPostageBatches(requestOptions?: BeeRequestOptions): Promise<PostageBatch[]> {
+    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
-   * Return all globally available postage batches.
+   * Returns all globally available postage batches.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
-  async getGlobalPostageBatches(options?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
-    return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(options))
+  async getGlobalPostageBatches(requestOptions?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
+    return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -2170,26 +2340,27 @@ export class Bee {
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
-  async getAllPendingTransactions(options?: BeeRequestOptions): Promise<TransactionInfo[]> {
-    return transactions.getAllTransactions(this.getRequestOptionsForCall(options))
+  async getAllPendingTransactions(requestOptions?: BeeRequestOptions): Promise<TransactionInfo[]> {
+    return transactions.getAllTransactions(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
-   * Fetch the transaction information for a specific transaction.
+   * Fetches the transaction information for a specific transaction.
+   *
    * @param transactionHash
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getPendingTransaction(
     transactionHash: TransactionId | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<TransactionInfo> {
     transactionHash = new TransactionId(transactionHash)
 
-    return transactions.getTransaction(this.getRequestOptionsForCall(options), transactionHash)
+    return transactions.getTransaction(this.getRequestOptionsForCall(requestOptions), transactionHash)
   }
 
   /**
-   * Rebroadcast already created transaction.
+   * Rebroadcasts already created transaction.
    *
    * This is mainly needed when the transaction falls off mempool or is not incorporated into any block.
    *
@@ -2198,11 +2369,11 @@ export class Bee {
    */
   async rebroadcastPendingTransaction(
     transactionHash: TransactionId | Uint8Array | string,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<TransactionId> {
     transactionHash = new TransactionId(transactionHash)
 
-    return transactions.rebroadcastTransaction(this.getRequestOptionsForCall(options), transactionHash)
+    return transactions.rebroadcastTransaction(this.getRequestOptionsForCall(requestOptions), transactionHash)
   }
 
   /**
@@ -2215,7 +2386,7 @@ export class Bee {
   async cancelPendingTransaction(
     transactionHash: TransactionId | Uint8Array | string,
     gasPrice?: NumberString | string | bigint,
-    options?: BeeRequestOptions,
+    requestOptions?: BeeRequestOptions,
   ): Promise<TransactionId> {
     transactionHash = new TransactionId(transactionHash)
 
@@ -2225,7 +2396,11 @@ export class Bee {
       gasPriceString = asNumberString(gasPrice, { min: 0n, name: 'gasPrice' })
     }
 
-    return transactions.cancelTransaction(this.getRequestOptionsForCall(options), transactionHash, gasPriceString)
+    return transactions.cancelTransaction(
+      this.getRequestOptionsForCall(requestOptions),
+      transactionHash,
+      gasPriceString,
+    )
   }
 
   /**
@@ -2253,8 +2428,8 @@ export class Bee {
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
-  async withdrawSurplusStake(options?: BeeRequestOptions): Promise<TransactionId> {
-    return stake.withdrawSurplusStake(this.getRequestOptionsForCall(options))
+  async withdrawSurplusStake(requestOptions?: BeeRequestOptions): Promise<TransactionId> {
+    return stake.withdrawSurplusStake(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -2322,11 +2497,11 @@ export class Bee {
     throw new BeeError('Timeout on waiting for postage stamp to become usable')
   }
 
-  protected getRequestOptionsForCall(options?: BeeRequestOptions): BeeRequestOptions {
-    if (options) {
-      options = prepareBeeRequestOptions(options)
+  protected getRequestOptionsForCall(requestOptions?: BeeRequestOptions): BeeRequestOptions {
+    if (requestOptions) {
+      requestOptions = prepareBeeRequestOptions(requestOptions)
     }
 
-    return options ? Objects.deepMerge2(this.requestOptions, options) : this.requestOptions
+    return requestOptions ? Objects.deepMerge2(this.requestOptions, requestOptions) : this.requestOptions
   }
 }
