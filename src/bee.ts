@@ -923,6 +923,7 @@ export class Bee {
    * @param topic
    * @param index
    * @param options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async isFeedRetrievable(
     owner: EthAddress | Uint8Array | string,
@@ -1110,6 +1111,22 @@ export class Bee {
     })
   }
 
+  /**
+   * Mines the signer (a private key) to be used to send GSOC messages to the specific target overlay address.
+   *
+   * Use {@link gsocSend} to send GSOC messages with the mined signer.
+   *
+   * Use {@link gsocSubscribe} to subscribe to GSOC messages for the specified owner (of the signer) and identifier.
+   *
+   * See {@link gsocSend} or {@link gsocSubscribe} for concrete examples of usage.
+   *
+   * **Warning! Only full nodes can accept GSOC messages.**
+   *
+   * @param targetOverlay
+   * @param identifier
+   * @param proximity
+   * @returns
+   */
   gsocMine(
     targetOverlay: PeerAddress | Uint8Array | string,
     identifier: Identifier | Uint8Array | string,
@@ -1131,6 +1148,29 @@ export class Bee {
     throw Error('Could not mine a valid signer')
   }
 
+  /**
+   * Sends a GSOC message with the specified signer and identifier.
+   *
+   * Use {@link gsocMine} to mine a signer for the target overlay address.
+   *
+   * Use {@link gsocSubscribe} to subscribe to GSOC messages for the specified owner (of the signer) and identifier.
+   *
+   * **Warning! Only full nodes can accept GSOC messages.**
+   *
+   * @param postageBatchId
+   * @param signer
+   * @param identifier
+   * @param data
+   * @param options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   *
+   * @example
+   * const identifier = NULL_IDENTIFIER
+   * const overlay = '0x1234567890123456789012345678901234567890'
+   * const signer = bee.gsocMine(overlay, identifier)
+   * await bee.gsocSend(postageBatchId, signer, identifier, 'GSOC!')
+   */
   async gsocSend(
     postageBatchId: BatchId | Uint8Array | string,
     signer: PrivateKey | Uint8Array | string,
@@ -1149,6 +1189,37 @@ export class Bee {
     return gsoc.send(this.getRequestOptionsForCall(requestOptions), soc, postageBatchId, options)
   }
 
+  /**
+   * Subscribes to GSOC messages for the specified owner (of the signer) and identifier.
+   *
+   * Use {@link gsocMine} to mine a signer for the target overlay address.
+   *
+   * Use {@link gsocSend} to send GSOC messages with the mined signer.
+   *
+   * **Warning! Only full nodes can accept GSOC messages.**
+   *
+   * @param address
+   * @param identifier
+   * @param handler
+   * @returns
+   *
+   * @example
+   * const identifier = NULL_IDENTIFIER
+   * const { overlay } = await bee.getNodeAddresses()
+   * const signer = bee.gsocMine(overlay, identifier)
+   *
+   * const subscription = bee.gsocSubscribe(signer.publicKey().address(), identifier, {
+   *   onMessage(message) {
+   *     // handle
+   *   },
+   *   onError(error) {
+   *     // handle
+   *   },
+   *   onClose() {
+   *     // handle
+   *   }
+   * })
+   */
   gsocSubscribe(
     address: EthAddress | Uint8Array | string,
     identifier: Identifier | Uint8Array | string,
