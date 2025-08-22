@@ -1,8 +1,10 @@
-import { Types } from 'cafe-utility'
+import { Strings, Types } from 'cafe-utility'
 import { Bytes, MerkleTree, Stamper } from '../../src'
 import { makeBee } from '../utils'
 
-test('Stamper', async () => {
+test('Stamper ')
+
+test('Stamper utilization state', async () => {
   const bee = makeBee()
 
   const stamper = Stamper.fromBlank(
@@ -11,7 +13,9 @@ test('Stamper', async () => {
     17,
   )
 
-  const payload = Bytes.fromUtf8('Hello, client side stamper!')
+  const payload = Bytes.fromUtf8(
+    `Hello, client side stamper! This is a unique test payload: ${Strings.randomAlphanumeric(32)}`,
+  )
 
   const tree = new MerkleTree(async chunk => {
     await bee.uploadChunk(stamper.stamp(chunk), chunk.build())
@@ -33,4 +37,7 @@ test('Stamper', async () => {
 
   nextStamper.stamp(rootChunk)
   expect(() => nextStamper.stamp(rootChunk)).toThrow('Bucket is full')
+
+  const data = await bee.downloadData(rootChunk.hash())
+  expect(data.toUtf8()).toEqual(payload.toUtf8())
 })
