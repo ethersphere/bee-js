@@ -28,7 +28,7 @@ export interface Peer {
 }
 
 export interface ChequebookAddressResponse {
-  chequebookAddress: string
+  chequebookAddress: EthAddress
 }
 
 export interface ChequebookBalanceResponse {

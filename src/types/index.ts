@@ -26,20 +26,28 @@ export const CHUNK_SIZE = SECTION_SIZE * BRANCHES
 export const PSS_TARGET_HEX_LENGTH_MAX = 4
 
 /**
- * Minimal depth that can be used for creation of postage batch
+ * Minimum postage batch depth.
  */
 export const STAMPS_DEPTH_MIN = 17
 
 /**
- * Maximal depth that can be used for creation of postage batch
+ * Maximum postage batch depth.
  */
 export const STAMPS_DEPTH_MAX = 255
 
+/**
+ * Minimum tags API page size.
+ */
 export const TAGS_LIMIT_MIN = 1
+
+/**
+ * Maximum tags API page size.
+ */
 export const TAGS_LIMIT_MAX = 1000
 
-export const FEED_INDEX_HEX_LENGTH = 16
-
+/**
+ * Behavior of the HTTP client, such as `timeout`, additional `headers`, custom `httpAgent`, etc.
+ */
 export type BeeRequestOptions = {
   baseURL?: string
   timeout?: number
@@ -50,13 +58,30 @@ export type BeeRequestOptions = {
   endlesslyRetry?: boolean
 }
 
+/**
+ * Options for the Bee client which affect all method calls *(unless overridden in the method call itself)*.
+ *
+ * Extends `BeeRequestOptions`, which allows configuring the HTTP client behavior,
+ * such as `timeout`, additional `headers`, custom `httpAgent`, etc.
+ */
 export interface BeeOptions extends BeeRequestOptions {
   /**
-   * Signer object or private key of the Signer in form of either hex string or Uint8Array that will be default signer for the instance.
+   * Default signer (a private key) used for signing.
+   *
+   * Mainly used in single-owner chunk (SOC) related operations, and consequently in feeds.
+   *
+   * If not provided, methods such as `makeFeedWriter` and `makeSOCWriter`
+   * must be provided with a private key in their respective function calls.
    */
   signer?: PrivateKey | Uint8Array | string
+
   /**
-   * Default gnosis when unspecified.
+   * Network on which the Bee node is running.
+   *
+   * This is currently used to determine block time for postage batch time-to-live (TTL) calculations.
+   * The block time for `gnosis` is `5` seconds, and for `sepolia` it is `15` seconds.
+   *
+   * Default value is `gnosis`.
    */
   network?: 'gnosis' | 'sepolia'
 }
@@ -179,14 +204,22 @@ export enum RedundancyStrategy {
 export interface DownloadOptions {
   /**
    * Specify the retrieve strategy on redundant data.
+   *
+   * Only applicable for erasure coded data.
    */
   redundancyStrategy?: RedundancyStrategy
+
   /**
    * Specify if the retrieve strategies (chunk prefetching on redundant data) are used in a fallback cascade. The default is true.
+   *
+   * Only applicable for erasure coded data.
    */
   fallback?: boolean
+
   /**
    * Specify the timeout for chunk retrieval. The default is 30 seconds.
+   *
+   * This is not the timeout for the whole download operation, but rather for each chunk retrieval.
    */
   timeoutMs?: number
 
@@ -244,7 +277,11 @@ export interface UploadHeaders {
 }
 
 /**
- * Object that contains infromation about progress of upload of data to network.
+ * Object that contains information about upload progress of data to network.
+ *
+ * The total amount of chunks is represented by `split` property.
+ *
+ * The actual progress of the upload can be tracked by the `seen + synced` properties.
  *
  * @see [Bee docs - Syncing / Tags](https://docs.ethswarm.org/docs/develop/access-the-swarm/syncing)
  */
