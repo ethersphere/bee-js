@@ -1,3 +1,4 @@
+import { Dates, System } from 'cafe-utility'
 import { Bee, Duration, Size } from '../../src'
 
 const bee = new Bee('http://localhost:16337')
@@ -31,4 +32,25 @@ test('getExtensionCost should equal getDurationExtensionCost twice plus getSizeE
 
   expect(extensionCost).toEqual(sizeExtensionCost.plus(durationExtensionCost).plus(durationExtensionCost))
   expect(extensionCost.toPLURBigInt()).toBeGreaterThan(0)
+})
+
+test('extendStorage should not throw when relative amount is negative', async () => {
+  const oneMonth = new Date(Date.now() + Dates.days(31))
+  const batchId = await bee.buyStorage(Size.fromGigabytes(4), Duration.fromEndDate(oneMonth))
+  await System.sleepMillis(Dates.seconds(3))
+  {
+    const batch = await bee.getPostageBatch(batchId)
+    await bee.extendStorage(batchId, Size.fromGigabytes(8), Duration.fromEndDate(oneMonth, batch.duration.toEndDate()))
+  }
+  const batch = await bee.getPostageBatch(batchId)
+  expect(batch.size.toGigabytes()).toBe(18.24)
+  expect(batch.duration.toDays()).toBe(31)
+})
+
+test('extendStorage should not throw when only depth delta is negative', async () => {
+  const batchId = await bee.buyStorage(Size.fromGigabytes(4), Duration.fromDays(30))
+  await bee.extendStorage(batchId, Size.fromGigabytes(1), Duration.fromDays(30))
+  const batch = await bee.getPostageBatch(batchId)
+  expect(batch.size.toGigabytes()).toBe(7.07)
+  expect(batch.duration.toDays()).toBe(60)
 })
