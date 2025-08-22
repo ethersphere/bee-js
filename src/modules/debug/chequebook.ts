@@ -33,7 +33,7 @@ export async function getChequebookAddress(requestOptions: BeeRequestOptions): P
   const body = Types.asObject(response.data, { name: 'response.data' })
 
   return {
-    chequebookAddress: Types.asString(body.chequebookAddress, { name: 'chequebookAddress' }),
+    chequebookAddress: new EthAddress(Types.asString(body.chequebookAddress, { name: 'chequebookAddress' })),
   }
 }
 
