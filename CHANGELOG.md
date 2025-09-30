@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [10.0.1](https://github.com/ethersphere/bee-js/compare/v10.0.0...v10.0.1) (2025-09-30)
+
+
+### Bug Fixes
+
+* add fallback in bytes ctor when class information is lost ([#1090](https://github.com/ethersphere/bee-js/issues/1090)) ([ae0306e](https://github.com/ethersphere/bee-js/commit/ae0306e2ebd8d0157285f2b83fcf0a0fd64494ed))
+
 ## [10.0.0](https://github.com/ethersphere/bee-js/compare/v9.8.1...v10.0.0) (2025-08-22)
 
 
