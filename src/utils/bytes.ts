@@ -26,6 +26,7 @@ export class Bytes {
     } else {
       const unknownInput = bytes as unknown
       const toHex = Objects.getDeep(unknownInput, 'toHex')
+
       if (Types.isFunction(toHex)) {
         const hex = toHex.call(unknownInput)
         this.bytes = Binary.hexToUint8Array(Types.asHexString(hex, { name: 'Bytes#constructor(bytes)' }))
