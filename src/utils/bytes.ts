@@ -1,4 +1,7 @@
-import { Binary, Types } from 'cafe-utility'
+import { Binary, Objects, Types } from 'cafe-utility'
+import _debug from 'debug'
+
+const debug = _debug('bee-js:bytes')
 
 const DECODER = new TextDecoder()
 const ENCODER = new TextEncoder()
@@ -8,15 +11,31 @@ export class Bytes {
   public readonly length: number
 
   constructor(bytes: Uint8Array | ArrayBuffer | string | Bytes, byteLength?: number | number[]) {
+    if (!bytes) {
+      throw Error(`Bytes#constructor: constructor parameter is falsy: ${bytes}`)
+    }
+
     if (bytes instanceof Bytes) {
       this.bytes = bytes.bytes
     } else if (typeof bytes === 'string') {
       this.bytes = Binary.hexToUint8Array(Types.asHexString(bytes, { name: 'Bytes#constructor(bytes)' }))
     } else if (bytes instanceof ArrayBuffer) {
       this.bytes = new Uint8Array(bytes)
-    } else {
+    } else if (bytes instanceof Uint8Array) {
       this.bytes = bytes
+    } else {
+      const unknownInput = bytes as unknown
+      const toHex = Objects.getDeep(unknownInput, 'toHex')
+
+      if (Types.isFunction(toHex)) {
+        const hex = toHex.call(unknownInput)
+        this.bytes = Binary.hexToUint8Array(Types.asHexString(hex, { name: 'Bytes#constructor(bytes)' }))
+      } else {
+        debug('bytes', bytes)
+        throw new Error(`Bytes#constructor: unsupported type: ${typeof bytes}`)
+      }
     }
+
     this.length = this.bytes.length
 
     if (byteLength) {
