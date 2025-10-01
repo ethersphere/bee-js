@@ -40,6 +40,33 @@ export class Duration {
     return new Duration((endDate.getTime() - (startDate ?? new Date()).getTime()) / 1000)
   }
 
+  /**
+   * Parses a duration string and returns a `Duration` instance.
+   *
+   * Case insensitive. E.g. both `"28h"` and `"1D"` are valid.
+   *
+   * Whitespaces are ignored. E.g. both `"5 d"` and `"2weeks"` are valid.
+   *
+   * Decimal numbers are supported. E.g. `"1.5h"` is valid.
+   *
+   * Supported units:
+   *
+   * - ms, milli, millis, millisecond, milliseconds
+   * - s, sec, second, seconds
+   * - m, min, minute, minutes
+   * - h, hour, hours
+   * - d, day, days
+   * - w, week, weeks
+   * - month, months
+   * - y, year, years
+   *
+   * @param duration - A string representing a duration
+   * @returns a `Duration` instance
+   */
+  static parseFromString(duration: string): Duration {
+    return Duration.fromSeconds(Dates.make(duration) / 1000)
+  }
+
   toSeconds(): number {
     return this.seconds
   }
