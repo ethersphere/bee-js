@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [10.1.0](https://github.com/ethersphere/bee-js/compare/v10.0.1...v10.1.0) (2025-10-01)
+
+
+### Features
+
+* add helpers to parse Size and Duration from string ([#1092](https://github.com/ethersphere/bee-js/issues/1092)) ([7ab5604](https://github.com/ethersphere/bee-js/commit/7ab56048eb94986849e3e14303768b75f3ea0844))
+
 ## [10.0.1](https://github.com/ethersphere/bee-js/compare/v10.0.0...v10.0.1) (2025-09-30)
 
 
