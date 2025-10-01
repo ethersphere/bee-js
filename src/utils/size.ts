@@ -34,6 +34,32 @@ export class Size {
     return new Size(gigabytes * 1000 * 1000 * 1000)
   }
 
+  /**
+   * Parses a size string and returns a `Size` instance.
+   *
+   * Case insensitive. E.g. both `"28MB"` and `"1gb"` are valid.
+   *
+   * Whitespaces are ignored. E.g. both `"512 kb"` and `"2megabytes"` are valid.
+   *
+   * Decimal numbers are supported. E.g. `"1.5gb"` is valid.
+   *
+   * Uses 1000 as the base for conversions. E.g. 1kb = 1000 bytes.
+   * This is consistent with the effective stamp utilization table.
+   *
+   * Supported units:
+   * - b, byte, bytes
+   * - kb, kilobyte, kilobytes
+   * - mb, megabyte, megabytes
+   * - gb, gigabyte, gigabytes
+   * - tb, terabyte, terabytes
+   *
+   * @param size - A string representing a size
+   * @returns a `Size` instance
+   */
+  static parseFromString(size: string): Size {
+    return Size.fromBytes(Numbers.makeStorage(size, 1000))
+  }
+
   toBytes(): number {
     return this.bytes
   }
