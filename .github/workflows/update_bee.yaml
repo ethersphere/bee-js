@@ -115,7 +115,7 @@ jobs:
           body-includes: Release notes
 
       - name: Create or update preview comment
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v5
         if: steps.pr.outputs.pull-request-number && steps.release-notes.outputs.body
         with:
           token: ${{ secrets.REPO_GHA_PAT }}
