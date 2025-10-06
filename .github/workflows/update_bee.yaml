@@ -60,7 +60,7 @@ jobs:
         run: printf "\n" >> package.json
 
       - name: Replace SUPPORTED_BEE_VERSION_EXACT for Status module
-        uses: jacobtomlinson/gha-find-replace@v2
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "export const SUPPORTED_BEE_VERSION_EXACT = '.*?'"
           replace: "export const SUPPORTED_BEE_VERSION_EXACT = '${{ env.BEE_VERSION_WITH_COMMIT }}'"
@@ -68,7 +68,7 @@ jobs:
           regex: true
 
       - name: Replace SUPPORTED_API_VERSION for Status module
-        uses: jacobtomlinson/gha-find-replace@v2
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "export const SUPPORTED_API_VERSION = '.*?'"
           replace: "export const SUPPORTED_API_VERSION = '${{ env.API_VERSION }}'"
@@ -76,7 +76,7 @@ jobs:
           regex: true
 
       - name: Replace README version
-        uses: jacobtomlinson/gha-find-replace@v2
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: '<!-- SUPPORTED_BEE_START -->.*?<!-- SUPPORTED_BEE_END -->'
           replace: '<!-- SUPPORTED_BEE_START -->${{ env.FINAL_CLEAN_BEE_VERSION }}<!-- SUPPORTED_BEE_END -->'
