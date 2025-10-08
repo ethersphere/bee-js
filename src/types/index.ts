@@ -544,6 +544,16 @@ export interface PostageBatch {
    * Theoretical size in bytes
    */
   theoreticalSize: Size
+  /**
+   * Calculates the effective size of data that can be uploaded with this postage batch
+   * based on whether encryption is used and the desired redundancy level.
+   */
+  calculateSize(encryption: boolean, redundancyLevel: RedundancyLevel): Size
+  /**
+   * Calculates the remaining size of data that can be uploaded with this postage batch
+   * based on whether encryption is used and the desired redundancy level.
+   */
+  calculateRemainingSize(encryption: boolean, redundancyLevel: RedundancyLevel): Size
 }
 
 export interface BatchBucket {

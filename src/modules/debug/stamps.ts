@@ -6,6 +6,7 @@ import type {
   PostageBatch,
   PostageBatchBuckets,
   PostageBatchOptions,
+  RedundancyLevel,
 } from '../../types'
 import { Duration } from '../../utils/duration'
 import { http } from '../../utils/http'
@@ -58,6 +59,8 @@ export async function getAllPostageBatches(requestOptions: BeeRequestOptions): P
     const batchTTL = normalizeBatchTTL(Types.asNumber(x.batchTTL, { name: 'batchTTL' }))
     const duration = Duration.fromSeconds(batchTTL)
 
+    const effectiveBytes = getStampEffectiveBytes(depth)
+
     return {
       batchID: new BatchId(Types.asString(x.batchID, { name: 'batchID' })),
       utilization,
@@ -70,10 +73,20 @@ export async function getAllPostageBatches(requestOptions: BeeRequestOptions): P
       immutableFlag: Types.asBoolean(x.immutableFlag, { name: 'immutableFlag' }),
       usage,
       usageText: `${Math.round(usage * 100)}%`,
-      size: Size.fromBytes(getStampEffectiveBytes(depth)),
-      remainingSize: Size.fromBytes(Math.ceil(getStampEffectiveBytes(depth) * (1 - usage))),
+      size: Size.fromBytes(effectiveBytes),
+      remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage))),
       theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(depth)),
       duration,
+      calculateSize(encryption, redundancyLevel) {
+        const effectiveBytes = getStampEffectiveBytes(this.depth, encryption, redundancyLevel)
+
+        return Size.fromBytes(effectiveBytes)
+      },
+      calculateRemainingSize(encryption, redundancyLevel) {
+        const effectiveBytes = getStampEffectiveBytes(this.depth, encryption, redundancyLevel)
+
+        return Size.fromBytes(Math.ceil(effectiveBytes * (1 - this.usage)))
+      },
     }
   })
 }
@@ -81,6 +94,8 @@ export async function getAllPostageBatches(requestOptions: BeeRequestOptions): P
 export async function getPostageBatch(
   requestOptions: BeeRequestOptions,
   postageBatchId: BatchId,
+  encryption?: boolean,
+  erasureCodeLevel?: RedundancyLevel,
 ): Promise<PostageBatch> {
   const response = await http<unknown>(requestOptions, {
     method: 'get',
@@ -97,6 +112,8 @@ export async function getPostageBatch(
   const batchTTL = normalizeBatchTTL(Types.asNumber(body.batchTTL, { name: 'batchTTL' }))
   const duration = Duration.fromSeconds(batchTTL)
 
+  const effectiveBytes = getStampEffectiveBytes(depth, encryption, erasureCodeLevel)
+
   return {
     batchID: new BatchId(Types.asString(body.batchID, { name: 'batchID' })),
     utilization,
@@ -109,10 +126,20 @@ export async function getPostageBatch(
     immutableFlag: Types.asBoolean(body.immutableFlag, { name: 'immutableFlag' }),
     usage,
     usageText: `${Math.round(usage * 100)}%`,
-    size: Size.fromBytes(getStampEffectiveBytes(depth)),
-    remainingSize: Size.fromBytes(Math.ceil(getStampEffectiveBytes(depth) * (1 - usage))),
+    size: Size.fromBytes(effectiveBytes),
+    remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage))),
     theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(depth)),
     duration,
+    calculateSize(encryption, redundancyLevel) {
+      const effectiveBytes = getStampEffectiveBytes(depth, encryption, redundancyLevel)
+
+      return Size.fromBytes(effectiveBytes)
+    },
+    calculateRemainingSize(encryption, redundancyLevel) {
+      const effectiveBytes = getStampEffectiveBytes(depth, encryption, redundancyLevel)
+
+      return Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage)))
+    },
   }
 }
 

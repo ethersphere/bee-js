@@ -2350,6 +2350,8 @@ export class Bee {
    *
    * @param postageBatchId Batch ID
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @param encryption Assume that uploads with this postage batch are encrypted, which skews the capacity.
+   * @param erasureCodeLevel Assume that uploads with this postage batch are erasure coded, which skews the capacity.
    *
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps/${id}`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bbatch_id%7D/get)
@@ -2357,10 +2359,17 @@ export class Bee {
   async getPostageBatch(
     postageBatchId: BatchId | Uint8Array | string,
     requestOptions?: BeeRequestOptions,
+    encryption?: boolean,
+    erasureCodeLevel?: RedundancyLevel,
   ): Promise<PostageBatch> {
     postageBatchId = new BatchId(postageBatchId)
 
-    return stamps.getPostageBatch(this.getRequestOptionsForCall(requestOptions), postageBatchId)
+    return stamps.getPostageBatch(
+      this.getRequestOptionsForCall(requestOptions),
+      postageBatchId,
+      encryption,
+      erasureCodeLevel,
+    )
   }
 
   /**
