@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [10.1.1](https://github.com/ethersphere/bee-js/compare/v10.1.0...v10.1.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* allow fetching stamps with custom effective size calculations ([#1105](https://github.com/ethersphere/bee-js/issues/1105)) ([494c0a5](https://github.com/ethersphere/bee-js/commit/494c0a545b23b5a8d530e85c60c28af912cb4ebc))
+
 ## [10.1.0](https://github.com/ethersphere/bee-js/compare/v10.0.1...v10.1.0) (2025-10-01)
 
 
