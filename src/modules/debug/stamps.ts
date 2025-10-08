@@ -41,11 +41,7 @@ export async function getGlobalPostageBatches(requestOptions: BeeRequestOptions)
   }))
 }
 
-export async function getAllPostageBatches(
-  requestOptions: BeeRequestOptions,
-  encryption?: boolean,
-  erasureCodeLevel?: RedundancyLevel,
-): Promise<PostageBatch[]> {
+export async function getAllPostageBatches(requestOptions: BeeRequestOptions): Promise<PostageBatch[]> {
   const response = await http<unknown>(requestOptions, {
     method: 'get',
     url: `${STAMPS_ENDPOINT}`,
@@ -63,7 +59,7 @@ export async function getAllPostageBatches(
     const batchTTL = normalizeBatchTTL(Types.asNumber(x.batchTTL, { name: 'batchTTL' }))
     const duration = Duration.fromSeconds(batchTTL)
 
-    const effectiveBytes = getStampEffectiveBytes(depth, encryption, erasureCodeLevel)
+    const effectiveBytes = getStampEffectiveBytes(depth)
 
     return {
       batchID: new BatchId(Types.asString(x.batchID, { name: 'batchID' })),
@@ -81,6 +77,16 @@ export async function getAllPostageBatches(
       remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage))),
       theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(depth)),
       duration,
+      calculateSize(encryption, redundancyLevel) {
+        const effectiveBytes = getStampEffectiveBytes(this.depth, encryption, redundancyLevel)
+
+        return Size.fromBytes(effectiveBytes)
+      },
+      calculateRemainingSize(encryption, redundancyLevel) {
+        const effectiveBytes = getStampEffectiveBytes(this.depth, encryption, redundancyLevel)
+
+        return Size.fromBytes(Math.ceil(effectiveBytes * (1 - this.usage)))
+      },
     }
   })
 }
@@ -124,6 +130,16 @@ export async function getPostageBatch(
     remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage))),
     theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(depth)),
     duration,
+    calculateSize(encryption, redundancyLevel) {
+      const effectiveBytes = getStampEffectiveBytes(depth, encryption, redundancyLevel)
+
+      return Size.fromBytes(effectiveBytes)
+    },
+    calculateRemainingSize(encryption, redundancyLevel) {
+      const effectiveBytes = getStampEffectiveBytes(depth, encryption, redundancyLevel)
+
+      return Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage)))
+    },
   }
 }
 

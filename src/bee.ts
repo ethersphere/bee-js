@@ -2401,12 +2401,8 @@ export class Bee {
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
    * @deprecated Use `getPostageBatches` instead
    */
-  async getAllPostageBatch(
-    requestOptions?: BeeRequestOptions,
-    encryption?: boolean,
-    erasureCodeLevel?: RedundancyLevel,
-  ): Promise<PostageBatch[]> {
-    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(requestOptions), encryption, erasureCodeLevel) // TODO: remove in June 2025
+  async getAllPostageBatch(requestOptions?: BeeRequestOptions): Promise<PostageBatch[]> {
+    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(requestOptions)) // TODO: remove in June 2025
   }
 
   /**
@@ -2430,12 +2426,8 @@ export class Bee {
    * @see [Bee docs - Keep your data alive / Postage stamps](https://docs.ethswarm.org/docs/develop/access-the-swarm/introduction/#keep-your-data-alive)
    * @see [Bee Debug API reference - `GET /stamps`](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)
    */
-  async getPostageBatches(
-    requestOptions?: BeeRequestOptions,
-    encryption?: boolean,
-    erasureCodeLevel?: RedundancyLevel,
-  ): Promise<PostageBatch[]> {
-    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(requestOptions), encryption, erasureCodeLevel)
+  async getPostageBatches(requestOptions?: BeeRequestOptions): Promise<PostageBatch[]> {
+    return stamps.getAllPostageBatches(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**
