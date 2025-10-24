@@ -36,7 +36,7 @@ export interface EncryptedChunk {
  *
  * @param payloadBytes the data to be stored in the chunk
  */
-export function makeEncryptedContentAddressedChunk(payloadBytes: Uint8Array | string): EncryptedChunk {
+export async function makeEncryptedContentAddressedChunk(payloadBytes: Uint8Array | string): Promise<EncryptedChunk> {
   if (!(payloadBytes instanceof Uint8Array)) {
     payloadBytes = ENCODER.encode(payloadBytes)
   }
@@ -53,13 +53,13 @@ export function makeEncryptedContentAddressedChunk(payloadBytes: Uint8Array | st
 
   // Encrypt the chunk
   const encrypter = newChunkEncrypter()
-  const { key, encryptedSpan, encryptedData } = encrypter.encryptChunk(chunkData)
+  const { key, encryptedSpan, encryptedData } = await encrypter.encryptChunk(chunkData)
 
   // Concatenate encrypted span and data
   const encryptedChunkData = Binary.concatBytes(encryptedSpan, encryptedData)
 
   // Calculate BMT address on encrypted data
-  const address = calculateChunkAddress(encryptedChunkData)
+  const address = await calculateChunkAddress(encryptedChunkData)
 
   // Create 64-byte reference: address (32 bytes) + encryption key (32 bytes)
   const reference = new Reference(Binary.concatBytes(address.toUint8Array(), key))
@@ -80,7 +80,7 @@ export function makeEncryptedContentAddressedChunk(payloadBytes: Uint8Array | st
  * @param encryptedChunkData The encrypted chunk data (span + payload)
  * @param encryptionKey The 32-byte encryption key
  */
-export function decryptEncryptedChunk(encryptedChunkData: Uint8Array, encryptionKey: Key): Uint8Array {
+export async function decryptEncryptedChunk(encryptedChunkData: Uint8Array, encryptionKey: Key): Promise<Uint8Array> {
   return decryptChunkData(encryptionKey, encryptedChunkData)
 }
 

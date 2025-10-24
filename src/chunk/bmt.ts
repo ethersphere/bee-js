@@ -1,4 +1,5 @@
 import { Binary } from 'cafe-utility'
+import { keccak } from 'hash-wasm'
 import { BeeArgumentError } from '../utils/error'
 import { Reference, Span } from '../utils/typed-bytes'
 
@@ -19,16 +20,16 @@ const SEGMENT_SIZE = 32
  *
  * @returns the keccak256 hash in a byte array
  */
-export function calculateChunkAddress(chunkContent: Uint8Array): Reference {
+export async function calculateChunkAddress(chunkContent: Uint8Array): Promise<Reference> {
   const span = chunkContent.slice(0, Span.LENGTH)
   const payload = chunkContent.slice(Span.LENGTH)
-  const rootHash = calculateBmtRootHash(payload)
-  const chunkHash = Binary.keccak256(Binary.concatBytes(span, rootHash))
+  const rootHash = await calculateBmtRootHash(payload)
+  const chunkHash = await keccak(Binary.concatBytes(span, rootHash), 256)
 
-  return new Reference(chunkHash)
+  return new Reference(Binary.hexToUint8Array(chunkHash))
 }
 
-function calculateBmtRootHash(payload: Uint8Array): Uint8Array {
+async function calculateBmtRootHash(payload: Uint8Array): Promise<Uint8Array> {
   if (payload.length > MAX_CHUNK_PAYLOAD_SIZE) {
     throw new BeeArgumentError(
       `payload size ${payload.length} exceeds maximum chunk payload size ${MAX_CHUNK_PAYLOAD_SIZE}`,
@@ -38,5 +39,8 @@ function calculateBmtRootHash(payload: Uint8Array): Uint8Array {
   const input = new Uint8Array(MAX_CHUNK_PAYLOAD_SIZE)
   input.set(payload)
 
-  return Binary.log2Reduce(Binary.partition(input, SEGMENT_SIZE), (a, b) => Binary.keccak256(Binary.concatBytes(a, b)))
+  return Binary.log2Reduce(Binary.partition(input, SEGMENT_SIZE), async (a, b) => {
+    const hash = await keccak(Binary.concatBytes(a, b), 256)
+    return Binary.hexToUint8Array(hash)
+  })
 }

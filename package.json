@@ -64,6 +64,7 @@
     "axios": "^0.30.0",
     "cafe-utility": "^32.2.0",
     "debug": "^4.4.1",
+    "hash-wasm": "^4.12.0",
     "isomorphic-ws": "^4.0.1",
     "semver": "^7.3.5",
     "ws": "^8.7.0"
