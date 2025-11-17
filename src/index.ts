@@ -7,6 +7,8 @@ export { MantarayNode } from './manifest/manifest'
 export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './modules/debug/status'
 export * from './types'
 export { Bytes } from './utils/bytes'
+export { ChunkJoiner, type DownloadProgress } from './utils/chunk-joiner'
+export { type DownloadStreamOptions } from './modules/download-stream'
 export * from './utils/constants'
 export { Duration } from './utils/duration'
 export * from './utils/error'
@@ -14,6 +16,10 @@ export * as Utils from './utils/expose'
 export { Size } from './utils/size'
 export * from './utils/tokens'
 export * from './utils/typed-bytes'
+export { makeContentAddressedChunk, type Chunk } from './chunk/cac'
+export { makeEncryptedContentAddressedChunk, type EncryptedChunk } from './chunk/encrypted-cac'
+export { calculateChunkAddress } from './chunk/bmt'
+export { newChunkEncrypter } from './chunk/encryption'
 export { Bee, BeeDev, Stamper }
 
 // for require-like imports
@@ -32,6 +38,7 @@ declare global {
       BeeResponseError: typeof import('./utils/error').BeeResponseError
       MantarayNode: typeof import('./manifest/manifest').MantarayNode
       MerkleTree: typeof import('cafe-utility').MerkleTree
+      ChunkJoiner: typeof import('./utils/chunk-joiner').ChunkJoiner
       PrivateKey: typeof import('./utils/typed-bytes').PrivateKey
       PublicKey: typeof import('./utils/typed-bytes').PublicKey
       EthAddress: typeof import('./utils/typed-bytes').EthAddress

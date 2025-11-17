@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 import { Binary } from 'cafe-utility'
-import { keccak } from 'hash-wasm'
 
 export const KEY_LENGTH = 32
 export const REFERENCE_SIZE = 64
@@ -12,12 +11,12 @@ export type Key = Uint8Array
 
 export interface Encrypter {
   key(): Key
-  encrypt(data: Uint8Array): Promise<Uint8Array>
+  encrypt(data: Uint8Array): Uint8Array
 }
 
 export interface Decrypter {
   key(): Key
-  decrypt(data: Uint8Array): Promise<Uint8Array>
+  decrypt(data: Uint8Array): Uint8Array
 }
 
 export interface EncryptionInterface extends Encrypter, Decrypter {
@@ -50,7 +49,7 @@ export class Encryption implements EncryptionInterface {
   /**
    * Encrypts data with optional padding
    */
-  async encrypt(data: Uint8Array): Promise<Uint8Array> {
+  encrypt(data: Uint8Array): Uint8Array {
     const length = data.length
     let outLength = length
     const isFixedPadding = this.padding > 0
@@ -63,7 +62,7 @@ export class Encryption implements EncryptionInterface {
     }
 
     const out = new Uint8Array(outLength)
-    await this.transform(data, out)
+    this.transform(data, out)
 
     return out
   }
@@ -71,7 +70,7 @@ export class Encryption implements EncryptionInterface {
   /**
    * Decrypts data (caller must know original length if padding was used)
    */
-  async decrypt(data: Uint8Array): Promise<Uint8Array> {
+  decrypt(data: Uint8Array): Uint8Array {
     const length = data.length
 
     if (this.padding > 0 && length !== this.padding) {
@@ -79,7 +78,7 @@ export class Encryption implements EncryptionInterface {
     }
 
     const out = new Uint8Array(length)
-    await this.transform(data, out)
+    this.transform(data, out)
 
     return out
   }
@@ -94,18 +93,19 @@ export class Encryption implements EncryptionInterface {
   /**
    * Transforms data by splitting into key-length segments and encrypting sequentially
    */
-  private async transform(input: Uint8Array, out: Uint8Array): Promise<void> {
+  private transform(input: Uint8Array, out: Uint8Array): void {
     const inLength = input.length
 
     for (let i = 0; i < inLength; i += this.keyLen) {
       const l = Math.min(this.keyLen, inLength - i)
-      await this.transcrypt(this.index, input.subarray(i, i + l), out.subarray(i, i + l))
+      this.transcrypt(this.index, input.subarray(i, i + l), out.subarray(i, i + l))
       this.index++
     }
 
     // Pad the rest if out is longer
+    // Use deterministic padding based on encryption key
     if (out.length > inLength) {
-      pad(out.subarray(inLength))
+      padDeterministic(out.subarray(inLength), this.encryptionKey, inLength)
     }
   }
 
@@ -113,7 +113,7 @@ export class Encryption implements EncryptionInterface {
    * Segment-wise transformation using XOR with Keccak256-derived keys
    * Matches the Go implementation's Transcrypt function
    */
-  private async transcrypt(i: number, input: Uint8Array, out: Uint8Array): Promise<void> {
+  private transcrypt(i: number, input: Uint8Array, out: Uint8Array): void {
     // First hash: key with counter (initial counter + i)
     const ctrBytes = new Uint8Array(4)
     const view = new DataView(ctrBytes.buffer)
@@ -122,12 +122,10 @@ export class Encryption implements EncryptionInterface {
     const keyAndCtr = new Uint8Array(this.encryptionKey.length + 4)
     keyAndCtr.set(this.encryptionKey)
     keyAndCtr.set(ctrBytes, this.encryptionKey.length)
-    const ctrHashHex = await keccak(keyAndCtr, 256)
-    const ctrHash = Binary.hexToUint8Array(ctrHashHex)
+    const ctrHash = Binary.keccak256(keyAndCtr)
 
     // Second round of hashing for selective disclosure
-    const segmentKeyHex = await keccak(ctrHash, 256)
-    const segmentKey = Binary.hexToUint8Array(segmentKeyHex)
+    const segmentKey = Binary.keccak256(ctrHash)
 
     // XOR bytes up to length of input (out must be at least as long)
     const inLength = input.length
@@ -136,8 +134,9 @@ export class Encryption implements EncryptionInterface {
     }
 
     // Insert padding if out is longer
+    // Use deterministic padding based on encryption key
     if (out.length > inLength) {
-      pad(out.subarray(inLength))
+      padDeterministic(out.subarray(inLength), this.encryptionKey, i * this.keyLen + inLength)
     }
   }
 }
@@ -150,19 +149,46 @@ function getRandomValues(buffer: Uint8Array): void {
   if (buffer.length === 0) return
 
   // Use Web Crypto API for secure random bytes
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    crypto.getRandomValues(buffer)
-  } else {
-    // Fallback for Node.js
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const nodeCrypto = require('crypto')
-    const randomBytes = nodeCrypto.randomBytes(buffer.length)
-    buffer.set(randomBytes)
+  crypto.getRandomValues(buffer)
+}
+
+/**
+ * Fills buffer with pseudo-random data derived from a key
+ * This makes padding deterministic for testing purposes
+ *
+ * @param buffer Buffer to fill with padding
+ * @param key Encryption key to use as seed for deterministic padding
+ * @param offset Offset within the logical data stream (for uniqueness)
+ */
+function padDeterministic(buffer: Uint8Array, key: Key, offset: number): void {
+  if (buffer.length === 0) return
+
+  // Generate deterministic padding by hashing key + offset
+  let filled = 0
+  let counter = offset
+
+  while (filled < buffer.length) {
+    // Hash: key || counter
+    const counterBytes = new Uint8Array(4)
+    new DataView(counterBytes.buffer).setUint32(0, counter, true)
+
+    const seedData = new Uint8Array(key.length + counterBytes.length)
+    seedData.set(key)
+    seedData.set(counterBytes, key.length)
+
+    const hash = Binary.keccak256(seedData)
+
+    // Copy as many bytes as needed from the hash
+    const toCopy = Math.min(hash.length, buffer.length - filled)
+    buffer.set(hash.subarray(0, toCopy), filled)
+
+    filled += toCopy
+    counter++
   }
 }
 
 /**
- * Fills buffer with cryptographically secure random data
+ * Fills buffer with cryptographically secure random data (non-deterministic)
  */
 function pad(buffer: Uint8Array): void {
   getRandomValues(buffer)
@@ -198,34 +224,34 @@ export function newDataEncryption(key: Key): EncryptionInterface {
 }
 
 export interface ChunkEncrypter {
-  encryptChunk(chunkData: Uint8Array): Promise<{
+  encryptChunk(chunkData: Uint8Array, key?: Key): {
     key: Key
     encryptedSpan: Uint8Array
     encryptedData: Uint8Array
-  }>
+  }
 }
 
 /**
  * Default chunk encrypter implementation
  */
 export class DefaultChunkEncrypter implements ChunkEncrypter {
-  async encryptChunk(chunkData: Uint8Array): Promise<{
+  encryptChunk(chunkData: Uint8Array, key?: Key): {
     key: Key
     encryptedSpan: Uint8Array
     encryptedData: Uint8Array
-  }> {
-    const key = generateRandomKey(KEY_LENGTH)
+  } {
+    const encryptionKey = key || generateRandomKey(KEY_LENGTH)
 
     // Encrypt span (first 8 bytes)
-    const spanEncrypter = newSpanEncryption(key)
-    const encryptedSpan = await spanEncrypter.encrypt(chunkData.subarray(0, 8))
+    const spanEncrypter = newSpanEncryption(encryptionKey)
+    const encryptedSpan = spanEncrypter.encrypt(chunkData.subarray(0, 8))
 
     // Encrypt data (remaining bytes)
-    const dataEncrypter = newDataEncryption(key)
-    const encryptedData = await dataEncrypter.encrypt(chunkData.subarray(8))
+    const dataEncrypter = newDataEncryption(encryptionKey)
+    const encryptedData = dataEncrypter.encrypt(chunkData.subarray(8))
 
     return {
-      key,
+      key: encryptionKey,
       encryptedSpan,
       encryptedData,
     }
@@ -242,14 +268,14 @@ export function newChunkEncrypter(): ChunkEncrypter {
 /**
  * Decrypts encrypted chunk data using the provided encryption key
  */
-export async function decryptChunkData(key: Key, encryptedChunkData: Uint8Array): Promise<Uint8Array> {
+export function decryptChunkData(key: Key, encryptedChunkData: Uint8Array): Uint8Array {
   // Decrypt span (first 8 bytes)
   const spanDecrypter = newSpanEncryption(key)
-  const decryptedSpan = await spanDecrypter.decrypt(encryptedChunkData.subarray(0, 8))
+  const decryptedSpan = spanDecrypter.decrypt(encryptedChunkData.subarray(0, 8))
 
   // Decrypt data (remaining bytes - should be 4096 bytes due to padding)
   const dataDecrypter = newDataEncryption(key)
-  const decryptedData = await dataDecrypter.decrypt(encryptedChunkData.subarray(8))
+  const decryptedData = dataDecrypter.decrypt(encryptedChunkData.subarray(8))
 
   // Concatenate span and data
   const result = new Uint8Array(8 + decryptedData.length)

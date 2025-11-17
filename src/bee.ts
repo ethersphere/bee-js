@@ -7,6 +7,7 @@ import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
 import * as bytes from './modules/bytes'
 import * as bzz from './modules/bzz'
 import * as chunk from './modules/chunk'
+import * as downloadStream from './modules/download-stream'
 import * as balance from './modules/debug/balance'
 import * as chequebook from './modules/debug/chequebook'
 import * as connectivity from './modules/debug/connectivity'
@@ -311,6 +312,55 @@ export class Bee {
   }
 
   /**
+   * Downloads raw data as a streaming ReadableStream by fetching chunks in parallel.
+   *
+   * This method is optimized for downloading large files as it:
+   * - Detects encryption automatically (64-byte encrypted references)
+   * - Fetches chunks in parallel with configurable concurrency
+   * - Streams data without loading entire file into memory
+   * - Supports progress callbacks
+   *
+   * Use this for downloading data uploaded with {@link uploadData} when you need:
+   * - Progress tracking
+   * - Better performance for large files
+   * - Lower memory usage
+   *
+   * @param resource Swarm reference (32 bytes plain, 64 bytes encrypted), Swarm CID, or ENS domain
+   * @param options Options including onDownloadProgress callback and concurrency
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
+   * @returns ReadableStream of file data
+   *
+   * @example
+   * ```typescript
+   * const stream = await bee.downloadDataStreaming(reference, {
+   *   onDownloadProgress: ({ total, processed }) => {
+   *     console.log(`Downloaded ${processed}/${total} chunks`)
+   *   },
+   *   concurrency: 32
+   * })
+   * ```
+   *
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   */
+  async downloadDataStreaming(
+    resource: Reference | Uint8Array | string,
+    options?: downloadStream.DownloadStreamOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<ReadableStream<Uint8Array>> {
+    if (options) {
+      options = { ...prepareDownloadOptions(options), ...options }
+    }
+
+    return downloadStream.downloadDataStreaming(
+      this,
+      resource,
+      options,
+      this.getRequestOptionsForCall(requestOptions),
+    )
+  }
+
+  /**
    * Uploads a chunk to the network.
    *
    * Chunks uploaded with this method should be retrieved with the {@link downloadChunk} method.
@@ -551,6 +601,67 @@ export class Bee {
     }
 
     return bzz.downloadFileReadable(this.getRequestOptionsForCall(requestOptions), reference, path, options)
+  }
+
+  /**
+   * Downloads a file from a manifest as a streaming ReadableStream by fetching chunks in parallel.
+   *
+   * This method is optimized for downloading files from collections/manifests:
+   * - Downloads and parses the manifest
+   * - Looks up the file at the specified path
+   * - Detects encryption automatically (64-byte encrypted references)
+   * - Fetches chunks in parallel with configurable concurrency
+   * - Returns file metadata (content-type, filename) along with stream
+   * - Supports progress callbacks
+   *
+   * Use this for downloading files from collections when you need:
+   * - Progress tracking
+   * - Better performance for large files
+   * - Lower memory usage
+   *
+   * @param resource Swarm manifest reference (32 bytes plain, 64 bytes encrypted), Swarm CID, or ENS domain
+   * @param path Path within the manifest (e.g., 'index.html', 'images/logo.png')
+   * @param options Options including onDownloadProgress callback and concurrency
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   *
+   * @returns FileData with ReadableStream and metadata
+   *
+   * @example
+   * ```typescript
+   * const file = await bee.downloadFileStreaming(manifestRef, 'document.pdf', {
+   *   onDownloadProgress: ({ total, processed }) => {
+   *     console.log(`Progress: ${(processed/total*100).toFixed(1)}%`)
+   *   },
+   *   concurrency: 32
+   * })
+   *
+   * console.log('Content-Type:', file.contentType)
+   * console.log('Filename:', file.name)
+   *
+   * // Use the stream
+   * const reader = file.data.getReader()
+   * ```
+   *
+   * @see [Bee docs - Upload and download](https://docs.ethswarm.org/docs/develop/access-the-swarm/upload-and-download)
+   * @see [Bee API reference - `GET /bzz`](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)
+   */
+  async downloadFileStreaming(
+    resource: Reference | Uint8Array | string,
+    path = '',
+    options?: downloadStream.DownloadStreamOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<FileData<ReadableStream<Uint8Array>>> {
+    if (options) {
+      options = { ...prepareDownloadOptions(options), ...options }
+    }
+
+    return downloadStream.downloadFileStreaming(
+      this,
+      resource,
+      path,
+      options,
+      this.getRequestOptionsForCall(requestOptions),
+    )
   }
 
   /**

@@ -1,5 +1,4 @@
 import { Binary } from 'cafe-utility'
-import { keccak } from 'hash-wasm'
 import { BeeArgumentError } from '../utils/error'
 import { Reference, Span } from '../utils/typed-bytes'
 
@@ -20,16 +19,16 @@ const SEGMENT_SIZE = 32
  *
  * @returns the keccak256 hash in a byte array
  */
-export async function calculateChunkAddress(chunkContent: Uint8Array): Promise<Reference> {
+export function calculateChunkAddress(chunkContent: Uint8Array): Reference {
   const span = chunkContent.slice(0, Span.LENGTH)
   const payload = chunkContent.slice(Span.LENGTH)
-  const rootHash = await calculateBmtRootHash(payload)
-  const chunkHash = await keccak(Binary.concatBytes(span, rootHash), 256)
+  const rootHash = calculateBmtRootHash(payload)
+  const chunkHash = Binary.keccak256(Binary.concatBytes(span, rootHash))
 
-  return new Reference(Binary.hexToUint8Array(chunkHash))
+  return new Reference(chunkHash)
 }
 
-async function calculateBmtRootHash(payload: Uint8Array): Promise<Uint8Array> {
+function calculateBmtRootHash(payload: Uint8Array): Uint8Array {
   if (payload.length > MAX_CHUNK_PAYLOAD_SIZE) {
     throw new BeeArgumentError(
       `payload size ${payload.length} exceeds maximum chunk payload size ${MAX_CHUNK_PAYLOAD_SIZE}`,
@@ -39,8 +38,22 @@ async function calculateBmtRootHash(payload: Uint8Array): Promise<Uint8Array> {
   const input = new Uint8Array(MAX_CHUNK_PAYLOAD_SIZE)
   input.set(payload)
 
-  return Binary.log2Reduce(Binary.partition(input, SEGMENT_SIZE), async (a, b) => {
-    const hash = await keccak(Binary.concatBytes(a, b), 256)
-    return Binary.hexToUint8Array(hash)
-  })
+  // Build BMT by hashing pairs of segments level by level
+  let currentLevel = Binary.partition(input, SEGMENT_SIZE)
+
+  while (currentLevel.length > 1) {
+    const nextLevel: Uint8Array[] = []
+
+    for (let i = 0; i < currentLevel.length; i += 2) {
+      const left = currentLevel[i]
+      const right = currentLevel[i + 1]
+      const combined = Binary.concatBytes(left, right)
+      const hash = Binary.keccak256(combined)
+      nextLevel.push(hash)
+    }
+
+    currentLevel = nextLevel
+  }
+
+  return currentLevel[0]
 }
