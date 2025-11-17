@@ -61,7 +61,7 @@
     "depcheck": "depcheck ."
   },
   "dependencies": {
-    "axios": "^0.30.0",
+    "axios": "^0.30.2",
     "cafe-utility": "^32.2.0",
     "debug": "^4.4.1",
     "isomorphic-ws": "^4.0.1",
