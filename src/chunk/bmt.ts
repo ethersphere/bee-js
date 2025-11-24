@@ -38,5 +38,22 @@ function calculateBmtRootHash(payload: Uint8Array): Uint8Array {
   const input = new Uint8Array(MAX_CHUNK_PAYLOAD_SIZE)
   input.set(payload)
 
-  return Binary.log2Reduce(Binary.partition(input, SEGMENT_SIZE), (a, b) => Binary.keccak256(Binary.concatBytes(a, b)))
+  // Build BMT by hashing pairs of segments level by level
+  let currentLevel = Binary.partition(input, SEGMENT_SIZE)
+
+  while (currentLevel.length > 1) {
+    const nextLevel: Uint8Array[] = []
+
+    for (let i = 0; i < currentLevel.length; i += 2) {
+      const left = currentLevel[i]
+      const right = currentLevel[i + 1]
+      const combined = Binary.concatBytes(left, right)
+      const hash = Binary.keccak256(combined)
+      nextLevel.push(hash)
+    }
+
+    currentLevel = nextLevel
+  }
+
+  return currentLevel[0]
 }
