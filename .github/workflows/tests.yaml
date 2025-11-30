@@ -14,29 +14,37 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: 20.x
 
-      - name: Install dependencies
+      - name: Install local dependencies
         run: npm ci
 
-      - name: Install fdp-play
-        run: npm install --global @fairdatasociety/fdp-play
-
-      - name: Install swarm-cli
-        run: npm install --global @ethersphere/swarm-cli
+      - name: Install global dependencies
+        run: npm install --global bee-dev @fairdatasociety/fdp-play @ethersphere/swarm-cli npxie
 
       - name: Run bee-dev
-        run: npx bee-dev --port 16337 &
+        run: bee-dev --port 16337 &
+
+      - name: Install fdp-play dependencies
+        run: |
+          cd fdp-play && npm install
+          cd orchestrator && npm install
+
+      - name: Build fdp-play images
+        run: |
+          cd fdp-play/orchestrator
+          npm run build:env -- --build-base-bee --bee-repository=Cafe137/inbee4.git
+
+      - name: Clean up fdp-play
+        run: rm -rf fdp-play/test
 
       - name: Start fdp-play environment
-        run: fdp-play start --detach --fresh --bee-version d0aa8b9-commit
+        run: fdp-play start --detach --blockchain-image ethereum/client-go:release-1.13 --bee-version HEAD-commit
 
       - name: Stake
         if: false
@@ -71,7 +79,7 @@ jobs:
       - name: Compare coverage
         if: github.ref != 'refs/heads/master'
         run:
-          npx npxie@2.6.1-rc.5 coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
+          npxie@2.6.1-rc.5 coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
           "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Fail if tests failed
