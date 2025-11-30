@@ -27,8 +27,8 @@ jobs:
       - name: Install global dependencies
         run: npm install --global bee-dev @fairdatasociety/fdp-play @ethersphere/swarm-cli npxie
 
-      - name: Run bee-dev
-        run: bee-dev --port 16337 &
+      - name: Clone fdp-play
+        run: git clone https://github.com/fairDataSociety/fdp-play
 
       - name: Install fdp-play dependencies
         run: |
@@ -42,6 +42,9 @@ jobs:
 
       - name: Clean up fdp-play
         run: rm -rf fdp-play/test
+
+      - name: Run bee-dev
+        run: bee-dev --port 16337 &
 
       - name: Start fdp-play environment
         run: fdp-play start --detach --blockchain-image ethereum/client-go:release-1.13 --bee-version HEAD-commit
