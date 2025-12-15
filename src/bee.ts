@@ -2196,7 +2196,7 @@ export class Bee {
 
     const currentAmount = getAmountForDuration(batch.duration, chainState.currentPrice, blockTime)
     const currentCost = getStampCost(batch.depth, currentAmount)
-    const newCost = getStampCost(depth, currentAmount + amount)
+    const newCost = getStampCost(Math.max(batch.depth, depth), currentAmount + amount)
 
     return newCost.minus(currentCost)
   }
