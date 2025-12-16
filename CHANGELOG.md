@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [10.1.2](https://github.com/ethersphere/bee-js/compare/v10.1.1...v10.1.2) (2025-12-15)
+
+
+### Bug Fixes
+
+* do not allow decreasing depth in getExtensionCost ([#1115](https://github.com/ethersphere/bee-js/issues/1115)) ([7a22194](https://github.com/ethersphere/bee-js/commit/7a22194f1483e86861da145e2aba70a5fe88d62a))
+
 ## [10.1.1](https://github.com/ethersphere/bee-js/compare/v10.1.0...v10.1.1) (2025-10-08)
 
 
