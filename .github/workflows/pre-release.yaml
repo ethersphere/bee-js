@@ -39,5 +39,5 @@ jobs:
           value: ${{ github.event.inputs.version }}
           
       - run: npm ci
-      
+      - run: npm run build --if-present 
       - run: npm publish --access public --tag next
