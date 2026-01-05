@@ -15,23 +15,26 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment: publish
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
         with:
-          ref: ${{ github.event.inputs.branch }}
-
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 16
+          node-version: 20
           registry-url: 'https://registry.npmjs.org'
-
+      
       - name: Replace Version in package.json
         uses: jossef/action-set-json-field@v1
         with:
           file: package.json
           field: version
           value: ${{ github.event.inputs.version }}
+          
       - run: npm ci
+      
       - run: npm publish --access public --tag next
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
