@@ -9,7 +9,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      
+    environment: publish
+
     steps:
       - uses: actions/checkout@v4
       
