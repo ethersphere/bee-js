@@ -1,4 +1,4 @@
-name: Tests (Bee stable)
+name: Tests (Bee RC)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  tests-bee-stable:
+  tests-bee-rc:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24.x
 
@@ -25,13 +25,29 @@ jobs:
         run: npm ci
 
       - name: Install global dependencies
-        run: npm install --global bee-dev @fairdatasociety/fdp-play @ethersphere/swarm-cli npxie
+        run: npm install --global bee-dev @fairdatasociety/fdp-play @ethersphere/swarm-cli
+
+      - name: Clone fdp-play
+        run: git clone https://github.com/fairDataSociety/fdp-play
+
+      - name: Install fdp-play dependencies
+        run: |
+          cd fdp-play && npm install
+          cd orchestrator && npm install
+
+      - name: Build fdp-play images
+        run: |
+          cd fdp-play/orchestrator
+          npm run build:env -- --build-base-bee --bee-repository=ethersphere/bee.git
+
+      - name: Clean up fdp-play
+        run: rm -rf fdp-play/test
 
       - name: Run bee-dev
         run: bee-dev --port 16337 &
 
       - name: Start fdp-play environment
-        run: fdp-play start --detach --fresh --bee-version d0aa8b9-commit
+        run: fdp-play start --detach --blockchain-image ethereum/client-go:release-1.13 --bee-version HEAD-commit
 
       - name: Deposit to chequebook
         run: |
@@ -53,18 +69,4 @@ jobs:
           JEST_BEE_URL: http://localhost:1633
           JEST_BEE_SIGNER: '566058308ad5fa3888173c741a1fb902c9f1f19559b11fc2738dfc53637ce4e9'
           JEST_WITHDRAW_ADDRESS: '0x0000000000000000000000000000000000000000'
-        run: |
-          set +e
-          npm test
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
-          set -e
-
-      - name: Compare coverage
-        if: github.ref != 'refs/heads/master'
-        run:
-          npxie coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
-          "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Fail if tests failed
-        if: steps.tests.outputs.exit_code != '0'
-        run: exit 1
+        run: npm test
