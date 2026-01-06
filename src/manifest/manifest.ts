@@ -424,7 +424,19 @@ export class MantarayNode {
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
     for (const fork of this.forks.values()) {
-      await fork.node.saveRecursively(bee, postageBatchId, options, requestOptions)
+      const uploadResult = await fork.node.saveRecursively(bee, postageBatchId, options, requestOptions)
+
+      if (options?.act) {
+        let historyAddress: Reference | undefined
+        uploadResult.historyAddress.ifPresent(ref => (historyAddress = ref))
+
+        if (historyAddress) {
+          if (!fork.node.metadata) {
+            fork.node.metadata = {}
+          }
+          fork.node.metadata['swarm-act-history-address'] = historyAddress.toHex()
+        }
+      }
     }
     const result = await bee.uploadData(postageBatchId, await this.marshal(), options, requestOptions)
     this.selfAddress = result.reference.toUint8Array()
@@ -440,7 +452,17 @@ export class MantarayNode {
       if (!fork.node.selfAddress) {
         throw Error('MantarayNode#loadRecursively fork.node.selfAddress is not set')
       }
-      const node = await MantarayNode.unmarshal(bee, fork.node.selfAddress, options, requestOptions)
+
+      let downloadOptions = options
+
+      if (fork.node.metadata && fork.node.metadata['swarm-act-history-address']) {
+        downloadOptions = {
+          ...options,
+          actHistoryAddress: fork.node.metadata['swarm-act-history-address'],
+        }
+      }
+
+      const node = await MantarayNode.unmarshal(bee, fork.node.selfAddress, downloadOptions, requestOptions)
       fork.node.targetAddress = node.targetAddress
       fork.node.forks = node.forks
       fork.node.path = fork.prefix
