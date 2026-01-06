@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [10.2.0](https://github.com/ethersphere/bee-js/compare/v10.1.2...v10.2.0) (2026-01-06)
+
+
+### Features
+
+* add recursive ACT support for mantaray structures ([#1119](https://github.com/ethersphere/bee-js/issues/1119)) ([32a4478](https://github.com/ethersphere/bee-js/commit/32a44786de8a8b2f7ac8b8ce27e8806b5d27efb8))
+
 ## [10.1.2](https://github.com/ethersphere/bee-js/compare/v10.1.1...v10.1.2) (2025-12-15)
 
 

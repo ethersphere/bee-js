@@ -1,6 +1,6 @@
 {
   "name": "@ethersphere/bee-js",
-  "version": "10.1.2",
+  "version": "10.2.0",
   "description": "Javascript client for Bee",
   "keywords": [
     "bee",
