@@ -1,7 +1,8 @@
-import { AsyncQueue, Chunk, MerkleTree, Strings } from 'cafe-utility'
+import { Chunk, MerkleTree, Strings } from 'cafe-utility'
 import { createReadStream } from 'fs'
 import { Bee, BeeRequestOptions, CollectionUploadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { MantarayNode } from '../manifest/manifest'
+import { ChunkUploadStream } from '../modules/chunk-stream-ws'
 import { totalChunks } from './chunk-size'
 import { makeCollectionFromFS } from './collection.node'
 import { mimes } from './mime'
@@ -32,7 +33,7 @@ export async function hashDirectory(dir: string) {
   return mantaray.calculateSelfAddress()
 }
 
-export async function streamDirectory(
+export async function streamDirectoryWithWebsocket(
   bee: Bee,
   dir: string,
   postageBatchId: BatchId | string | Uint8Array,
@@ -40,7 +41,6 @@ export async function streamDirectory(
   options?: CollectionUploadOptions,
   requestOptions?: BeeRequestOptions,
 ) {
-  const queue = new AsyncQueue(64, 64)
   let total = 0
   let processed = 0
   postageBatchId = new BatchId(postageBatchId)
@@ -51,12 +51,115 @@ export async function streamDirectory(
 
   let hasIndexHtml = false
 
+  // Create a tag for batch upload optimization
+  const tag = await bee.createTag(requestOptions)
+
+  // Create WebSocket stream for chunk uploads with tag
+  const uploadOptionsWithTag = { ...options, tag: tag.uid }
+  const chunkStream = new ChunkUploadStream(
+    bee.url,
+    postageBatchId,
+    uploadOptionsWithTag,
+    {
+      concurrency: 64,
+      onProgress: uploaded => {
+        onUploadProgress?.({ total, processed: uploaded })
+      },
+    },
+  )
+
+  await chunkStream.open()
+
   async function onChunk(chunk: Chunk) {
-    await queue.enqueue(async () => {
-      await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
-      onUploadProgress?.({ total, processed: ++processed })
-    })
+    await chunkStream.uploadChunk(chunk.build())
+    processed++
   }
+  const mantaray = new MantarayNode()
+  try {
+    for (const file of files) {
+      if (!file.fsPath) {
+        throw Error('File does not have fsPath, which should never happen in node. Please report this issue.')
+      }
+      const readStream = createReadStream(file.fsPath)
+
+      const tree = new MerkleTree(onChunk)
+      for await (const data of readStream) {
+        await tree.append(data)
+      }
+      const rootChunk = await tree.finalize()
+      const { filename, extension } = Strings.parseFilename(file.path)
+      mantaray.addFork(file.path, rootChunk.hash(), {
+        'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
+        Filename: filename,
+      })
+
+      if (file.path === 'index.html') {
+        hasIndexHtml = true
+      }
+    }
+  } finally {
+    // Close the WebSocket stream when done
+    await chunkStream.close()
+  }
+
+  if (hasIndexHtml || options?.indexDocument || options?.errorDocument) {
+    const metadata: Record<string, string> = {}
+
+    if (options?.indexDocument) {
+      metadata['website-index-document'] = options.indexDocument
+    } else if (hasIndexHtml) {
+      metadata['website-index-document'] = 'index.html'
+    }
+
+    if (options?.errorDocument) {
+      metadata['website-error-document'] = options.errorDocument
+    }
+    mantaray.addFork('/', NULL_ADDRESS, metadata)
+  }
+
+  return mantaray.saveRecursively(bee, postageBatchId, options, requestOptions)
+}
+
+function maybeEnrichMime(mime: string) {
+  if (['text/html', 'text/css'].includes(mime)) {
+    return `${mime}; charset=utf-8`
+  }
+
+  return mime
+}
+
+export async function streamDirectoryWithHttp(
+  bee: Bee,
+  dir: string,
+  postageBatchId: BatchId | string | Uint8Array,
+  onUploadProgress?: (progress: UploadProgress) => void,
+  options?: CollectionUploadOptions,
+  requestOptions?: BeeRequestOptions,
+) {
+  let total = 0
+  let processed = 0
+  postageBatchId = new BatchId(postageBatchId)
+  const files = await makeCollectionFromFS(dir)
+  for (const file of files) {
+    total += totalChunks(file.size)
+  }
+
+  let hasIndexHtml = false
+
+  // Create a tag for batch upload optimization
+  const tag = await bee.createTag(requestOptions)
+
+  // Use HTTP endpoint with tag for batch optimization
+  const uploadOptionsWithTag = { ...options, tag: tag.uid }
+
+  async function onChunk(chunk: Chunk) {
+    // Upload chunk via HTTP /chunks endpoint
+    const chunkData = chunk.build()
+    await bee.uploadChunk(postageBatchId, chunkData, uploadOptionsWithTag, requestOptions)
+    processed++
+    onUploadProgress?.({ total, processed })
+  }
+
   const mantaray = new MantarayNode()
   for (const file of files) {
     if (!file.fsPath) {
@@ -69,7 +172,6 @@ export async function streamDirectory(
       await tree.append(data)
     }
     const rootChunk = await tree.finalize()
-    await queue.drain()
     const { filename, extension } = Strings.parseFilename(file.path)
     mantaray.addFork(file.path, rootChunk.hash(), {
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
@@ -99,12 +201,16 @@ export async function streamDirectory(
   return mantaray.saveRecursively(bee, postageBatchId, options, requestOptions)
 }
 
-function maybeEnrichMime(mime: string) {
-  if (['text/html', 'text/css'].includes(mime)) {
-    return `${mime}; charset=utf-8`
-  }
-
-  return mime
+// Backwards compatibility: default to WebSocket
+export async function streamDirectory(
+  bee: Bee,
+  dir: string,
+  postageBatchId: BatchId | string | Uint8Array,
+  onUploadProgress?: (progress: UploadProgress) => void,
+  options?: CollectionUploadOptions,
+  requestOptions?: BeeRequestOptions,
+) {
+  return streamDirectoryWithWebsocket(bee, dir, postageBatchId, onUploadProgress, options, requestOptions)
 }
 
 export async function streamFiles(
