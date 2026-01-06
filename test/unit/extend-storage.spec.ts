@@ -54,3 +54,13 @@ test('extendStorage should not throw when only depth delta is negative', async (
   expect(batch.size.toGigabytes()).toBe(7.07)
   expect(batch.duration.toDays()).toBe(60)
 })
+
+test('getExtensionCost should handle zero size', async () => {
+  const originalCost = await bee.getStorageCost(Size.fromGigabytes(1), Duration.fromDays(42))
+  expect(originalCost.toDecimalString()).toBe('3.6528696854577152')
+  const batch = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(42))
+
+  const extensionCost = await bee.getExtensionCost(batch, Size.fromGigabytes(0), Duration.fromDays(42))
+
+  expect(extensionCost.toDecimalString()).toEqual('3.6528696854577152')
+})
