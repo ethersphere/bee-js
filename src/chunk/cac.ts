@@ -1,7 +1,8 @@
-import { Binary } from 'cafe-utility'
+import { Binary, Types } from 'cafe-utility'
 import { Bytes } from '../utils/bytes'
-import { Reference, Span } from '../utils/typed-bytes'
+import { Identifier, PrivateKey, Reference, Span } from '../utils/typed-bytes'
 import { calculateChunkAddress } from './bmt'
+import { makeSingleOwnerChunk, SingleOwnerChunk } from './soc'
 
 export const MIN_PAYLOAD_SIZE = 1
 export const MAX_PAYLOAD_SIZE = 4096
@@ -9,62 +10,63 @@ export const MAX_PAYLOAD_SIZE = 4096
 const ENCODER = new TextEncoder()
 
 /**
- * General chunk interface for Swarm
+ * Content Addressed Chunk (CAC) is the immutable building block of Swarm,
+ * holding at most 4096 bytes of payload.
  *
- * It stores the serialized data and provides functions to access
- * the fields of a chunk.
+ * - `span` indicates the size of the `payload` in bytes.
+ * - `payload` contains the actual data or the body of the chunk.
+ * - `data` contains the full chunk data - `span` and `payload`.
+ * - `address` is the Swarm hash (or reference) of the chunk.
  *
- * It also provides an address function to calculate the address of
- * the chunk that is required for the Chunk API.
+ * The `toSingleOwnerChunk` method allows converting the CAC into a Single Owner Chunk (SOC).
  */
 export interface Chunk {
+  /**
+   * Contains the full chunk data - `span` + `payload`.
+   */
   readonly data: Uint8Array
+  /**
+   * Indicates the size of the `payload` in bytes.
+   */
   span: Span
+  /**
+   * Contains the actual data or the body of the chunk.
+   */
   payload: Bytes
+  /**
+   * The Swarm hash (or reference) of the chunk.
+   */
   address: Reference
+  /**
+   * Converts the CAC into a Single Owner Chunk (SOC).
+   */
+  toSingleOwnerChunk: (
+    identifier: Identifier | Uint8Array | string,
+    signer: PrivateKey | Uint8Array | string,
+  ) => SingleOwnerChunk
 }
 
-/**
- * Creates a content addressed chunk and verifies the payload size.
- *
- * @param payloadBytes the data to be stored in the chunk
- */
-export function makeContentAddressedChunk(payloadBytes: Uint8Array | string): Chunk {
-  if (!(payloadBytes instanceof Uint8Array)) {
-    payloadBytes = ENCODER.encode(payloadBytes)
+export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string): Chunk {
+  if (Types.isString(rawPayload)) {
+    rawPayload = ENCODER.encode(rawPayload)
   }
 
-  if (payloadBytes.length < MIN_PAYLOAD_SIZE || payloadBytes.length > MAX_PAYLOAD_SIZE) {
-    throw new RangeError(
-      `payload size ${payloadBytes.length} exceeds limits [${MIN_PAYLOAD_SIZE}, ${MAX_PAYLOAD_SIZE}]`,
-    )
+  if (rawPayload.length < MIN_PAYLOAD_SIZE || rawPayload.length > MAX_PAYLOAD_SIZE) {
+    throw new RangeError(`payload size ${rawPayload.length} exceeds limits [${MIN_PAYLOAD_SIZE}, ${MAX_PAYLOAD_SIZE}]`)
   }
 
-  const span = Span.fromBigInt(BigInt(payloadBytes.length))
-  const data = Binary.concatBytes(span.toUint8Array(), payloadBytes)
+  const span = Span.fromBigInt(BigInt(rawPayload.length))
+  const payload = new Bytes(rawPayload)
+  const data = Binary.concatBytes(span.toUint8Array(), payload.toUint8Array())
+  const address = calculateChunkAddress(data)
 
   return {
     data,
     span,
     payload: Bytes.fromSlice(data, Span.LENGTH),
-    address: calculateChunkAddress(data),
-  }
-}
-
-export function asContentAddressedChunk(chunkBytes: Uint8Array): Chunk {
-  if (chunkBytes.length < MIN_PAYLOAD_SIZE + Span.LENGTH || chunkBytes.length > MAX_PAYLOAD_SIZE + Span.LENGTH) {
-    throw new RangeError(
-      `chunk size ${chunkBytes.length} exceeds limits [${MIN_PAYLOAD_SIZE + Span.LENGTH}, ${Span.LENGTH}]`,
-    )
-  }
-
-  const span = Span.fromSlice(chunkBytes, 0)
-  const data = Binary.concatBytes(span.toUint8Array(), chunkBytes.slice(Span.LENGTH))
-
-  return {
-    data,
-    span,
-    payload: Bytes.fromSlice(data, Span.LENGTH),
-    address: calculateChunkAddress(data),
+    address,
+    toSingleOwnerChunk: (identifier: Identifier | Uint8Array | string, signer: PrivateKey | Uint8Array | string) => {
+      return makeSingleOwnerChunk(address, span, payload, identifier, signer)
+    },
   }
 }

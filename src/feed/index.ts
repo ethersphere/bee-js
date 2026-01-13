@@ -1,7 +1,7 @@
 import { Binary, Optional, Types } from 'cafe-utility'
-import { asContentAddressedChunk, Chunk } from '../chunk/cac'
+import { Chunk, makeContentAddressedChunk } from '../chunk/cac'
 import {
-  makeSingleOwnerChunkFromData,
+  unmarshalSingleOwnerChunk,
   uploadSingleOwnerChunkData,
   uploadSingleOwnerChunkWithWrappedChunk,
 } from '../chunk/soc'
@@ -138,7 +138,7 @@ export async function downloadFeedUpdate(
   index = typeof index === 'number' ? FeedIndex.fromBigInt(BigInt(index)) : index
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const data = await chunkAPI.download(requestOptions, address.toHex())
-  const soc = makeSingleOwnerChunkFromData(data, address)
+  const soc = unmarshalSingleOwnerChunk(data, address)
   let timestamp: Optional<number> = Optional.empty()
 
   if (hasTimestamp) {
@@ -162,7 +162,7 @@ export async function downloadFeedUpdateAsCAC(
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const data = await chunkAPI.download(requestOptions, address)
 
-  return asContentAddressedChunk(data.slice(Identifier.LENGTH + Signature.LENGTH))
+  return makeContentAddressedChunk(data.slice(Identifier.LENGTH + Signature.LENGTH))
 }
 
 export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, owner: EthAddress): FeedReader {

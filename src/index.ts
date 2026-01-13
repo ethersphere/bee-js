@@ -3,6 +3,8 @@ import { BeeDev } from './bee-dev'
 import { Stamper } from './stamper/stamper'
 
 export { MerkleTree } from 'cafe-utility'
+export { Chunk } from './chunk/cac'
+export { SingleOwnerChunk } from './chunk/soc'
 export { MantarayNode } from './manifest/manifest'
 export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './modules/debug/status'
 export * from './types'

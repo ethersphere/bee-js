@@ -1,7 +1,13 @@
 import { Binary, Objects, System, Types } from 'cafe-utility'
 import { Readable } from 'stream'
 import { Chunk, makeContentAddressedChunk } from './chunk/cac'
-import { downloadSingleOwnerChunk, makeSOCAddress, makeSingleOwnerChunk, uploadSingleOwnerChunkData } from './chunk/soc'
+import {
+  SingleOwnerChunk,
+  downloadSingleOwnerChunk,
+  makeSOCAddress,
+  makeSingleOwnerChunk,
+  uploadSingleOwnerChunkData,
+} from './chunk/soc'
 import { makeFeedReader, makeFeedWriter } from './feed'
 import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
 import * as bytes from './modules/bytes'
@@ -127,6 +133,7 @@ import {
   PrivateKey,
   PublicKey,
   Reference,
+  Signature,
   Span,
   Topic,
   TransactionId,
@@ -316,7 +323,7 @@ export class Bee {
    * Chunks uploaded with this method should be retrieved with the {@link downloadChunk} method.
    *
    * @param stamp Postage Batch ID or an Envelope created with the {@link createEnvelope} method.
-   * @param data    Raw chunk to be uploaded
+   * @param data    Raw chunk to be uploaded (Content Addressed Chunk or Single Owner Chunk)
    * @param options Additional options like tag, encryption, pinning, content-type and request options
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
@@ -326,10 +333,12 @@ export class Bee {
    */
   async uploadChunk(
     stamp: EnvelopeWithBatchId | BatchId | Uint8Array | string,
-    data: Uint8Array | Chunk,
+    data: Uint8Array | Chunk | SingleOwnerChunk,
     options?: UploadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
+    const isSOC = 'identifier' in data && 'signature' in data && 'owner' in data
+
     data = data instanceof Uint8Array ? data : data.data
 
     if (options) {
@@ -340,8 +349,15 @@ export class Bee {
       throw new BeeArgumentError(`Chunk has to have size of at least ${Span.LENGTH}.`, data)
     }
 
-    if (data.length > CHUNK_SIZE + Span.LENGTH) {
-      throw new BeeArgumentError(`Chunk has to have size of at most ${CHUNK_SIZE + Span.LENGTH}.`, data)
+    if (!isSOC && data.length > CHUNK_SIZE + Span.LENGTH) {
+      throw new BeeArgumentError(`Content Addressed Chunk must not exceed ${CHUNK_SIZE + Span.LENGTH} bytes.`, data)
+    }
+
+    if (isSOC && data.length > CHUNK_SIZE + Span.LENGTH + Signature.LENGTH) {
+      throw new BeeArgumentError(
+        `Single Owner Chunk must not exceed ${CHUNK_SIZE + Span.LENGTH + Signature.LENGTH} bytes.`,
+        data,
+      )
     }
 
     return chunk.upload(this.getRequestOptionsForCall(requestOptions), data, stamp, options)
@@ -1184,7 +1200,7 @@ export class Bee {
     identifier = new Identifier(identifier)
 
     const cac = makeContentAddressedChunk(data)
-    const soc = makeSingleOwnerChunk(cac, identifier, signer)
+    const soc = cac.toSingleOwnerChunk(identifier, signer)
 
     return gsoc.send(this.getRequestOptionsForCall(requestOptions), soc, postageBatchId, options)
   }
@@ -1355,6 +1371,52 @@ export class Bee {
     owner = new EthAddress(owner)
 
     return fetchLatestFeedUpdate(this.getRequestOptionsForCall(requestOptions), owner, topic)
+  }
+
+  /**
+   * Creates a Content Addressed Chunk.
+   *
+   * To be uploaded with the {@link uploadChunk} method.
+   *
+   * Payload size must be between 1 and 4096 bytes.
+   *
+   * @param rawPayload Data to be stored in the chunk. If the data is a string, it will be converted to UTF-8 bytes.
+   *
+   * @example
+   *
+   */
+  makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string): Chunk {
+    return makeContentAddressedChunk(rawPayload)
+  }
+
+  /**
+   * Creates a Single Owner Chunk.
+   *
+   * To be uploaded with the {@link uploadChunk} method.
+   *
+   * Identical to using `makeContentAddressedChunk` and then `toSingleOwnerChunk` method on the returned object.
+   *
+   * @param chunk       A chunk object used for the span and payload
+   * @param identifier  The identifier of the chunk
+   * @param signer      The signer interface for signing the chunk
+   */
+  makeSingleOwnerChunk(
+    address: Reference,
+    span: Span,
+    payload: Bytes,
+    identifier: Identifier | Uint8Array | string,
+    signer: PrivateKey | Uint8Array | string,
+  ): SingleOwnerChunk {
+    return makeSingleOwnerChunk(address, span, payload, identifier, signer)
+  }
+  /**
+   * Calculates the address of a Single Owner Chunk based on its identifier and owner address.
+   *
+   * @param identifier
+   * @param address
+   */
+  calculateSingleOwnerChunkAddress(identifier: Identifier, address: EthAddress): Reference {
+    return makeSOCAddress(identifier, address)
   }
 
   /**

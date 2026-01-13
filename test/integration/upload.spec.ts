@@ -2,7 +2,6 @@ import { Binary, MerkleTree, Types } from 'cafe-utility'
 import { ReadStream } from 'fs'
 import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
-import { makeSingleOwnerChunk } from '../../src/chunk/soc'
 import { makeCollectionFromFileList } from '../../src/utils/collection'
 import { PrivateKey, Span } from '../../src/utils/typed-bytes'
 import { batch, makeBee } from '../utils'
@@ -120,7 +119,7 @@ test('POST soc', async () => {
 
   // reconstruct the data with makeSingleOwnerChunk
   const cac = makeContentAddressedChunk(data)
-  const soc = makeSingleOwnerChunk(cac, identifier, privateKey)
+  const soc = cac.toSingleOwnerChunk(identifier, privateKey)
   expect(soc.address.toHex()).toBe(expectedHash)
 })
 
