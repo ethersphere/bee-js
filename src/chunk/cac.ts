@@ -46,6 +46,7 @@ export interface Chunk {
 
 export function unmarshalContentAddressedChunk(data: Bytes | Uint8Array): Chunk {
   data = new Bytes(data)
+
   return makeContentAddressedChunk(data.toUint8Array().slice(Span.LENGTH))
 }
 
