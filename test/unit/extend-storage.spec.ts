@@ -3,6 +3,13 @@ import { Bee, Duration, Size } from '../../src'
 
 const bee = new Bee('http://localhost:16337')
 
+test('extendStorage should never decrease duration', async () => {
+  const batchId = await bee.buyStorage(Size.fromMegabytes(1), Duration.fromDays(30))
+  await bee.extendStorage(batchId, Size.fromMegabytes(100), Duration.fromDays(1))
+  const batch = await bee.getPostageBatch(batchId)
+  expect(batch.duration.toDays()).toBeGreaterThanOrEqual(30)
+})
+
 test('getExtensionCost should equal getSizeExtensionCost when Duration is 0', async () => {
   const batch = await bee.buyStorage(Size.fromGigabytes(4), Duration.fromDays(30))
 
