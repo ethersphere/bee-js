@@ -9,8 +9,8 @@ import { calculateChunkAddress } from './bmt'
 import { Chunk, makeContentAddressedChunk } from './cac'
 
 const SOC_SIGNATURE_OFFSET = Identifier.LENGTH
-const SOC_SPAN_OFFSET = SOC_SIGNATURE_OFFSET + Signature.LENGTH
-const SOC_PAYLOAD_OFFSET = SOC_SPAN_OFFSET + Span.LENGTH
+const SOC_SPAN_OFFSET = Identifier.LENGTH + Signature.LENGTH
+const SOC_PAYLOAD_OFFSET = Identifier.LENGTH + Signature.LENGTH + Span.LENGTH
 
 /**
  * Single Owner Chunk (SOC) is a chunk type where the address is determined by the owner and an arbitrary identifier.

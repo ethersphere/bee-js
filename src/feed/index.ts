@@ -1,5 +1,5 @@
 import { Binary, Optional, Types } from 'cafe-utility'
-import { Chunk, unmarshalContentAddressedChunk } from '../chunk/cac'
+import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from '../chunk/cac'
 import {
   unmarshalSingleOwnerChunk,
   uploadSingleOwnerChunkData,
@@ -153,7 +153,8 @@ export async function downloadFeedUpdateAsCAC(
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const data = await chunkAPI.download(requestOptions, address)
   const soc = unmarshalSingleOwnerChunk(data, address)
-  return unmarshalContentAddressedChunk(soc.payload)
+
+  return makeContentAddressedChunk(soc.payload)
 }
 
 export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, owner: EthAddress): FeedReader {
