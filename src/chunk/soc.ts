@@ -130,7 +130,12 @@ export function makeSingleOwnerChunk(
   signer = new PrivateKey(signer)
   const socAddress = makeSOCAddress(identifier, signer.publicKey().address())
   const signature = signer.sign(Binary.concatBytes(identifier.toUint8Array(), address.toUint8Array()))
-  const data = Binary.concatBytes(identifier.toUint8Array(), signature.toUint8Array(), payload.toUint8Array())
+  const data = Binary.concatBytes(
+    identifier.toUint8Array(),
+    signature.toUint8Array(),
+    span.toUint8Array(),
+    payload.toUint8Array(),
+  )
 
   return {
     data,
@@ -185,7 +190,7 @@ export async function uploadSingleOwnerChunkData(
   signer = new PrivateKey(signer)
   identifier = new Identifier(identifier)
   const cac = makeContentAddressedChunk(data)
-  const soc = makeSingleOwnerChunk(cac.address, cac.span, cac.payload, identifier, signer)
+  const soc = cac.toSingleOwnerChunk(identifier, signer)
 
   return uploadSingleOwnerChunk(requestOptions, soc, stamp, options)
 }
