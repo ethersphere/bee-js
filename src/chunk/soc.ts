@@ -90,7 +90,7 @@ export function unmarshalSingleOwnerChunk(
   )
 
   if (!Binary.equals(address.toUint8Array(), socAddress.toUint8Array())) {
-    throw new BeeError('SOC Data does not match given address!')
+    throw new BeeError('SOC data does not match given address!')
   }
 
   const signature = Signature.fromSlice(data, SOC_SIGNATURE_OFFSET)

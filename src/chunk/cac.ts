@@ -7,8 +7,6 @@ import { makeSingleOwnerChunk, SingleOwnerChunk } from './soc'
 export const MIN_PAYLOAD_SIZE = 1
 export const MAX_PAYLOAD_SIZE = 4096
 
-const ENCODER = new TextEncoder()
-
 /**
  * Content Addressed Chunk (CAC) is the immutable building block of Swarm,
  * holding at most 4096 bytes of payload.
@@ -48,7 +46,7 @@ export interface Chunk {
 
 export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string): Chunk {
   if (Types.isString(rawPayload)) {
-    rawPayload = ENCODER.encode(rawPayload)
+    rawPayload = Bytes.fromUtf8(rawPayload)
   }
 
   if (rawPayload.length < MIN_PAYLOAD_SIZE || rawPayload.length > MAX_PAYLOAD_SIZE) {
@@ -63,7 +61,7 @@ export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | strin
   return {
     data,
     span,
-    payload: Bytes.fromSlice(data, Span.LENGTH),
+    payload,
     address,
     toSingleOwnerChunk: (identifier: Identifier | Uint8Array | string, signer: PrivateKey | Uint8Array | string) => {
       return makeSingleOwnerChunk(address, span, payload, identifier, signer)

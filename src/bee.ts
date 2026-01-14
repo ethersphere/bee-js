@@ -6,6 +6,7 @@ import {
   downloadSingleOwnerChunk,
   makeSOCAddress,
   makeSingleOwnerChunk,
+  unmarshalSingleOwnerChunk,
   uploadSingleOwnerChunkData,
 } from './chunk/soc'
 import { makeFeedReader, makeFeedWriter } from './feed'
@@ -1394,9 +1395,13 @@ export class Bee {
    *
    * To be uploaded with the {@link uploadChunk} method.
    *
-   * Identical to using `makeContentAddressedChunk` and then `toSingleOwnerChunk` method on the returned object.
+   * Identical to chaining `makeContentAddressedChunk` and `toSingleOwnerChunk`.
    *
-   * @param chunk       A chunk object used for the span and payload
+   * Payload size must be between 1 and 4096 bytes.
+   *
+   * @param address     Address of the Content Addressed Chunk
+   * @param span        Span of the Content Addressed Chunk
+   * @param payload     Payload of the Content Addressed Chunk
    * @param identifier  The identifier of the chunk
    * @param signer      The signer interface for signing the chunk
    */
@@ -1409,6 +1414,7 @@ export class Bee {
   ): SingleOwnerChunk {
     return makeSingleOwnerChunk(address, span, payload, identifier, signer)
   }
+
   /**
    * Calculates the address of a Single Owner Chunk based on its identifier and owner address.
    *
@@ -1417,6 +1423,19 @@ export class Bee {
    */
   calculateSingleOwnerChunkAddress(identifier: Identifier, address: EthAddress): Reference {
     return makeSOCAddress(identifier, address)
+  }
+
+  /**
+   * Unmarshals arbitrary data into a Single Owner Chunk.
+   * Throws an error if the data is not a valid SOC.
+   *
+   * @param data    The chunk data
+   * @param address The address of the single owner chunk
+   *
+   * @returns a single owner chunk or throws error
+   */
+  unmarshalSingleOwnerChunk(data: Bytes | Uint8Array, address: Reference | Uint8Array | string): SingleOwnerChunk {
+    return unmarshalSingleOwnerChunk(data, address)
   }
 
   /**
