@@ -2182,7 +2182,9 @@ export class Bee {
     const blockTime = this.network === 'gnosis' ? 5 : 15
     const additionalAmount = getAmountForDuration(duration, chainState.currentPrice, blockTime)
     const currentAmount = getAmountForDuration(batch.duration, chainState.currentPrice, blockTime)
-    const targetAmount = duration.isZero() ? currentAmount * multiplier : currentAmount + additionalAmount * multiplier
+    const targetAmount = duration.isZero()
+      ? currentAmount * multiplier
+      : (currentAmount + additionalAmount) * multiplier
 
     const amountDelta = targetAmount - currentAmount
 
