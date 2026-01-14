@@ -154,7 +154,7 @@ export async function downloadFeedUpdateAsCAC(
   const data = await chunkAPI.download(requestOptions, address)
   const soc = unmarshalSingleOwnerChunk(data, address)
 
-  return makeContentAddressedChunk(soc.payload)
+  return makeContentAddressedChunk(soc.payload, soc.span)
 }
 
 export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, owner: EthAddress): FeedReader {

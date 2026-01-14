@@ -1388,7 +1388,7 @@ export class Bee {
    *
    */
   makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string, span?: Span | bigint): Chunk {
-    return makeContentAddressedChunk(rawPayload)
+    return makeContentAddressedChunk(rawPayload, span)
   }
 
   /**
