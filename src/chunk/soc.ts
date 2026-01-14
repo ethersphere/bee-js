@@ -37,9 +37,6 @@ export interface SingleOwnerChunk {
   span: Span
   /**
    * Contains the actual data or the body of the chunk.
-   *
-   * If the SOC is wrapping a CAC, this will include both the `span` and the `payload` of it. It is up to the
-   * developer to unmarshal the underlying CAC accordingly.
    */
   payload: Bytes
   /**
