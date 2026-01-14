@@ -47,10 +47,10 @@ export interface Chunk {
 export function unmarshalContentAddressedChunk(data: Bytes | Uint8Array): Chunk {
   data = new Bytes(data)
 
-  return makeContentAddressedChunk(data.toUint8Array().slice(Span.LENGTH))
+  return makeContentAddressedChunk(data.toUint8Array().slice(Span.LENGTH), Span.fromSlice(data.toUint8Array(), 0))
 }
 
-export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string): Chunk {
+export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string, span?: Span | bigint): Chunk {
   if (Types.isString(rawPayload)) {
     rawPayload = Bytes.fromUtf8(rawPayload)
   }
@@ -59,18 +59,22 @@ export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | strin
     throw new RangeError(`payload size ${rawPayload.length} exceeds limits [${MIN_PAYLOAD_SIZE}, ${MAX_PAYLOAD_SIZE}]`)
   }
 
-  const span = Span.fromBigInt(BigInt(rawPayload.length))
+  const typedSpan: Span = span
+    ? typeof span === 'bigint'
+      ? Span.fromBigInt(span)
+      : span
+    : Span.fromBigInt(BigInt(rawPayload.length))
   const payload = new Bytes(rawPayload)
-  const data = Binary.concatBytes(span.toUint8Array(), payload.toUint8Array())
+  const data = Binary.concatBytes(typedSpan.toUint8Array(), payload.toUint8Array())
   const address = calculateChunkAddress(data)
 
   return {
     data,
-    span,
+    span: typedSpan,
     payload,
     address,
     toSingleOwnerChunk: (identifier: Identifier | Uint8Array | string, signer: PrivateKey | Uint8Array | string) => {
-      return makeSingleOwnerChunk(address, span, payload, identifier, signer)
+      return makeSingleOwnerChunk(address, typedSpan, payload, identifier, signer)
     },
   }
 }

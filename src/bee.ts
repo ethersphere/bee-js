@@ -1382,11 +1382,12 @@ export class Bee {
    * Payload size must be between 1 and 4096 bytes.
    *
    * @param rawPayload Data to be stored in the chunk. If the data is a string, it will be converted to UTF-8 bytes.
+   * @param span       Optional span for the chunk. If not provided, it will be set to the length of the payload.
    *
    * @example
    *
    */
-  makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string): Chunk {
+  makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string, span?: Span | bigint): Chunk {
     return makeContentAddressedChunk(rawPayload)
   }
 
