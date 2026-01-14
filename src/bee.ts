@@ -354,9 +354,9 @@ export class Bee {
       throw new BeeArgumentError(`Content Addressed Chunk must not exceed ${CHUNK_SIZE + Span.LENGTH} bytes.`, data)
     }
 
-    if (isSOC && data.length > CHUNK_SIZE + Span.LENGTH + Signature.LENGTH) {
+    if (isSOC && data.length > CHUNK_SIZE + Span.LENGTH + Signature.LENGTH + Identifier.LENGTH) {
       throw new BeeArgumentError(
-        `Single Owner Chunk must not exceed ${CHUNK_SIZE + Span.LENGTH + Signature.LENGTH} bytes.`,
+        `Single Owner Chunk must not exceed ${CHUNK_SIZE + Span.LENGTH + Signature.LENGTH + Identifier.LENGTH} bytes.`,
         data,
       )
     }
