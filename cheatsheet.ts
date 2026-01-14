@@ -185,6 +185,9 @@ async function main() {
       onError: error => {
         console.error(error)
       },
+      onClose: () => {
+        console.log('subscription closed')
+      },
     })
   }
 
@@ -226,6 +229,9 @@ async function main() {
       },
       onError: error => {
         console.error(error)
+      },
+      onClose: () => {
+        console.log('subscription closed')
       },
     })
   }

@@ -1,7 +1,7 @@
 import { Binary, Optional, Types } from 'cafe-utility'
-import { asContentAddressedChunk, Chunk } from '../chunk/cac'
+import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from '../chunk/cac'
 import {
-  makeSingleOwnerChunkFromData,
+  unmarshalSingleOwnerChunk,
   uploadSingleOwnerChunkData,
   uploadSingleOwnerChunkWithWrappedChunk,
 } from '../chunk/soc'
@@ -18,16 +18,7 @@ import { BeeRequestOptions, FeedReader, FeedWriter, UploadOptions, UploadResult 
 import { Bytes } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
 import { ResourceLocator } from '../utils/resource-locator'
-import {
-  BatchId,
-  EthAddress,
-  FeedIndex,
-  Identifier,
-  PrivateKey,
-  Reference,
-  Signature,
-  Topic,
-} from '../utils/typed-bytes'
+import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from '../utils/typed-bytes'
 import { makeFeedIdentifier } from './identifier'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
@@ -100,7 +91,7 @@ export async function updateFeedWithPayload(
 
   if (data.length > 4096) {
     const uploadResult = await bytes.upload(requestOptions, data, postageBatchId, options)
-    const rootChunk = await chunkAPI.download(requestOptions, uploadResult.reference)
+    const rootChunk = unmarshalContentAddressedChunk(await chunkAPI.download(requestOptions, uploadResult.reference))
 
     return uploadSingleOwnerChunkWithWrappedChunk(
       requestOptions,
@@ -138,7 +129,7 @@ export async function downloadFeedUpdate(
   index = typeof index === 'number' ? FeedIndex.fromBigInt(BigInt(index)) : index
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const data = await chunkAPI.download(requestOptions, address.toHex())
-  const soc = makeSingleOwnerChunkFromData(data, address)
+  const soc = unmarshalSingleOwnerChunk(data, address)
   let timestamp: Optional<number> = Optional.empty()
 
   if (hasTimestamp) {
@@ -161,8 +152,9 @@ export async function downloadFeedUpdateAsCAC(
   index = typeof index === 'number' ? FeedIndex.fromBigInt(BigInt(index)) : index
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const data = await chunkAPI.download(requestOptions, address)
+  const soc = unmarshalSingleOwnerChunk(data, address)
 
-  return asContentAddressedChunk(data.slice(Identifier.LENGTH + Signature.LENGTH))
+  return makeContentAddressedChunk(soc.payload, soc.span)
 }
 
 export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, owner: EthAddress): FeedReader {
