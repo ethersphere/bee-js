@@ -6,7 +6,7 @@ import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Signature, Span } from '../utils/typed-bytes'
 import { calculateChunkAddress } from './bmt'
-import { makeContentAddressedChunk } from './cac'
+import { Chunk, makeContentAddressedChunk } from './cac'
 
 const SOC_SIGNATURE_OFFSET = Identifier.LENGTH
 const SOC_SPAN_OFFSET = SOC_SIGNATURE_OFFSET + Signature.LENGTH
@@ -195,12 +195,12 @@ export async function uploadSingleOwnerChunkWithWrappedChunk(
   signer: PrivateKey | Uint8Array | string,
   stamp: BatchId | Uint8Array | string,
   identifier: Identifier | Uint8Array | string,
-  rootChunk: Uint8Array,
+  wrappedChunk: Chunk,
   options?: UploadOptions,
 ): Promise<UploadResult> {
   signer = new PrivateKey(signer)
   identifier = new Identifier(identifier)
-  const soc = makeContentAddressedChunk(rootChunk).toSingleOwnerChunk(identifier, signer)
+  const soc = wrappedChunk.toSingleOwnerChunk(identifier, signer)
 
   return uploadSingleOwnerChunk(requestOptions, soc, stamp, options)
 }

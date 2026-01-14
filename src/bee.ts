@@ -1,6 +1,6 @@
 import { Binary, Objects, System, Types } from 'cafe-utility'
 import { Readable } from 'stream'
-import { Chunk, makeContentAddressedChunk } from './chunk/cac'
+import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from './chunk/cac'
 import {
   SingleOwnerChunk,
   downloadSingleOwnerChunk,
@@ -1391,6 +1391,16 @@ export class Bee {
   }
 
   /**
+   * Attempts to unmarshal arbitrary data into a Content Addressed Chunk.
+   * Throws an error if the data is not a valid CAC.
+   *
+   * @param data The chunk data (`span` and `payload`)
+   */
+  unmarshalContentAddressedChunk(data: Bytes | Uint8Array): Chunk {
+    return unmarshalContentAddressedChunk(data)
+  }
+
+  /**
    * Creates a Single Owner Chunk.
    *
    * To be uploaded with the {@link uploadChunk} method.
@@ -1426,7 +1436,7 @@ export class Bee {
   }
 
   /**
-   * Unmarshals arbitrary data into a Single Owner Chunk.
+   * Attempts to unmarshal arbitrary data into a Single Owner Chunk.
    * Throws an error if the data is not a valid SOC.
    *
    * @param data    The chunk data

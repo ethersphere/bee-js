@@ -1,5 +1,5 @@
 import { Binary, Optional, Types } from 'cafe-utility'
-import { Chunk, makeContentAddressedChunk } from '../chunk/cac'
+import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from '../chunk/cac'
 import {
   unmarshalSingleOwnerChunk,
   uploadSingleOwnerChunkData,
@@ -26,6 +26,7 @@ import {
   PrivateKey,
   Reference,
   Signature,
+  Span,
   Topic,
 } from '../utils/typed-bytes'
 import { makeFeedIdentifier } from './identifier'
@@ -100,7 +101,7 @@ export async function updateFeedWithPayload(
 
   if (data.length > 4096) {
     const uploadResult = await bytes.upload(requestOptions, data, postageBatchId, options)
-    const rootChunk = await chunkAPI.download(requestOptions, uploadResult.reference)
+    const rootChunk = unmarshalContentAddressedChunk(await chunkAPI.download(requestOptions, uploadResult.reference))
 
     return uploadSingleOwnerChunkWithWrappedChunk(
       requestOptions,
@@ -162,7 +163,7 @@ export async function downloadFeedUpdateAsCAC(
   const address = getFeedUpdateChunkReference(owner, topic, index)
   const data = await chunkAPI.download(requestOptions, address)
 
-  return makeContentAddressedChunk(data.slice(Identifier.LENGTH + Signature.LENGTH))
+  return makeContentAddressedChunk(data.slice(Identifier.LENGTH + Signature.LENGTH + Span.LENGTH))
 }
 
 export function makeFeedReader(requestOptions: BeeRequestOptions, topic: Topic, owner: EthAddress): FeedReader {

@@ -44,6 +44,11 @@ export interface Chunk {
   ) => SingleOwnerChunk
 }
 
+export function unmarshalContentAddressedChunk(data: Bytes | Uint8Array): Chunk {
+  data = new Bytes(data)
+  return makeContentAddressedChunk(data.toUint8Array().slice(Span.LENGTH))
+}
+
 export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string): Chunk {
   if (Types.isString(rawPayload)) {
     rawPayload = Bytes.fromUtf8(rawPayload)
