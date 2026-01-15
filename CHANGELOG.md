@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [10.3.0](https://github.com/ethersphere/bee-js/compare/v10.2.0...v10.3.0) (2026-01-15)
+
+
+### Features
+
+* improve soc developer api ([#1123](https://github.com/ethersphere/bee-js/issues/1123)) ([ae7d4ac](https://github.com/ethersphere/bee-js/commit/ae7d4ac9abfcafe0fc7bfd50e6c22d5b5f18c351))
+
+
+### Bug Fixes
+
+* retain existing amount in extendStorage ([#1127](https://github.com/ethersphere/bee-js/issues/1127)) ([67333fb](https://github.com/ethersphere/bee-js/commit/67333fb5c206630528a082d244450bfa639007bc))
+
 ## [10.2.0](https://github.com/ethersphere/bee-js/compare/v10.1.2...v10.2.0) (2026-01-06)
 
 
