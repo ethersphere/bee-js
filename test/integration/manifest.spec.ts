@@ -1,3 +1,4 @@
+import { Dates, System } from 'cafe-utility'
 import { MantarayNode, NULL_ADDRESS, PrivateKey, Topic } from '../../src'
 import { arbitraryPrivateKey, arbitraryReference, batch, makeBee } from '../utils'
 
@@ -93,7 +94,12 @@ test('Manifest feed resolver', async () => {
     'swarm-feed-type': 'Sequence',
   })
 
-  const feedUpdate = (await node.resolveFeed(bee)).getOrThrow()
+  const feedUpdate = await System.withRetries(
+    async () => (await node.resolveFeed(bee)).getOrThrow(),
+    10,
+    Dates.seconds(1),
+    Dates.seconds(2),
+  )
   const resolved = MantarayNode.unmarshalFromData(feedUpdate.payload.toUint8Array(), NULL_ADDRESS)
   await resolved.loadRecursively(bee)
 
