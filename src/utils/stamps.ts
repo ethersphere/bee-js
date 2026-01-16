@@ -213,7 +213,6 @@ export interface RawPostageBatch {
   bucketDepth: number
   blockNumber: number
   immutableFlag: boolean
-  exists: boolean
   batchTTL: number
 }
 
@@ -253,5 +252,20 @@ export function mapPostageBatch(
 
       return Size.fromBytes(Math.ceil(effectiveBytes * (1 - this.usage)))
     },
+  }
+}
+
+export function unmapPostageBatch(batch: PostageBatch): RawPostageBatch {
+  return {
+    batchID: batch.batchID.toHex(),
+    utilization: batch.utilization,
+    usable: batch.usable,
+    label: batch.label,
+    depth: batch.depth,
+    amount: batch.amount,
+    bucketDepth: batch.bucketDepth,
+    blockNumber: batch.blockNumber,
+    immutableFlag: batch.immutableFlag,
+    batchTTL: batch.duration.toSeconds(),
   }
 }

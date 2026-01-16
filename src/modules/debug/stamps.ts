@@ -158,7 +158,6 @@ function validateRawPostageBatch(raw: Record<string, unknown>): RawPostageBatch 
     bucketDepth: Types.asNumber(raw.bucketDepth, { name: 'bucketDepth' }),
     blockNumber: Types.asNumber(raw.blockNumber, { name: 'blockNumber' }),
     depth: Types.asNumber(raw.depth, { name: 'depth' }),
-    exists: Types.asBoolean(raw.exists, { name: 'exists' }),
     immutableFlag: Types.asBoolean(raw.immutableFlag, { name: 'immutableFlag' }),
     label: Types.asEmptiableString(raw.label, { name: 'label' }),
     usable: Types.asBoolean(raw.usable, { name: 'usable' }),
