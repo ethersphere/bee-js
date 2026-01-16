@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [10.4.0](https://github.com/ethersphere/bee-js/compare/v10.3.0...v10.4.0) (2026-01-16)
+
+
+### Features
+
+* add utils function to map postage batch ([#1130](https://github.com/ethersphere/bee-js/issues/1130)) ([36f4e06](https://github.com/ethersphere/bee-js/commit/36f4e0684f69ce9fba9dafcfd51e6e77ba1efab2))
+
 ## [10.3.0](https://github.com/ethersphere/bee-js/compare/v10.2.0...v10.3.0) (2026-01-15)
 
 
