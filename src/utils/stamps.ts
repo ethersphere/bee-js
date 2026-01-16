@@ -1,10 +1,12 @@
 import { Binary } from 'cafe-utility'
-import { capacityBreakpoints, EnvelopeWithBatchId, NumberString, RedundancyLevel } from '../types'
+import { capacityBreakpoints, EnvelopeWithBatchId, NumberString, PostageBatch, RedundancyLevel } from '../types'
 import { Bytes, parseSizeToBytes } from './bytes'
 import { Duration } from './duration'
 import { Size } from './size'
 import { BZZ } from './tokens'
 import { asNumberString } from './type'
+import { BatchId } from './typed-bytes'
+import { normalizeBatchTTL } from './workaround'
 
 const MAX_UTILIZATION = 0.9
 
@@ -199,4 +201,71 @@ export function marshalStamp(
   }
 
   return new Bytes(Binary.concatBytes(batchId, index, timestamp, signature))
+}
+
+export interface RawPostageBatch {
+  batchID: string
+  utilization: number
+  usable: boolean
+  label: string
+  depth: number
+  amount: string
+  bucketDepth: number
+  blockNumber: number
+  immutableFlag: boolean
+  batchTTL: number
+}
+
+export function mapPostageBatch(
+  raw: RawPostageBatch,
+  encryption?: boolean,
+  erasureCodeLevel?: RedundancyLevel,
+): PostageBatch {
+  const usage = getStampUsage(raw.utilization, raw.depth, raw.bucketDepth)
+  const batchTTL = normalizeBatchTTL(raw.batchTTL)
+  const duration = Duration.fromSeconds(batchTTL)
+  const effectiveBytes = getStampEffectiveBytes(raw.depth, encryption, erasureCodeLevel)
+
+  return {
+    batchID: new BatchId(raw.batchID),
+    utilization: raw.utilization,
+    usable: raw.usable,
+    label: raw.label,
+    depth: raw.depth,
+    amount: asNumberString(raw.amount),
+    bucketDepth: raw.bucketDepth,
+    blockNumber: raw.blockNumber,
+    immutableFlag: raw.immutableFlag,
+    usage,
+    usageText: `${Math.round(usage * 100)}%`,
+    size: Size.fromBytes(effectiveBytes),
+    remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage))),
+    theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(raw.depth)),
+    duration,
+    calculateSize(encryption, redundancyLevel) {
+      const effectiveBytes = getStampEffectiveBytes(raw.depth, encryption, redundancyLevel)
+
+      return Size.fromBytes(effectiveBytes)
+    },
+    calculateRemainingSize(encryption, redundancyLevel) {
+      const effectiveBytes = getStampEffectiveBytes(raw.depth, encryption, redundancyLevel)
+
+      return Size.fromBytes(Math.ceil(effectiveBytes * (1 - this.usage)))
+    },
+  }
+}
+
+export function unmapPostageBatch(batch: PostageBatch): RawPostageBatch {
+  return {
+    batchID: batch.batchID.toHex(),
+    utilization: batch.utilization,
+    usable: batch.usable,
+    label: batch.label,
+    depth: batch.depth,
+    amount: batch.amount,
+    bucketDepth: batch.bucketDepth,
+    blockNumber: batch.blockNumber,
+    immutableFlag: batch.immutableFlag,
+    batchTTL: batch.duration.toSeconds(),
+  }
 }
