@@ -55,7 +55,7 @@
     "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup && babel --plugins \"babel-plugin-add-import-extension\" --out-dir dist/mjs/ dist/mjs/",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
     "build:browser": "webpack --progress",
-    "test": "TS_NODE_PROJECT=tsconfig.test.json jest --config=jest.config.ts --runInBand --verbose --forceExit",
+    "test": "TS_NODE_PROJECT=tsconfig.test.json jest --runInBand --verbose --forceExit",
     "check": "tsc --project tsconfig.test.json",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "depcheck": "depcheck ."
@@ -77,7 +77,6 @@
     "@babel/preset-typescript": "^7.18.6",
     "@commitlint/cli": "^17.0.2",
     "@commitlint/config-conventional": "^17.4.2",
-    "@jest/types": "^30.2.0",
     "@types/debug": "^4.1.12",
     "@types/jest": "^30.0.0",
     "@types/node": "^18.11.11",
