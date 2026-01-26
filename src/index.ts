@@ -20,6 +20,8 @@ export { makeContentAddressedChunk, type Chunk } from './chunk/cac'
 export { makeEncryptedContentAddressedChunk, type EncryptedChunk } from './chunk/encrypted-cac'
 export { calculateChunkAddress } from './chunk/bmt'
 export { newChunkEncrypter } from './chunk/encryption'
+export { ChunkUploadStream, type ChunkStreamOptions, type ChunkStreamResult } from './modules/chunk-stream-ws'
+export { convertEnvelopeToMarshaledStamp } from './utils/stamps'
 export { Bee, BeeDev, Stamper }
 
 // for require-like imports
