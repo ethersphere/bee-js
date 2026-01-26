@@ -3,7 +3,6 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 import type { Config } from '@jest/types'
-
 import { Assertions, Dates, System, Types } from 'cafe-utility'
 import { Bee } from './src'
 
