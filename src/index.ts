@@ -16,6 +16,7 @@ export * as Utils from './utils/expose'
 export { Size } from './utils/size'
 export * from './utils/tokens'
 export * from './utils/typed-bytes'
+export type { UploadProgress } from './utils/upload-progress'
 export { Bee, BeeDev, Stamper }
 
 // for require-like imports
