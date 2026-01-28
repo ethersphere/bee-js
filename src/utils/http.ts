@@ -11,6 +11,7 @@ const MAX_FAILED_ATTEMPTS = 100_000
 const DELAY_FAST = 200
 const DELAY_SLOW = 1000
 const DELAY_THRESHOLD = Dates.minutes(1) / DELAY_FAST
+const ABORT_ERROR_MESSAGE = 'Request aborted'
 
 export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
   headers: {
@@ -18,6 +19,24 @@ export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
   },
   maxBodyLength: Infinity,
   maxContentLength: Infinity,
+}
+
+function throwIfAborted(
+  signal: AbortSignal | undefined,
+  config: AxiosRequestConfig,
+  responseData?: unknown,
+  responseStatus?: number,
+): void {
+  if (signal?.aborted) {
+    throw new BeeResponseError(
+      config.method || 'get',
+      config.url || '<unknown>',
+      ABORT_ERROR_MESSAGE,
+      responseData,
+      responseStatus,
+      'ERR_CANCELED',
+    )
+  }
 }
 
 /**
@@ -30,17 +49,7 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
 
   if (options.signal) {
     requestConfig.signal = options.signal
-
-    if (options.signal.aborted) {
-      throw new BeeResponseError(
-        config.method || 'get',
-        config.url || '<unknown>',
-        'Request aborted',
-        undefined,
-        undefined,
-        'ERR_CANCELED',
-      )
-    }
+    throwIfAborted(options.signal, config)
   }
 
   if (requestConfig.data && typeof Buffer !== 'undefined' && Buffer.isBuffer(requestConfig.data)) {
@@ -63,16 +72,7 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
 
   let failedAttempts = 0
   while (failedAttempts < MAX_FAILED_ATTEMPTS) {
-    if (options.signal?.aborted) {
-      throw new BeeResponseError(
-        config.method || 'get',
-        config.url || '<unknown>',
-        'Request aborted',
-        undefined,
-        undefined,
-        'ERR_CANCELED',
-      )
-    }
+    throwIfAborted(options.signal, config)
 
     try {
       debug(
@@ -89,14 +89,7 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     } catch (e: unknown) {
       if (e instanceof AxiosError) {
         if (e.code === 'ERR_CANCELED') {
-          throw new BeeResponseError(
-            config.method || 'get',
-            config.url || '<unknown>',
-            'Request aborted',
-            e.response?.data,
-            e.response?.status,
-            'ERR_CANCELED',
-          )
+          throwIfAborted({ aborted: true } as AbortSignal, config, e.response?.data, e.response?.status)
         }
 
         if (e.code === 'ECONNABORTED' && options.endlesslyRetry) {

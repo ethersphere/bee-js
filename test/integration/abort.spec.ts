@@ -1,8 +1,9 @@
+import { BeeResponseError } from '../../src'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()
 
-test('abort upload should reject with error', async () => {
+test('abort upload should reject with ERR_CANCELED', async () => {
   const controller = new AbortController()
   const largeData = 'x'.repeat(1024 * 1024) // 1MB to ensure request takes time
 
@@ -10,7 +11,8 @@ test('abort upload should reject with error', async () => {
 
   controller.abort()
 
-  await expect(uploadPromise).rejects.toThrow()
+  await expect(uploadPromise).rejects.toThrow(BeeResponseError)
+  await expect(uploadPromise).rejects.toMatchObject({ code: 'ERR_CANCELED' })
 })
 
 test('AbortController signal works with uploadFile', async () => {
@@ -21,7 +23,8 @@ test('AbortController signal works with uploadFile', async () => {
 
   controller.abort()
 
-  await expect(uploadPromise).rejects.toThrow()
+  await expect(uploadPromise).rejects.toThrow(BeeResponseError)
+  await expect(uploadPromise).rejects.toMatchObject({ code: 'ERR_CANCELED' })
 })
 
 test('non-aborted upload completes successfully', async () => {
