@@ -28,6 +28,21 @@ export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
 export async function http<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
   const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
 
+  if (options.signal) {
+    requestConfig.signal = options.signal
+
+    if (options.signal.aborted) {
+      throw new BeeResponseError(
+        config.method || 'get',
+        config.url || '<unknown>',
+        'Request aborted',
+        undefined,
+        undefined,
+        'ERR_CANCELED',
+      )
+    }
+  }
+
   if (requestConfig.data && typeof Buffer !== 'undefined' && Buffer.isBuffer(requestConfig.data)) {
     requestConfig.data = requestConfig.data.buffer.slice(
       requestConfig.data.byteOffset,
@@ -48,6 +63,17 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
 
   let failedAttempts = 0
   while (failedAttempts < MAX_FAILED_ATTEMPTS) {
+    if (options.signal?.aborted) {
+      throw new BeeResponseError(
+        config.method || 'get',
+        config.url || '<unknown>',
+        'Request aborted',
+        undefined,
+        undefined,
+        'ERR_CANCELED',
+      )
+    }
+
     try {
       debug(
         `${requestConfig.method || 'get'} ${Strings.joinUrl([
@@ -62,6 +88,17 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
       return response as AxiosResponse<T>
     } catch (e: unknown) {
       if (e instanceof AxiosError) {
+        if (e.code === 'ERR_CANCELED') {
+          throw new BeeResponseError(
+            config.method || 'get',
+            config.url || '<unknown>',
+            'Request aborted',
+            e.response?.data,
+            e.response?.status,
+            'ERR_CANCELED',
+          )
+        }
+
         if (e.code === 'ECONNABORTED' && options.endlesslyRetry) {
           failedAttempts++
           await System.sleepMillis(failedAttempts < DELAY_THRESHOLD ? DELAY_FAST : DELAY_SLOW)

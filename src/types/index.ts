@@ -56,6 +56,7 @@ export type BeeRequestOptions = {
   httpAgent?: unknown
   httpsAgent?: unknown
   endlesslyRetry?: boolean
+  signal?: AbortSignal
 }
 
 /**

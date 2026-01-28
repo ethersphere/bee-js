@@ -45,6 +45,7 @@ export function prepareBeeRequestOptions(value: unknown): BeeRequestOptions {
     httpAgent: object.httpAgent,
     httpsAgent: object.httpsAgent,
     endlesslyRetry: Types.asOptional(x => Types.asBoolean(x, { name: 'endlesslyRetry' }), object.endlesslyRetry),
+    signal: object.signal as AbortSignal | undefined,
   }
 }
 
