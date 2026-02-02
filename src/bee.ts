@@ -145,8 +145,6 @@ import { assertBeeUrl, stripLastSlash } from './utils/url'
 /**
  * The main component that abstracts operations available on the Bee API.
  *
- * Instantiate with `new Bee(url, options)` where `url` is the Bee node URL and `options` are optional parameters.
- *
  * @example
  * const bee = new Bee('http://localhost:1633')
  */
