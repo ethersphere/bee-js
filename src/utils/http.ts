@@ -102,7 +102,7 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
             e.message,
             e.response?.data,
             e.response?.status,
-            e.code,
+            e.response?.statusText,
           )
         }
       } else {

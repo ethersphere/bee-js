@@ -12,7 +12,7 @@ test('abort upload should reject with ERR_CANCELED', async () => {
   controller.abort()
 
   await expect(uploadPromise).rejects.toThrow(BeeResponseError)
-  await expect(uploadPromise).rejects.toMatchObject({ code: 'ERR_CANCELED' })
+  await expect(uploadPromise).rejects.toMatchObject({ statusText: 'ERR_CANCELED' })
 })
 
 test('AbortController signal works with uploadFile', async () => {
@@ -24,7 +24,7 @@ test('AbortController signal works with uploadFile', async () => {
   controller.abort()
 
   await expect(uploadPromise).rejects.toThrow(BeeResponseError)
-  await expect(uploadPromise).rejects.toMatchObject({ code: 'ERR_CANCELED' })
+  await expect(uploadPromise).rejects.toMatchObject({ statusText: 'ERR_CANCELED' })
 })
 
 test('non-aborted upload completes successfully', async () => {
