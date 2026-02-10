@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [11.0.0](https://github.com/ethersphere/bee-js/compare/v10.4.0...v11.0.0) (2026-02-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to bee v2.7.0 api ([#1138](https://github.com/ethersphere/bee-js/issues/1138))
+
+### Features
+
+* expose convertEnvelopeToMarshaledStamp and UploadProgress type ([#1133](https://github.com/ethersphere/bee-js/issues/1133)) ([ee76e1f](https://github.com/ethersphere/bee-js/commit/ee76e1f4fe4215321c0c0a17511e92f8d20e29a7))
+* update to bee v2.7.0 api ([#1138](https://github.com/ethersphere/bee-js/issues/1138)) ([ff4894c](https://github.com/ethersphere/bee-js/commit/ff4894cad9cd157b92dc50704c4665419b98299a))
+
 ## [10.4.0](https://github.com/ethersphere/bee-js/compare/v10.3.0...v10.4.0) (2026-01-16)
 
 
