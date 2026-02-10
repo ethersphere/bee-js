@@ -256,6 +256,7 @@ export interface ReserveState {
   radius: number
   storageRadius: number
   commitment: number
+  reserveCapacityDoubling: number
 }
 
 export interface ChainState {

@@ -5,7 +5,7 @@ import type { DebugStatus, Health, NodeInfo, Readiness } from '../../types/debug
 import { BeeVersions, toBeeMode } from '../../types/debug'
 import { http } from '../../utils/http'
 
-export const SUPPORTED_BEE_VERSION_EXACT = '2.6.0-d0aa8b93'
+export const SUPPORTED_BEE_VERSION_EXACT = '2.7.0-6ddf9b45'
 export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.split('-')[0]
 export const SUPPORTED_API_VERSION = '7.3.0'
 

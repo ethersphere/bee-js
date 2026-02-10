@@ -28,6 +28,7 @@ export async function getReserveState(requestOptions: BeeRequestOptions): Promis
     commitment: Types.asNumber(body.commitment, { name: 'commitment' }),
     radius: Types.asNumber(body.radius, { name: 'radius' }),
     storageRadius: Types.asNumber(body.storageRadius, { name: 'storageRadius' }),
+    reserveCapacityDoubling: Types.asNumber(body.reserveCapacityDoubling, { name: 'reserveCapacityDoubling' }),
   }
 }
 
