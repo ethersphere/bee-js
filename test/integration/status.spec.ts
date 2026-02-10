@@ -55,6 +55,7 @@ test('GET reserve state', async () => {
 
   expect(reserveState.radius).toBeGreaterThan(0)
   expect(reserveState.commitment).toBeGreaterThan(0)
+  expect(reserveState.reserveCapacityDoubling).toBe(0)
 
   if (currentBeeMode() === 'light') {
     expect(reserveState.storageRadius).toBe(0)
