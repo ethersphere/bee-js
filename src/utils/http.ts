@@ -11,6 +11,7 @@ const MAX_FAILED_ATTEMPTS = 100_000
 const DELAY_FAST = 200
 const DELAY_SLOW = 1000
 const DELAY_THRESHOLD = Dates.minutes(1) / DELAY_FAST
+const ABORT_ERROR_MESSAGE = 'Request aborted'
 
 export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
   headers: {
@@ -20,6 +21,24 @@ export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
   maxContentLength: Infinity,
 }
 
+function throwIfAborted(
+  signal: AbortSignal | undefined,
+  config: AxiosRequestConfig,
+  responseData?: unknown,
+  responseStatus?: number,
+): void {
+  if (signal?.aborted) {
+    throw new BeeResponseError(
+      config.method || 'get',
+      config.url || '<unknown>',
+      ABORT_ERROR_MESSAGE,
+      responseData,
+      responseStatus,
+      'ERR_CANCELED',
+    )
+  }
+}
+
 /**
  * Main function to make HTTP requests.
  * @param options User defined settings
@@ -27,6 +46,11 @@ export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
  */
 export async function http<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
   const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+
+  if (options.signal) {
+    requestConfig.signal = options.signal
+    throwIfAborted(options.signal, config)
+  }
 
   if (requestConfig.data && typeof Buffer !== 'undefined' && Buffer.isBuffer(requestConfig.data)) {
     requestConfig.data = requestConfig.data.buffer.slice(
@@ -48,6 +72,8 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
 
   let failedAttempts = 0
   while (failedAttempts < MAX_FAILED_ATTEMPTS) {
+    throwIfAborted(options.signal, config)
+
     try {
       debug(
         `${requestConfig.method || 'get'} ${Strings.joinUrl([
@@ -62,6 +88,10 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
       return response as AxiosResponse<T>
     } catch (e: unknown) {
       if (e instanceof AxiosError) {
+        if (e.code === 'ERR_CANCELED') {
+          throwIfAborted({ aborted: true } as AbortSignal, config, e.response?.data, e.response?.status)
+        }
+
         if (e.code === 'ECONNABORTED' && options.endlesslyRetry) {
           failedAttempts++
           await System.sleepMillis(failedAttempts < DELAY_THRESHOLD ? DELAY_FAST : DELAY_SLOW)
@@ -72,7 +102,7 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
             e.message,
             e.response?.data,
             e.response?.status,
-            e.code,
+            e.response?.statusText,
           )
         }
       } else {

@@ -30,6 +30,12 @@ export async function streamFiles(
   options?: UploadOptions,
   requestOptions?: BeeRequestOptions,
 ): Promise<UploadResult> {
+  const signal = requestOptions?.signal
+
+  if (signal?.aborted) {
+    throw new Error('Request aborted')
+  }
+
   const queue = new AsyncQueue(64, 64)
   let total = 0
   let processed = 0
@@ -40,12 +46,26 @@ export async function streamFiles(
 
   async function onChunk(chunk: Chunk) {
     await queue.enqueue(async () => {
-      await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
-      onUploadProgress?.({ total, processed: ++processed })
+      if (signal?.aborted) {
+        return
+      }
+      try {
+        await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
+        onUploadProgress?.({ total, processed: ++processed })
+      } catch (err) {
+        if (signal?.aborted) {
+          return
+        }
+        throw err
+      }
     })
   }
   const mantaray = new MantarayNode()
   for (const file of files) {
+    if (signal?.aborted) {
+      throw new Error('Request aborted')
+    }
+
     const rootChunk = await new Promise<Chunk>((resolve, reject) => {
       const tree = new MerkleTree(onChunk)
 
@@ -58,6 +78,11 @@ export async function streamFiles(
       }
 
       const readNextChunk = async () => {
+        if (signal?.aborted) {
+          reject(new Error('Request aborted'))
+          return
+        }
+
         if (offset >= file.size) {
           const rootChunk = await tree.finalize()
           resolve(rootChunk)
@@ -98,6 +123,10 @@ export async function streamFiles(
         'website-index-document': 'index.html',
       })
     }
+  }
+
+  if (signal?.aborted) {
+    throw new Error('Request aborted')
   }
 
   return mantaray.saveRecursively(bee, postageBatchId, options, requestOptions)
