@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [11.1.0](https://github.com/ethersphere/bee-js/compare/v11.0.0...v11.1.0) (2026-02-16)
+
+
+### Features
+
+* add AbortController support for cancelling uploads ([#1136](https://github.com/ethersphere/bee-js/issues/1136)) ([99a6a30](https://github.com/ethersphere/bee-js/commit/99a6a302cfe6f14b149e7bcf1a5c667936736148))
+
 ## [11.0.0](https://github.com/ethersphere/bee-js/compare/v10.4.0...v11.0.0) (2026-02-10)
 
 
