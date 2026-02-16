@@ -22,3 +22,4 @@ export class BeeResponseError extends BeeError {
     super(message)
   }
 }
+
