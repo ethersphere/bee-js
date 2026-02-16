@@ -80,6 +80,7 @@ export async function streamFiles(
       const readNextChunk = async () => {
         if (signal?.aborted) {
           reject(new Error('Request aborted'))
+
           return
         }
 
