@@ -2693,12 +2693,6 @@ export class Bee {
       requestOptions = prepareBeeRequestOptions(requestOptions)
     }
 
-    const merged = requestOptions ? Objects.deepMerge2(this.requestOptions, requestOptions) : this.requestOptions
-
-    if (requestOptions?.signal) {
-      merged.signal = requestOptions.signal
-    }
-
-    return merged
+    return requestOptions ? Objects.deepMerge2(this.requestOptions, requestOptions) : this.requestOptions
   }
 }
