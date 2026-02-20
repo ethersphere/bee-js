@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [11.1.1](https://github.com/ethersphere/bee-js/compare/v11.1.0...v11.1.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* replace uint8array body ([#1142](https://github.com/ethersphere/bee-js/issues/1142)) ([7e17454](https://github.com/ethersphere/bee-js/commit/7e17454d67c6d001423dc78915b5f6362e04bd8a))
+
 ## [11.1.0](https://github.com/ethersphere/bee-js/compare/v11.0.0...v11.1.0) (2026-02-16)
 
 
