@@ -52,12 +52,7 @@ export async function http<T>(options: BeeRequestOptions, config: AxiosRequestCo
     throwIfAborted(options.signal, config)
   }
 
-  if (requestConfig.data && typeof Buffer !== 'undefined' && Buffer.isBuffer(requestConfig.data)) {
-    requestConfig.data = requestConfig.data.buffer.slice(
-      requestConfig.data.byteOffset,
-      requestConfig.data.byteOffset + requestConfig.data.byteLength,
-    )
-  }
+  maybeReplaceBodyBuffers(requestConfig)
 
   if (requestConfig.params) {
     const keys = Object.keys(requestConfig.params)
@@ -121,5 +116,15 @@ function maybeRunOnRequestHook(options: BeeRequestOptions, requestConfig: AxiosR
       headers: { ...requestConfig.headers } as Record<string, string>,
       params: requestConfig.params,
     })
+  }
+}
+
+function maybeReplaceBodyBuffers(config: AxiosRequestConfig): void {
+  if (config.data && config.data instanceof Uint8Array) {
+    config.data = config.data.buffer.slice(config.data.byteOffset, config.data.byteOffset + config.data.byteLength)
+  }
+
+  if (config.data && typeof Buffer !== 'undefined' && Buffer.isBuffer(config.data)) {
+    config.data = config.data.buffer.slice(config.data.byteOffset, config.data.byteOffset + config.data.byteLength)
   }
 }
