@@ -386,3 +386,4 @@ Tests are currently run against a mainnet Bee nodes. This is temporary and this 
 [BSD-3-Clause](./LICENSE)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fethersphere%2Fbee-js.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fethersphere%2Fbee-js?ref=badge_large)
+
