@@ -1,6 +1,17 @@
 # Changelog
 
 
+## [12.0.0](https://github.com/ethersphere/bee-js/compare/v11.2.0...v12.0.0) (2026-04-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* update axios to v1.5.x to receive security fixes ([#1150](https://github.com/ethersphere/bee-js/issues/1150))
+
+### Features
+
+* update axios to v1.5.x to receive security fixes ([#1150](https://github.com/ethersphere/bee-js/issues/1150)) ([cb538ff](https://github.com/ethersphere/bee-js/commit/cb538ff0cfa85c696afae09c877dc69534d5e878))
+
 ## [11.2.0](https://github.com/ethersphere/bee-js/compare/v11.1.1...v11.2.0) (2026-04-20)
 
 
