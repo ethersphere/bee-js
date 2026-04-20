@@ -106,7 +106,7 @@ import { BeeArgumentError, BeeError } from './utils/error'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { ResourceLocator } from './utils/resource-locator'
 import { Size } from './utils/size'
-import { getAmountForDuration, getDepthForSize, getStampCost } from './utils/stamps'
+import { getAmountForDuration, getDepthForSize, getStampCost, getStampDuration } from './utils/stamps'
 import { BZZ, DAI } from './utils/tokens'
 import {
   asNumberString,
@@ -2364,6 +2364,28 @@ export class Bee {
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
 
     return getStampCost(batch.depth, amount)
+  }
+
+  /**
+   * Calculates the `amount` and expected duration extension for topping up a postage batch with a given BZZ value.
+   *
+   * @param postageBatchId
+   * @param bzz The amount of BZZ to spend on the top-up.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns An object with `amount` (to pass to {@link topUpBatch}) and `duration` (the expected TTL extension).
+   */
+  async calculateTopUpForBzz(
+    postageBatchId: BatchId | Uint8Array | string,
+    bzz: BZZ,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<{ amount: bigint; duration: Duration }> {
+    const batch = await this.getPostageBatch(postageBatchId, requestOptions)
+    const chainState = await this.getChainState(requestOptions)
+    const blockTime = this.network === 'gnosis' ? 5 : 15
+    const amount = bzz.toPLURBigInt() / 2n ** BigInt(batch.depth)
+    const duration = getStampDuration(amount, chainState.currentPrice, blockTime)
+
+    return { amount, duration }
   }
 
   /**
