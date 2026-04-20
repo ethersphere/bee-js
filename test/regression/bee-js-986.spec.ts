@@ -27,6 +27,7 @@ test('bee-js/986 - Headers not merging properly', async () => {
   expect(calls[0]).toEqual({
     headers: {
       accept: 'application/json, text/plain, */*',
+      'accept-encoding': 'gzip, compress, deflate, br',
       connection: 'keep-alive',
       'content-length': '15',
       'content-type': 'application/x-www-form-urlencoded',
@@ -35,7 +36,7 @@ test('bee-js/986 - Headers not merging properly', async () => {
       'swarm-encrypt': 'true',
       'swarm-postage-batch-id': Types.asString(process.env.JEST_MANAGED_BATCH_ID),
       'swarm-tag': '1337',
-      'user-agent': 'axios/0.30.2',
+      'user-agent': 'axios/1.15.1',
     },
     method: 'POST',
     url: '/bzz?name=filename.txt',
@@ -43,6 +44,7 @@ test('bee-js/986 - Headers not merging properly', async () => {
   expect(calls[1]).toEqual({
     headers: {
       accept: 'application/json, text/plain, */*',
+      'accept-encoding': 'gzip, compress, deflate, br',
       arbitrary: 'value',
       connection: 'keep-alive',
       'content-length': '15',
@@ -52,7 +54,7 @@ test('bee-js/986 - Headers not merging properly', async () => {
       'swarm-encrypt': 'true',
       'swarm-postage-batch-id': Types.asString(process.env.JEST_MANAGED_BATCH_ID),
       'swarm-tag': '1338',
-      'user-agent': 'axios/0.30.2',
+      'user-agent': 'axios/1.15.1',
     },
     method: 'POST',
     url: '/bzz?name=filename.txt',
