@@ -3,11 +3,7 @@ import WebSocket from 'isomorphic-ws'
 import { makeContentAddressedChunk } from '../chunk/cac'
 import { makeSOCAddress } from '../chunk/soc'
 import type { BeeRequestOptions } from '../types'
-import {
-  GsocEphemeralParams,
-  PubsubMode,
-  PubsubTopicListResponse,
-} from '../types'
+import { GsocEphemeralParams, PubsubMode, PubsubTopicListResponse } from '../types'
 import { Bytes } from '../utils/bytes'
 import { http } from '../utils/http'
 import { EthAddress, Identifier, PrivateKey, Signature } from '../utils/typed-bytes'
@@ -148,6 +144,16 @@ export function connect(
     ...requestHeaders,
     'swarm-pubsub-peer': brokerPeer,
     ...modeHeaders,
+  }
+
+  // Browsers cannot set custom headers on WebSocket connections.
+  // Pass them as query params instead; the server accepts both.
+  const isBrowser = typeof window !== 'undefined' && typeof window.WebSocket !== 'undefined'
+
+  if (isBrowser) {
+    const params = new URLSearchParams(headers)
+
+    return new WebSocket(`${wsUrl}/${endpoint}/${topicAddress}?${params.toString()}`)
   }
 
   return new WebSocket(`${wsUrl}/${endpoint}/${topicAddress}`, { headers })

@@ -1333,11 +1333,33 @@ export class Bee {
       }
     }
 
+    let ready = false
+    const sendQueue: Uint8Array[] = []
+
+    const flushQueue = () => {
+      ready = true
+
+      for (const msg of sendQueue) {
+        ws.send(msg)
+      }
+      sendQueue.length = 0
+    }
+
     const subscription: PubsubSubscription = {
       cancel,
       send: async (payload: Uint8Array | string): Promise<void> => {
-        ws.send(await modeInstance.encodeMessage(payload))
+        const encoded = await modeInstance.encodeMessage(payload)
+
+        if (ready) {
+          ws.send(encoded)
+        } else {
+          sendQueue.push(encoded)
+        }
       },
+    }
+
+    ws.onopen = () => {
+      flushQueue()
     }
 
     ws.onmessage = event => {
