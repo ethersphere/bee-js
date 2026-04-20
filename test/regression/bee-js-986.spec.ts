@@ -27,6 +27,7 @@ test('bee-js/986 - Headers not merging properly', async () => {
   expect(calls[0]).toEqual({
     headers: {
       accept: 'application/json, text/plain, */*',
+      'accept-encoding': 'gzip, compress, deflate, br',
       connection: 'keep-alive',
       'content-length': '15',
       'content-type': 'application/x-www-form-urlencoded',
