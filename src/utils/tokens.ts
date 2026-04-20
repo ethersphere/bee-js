@@ -18,6 +18,10 @@ export class BZZ {
     return new BZZ(new FixedPointNumber(plur, BZZ.DIGITS))
   }
 
+  public static fromFloat(float: number) {
+    return new BZZ(FixedPointNumber.fromFloat(float, BZZ.DIGITS))
+  }
+
   public toPLURString() {
     return this.state.toString()
   }
@@ -28,6 +32,10 @@ export class BZZ {
 
   public toDecimalString() {
     return this.state.toDecimalString()
+  }
+
+  public toFloat() {
+    return this.state.toFloat()
   }
 
   public toSignificantDigits(digits: number) {
@@ -108,6 +116,10 @@ export class DAI {
     return new DAI(new FixedPointNumber(wei, DAI.DIGITS))
   }
 
+  public static fromFloat(float: number) {
+    return new DAI(FixedPointNumber.fromFloat(float, DAI.DIGITS))
+  }
+
   public toWeiString() {
     return this.state.toString()
   }
@@ -122,6 +134,10 @@ export class DAI {
 
   public toSignificantDigits(digits: number) {
     return this.toDecimalString().slice(0, this.toDecimalString().indexOf('.') + digits + 1)
+  }
+
+  public toFloat() {
+    return this.state.toFloat()
   }
 
   /**
