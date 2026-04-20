@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [11.2.0](https://github.com/ethersphere/bee-js/compare/v11.1.1...v11.2.0) (2026-04-20)
+
+
+### Features
+
+* add utility method to calculate topup amount based on bzz input ([#1148](https://github.com/ethersphere/bee-js/issues/1148)) ([d0fc82a](https://github.com/ethersphere/bee-js/commit/d0fc82a127dd9af48fba402bb4c25a4318a35ae6))
+
 ## [11.1.1](https://github.com/ethersphere/bee-js/compare/v11.1.0...v11.1.1) (2026-02-20)
 
 
