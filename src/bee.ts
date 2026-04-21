@@ -1375,7 +1375,9 @@ export class Bee {
       }
     }
     ws.onclose = () => {
-      handler.onClose(subscription)
+      if (!cancelled) {
+        handler.onClose(subscription)
+      }
     }
 
     return subscription
