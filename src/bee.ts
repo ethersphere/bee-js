@@ -1320,10 +1320,33 @@ export class Bee {
       this.requestOptions.headers,
     )
 
+    const PING_INTERVAL_MS = 50_000
+    let pingTimer: ReturnType<typeof setInterval> | null = null
+
+    const startPing = () => {
+      if (typeof ws.ping === 'function') {
+        pingTimer = setInterval(() => {
+          try {
+            ws.ping()
+          } catch {
+            // ignore errors on closed sockets
+          }
+        }, PING_INTERVAL_MS)
+      }
+    }
+
+    const stopPing = () => {
+      if (pingTimer !== null) {
+        clearInterval(pingTimer)
+        pingTimer = null
+      }
+    }
+
     let cancelled = false
     const cancel = () => {
       if (!cancelled) {
         cancelled = true
+        stopPing()
 
         if (ws.terminate) {
           ws.terminate()
@@ -1359,6 +1382,7 @@ export class Bee {
     }
 
     ws.onopen = () => {
+      startPing()
       flushQueue()
     }
 
@@ -1375,6 +1399,8 @@ export class Bee {
       }
     }
     ws.onclose = () => {
+      stopPing()
+
       if (!cancelled) {
         handler.onClose(subscription)
       }
