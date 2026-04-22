@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "axios": "^1.15.1",
-    "cafe-utility": "^33.6.1",
+    "cafe-utility": "^33.9.0",
     "debug": "^4.4.1",
     "isomorphic-ws": "^4.0.1",
     "semver": "^7.3.5",
