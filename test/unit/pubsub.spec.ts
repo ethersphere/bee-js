@@ -6,7 +6,7 @@ const PAYLOAD_TEXT = 'hello there!'
 const PAYLOAD_BYTES = new TextEncoder().encode(PAYLOAD_TEXT)
 
 const SIG_SIZE = 65
-const SPAN_WS_SIZE = 4
+const SPAN_WS_SIZE = 8
 
 test('GsocEphemeralMode - encodeMessage / decodeMessage round-trip (string payload)', async () => {
   const mode = new GsocEphemeralMode({ topic: TOPIC })
@@ -22,14 +22,15 @@ test('GsocEphemeralMode - encodeMessage / decodeMessage round-trip (Uint8Array p
   expect(decoded.toUint8Array()).toEqual(PAYLOAD_BYTES)
 })
 
-test('GsocEphemeralMode - frame structure: [sig:65B][span:4B][payload]', async () => {
+test('GsocEphemeralMode - frame structure: [sig:65B][span:8B][payload]', async () => {
   const mode = new GsocEphemeralMode({ topic: TOPIC })
   const frame = await mode.encodeMessage(PAYLOAD_TEXT)
 
   expect(frame.length).toBe(SIG_SIZE + SPAN_WS_SIZE + PAYLOAD_BYTES.length)
 
-  const span4 = new DataView(frame.buffer, frame.byteOffset + SIG_SIZE, SPAN_WS_SIZE).getUint32(0, true)
-  expect(span4).toBe(PAYLOAD_BYTES.length)
+  const spanView = new DataView(frame.buffer, frame.byteOffset + SIG_SIZE, SPAN_WS_SIZE)
+  const span = spanView.getBigUint64(0, true)
+  expect(span).toBe(BigInt(PAYLOAD_BYTES.length))
 })
 
 test('GsocEphemeralMode - deterministic headers for same topic', () => {

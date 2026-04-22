@@ -6,14 +6,14 @@ import type { BeeRequestOptions } from '../types'
 import { GsocEphemeralParams, PubsubMode, PubsubTopicListResponse } from '../types'
 import { Bytes } from '../utils/bytes'
 import { http } from '../utils/http'
-import { EthAddress, Identifier, PrivateKey, Signature } from '../utils/typed-bytes'
+import { EthAddress, Identifier, PrivateKey, Signature, Span } from '../utils/typed-bytes'
 import { NULL_IDENTIFIER } from '../utils/constants'
 
 const endpoint = 'pubsub'
 const ENCODER = new TextEncoder()
 
 const SIG_SIZE = Signature.LENGTH
-const SPAN_WS_SIZE = 4
+const SPAN_WS_SIZE = Span.LENGTH
 
 export interface IPubsubMode {
   readonly topicAddress: string
@@ -99,9 +99,7 @@ export class GsocEphemeralMode implements IPubsubMode {
       throw new Error('Cannot encode messages in subscriber-only mode (no signer available)')
     }
 
-    const span4 = cac.span.toUint8Array().slice(0, SPAN_WS_SIZE)
-
-    return Binary.concatBytes(sigBytes, span4, cac.payload.toUint8Array())
+    return Binary.concatBytes(sigBytes, cac.span.toUint8Array(), cac.payload.toUint8Array())
   }
 
   decodeMessage(frame: Uint8Array): Bytes {
