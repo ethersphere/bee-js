@@ -107,6 +107,7 @@ import { hashDirectory, streamDirectory, streamFiles } from './utils/chunk-strea
 import { assertCollection, makeCollectionFromFileList } from './utils/collection'
 import { makeCollectionFromFS } from './utils/collection.node'
 import { prepareWebsocketData } from './utils/data'
+import { prepareWebsocketData as prepareWebsocketDataBrowser } from './utils/data.browser'
 import { Duration } from './utils/duration'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { fileArrayBuffer, isFile } from './utils/file'
@@ -1319,6 +1320,9 @@ export class Bee {
       modeInstance.getPublisherHeaders() ?? undefined,
       this.requestOptions.headers,
     )
+    // Ensure binary frames are delivered as ArrayBuffer (not Blob) in browser environments.
+    // prepareWebsocketData handles ArrayBuffer but not Blob.
+    ws.binaryType = 'arraybuffer'
 
     const PING_INTERVAL_MS = 50_000
     let pingTimer: ReturnType<typeof setInterval> | null = null
@@ -1390,8 +1394,8 @@ export class Bee {
       }
     }
 
-    ws.onmessage = event => {
-      const data = prepareWebsocketData(event.data)
+    ws.onmessage = async event => {
+      const data = await prepareWebsocketDataBrowser(event.data)
 
       if (data.length) {
         handler.onMessage(modeInstance.decodeMessage(data), subscription)
