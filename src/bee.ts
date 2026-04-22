@@ -1384,6 +1384,10 @@ export class Bee {
     ws.onopen = () => {
       startPing()
       flushQueue()
+
+      if (handler.onOpen) {
+        handler.onOpen(subscription)
+      }
     }
 
     ws.onmessage = event => {

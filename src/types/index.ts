@@ -418,6 +418,7 @@ export interface PubsubSubscription {
 }
 
 export interface PubsubMessageHandler {
+  onOpen?: (subscription: PubsubSubscription) => void
   onMessage: (message: Bytes, subscription: PubsubSubscription) => void
   onError: (error: BeeError, subscription: PubsubSubscription) => void
   onClose: (subscription: PubsubSubscription) => void
