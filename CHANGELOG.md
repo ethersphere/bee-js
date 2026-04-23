@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [12.1.0](https://github.com/ethersphere/bee-js/compare/v12.0.0...v12.1.0) (2026-04-23)
+
+
+### Features
+
+* add toFloat and fromFloat to BZZ and DAI classes ([#1153](https://github.com/ethersphere/bee-js/issues/1153)) ([c68e705](https://github.com/ethersphere/bee-js/commit/c68e70561cf2aca767918ce11e7e45469ea29a67))
+
+
+### Bug Fixes
+
+* use depth over postageBatchId in calculateTopUpForBzz ([#1155](https://github.com/ethersphere/bee-js/issues/1155)) ([35c7e1c](https://github.com/ethersphere/bee-js/commit/35c7e1cc59906303755ff4e944849c4c178ec1a3))
+
 ## [12.0.0](https://github.com/ethersphere/bee-js/compare/v11.2.0...v12.0.0) (2026-04-20)
 
 
