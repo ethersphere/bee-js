@@ -1385,6 +1385,12 @@ export class Bee {
     }
 
     ws.onopen = () => {
+      if (cancelled) {
+        ws.close()
+
+        return
+      }
+
       startPing()
       flushQueue()
 
