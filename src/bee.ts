@@ -2369,20 +2369,19 @@ export class Bee {
   /**
    * Calculates the `amount` and expected duration extension for topping up a postage batch with a given BZZ value.
    *
-   * @param postageBatchId
+   * @param depth Depth of the postage batch to top up.
    * @param bzz The amount of BZZ to spend on the top-up.
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    * @returns An object with `amount` (to pass to {@link topUpBatch}) and `duration` (the expected TTL extension).
    */
   async calculateTopUpForBzz(
-    postageBatchId: BatchId | Uint8Array | string,
+    depth: number,
     bzz: BZZ,
     requestOptions?: BeeRequestOptions,
   ): Promise<{ amount: bigint; duration: Duration }> {
-    const batch = await this.getPostageBatch(postageBatchId, requestOptions)
     const chainState = await this.getChainState(requestOptions)
     const blockTime = this.network === 'gnosis' ? 5 : 15
-    const amount = bzz.toPLURBigInt() / 2n ** BigInt(batch.depth)
+    const amount = bzz.toPLURBigInt() / 2n ** BigInt(depth)
     const duration = getStampDuration(amount, chainState.currentPrice, blockTime)
 
     return { amount, duration }
