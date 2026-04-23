@@ -28,6 +28,8 @@ import { FeedPayloadResult, createFeedManifest, fetchLatestFeedUpdate } from './
 import * as grantee from './modules/grantee'
 import * as gsoc from './modules/gsoc'
 import * as pinning from './modules/pinning'
+import * as pubsub from './modules/pubsub'
+import type { PubsubModeParams } from './modules/pubsub'
 import * as pss from './modules/pss'
 import { rchash } from './modules/rchash'
 import * as status from './modules/status'
@@ -56,6 +58,10 @@ import type {
   GsocMessageHandler,
   GsocSubscription,
   Health,
+  PubsubMessageHandler,
+  PubsubMode,
+  PubsubSubscription,
+  PubsubTopicListResponse,
   LastCashoutActionResponse,
   LastChequesForPeerResponse,
   LastChequesResponse,
@@ -1285,6 +1291,144 @@ export class Bee {
     }
 
     return subscription
+  }
+
+  /**
+   * Connects to a pubsub topic via WebSocket, acting as a publisher (read + write).
+   *
+   * The mode enum and its constructor arguments are passed directly
+   *
+   * @param mode        Pubsub mode enum value (e.g. `PubsubMode.GSOC_EPHEMERAL`)
+   * @param handler     Message handler with `onMessage`, `onError`, `onClose` callbacks
+   * @param brokerPeer  Multiaddress of the broker peer to connect to
+   * @param modeParams  Constructor arguments for the selected mode (topic, optional params)
+   * @returns A {@link PubsubSubscription} with `send(payload)` and `cancel()` methods
+   */
+  pubsubConnect<M extends PubsubMode>(
+    mode: M,
+    handler: PubsubMessageHandler,
+    brokerPeer: string,
+    ...modeParams: PubsubModeParams[M]
+  ): PubsubSubscription {
+    const modeInstance = pubsub.createPubsubMode(mode, ...modeParams)
+
+    const ws = pubsub.connect(
+      this.url,
+      modeInstance.topicAddress,
+      brokerPeer,
+      modeInstance.getPublisherHeaders() ?? undefined,
+      this.requestOptions.headers,
+    )
+    // Ensure binary frames are delivered as ArrayBuffer (not Blob) in browser environments.
+    // prepareWebsocketData handles ArrayBuffer but not Blob.
+    ws.binaryType = 'arraybuffer'
+
+    const PING_INTERVAL_MS = 50_000
+    let pingTimer: ReturnType<typeof setInterval> | null = null
+
+    const startPing = () => {
+      if (typeof ws.ping === 'function') {
+        pingTimer = setInterval(() => {
+          try {
+            ws.ping()
+          } catch {
+            // ignore errors on closed sockets
+          }
+        }, PING_INTERVAL_MS)
+      }
+    }
+
+    const stopPing = () => {
+      if (pingTimer !== null) {
+        clearInterval(pingTimer)
+        pingTimer = null
+      }
+    }
+
+    let cancelled = false
+    const cancel = () => {
+      if (!cancelled) {
+        cancelled = true
+        stopPing()
+
+        if (ws.terminate) {
+          ws.terminate()
+        } else {
+          ws.close()
+        }
+      }
+    }
+
+    let ready = false
+    const sendQueue: Uint8Array[] = []
+
+    const flushQueue = () => {
+      ready = true
+
+      for (const msg of sendQueue) {
+        ws.send(msg)
+      }
+      sendQueue.length = 0
+    }
+
+    const subscription: PubsubSubscription = {
+      cancel,
+      send: async (payload: Uint8Array | string): Promise<void> => {
+        const encoded = await modeInstance.encodeMessage(payload)
+
+        if (ready) {
+          ws.send(encoded)
+        } else {
+          sendQueue.push(encoded)
+        }
+      },
+    }
+
+    ws.onopen = () => {
+      if (cancelled) {
+        ws.close()
+
+        return
+      }
+
+      startPing()
+      flushQueue()
+
+      if (handler.onOpen) {
+        handler.onOpen(subscription)
+      }
+    }
+
+    ws.onmessage = async event => {
+      const data = await prepareWebsocketData(event.data)
+
+      if (data.length) {
+        handler.onMessage(modeInstance.decodeMessage(data), subscription)
+      }
+    }
+    ws.onerror = event => {
+      if (!cancelled) {
+        handler.onError(new BeeError(event.message), subscription)
+      }
+    }
+    ws.onclose = () => {
+      stopPing()
+
+      if (!cancelled) {
+        handler.onClose(subscription)
+      }
+    }
+
+    return subscription
+  }
+
+  /**
+   * Lists all active pubsub topics this node is participating in.
+   *
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async listPubsubTopics(requestOptions?: BeeRequestOptions): Promise<PubsubTopicListResponse> {
+    return pubsub.listTopics(this.getRequestOptionsForCall(requestOptions))
   }
 
   /**

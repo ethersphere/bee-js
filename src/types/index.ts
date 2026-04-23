@@ -13,6 +13,7 @@ import {
   PrivateKey,
   PublicKey,
   Reference,
+  Signature,
   Topic,
   TransactionId,
 } from '../utils/typed-bytes'
@@ -379,6 +380,48 @@ export interface GsocMessageHandler {
   onMessage: (message: Bytes, subscription: GsocSubscription) => void
   onError: (error: BeeError, subscription: GsocSubscription) => void
   onClose: (subscription: GsocSubscription) => void
+}
+
+export enum PubsubMode {
+  GSOC_EPHEMERAL = 'gsoc-ephemeral',
+}
+
+export type PubsubSignFn = (data: Uint8Array) => Signature | Promise<Signature>
+
+/** External wallet signer — can publish. Provide Ethereum address and sign function. */
+type WithExternalSigner = { address: EthAddress; signFn: PubsubSignFn; topic?: never; topicAddress?: never }
+/** Ephemeral signer — can publish. `topic` is either a human-readable string (hashed with keccak256 to derive the 32-byte private key) or a 32-byte key directly (hex string or Uint8Array), used as-is. */
+type WithEphemeralSigner = { address?: never; signFn?: never; topic: string | Uint8Array; topicAddress?: never }
+/** Subscriber-only — read-only, no signing. Provide the topicAddress (SOC address) directly. */
+type WithSubscriberOnly = { address?: never; signFn?: never; topic?: never; topicAddress: string }
+
+export type GsocEphemeralParams = { socId?: string | Uint8Array } & (
+  | WithExternalSigner
+  | WithEphemeralSigner
+  | WithSubscriberOnly
+)
+
+export interface PubsubTopicInfo {
+  topicAddress: string
+  mode: number
+  role: 'broker' | 'subscriber' | 'publisher'
+  connections: string[]
+}
+
+export interface PubsubTopicListResponse {
+  topics: PubsubTopicInfo[]
+}
+
+export interface PubsubSubscription {
+  cancel(): void
+  send(payload: Uint8Array | string): Promise<void>
+}
+
+export interface PubsubMessageHandler {
+  onOpen?: (subscription: PubsubSubscription) => void
+  onMessage: (message: Bytes, subscription: PubsubSubscription) => void
+  onError: (error: BeeError, subscription: PubsubSubscription) => void
+  onClose: (subscription: PubsubSubscription) => void
 }
 
 export interface ReferenceResponse {
