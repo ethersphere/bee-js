@@ -1,4 +1,6 @@
-export async function prepareWebsocketData(data: string | ArrayBuffer | Blob): Promise<Uint8Array> | never {
+import type { Data } from 'ws'
+
+export async function prepareWebsocketData(data: Data | string | ArrayBuffer | Blob): Promise<Uint8Array> | never {
   if (typeof data === 'string') {
     return new TextEncoder().encode(data)
   }

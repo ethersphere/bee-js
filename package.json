@@ -51,6 +51,7 @@
   ],
   "scripts": {
     "prepublishOnly": "NODE_ENV=production npm run build",
+    "prepare": "npm run build",
     "build": "rimraf dist && npm run build:node && npm run build:types && npm run build:browser",
     "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup && babel --plugins \"babel-plugin-add-import-extension\" --out-dir dist/mjs/ dist/mjs/",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
