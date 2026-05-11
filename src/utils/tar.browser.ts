@@ -14,12 +14,14 @@ export class TarStream {
 
   beginFile(path: string, size: number) {
     const { name, prefix, longLink } = splitPath(path)
+
     if (longLink) {
       const encoder = new TextEncoder()
       const pathData = encoder.encode(path + '\0')
       this.pieces.push(createLongLinkHeader(pathData.length))
       this.pieces.push(pathData)
       const padding = pathData.length % 512 === 0 ? 0 : 512 - (pathData.length % 512)
+
       if (padding > 0) this.pieces.push(new Uint8Array(padding))
     }
     const header = createHeader(name, prefix, size)
@@ -51,17 +53,20 @@ function splitPath(path: string): { name: string; prefix: string; longLink: bool
     if (path[i] === '/') {
       const name = path.substring(i + 1)
       const prefix = path.substring(0, i)
+
       if (name.length <= 100 && prefix.length <= 155) return { name, prefix, longLink: false }
     }
   }
   // Filename itself is > 100 chars or path > 255 chars — use GNU LongLink
   const lastSlash = path.lastIndexOf('/')
   const truncatedName = (lastSlash >= 0 ? path.substring(lastSlash + 1) : path).slice(0, 100)
+
   return { name: truncatedName, prefix: '', longLink: true }
 }
 
 function createLongLinkHeader(size: number): Uint8Array {
   const encoder = new TextEncoder()
+
   function writeToBuffer(str: string, offset: number, length: number) {
     const bytes = encoder.encode(str)
     header.set(bytes.slice(0, length), offset)
@@ -80,6 +85,7 @@ function createLongLinkHeader(size: number): Uint8Array {
   let checksum = 0
   for (let i = 0; i < 512; i++) checksum += header[i]
   writeToBuffer(checksum.toString(8).padStart(6, '0') + '\0 ', 148, 8)
+
   return header
 }
 
