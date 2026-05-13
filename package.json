@@ -44,7 +44,9 @@
     "./dist/cjs/utils/chunk-stream.js": "./dist/cjs/utils/chunk-stream.browser.js",
     "./dist/mjs/utils/chunk-stream.js": "./dist/mjs/utils/chunk-stream.browser.js",
     "./dist/cjs/utils/collection.node.js": "./dist/cjs/utils/collection.browser.js",
-    "./dist/mjs/utils/collection.node.js": "./dist/mjs/utils/collection.browser.js"
+    "./dist/mjs/utils/collection.node.js": "./dist/mjs/utils/collection.browser.js",
+    "./dist/cjs/utils/tar.js": "./dist/cjs/utils/tar.browser.js",
+    "./dist/mjs/utils/tar.js": "./dist/mjs/utils/tar.browser.js"
   },
   "files": [
     "dist"

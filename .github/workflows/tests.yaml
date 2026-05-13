@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Install global dependencies
-        run: npm install --global bee-dev @fairdatasociety/fdp-play @ethersphere/swarm-cli npxie
+        run: npm install --global bee-dev @fairdatasociety/fdp-play @ethersphere/swarm-cli npxie@2.8.1
 
       - name: Run bee-dev
         run: bee-dev --port 16337 &
@@ -35,11 +35,11 @@ jobs:
 
       - name: Deposit to chequebook
         run: |
-          swarm-cli cheque deposit 100000000000000000
-          swarm-cli cheque deposit 100000000000000000 --bee-api-url http://localhost:11633
-          swarm-cli cheque deposit 100000000000000000 --bee-api-url http://localhost:21633
-          swarm-cli cheque deposit 100000000000000000 --bee-api-url http://localhost:31633
-          swarm-cli cheque deposit 100000000000000000 --bee-api-url http://localhost:41633
+          swarm-cli cheque deposit 10
+          swarm-cli cheque deposit 10 --bee-api-url http://localhost:11633
+          swarm-cli cheque deposit 10 --bee-api-url http://localhost:21633
+          swarm-cli cheque deposit 10 --bee-api-url http://localhost:31633
+          swarm-cli cheque deposit 10 --bee-api-url http://localhost:41633
 
       - name: Create managed postage batch
         run: echo "JEST_MANAGED_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
