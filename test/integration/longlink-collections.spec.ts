@@ -37,22 +37,22 @@ test('upload containing all three tar path formats (normal, USTAR, longlink)', a
     { name: 'a'.repeat(96) + '.txt', content: 'normal-5' }, // exactly 100 chars
 
     // USTAR: path > 100, a valid prefix (≤ 155) / name (≤ 100) split exists
-    { name: 'a'.repeat(95) + '/' + 'b'.repeat(10), content: 'ustar-1' },  // 106 total
+    { name: 'a'.repeat(95) + '/' + 'b'.repeat(10), content: 'ustar-1' }, // 106 total
     { name: 'a'.repeat(120) + '/' + 'b'.repeat(60), content: 'ustar-2' }, // 181 total
     { name: 'a'.repeat(155) + '/' + 'b'.repeat(50), content: 'ustar-3' }, // 206 total
     { name: 'a'.repeat(155) + '/' + 'b'.repeat(100), content: 'ustar-4' }, // 256 — USTAR max
 
     // LongLink: no valid USTAR split exists — GNU ././@LongLink entry required
-    { name: 'a'.repeat(101), content: 'longlink-1' },                            // bare filename > 100
-    { name: 'src/' + 'a'.repeat(101), content: 'longlink-2' },                   // name portion > 100
-    { name: 'a'.repeat(156) + '/' + 'b'.repeat(50), content: 'longlink-3' },    // prefix > 155
-    { name: 'a'.repeat(155) + '/' + 'b'.repeat(101), content: 'longlink-4' },   // 257 total
+    { name: 'a'.repeat(101), content: 'longlink-1' }, // bare filename > 100
+    { name: 'src/' + 'a'.repeat(101), content: 'longlink-2' }, // name portion > 100
+    { name: 'a'.repeat(156) + '/' + 'b'.repeat(50), content: 'longlink-3' }, // prefix > 155
+    { name: 'a'.repeat(155) + '/' + 'b'.repeat(101), content: 'longlink-4' }, // 257 total
     { name: 'a'.repeat(100) + '/' + 'b'.repeat(100) + '/' + 'c'.repeat(60), content: 'longlink-5' },
   ])
 })
 
 test('web application folder with realistically long component and asset names', async () => {
-  const authComponent = 'UserAuthenticationWithOAuthAndMFAComponent.tsx'   // 46 chars
+  const authComponent = 'UserAuthenticationWithOAuthAndMFAComponent.tsx' // 46 chars
   const registrationSchema = 'UserRegistrationFormValidationSchemaWithCustomMessages.ts' // 57 chars
   const deepFeaturePath = 'packages/feature-authentication/src/components/forms/validations/' // 65 chars
 
@@ -65,13 +65,13 @@ test('web application folder with realistically long component and asset names',
     // Typical source paths — normal (under 100 chars total)
     { name: 'src/index.ts', content: 'index' },
     { name: 'src/App.tsx', content: 'app' },
-    { name: `src/components/${authComponent}`, content: 'auth component' },  // 62 chars
-    { name: `src/schemas/${registrationSchema}`, content: 'schema' },         // 69 chars
+    { name: `src/components/${authComponent}`, content: 'auth component' }, // 62 chars
+    { name: `src/schemas/${registrationSchema}`, content: 'schema' }, // 69 chars
 
     // Deep monorepo paths — USTAR range
     { name: `${deepFeaturePath}${registrationSchema}`, content: 'deep schema' }, // 122 chars, prefix=64, name=57
-    { name: 'a'.repeat(110) + '/' + 'b'.repeat(40), content: 'ustar-mono-1' },  // 151 total
-    { name: 'a'.repeat(150) + '/' + 'b'.repeat(80), content: 'ustar-mono-2' },  // 231 total
+    { name: 'a'.repeat(110) + '/' + 'b'.repeat(40), content: 'ustar-mono-1' }, // 151 total
+    { name: 'a'.repeat(150) + '/' + 'b'.repeat(80), content: 'ustar-mono-2' }, // 231 total
 
     // Filenames that exceed the 100-char tar name limit — GNU LongLink required
     { name: 'src/' + 'a'.repeat(101), content: 'longlink-comp-1' },
@@ -128,19 +128,19 @@ test('collection of files systematically stepping across the 256-char USTAR maxi
 test('deeply nested directory tree with escalating path depths', async () => {
   await uploadAndVerifyCollection([
     // Normal depths (total ≤ 100 chars)
-    { name: deepPath(1), content: 'depth-1' },  // 35 chars
-    { name: deepPath(2), content: 'depth-2' },  // 66 chars
-    { name: deepPath(3), content: 'depth-3' },  // 97 chars
+    { name: deepPath(1), content: 'depth-1' }, // 35 chars
+    { name: deepPath(2), content: 'depth-2' }, // 66 chars
+    { name: deepPath(3), content: 'depth-3' }, // 97 chars
 
     // USTAR depths (valid prefix/name split exists)
-    { name: deepPath(4), content: 'depth-4' },  // 128 chars (prefix=93, name=35)
-    { name: deepPath(5), content: 'depth-5' },  // 159 chars (prefix=93, name=66)
-    { name: deepPath(6), content: 'depth-6' },  // 190 chars (prefix=93, name=97)
-    { name: deepPath(7), content: 'depth-7' },  // 221 chars (prefix=124, name=97)
-    { name: deepPath(8), content: 'depth-8' },  // 252 chars (prefix=154, name=97)
+    { name: deepPath(4), content: 'depth-4' }, // 128 chars (prefix=93, name=35)
+    { name: deepPath(5), content: 'depth-5' }, // 159 chars (prefix=93, name=66)
+    { name: deepPath(6), content: 'depth-6' }, // 190 chars (prefix=93, name=97)
+    { name: deepPath(7), content: 'depth-7' }, // 221 chars (prefix=124, name=97)
+    { name: deepPath(8), content: 'depth-8' }, // 252 chars (prefix=154, name=97)
 
     // Longlink depths (no valid split: any prefix≤155 forces name>100)
-    { name: deepPath(9), content: 'depth-9' },   // 283 chars
+    { name: deepPath(9), content: 'depth-9' }, // 283 chars
     { name: deepPath(10), content: 'depth-10' }, // 314 chars
     { name: deepPath(12), content: 'depth-12' }, // 376 chars
   ])
