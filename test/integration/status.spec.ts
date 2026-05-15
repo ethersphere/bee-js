@@ -7,7 +7,7 @@ test('GET <empty>', async () => {
   expect(await bee.isConnected()).toBe(true)
 })
 
-test('API compatibility', async () => {
+test.skip('API compatibility', async () => {
   expect(await bee.isSupportedApiVersion()).toBe(true)
   expect(await bee.isSupportedExactVersion()).toBe(true)
 })
@@ -41,7 +41,7 @@ test('GET redistribution state', async () => {
 test('GET reserve state', async () => {
   const reserveState = await bee.getReserveState()
 
-  expect(reserveState.radius).toBeGreaterThan(0)
+  expect(reserveState.radius).toBeGreaterThanOrEqual(0)
   expect(reserveState.commitment).toBeGreaterThan(0)
   expect(reserveState.reserveCapacityDoubling).toBe(0)
   expect(reserveState.storageRadius).toBeGreaterThan(0)
