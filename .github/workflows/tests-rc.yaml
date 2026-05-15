@@ -31,7 +31,7 @@ jobs:
         run: bee-dev --port 16337 &
 
       - name: Start bee-factory
-        run: etherhive start
+        run: bee-factory start
 
       - name: Deposit to chequebook
         run: |

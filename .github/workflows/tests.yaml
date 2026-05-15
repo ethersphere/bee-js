@@ -31,7 +31,7 @@ jobs:
         run: bee-dev --port 16337 &
 
       - name: Start bee-factory
-        run: etherive start --tag v2.6.0
+        run: bee-factory start --tag v2.6.0
 
       - name: Deposit to chequebook
         run: |
