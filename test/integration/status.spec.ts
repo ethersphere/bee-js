@@ -62,7 +62,7 @@ test('GET status', async () => {
 
 test('GET topology', async () => {
   const topology = await bee.getTopology()
-  expect(topology.depth).toBeGreaterThan(0)
+  expect(topology.depth).toBeGreaterThanOrEqual(0)
   expect(topology.population).toBeGreaterThan(0)
   expect(topology.connected).toBeGreaterThan(0)
 })

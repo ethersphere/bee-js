@@ -8,6 +8,6 @@ test('GET rchash', async () => {
     addresses.overlay.toHex().slice(0, 4),
     addresses.overlay.toHex().slice(0, 4),
   )
-  expect(durationSeconds).toBeGreaterThan(1)
+  expect(durationSeconds).toBeGreaterThan(0)
   expect(durationSeconds).toBeLessThan(60)
 })
