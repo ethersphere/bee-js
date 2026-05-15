@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [12.2.0](https://github.com/ethersphere/bee-js/compare/v12.1.0...v12.2.0) (2026-05-15)
+
+
+### Features
+
+* handle long filenames in tar ([#1158](https://github.com/ethersphere/bee-js/issues/1158)) ([d584319](https://github.com/ethersphere/bee-js/commit/d584319a36b9ad95efa225d96a4b1822a7b1a006))
+
 ## [12.1.0](https://github.com/ethersphere/bee-js/compare/v12.0.0...v12.1.0) (2026-04-23)
 
 
