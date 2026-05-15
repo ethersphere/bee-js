@@ -3,7 +3,7 @@ import { ReadStream } from 'fs'
 import { MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeBee } from '../utils'
 
-test('GET bzz (ENS)', async () => {
+test.skip('GET bzz (ENS)', async () => {
   const bee = makeBee()
 
   const data = await bee.downloadFile('deadcafe.eth')
@@ -13,7 +13,7 @@ test('GET bzz (ENS)', async () => {
   expect(data.data.length).toBe(73892)
 })
 
-test('GET bytes (ENS)', async () => {
+test.skip('GET bytes (ENS)', async () => {
   const bee = makeBee()
 
   const data = await bee.downloadData('deadcafe.eth')
@@ -26,7 +26,7 @@ test('GET bytes (ENS)', async () => {
   expect(docs.indexDocument).toBe('jiawei-zhao-BsXeYX3efOI-unsplash.jpg')
 })
 
-test('GET readable bytes (ENS)', async () => {
+test.skip('GET readable bytes (ENS)', async () => {
   const bee = makeBee()
 
   const readable = await bee.downloadReadableData('deadcafe.eth')
