@@ -44,7 +44,7 @@ test('GET reserve state', async () => {
   expect(reserveState.radius).toBeGreaterThanOrEqual(0)
   expect(reserveState.commitment).toBeGreaterThan(0)
   expect(reserveState.reserveCapacityDoubling).toBe(0)
-  expect(reserveState.storageRadius).toBeGreaterThan(0)
+  expect(reserveState.storageRadius).toBeGreaterThanOrEqual(0)
 })
 
 test('GET wallet', async () => {

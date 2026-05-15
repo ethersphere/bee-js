@@ -18,7 +18,9 @@ test('withdraw to unauthorized address', async () => {
 test('withdraw to external wallet', async () => {
   const walletBefore = await bee.getWalletBalance()
 
-  await bee.withdrawBZZToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
+  const bzzTransaction = await bee.withdrawBZZToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
+  expect(bzzTransaction.toHex()).toHaveLength(64)
+
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
@@ -28,7 +30,9 @@ test('withdraw to external wallet', async () => {
     { attempts: 60, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
-  await bee.withdrawDAIToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
+  const daiTransaction = await bee.withdrawDAIToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
+  expect(daiTransaction.toHex()).toHaveLength(64)
+
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.getAllPendingTransactions()
