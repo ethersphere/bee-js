@@ -1,5 +1,5 @@
 import { Dates, System } from 'cafe-utility'
-import { currentBeeMode, makeBee } from '../utils'
+import { makeBee } from '../utils'
 
 const bee = makeBee()
 
@@ -13,11 +13,6 @@ test('GET chequebook status', async () => {
 
 test('GET chequebook/cheque', async () => {
   const { lastcheques } = await bee.getLastCheques()
-
-  // TODO: enable this in light mode once it has cheques
-  if (currentBeeMode() !== 'full') {
-    return
-  }
 
   expect(lastcheques.some(cheque => cheque.lastsent !== null)).toBeTruthy()
   expect(lastcheques.some(cheque => cheque.lastreceived !== null)).toBeTruthy()
