@@ -25,13 +25,13 @@ jobs:
         run: npm ci
 
       - name: Install global dependencies
-        run: npm install --global bee-dev @fairdatasociety/fdp-play @ethersphere/swarm-cli npxie@2.8.1
+        run: npm install --global bee-dev etherhive @ethersphere/swarm-cli npxie@2.8.1
 
       - name: Run bee-dev
         run: bee-dev --port 16337 &
 
-      - name: Start fdp-play environment
-        run: fdp-play start --detach --fresh --bee-version d0aa8b9-commit
+      - name: Start bee-factory
+        run: etherive start --tag v2.6.0
 
       - name: Deposit to chequebook
         run: |
