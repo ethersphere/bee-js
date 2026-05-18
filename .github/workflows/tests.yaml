@@ -51,11 +51,38 @@ jobs:
           echo "exit_code=$?" >> $GITHUB_OUTPUT
           set -e
 
-      - name: Compare coverage
+      - name: Upload coverage
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-master
+          path: test/coverage/coverage-summary.json
+
+      - name: Get master run ID
         if: github.ref != 'refs/heads/master'
-        run:
-          npxie coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
-          "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
+        id: get-run-id
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN_ID=$(gh run list --branch master --workflow tests.yaml --limit 1 --json databaseId --jq '.[0].databaseId')
+          echo "run-id=$RUN_ID" >> $GITHUB_OUTPUT
+
+      - name: Download master coverage
+        if: github.ref != 'refs/heads/master'
+        id: download-coverage
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.get-run-id.outputs.run-id }}
+          path: coverage-master
+
+      - name: Compare coverage
+        if: github.ref != 'refs/heads/master' && steps.download-coverage.outcome == 'success'
+        run: |
+          npxie coverage-comparison "${{ github.repository }}" "./coverage-master/coverage-summary.json" "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Fail if tests failed
         if: steps.tests.outputs.exit_code != '0'

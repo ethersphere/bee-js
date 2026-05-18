@@ -1,0 +1,33 @@
+name: Dispatch release to create-swarm-app
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  dispatch:
+    if: github.event.release.prerelease == false && github.event.release.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BEE_RUNNER_CLIENT_ID }}
+          private-key: ${{ secrets.BEE_RUNNER_KEY }}
+          repositories: create-swarm-app
+
+      - name: Dispatch release event to create-swarm-app
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: 'ethersphere',
+              repo: 'create-swarm-app',
+              event_type: 'bee-js-released',
+              client_payload: {
+                version: context.payload.release.tag_name.replace(/^v/, '')
+              }
+            })
