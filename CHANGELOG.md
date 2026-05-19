@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [12.2.1](https://github.com/ethersphere/bee-js/compare/v12.2.0...v12.2.1) (2026-05-19)
+
+
+### Bug Fixes
+
+* extendStorage should throw sensible error when it is no-op ([#1168](https://github.com/ethersphere/bee-js/issues/1168)) ([6246031](https://github.com/ethersphere/bee-js/commit/6246031f1ce73704afbf393d15d6ab9b5dcbfe6f))
+
 ## [12.2.0](https://github.com/ethersphere/bee-js/compare/v12.1.0...v12.2.0) (2026-05-15)
 
 
