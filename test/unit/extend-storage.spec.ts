@@ -62,6 +62,14 @@ test('extendStorage should not throw when only depth delta is negative', async (
   expect(batch.duration.toDays()).toBe(60)
 })
 
+test('extendStorage should succeed when duration is zero but size increases', async () => {
+  const batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(30))
+  await bee.extendStorage(batchId, Size.fromGigabytes(4), Duration.ZERO)
+  const batch = await bee.getPostageBatch(batchId)
+  expect(batch.size.toGigabytes()).toBeGreaterThan(3)
+  expect(batch.duration.toDays()).toBeGreaterThanOrEqual(30)
+})
+
 test('extendStorage should throw with a sensible error when duration is zero and size does not increase', async () => {
   const batchId = await bee.buyStorage(Size.fromGigabytes(4), Duration.fromDays(30))
   await expect(bee.extendStorage(batchId, Size.fromMegabytes(1), Duration.ZERO)).rejects.toThrow(
