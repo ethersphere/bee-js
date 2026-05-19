@@ -65,7 +65,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          RUN_ID=$(gh run list --branch master --workflow tests.yaml --limit 1 --json databaseId --jq '.[0].databaseId')
+          RUN_ID=$(gh run list --branch master --workflow tests.yaml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -z "$RUN_ID" ]; then exit 0; fi
           echo "run-id=$RUN_ID" >> $GITHUB_OUTPUT
 
       - name: Download master coverage

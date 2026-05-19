@@ -6,8 +6,12 @@ on:
 
 jobs:
   dispatch:
-    if: github.event.release.prerelease == false && github.event.release.draft == false
+    if: >
+      github.event.release.prerelease == false &&
+      github.event.release.draft == false &&
+      !contains(github.event.release.tag_name, '-')
     runs-on: ubuntu-latest
+    permissions: {}
 
     steps:
       - name: Generate GitHub App token
