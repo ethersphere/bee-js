@@ -28,6 +28,7 @@ jobs:
               repo: 'create-swarm-app',
               event_type: 'bee-js-released',
               client_payload: {
-                version: context.payload.release.tag_name.replace(/^v/, '')
+                version: context.payload.release.tag_name.replace(/^v/, ''),
+                release_url: context.payload.release.html_url
               }
             })
