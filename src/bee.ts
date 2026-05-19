@@ -2185,10 +2185,18 @@ export class Bee {
 
     const amountDelta = targetAmount - currentAmount
 
-    const transactionId = await this.topUpBatch(batch.batchID, amountDelta, requestOptions)
+    let transactionId: TransactionId | undefined
+
+    if (amountDelta > 0n) {
+      transactionId = await this.topUpBatch(batch.batchID, amountDelta, requestOptions)
+    }
 
     if (depthDelta > 0) {
       return this.diluteBatch(batch.batchID, depth, requestOptions)
+    }
+
+    if (!transactionId) {
+      throw new Error('Nothing to extend, both size and duration are already sufficient')
     }
 
     return transactionId
