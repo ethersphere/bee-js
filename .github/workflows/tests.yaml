@@ -45,6 +45,7 @@ jobs:
           JEST_BEE_URL: http://localhost:1633
           JEST_BEE_SIGNER: '8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba'
           JEST_WITHDRAW_ADDRESS: '0xd238ff944bacb478cbed5efcae784d7bf4f2ff80'
+        run: npm test
 
       - name: Upload coverage
         if: github.ref == 'refs/heads/master'
