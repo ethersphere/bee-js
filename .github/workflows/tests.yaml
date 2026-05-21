@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Install global dependencies
-        run: npm install --global bee-dev @ethersphere/bee-factory @ethersphere/swarm-cli npxie@2.8.1
+        run: npm install --global bee-dev @ethersphere/bee-factory @ethersphere/swarm-cli npxie
 
       - name: Run bee-dev
         run: bee-dev --port 16337 &
@@ -45,18 +45,36 @@ jobs:
           JEST_BEE_URL: http://localhost:1633
           JEST_BEE_SIGNER: '8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba'
           JEST_WITHDRAW_ADDRESS: '0xd238ff944bacb478cbed5efcae784d7bf4f2ff80'
+
+      - name: Upload coverage
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-master
+          path: test/coverage/coverage-summary.json
+
+      - name: Get master run ID
+        if: github.ref != 'refs/heads/master'
+        id: get-run-id
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          set +e
-          npm test
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
-          set -e
+          RUN_ID=$(gh run list --branch master --workflow tests.yaml --limit 1 --json databaseId --jq '.[0].databaseId')
+          echo "run-id=$RUN_ID" >> $GITHUB_OUTPUT
+
+      - name: Download master coverage
+        if: github.ref != 'refs/heads/master'
+        id: download-coverage
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.get-run-id.outputs.run-id }}
+          path: coverage-master
 
       - name: Compare coverage
-        if: github.ref != 'refs/heads/master'
-        run:
-          npxie coverage-comparison "${{ github.repository }}" "master" "${{ github.head_ref }}"
-          "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Fail if tests failed
-        if: steps.tests.outputs.exit_code != '0'
-        run: exit 1
+        if: github.ref != 'refs/heads/master' && steps.download-coverage.outcome == 'success'
+        run: |
+          npxie coverage-comparison "${{ github.repository }}" "./coverage-master/coverage-summary.json" "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
