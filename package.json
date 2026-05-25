@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",
-    "@babel/core": "^7.29.0",
+    "@babel/core": "^7.29.7",
     "@babel/plugin-proposal-class-properties": "^7.16.7",
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.20.2",
