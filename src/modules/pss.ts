@@ -1,9 +1,9 @@
-import { System } from 'cafe-utility'
 import WebSocket from 'isomorphic-ws'
 import type { BeeRequestOptions } from '../types'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { BatchId, PublicKey, Topic } from '../utils/typed-bytes'
+import { prepareWebsocketConnection } from '../utils/data'
 
 const endpoint = 'pss'
 
@@ -44,12 +44,7 @@ export async function send(
  */
 export function subscribe(url: string, topic: Topic, headers?: Record<string, string>): WebSocket {
   const wsUrl = url.replace(/^http/i, 'ws')
+  const wsUrlWithParams = `${wsUrl}/${endpoint}/subscribe/${topic.toHex()}`
 
-  if (System.whereAmI() === 'browser') {
-    return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${topic.toHex()}`)
-  }
-
-  return new WebSocket(`${wsUrl}/${endpoint}/subscribe/${topic.toHex()}`, {
-    headers,
-  })
+  return prepareWebsocketConnection(wsUrlWithParams, headers)
 }

@@ -8,6 +8,7 @@ import { Bytes } from '../utils/bytes'
 import { http } from '../utils/http'
 import { EthAddress, Identifier, PrivateKey, Signature, Span } from '../utils/typed-bytes'
 import { NULL_IDENTIFIER } from '../utils/constants'
+import { prepareWebsocketConnection } from '../utils/data'
 
 const endpoint = 'pubsub'
 const ENCODER = new TextEncoder()
@@ -77,8 +78,8 @@ export class GsocEphemeralMode implements IPubsubMode {
       : this.externalAddressHex!
 
     return {
-      'swarm-pubsub-gsoc-eth-address': signerHex,
-      'swarm-pubsub-gsoc-topic': this.socIdentifier.toHex(),
+      'gsoc-eth-address': signerHex,
+      'gsoc-topic': this.socIdentifier.toHex(),
     }
   }
 
@@ -134,27 +135,19 @@ export function connect(
   url: string,
   topicAddress: string,
   brokerPeer: string,
-  modeHeaders?: Record<string, string>,
+  modeParams?: Record<string, string>,
   requestHeaders?: Record<string, string>,
 ): WebSocket {
   const wsUrl = url.replace(/^http/i, 'ws')
-  const headers: Record<string, string> = {
-    ...requestHeaders,
-    'swarm-pubsub-peer': brokerPeer,
-    ...modeHeaders,
+
+  const queryParams: Record<string, string> = {
+    peer: brokerPeer,
+    ...modeParams,
   }
+  const params = new URLSearchParams(queryParams)
+  const wsUrlWithParams = `${wsUrl}/${endpoint}/${topicAddress}?${params.toString()}`
 
-  // Browsers cannot set custom headers on WebSocket connections.
-  // Pass them as query params instead; the server accepts both.
-  const isBrowser = typeof window !== 'undefined' && typeof window.WebSocket !== 'undefined'
-
-  if (isBrowser) {
-    const params = new URLSearchParams(headers)
-
-    return new WebSocket(`${wsUrl}/${endpoint}/${topicAddress}?${params.toString()}`)
-  }
-
-  return new WebSocket(`${wsUrl}/${endpoint}/${topicAddress}`, { headers })
+  return prepareWebsocketConnection(wsUrlWithParams, requestHeaders)
 }
 
 export async function listTopics(requestOptions: BeeRequestOptions): Promise<PubsubTopicListResponse> {

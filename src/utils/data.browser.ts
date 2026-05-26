@@ -1,4 +1,5 @@
 import type { Data } from 'ws'
+import WebSocket from 'isomorphic-ws'
 
 export async function prepareWebsocketData(data: Data | string | ArrayBuffer | Blob): Promise<Uint8Array> | never {
   if (typeof data === 'string') {
@@ -14,4 +15,8 @@ export async function prepareWebsocketData(data: Data | string | ArrayBuffer | B
   }
 
   throw new TypeError('unknown websocket data type')
+}
+
+export function prepareWebsocketConnection(params: string): WebSocket {
+  return new WebSocket(params)
 }
