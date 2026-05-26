@@ -31,7 +31,7 @@ export default async () => {
         preset: 'ts-jest',
         displayName: 'node',
         testEnvironment: 'node',
-        testRegex: 'test/.*\\.spec\\.ts',
+        testRegex: 'test/.*(?<!\\.browser)\\.spec\\.ts',
       },
     ],
     rootDir: 'test',

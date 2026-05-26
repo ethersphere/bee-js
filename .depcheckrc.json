@@ -15,6 +15,7 @@
     "webpack-cli",
     "playwright-test",
     "@types/jest",
-    "ts-jest"
+    "ts-jest",
+    "jest-environment-jsdom"
   ]
 }
