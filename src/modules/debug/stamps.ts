@@ -151,17 +151,25 @@ export async function diluteBatch(requestOptions: BeeRequestOptions, id: BatchId
 }
 
 function validateRawPostageBatch(raw: Record<string, unknown>): RawPostageBatch {
+  const depth = Types.asNumber(raw.depth, { name: 'depth' })
+  const bucketDepth = Types.asNumber(raw.bucketDepth, { name: 'bucketDepth' })
+  const utilization = Types.asNumber(raw.utilization, { name: 'utilization' })
+  const utilizationRatio =
+    typeof raw.utilizationRatio === 'number'
+      ? raw.utilizationRatio
+      : utilization / Math.pow(2, depth - bucketDepth)
+
   return {
     amount: asNumberString(raw.amount, { name: 'amount' }),
     batchID: Types.asString(raw.batchID, { name: 'batchID' }),
     batchTTL: Types.asNumber(raw.batchTTL, { name: 'batchTTL' }),
-    bucketDepth: Types.asNumber(raw.bucketDepth, { name: 'bucketDepth' }),
+    bucketDepth,
     blockNumber: Types.asNumber(raw.blockNumber, { name: 'blockNumber' }),
-    depth: Types.asNumber(raw.depth, { name: 'depth' }),
+    depth,
     immutableFlag: Types.asBoolean(raw.immutableFlag, { name: 'immutableFlag' }),
     label: Types.asEmptiableString(raw.label, { name: 'label' }),
     usable: Types.asBoolean(raw.usable, { name: 'usable' }),
-    utilization: Types.asNumber(raw.utilization, { name: 'utilization' }),
-    utilizationRatio: Types.asNumber(raw.utilizationRatio, { name: 'utilizationRatio' }),
+    utilization,
+    utilizationRatio,
   }
 }
