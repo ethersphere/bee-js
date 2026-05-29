@@ -162,6 +162,6 @@ function validateRawPostageBatch(raw: Record<string, unknown>): RawPostageBatch 
     label: Types.asEmptiableString(raw.label, { name: 'label' }),
     usable: Types.asBoolean(raw.usable, { name: 'usable' }),
     utilization: Types.asNumber(raw.utilization, { name: 'utilization' }),
-    utilizationRatio: Types.asNumber(raw.utilization, { name: 'utilizationRatio' }),
+    utilizationRatio: Types.asNumber(raw.utilizationRatio, { name: 'utilizationRatio' }),
   }
 }
