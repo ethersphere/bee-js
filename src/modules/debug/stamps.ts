@@ -1,12 +1,12 @@
 import { Types } from 'cafe-utility'
 import type {
-    BeeRequestOptions,
-    GlobalPostageBatch,
-    NumberString,
-    PostageBatch,
-    PostageBatchBuckets,
-    PostageBatchOptions,
-    RedundancyLevel,
+  BeeRequestOptions,
+  GlobalPostageBatch,
+  NumberString,
+  PostageBatch,
+  PostageBatchBuckets,
+  PostageBatchOptions,
+  RedundancyLevel,
 } from '../../types'
 import { http } from '../../utils/http'
 import { mapPostageBatch, RawPostageBatch } from '../../utils/stamps'
