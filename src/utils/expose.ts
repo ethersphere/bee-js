@@ -11,7 +11,6 @@ export {
   getStampEffectiveBytes,
   getStampEffectiveBytesBreakpoints,
   getStampTheoreticalBytes,
-  getStampUsage,
   mapPostageBatch,
   unmapPostageBatch,
 } from './stamps'
