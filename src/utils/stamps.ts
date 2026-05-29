@@ -11,6 +11,17 @@ import { normalizeBatchTTL } from './workaround'
 const MAX_UTILIZATION = 0.9
 
 /**
+ * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.
+ *
+ * For smaller depths (up to 20), this may provide less accurate results.
+ *
+ * @returns {number} A number between 0 and 1 representing the usage of the postage batch.
+ */
+export function getStampUsage(utilization: number, depth: number, bucketDepth: number): number {
+  return utilization / Math.pow(2, depth - bucketDepth)
+}
+
+/**
  * Utility function that calculates the theoritical maximum size of a postage batch based on its depth.
  *
  * For smaller depths (up to 22), this may provide less accurate results.
