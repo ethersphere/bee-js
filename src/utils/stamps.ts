@@ -11,17 +11,6 @@ import { normalizeBatchTTL } from './workaround'
 const MAX_UTILIZATION = 0.9
 
 /**
- * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.
- *
- * For smaller depths (up to 20), this may provide less accurate results.
- *
- * @returns {number} A number between 0 and 1 representing the usage of the postage batch.
- */
-export function getStampUsage(utilization: number, depth: number, bucketDepth: number): number {
-  return utilization / Math.pow(2, depth - bucketDepth)
-}
-
-/**
  * Utility function that calculates the theoritical maximum size of a postage batch based on its depth.
  *
  * For smaller depths (up to 22), this may provide less accurate results.
@@ -206,6 +195,7 @@ export function marshalStamp(
 export interface RawPostageBatch {
   batchID: string
   utilization: number
+  utilizationRatio: number
   usable: boolean
   label: string
   depth: number
@@ -221,7 +211,6 @@ export function mapPostageBatch(
   encryption?: boolean,
   erasureCodeLevel?: RedundancyLevel,
 ): PostageBatch {
-  const usage = getStampUsage(raw.utilization, raw.depth, raw.bucketDepth)
   const batchTTL = normalizeBatchTTL(raw.batchTTL)
   const duration = Duration.fromSeconds(batchTTL)
   const effectiveBytes = getStampEffectiveBytes(raw.depth, encryption, erasureCodeLevel)
@@ -236,10 +225,10 @@ export function mapPostageBatch(
     bucketDepth: raw.bucketDepth,
     blockNumber: raw.blockNumber,
     immutableFlag: raw.immutableFlag,
-    usage,
-    usageText: `${Math.round(usage * 100)}%`,
+    usage: raw.utilizationRatio,
+    usageText: `${Math.round(raw.utilizationRatio * 100)}%`,
     size: Size.fromBytes(effectiveBytes),
-    remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage))),
+    remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - raw.utilizationRatio))),
     theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(raw.depth)),
     duration,
     calculateSize(encryption, redundancyLevel) {
@@ -259,6 +248,7 @@ export function unmapPostageBatch(batch: PostageBatch): RawPostageBatch {
   return {
     batchID: batch.batchID.toHex(),
     utilization: batch.utilization,
+    utilizationRatio: batch.usage,
     usable: batch.usable,
     label: batch.label,
     depth: batch.depth,
