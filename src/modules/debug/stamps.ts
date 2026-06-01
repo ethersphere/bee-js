@@ -168,9 +168,7 @@ function validateRawPostageBatch(raw: Record<string, unknown>): RawPostageBatch 
   const bucketDepth = Types.asNumber(raw.bucketDepth, { name: 'bucketDepth' })
   const utilization = Types.asNumber(raw.utilization, { name: 'utilization' })
   const utilizationRatio =
-    typeof raw.utilizationRatio === 'number'
-      ? raw.utilizationRatio
-      : utilization / Math.pow(2, depth - bucketDepth)
+    typeof raw.utilizationRatio === 'number' ? raw.utilizationRatio : utilization / Math.pow(2, depth - bucketDepth)
 
   return {
     amount: asNumberString(raw.amount, { name: 'amount' }),
