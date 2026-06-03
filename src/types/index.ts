@@ -381,6 +381,28 @@ export interface GsocMessageHandler {
   onClose: (subscription: GsocSubscription) => void
 }
 
+export interface MocSubscription {
+  readonly identifier: Identifier
+  cancel: () => void
+}
+
+export interface MocMessageHandler {
+  onMessage: (message: Bytes, subscription: MocSubscription) => void
+  onError: (error: BeeError, subscription: MocSubscription) => void
+  onClose: (subscription: MocSubscription) => void
+}
+
+export interface MicSubscription {
+  readonly owner: EthAddress
+  cancel: () => void
+}
+
+export interface MicMessageHandler {
+  onMessage: (message: Bytes, subscription: MicSubscription) => void
+  onError: (error: BeeError, subscription: MicSubscription) => void
+  onClose: (subscription: MicSubscription) => void
+}
+
 export interface ReferenceResponse {
   reference: Reference
 }

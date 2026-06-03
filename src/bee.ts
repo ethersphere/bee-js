@@ -27,6 +27,8 @@ import { postEnvelope } from './modules/envelope'
 import { FeedPayloadResult, createFeedManifest, fetchLatestFeedUpdate } from './modules/feed'
 import * as grantee from './modules/grantee'
 import * as gsoc from './modules/gsoc'
+import * as mic from './modules/mic'
+import * as moc from './modules/moc'
 import * as pinning from './modules/pinning'
 import * as pss from './modules/pss'
 import { rchash } from './modules/rchash'
@@ -59,6 +61,10 @@ import type {
   LastCashoutActionResponse,
   LastChequesForPeerResponse,
   LastChequesResponse,
+  MicMessageHandler,
+  MicSubscription,
+  MocMessageHandler,
+  MocSubscription,
   NodeAddresses,
   NodeInfo,
   NumberString,
@@ -119,6 +125,8 @@ import {
   prepareDownloadOptions,
   prepareFileUploadOptions,
   prepareGsocMessageHandler,
+  prepareMicMessageHandler,
+  prepareMocMessageHandler,
   preparePostageBatchOptions,
   preparePssMessageHandler,
   prepareRedundantUploadOptions,
@@ -1265,6 +1273,268 @@ export class Bee {
 
     const subscription = {
       address,
+      cancel,
+    }
+
+    ws.onmessage = async event => {
+      const data = await prepareWebsocketData(event.data)
+
+      if (data.length) {
+        handler.onMessage(new Bytes(data), subscription)
+      }
+    }
+    ws.onerror = event => {
+      if (!cancelled) {
+        handler.onError(new BeeError(event.message), subscription)
+      }
+    }
+    ws.onclose = () => {
+      handler.onClose(subscription)
+    }
+
+    return subscription
+  }
+
+  /**
+   * Mines the signer (a private key) to be used to send MOC messages to the specific target overlay address.
+   *
+   * Use {@link mocSend} to send MOC messages with the mined signer.
+   *
+   * Use {@link mocSubscribe} to subscribe to MOC messages for the identifier.
+   *
+   * **Warning! Only full nodes can accept MOC messages.**
+   *
+   * @param targetOverlay
+   * @param identifier
+   * @param proximity
+   * @returns
+   *
+   * @example
+   * const identifier = NULL_IDENTIFIER
+   * const { overlay } = await bee.getNodeAddresses()
+   * const signer = bee.mocMine(overlay, identifier)
+   * const cac = makeContentAddressedChunk('Hello MOC!')
+   * const soc = cac.toSingleOwnerChunk(identifier, signer)
+   * await bee.mocSend(soc, postageBatchId)
+   */
+  mocMine(
+    targetOverlay: PeerAddress | Uint8Array | string,
+    identifier: Identifier | Uint8Array | string,
+    proximity = 12,
+  ): PrivateKey {
+    targetOverlay = new PeerAddress(targetOverlay)
+    identifier = new Identifier(identifier)
+    for (let i = 0; i < 0xffff; i++) {
+      const randomBytes = crypto.getRandomValues(new Uint8Array(32))
+      const signer = new PrivateKey(randomBytes)
+      const socAddress = makeSOCAddress(identifier, signer.publicKey().address())
+      const actualProximity = Binary.proximity(socAddress.toUint8Array(), targetOverlay.toUint8Array())
+
+      if (actualProximity >= proximity) {
+        return signer
+      }
+    }
+    throw Error('Could not mine a valid signer')
+  }
+
+  mocSend = moc.send
+
+  /**
+   * Subscribes to MOC (Mined Owner Chunk) messages for the specified identifier.
+   *
+   * The node delivers every incoming single-owner chunk whose identifier matches,
+   * regardless of its owner.
+   *
+   * Use {@link mocSend} to send MOC messages on the identifier.
+   *
+   * **Warning! Only full nodes can accept MOC messages.**
+   *
+   * @param identifier
+   * @param handler
+   * @returns
+   *
+   * @example
+   * const identifier = NULL_IDENTIFIER
+   * const subscription = bee.mocSubscribe(identifier, {
+   *   onMessage(message) {
+   *     // handle
+   *   },
+   *   onError(error) {
+   *     // handle
+   *   },
+   *   onClose() {
+   *     // handle
+   *   }
+   * })
+   */
+  mocSubscribe(identifier: Identifier | Uint8Array | string, handler: MocMessageHandler): MocSubscription {
+    identifier = new Identifier(identifier)
+    handler = prepareMocMessageHandler(handler)
+
+    const ws = moc.subscribe(this.url, identifier, this.requestOptions.headers)
+
+    let cancelled = false
+    const cancel = () => {
+      if (!cancelled) {
+        cancelled = true
+
+        if (ws.terminate) {
+          ws.terminate()
+        } else {
+          ws.close()
+        }
+      }
+    }
+
+    const subscription = {
+      identifier,
+      cancel,
+    }
+
+    ws.onmessage = async event => {
+      const data = await prepareWebsocketData(event.data)
+
+      if (data.length) {
+        handler.onMessage(new Bytes(data), subscription)
+      }
+    }
+    ws.onerror = event => {
+      if (!cancelled) {
+        handler.onError(new BeeError(event.message), subscription)
+      }
+    }
+    ws.onclose = () => {
+      handler.onClose(subscription)
+    }
+
+    return subscription
+  }
+
+  /**
+   * Mines an identifier to be used to send MIC messages to the specified target overlay address.
+   *
+   * Unlike {@link gsocMine} (which mines the owner for a fixed identifier), this mines the
+   * identifier for a fixed owner (the signer), so that the resulting single-owner chunk address
+   * lands in the target overlay's neighbourhood. This is the MIC (Mined ID Chunk) counterpart.
+   *
+   * Use {@link micSend} to send MIC messages with the mined identifier.
+   *
+   * Use {@link micSubscribe} to subscribe to MIC messages for the owner (of the signer).
+   *
+   * **Warning! Only full nodes can accept MIC messages.**
+   *
+   * @param targetOverlay
+   * @param signer        The fixed publisher identity
+   * @param proximity
+   * @returns
+   *
+   * @example
+   * const signer = new PrivateKey('...')
+   * const { overlay } = await bee.getNodeAddresses()
+   * const identifier = bee.micMine(overlay, signer)
+   * const cac = makeContentAddressedChunk('MIC!')
+   * const soc = cac.toSingleOwnerChunk(identifier, signer)
+   * await bee.micSend(soc, postageBatchId)
+   */
+  micMine(
+    targetOverlay: PeerAddress | Uint8Array | string,
+    signer: PrivateKey | Uint8Array | string,
+    proximity = 12,
+  ): Identifier {
+    targetOverlay = new PeerAddress(targetOverlay)
+    signer = new PrivateKey(signer)
+    const owner = signer.publicKey().address()
+    for (let i = 0; i < 0xffff; i++) {
+      const identifier = new Identifier(crypto.getRandomValues(new Uint8Array(32)))
+      const socAddress = makeSOCAddress(identifier, owner)
+      const actualProximity = Binary.proximity(socAddress.toUint8Array(), targetOverlay.toUint8Array())
+
+      if (actualProximity >= proximity) {
+        return identifier
+      }
+    }
+    throw Error('Could not mine a valid identifier')
+  }
+
+  /**
+   * Sends a MIC (Mined ID Chunk) message with the specified signer and identifier.
+   *
+   * A MIC is matched on the receiving node by its owner, regardless of identifier. The
+   * owner is a fixed publisher identity (the signer); the identifier is mined so that the
+   * chunk address lands in the subscriber's neighbourhood. Use {@link micMine} to mine
+   * such an identifier for the subscriber's overlay address.
+   *
+   * Use {@link micSubscribe} to subscribe to MIC messages for the owner.
+   *
+   * **Warning! Only full nodes can accept MIC messages.**
+   *
+   * @param postageBatchId
+   * @param signer            The fixed publisher identity
+   * @param identifier        The mined identifier, typically from {@link micMine}
+   * @param data
+   * @param options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   * @returns
+   *
+   * @example
+   * const signer = new PrivateKey('...')
+   * const { overlay } = await bee.getNodeAddresses()
+   * const identifier = bee.micMine(overlay, signer)
+   * const cac = makeContentAddressedChunk('MIC!')
+   * const soc = cac.toSingleOwnerChunk(identifier, signer)
+   * await bee.micSend(soc, postageBatchId)
+   */
+  micSend = mic.send
+
+  /**
+   * Subscribes to MIC (Mined ID Chunk) messages for the specified owner ethereum address.
+   *
+   * The node delivers every incoming single-owner chunk whose owner matches,
+   * regardless of its identifier.
+   *
+   * Use {@link micSend} to send MIC messages for the owner.
+   *
+   * **Warning! Only full nodes can accept MIC messages.**
+   *
+   * @param address  Owner ethereum address (of the publisher's signer)
+   * @param handler
+   * @returns
+   *
+   * @example
+   * const signer = new PrivateKey('...')
+   * const subscription = bee.micSubscribe(signer.publicKey().address(), {
+   *   onMessage(message) {
+   *     // handle
+   *   },
+   *   onError(error) {
+   *     // handle
+   *   },
+   *   onClose() {
+   *     // handle
+   *   }
+   * })
+   */
+  micSubscribe(address: EthAddress | Uint8Array | string, handler: MicMessageHandler): MicSubscription {
+    address = new EthAddress(address)
+    handler = prepareMicMessageHandler(handler)
+
+    const ws = mic.subscribe(this.url, address, this.requestOptions.headers)
+
+    let cancelled = false
+    const cancel = () => {
+      if (!cancelled) {
+        cancelled = true
+
+        if (ws.terminate) {
+          ws.terminate()
+        } else {
+          ws.close()
+        }
+      }
+    }
+
+    const subscription = {
+      owner: address,
       cancel,
     }
 
