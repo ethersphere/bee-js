@@ -1,3 +1,4 @@
+import type { AxiosResponse } from 'axios'
 import { BeeRequestOptions, Collection, CollectionUploadOptions } from '..'
 import { prepareRequestHeaders } from './headers'
 import { http } from './http'
@@ -12,7 +13,7 @@ export async function uploadTar(
   collection: Collection,
   postageBatchId: BatchId,
   options?: CollectionUploadOptions,
-) {
+): Promise<AxiosResponse<unknown>> {
   const tarStream = new TarStream()
   const responsePromise = http<unknown>(requestOptions, {
     method: 'post',
