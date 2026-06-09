@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [12.2.2](https://github.com/ethersphere/bee-js/compare/v12.2.1...v12.2.2) (2026-06-09)
+
+
+### Bug Fixes
+
+* remove BeeDev class, use bee-factory instead ([#1183](https://github.com/ethersphere/bee-js/issues/1183)) ([7f09616](https://github.com/ethersphere/bee-js/commit/7f0961602e81ecfc1538908b8e889f8463bb2e36))
+
 ## [12.2.1](https://github.com/ethersphere/bee-js/compare/v12.2.0...v12.2.1) (2026-05-19)
 
 
