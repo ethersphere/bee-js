@@ -1,5 +1,4 @@
 import { Bee } from './bee'
-import { BeeDev } from './bee-dev'
 import { Stamper } from './stamper/stamper'
 
 export { MerkleTree } from 'cafe-utility'
@@ -17,7 +16,7 @@ export { Size } from './utils/size'
 export * from './utils/tokens'
 export * from './utils/typed-bytes'
 export type { UploadProgress } from './utils/upload-progress'
-export { Bee, BeeDev, Stamper }
+export { Bee, Stamper }
 
 // for require-like imports
 declare global {
@@ -25,7 +24,6 @@ declare global {
     // binded as 'BeeJs' via Webpack
     BeeJs: {
       Bee: typeof import('./bee').Bee
-      BeeDev: typeof import('./bee-dev').BeeDev
       Stamper: typeof import('./stamper/stamper').Stamper
       Utils: typeof import('./utils/expose')
       Duration: typeof import('./utils/duration').Duration
