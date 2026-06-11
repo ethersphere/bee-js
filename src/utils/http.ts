@@ -44,6 +44,12 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
   if (options.signal) merged.signal = options.signal
   attachBody(merged)
 
+  if (merged.params) {
+    for (const k of Object.keys(merged.params)) {
+      if (merged.params[k] === undefined) delete merged.params[k]
+    }
+  }
+
   const url = buildUrl(merged)
   const method = (merged.method || 'GET').toUpperCase()
   merged.method = method
@@ -92,7 +98,8 @@ function attachBody(merged: BeeRequestConfig): void {
     data instanceof FormData ||
     data instanceof URLSearchParams ||
     (typeof Buffer !== 'undefined' && Buffer.isBuffer(data)) ||
-    (typeof ReadableStream !== 'undefined' && data instanceof ReadableStream)
+    (typeof ReadableStream !== 'undefined' && data instanceof ReadableStream) ||
+    typeof (data as { pipe?: unknown })?.pipe === 'function' // Node Readable stream
 
   if (isBodyInit) {
     merged.body = data as BodyInit
@@ -141,8 +148,10 @@ export async function toBeeResponse<T>(res: Response, responseType: BeeResponseT
       data = res.body
       break
     case 'json':
-    default:
-      data = await res.json()
+    default: {
+      const text = await res.text()
+      data = text ? JSON.parse(text) : null
+    }
   }
 
   return {
