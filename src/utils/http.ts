@@ -1,42 +1,33 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Dates, Objects, Strings, System } from 'cafe-utility'
 import _debug from 'debug'
 import { BeeRequestOptions, BeeResponseError } from '../index'
 
 const debug = _debug('bee-js:http')
 
-const { AxiosError } = axios
-
 const MAX_FAILED_ATTEMPTS = 100_000
 const DELAY_FAST = 200
 const DELAY_SLOW = 1000
 const DELAY_THRESHOLD = Dates.minutes(1) / DELAY_FAST
-const ABORT_ERROR_MESSAGE = 'Request aborted'
 
-export const DEFAULT_HTTP_CONFIG: AxiosRequestConfig = {
+export const DEFAULT_HTTP_CONFIG: BeeRequestConfig = {
   headers: {
     accept: 'application/json, text/plain, */*',
   },
-  maxBodyLength: Infinity,
-  maxContentLength: Infinity,
 }
 
-function throwIfAborted(
-  signal: AbortSignal | undefined,
-  config: AxiosRequestConfig,
-  responseData?: unknown,
-  responseStatus?: number,
-): void {
-  if (signal?.aborted) {
-    throw new BeeResponseError(
-      config.method || 'get',
-      config.url || '<unknown>',
-      ABORT_ERROR_MESSAGE,
-      responseData,
-      responseStatus,
-      'ERR_CANCELED',
-    )
-  }
+export interface BeeResponse<T> {
+  data: T
+  status: number
+  statusText: string
+  headers: Headers
+  raw: Response
+}
+
+export interface BeeRequestConfig extends RequestInit {
+  url?: string
+  baseURL?: string
+  params?: Record<string, string | number | boolean | undefined>
+  data?: unknown
 }
 
 /**
@@ -44,87 +35,77 @@ function throwIfAborted(
  * @param options User defined settings
  * @param config Internal settings and/or Bee settings
  */
-export async function http<T>(options: BeeRequestOptions, config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-  const requestConfig: AxiosRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+export async function http<T>(options: BeeRequestOptions, config: BeeRequestConfig): Promise<BeeResponse<T>> {
+  const merged: BeeRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
 
-  if (options.signal) {
-    requestConfig.signal = options.signal
-    throwIfAborted(options.signal, config)
-  }
+  if (options.signal) merged.signal = options.signal
 
-  maybeReplaceBodyBuffers(requestConfig)
+  if (merged.data !== undefined) merged.body = merged.data as BodyInit
 
-  if (requestConfig.params) {
-    const keys = Object.keys(requestConfig.params)
-    for (const key of keys) {
-      const value = requestConfig.params[key]
+  const url = buildUrl(merged)
+  const method = merged.method || 'get'
 
-      if (value === undefined) {
-        delete requestConfig.params[key]
-      }
-    }
-  }
+  options.onRequest?.({
+    method,
+    url,
+    headers: { ...merged.headers } as Record<string, string>,
+    params: merged.params,
+  })
 
   let failedAttempts = 0
   while (failedAttempts < MAX_FAILED_ATTEMPTS) {
-    throwIfAborted(options.signal, config)
-
     try {
-      debug(
-        `${requestConfig.method || 'get'} ${Strings.joinUrl([
-          requestConfig.baseURL as string,
-          requestConfig.url as string,
-        ])}`,
-        { headers: { ...requestConfig.headers } as Record<string, string>, params: requestConfig.params },
-      )
-      maybeRunOnRequestHook(options, requestConfig)
-      const response = await axios(requestConfig)
+      debug(`${method} ${url}`, { headers: merged.headers, params: merged.params })
+      const res = await fetch(url, merged)
+      const beeRes = await toBeeResponse<T>(res)
 
-      return response as AxiosResponse<T>
-    } catch (e: unknown) {
-      if (e instanceof AxiosError) {
-        if (e.code === 'ERR_CANCELED') {
-          throwIfAborted({ aborted: true } as AbortSignal, config, e.response?.data, e.response?.status)
-        }
+      if (!res.ok) {
+        throw new BeeResponseError(method, url, res.statusText, beeRes.data, res.status, res.statusText)
+      }
 
-        if (e.code === 'ECONNABORTED' && options.endlesslyRetry) {
-          failedAttempts++
-          await System.sleepMillis(failedAttempts < DELAY_THRESHOLD ? DELAY_FAST : DELAY_SLOW)
-        } else {
-          throw new BeeResponseError(
-            config.method || 'get',
-            config.url || '<unknown>',
-            e.message,
-            e.response?.data,
-            e.response?.status,
-            e.response?.statusText,
-          )
-        }
+      return beeRes
+    } catch (e) {
+      if (e instanceof BeeResponseError) throw e
+
+      const err = e as Error
+
+      if (err.name === 'AbortError') {
+        throw new BeeResponseError(method, url, 'Request aborted', undefined, undefined, 'ERR_CANCELED')
+      }
+
+      if (err.name === 'TimeoutError' && options.endlesslyRetry) {
+        failedAttempts++
+        await System.sleepMillis(failedAttempts < DELAY_THRESHOLD ? DELAY_FAST : DELAY_SLOW)
       } else {
-        throw e
+        throw new BeeResponseError(method, url, err.message)
       }
     }
   }
   throw Error('Max number of failed attempts reached')
 }
 
-function maybeRunOnRequestHook(options: BeeRequestOptions, requestConfig: AxiosRequestConfig) {
-  if (options.onRequest) {
-    options.onRequest({
-      method: requestConfig.method || 'GET',
-      url: Strings.joinUrl([requestConfig.baseURL as string, requestConfig.url as string]),
-      headers: { ...requestConfig.headers } as Record<string, string>,
-      params: requestConfig.params,
-    })
+export async function toBeeResponse<T>(res: Response): Promise<BeeResponse<T>> {
+  return {
+    data: (await res.json()) as T,
+    status: res.status,
+    statusText: res.statusText,
+    headers: res.headers,
+    raw: res,
   }
 }
 
-function maybeReplaceBodyBuffers(config: AxiosRequestConfig): void {
-  if (config.data && config.data instanceof Uint8Array) {
-    config.data = config.data.buffer.slice(config.data.byteOffset, config.data.byteOffset + config.data.byteLength)
+function buildUrl(config: BeeRequestConfig): string {
+  let url = Strings.joinUrl([config.baseURL ?? '', config.url ?? ''])
+
+  if (config.params) {
+    const qs = new URLSearchParams(
+      Object.entries(config.params)
+        .filter(([, v]) => v !== undefined)
+        .map(([k, v]) => [k, String(v)]),
+    ).toString()
+
+    if (qs) url += `?${qs}`
   }
 
-  if (config.data && typeof Buffer !== 'undefined' && Buffer.isBuffer(config.data)) {
-    config.data = config.data.buffer.slice(config.data.byteOffset, config.data.byteOffset + config.data.byteLength)
-  }
+  return url
 }
