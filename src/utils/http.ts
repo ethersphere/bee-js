@@ -15,11 +15,13 @@ export const DEFAULT_HTTP_CONFIG: BeeRequestConfig = {
   },
 }
 
+export type BeeResponseType = 'json' | 'arraybuffer' | 'text' | 'blob' | 'stream'
+
 export interface BeeResponse<T> {
   data: T
   status: number
   statusText: string
-  headers: Headers
+  headers: Record<string, string>
   raw: Response
 }
 
@@ -28,6 +30,7 @@ export interface BeeRequestConfig extends RequestInit {
   baseURL?: string
   params?: Record<string, string | number | boolean | undefined>
   data?: unknown
+  responseType?: BeeResponseType
 }
 
 /**
@@ -57,13 +60,13 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
     try {
       debug(`${method} ${url}`, { headers: merged.headers, params: merged.params })
       const res = await fetch(url, merged)
-      const beeRes = await toBeeResponse<T>(res)
 
       if (!res.ok) {
-        throw new BeeResponseError(method, url, res.statusText, beeRes.data, res.status, res.statusText)
+        const errBody = await toBeeResponse(res, merged.responseType)
+        throw new BeeResponseError(method, url, res.statusText, errBody.data, res.status, res.statusText)
       }
 
-      return beeRes
+      return toBeeResponse<T>(res, merged.responseType)
     } catch (e) {
       if (e instanceof BeeResponseError) throw e
 
@@ -84,12 +87,31 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
   throw Error('Max number of failed attempts reached')
 }
 
-export async function toBeeResponse<T>(res: Response): Promise<BeeResponse<T>> {
+export async function toBeeResponse<T>(res: Response, responseType: BeeResponseType = 'json'): Promise<BeeResponse<T>> {
+  let data: unknown
+  switch (responseType) {
+    case 'arraybuffer':
+      data = await res.arrayBuffer()
+      break
+    case 'text':
+      data = await res.text()
+      break
+    case 'blob':
+      data = await res.blob()
+      break
+    case 'stream':
+      data = res.body
+      break
+    case 'json':
+    default:
+      data = await res.json()
+  }
+
   return {
-    data: (await res.json()) as T,
+    data: data as T,
     status: res.status,
     statusText: res.statusText,
-    headers: res.headers,
+    headers: Object.fromEntries(res.headers.entries()),
     raw: res,
   }
 }
