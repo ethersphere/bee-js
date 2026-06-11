@@ -42,11 +42,7 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
   const merged: BeeRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
 
   if (options.signal) merged.signal = options.signal
-
-  if (merged.data !== undefined) {
-    merged.body = merged.data as BodyInit
-    ;(merged as RequestInit & { duplex?: string }).duplex = 'half'
-  }
+  attachBody(merged)
 
   const url = buildUrl(merged)
   const method = (merged.method || 'GET').toUpperCase()
@@ -65,12 +61,7 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
       debug(`${method} ${url}`, { headers: merged.headers, params: merged.params })
       const res = await fetch(url, merged)
 
-      if (!res.ok) {
-        const errBody = await toBeeResponse(res, merged.responseType).catch(() => ({ data: undefined }))
-        const bodyMsg = typeof errBody.data === 'string' ? errBody.data : JSON.stringify(errBody.data)
-        const message = bodyMsg && bodyMsg !== 'undefined' ? `${res.statusText}: ${bodyMsg}` : res.statusText
-        throw new BeeResponseError(method, url, message, errBody.data, res.status, res.statusText)
-      }
+      if (!res.ok) await throwHttpError(method, url, res, merged.responseType)
 
       return toBeeResponse<T>(res, merged.responseType)
     } catch (e) {
@@ -78,21 +69,60 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
 
       const err = e as Error
 
-      if (err.name === 'AbortError') {
-        throw new BeeResponseError(method, url, 'Request aborted', undefined, undefined, 'ERR_CANCELED')
-      }
-
       if (err.name === 'TimeoutError' && options.endlesslyRetry) {
         failedAttempts++
         await System.sleepMillis(failedAttempts < DELAY_THRESHOLD ? DELAY_FAST : DELAY_SLOW)
       } else {
-        const cause = (err as { cause?: Error }).cause
-        const message = cause?.message ? `${err.message}: ${cause.message}` : err.message
-        throw new BeeResponseError(method, url, message)
+        throw toBeeError(err, method, url)
       }
     }
   }
   throw Error('Max number of failed attempts reached')
+}
+
+function attachBody(merged: BeeRequestConfig): void {
+  if (merged.data === undefined) return
+
+  const data = merged.data
+  const isBodyInit =
+    typeof data === 'string' ||
+    data instanceof ArrayBuffer ||
+    data instanceof Uint8Array ||
+    data instanceof Blob ||
+    data instanceof FormData ||
+    data instanceof URLSearchParams ||
+    (typeof Buffer !== 'undefined' && Buffer.isBuffer(data)) ||
+    (typeof ReadableStream !== 'undefined' && data instanceof ReadableStream)
+
+  if (isBodyInit) {
+    merged.body = data as BodyInit
+    ;(merged as RequestInit & { duplex?: string }).duplex = 'half'
+  } else {
+    merged.body = JSON.stringify(data)
+    merged.headers = { 'content-type': 'application/json', ...(merged.headers as Record<string, string>) }
+  }
+}
+
+async function throwHttpError(
+  method: string,
+  url: string,
+  res: Response,
+  responseType?: BeeResponseType,
+): Promise<never> {
+  const errBody = await toBeeResponse(res, responseType).catch(() => ({ data: undefined }))
+  const bodyMsg = typeof errBody.data === 'string' ? errBody.data : JSON.stringify(errBody.data)
+  const message = bodyMsg && bodyMsg !== 'undefined' ? `${res.statusText}: ${bodyMsg}` : res.statusText
+  throw new BeeResponseError(method, url, message, errBody.data, res.status, res.statusText)
+}
+
+function toBeeError(err: Error, method: string, url: string): BeeResponseError {
+  if (err.name === 'AbortError') {
+    return new BeeResponseError(method, url, 'Request aborted', undefined, undefined, 'ERR_CANCELED')
+  }
+  const cause = (err as { cause?: Error }).cause
+  const message = cause?.message ? `${err.message}: ${cause.message}` : err.message
+
+  return new BeeResponseError(method, url, message)
 }
 
 export async function toBeeResponse<T>(res: Response, responseType: BeeResponseType = 'json'): Promise<BeeResponse<T>> {
