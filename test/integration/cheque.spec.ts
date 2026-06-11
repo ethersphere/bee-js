@@ -3,8 +3,8 @@ import { Bee } from '../../src'
 import { makeBee } from '../utils'
 
 const bee = makeBee()
-const issuer = new Bee('http://localhost:11633')
-const receiver = new Bee('http://localhost:21633')
+const issuer = new Bee('http://localhost:1635')
+const receiver = new Bee('http://localhost:1637')
 
 test('GET chequebook status', async () => {
   const chequebookBalance = await bee.getChequebookBalance()
