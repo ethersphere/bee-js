@@ -46,7 +46,8 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
   if (merged.data !== undefined) merged.body = merged.data as BodyInit
 
   const url = buildUrl(merged)
-  const method = merged.method || 'get'
+  const method = (merged.method || 'GET').toUpperCase()
+  merged.method = method
 
   options.onRequest?.({
     method,
@@ -62,8 +63,10 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
       const res = await fetch(url, merged)
 
       if (!res.ok) {
-        const errBody = await toBeeResponse(res, merged.responseType)
-        throw new BeeResponseError(method, url, res.statusText, errBody.data, res.status, res.statusText)
+        const errBody = await toBeeResponse(res, merged.responseType).catch(() => ({ data: undefined }))
+        const bodyMsg = typeof errBody.data === 'string' ? errBody.data : JSON.stringify(errBody.data)
+        const message = bodyMsg && bodyMsg !== 'undefined' ? `${res.statusText}: ${bodyMsg}` : res.statusText
+        throw new BeeResponseError(method, url, message, errBody.data, res.status, res.statusText)
       }
 
       return toBeeResponse<T>(res, merged.responseType)
@@ -80,7 +83,9 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
         failedAttempts++
         await System.sleepMillis(failedAttempts < DELAY_THRESHOLD ? DELAY_FAST : DELAY_SLOW)
       } else {
-        throw new BeeResponseError(method, url, err.message)
+        const cause = (err as { cause?: Error }).cause
+        const message = cause?.message ? `${err.message}: ${cause.message}` : err.message
+        throw new BeeResponseError(method, url, message)
       }
     }
   }
