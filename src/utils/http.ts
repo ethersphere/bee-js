@@ -104,9 +104,8 @@ function attachBody(merged: BeeRequestConfig): void {
   if (isBodyInit) {
     merged.body = data as BodyInit
     ;(merged as RequestInit & { duplex?: string }).duplex = 'half'
-    if (data instanceof Blob && data.type) {
-      merged.headers = { 'content-type': data.type, ...(merged.headers as Record<string, string>) }
-    }
+    const fallbackType = data instanceof Blob && data.type ? data.type : 'application/octet-stream'
+    merged.headers = { 'content-type': fallbackType, ...(merged.headers as Record<string, string>) }
   } else {
     merged.body = JSON.stringify(data)
     merged.headers = { 'content-type': 'application/json', ...(merged.headers as Record<string, string>) }
