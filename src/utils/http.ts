@@ -43,7 +43,10 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
 
   if (options.signal) merged.signal = options.signal
 
-  if (merged.data !== undefined) merged.body = merged.data as BodyInit
+  if (merged.data !== undefined) {
+    merged.body = merged.data as BodyInit
+    ;(merged as RequestInit & { duplex?: string }).duplex = 'half'
+  }
 
   const url = buildUrl(merged)
   const method = (merged.method || 'GET').toUpperCase()
