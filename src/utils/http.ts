@@ -28,7 +28,7 @@ export interface BeeResponse<T> {
 export interface BeeRequestConfig extends RequestInit {
   url?: string
   baseURL?: string
-  params?: Record<string, string | number | boolean | undefined>
+  params?: Record<string, unknown>
   data?: unknown
   responseType?: BeeResponseType
 }
