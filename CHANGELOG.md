@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [12.2.3](https://github.com/ethersphere/bee-js/compare/v12.2.2...v12.2.3) (2026-06-12)
+
+
+### Bug Fixes
+
+* use nano second timestamp in stamper ([#1186](https://github.com/ethersphere/bee-js/issues/1186)) ([e92b390](https://github.com/ethersphere/bee-js/commit/e92b39007c3f12caa5a729ee732f1f03c5287b2d))
+
 ## [12.2.2](https://github.com/ethersphere/bee-js/compare/v12.2.1...v12.2.2) (2026-06-09)
 
 
