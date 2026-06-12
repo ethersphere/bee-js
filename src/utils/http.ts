@@ -17,7 +17,7 @@ export const DEFAULT_HTTP_CONFIG: BeeRequestConfig = {
 
 export type BeeResponseType = 'json' | 'arraybuffer' | 'text' | 'blob' | 'stream'
 
-interface BeeResponse<T> {
+export interface BeeResponse<T> {
   data: T
   status: number
   statusText: string
