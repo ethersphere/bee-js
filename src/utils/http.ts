@@ -1,4 +1,4 @@
-import { Dates, Objects, Strings, System } from 'cafe-utility'
+import { Objects, Strings, System } from 'cafe-utility'
 import _debug from 'debug'
 import { BeeRequestOptions, BeeResponseError } from '../index'
 
@@ -7,7 +7,7 @@ const debug = _debug('bee-js:http')
 const MAX_FAILED_ATTEMPTS = 100_000
 const DELAY_FAST = 200
 const DELAY_SLOW = 1000
-const DELAY_THRESHOLD = Dates.minutes(1) / DELAY_FAST
+const FAST_RETRY_COUNT = 300
 
 export const DEFAULT_HTTP_CONFIG: BeeRequestConfig = {
   headers: {
@@ -39,37 +39,33 @@ export interface BeeRequestConfig extends RequestInit {
  * @param config Internal settings and/or Bee settings
  */
 export async function http<T>(options: BeeRequestOptions, config: BeeRequestConfig): Promise<BeeResponse<T>> {
-  const merged: BeeRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+  const requestConfig: BeeRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
 
-  if (options.signal) merged.signal = options.signal
-  attachBody(merged)
-
-  if (merged.params) {
-    for (const k of Object.keys(merged.params)) {
-      if (merged.params[k] === undefined) delete merged.params[k]
-    }
+  if (options.signal) {
+    requestConfig.signal = options.signal
   }
+  attachBody(requestConfig)
 
-  const url = buildUrl(merged)
-  const method = (merged.method || 'GET').toUpperCase()
-  merged.method = method
+  const url = buildUrl(requestConfig)
+  const method = (requestConfig.method || 'GET').toUpperCase()
+  requestConfig.method = method
 
   options.onRequest?.({
     method,
     url,
-    headers: { ...merged.headers } as Record<string, string>,
-    params: merged.params,
+    headers: { ...requestConfig.headers } as Record<string, string>,
+    params: requestConfig.params,
   })
 
   let failedAttempts = 0
   while (failedAttempts < MAX_FAILED_ATTEMPTS) {
     try {
-      debug(`${method} ${url}`, { headers: merged.headers, params: merged.params })
-      const res = await fetch(url, merged)
+      debug(`${method} ${url}`, { headers: requestConfig.headers, params: requestConfig.params })
+      const res = await fetch(url, requestConfig)
 
-      if (!res.ok) await throwHttpError(method, url, res, merged.responseType)
+      if (!res.ok) await throwHttpError(method, url, res, requestConfig.responseType)
 
-      return toBeeResponse<T>(res, merged.responseType)
+      return toBeeResponse<T>(res, requestConfig.responseType)
     } catch (e) {
       if (e instanceof BeeResponseError) throw e
 
@@ -77,7 +73,7 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
 
       if (err.name === 'TimeoutError' && options.endlesslyRetry) {
         failedAttempts++
-        await System.sleepMillis(failedAttempts < DELAY_THRESHOLD ? DELAY_FAST : DELAY_SLOW)
+        await System.sleepMillis(failedAttempts < FAST_RETRY_COUNT ? DELAY_FAST : DELAY_SLOW)
       } else {
         throw toBeeError(err, method, url)
       }
@@ -86,29 +82,21 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
   throw Error('Max number of failed attempts reached')
 }
 
-function attachBody(merged: BeeRequestConfig): void {
-  if (merged.data === undefined) return
+function attachBody(config: BeeRequestConfig): void {
+  if (config.data === undefined) return
 
-  const data = merged.data
-  const isBodyInit =
-    typeof data === 'string' ||
-    data instanceof ArrayBuffer ||
-    data instanceof Uint8Array ||
-    data instanceof Blob ||
-    data instanceof FormData ||
-    data instanceof URLSearchParams ||
-    (typeof Buffer !== 'undefined' && Buffer.isBuffer(data)) ||
-    (typeof ReadableStream !== 'undefined' && data instanceof ReadableStream) ||
-    typeof (data as { pipe?: unknown })?.pipe === 'function' // Node Readable stream
+  const data = config.data
+  const isJsonShape =
+    (data !== null && typeof data === 'object' && (data as object).constructor === Object) || Array.isArray(data)
 
-  if (isBodyInit) {
-    merged.body = data as BodyInit
-    ;(merged as RequestInit & { duplex?: string }).duplex = 'half'
-    const fallbackType = data instanceof Blob && data.type ? data.type : 'application/octet-stream'
-    merged.headers = { 'content-type': fallbackType, ...(merged.headers as Record<string, string>) }
+  if (isJsonShape) {
+    config.body = JSON.stringify(data)
+    config.headers = { 'content-type': 'application/json', ...(config.headers as Record<string, string>) }
   } else {
-    merged.body = JSON.stringify(data)
-    merged.headers = { 'content-type': 'application/json', ...(merged.headers as Record<string, string>) }
+    config.body = data as BodyInit
+    ;(config as RequestInit & { duplex?: string }).duplex = 'half'
+    const ct = data instanceof Blob && data.type ? data.type : 'application/octet-stream'
+    config.headers = { 'content-type': ct, ...(config.headers as Record<string, string>) }
   }
 }
 
