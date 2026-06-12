@@ -45,7 +45,8 @@ export class Stamper {
     }
     this.buckets[bucket]++
     const index = Binary.concatBytes(Binary.numberToUint32(bucket, 'BE'), Binary.numberToUint32(height, 'BE'))
-    const timestamp = Binary.numberToUint64(BigInt(Date.now()), 'BE')
+    const currentTimeNs = BigInt(Date.now()) * 1_000_000n // Bee uses unix timestamp in nanoseconds
+    const timestamp = Binary.numberToUint64(currentTimeNs, 'BE')
     const signature = this.signer.sign(Binary.concatBytes(address, this.batchId.toUint8Array(), index, timestamp))
 
     return {
