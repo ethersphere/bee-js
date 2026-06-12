@@ -17,7 +17,7 @@ export const DEFAULT_HTTP_CONFIG: BeeRequestConfig = {
 
 export type BeeResponseType = 'json' | 'arraybuffer' | 'text' | 'blob' | 'stream'
 
-export interface BeeResponse<T> {
+interface BeeResponse<T> {
   data: T
   status: number
   statusText: string
@@ -45,6 +45,12 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
     requestConfig.signal = options.signal
   }
   attachBody(requestConfig)
+
+  if (requestConfig.params) {
+    for (const k of Object.keys(requestConfig.params)) {
+      if (requestConfig.params[k] === undefined) delete requestConfig.params[k]
+    }
+  }
 
   const url = buildUrl(requestConfig)
   const method = (requestConfig.method || 'GET').toUpperCase()
