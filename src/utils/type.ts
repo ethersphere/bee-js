@@ -7,6 +7,8 @@ import {
   DownloadOptions,
   FileUploadOptions,
   GsocMessageHandler,
+  MicMessageHandler,
+  MocMessageHandler,
   NumberString,
   PostageBatchOptions,
   PssMessageHandler,
@@ -152,6 +154,26 @@ export function prepareGsocMessageHandler(value: unknown): GsocMessageHandler {
     onMessage: Types.asFunction(object.onMessage, { name: 'onMessage' }) as GsocMessageHandler['onMessage'],
     onError: Types.asFunction(object.onError, { name: 'onError' }) as GsocMessageHandler['onError'],
     onClose: Types.asFunction(object.onClose, { name: 'onClose' }) as GsocMessageHandler['onClose'],
+  }
+}
+
+export function prepareMocMessageHandler(value: unknown): MocMessageHandler {
+  const object = Types.asObject(value, { name: 'MocMessageHandler' })
+
+  return {
+    onMessage: Types.asFunction(object.onMessage, { name: 'onMessage' }) as MocMessageHandler['onMessage'],
+    onError: Types.asFunction(object.onError, { name: 'onError' }) as MocMessageHandler['onError'],
+    onClose: Types.asFunction(object.onClose, { name: 'onClose' }) as MocMessageHandler['onClose'],
+  }
+}
+
+export function prepareMicMessageHandler(value: unknown): MicMessageHandler {
+  const object = Types.asObject(value, { name: 'MicMessageHandler' })
+
+  return {
+    onMessage: Types.asFunction(object.onMessage, { name: 'onMessage' }) as MicMessageHandler['onMessage'],
+    onError: Types.asFunction(object.onError, { name: 'onError' }) as MicMessageHandler['onError'],
+    onClose: Types.asFunction(object.onClose, { name: 'onClose' }) as MicMessageHandler['onClose'],
   }
 }
 
