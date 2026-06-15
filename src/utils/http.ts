@@ -58,7 +58,7 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
 
   options.onRequest?.({
     method,
-    url,
+    url: Strings.joinUrl([requestConfig.baseURL ?? '', requestConfig.url ?? '']),
     headers: { ...requestConfig.headers } as Record<string, string>,
     params: requestConfig.params,
   })
