@@ -1,0 +1,86 @@
+name: Tests (React Native Android)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tests-react-native-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Checkout bee-js
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      - name: Install bee-js dependencies
+        run: npm ci
+
+      - name: Pack bee-js
+        run: echo "BEE_JS_PACK=$(npm pack --json | jq -r '.[0].filename')" >> $GITHUB_ENV
+
+      - name: Checkout bee-js-react-native-test
+        uses: actions/checkout@v6
+        with:
+          repository: ethersphere/bee-js-react-native-test
+          path: rn-test
+
+      - name: Install test project dependencies
+        working-directory: rn-test
+        run: npm ci
+
+      - name: Replace bee-js with local build
+        working-directory: rn-test
+        run: npm install ../${{ env.BEE_JS_PACK }}
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('rn-test/android/**/*.gradle*', 'rn-test/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Install global dependencies
+        run: npm install --global bee-dev @ethersphere/bee-factory @ethersphere/swarm-cli npxie
+
+      - name: Run bee-dev
+        run: bee-dev --port 16337 &
+
+      - name: Start bee-factory
+        run: bee-factory start --tag v2.8.0
+
+      - name: Create postage batch
+        run: echo "STAMP=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
+
+      - name: Build APK
+        working-directory: rn-test
+        run: npm run test:build:ci
+
+      - name: Run tests on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel
+          avd-name: Pixel_API_34
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: cd rn-test && npm run test:run:ci
