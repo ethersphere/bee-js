@@ -31,11 +31,20 @@ jobs:
       - name: Pack bee-js
         run: echo "BEE_JS_PACK=$(npm pack --json | jq -r '.[0].filename')" >> $GITHUB_ENV
 
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BEE_RUNNER_APP_ID }}
+          private-key: ${{ secrets.BEE_RUNNER_KEY }}
+          repositories: bee-js-react-native-test
+
       - name: Checkout bee-js-react-native-test
         uses: actions/checkout@v6
         with:
           repository: ethersphere/bee-js-react-native-test
           path: rn-test
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Install test project dependencies
         working-directory: rn-test
@@ -61,10 +70,7 @@ jobs:
           restore-keys: gradle-
 
       - name: Install global dependencies
-        run: npm install --global bee-dev @ethersphere/bee-factory @ethersphere/swarm-cli npxie
-
-      - name: Run bee-dev
-        run: bee-dev --port 16337 &
+        run: npm install --global @ethersphere/bee-factory @ethersphere/swarm-cli npxie
 
       - name: Start bee-factory
         run: bee-factory start --tag v2.8.0
