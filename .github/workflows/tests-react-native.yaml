@@ -80,7 +80,7 @@ jobs:
 
       - name: Build APK
         working-directory: rn-test
-        run: npm run test:build:ci
+        run: npm run test:build
 
       - name: Run tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -92,4 +92,4 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
-          script: cd rn-test && npm run test:run:ci
+          script: cd rn-test && npm run test:run
