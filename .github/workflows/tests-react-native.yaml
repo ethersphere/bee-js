@@ -57,6 +57,25 @@ jobs:
           rm -f package-lock.json
           npm install ../${{ env.BEE_JS_PACK }}
 
+      - name: Probe Metro resolution per-package (pre-flight)
+        working-directory: rn-test
+        # Sub-second per-package resolution check: for each bee-js transitive
+        # asks Metro which file it would pick on Android, flags any landing on
+        # `.mjs`, and requires each resolved file in Node. Cheap diagnostic
+        # that prints a per-package pass/fail before the bundle probe runs.
+        run: npm run test:probe-resolution
+
+      - name: Bundle bee-js with Metro and load it (fast pre-flight)
+        working-directory: rn-test
+        # ~1-second check that produces the actual Metro bundle bee-js would
+        # ship to the device (Android conditions, Expo's resolver config), then
+        # evaluates it in Node with RN-shaped globals. Catches packaging
+        # regressions (broken exports map, CJS↔ESM interop bug, missing
+        # transitive) before spending 10 min on Gradle + emulator. Misses
+        # Hermes-specific behaviour and real bee-node interactions — those are
+        # what the emulator job below is for.
+        run: npm run test:probe
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
