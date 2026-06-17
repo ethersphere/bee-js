@@ -2,9 +2,6 @@ name: Tests (React Native Android)
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - chore/remove-axios-dependency-from-bee-js
 
 jobs:
   tests-react-native-android:
