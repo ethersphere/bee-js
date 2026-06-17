@@ -46,13 +46,16 @@ jobs:
           path: rn-test
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Install test project dependencies
+      - name: Install test project deps with local bee-js
         working-directory: rn-test
-        run: npm ci
-
-      - name: Replace bee-js with local build
-        working-directory: rn-test
-        run: npm install ../${{ env.BEE_JS_PACK }}
+        # Drop the lockfile before installing the locally-packed bee-js so npm
+        # resolves the full transitive tree from scratch. With `npm ci` + a
+        # follow-up `npm install ../tgz`, npm dedupes against the already-pinned
+        # transitives and can leave stale versions (e.g. cafe-utility 33.x)
+        # even when the new bee-js declares a higher range.
+        run: |
+          rm -f package-lock.json
+          npm install ../${{ env.BEE_JS_PACK }}
 
       - name: Set up Java
         uses: actions/setup-java@v4
