@@ -62,7 +62,8 @@ test('PATCH stamp label', async () => {
   expect(response.toHex()).toHaveLength(64)
 
   const label = 'test-label'
-  await bee.updatePostageBatchLabel(response, label)
+  await expect(bee.updatePostageBatchLabel(response, label)).resolves.not.toThrow()
+  await expect(bee.getPostageBatch(response)).resolves.toMatchObject({ label })
 })
 
 test('POST envelope', async () => {
