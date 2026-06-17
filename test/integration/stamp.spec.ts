@@ -61,9 +61,17 @@ test('PATCH stamp label', async () => {
   const response = await bee.createPostageBatch('1098006401', 17, { waitForUsable: true })
   expect(response.toHex()).toHaveLength(64)
 
-  const label = 'test-label'
-  await expect(bee.updatePostageBatchLabel(response, label)).resolves.not.toThrow()
-  await expect(bee.getPostageBatch(response)).resolves.toMatchObject({ label })
+  test('updatePostageBatchLabel', async () => {
+    const label = 'test-label'
+    await expect(bee.updatePostageBatchLabel(response, label)).resolves.not.toThrow()
+    await expect(bee.getPostageBatch(response)).resolves.toMatchObject({ label })
+  })
+
+  test('renameStorage', async () => {
+    const label = 'test-label'
+    await expect(bee.renameStorage(response, label)).resolves.not.toThrow()
+    await expect(bee.getPostageBatch(response)).resolves.toMatchObject({ label })
+  })
 })
 
 test('POST envelope', async () => {

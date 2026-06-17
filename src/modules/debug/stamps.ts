@@ -131,7 +131,7 @@ export async function updatePostageBatchLabel(
     method: 'patch',
     url: `${STAMPS_ENDPOINT}/${id}`,
     responseType: 'json',
-    params: { label },
+    data: { label },
   })
 }
 
