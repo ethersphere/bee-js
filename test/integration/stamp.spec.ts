@@ -57,6 +57,14 @@ test('POST stamps rejections', async () => {
   await expect(bee.createPostageBatch('500000000', 256)).rejects.toThrow()
 })
 
+test('PATCH stamp label', async () => {
+  const response = await bee.createPostageBatch('1098006401', 17, { waitForUsable: true })
+  expect(response.toHex()).toHaveLength(64)
+
+  const label = 'test-label'
+  await bee.updatePostageBatchLabel(response, label)
+})
+
 test('POST envelope', async () => {
   const data = Strings.randomAlphanumeric(40)
   const cac = makeContentAddressedChunk(data)
