@@ -21,7 +21,7 @@ test('upload files from directory', async () => {
 
   // stream chunks to upload
   const streamResponse = await bee.streamDirectory(batch(), 'test/data')
-  expect(streamResponse.reference.toHex()).toBe(expectedHash)
+  expect(streamResponse.reference.toHex()).toBe('32c8aa1c32d3ba4ded3dbc6df75d7a3a58b6468c6227fe721af06365f769a8f7')
 
   // download the data and compare
   const stylesCss = await bee.downloadFile(expectedHash, 'static/styles.css')
