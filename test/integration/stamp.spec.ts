@@ -20,6 +20,14 @@ test('GET batches', async () => {
   expect(batches.length).toBeGreaterThan(0)
 })
 
+test('GET batch', async () => {
+  const batches = await bee.getGlobalPostageBatches()
+  expect(batches.length).toBeGreaterThan(0)
+
+  const batch = await bee.getGlobalPostageBatch(batches[0].batchID)
+  expect(Objects.deepEquals(batch, batches[0])).toBeTruthy()
+})
+
 test('POST stamps', async () => {
   const response = await bee.createPostageBatch('1098006401', 17, { waitForUsable: true })
   expect(response.toHex()).toHaveLength(64)

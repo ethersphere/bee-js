@@ -2076,9 +2076,9 @@ export class Bee {
    * to buying storage for a certain size and duration on the Swarm network.
    *
    * Use {@link getStorageCost} to calculate the cost of creating a postage batch.
-   * 
+   *
    * For the low level API, use {@link createPostageBatch}.
-   * 
+   *
    * @example const batchId = await bee.buyStorage(Size.fromGigabytes(8), Duration.fromDays(31))
 
    * @param size
@@ -2490,6 +2490,21 @@ export class Bee {
       encryption,
       erasureCodeLevel,
     )
+  }
+
+  /**
+   * Returns details for specific globally available postage batch.
+   *
+   * @param postageBatchId Batch ID
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async getGlobalPostageBatch(
+    postageBatchId: BatchId | Uint8Array | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GlobalPostageBatch> {
+    postageBatchId = new BatchId(postageBatchId)
+
+    return stamps.getGlobalPostageBatch(this.getRequestOptionsForCall(requestOptions), postageBatchId)
   }
 
   /**

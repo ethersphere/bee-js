@@ -8,6 +8,7 @@ import type {
   PostageBatchOptions,
   RedundancyLevel,
 } from '../../types'
+import { GetGlobalPostageBatchResponse } from '../../types/schema'
 import { http } from '../../utils/http'
 import { mapPostageBatch, RawPostageBatch } from '../../utils/stamps'
 import { asNumberString } from '../../utils/type'
@@ -36,6 +37,19 @@ export async function getGlobalPostageBatches(requestOptions: BeeRequestOptions)
     start: Types.asNumber(x.start, { name: 'start' }),
     value: asNumberString(x.value, { name: 'value' }),
   }))
+}
+
+export async function getGlobalPostageBatch(
+  requestOptions: BeeRequestOptions,
+  postageBatchId: BatchId,
+): Promise<GlobalPostageBatch> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'get',
+    url: `${BATCHES_ENDPOINT}/${postageBatchId}`,
+    responseType: 'json',
+  })
+
+  return GetGlobalPostageBatchResponse.parse(response.data)
 }
 
 export async function getAllPostageBatches(requestOptions: BeeRequestOptions): Promise<PostageBatch[]> {
