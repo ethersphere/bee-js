@@ -4,7 +4,7 @@ import { batch, makeBee } from '../utils'
 const bee = makeBee()
 
 test('upload files from directory', async () => {
-  const expectedHash = '32c8aa1c32d3ba4ded3dbc6df75d7a3a58b6468c6227fe721af06365f769a8f7'
+  const expectedHash = '237865537469cc454a0d2d8ae913b1402f360af045d956caccf1f1724f597118'
 
   // use bzz api with streaming tar
   const response = await bee.uploadFilesFromDirectory(batch(), 'test/data')
