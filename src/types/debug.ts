@@ -264,6 +264,7 @@ export interface ChainState {
   block: number
   totalAmount: NumberString
   currentPrice: number
+  minimumValidityBlocks?: number
 }
 
 export interface WalletBalance {
