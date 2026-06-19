@@ -65,6 +65,24 @@ test('POST stamps rejections', async () => {
   await expect(bee.createPostageBatch('500000000', 256)).rejects.toThrow()
 })
 
+test('PATCH stamp label (updatePostageBatchLabel)', async () => {
+  const response = await bee.createPostageBatch('1098006401', 17, { waitForUsable: true })
+  expect(response.toHex()).toHaveLength(64)
+
+  const label = 'test-label'
+  await expect(bee.updatePostageBatchLabel(response, label)).resolves.not.toThrow()
+  await expect(bee.getPostageBatch(response)).resolves.toMatchObject({ label })
+})
+
+test('PATCH stamp label (renameStorage)', async () => {
+  const response = await bee.createPostageBatch('1098006401', 17, { waitForUsable: true })
+  expect(response.toHex()).toHaveLength(64)
+
+  const label = 'test-label'
+  await expect(bee.renameStorage(response, label)).resolves.not.toThrow()
+  await expect(bee.getPostageBatch(response)).resolves.toMatchObject({ label })
+})
+
 test('POST envelope', async () => {
   const data = Strings.randomAlphanumeric(40)
   const cac = makeContentAddressedChunk(data)

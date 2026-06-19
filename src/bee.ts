@@ -2375,6 +2375,38 @@ export class Bee {
   }
 
   /**
+   * Updates the label of a certain postage batch.
+   *
+   * @param postageBatchId Batch ID of the postage batch to update.
+   * @param label New label for the postage batch.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async updatePostageBatchLabel(
+    postageBatchId: BatchId | Uint8Array | string,
+    label: string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<void> {
+    postageBatchId = new BatchId(postageBatchId)
+
+    return stamps.updatePostageBatchLabel(this.getRequestOptionsForCall(requestOptions), postageBatchId, label)
+  }
+
+  /**
+   * Renames a storage. This is a convenience method that calls {@link updatePostageBatchLabel}.
+   *
+   * @param postageBatchId Batch ID of the postage batch to update.
+   * @param newName New name for the storage.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async renameStorage(
+    postageBatchId: BatchId | Uint8Array | string,
+    newLabel: string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<void> {
+    return this.updatePostageBatchLabel(postageBatchId, newLabel, requestOptions)
+  }
+
+  /**
    * Calculates the `amount` and expected duration extension for topping up a postage batch with a given BZZ value.
    *
    * @param depth Depth of the postage batch to top up.
