@@ -31,6 +31,7 @@ test('GET chain state', async () => {
   expect(chainState.block).toBeGreaterThan(300)
   expect(parseInt(chainState.totalAmount)).not.toBeNaN()
   expect(chainState.currentPrice).toBe(24000)
+  expect(chainState.minimumValidityBlocks).toBeGreaterThan(0)
 })
 
 test('GET redistribution state', async () => {
