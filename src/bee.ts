@@ -2076,9 +2076,9 @@ export class Bee {
    * to buying storage for a certain size and duration on the Swarm network.
    *
    * Use {@link getStorageCost} to calculate the cost of creating a postage batch.
-   * 
+   *
    * For the low level API, use {@link createPostageBatch}.
-   * 
+   *
    * @example const batchId = await bee.buyStorage(Size.fromGigabytes(8), Duration.fromDays(31))
 
    * @param size
@@ -2372,6 +2372,38 @@ export class Bee {
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
 
     return getStampCost(batch.depth, amount)
+  }
+
+  /**
+   * Updates the label of a certain postage batch.
+   *
+   * @param postageBatchId Batch ID of the postage batch to update.
+   * @param label New label for the postage batch.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async updatePostageBatchLabel(
+    postageBatchId: BatchId | Uint8Array | string,
+    label: string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<void> {
+    postageBatchId = new BatchId(postageBatchId)
+
+    return stamps.updatePostageBatchLabel(this.getRequestOptionsForCall(requestOptions), postageBatchId, label)
+  }
+
+  /**
+   * Renames a storage. This is a convenience method that calls {@link updatePostageBatchLabel}.
+   *
+   * @param postageBatchId Batch ID of the postage batch to update.
+   * @param newName New name for the storage.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async renameStorage(
+    postageBatchId: BatchId | Uint8Array | string,
+    newLabel: string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<void> {
+    return this.updatePostageBatchLabel(postageBatchId, newLabel, requestOptions)
   }
 
   /**

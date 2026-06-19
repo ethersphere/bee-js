@@ -122,6 +122,19 @@ export async function createPostageBatch(
   return new BatchId(Types.asString(body.batchID, { name: 'batchID' }))
 }
 
+export async function updatePostageBatchLabel(
+  requestOptions: BeeRequestOptions,
+  id: BatchId,
+  label: string,
+): Promise<void> {
+  await http<unknown>(requestOptions, {
+    method: 'patch',
+    url: `${STAMPS_ENDPOINT}/${id}`,
+    responseType: 'json',
+    data: { label },
+  })
+}
+
 export async function topUpBatch(
   requestOptions: BeeRequestOptions,
   id: BatchId,
