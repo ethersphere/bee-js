@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 export const TagSchema = z.object({
-  address: z.string().nullish().transform(v => v ?? ''),
+  address: z
+    .string()
+    .nullish()
+    .transform(v => v ?? ''),
   seen: z.number(),
   sent: z.number(),
   split: z.number(),

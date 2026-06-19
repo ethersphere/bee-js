@@ -2,7 +2,12 @@ import getMajorSemver from 'semver/functions/major.js'
 import { BeeRequestOptions } from '../../index'
 import type { DebugStatus, Health, NodeInfo, Readiness } from '../../types/debug'
 import { BeeVersions } from '../../types/debug'
-import { GetDebugStatusResponse, GetHealthResponse, GetNodeInfoResponse, GetReadinessResponse } from '../../types/schema/status'
+import {
+  GetDebugStatusResponse,
+  GetHealthResponse,
+  GetNodeInfoResponse,
+  GetReadinessResponse,
+} from '../../types/schema/status'
 import { http } from '../../utils/http'
 
 export const SUPPORTED_BEE_VERSION_EXACT = '2.7.0-6ddf9b45'
