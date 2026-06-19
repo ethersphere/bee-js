@@ -71,16 +71,19 @@ export function prepareRequestHeaders(
   }
 
   const act = z.boolean().safeParse(options.act)
+
   if (act.success) {
     headers['swarm-act'] = String(act.data)
   }
 
   const pin = z.boolean().safeParse(options.pin)
+
   if (pin.success) {
     headers['swarm-pin'] = String(pin.data)
   }
 
   const encrypt = z.boolean().safeParse(options.encrypt)
+
   if (encrypt.success) {
     headers['swarm-encrypt'] = String(encrypt.data)
   }
@@ -90,6 +93,7 @@ export function prepareRequestHeaders(
   }
 
   const deferred = z.boolean().safeParse(options.deferred)
+
   if (deferred.success) {
     headers['swarm-deferred-upload'] = String(deferred.data)
   }
@@ -99,6 +103,7 @@ export function prepareRequestHeaders(
   }
 
   const fallback = z.boolean().safeParse(options.fallback)
+
   if (fallback.success) {
     headers['swarm-redundancy-fallback-mode'] = String(fallback.data)
   }

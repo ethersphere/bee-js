@@ -7,17 +7,23 @@ export const HexStringSchema = z
   .regex(/^(?:0x)?[0-9a-fA-F]*$/, 'expected hex string')
   .refine(s => s.replace(/^0x/i, '').length % 2 === 0, 'expected even-length hex string')
 
-const fnField = z.any().refine((v): v is Function => typeof v === 'function', 'expected a function')
+const fnField = z
+  .any()
+  .refine((v): v is (...args: unknown[]) => unknown => typeof v === 'function', 'expected a function')
 
 const integerStringField = z.any().transform((v: unknown): NumberString => {
   if (typeof v === 'bigint') v = String(v)
+
   if (typeof v !== 'string' || !/^-?\d+$/.test(v)) throw new Error('expected integer string')
+
   return v as NumberString
 })
 
 const nonNegativeIntegerStringField = z.any().transform((v: unknown): NumberString => {
   if (typeof v === 'bigint') v = String(v)
+
   if (typeof v !== 'string' || !/^\d+$/.test(v)) throw new Error('expected non-negative integer string')
+
   return v as NumberString
 })
 

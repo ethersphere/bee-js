@@ -53,6 +53,7 @@ export function unmarshalContentAddressedChunk(data: Bytes | Uint8Array): Chunk 
 
 export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string, span?: Span | bigint): Chunk {
   const asString = z.string().safeParse(rawPayload)
+
   if (asString.success) {
     rawPayload = Bytes.fromUtf8(asString.data)
   }
