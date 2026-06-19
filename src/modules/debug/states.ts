@@ -1,5 +1,6 @@
 import { Types } from 'cafe-utility'
 import { BeeRequestOptions, ChainState, ReserveState, WalletBalance } from '../../types'
+import { GetChainStateResponse } from '../../types/schema'
 import { http } from '../../utils/http'
 import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
@@ -44,13 +45,14 @@ export async function getChainState(requestOptions: BeeRequestOptions): Promise<
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
+  const body = GetChainStateResponse.parse(response.data)
 
   return {
-    block: Types.asNumber(body.block, { name: 'block' }),
-    chainTip: Types.asNumber(body.chainTip, { name: 'chainTip' }),
-    totalAmount: asNumberString(body.totalAmount, { name: 'totalAmount' }),
-    currentPrice: normalizeCurrentPrice(Types.asNumber(body.currentPrice, { name: 'currentPrice' })),
+    block: body.block,
+    chainTip: body.chainTip,
+    totalAmount: body.totalAmount,
+    currentPrice: normalizeCurrentPrice(body.currentPrice),
+    minimumValidityBlocks: body.minimumValidityBlocks,
   }
 }
 
