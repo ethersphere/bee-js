@@ -1,5 +1,6 @@
-import { Binary, Objects, Types } from 'cafe-utility'
+import { Binary, Objects } from 'cafe-utility'
 import _debug from 'debug'
+import { HexStringSchema } from './schema'
 
 const debug = _debug('bee-js:bytes')
 
@@ -18,7 +19,7 @@ export class Bytes {
     if (bytes instanceof Bytes) {
       this.bytes = bytes.bytes
     } else if (typeof bytes === 'string') {
-      this.bytes = Binary.hexToUint8Array(Types.asHexString(bytes, { name: 'Bytes#constructor(bytes)' }))
+      this.bytes = Binary.hexToUint8Array(HexStringSchema.parse(bytes))
     } else if (bytes instanceof ArrayBuffer) {
       this.bytes = new Uint8Array(bytes)
     } else if (bytes instanceof Uint8Array) {
@@ -27,9 +28,9 @@ export class Bytes {
       const unknownInput = bytes as unknown
       const toHex = Objects.getDeep(unknownInput, 'toHex')
 
-      if (Types.isFunction(toHex)) {
+      if (typeof toHex === 'function') {
         const hex = toHex.call(unknownInput)
-        this.bytes = Binary.hexToUint8Array(Types.asHexString(hex, { name: 'Bytes#constructor(bytes)' }))
+        this.bytes = Binary.hexToUint8Array(HexStringSchema.parse(hex))
       } else {
         debug('bytes', bytes)
         throw new Error(`Bytes#constructor: unsupported type: ${typeof bytes}`)

@@ -6,7 +6,8 @@ import { Bytes } from '../utils/bytes'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { ResourceLocator } from '../utils/resource-locator'
-import { makeTagUid, prepareDownloadOptions } from '../utils/type'
+import { DownloadOptionsSchema } from '../utils/schema'
+import { makeTagUid } from '../utils/type'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
 const endpoint = 'bytes'
@@ -82,7 +83,7 @@ export async function download(
   options?: DownloadOptions,
 ): Promise<Bytes> {
   if (options) {
-    options = prepareDownloadOptions(options)
+    options = DownloadOptionsSchema.parse(options)
   }
 
   const response = await http<unknown>(requestOptions, {
@@ -106,7 +107,7 @@ export async function downloadReadable(
   options?: DownloadOptions,
 ): Promise<ReadableStream<Uint8Array>> {
   if (options) {
-    options = prepareDownloadOptions(options)
+    options = DownloadOptionsSchema.parse(options)
   }
 
   const response = await http<ReadableStream<Uint8Array>>(requestOptions, {

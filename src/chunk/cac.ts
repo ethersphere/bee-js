@@ -1,4 +1,5 @@
-import { Binary, Types } from 'cafe-utility'
+import { Binary } from 'cafe-utility'
+import { z } from 'zod'
 import { Bytes } from '../utils/bytes'
 import { Identifier, PrivateKey, Reference, Span } from '../utils/typed-bytes'
 import { calculateChunkAddress } from './bmt'
@@ -51,8 +52,9 @@ export function unmarshalContentAddressedChunk(data: Bytes | Uint8Array): Chunk 
 }
 
 export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string, span?: Span | bigint): Chunk {
-  if (Types.isString(rawPayload)) {
-    rawPayload = Bytes.fromUtf8(rawPayload)
+  const asString = z.string().safeParse(rawPayload)
+  if (asString.success) {
+    rawPayload = Bytes.fromUtf8(asString.data)
   }
 
   if (rawPayload.length < MIN_PAYLOAD_SIZE || rawPayload.length > MAX_PAYLOAD_SIZE) {
