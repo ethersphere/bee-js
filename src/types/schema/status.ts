@@ -35,3 +35,7 @@ export const GetNodeInfoResponse = z.object({
   chequebookEnabled: z.boolean(),
   swapEnabled: z.boolean(),
 })
+
+export const IsGatewayResponse = z.object({
+  gateway: z.boolean(),
+})
