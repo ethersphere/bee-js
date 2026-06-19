@@ -1,16 +1,6 @@
-import { System } from 'cafe-utility'
-import { Reference } from '../../src'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()
-
-async function waitUntilRetrievable(reference: Reference, retries = 5, delayMs = 1000): Promise<void> {
-  for (let i = 0; i < retries; i++) {
-    if (await bee.isReferenceRetrievable(reference)) return
-    await System.sleepMillis(delayMs)
-  }
-  throw new Error('Reference not retrievable after retries')
-}
 
 test('CRUD pins', async () => {
   const response = await bee.uploadData(batch(), 'Pinned hello.', { pin: true })
@@ -20,8 +10,8 @@ test('CRUD pins', async () => {
   const pin = await bee.getPin(response.reference)
   expect(pin.reference.toHex()).toBe(response.reference.toHex())
 
-  await waitUntilRetrievable(response.reference)
-  await bee.reuploadPinnedData(batch(), response.reference) // does not throw
+  await bee.reuploadPinnedData(batch(), response.reference) // push to network
+  expect(await bee.isReferenceRetrievable(response.reference)).toBe(true)
 
   await bee.unpin(response.reference)
   const pinsAfterUnpin = await bee.getAllPins()
