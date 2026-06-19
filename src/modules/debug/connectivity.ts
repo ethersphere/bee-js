@@ -1,11 +1,11 @@
 import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../../types'
+import { NodeAddresses } from '../../types/debug'
 import {
   GetBlocklistResponse,
   GetNodeAddressesResponse,
   GetPeersResponse,
   GetTopologyResponse,
 } from '../../types/schema/connectivity'
-import { NodeAddresses } from '../../types/debug'
 import { http } from '../../utils/http'
 import { PeerAddress } from '../../utils/typed-bytes'
 
