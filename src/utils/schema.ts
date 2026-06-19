@@ -7,24 +7,21 @@ export const HexStringSchema = z
   .regex(/^(?:0x)?[0-9a-fA-F]*$/, 'expected hex string')
   .refine(s => s.replace(/^0x/i, '').length % 2 === 0, 'expected even-length hex string')
 
-const fnField = z
-  .any()
-  .refine((v): v is (...args: unknown[]) => unknown => typeof v === 'function', 'expected a function')
+const fnField = z.any().refine(v => z.function().safeParse(v).success, 'expected a function')
 
 const integerStringField = z.any().transform((v: unknown): NumberString => {
-  if (typeof v === 'bigint') v = String(v)
+  if (z.bigint().safeParse(v).success) v = String(v)
 
-  if (typeof v !== 'string' || !/^-?\d+$/.test(v)) throw new Error('expected integer string')
-
-  return v as NumberString
+  return z
+    .string()
+    .regex(/^-?\d+$/, 'expected integer string')
+    .parse(v) as NumberString
 })
 
 const nonNegativeIntegerStringField = z.any().transform((v: unknown): NumberString => {
-  if (typeof v === 'bigint') v = String(v)
+  if (z.bigint().safeParse(v).success) v = String(v)
 
-  if (typeof v !== 'string' || !/^\d+$/.test(v)) throw new Error('expected non-negative integer string')
-
-  return v as NumberString
+  return z.string().regex(/^\d+$/, 'expected non-negative integer string').parse(v) as NumberString
 })
 
 export const BeeRequestOptionsSchema = z.object({

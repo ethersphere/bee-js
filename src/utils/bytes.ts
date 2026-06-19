@@ -1,5 +1,6 @@
 import { Binary, Objects } from 'cafe-utility'
 import _debug from 'debug'
+import { z } from 'zod'
 import { HexStringSchema } from './schema'
 
 const debug = _debug('bee-js:bytes')
@@ -28,8 +29,8 @@ export class Bytes {
       const unknownInput = bytes as unknown
       const toHex = Objects.getDeep(unknownInput, 'toHex')
 
-      if (typeof toHex === 'function') {
-        const hex = toHex.call(unknownInput)
+      if (z.function().safeParse(toHex).success) {
+        const hex = (toHex as (...args: unknown[]) => unknown).call(unknownInput)
         this.bytes = Binary.hexToUint8Array(HexStringSchema.parse(hex))
       } else {
         debug('bytes', bytes)
