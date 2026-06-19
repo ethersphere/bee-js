@@ -1,11 +1,10 @@
 import { Types } from 'cafe-utility'
 import { BeeRequestOptions, ChainState, ReserveState, WalletBalance } from '../../types'
-import { GetChainStateResponse } from '../../types/schema'
+import { GetChainStateResponse, GetReserveStateResponse } from '../../types/schema/states'
 import { http } from '../../utils/http'
 import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
 import { EthAddress, TransactionId } from '../../utils/typed-bytes'
-import { normalizeCurrentPrice } from '../../utils/workaround'
 
 const RESERVE_STATE_ENDPOINT = 'reservestate'
 const WALLET_ENDPOINT = 'wallet'
@@ -23,14 +22,7 @@ export async function getReserveState(requestOptions: BeeRequestOptions): Promis
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    commitment: Types.asNumber(body.commitment, { name: 'commitment' }),
-    radius: Types.asNumber(body.radius, { name: 'radius' }),
-    storageRadius: Types.asNumber(body.storageRadius, { name: 'storageRadius' }),
-    reserveCapacityDoubling: Types.asNumber(body.reserveCapacityDoubling, { name: 'reserveCapacityDoubling' }),
-  }
+  return GetReserveStateResponse.parse(response.data)
 }
 
 /**
@@ -45,15 +37,7 @@ export async function getChainState(requestOptions: BeeRequestOptions): Promise<
     responseType: 'json',
   })
 
-  const body = GetChainStateResponse.parse(response.data)
-
-  return {
-    block: body.block,
-    chainTip: body.chainTip,
-    totalAmount: body.totalAmount,
-    currentPrice: normalizeCurrentPrice(body.currentPrice),
-    minimumValidityBlocks: body.minimumValidityBlocks,
-  }
+  return GetChainStateResponse.parse(response.data)
 }
 
 /**
