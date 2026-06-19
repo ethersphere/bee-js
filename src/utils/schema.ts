@@ -2,10 +2,7 @@ import { z } from 'zod'
 import { TAGS_LIMIT_MAX, TAGS_LIMIT_MIN, type NumberString } from '../types'
 import { PublicKey, Reference } from './typed-bytes'
 
-export const HexStringSchema = z
-  .string()
-  .regex(/^(?:0x)?[0-9a-fA-F]*$/, 'expected hex string')
-  .refine(s => s.replace(/^0x/i, '').length % 2 === 0, 'expected even-length hex string')
+export { HexStringSchema } from './hex-schema'
 
 const fnField = z.any().refine(v => z.function().safeParse(v).success, 'expected a function')
 

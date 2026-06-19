@@ -1,7 +1,7 @@
 import { Binary, Objects } from 'cafe-utility'
 import _debug from 'debug'
 import { z } from 'zod'
-import { HexStringSchema } from './schema'
+import { HexStringSchema } from './hex-schema'
 
 const debug = _debug('bee-js:bytes')
 
