@@ -506,7 +506,7 @@ export class Bee {
       const fileData = await fileArrayBuffer(data)
       const fileName = name ?? data.name
       const contentType = data.type
-      const fileOptions = { contentType, ...options }
+      const fileOptions = { ...options, contentType }
 
       return bzz.uploadFile(
         this.getRequestOptionsForCall(requestOptions),
