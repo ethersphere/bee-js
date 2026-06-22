@@ -112,7 +112,7 @@ export async function fetchLatestFeedUpdate(
   const response = await http<ArrayBuffer>(requestOptions, {
     responseType: 'arraybuffer',
     url: `${feedEndpoint}/${owner}/${topic}`,
-    params: options,
+    params: { ...options },
   })
 
   return {

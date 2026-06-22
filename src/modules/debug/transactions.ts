@@ -72,7 +72,7 @@ export async function cancelTransaction(
   transactionHash: TransactionId,
   gasPrice?: NumberString | string | bigint,
 ): Promise<TransactionId> {
-  const headers: Record<string, string | number> = {}
+  const headers: Record<string, string> = {}
 
   if (gasPrice) {
     headers['gas-price'] = gasPrice.toString()

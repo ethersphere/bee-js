@@ -10,6 +10,7 @@ import { http } from '../utils/http'
 export async function checkConnection(requestOptions: BeeRequestOptions): Promise<void> | never {
   await http<unknown>(requestOptions, {
     url: '',
+    responseType: 'text',
   })
 }
 
