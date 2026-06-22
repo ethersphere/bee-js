@@ -1,5 +1,5 @@
-import { Binary, Types } from 'cafe-utility'
 import type { BeeRequestOptions, EnvelopeWithBatchId } from '../types'
+import { PostEnvelopeBodyResponse } from '../types/schema/envelope'
 import { http } from '../utils/http'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
@@ -19,13 +19,13 @@ export async function postEnvelope(
     },
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
+  const body = PostEnvelopeBodyResponse.parse(response.data)
 
   return {
-    issuer: Binary.hexToUint8Array(Types.asHexString(body.issuer, { name: 'issuer', byteLength: 20 })),
-    index: Binary.hexToUint8Array(Types.asHexString(body.index, { name: 'index', byteLength: 8 })),
-    timestamp: Binary.hexToUint8Array(Types.asHexString(body.timestamp, { name: 'timestamp', byteLength: 8 })),
-    signature: Binary.hexToUint8Array(Types.asHexString(body.signature, { name: 'signature', byteLength: 65 })),
+    issuer: body.issuer,
+    index: body.index,
+    timestamp: body.timestamp,
+    signature: body.signature,
     batchId: postageBatchId,
   }
 }

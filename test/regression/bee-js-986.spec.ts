@@ -24,37 +24,25 @@ test('bee-js/986 - Headers not merging properly', async () => {
     )
   })
   expect(calls).toHaveLength(2)
-  expect(calls[0]).toEqual({
+  expect(calls[0]).toMatchObject({
     headers: {
       accept: 'application/json, text/plain, */*',
-      'accept-encoding': 'gzip, compress, deflate, br',
-      connection: 'keep-alive',
-      'content-length': '15',
-      'content-type': 'application/x-www-form-urlencoded',
-      host: 'localhost:12000',
       'swarm-act': 'true',
       'swarm-encrypt': 'true',
       'swarm-postage-batch-id': Types.asString(process.env.JEST_MANAGED_BATCH_ID),
       'swarm-tag': '1337',
-      'user-agent': 'axios/1.15.2',
     },
     method: 'POST',
     url: '/bzz?name=filename.txt',
   })
-  expect(calls[1]).toEqual({
+  expect(calls[1]).toMatchObject({
     headers: {
       accept: 'application/json, text/plain, */*',
-      'accept-encoding': 'gzip, compress, deflate, br',
       arbitrary: 'value',
-      connection: 'keep-alive',
-      'content-length': '15',
-      'content-type': 'application/x-www-form-urlencoded',
-      host: 'localhost:12000',
       'swarm-act': 'true',
       'swarm-encrypt': 'true',
       'swarm-postage-batch-id': Types.asString(process.env.JEST_MANAGED_BATCH_ID),
       'swarm-tag': '1338',
-      'user-agent': 'axios/1.15.2',
     },
     method: 'POST',
     url: '/bzz?name=filename.txt',

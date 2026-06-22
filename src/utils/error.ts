@@ -11,6 +11,8 @@ export class BeeArgumentError extends BeeError {
 }
 
 export class BeeResponseError extends BeeError {
+  public readonly response: { status: number | undefined; data: unknown; statusText: string | undefined }
+
   public constructor(
     public method: string,
     public url: string,
@@ -20,5 +22,6 @@ export class BeeResponseError extends BeeError {
     public statusText?: string,
   ) {
     super(message)
+    this.response = { status, data: responseBody, statusText }
   }
 }
