@@ -1,7 +1,10 @@
-import { Types } from 'cafe-utility'
 import { BeeRequestOptions, NumberString, TransactionInfo } from '../../types'
+import {
+  GetAllTransactionsResponse,
+  GetTransactionResponse,
+  TransactionHashResponse,
+} from '../../types/schema/transactions'
 import { http } from '../../utils/http'
-import { asNumberString } from '../../utils/type'
 import { TransactionId } from '../../utils/typed-bytes'
 
 const transactionsEndpoint = 'transactions'
@@ -17,10 +20,7 @@ export async function getAllTransactions(requestOptions: BeeRequestOptions): Pro
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-  const pendingTransactions = Types.asArray(body.pendingTransactions, { name: 'pendingTransactions' })
-
-  return pendingTransactions.map(toTransaction)
+  return GetAllTransactionsResponse.parse(response.data).pendingTransactions
 }
 
 /**
@@ -38,25 +38,7 @@ export async function getTransaction(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return toTransaction(body)
-}
-
-function toTransaction(value: unknown) {
-  const object = Types.asObject(value, { name: 'transaction' })
-
-  return {
-    transactionHash: new TransactionId(Types.asString(object.transactionHash, { name: 'transactionHash' })),
-    to: Types.asString(object.to, { name: 'to' }),
-    nonce: Types.asNumber(object.nonce, { name: 'nonce' }),
-    gasPrice: asNumberString(object.gasPrice, { name: 'gasPrice' }),
-    gasLimit: Types.asNumber(object.gasLimit, { name: 'gasLimit' }),
-    data: Types.asString(object.data, { name: 'data' }),
-    created: Types.asString(object.created, { name: 'created' }),
-    description: Types.asString(object.description, { name: 'description' }),
-    value: asNumberString(object.value, { name: 'value' }),
-  }
+  return GetTransactionResponse.parse(response.data)
 }
 
 /**
@@ -75,9 +57,7 @@ export async function rebroadcastTransaction(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
+  return TransactionHashResponse.parse(response.data).transactionHash
 }
 
 /**
@@ -97,6 +77,7 @@ export async function cancelTransaction(
   if (gasPrice) {
     headers['gas-price'] = gasPrice.toString()
   }
+
   const response = await http<unknown>(requestOptions, {
     method: 'delete',
     headers,
@@ -104,7 +85,5 @@ export async function cancelTransaction(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
+  return TransactionHashResponse.parse(response.data).transactionHash
 }

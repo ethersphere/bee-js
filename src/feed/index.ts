@@ -1,4 +1,5 @@
-import { Binary, Optional, Types } from 'cafe-utility'
+import { Binary, Optional } from 'cafe-utility'
+import { z } from 'zod'
 import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from '../chunk/cac'
 import {
   unmarshalSingleOwnerChunk,
@@ -103,12 +104,14 @@ export async function updateFeedWithPayload(
     )
   }
 
+  const dataString = z.string().safeParse(data)
+
   return uploadSingleOwnerChunkData(
     requestOptions,
     signer,
     postageBatchId,
     identifier,
-    Types.isString(data) ? Bytes.fromUtf8(data).toUint8Array() : data,
+    dataString.success ? Bytes.fromUtf8(dataString.data).toUint8Array() : (data as Uint8Array),
     options,
   )
 }

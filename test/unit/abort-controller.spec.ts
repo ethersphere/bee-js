@@ -1,8 +1,8 @@
-import { prepareBeeRequestOptions } from '../../src/utils/type'
+import { BeeRequestOptionsSchema } from '../../src/utils/schema'
 
-test('prepareBeeRequestOptions should preserve signal', () => {
+test('BeeRequestOptionsSchema.parse should preserve signal', () => {
   const controller = new AbortController()
-  const options = prepareBeeRequestOptions({
+  const options = BeeRequestOptionsSchema.parse({
     signal: controller.signal,
     timeout: 5000,
   })
@@ -16,7 +16,7 @@ test('prepareBeeRequestOptions should preserve aborted signal', () => {
   const controller = new AbortController()
   controller.abort()
 
-  const options = prepareBeeRequestOptions({
+  const options = BeeRequestOptionsSchema.parse({
     signal: controller.signal,
   })
 
@@ -25,7 +25,7 @@ test('prepareBeeRequestOptions should preserve aborted signal', () => {
 })
 
 test('prepareBeeRequestOptions should work without signal', () => {
-  const options = prepareBeeRequestOptions({
+  const options = BeeRequestOptionsSchema.parse({
     timeout: 3000,
     endlesslyRetry: true,
   })
