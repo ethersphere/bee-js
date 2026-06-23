@@ -1,5 +1,6 @@
-import { Optional, Types } from 'cafe-utility'
+import { Optional } from 'cafe-utility'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
+import { UploadResultBody } from '../types/schema/upload'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { makeTagUid } from '../utils/type'
@@ -39,10 +40,10 @@ export async function upload(
     params: { sig: signature.toHex() },
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
+  const body = UploadResultBody.parse(response.data)
 
   return {
-    reference: new Reference(Types.asHexString(body.reference)),
+    reference: body.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address']
       ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
