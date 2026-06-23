@@ -11,6 +11,7 @@ import {
   BatchIdResponse,
   GetAllPostageBatchesResponse,
   GetGlobalPostageBatchesResponse,
+  GetGlobalPostageBatchResponse,
   GetPostageBatchBucketsResponse,
   GetPostageBatchResponse,
 } from '../../types/schema/stamps'
