@@ -1,10 +1,13 @@
-import { Types } from 'cafe-utility'
 import { BeeRequestOptions, ChainState, ReserveState, WalletBalance } from '../../types'
+import {
+  GetChainStateResponse,
+  GetReserveStateResponse,
+  GetWalletBalanceResponse,
+  WithdrawResponse,
+} from '../../types/schema/states'
 import { http } from '../../utils/http'
 import { BZZ, DAI } from '../../utils/tokens'
-import { asNumberString } from '../../utils/type'
 import { EthAddress, TransactionId } from '../../utils/typed-bytes'
-import { normalizeCurrentPrice } from '../../utils/workaround'
 
 const RESERVE_STATE_ENDPOINT = 'reservestate'
 const WALLET_ENDPOINT = 'wallet'
@@ -22,13 +25,7 @@ export async function getReserveState(requestOptions: BeeRequestOptions): Promis
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    commitment: Types.asNumber(body.commitment, { name: 'commitment' }),
-    radius: Types.asNumber(body.radius, { name: 'radius' }),
-    storageRadius: Types.asNumber(body.storageRadius, { name: 'storageRadius' }),
-  }
+  return GetReserveStateResponse.parse(response.data)
 }
 
 /**
@@ -43,14 +40,7 @@ export async function getChainState(requestOptions: BeeRequestOptions): Promise<
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    block: Types.asNumber(body.block, { name: 'block' }),
-    chainTip: Types.asNumber(body.chainTip, { name: 'chainTip' }),
-    totalAmount: asNumberString(body.totalAmount, { name: 'totalAmount' }),
-    currentPrice: normalizeCurrentPrice(Types.asNumber(body.currentPrice, { name: 'currentPrice' })),
-  }
+  return GetChainStateResponse.parse(response.data)
 }
 
 /**
@@ -65,15 +55,7 @@ export async function getWalletBalance(requestOptions: BeeRequestOptions): Promi
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    bzzBalance: BZZ.fromPLUR(asNumberString(body.bzzBalance, { name: 'bzzBalance' })),
-    nativeTokenBalance: DAI.fromWei(asNumberString(body.nativeTokenBalance, { name: 'nativeTokenBalance' })),
-    chainID: Types.asNumber(body.chainID, { name: 'chainID' }),
-    chequebookContractAddress: Types.asString(body.chequebookContractAddress, { name: 'chequebookContractAddress' }),
-    walletAddress: Types.asString(body.walletAddress, { name: 'walletAddress' }),
-  }
+  return GetWalletBalanceResponse.parse(response.data)
 }
 
 export async function withdrawBZZ(
@@ -88,9 +70,7 @@ export async function withdrawBZZ(
     params: { amount: amount.toPLURString(), address: address.toHex() },
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
+  return WithdrawResponse.parse(response.data).transactionHash
 }
 
 export async function withdrawDAI(
@@ -105,7 +85,5 @@ export async function withdrawDAI(
     params: { amount: amount.toWeiString(), address: address.toHex() },
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
+  return WithdrawResponse.parse(response.data).transactionHash
 }

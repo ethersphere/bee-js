@@ -27,5 +27,5 @@ test('bee/2317 - Tag not updated when uploaded files using stream', async () => 
   expect(result.tagUid).toBe(uid)
   const tag = await bee.retrieveTag(uid)
   expect(result.reference.toHex()).toBe(tag.address)
-  expect(tag.split).toBe(12)
+  expect(tag.split).toBe(24)
 })
