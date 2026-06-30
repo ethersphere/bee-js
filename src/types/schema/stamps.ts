@@ -5,6 +5,7 @@ import { BatchId, EthAddress } from '../../utils/typed-bytes'
 export const RawPostageBatchSchema = z.object({
   batchID: z.string(),
   utilization: z.number(),
+  utilizationRatio: z.number().optional(),
   usable: z.boolean(),
   label: z.string(),
   depth: z.number(),
