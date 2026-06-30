@@ -206,7 +206,7 @@ export function marshalStamp(
 export interface RawPostageBatch {
   batchID: string
   utilization: number
-  utilizationRatio: number
+  utilizationRatio?: number
   usable: boolean
   label: string
   depth: number
@@ -225,6 +225,7 @@ export function mapPostageBatch(
   const batchTTL = normalizeBatchTTL(raw.batchTTL)
   const duration = Duration.fromSeconds(batchTTL)
   const effectiveBytes = getStampEffectiveBytes(raw.depth, encryption, erasureCodeLevel)
+  const usage = raw.utilizationRatio ?? getStampUsage(raw.utilization, raw.depth, raw.bucketDepth)
 
   return {
     batchID: new BatchId(raw.batchID),
@@ -236,10 +237,10 @@ export function mapPostageBatch(
     bucketDepth: raw.bucketDepth,
     blockNumber: raw.blockNumber,
     immutableFlag: raw.immutableFlag,
-    usage: raw.utilizationRatio,
-    usageText: `${Math.round(raw.utilizationRatio * 100)}%`,
+    usage,
+    usageText: `${Math.round(usage * 100)}%`,
     size: Size.fromBytes(effectiveBytes),
-    remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - raw.utilizationRatio))),
+    remainingSize: Size.fromBytes(Math.ceil(effectiveBytes * (1 - usage))),
     theoreticalSize: Size.fromBytes(getStampTheoreticalBytes(raw.depth)),
     duration,
     calculateSize(encryption, redundancyLevel) {
