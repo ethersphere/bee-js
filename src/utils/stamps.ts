@@ -229,6 +229,7 @@ export function mapPostageBatch(
   return {
     batchID: new BatchId(raw.batchID),
     utilization: raw.utilization,
+    utilizationRatio: raw.utilizationRatio,
     usable: raw.usable,
     label: raw.label,
     depth: raw.depth,
@@ -259,7 +260,7 @@ export function unmapPostageBatch(batch: PostageBatch): RawPostageBatch {
   return {
     batchID: batch.batchID.toHex(),
     utilization: batch.utilization,
-    utilizationRatio: batch.usage,
+    utilizationRatio: batch.utilizationRatio,
     usable: batch.usable,
     label: batch.label,
     depth: batch.depth,

@@ -514,6 +514,7 @@ export interface PostageBatch {
    * the 512MB theoretical max size for the smallest stamp comes from `2 * 65536 * 4096 = 512MB`
    */
   utilization: number
+  utilizationRatio: number
   usable: boolean
   label: string
   depth: number
