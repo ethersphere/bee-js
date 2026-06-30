@@ -1,4 +1,4 @@
-import { Types } from 'cafe-utility'
+import { z } from 'zod'
 import { EnvelopeWithBatchId, FileHeaders } from '../types'
 import { BeeError } from './error'
 import { convertEnvelopeToMarshaledStamp } from './stamps'
@@ -56,7 +56,7 @@ export function prepareRequestHeaders(
     return headers
   }
 
-  const options = Types.asObject(nullableOptions)
+  const options = nullableOptions as Record<string, unknown>
 
   if (options.size) {
     headers['content-length'] = String(options.size)
@@ -70,32 +70,42 @@ export function prepareRequestHeaders(
     headers['swarm-redundancy-level'] = String(options.redundancyLevel)
   }
 
-  if (Types.isBoolean(options.act)) {
-    headers['swarm-act'] = String(options.act)
+  const act = z.boolean().safeParse(options.act)
+
+  if (act.success) {
+    headers['swarm-act'] = String(act.data)
   }
 
-  if (Types.isBoolean(options.pin)) {
-    headers['swarm-pin'] = String(options.pin)
+  const pin = z.boolean().safeParse(options.pin)
+
+  if (pin.success) {
+    headers['swarm-pin'] = String(pin.data)
   }
 
-  if (Types.isBoolean(options.encrypt)) {
-    headers['swarm-encrypt'] = options.encrypt.toString()
+  const encrypt = z.boolean().safeParse(options.encrypt)
+
+  if (encrypt.success) {
+    headers['swarm-encrypt'] = String(encrypt.data)
   }
 
   if (options.tag) {
     headers['swarm-tag'] = String(options.tag)
   }
 
-  if (Types.isBoolean(options.deferred)) {
-    headers['swarm-deferred-upload'] = options.deferred.toString()
+  const deferred = z.boolean().safeParse(options.deferred)
+
+  if (deferred.success) {
+    headers['swarm-deferred-upload'] = String(deferred.data)
   }
 
   if (options.redundancyStrategy) {
     headers['swarm-redundancy-strategy'] = String(options.redundancyStrategy)
   }
 
-  if (Types.isBoolean(options.fallback)) {
-    headers['swarm-redundancy-fallback-mode'] = options.fallback.toString()
+  const fallback = z.boolean().safeParse(options.fallback)
+
+  if (fallback.success) {
+    headers['swarm-redundancy-fallback-mode'] = String(fallback.data)
   }
 
   if (options.timeoutMs) {
@@ -138,7 +148,9 @@ export function prepareRequestHeaders(
 }
 
 function isEnvelopeWithBatchId(value: unknown): value is EnvelopeWithBatchId {
-  if (!Types.isObject(value)) {
+  const result = z.object({}).safeParse(value)
+
+  if (!result.success) {
     return false
   }
 

@@ -1,5 +1,5 @@
-import { Types } from 'cafe-utility'
 import type { BeeRequestOptions } from '../types'
+import { IsRetrievableResponse } from '../types/schema/stewardship'
 import { http } from '../utils/http'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
@@ -31,7 +31,5 @@ export async function isRetrievable(
     url: `${stewardshipEndpoint}/${reference}`,
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return Types.asBoolean(body.isRetrievable, { name: 'isRetrievable' })
+  return IsRetrievableResponse.parse(response.data).isRetrievable
 }

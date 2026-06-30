@@ -1,8 +1,6 @@
-import { Types } from 'cafe-utility'
 import type { BalanceResponse, BeeRequestOptions, PeerBalance } from '../../types'
+import { GetAllBalancesResponse, GetPeerBalanceResponse } from '../../types/schema/balance'
 import { http } from '../../utils/http'
-import { BZZ } from '../../utils/tokens'
-import { asNumberString } from '../../utils/type'
 import { PeerAddress } from '../../utils/typed-bytes'
 
 const balancesEndpoint = 'balances'
@@ -19,15 +17,7 @@ export async function getAllBalances(requestOptions: BeeRequestOptions): Promise
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-  const balances = Types.asArray(body.balances, { name: 'balances' }).map(x => Types.asObject(x, { name: 'balance' }))
-
-  return {
-    balances: balances.map(x => ({
-      peer: Types.asString(x.peer, { name: 'peer' }),
-      balance: BZZ.fromPLUR(asNumberString(x.balance, { name: 'balance' })),
-    })),
-  }
+  return GetAllBalancesResponse.parse(response.data)
 }
 
 /**
@@ -42,12 +32,7 @@ export async function getPeerBalance(requestOptions: BeeRequestOptions, address:
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    peer: Types.asString(body.peer, { name: 'peer' }),
-    balance: BZZ.fromPLUR(asNumberString(body.balance, { name: 'balance' })),
-  }
+  return GetPeerBalanceResponse.parse(response.data)
 }
 
 /**
@@ -61,15 +46,7 @@ export async function getPastDueConsumptionBalances(requestOptions: BeeRequestOp
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-  const balances = Types.asArray(body.balances, { name: 'balances' }).map(x => Types.asObject(x, { name: 'balance' }))
-
-  return {
-    balances: balances.map(x => ({
-      peer: Types.asString(x.peer, { name: 'peer' }),
-      balance: BZZ.fromPLUR(asNumberString(x.balance, { name: 'balance' })),
-    })),
-  }
+  return GetAllBalancesResponse.parse(response.data)
 }
 
 /**
@@ -87,10 +64,5 @@ export async function getPastDueConsumptionPeerBalance(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    peer: Types.asString(body.peer, { name: 'peer' }),
-    balance: BZZ.fromPLUR(asNumberString(body.balance, { name: 'balance' })),
-  }
+  return GetPeerBalanceResponse.parse(response.data)
 }

@@ -1,5 +1,6 @@
-import { Types } from 'cafe-utility'
 import type { BeeRequestOptions, Pin } from '../types'
+import { GetAllPinsResponse } from '../types/schema/pinning'
+import { UploadResultBody } from '../types/schema/upload'
 import { http } from '../utils/http'
 import { Reference } from '../utils/typed-bytes'
 
@@ -47,11 +48,7 @@ export async function getPin(requestOptions: BeeRequestOptions, reference: Refer
     url: `${PINNING_ENDPOINT}/${reference}`,
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    reference: new Reference(Types.asString(body.reference, { name: 'reference' })),
-  }
+  return UploadResultBody.parse(response.data)
 }
 
 /**
@@ -66,16 +63,8 @@ export async function getAllPins(requestOptions: BeeRequestOptions): Promise<Ref
     url: `${PINNING_ENDPOINT}`,
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
   // TODO: https://github.com/ethersphere/bee/issues/4964
-  if (body.references === null) {
-    return []
-  }
+  const { references } = GetAllPinsResponse.parse(response.data)
 
-  const references = Types.asArray(body.references, { name: 'references' }).map(x =>
-    Types.asString(x, { name: 'reference' }),
-  )
-
-  return references.map(x => new Reference(x))
+  return (references ?? []).map(x => new Reference(x))
 }

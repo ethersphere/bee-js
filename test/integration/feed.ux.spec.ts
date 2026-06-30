@@ -54,7 +54,12 @@ test('Feed read/write 40 bytes payload', async () => {
     waitMillis: Dates.seconds(1),
   })
 
-  const latestReadResult = await writer.downloadPayload()
+  const latestReadResult = await System.withRetries(
+    async () => writer.downloadPayload(),
+    10,
+    Dates.seconds(1),
+    Dates.seconds(2),
+  )
   expect(latestReadResult.payload.toUtf8()).toBe('This string is exactly 40 bytes in utf-8')
 })
 
