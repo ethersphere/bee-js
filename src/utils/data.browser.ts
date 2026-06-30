@@ -1,4 +1,7 @@
-export async function prepareWebsocketData(data: string | ArrayBuffer | Blob): Promise<Uint8Array> | never {
+import type { Data } from 'ws'
+import WebSocket from 'isomorphic-ws'
+
+export async function prepareWebsocketData(data: Data | string | ArrayBuffer | Blob): Promise<Uint8Array> | never {
   if (typeof data === 'string') {
     return new TextEncoder().encode(data)
   }
@@ -12,4 +15,8 @@ export async function prepareWebsocketData(data: string | ArrayBuffer | Blob): P
   }
 
   throw new TypeError('unknown websocket data type')
+}
+
+export function prepareWebsocketConnection(params: string): WebSocket {
+  return new WebSocket(params)
 }
