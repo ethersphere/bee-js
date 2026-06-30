@@ -10,8 +10,8 @@ test('CRUD pins', async () => {
   const pin = await bee.getPin(response.reference)
   expect(pin.reference.toHex()).toBe(response.reference.toHex())
 
+  await bee.reuploadPinnedData(batch(), response.reference) // push to network
   expect(await bee.isReferenceRetrievable(response.reference)).toBe(true)
-  await bee.reuploadPinnedData(batch(), response.reference) // does not throw
 
   await bee.unpin(response.reference)
   const pinsAfterUnpin = await bee.getAllPins()

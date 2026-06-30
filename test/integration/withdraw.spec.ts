@@ -9,7 +9,7 @@ test('withdraw to unauthorized address', async () => {
     await bee.withdrawBZZToExternalWallet('1', Strings.randomHex(40))
     throw Error('Expected an error to be thrown')
   } catch (error: any) {
-    expect(error.message).toBe('Request failed with status code 400')
+    expect(error.message).toContain('400')
     const beeResponseError = error as BeeResponseError
     expect(beeResponseError.responseBody).toEqual({ code: 400, message: 'provided address not whitelisted' })
   }

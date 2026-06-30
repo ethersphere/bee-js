@@ -64,12 +64,11 @@
     "depcheck": "depcheck ."
   },
   "dependencies": {
-    "axios": "^1.15.2",
-    "cafe-utility": "^33.9.0",
+    "cafe-utility": "^34.0.0",
     "debug": "^4.4.1",
     "isomorphic-ws": "^4.0.1",
     "semver": "^7.3.5",
-    "ws": "^8.20.1",
+    "ws": "^8.21.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

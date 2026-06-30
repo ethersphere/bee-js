@@ -1,4 +1,4 @@
-import { Optional, Types } from 'cafe-utility'
+import { Optional } from 'cafe-utility'
 import { Readable } from 'stream'
 import {
   BeeRequestOptions,
@@ -9,6 +9,7 @@ import {
   FileUploadOptions,
   UploadResult,
 } from '../types'
+import { UploadResultBody } from '../types/schema/upload'
 import { Bytes } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
 import { prepareRequestHeaders, readFileHeaders } from '../utils/headers'
@@ -52,10 +53,10 @@ export async function uploadFile(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
+  const body = UploadResultBody.parse(response.data)
 
   return {
-    reference: new Reference(Types.asHexString(body.reference)),
+    reference: body.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address']
       ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
@@ -139,10 +140,10 @@ export async function uploadCollection(
   assertCollection(collection)
   const response = await uploadTar(requestOptions, collection, postageBatchId, options)
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
+  const body = UploadResultBody.parse(response.data)
 
   return {
-    reference: new Reference(Types.asHexString(body.reference)),
+    reference: body.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address']
       ? Optional.of(new Reference(response.headers['swarm-act-history-address']))

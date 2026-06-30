@@ -1,5 +1,6 @@
-import { Binary, Objects, System, Types } from 'cafe-utility'
+import { Binary, Objects, System } from 'cafe-utility'
 import { Readable } from 'stream'
+import { z } from 'zod'
 import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from './chunk/cac'
 import {
   SingleOwnerChunk,
@@ -105,26 +106,23 @@ import { Duration } from './utils/duration'
 import { BeeArgumentError, BeeError } from './utils/error'
 import { fileArrayBuffer, isFile } from './utils/file'
 import { ResourceLocator } from './utils/resource-locator'
+import {
+  AllTagsOptionsSchema,
+  BeeRequestOptionsSchema,
+  CollectionUploadOptionsSchema,
+  DownloadOptionsSchema,
+  FileUploadOptionsSchema,
+  GsocMessageHandlerSchema,
+  PostageBatchOptionsSchema,
+  PssMessageHandlerSchema,
+  RedundantUploadOptionsSchema,
+  TransactionOptionsSchema,
+  UploadOptionsSchema,
+} from './utils/schema'
 import { Size } from './utils/size'
 import { getAmountForDuration, getDepthForSize, getStampCost, getStampDuration } from './utils/stamps'
 import { BZZ, DAI } from './utils/tokens'
-import {
-  asNumberString,
-  assertData,
-  assertFileData,
-  makeTagUid,
-  prepareAllTagsOptions,
-  prepareBeeRequestOptions,
-  prepareCollectionUploadOptions,
-  prepareDownloadOptions,
-  prepareFileUploadOptions,
-  prepareGsocMessageHandler,
-  preparePostageBatchOptions,
-  preparePssMessageHandler,
-  prepareRedundantUploadOptions,
-  prepareTransactionOptions,
-  prepareUploadOptions,
-} from './utils/type'
+import { asNumberString, assertData, assertFileData, makeTagUid } from './utils/type'
 import {
   BatchId,
   EthAddress,
@@ -237,7 +235,7 @@ export class Bee {
     assertData(data)
 
     if (options) {
-      options = prepareRedundantUploadOptions(options)
+      options = RedundantUploadOptionsSchema.parse(options)
     }
 
     return bytes.upload(this.getRequestOptionsForCall(requestOptions), data, postageBatchId, options)
@@ -284,7 +282,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<Bytes> {
     if (options) {
-      options = prepareDownloadOptions(options)
+      options = DownloadOptionsSchema.parse(options)
     }
 
     return bytes.download(this.getRequestOptionsForCall(requestOptions), new ResourceLocator(resource), options)
@@ -312,7 +310,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<ReadableStream<Uint8Array>> {
     if (options) {
-      options = prepareDownloadOptions(options)
+      options = DownloadOptionsSchema.parse(options)
     }
 
     return bytes.downloadReadable(this.getRequestOptionsForCall(requestOptions), new ResourceLocator(resource), options)
@@ -343,7 +341,7 @@ export class Bee {
     data = data instanceof Uint8Array ? data : data.data
 
     if (options) {
-      options = prepareUploadOptions(options)
+      options = UploadOptionsSchema.parse(options)
     }
 
     if (data.length < Span.LENGTH) {
@@ -387,7 +385,7 @@ export class Bee {
     reference = new Reference(reference)
 
     if (options) {
-      options = prepareDownloadOptions(options)
+      options = DownloadOptionsSchema.parse(options)
     }
 
     return chunk.download(this.getRequestOptionsForCall(requestOptions), reference, options)
@@ -495,7 +493,7 @@ export class Bee {
     assertFileData(data)
 
     if (options) {
-      options = prepareFileUploadOptions(options)
+      options = FileUploadOptionsSchema.parse(options)
     }
 
     if (name && typeof name !== 'string') {
@@ -506,7 +504,7 @@ export class Bee {
       const fileData = await fileArrayBuffer(data)
       const fileName = name ?? data.name
       const contentType = data.type
-      const fileOptions = { contentType, ...options }
+      const fileOptions = { ...options, contentType }
 
       return bzz.uploadFile(
         this.getRequestOptionsForCall(requestOptions),
@@ -538,7 +536,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<FileData<Bytes>> {
     if (options) {
-      options = prepareDownloadOptions(options)
+      options = DownloadOptionsSchema.parse(options)
     }
 
     return bzz.downloadFile(this.getRequestOptionsForCall(requestOptions), new ResourceLocator(resource), path, options)
@@ -564,7 +562,7 @@ export class Bee {
     reference = new Reference(reference)
 
     if (options) {
-      options = prepareDownloadOptions(options)
+      options = DownloadOptionsSchema.parse(options)
     }
 
     return bzz.downloadFileReadable(this.getRequestOptionsForCall(requestOptions), reference, path, options)
@@ -596,7 +594,7 @@ export class Bee {
     postageBatchId = new BatchId(postageBatchId)
 
     if (options) {
-      options = prepareCollectionUploadOptions(options)
+      options = CollectionUploadOptionsSchema.parse(options)
     }
 
     const data = makeCollectionFromFileList(fileList)
@@ -710,7 +708,7 @@ export class Bee {
     assertCollection(collection)
 
     if (options) {
-      options = prepareCollectionUploadOptions(options)
+      options = CollectionUploadOptionsSchema.parse(options)
     }
 
     return bzz.uploadCollection(this.getRequestOptionsForCall(requestOptions), collection, postageBatchId, options)
@@ -741,7 +739,7 @@ export class Bee {
     postageBatchId = new BatchId(postageBatchId)
 
     if (options) {
-      options = prepareCollectionUploadOptions(options)
+      options = CollectionUploadOptionsSchema.parse(options)
     }
 
     const data = await makeCollectionFromFS(dir)
@@ -774,7 +772,7 @@ export class Bee {
    */
   async getAllTags(options?: AllTagsOptions, requestOptions?: BeeRequestOptions): Promise<Tag[]> {
     if (options) {
-      options = prepareAllTagsOptions(options)
+      options = AllTagsOptionsSchema.parse(options)
     }
 
     return tag.getAllTags(this.getRequestOptionsForCall(requestOptions), options?.offset, options?.limit)
@@ -953,7 +951,7 @@ export class Bee {
     topic = new Topic(topic)
 
     if (options) {
-      options = prepareDownloadOptions(options)
+      options = DownloadOptionsSchema.parse(options)
     }
 
     if (!index) {
@@ -1036,7 +1034,7 @@ export class Bee {
    * @see [Bee API reference - `GET /pss`](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1{topic}/get)
    */
   pssSubscribe(topic: Topic, handler: PssMessageHandler): PssSubscription {
-    handler = preparePssMessageHandler(handler)
+    handler = PssMessageHandlerSchema.parse(handler)
 
     const ws = pss.subscribe(this.url, topic, this.requestOptions.headers)
 
@@ -1244,7 +1242,7 @@ export class Bee {
   ): GsocSubscription {
     address = new EthAddress(address)
     identifier = new Identifier(identifier)
-    handler = prepareGsocMessageHandler(handler)
+    handler = GsocMessageHandlerSchema.parse(handler)
 
     const socAddress = makeSOCAddress(identifier, address)
 
@@ -1313,7 +1311,7 @@ export class Bee {
     owner = new EthAddress(owner)
 
     if (options) {
-      options = prepareUploadOptions(options)
+      options = UploadOptionsSchema.parse(options)
     }
 
     return createFeedManifest(this.getRequestOptionsForCall(requestOptions), owner, topic, postageBatchId, options)
@@ -1765,7 +1763,7 @@ export class Bee {
     address = new PeerAddress(address)
 
     if (options) {
-      prepareTransactionOptions(options)
+      options = TransactionOptionsSchema.parse(options)
     }
 
     return chequebook.cashoutLastCheque(this.getRequestOptionsForCall(requestOptions), address, options)
@@ -2040,7 +2038,7 @@ export class Bee {
     const amountString = asNumberString(amount, { min: 0n, name: 'amount' })
 
     if (options) {
-      options = preparePostageBatchOptions(options)
+      options = PostageBatchOptionsSchema.parse(options)
     }
 
     if (depth < STAMPS_DEPTH_MIN || depth > STAMPS_DEPTH_MAX) {
@@ -2102,7 +2100,7 @@ export class Bee {
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
 
     if (options) {
-      options = preparePostageBatchOptions(options)
+      options = PostageBatchOptionsSchema.parse(options)
     }
 
     return this.createPostageBatch(amount, depth, options, requestOptions)
@@ -2492,7 +2490,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<BatchId> {
     postageBatchId = new BatchId(postageBatchId)
-    depth = Types.asNumber(depth, { name: 'depth', min: 18, max: 255 })
+    depth = z.number().int().min(18).max(255).parse(depth)
 
     return stamps.diluteBatch(this.getRequestOptionsForCall(requestOptions), postageBatchId, depth)
   }
@@ -2522,6 +2520,21 @@ export class Bee {
       encryption,
       erasureCodeLevel,
     )
+  }
+
+  /**
+   * Returns details for specific globally available postage batch.
+   *
+   * @param postageBatchId Batch ID
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async getGlobalPostageBatch(
+    postageBatchId: BatchId | Uint8Array | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GlobalPostageBatch> {
+    postageBatchId = new BatchId(postageBatchId)
+
+    return stamps.getGlobalPostageBatch(this.getRequestOptionsForCall(requestOptions), postageBatchId)
   }
 
   /**
@@ -2713,7 +2726,7 @@ export class Bee {
       amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
 
     if (options) {
-      options = prepareTransactionOptions(options)
+      options = TransactionOptionsSchema.parse(options)
     }
 
     return stake.stake(this.getRequestOptionsForCall(requestOptions), amountString, options)
@@ -2751,7 +2764,7 @@ export class Bee {
 
   protected getRequestOptionsForCall(requestOptions?: BeeRequestOptions): BeeRequestOptions {
     if (requestOptions) {
-      requestOptions = prepareBeeRequestOptions(requestOptions)
+      requestOptions = BeeRequestOptionsSchema.parse(requestOptions)
     }
 
     return requestOptions ? Objects.deepMerge2(this.requestOptions, requestOptions) : this.requestOptions
