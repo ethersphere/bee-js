@@ -31,7 +31,7 @@ jobs:
         run: bee-dev --port 16337 &
 
       - name: Start bee-factory
-        run: bee-factory start --tag v2.8.4-rc2
+        run: bee-factory start --tag v2.8.1-rc4
 
       - name: Create managed postage batch
         run: echo "JEST_MANAGED_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
