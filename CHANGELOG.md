@@ -1,6 +1,21 @@
 # Changelog
 
 
+## [12.3.0](https://github.com/ethersphere/bee-js/compare/v12.2.2...v12.3.0) (2026-07-01)
+
+
+### Features
+
+* add function for getting a specific global batch ([#1196](https://github.com/ethersphere/bee-js/issues/1196)) ([9404784](https://github.com/ethersphere/bee-js/commit/9404784fa6c2793dcb94c99028d635f6d6d0d5e1))
+* add minimumValidityBlocks to chainstate response ([#1194](https://github.com/ethersphere/bee-js/issues/1194)) ([1e1c9db](https://github.com/ethersphere/bee-js/commit/1e1c9dbed21a327bace9504a686c115de396b081))
+* add postage batch label update endpoint ([#1193](https://github.com/ethersphere/bee-js/issues/1193)) ([00d21a6](https://github.com/ethersphere/bee-js/commit/00d21a6ae7d1adc854a6ec2db61662a91c0c9aed))
+
+
+### Bug Fixes
+
+* use nano second timestamp in stamper ([#1186](https://github.com/ethersphere/bee-js/issues/1186)) ([e92b390](https://github.com/ethersphere/bee-js/commit/e92b39007c3f12caa5a729ee732f1f03c5287b2d))
+* validate port in bee url ([#1189](https://github.com/ethersphere/bee-js/issues/1189)) ([70eaac6](https://github.com/ethersphere/bee-js/commit/70eaac62a2da2e6db9b42504c671f8397682af38))
+
 ## [12.2.2](https://github.com/ethersphere/bee-js/compare/v12.2.1...v12.2.2) (2026-06-09)
 
 
