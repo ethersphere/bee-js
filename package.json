@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "cafe-utility": "^34.0.0",
-    "debug": "^4.4.1",
+    "debug": "^4.4.3",
     "isomorphic-ws": "^4.0.1",
     "semver": "^7.3.5",
     "ws": "^8.21.0",
