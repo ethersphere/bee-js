@@ -1,5 +1,5 @@
-import { Types } from 'cafe-utility'
 import type { BeeRequestOptions } from '../types'
+import { RchashResponse } from '../types/schema/rchash'
 import { http } from '../utils/http'
 
 const RCHASH_ENDPOINT = 'rchash'
@@ -15,7 +15,5 @@ export async function rchash(
     url: `${RCHASH_ENDPOINT}/${depth}/${anchor1}/${anchor2}`,
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return Types.asNumber(body.durationSeconds, { name: 'durationSeconds' })
+  return RchashResponse.parse(response.data).durationSeconds
 }

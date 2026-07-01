@@ -16,7 +16,15 @@ test('POST feed (reader)', async () => {
   const feedReader = bee.makeFeedReader(NULL_TOPIC, owner)
 
   await feedWriter.upload(batch(), response1.reference, { deferred: false })
-  expect((await feedReader.download()).payload.toUtf8()).toBe('First update')
+
+  await System.waitFor(
+    async () => {
+      const payload = (await feedReader.download()).payload.toUtf8()
+
+      return payload === 'First update'
+    },
+    { attempts: 60, waitMillis: Dates.seconds(1) },
+  )
 
   await feedWriter.upload(batch(), response2.reference, { deferred: false })
 

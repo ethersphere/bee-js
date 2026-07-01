@@ -1,5 +1,5 @@
-import { Types } from 'cafe-utility'
 import { BeeRequestOptions, Tag } from '../types'
+import { GetAllTagsResponse, TagSchema } from '../types/schema/tag'
 import { http } from '../utils/http'
 import { Reference } from '../utils/typed-bytes'
 
@@ -17,18 +17,7 @@ export async function createTag(requestOptions: BeeRequestOptions): Promise<Tag>
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    address: Types.asEmptiableString(body.address, { name: 'address' }),
-    seen: Types.asNumber(body.seen, { name: 'seen' }),
-    sent: Types.asNumber(body.sent, { name: 'sent' }),
-    split: Types.asNumber(body.split, { name: 'split' }),
-    startedAt: Types.asString(body.startedAt, { name: 'startedAt' }),
-    stored: Types.asNumber(body.stored, { name: 'stored' }),
-    synced: Types.asNumber(body.synced, { name: 'synced' }),
-    uid: Types.asNumber(body.uid, { name: 'uid' }),
-  }
+  return TagSchema.parse(response.data)
 }
 
 /**
@@ -43,18 +32,7 @@ export async function retrieveTag(requestOptions: BeeRequestOptions, uid: number
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    address: Types.asEmptiableString(body.address, { name: 'address' }),
-    seen: Types.asNumber(body.seen, { name: 'seen' }),
-    sent: Types.asNumber(body.sent, { name: 'sent' }),
-    split: Types.asNumber(body.split, { name: 'split' }),
-    startedAt: Types.asString(body.startedAt, { name: 'startedAt' }),
-    stored: Types.asNumber(body.stored, { name: 'stored' }),
-    synced: Types.asNumber(body.synced, { name: 'synced' }),
-    uid: Types.asNumber(body.uid, { name: 'uid' }),
-  }
+  return TagSchema.parse(response.data)
 }
 
 /**
@@ -71,19 +49,7 @@ export async function getAllTags(requestOptions: BeeRequestOptions, offset?: num
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-  const tags = Types.asArray(body.tags, { name: 'tags' }).map(x => Types.asObject(x, { name: 'tag' }))
-
-  return tags.map(x => ({
-    address: Types.asEmptiableString(x.address, { name: 'address' }),
-    seen: Types.asNumber(x.seen, { name: 'seen' }),
-    sent: Types.asNumber(x.sent, { name: 'sent' }),
-    split: Types.asNumber(x.split, { name: 'split' }),
-    startedAt: Types.asString(x.startedAt, { name: 'startedAt' }),
-    stored: Types.asNumber(x.stored, { name: 'stored' }),
-    synced: Types.asNumber(x.synced, { name: 'synced' }),
-    uid: Types.asNumber(x.uid, { name: 'uid' }),
-  }))
+  return GetAllTagsResponse.parse(response.data).tags
 }
 
 /**
