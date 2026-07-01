@@ -1,11 +1,13 @@
-import { Optional, Types } from 'cafe-utility'
+import { Optional } from 'cafe-utility'
 import type { BeeRequestOptions, DownloadOptions, RedundantUploadOptions, ReferenceInformation } from '../types'
 import { UploadResult } from '../types'
+import { UploadResultBody } from '../types/schema/upload'
 import { Bytes } from '../utils/bytes'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { ResourceLocator } from '../utils/resource-locator'
-import { makeTagUid, prepareDownloadOptions } from '../utils/type'
+import { DownloadOptionsSchema } from '../utils/schema'
+import { makeTagUid } from '../utils/type'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
 const endpoint = 'bytes'
@@ -35,10 +37,10 @@ export async function upload(
     },
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
+  const body = UploadResultBody.parse(response.data)
 
   return {
-    reference: new Reference(Types.asHexString(body.reference)),
+    reference: body.reference,
     tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
     historyAddress: response.headers['swarm-act-history-address']
       ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
@@ -81,7 +83,7 @@ export async function download(
   options?: DownloadOptions,
 ): Promise<Bytes> {
   if (options) {
-    options = prepareDownloadOptions(options)
+    options = DownloadOptionsSchema.parse(options)
   }
 
   const response = await http<unknown>(requestOptions, {
@@ -105,7 +107,7 @@ export async function downloadReadable(
   options?: DownloadOptions,
 ): Promise<ReadableStream<Uint8Array>> {
   if (options) {
-    options = prepareDownloadOptions(options)
+    options = DownloadOptionsSchema.parse(options)
   }
 
   const response = await http<ReadableStream<Uint8Array>>(requestOptions, {

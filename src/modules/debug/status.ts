@@ -1,11 +1,16 @@
-import { Types } from 'cafe-utility'
 import getMajorSemver from 'semver/functions/major.js'
 import { BeeRequestOptions } from '../../index'
 import type { DebugStatus, Health, NodeInfo, Readiness } from '../../types/debug'
-import { BeeVersions, toBeeMode } from '../../types/debug'
+import { BeeVersions } from '../../types/debug'
+import {
+  GetDebugStatusResponse,
+  GetHealthResponse,
+  GetNodeInfoResponse,
+  GetReadinessResponse,
+} from '../../types/schema/status'
 import { http } from '../../utils/http'
 
-export const SUPPORTED_BEE_VERSION_EXACT = '2.6.0-d0aa8b93'
+export const SUPPORTED_BEE_VERSION_EXACT = '2.7.0-6ddf9b45'
 export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.split('-')[0]
 export const SUPPORTED_API_VERSION = '7.3.0'
 
@@ -21,24 +26,7 @@ export async function getDebugStatus(requestOptions: BeeRequestOptions): Promise
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    overlay: Types.asString(body.overlay, { name: 'overlay' }),
-    proximity: Types.asNumber(body.proximity, { name: 'proximity' }),
-    beeMode: toBeeMode(Types.asString(body.beeMode, { name: 'beeMode' })),
-    reserveSize: Types.asNumber(body.reserveSize, { name: 'reserveSize' }),
-    reserveSizeWithinRadius: Types.asNumber(body.reserveSizeWithinRadius, { name: 'reserveSizeWithinRadius' }),
-    pullsyncRate: Types.asNumber(body.pullsyncRate, { name: 'pullsyncRate' }),
-    storageRadius: Types.asNumber(body.storageRadius, { name: 'storageRadius' }),
-    connectedPeers: Types.asNumber(body.connectedPeers, { name: 'connectedPeers' }),
-    neighborhoodSize: Types.asNumber(body.neighborhoodSize, { name: 'neighborhoodSize' }),
-    batchCommitment: Types.asNumber(body.batchCommitment, { name: 'batchCommitment' }),
-    isReachable: Types.asBoolean(body.isReachable, { name: 'isReachable' }),
-    lastSyncedBlock: Types.asNumber(body.lastSyncedBlock, { name: 'lastSyncedBlock' }),
-    committedDepth: Types.asNumber(body.committedDepth, { name: 'committedDepth' }),
-    isWarmingUp: Types.asBoolean(body.isWarmingUp, { name: 'isWarmingUp' }),
-  }
+  return GetDebugStatusResponse.parse(response.data)
 }
 
 /**
@@ -53,13 +41,7 @@ export async function getHealth(requestOptions: BeeRequestOptions): Promise<Heal
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    apiVersion: Types.asString(body.apiVersion, { name: 'apiVersion' }),
-    version: Types.asString(body.version, { name: 'version' }),
-    status: Types.asString(body.status, { name: 'status' }) as 'ok',
-  }
+  return GetHealthResponse.parse(response.data)
 }
 
 /**
@@ -73,13 +55,7 @@ export async function getReadiness(requestOptions: BeeRequestOptions): Promise<R
     url: READINESS_URL,
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    apiVersion: Types.asString(body.apiVersion, { name: 'apiVersion' }),
-    version: Types.asString(body.version, { name: 'version' }),
-    status: Types.asString(body.status, { name: 'status' }),
-  }
+  return GetReadinessResponse.parse(response.data)
 }
 
 /**
@@ -94,13 +70,7 @@ export async function getNodeInfo(requestOptions: BeeRequestOptions): Promise<No
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    beeMode: toBeeMode(Types.asString(body.beeMode, { name: 'beeMode' })),
-    chequebookEnabled: Types.asBoolean(body.chequebookEnabled, { name: 'chequebookEnabled' }),
-    swapEnabled: Types.asBoolean(body.swapEnabled, { name: 'swapEnabled' }),
-  }
+  return GetNodeInfoResponse.parse(response.data)
 }
 
 /**

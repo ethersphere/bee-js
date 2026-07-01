@@ -9,8 +9,11 @@ export function normalizeBatchTTL(batchTTL: number) {
     return 1
   }
 
-  if (batchTTL > 315569260) {
-    return 315569260
+  // Cap `batchTTL` (represents seconds) to 100 years.
+  // We can assume `storagePrice` is invalid (e.g. 1).
+  // This is needed to prevent Date objects breaking.
+  if (batchTTL > 3_155_695_200) {
+    return 3_155_695_200
   }
 
   return batchTTL

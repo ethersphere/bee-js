@@ -1,6 +1,123 @@
 # Changelog
 
 
+## [12.2.2](https://github.com/ethersphere/bee-js/compare/v12.2.1...v12.2.2) (2026-06-09)
+
+
+### Bug Fixes
+
+* remove BeeDev class, use bee-factory instead ([#1183](https://github.com/ethersphere/bee-js/issues/1183)) ([7f09616](https://github.com/ethersphere/bee-js/commit/7f0961602e81ecfc1538908b8e889f8463bb2e36))
+
+## [12.2.1](https://github.com/ethersphere/bee-js/compare/v12.2.0...v12.2.1) (2026-05-19)
+
+
+### Bug Fixes
+
+* extendStorage should throw sensible error when it is no-op ([#1168](https://github.com/ethersphere/bee-js/issues/1168)) ([6246031](https://github.com/ethersphere/bee-js/commit/6246031f1ce73704afbf393d15d6ab9b5dcbfe6f))
+
+## [12.2.0](https://github.com/ethersphere/bee-js/compare/v12.1.0...v12.2.0) (2026-05-15)
+
+
+### Features
+
+* handle long filenames in tar ([#1158](https://github.com/ethersphere/bee-js/issues/1158)) ([d584319](https://github.com/ethersphere/bee-js/commit/d584319a36b9ad95efa225d96a4b1822a7b1a006))
+
+## [12.1.0](https://github.com/ethersphere/bee-js/compare/v12.0.0...v12.1.0) (2026-04-23)
+
+
+### Features
+
+* add toFloat and fromFloat to BZZ and DAI classes ([#1153](https://github.com/ethersphere/bee-js/issues/1153)) ([c68e705](https://github.com/ethersphere/bee-js/commit/c68e70561cf2aca767918ce11e7e45469ea29a67))
+
+
+### Bug Fixes
+
+* use depth over postageBatchId in calculateTopUpForBzz ([#1155](https://github.com/ethersphere/bee-js/issues/1155)) ([35c7e1c](https://github.com/ethersphere/bee-js/commit/35c7e1cc59906303755ff4e944849c4c178ec1a3))
+
+## [12.0.0](https://github.com/ethersphere/bee-js/compare/v11.2.0...v12.0.0) (2026-04-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* update axios to v1.5.x to receive security fixes ([#1150](https://github.com/ethersphere/bee-js/issues/1150))
+
+### Features
+
+* update axios to v1.5.x to receive security fixes ([#1150](https://github.com/ethersphere/bee-js/issues/1150)) ([cb538ff](https://github.com/ethersphere/bee-js/commit/cb538ff0cfa85c696afae09c877dc69534d5e878))
+
+## [11.2.0](https://github.com/ethersphere/bee-js/compare/v11.1.1...v11.2.0) (2026-04-20)
+
+
+### Features
+
+* add utility method to calculate topup amount based on bzz input ([#1148](https://github.com/ethersphere/bee-js/issues/1148)) ([d0fc82a](https://github.com/ethersphere/bee-js/commit/d0fc82a127dd9af48fba402bb4c25a4318a35ae6))
+
+## [11.1.1](https://github.com/ethersphere/bee-js/compare/v11.1.0...v11.1.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* replace uint8array body ([#1142](https://github.com/ethersphere/bee-js/issues/1142)) ([7e17454](https://github.com/ethersphere/bee-js/commit/7e17454d67c6d001423dc78915b5f6362e04bd8a))
+
+## [11.1.0](https://github.com/ethersphere/bee-js/compare/v11.0.0...v11.1.0) (2026-02-16)
+
+
+### Features
+
+* add AbortController support for cancelling uploads ([#1136](https://github.com/ethersphere/bee-js/issues/1136)) ([99a6a30](https://github.com/ethersphere/bee-js/commit/99a6a302cfe6f14b149e7bcf1a5c667936736148))
+
+## [11.0.0](https://github.com/ethersphere/bee-js/compare/v10.4.0...v11.0.0) (2026-02-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to bee v2.7.0 api ([#1138](https://github.com/ethersphere/bee-js/issues/1138))
+
+### Features
+
+* expose convertEnvelopeToMarshaledStamp and UploadProgress type ([#1133](https://github.com/ethersphere/bee-js/issues/1133)) ([ee76e1f](https://github.com/ethersphere/bee-js/commit/ee76e1f4fe4215321c0c0a17511e92f8d20e29a7))
+* update to bee v2.7.0 api ([#1138](https://github.com/ethersphere/bee-js/issues/1138)) ([ff4894c](https://github.com/ethersphere/bee-js/commit/ff4894cad9cd157b92dc50704c4665419b98299a))
+
+## [10.4.0](https://github.com/ethersphere/bee-js/compare/v10.3.0...v10.4.0) (2026-01-16)
+
+
+### Features
+
+* add utils function to map postage batch ([#1130](https://github.com/ethersphere/bee-js/issues/1130)) ([36f4e06](https://github.com/ethersphere/bee-js/commit/36f4e0684f69ce9fba9dafcfd51e6e77ba1efab2))
+
+## [10.3.0](https://github.com/ethersphere/bee-js/compare/v10.2.0...v10.3.0) (2026-01-15)
+
+
+### Features
+
+* improve soc developer api ([#1123](https://github.com/ethersphere/bee-js/issues/1123)) ([ae7d4ac](https://github.com/ethersphere/bee-js/commit/ae7d4ac9abfcafe0fc7bfd50e6c22d5b5f18c351))
+
+
+### Bug Fixes
+
+* retain existing amount in extendStorage ([#1127](https://github.com/ethersphere/bee-js/issues/1127)) ([67333fb](https://github.com/ethersphere/bee-js/commit/67333fb5c206630528a082d244450bfa639007bc))
+
+## [10.2.0](https://github.com/ethersphere/bee-js/compare/v10.1.2...v10.2.0) (2026-01-06)
+
+
+### Features
+
+* add recursive ACT support for mantaray structures ([#1119](https://github.com/ethersphere/bee-js/issues/1119)) ([32a4478](https://github.com/ethersphere/bee-js/commit/32a44786de8a8b2f7ac8b8ce27e8806b5d27efb8))
+
+## [10.1.2](https://github.com/ethersphere/bee-js/compare/v10.1.1...v10.1.2) (2025-12-15)
+
+
+### Bug Fixes
+
+* do not allow decreasing depth in getExtensionCost ([#1115](https://github.com/ethersphere/bee-js/issues/1115)) ([7a22194](https://github.com/ethersphere/bee-js/commit/7a22194f1483e86861da145e2aba70a5fe88d62a))
+
+## [10.1.1](https://github.com/ethersphere/bee-js/compare/v10.1.0...v10.1.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* allow fetching stamps with custom effective size calculations ([#1105](https://github.com/ethersphere/bee-js/issues/1105)) ([494c0a5](https://github.com/ethersphere/bee-js/commit/494c0a545b23b5a8d530e85c60c28af912cb4ebc))
+
 ## [10.1.0](https://github.com/ethersphere/bee-js/compare/v10.0.1...v10.1.0) (2025-10-01)
 
 
