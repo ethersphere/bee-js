@@ -20,7 +20,7 @@ jobs:
   create-api-docs-pr:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -115,7 +115,7 @@ jobs:
           body-includes: Release notes
 
       - name: Create or update preview comment
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v5
         if: steps.pr.outputs.pull-request-number && steps.release-notes.outputs.body
         with:
           token: ${{ secrets.REPO_GHA_PAT }}
