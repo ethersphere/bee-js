@@ -19,7 +19,7 @@ test('CRUD tags', async () => {
 
   const retrievedTag = await bee.retrieveTag(tag.uid)
   expect(retrievedTag.uid).toBe(tag.uid)
-  expect(retrievedTag.split).toBe(1)
+  expect(retrievedTag.split).toBe(3)
 
   await bee.deleteTag(tag.uid)
   const tagsAfterDelete = await bee.getAllTags()

@@ -1,11 +1,7 @@
 import { Strings, Types } from 'cafe-utility'
-import { Bee, BeeDev } from '../src'
+import { Bee } from '../src'
 
 export function makeBee() {
-  if (currentBeeMode() === 'dev') {
-    return new BeeDev('http://localhost:1633')
-  }
-
   return new Bee(selectBeeUrl())
 }
 

@@ -256,6 +256,7 @@ export interface ReserveState {
   radius: number
   storageRadius: number
   commitment: number
+  reserveCapacityDoubling: number
 }
 
 export interface ChainState {
@@ -263,6 +264,7 @@ export interface ChainState {
   block: number
   totalAmount: NumberString
   currentPrice: number
+  minimumValidityBlocks?: number
 }
 
 export interface WalletBalance {

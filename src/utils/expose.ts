@@ -3,6 +3,7 @@ export { getFolderSize } from './collection.node'
 export { makeMaxTarget } from './pss'
 export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from './redundancy'
 export {
+  convertEnvelopeToMarshaledStamp,
   getAmountForDuration,
   getDepthForSize,
   getStampCost,
@@ -11,4 +12,6 @@ export {
   getStampEffectiveBytesBreakpoints,
   getStampTheoreticalBytes,
   getStampUsage,
+  mapPostageBatch,
+  unmapPostageBatch,
 } from './stamps'

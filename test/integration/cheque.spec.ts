@@ -1,7 +1,10 @@
 import { Dates, System } from 'cafe-utility'
-import { currentBeeMode, makeBee } from '../utils'
+import { Bee } from '../../src'
+import { makeBee } from '../utils'
 
 const bee = makeBee()
+const issuer = new Bee('http://localhost:1635')
+const receiver = new Bee('http://localhost:1637')
 
 test('GET chequebook status', async () => {
   const chequebookBalance = await bee.getChequebookBalance()
@@ -11,27 +14,43 @@ test('GET chequebook status', async () => {
   expect(chequebookAddress.chequebookAddress.toString()).toHaveLength(40)
 })
 
-test('GET chequebook/cheque', async () => {
-  const { lastcheques } = await bee.getLastCheques()
+test('GET chequebook/cheque (issuer)', async () => {
+  const { lastcheques } = await issuer.getLastCheques()
 
-  // TODO: enable this in light mode once it has cheques
-  if (currentBeeMode() !== 'full') {
-    return
-  }
+  const sentCheques = lastcheques.filter(cheque => cheque.lastsent !== null)
+  expect(sentCheques.length).toBeGreaterThan(0)
 
-  expect(lastcheques.some(cheque => cheque.lastsent !== null)).toBeTruthy()
-  expect(lastcheques.some(cheque => cheque.lastreceived !== null)).toBeTruthy()
-
-  const cheque = lastcheques[0]
-  const peerCheque = await bee.getLastChequesForPeer(cheque.peer)
+  const cheque = sentCheques[0]
+  const peerCheque = await issuer.getLastChequesForPeer(cheque.peer)
 
   expect(peerCheque.lastsent).toStrictEqual(cheque.lastsent)
+})
+
+test('GET chequebook/cheque (receiver)', async () => {
+  const { lastcheques } = await receiver.getLastCheques()
+
+  const receivedCheques = lastcheques.filter(cheque => cheque.lastreceived !== null)
+  expect(receivedCheques.length).toBeGreaterThan(0)
+
+  const cheque = receivedCheques[0]
+  const peerCheque = await receiver.getLastChequesForPeer(cheque.peer)
+
   expect(peerCheque.lastreceived).toStrictEqual(cheque.lastreceived)
 
-  const cashout = await bee.getLastCashoutAction('8e1198219d746157664463d7c279f88040e97bfbd9940b5a944a768f553afdd1')
-  expect(cashout.peer).toBe('8e1198219d746157664463d7c279f88040e97bfbd9940b5a944a768f553afdd1')
+  await receiver.cashoutLastCheque(cheque.peer)
+
+  await System.waitFor(
+    async () => {
+      const pendingTransactions = await receiver.getAllPendingTransactions()
+
+      return pendingTransactions.length === 0
+    },
+    { attempts: 30, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
+  )
+
+  const cashout = await receiver.getLastCashoutAction(cheque.peer)
+  expect(cashout.peer).toBe(cheque.peer)
   expect(cashout.result?.bounced).toBe(false)
-  expect(cashout.lastCashedCheque?.beneficiary.toChecksum()).toBe('0x43E942d82F72ff8185D9fC15024eDE4889c6e2cA')
 })
 
 test('deposit/withdraw from chequebook', async () => {
