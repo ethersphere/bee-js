@@ -2523,6 +2523,21 @@ export class Bee {
   }
 
   /**
+   * Returns details for specific globally available postage batch.
+   *
+   * @param postageBatchId Batch ID
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async getGlobalPostageBatch(
+    postageBatchId: BatchId | Uint8Array | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GlobalPostageBatch> {
+    postageBatchId = new BatchId(postageBatchId)
+
+    return stamps.getGlobalPostageBatch(this.getRequestOptionsForCall(requestOptions), postageBatchId)
+  }
+
+  /**
    * Return detailed information related to buckets for specific postage batch.
    *
    * @param postageBatchId Batch ID

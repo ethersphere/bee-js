@@ -17,7 +17,7 @@ jobs:
         node-version: [16.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Use Node.js ${{ matrix.node-version }}
@@ -46,7 +46,7 @@ jobs:
           CI: true
 
       - name: Trigger API Docs update PR
-        uses: peter-evans/repository-dispatch@v1
+        uses: peter-evans/repository-dispatch@v4
         if: github.ref == 'refs/heads/master'
         with:
           token: ${{ secrets.REPO_GHA_PAT }}
