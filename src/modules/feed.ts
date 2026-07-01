@@ -1,5 +1,5 @@
-import { Types } from 'cafe-utility'
 import { BeeRequestOptions, UploadOptions } from '../types'
+import { UploadResultBody } from '../types/schema/upload'
 import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { prepareRequestHeaders } from '../utils/headers'
@@ -69,9 +69,7 @@ export async function createFeedManifest(
     headers: prepareRequestHeaders(stamp, options),
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return new Reference(Types.asHexString(body.reference))
+  return UploadResultBody.parse(response.data).reference
 }
 
 function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeaders {
@@ -114,7 +112,7 @@ export async function fetchLatestFeedUpdate(
   const response = await http<ArrayBuffer>(requestOptions, {
     responseType: 'arraybuffer',
     url: `${feedEndpoint}/${owner}/${topic}`,
-    params: options,
+    params: { ...options },
   })
 
   return {

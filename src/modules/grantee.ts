@@ -1,5 +1,5 @@
-import { Types } from 'cafe-utility'
 import { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
+import { GetGranteesBodyResponse, GranteesResultBodyResponse } from '../types/schema/grantee'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { BatchId, PublicKey, Reference } from '../utils/typed-bytes'
@@ -13,14 +13,10 @@ export async function getGrantees(reference: Reference, requestOptions: BeeReque
     responseType: 'json',
   })
 
-  const body = Types.asArray(response.data, { name: 'response.data' }).map(
-    x => new PublicKey(Types.asString(x, { name: 'grantee' })),
-  )
-
   return {
     status: response.status,
     statusText: response.statusText,
-    grantees: body,
+    grantees: GetGranteesBodyResponse.parse(response.data),
   }
 }
 
@@ -37,13 +33,13 @@ export async function createGrantees(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
+  const body = GranteesResultBodyResponse.parse(response.data)
 
   return {
     status: response.status,
     statusText: response.statusText,
-    ref: new Reference(Types.asString(body.ref, { name: 'ref' })),
-    historyref: new Reference(Types.asString(body.historyref, { name: 'historyref' })),
+    ref: body.ref,
+    historyref: body.historyref,
   }
 }
 
@@ -68,12 +64,12 @@ export async function patchGrantees(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
+  const body = GranteesResultBodyResponse.parse(response.data)
 
   return {
     status: response.status,
     statusText: response.statusText,
-    ref: new Reference(Types.asString(body.ref, { name: 'ref' })),
-    historyref: new Reference(Types.asString(body.historyref, { name: 'historyref' })),
+    ref: body.ref,
+    historyref: body.historyref,
   }
 }

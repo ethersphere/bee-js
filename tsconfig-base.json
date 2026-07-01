@@ -8,7 +8,7 @@
     "moduleResolution": "node",
     "strict": true,
     "skipLibCheck": false,
-    "typeRoots": ["./src/types", "node_modules/@types"],
+    "typeRoots": ["node_modules/@types"],
     "target": "es2020",
     "rootDirs": ["src"]
   }

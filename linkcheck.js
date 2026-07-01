@@ -1,4 +1,3 @@
-const { default: axios } = require('axios')
 const { Strings } = require('cafe-utility')
 const { readdirSync, statSync, readFileSync } = require('fs')
 const { join } = require('path')
@@ -29,7 +28,7 @@ function check(path) {
   })
   for (const link of links) {
     const cleanLink = link.replaceAll('](', '').replaceAll(')', '')
-    axios.get(cleanLink).catch(error => {
+    fetch(cleanLink).catch(error => {
       console.error(path, cleanLink, error.response.status)
     })
   }

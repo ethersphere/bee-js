@@ -1,0 +1,48 @@
+name: Tests (Bee RC)
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  tests-bee-rc:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+
+      - name: Install local dependencies
+        run: npm ci
+
+      - name: Install global dependencies
+        run: npm install --global bee-dev @ethersphere/bee-factory @ethersphere/swarm-cli
+
+      - name: Run bee-dev
+        run: bee-dev --port 16337 &
+
+      - name: Start bee-factory
+        run: bee-factory start
+
+      - name: Create managed postage batch
+        run: echo "JEST_MANAGED_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
+
+      - name: Create external postage batch
+        run: echo "JEST_EXTERNAL_BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
+
+      - name: Tests
+        id: tests
+        env:
+          JEST_BEE_URL: http://localhost:1633
+          JEST_BEE_SIGNER: '8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba'
+          JEST_WITHDRAW_ADDRESS: '0xd238ff944bacb478cbed5efcae784d7bf4f2ff80'
+        run: npm test
