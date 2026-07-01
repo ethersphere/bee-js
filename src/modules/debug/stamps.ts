@@ -11,9 +11,11 @@ import {
   BatchIdResponse,
   GetAllPostageBatchesResponse,
   GetGlobalPostageBatchesResponse,
+  GetGlobalPostageBatchResponse,
   GetPostageBatchBucketsResponse,
   GetPostageBatchResponse,
 } from '../../types/schema/stamps'
+
 import { http } from '../../utils/http'
 import { mapPostageBatch } from '../../utils/stamps'
 import { BatchId } from '../../utils/typed-bytes'
@@ -29,6 +31,19 @@ export async function getGlobalPostageBatches(requestOptions: BeeRequestOptions)
   })
 
   return GetGlobalPostageBatchesResponse.parse(response.data).batches
+}
+
+export async function getGlobalPostageBatch(
+  requestOptions: BeeRequestOptions,
+  postageBatchId: BatchId,
+): Promise<GlobalPostageBatch> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'get',
+    url: `${BATCHES_ENDPOINT}/${postageBatchId}`,
+    responseType: 'json',
+  })
+
+  return GetGlobalPostageBatchResponse.parse(response.data)
 }
 
 export async function getAllPostageBatches(requestOptions: BeeRequestOptions): Promise<PostageBatch[]> {
