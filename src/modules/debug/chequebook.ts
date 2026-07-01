@@ -1,8 +1,5 @@
-import { Types } from 'cafe-utility'
 import type {
   BeeRequestOptions,
-  CashoutResult,
-  Cheque,
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
   LastCashoutActionResponse,
@@ -11,11 +8,17 @@ import type {
   NumberString,
   TransactionOptions,
 } from '../../types'
+import {
+  GetChequebookAddressResponse,
+  GetChequebookBalanceResponse,
+  GetLastCashoutActionResponse,
+  GetLastChequesForPeerResponse,
+  GetLastChequesResponse,
+  TransactionHashResponse,
+} from '../../types/schema/chequebook'
 import { prepareRequestHeaders } from '../../utils/headers'
 import { http } from '../../utils/http'
-import { BZZ } from '../../utils/tokens'
-import { asNumberString } from '../../utils/type'
-import { EthAddress, PeerAddress, TransactionId } from '../../utils/typed-bytes'
+import { PeerAddress, TransactionId } from '../../utils/typed-bytes'
 
 const chequebookEndpoint = 'chequebook'
 
@@ -30,11 +33,7 @@ export async function getChequebookAddress(requestOptions: BeeRequestOptions): P
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    chequebookAddress: new EthAddress(Types.asString(body.chequebookAddress, { name: 'chequebookAddress' })),
-  }
+  return GetChequebookAddressResponse.parse(response.data)
 }
 
 /**
@@ -48,12 +47,7 @@ export async function getChequebookBalance(requestOptions: BeeRequestOptions): P
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    availableBalance: BZZ.fromPLUR(asNumberString(body.availableBalance, { name: 'availableBalance' })),
-    totalBalance: BZZ.fromPLUR(asNumberString(body.totalBalance, { name: 'totalBalance' })),
-  }
+  return GetChequebookBalanceResponse.parse(response.data)
 }
 
 /**
@@ -71,15 +65,7 @@ export async function getLastCashoutAction(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    peer: Types.asString(body.peer, { name: 'peer' }),
-    uncashedAmount: BZZ.fromPLUR(asNumberString(body.uncashedAmount, { name: 'uncashedAmount' })),
-    transactionHash: Types.asNullableString(body.transactionHash),
-    lastCashedCheque: Types.asNullable(x => asCheque(x), body.lastCashedCheque),
-    result: Types.asNullable(x => asCashoutResult(x), body.result),
-  }
+  return GetLastCashoutActionResponse.parse(response.data)
 }
 
 /**
@@ -101,9 +87,7 @@ export async function cashoutLastCheque(
     headers: prepareRequestHeaders(null, options),
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
+  return TransactionHashResponse.parse(response.data).transactionHash
 }
 
 /**
@@ -121,13 +105,7 @@ export async function getLastChequesForPeer(
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return {
-    peer: Types.asString(body.peer, { name: 'peer' }),
-    lastreceived: Types.asNullable(x => asCheque(x), body.lastreceived),
-    lastsent: Types.asNullable(x => asCheque(x), body.lastsent),
-  }
+  return GetLastChequesForPeerResponse.parse(response.data)
 }
 
 /**
@@ -141,38 +119,7 @@ export async function getLastCheques(requestOptions: BeeRequestOptions): Promise
     responseType: 'json',
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-  const lastcheques = Types.asArray(body.lastcheques, { name: 'lastcheques' }).map(x =>
-    Types.asObject(x, { name: 'lastcheque' }),
-  )
-
-  return {
-    lastcheques: lastcheques.map(x => ({
-      peer: Types.asString(x.peer, { name: 'peer' }),
-      lastreceived: Types.asNullable(y => asCheque(y), x.lastreceived),
-      lastsent: Types.asNullable(y => asCheque(y), x.lastsent),
-    })),
-  }
-}
-
-function asCheque(x: unknown): Cheque {
-  const object = Types.asObject(x, { name: 'cheque' })
-
-  return {
-    beneficiary: new EthAddress(Types.asString(object.beneficiary, { name: 'beneficiary' })),
-    chequebook: new EthAddress(Types.asString(object.chequebook, { name: 'chequebook' })),
-    payout: BZZ.fromPLUR(asNumberString(object.payout, { name: 'payout' })),
-  }
-}
-
-function asCashoutResult(x: unknown): CashoutResult {
-  const object = Types.asObject(x, { name: 'cashout result' })
-
-  return {
-    recipient: Types.asString(object.recipient, { name: 'recipient' }),
-    lastPayout: BZZ.fromPLUR(asNumberString(object.lastPayout, { name: 'lastPayout' })),
-    bounced: Types.asBoolean(object.bounced, { name: 'bounced' }),
-  }
+  return GetLastChequesResponse.parse(response.data)
 }
 
 /**
@@ -202,9 +149,7 @@ export async function depositTokens(
     headers,
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
+  return TransactionHashResponse.parse(response.data).transactionHash
 }
 
 /**
@@ -234,7 +179,5 @@ export async function withdrawTokens(
     headers,
   })
 
-  const body = Types.asObject(response.data, { name: 'response.data' })
-
-  return new TransactionId(Types.asString(body.transactionHash, { name: 'transactionHash' }))
+  return TransactionHashResponse.parse(response.data).transactionHash
 }
