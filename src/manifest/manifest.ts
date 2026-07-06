@@ -178,9 +178,7 @@ export class MantarayNode {
       this.parent = options.parent
     }
 
-    if (options?.type != null) {
-      this.type = options.type
-    }
+    this.type = options?.type ?? null
   }
 
   get fullPath(): Uint8Array {
@@ -319,14 +317,14 @@ export class MantarayNode {
     const targetAddress = targetAddressLength ? reader.read(targetAddressLength) : NULL_ADDRESS
     const node = new MantarayNode({ selfAddress, targetAddress, obfuscationKey })
     const forkBitmap = reader.read(32)
-    for (let i = 0; i < 256; i++) {
-      if (Binary.getBit(forkBitmap, i, 'LE')) {
-        if (targetAddressLength === 0) {
-          continue
+
+    if (targetAddressLength > 0) {
+      for (let i = 0; i < 256; i++) {
+        if (Binary.getBit(forkBitmap, i, 'LE')) {
+          const newFork = Fork.unmarshal(reader, selfAddress.length)
+          node.forks.set(i, newFork)
+          newFork.node.parent = node
         }
-        const newFork = Fork.unmarshal(reader, selfAddress.length)
-        node.forks.set(i, newFork)
-        newFork.node.parent = node
       }
     }
 
