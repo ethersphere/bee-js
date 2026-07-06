@@ -74,7 +74,10 @@ export class Fork {
       throw Error('Fork#marshal node.selfAddress is not set')
     }
     const data: Uint8Array[] = []
-    data.push(new Uint8Array([this.node.determineType()]))
+    // Re-emit the type byte read from the chunk when the node is untouched, so an
+    // unmarshal → marshal round-trip is byte-identical. determineType() can only
+    // recompute it correctly once the node's children are loaded/built in memory.
+    data.push(new Uint8Array([this.node.type ?? this.node.determineType()]))
     data.push(Binary.numberToUint8(this.prefix.length))
     data.push(this.prefix)
 
@@ -126,7 +129,7 @@ export class Fork {
       metadata = JSON.parse(DECODER.decode(reader.read(metadataLength)))
     }
 
-    return new Fork(prefix, new MantarayNode({ selfAddress, metadata, path: prefix }))
+    return new Fork(prefix, new MantarayNode({ selfAddress, metadata, path: prefix, type }))
   }
 }
 
@@ -137,6 +140,7 @@ interface MantarayNodeOptions {
   metadata?: Record<string, string> | null
   path?: Uint8Array | null
   parent?: MantarayNode | null
+  type?: number | null
 }
 
 export class MantarayNode {
@@ -147,6 +151,7 @@ export class MantarayNode {
   public path: Uint8Array = new Uint8Array(0)
   public forks: Map<number, Fork> = new Map()
   public parent: MantarayNode | null = null
+  public type: number | null = null
 
   constructor(options?: MantarayNodeOptions) {
     if (options?.targetAddress) {
@@ -171,6 +176,10 @@ export class MantarayNode {
 
     if (options?.parent) {
       this.parent = options.parent
+    }
+
+    if (options?.type != null) {
+      this.type = options.type
     }
   }
 
@@ -245,12 +254,7 @@ export class MantarayNode {
     }
     const header = new Uint8Array(32)
     header.set(VERSION_02_HASH, 0)
-    header.set(
-      Binary.equals(this.targetAddress, NULL_ADDRESS) && Binary.equals(this.path, new Uint8Array([47]))
-        ? Binary.numberToUint8(0)
-        : Binary.numberToUint8(this.targetAddress.length),
-      31,
-    )
+    header.set(Binary.numberToUint8(this.targetAddress.length), 31)
     const forkBitmap = new Uint8Array(32)
     for (const fork of this.forks.keys()) {
       Binary.setBit(forkBitmap, fork, 1, 'LE')
@@ -262,14 +266,7 @@ export class MantarayNode {
       }
     }
     const data = Binary.xorCypher(
-      Binary.concatBytes(
-        header,
-        Binary.equals(this.targetAddress, NULL_ADDRESS) && Binary.equals(this.path, new Uint8Array([47]))
-          ? new Uint8Array(0)
-          : this.targetAddress,
-        forkBitmap,
-        ...forks,
-      ),
+      Binary.concatBytes(header, this.targetAddress, forkBitmap, ...forks),
       this.obfuscationKey,
     )
 
@@ -313,6 +310,9 @@ export class MantarayNode {
     const forkBitmap = reader.read(32)
     for (let i = 0; i < 256; i++) {
       if (Binary.getBit(forkBitmap, i, 'LE')) {
+        if (targetAddressLength === 0) {
+          continue
+        }
         const newFork = Fork.unmarshal(reader, selfAddress.length)
         node.forks.set(i, newFork)
         newFork.node.parent = node
@@ -331,6 +331,7 @@ export class MantarayNode {
     metadata?: Record<string, string> | null,
   ) {
     this.selfAddress = null
+    this.type = null
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
     debug('adding fork', { path: DECODER.decode(path), reference: new Reference(reference).represent() })
     // TODO: this should not be ignored
@@ -368,11 +369,13 @@ export class MantarayNode {
         tip.forks.set(remainingPath[0], fork)
         fork.node.parent = tip
         tip.selfAddress = null
+        tip.type = null
         tip = newFork.node
       } else {
         tip.forks.set(remainingPath[0], newFork)
         newFork.node.parent = tip
         tip.selfAddress = null
+        tip.type = null
         tip = newFork.node
       }
     }
@@ -383,6 +386,7 @@ export class MantarayNode {
    */
   removeFork(path: string | Uint8Array) {
     this.selfAddress = null
+    this.type = null
     path = path instanceof Uint8Array ? path : ENCODER.encode(path)
 
     if (path.length === 0) {
@@ -534,7 +538,11 @@ export class MantarayNode {
   determineType() {
     let type = 0
 
-    if (!Binary.equals(this.targetAddress, NULL_ADDRESS) || Binary.equals(this.path, PATH_SEPARATOR)) {
+    // Mirror Bee (pkg/manifest/mantaray/node.go): a node is a value only when it
+    // carries an entry, and the path-separator flag is set only when a separator
+    // occurs past the first byte (IndexRune > 0), so a prefix that merely starts
+    // with '/' does not qualify.
+    if (!Binary.equals(this.targetAddress, NULL_ADDRESS)) {
       type |= TYPE_VALUE
     }
 
@@ -542,7 +550,7 @@ export class MantarayNode {
       type |= TYPE_EDGE
     }
 
-    if (Binary.indexOf(this.path, PATH_SEPARATOR) !== -1 && !Binary.equals(this.path, PATH_SEPARATOR)) {
+    if (Binary.indexOf(this.path, PATH_SEPARATOR) > 0) {
       type |= TYPE_WITH_PATH_SEPARATOR
     }
 
