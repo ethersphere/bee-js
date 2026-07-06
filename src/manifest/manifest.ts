@@ -252,9 +252,23 @@ export class MantarayNode {
         fork.node.selfAddress = (await fork.node.calculateSelfAddress()).toUint8Array()
       }
     }
+    const hasEntry = !Binary.equals(this.targetAddress, NULL_ADDRESS)
+    let refBytesSize = 0
+
+    if (hasEntry) {
+      refBytesSize = this.targetAddress.length
+    } else {
+      for (const fork of this.forks.values()) {
+        if (fork.node.selfAddress) {
+          refBytesSize = fork.node.selfAddress.length
+          break
+        }
+      }
+    }
     const header = new Uint8Array(32)
     header.set(VERSION_02_HASH, 0)
-    header.set(Binary.numberToUint8(this.targetAddress.length), 31)
+    header.set(Binary.numberToUint8(refBytesSize), 31)
+    const entry = hasEntry ? this.targetAddress : new Uint8Array(refBytesSize)
     const forkBitmap = new Uint8Array(32)
     for (const fork of this.forks.keys()) {
       Binary.setBit(forkBitmap, fork, 1, 'LE')
@@ -265,10 +279,7 @@ export class MantarayNode {
         forks.push(this.forks.get(i)!.marshal())
       }
     }
-    const data = Binary.xorCypher(
-      Binary.concatBytes(header, this.targetAddress, forkBitmap, ...forks),
-      this.obfuscationKey,
-    )
+    const data = Binary.xorCypher(Binary.concatBytes(header, entry, forkBitmap, ...forks), this.obfuscationKey)
 
     return Binary.concatBytes(this.obfuscationKey, data)
   }
@@ -538,11 +549,14 @@ export class MantarayNode {
   determineType() {
     let type = 0
 
-    // Mirror Bee (pkg/manifest/mantaray/node.go): a node is a value only when it
-    // carries an entry, and the path-separator flag is set only when a separator
-    // occurs past the first byte (IndexRune > 0), so a prefix that merely starts
-    // with '/' does not qualify.
-    if (!Binary.equals(this.targetAddress, NULL_ADDRESS)) {
+    // Mirror Bee (pkg/manifest/mantaray/node.go): Add() marks every explicitly
+    // added leaf as a value (makeValue), even one with a null entry such as a
+    // metadata-only "/" node. In final-state terms a leaf (no forks) is always an
+    // added entry, so it is a value; a node with forks is a value only when it also
+    // carries an entry. The path-separator flag is set only when a separator occurs
+    // past the first byte (IndexRune > 0), so a prefix that merely starts with '/'
+    // does not qualify.
+    if (!Binary.equals(this.targetAddress, NULL_ADDRESS) || this.forks.size === 0) {
       type |= TYPE_VALUE
     }
 
