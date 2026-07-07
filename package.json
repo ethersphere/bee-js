@@ -1,6 +1,6 @@
 {
   "name": "@ethersphere/bee-js",
-  "version": "12.2.2",
+  "version": "12.3.1",
   "description": "Javascript client for Bee",
   "keywords": [
     "bee",
@@ -32,8 +32,8 @@
     }
   },
   "engines": {
-    "bee": "2.4.0-390a402e",
-    "beeApiVersion": "7.2.0"
+    "bee": "2.8.1-7cf53193",
+    "beeApiVersion": "8.1.0"
   },
   "types": "dist/types/index.d.ts",
   "browser": {
