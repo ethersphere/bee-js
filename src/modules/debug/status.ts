@@ -10,9 +10,9 @@ import {
 } from '../../types/schema/status'
 import { http } from '../../utils/http'
 
-export const SUPPORTED_BEE_VERSION_EXACT = '2.7.0-6ddf9b45'
+export const SUPPORTED_BEE_VERSION_EXACT = '2.8.1-7cf53193'
 export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.split('-')[0]
-export const SUPPORTED_API_VERSION = '7.3.0'
+export const SUPPORTED_API_VERSION = '8.1.0'
 
 const NODE_INFO_URL = 'node'
 const STATUS_URL = 'status'
