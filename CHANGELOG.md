@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [12.3.1](https://github.com/ethersphere/bee-js/compare/v12.3.0...v12.3.1) (2026-07-07)
+
+
+### Bug Fixes
+
+* update openapi and bee version ([#1214](https://github.com/ethersphere/bee-js/issues/1214)) ([e726aaf](https://github.com/ethersphere/bee-js/commit/e726aaf7a1d60824a7b2e59387e3b0434f1320bc))
+
 ## [12.3.0](https://github.com/ethersphere/bee-js/compare/v12.2.2...v12.3.0) (2026-07-07)
 
 
