@@ -7,7 +7,7 @@ test('GET <empty>', async () => {
   expect(await bee.isConnected()).toBe(true)
 })
 
-test.skip('API compatibility', async () => {
+test('API compatibility', async () => {
   expect(await bee.isSupportedApiVersion()).toBe(true)
   expect(await bee.isSupportedExactVersion()).toBe(true)
 })
