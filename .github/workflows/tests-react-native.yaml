@@ -15,7 +15,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Checkout bee-js
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -37,7 +37,7 @@ jobs:
           repositories: bee-js-react-native-test
 
       - name: Checkout bee-js-react-native-test
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ethersphere/bee-js-react-native-test
           path: rn-test
