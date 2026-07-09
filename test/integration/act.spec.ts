@@ -32,7 +32,7 @@ test('CRUD grantee', async () => {
   })
 
   // patch and upload
-  const { publicKey } = await bee.getNodeAddresses()
+  const { publicKey } = await bee.connectivity.getNodeAddresses()
   const filename = 'act-4.txt'
   const data = 'hello act grantees!'
   const uploadResult = await bee.uploadFile(batch(), data, filename, { act: true })

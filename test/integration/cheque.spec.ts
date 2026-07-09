@@ -41,7 +41,7 @@ test('GET chequebook/cheque (receiver)', async () => {
 
   await System.waitFor(
     async () => {
-      const pendingTransactions = await receiver.getAllPendingTransactions()
+      const pendingTransactions = await receiver.transaction.getAll()
 
       return pendingTransactions.length === 0
     },
@@ -55,14 +55,14 @@ test('GET chequebook/cheque (receiver)', async () => {
 
 test('deposit/withdraw from chequebook', async () => {
   await bee.depositTokens(1n)
-  const transactions = await bee.getAllPendingTransactions()
+  const transactions = await bee.transaction.getAll()
   expect(transactions.length).toBe(1)
-  const transaction = await bee.getPendingTransaction(transactions[0].transactionHash)
+  const transaction = await bee.transaction.get(transactions[0].transactionHash)
   expect(transaction.transactionHash.toHex()).toBe(transactions[0].transactionHash.toHex())
 
   await System.waitFor(
     async () => {
-      const pendingTransactions = await bee.getAllPendingTransactions()
+      const pendingTransactions = await bee.transaction.getAll()
 
       return pendingTransactions.length === 0
     },
@@ -72,7 +72,7 @@ test('deposit/withdraw from chequebook', async () => {
   await bee.withdrawTokens('1')
   await System.waitFor(
     async () => {
-      const pendingTransactions = await bee.getAllPendingTransactions()
+      const pendingTransactions = await bee.transaction.getAll()
 
       return pendingTransactions.length === 0
     },

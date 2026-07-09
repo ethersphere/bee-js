@@ -36,7 +36,7 @@ test('POST stamps', async () => {
 
   await System.waitFor(
     async () => {
-      const pendingTransactions = await bee.getAllPendingTransactions()
+      const pendingTransactions = await bee.transaction.getAll()
 
       return pendingTransactions.length === 0
     },

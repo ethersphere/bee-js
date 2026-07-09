@@ -64,7 +64,7 @@ jobs:
         with:
           find: "export const SUPPORTED_BEE_VERSION_EXACT = '.*?'"
           replace: "export const SUPPORTED_BEE_VERSION_EXACT = '${{ env.BEE_VERSION_WITH_COMMIT }}'"
-          include: 'src/modules/debug/status.ts'
+          include: 'src/modules/status.ts'
           regex: true
 
       - name: Replace SUPPORTED_API_VERSION for Status module
@@ -72,7 +72,7 @@ jobs:
         with:
           find: "export const SUPPORTED_API_VERSION = '.*?'"
           replace: "export const SUPPORTED_API_VERSION = '${{ env.API_VERSION }}'"
-          include: 'src/modules/debug/status.ts'
+          include: 'src/modules/status.ts'
           regex: true
 
       - name: Replace README version

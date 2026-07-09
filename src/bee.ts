@@ -18,13 +18,13 @@ import * as chunk from './modules/chunk'
 import { Balance } from './modules/balance'
 import type { BeeContext } from './modules/context'
 import * as chequebook from './modules/debug/chequebook'
-import * as connectivity from './modules/debug/connectivity'
-import * as settlements from './modules/debug/settlements'
-import * as stake from './modules/debug/stake'
+import { Connectivity } from './modules/connectivity'
+import { Settlement } from './modules/settlement'
+import { Stake } from './modules/stake'
 import * as stamps from './modules/debug/stamps'
-import * as states from './modules/debug/states'
-import * as debugStatus from './modules/debug/status'
-import * as transactions from './modules/debug/transactions'
+import { Status } from './modules/status'
+import { Wallet } from './modules/wallet'
+import { Transaction } from './modules/transaction'
 import { postEnvelope } from './modules/envelope'
 import { FeedPayloadResult, createFeedManifest, fetchLatestFeedUpdate } from './modules/feed'
 import * as grantee from './modules/grantee'
@@ -32,19 +32,14 @@ import * as gsoc from './modules/gsoc'
 import * as pinning from './modules/pinning'
 import * as pss from './modules/pss'
 import { rchash } from './modules/rchash'
-import * as status from './modules/status'
 import * as stewardship from './modules/stewardship'
 import * as tag from './modules/tag'
 import type {
-  AllSettlements,
   BeeOptions,
   BeeRequestOptions,
-  BeeVersions,
-  ChainState,
   ChequebookAddressResponse,
   ChequebookBalanceResponse,
   CollectionUploadOptions,
-  DebugStatus,
   DownloadOptions,
   EnvelopeWithBatchId,
   FeedReader,
@@ -56,35 +51,22 @@ import type {
   GranteesResult,
   GsocMessageHandler,
   GsocSubscription,
-  Health,
   LastCashoutActionResponse,
   LastChequesForPeerResponse,
   LastChequesResponse,
-  NodeAddresses,
-  NodeInfo,
   NumberString,
-  Peer,
   Pin,
-  PingResponse,
   PostageBatch,
   PostageBatchBuckets,
   PssMessageHandler,
   PssSubscription,
-  Readiness,
-  RedistributionState,
   RedundancyLevel,
   RedundantUploadOptions,
   ReferenceInformation,
-  RemovePeerResponse,
-  ReserveState,
   SOCReader,
   SOCWriter,
-  Settlements,
   Tag,
-  Topology,
-  TransactionInfo,
   UploadOptions,
-  WalletBalance,
 } from './types'
 import {
   AllTagsOptions,
@@ -120,7 +102,7 @@ import {
 } from './utils/schema'
 import { Size } from './utils/size'
 import { getAmountForDuration, getDepthForSize, getStampCost, getStampDuration } from './utils/stamps'
-import { BZZ, DAI } from './utils/tokens'
+import { BZZ } from './utils/tokens'
 import { asNumberString, assertData, assertFileData, makeTagUid } from './utils/type'
 import {
   BatchId,
@@ -215,15 +197,52 @@ export class Bee {
       url: this.url,
       signer: this.signer,
       network: this.network,
+      bee: this,
     }
 
     this.balance = new Balance(context)
+    this.settlement = new Settlement(context)
+    this.transaction = new Transaction(context)
+    this.stake = new Stake(context)
+    this.connectivity = new Connectivity(context)
+    this.status = new Status(context)
+    this.wallet = new Wallet(context)
   }
 
   /**
    * SWAP balance operations. Related to the bandwidth incentives and the chequebook.
    */
   public readonly balance: Balance
+
+  /**
+   * Settlement operations. Related to the bandwidth incentives and the chequebook.
+   */
+  public readonly settlement: Settlement
+
+  /**
+   * Pending transaction operations for the Bee node's transaction queue.
+   */
+  public readonly transaction: Transaction
+
+  /**
+   * Staking operations.
+   */
+  public readonly stake: Stake
+
+  /**
+   * Peer, topology and network connectivity operations.
+   */
+  public readonly connectivity: Connectivity
+
+  /**
+   * Node status, health, version and chain/reserve state operations.
+   */
+  public readonly status: Status
+
+  /**
+   * Node wallet operations (balances and external withdrawals).
+   */
+  public readonly wallet: Wallet
 
   /**
    * Uploads raw data to the network (as opposed to uploading chunks or files).
@@ -1235,7 +1254,7 @@ export class Bee {
    *
    * @example
    * const identifier = NULL_IDENTIFIER
-   * const { overlay } = await bee.getNodeAddresses()
+   * const { overlay } = await bee.connectivity.getNodeAddresses()
    * const signer = bee.gsocMine(overlay, identifier)
    *
    * const subscription = bee.gsocSubscribe(signer.publicKey().address(), identifier, {
@@ -1533,116 +1552,13 @@ export class Bee {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    *
    * @example
-   * const addresses = await bee.getNodeAddresses()
-   * const topology = await bee.getTopology()
+   * const addresses = await bee.connectivity.getNodeAddresses()
+   * const topology = await bee.connectivity.getTopology()
    * const result = await bee.rchash(topology.depth, addresses.overlay.toHex(), addresses.overlay.toHex())
    * // result is a number of seconds
    */
   async rchash(depth: number, anchor1: string, anchor2: string, requestOptions?: BeeRequestOptions): Promise<number> {
     return rchash(this.getRequestOptionsForCall(requestOptions), depth, anchor1, anchor2)
-  }
-
-  /**
-   * Pings the Bee node to see if there is a live Bee node on the given URL.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @throws If connection was not successful throw error
-   */
-  async checkConnection(requestOptions?: BeeRequestOptions): Promise<void> | never {
-    return status.checkConnection(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Pings the Bee node to see if there is a live Bee node on the given URL.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @returns true if successful, false on error
-   */
-  async isConnected(requestOptions?: BeeRequestOptions): Promise<boolean> {
-    try {
-      await status.checkConnection(this.getRequestOptionsForCall(requestOptions))
-    } catch (e) {
-      return false
-    }
-
-    return true
-  }
-
-  /**
-   * Checks the `/gateway` endpoint to see if the remote API is a gateway.
-   *
-   * Do note that this is not a standard way to check for gateway nodes,
-   * but some of the gateway tooling expose this endpoint.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async isGateway(requestOptions?: BeeRequestOptions): Promise<boolean> {
-    return status.isGateway(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Fetches the overlay, underlay, Ethereum, and other addresses of the Bee node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @returns
-   */
-  async getNodeAddresses(requestOptions?: BeeRequestOptions): Promise<NodeAddresses> {
-    return connectivity.getNodeAddresses(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Fetches the list of blocked peers for this node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @returns
-   */
-  async getBlocklist(requestOptions?: BeeRequestOptions): Promise<Peer[]> {
-    return connectivity.getBlocklist(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets list of peers for this node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getPeers(requestOptions?: BeeRequestOptions): Promise<Peer[]> {
-    return connectivity.getPeers(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Disconnects from a specific peer.
-   *
-   * @param peer Overlay address of the peer to be removed.
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @returns
-   */
-  async removePeer(peer: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<RemovePeerResponse> {
-    peer = new PeerAddress(peer)
-
-    return connectivity.removePeer(this.getRequestOptionsForCall(requestOptions), peer)
-  }
-
-  /**
-   * Fetches topology and connectivity information of the Bee node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @returns
-   */
-  async getTopology(requestOptions?: BeeRequestOptions): Promise<Topology> {
-    return connectivity.getTopology(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Pings a specific peer to check its availability.
-   *
-   * @param peer Overlay address of the peer to be pinged.
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @returns
-   */
-  async pingPeer(peer: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<PingResponse> {
-    peer = new PeerAddress(peer)
-
-    return connectivity.pingPeer(this.getRequestOptionsForCall(requestOptions), peer)
   }
 
   /**
@@ -1821,163 +1737,6 @@ export class Bee {
   }
 
   /**
-   * Withdraws BZZ from the node wallet (not chequebook) to a whitelisted external wallet address.
-   *
-   * @param amount Amount of BZZ tokens to withdraw. If not providing a `BZZ` instance, the amount is denoted in PLUR.
-   * @param address
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @return Transaction ID
-   */
-  async withdrawBZZToExternalWallet(
-    amount: BZZ | NumberString | string | bigint,
-    address: EthAddress | Uint8Array | string,
-    requestOptions?: BeeRequestOptions,
-  ): Promise<TransactionId> {
-    amount = amount instanceof BZZ ? amount : BZZ.fromPLUR(amount)
-    address = new EthAddress(address)
-
-    return states.withdrawBZZ(this.getRequestOptionsForCall(requestOptions), amount, address)
-  }
-
-  /**
-   * Withdraws DAI from the node wallet (not chequebook) to a whitelisted external wallet address.
-   *
-   * @param amount Amount of DAI tokens to withdraw. If not providing a `DAI` instance, the amount is denoted in wei.
-   * @param address
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   * @return Transaction ID
-   */
-  async withdrawDAIToExternalWallet(
-    amount: DAI | NumberString | string | bigint,
-    address: EthAddress | Uint8Array | string,
-    requestOptions?: BeeRequestOptions,
-  ): Promise<TransactionId> {
-    amount = amount instanceof DAI ? amount : DAI.fromWei(amount)
-    address = new EthAddress(address)
-
-    return states.withdrawDAI(this.getRequestOptionsForCall(requestOptions), amount, address)
-  }
-
-  /**
-   * Gets the amount of sent and received micropayments from settlements with a peer.
-   *
-   * This is related to the bandwidth incentives and the chequebook.
-   *
-   * @param address  Swarm address of peer
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getSettlements(address: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<Settlements> {
-    address = new PeerAddress(address)
-
-    return settlements.getSettlements(this.getRequestOptionsForCall(requestOptions), address)
-  }
-
-  /**
-   * Gets settlements with all known peers and total amount sent or received.
-   *
-   * This is related to the bandwidth incentives and the chequebook.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getAllSettlements(requestOptions?: BeeRequestOptions): Promise<AllSettlements> {
-    return settlements.getAllSettlements(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets the general status of the node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getStatus(requestOptions?: BeeRequestOptions): Promise<DebugStatus> {
-    return debugStatus.getDebugStatus(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets the health of the node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getHealth(requestOptions?: BeeRequestOptions): Promise<Health> {
-    return debugStatus.getHealth(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets the readiness status of the node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getReadiness(requestOptions?: BeeRequestOptions): Promise<Readiness> {
-    return debugStatus.getReadiness(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Get mode information of node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getNodeInfo(requestOptions?: BeeRequestOptions): Promise<NodeInfo> {
-    return debugStatus.getNodeInfo(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Connects to a node and checks if its version matches with the one that bee-js supports.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async isSupportedExactVersion(requestOptions?: BeeRequestOptions): Promise<boolean> | never {
-    return debugStatus.isSupportedExactVersion(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   *
-   * Connects to a node and checks if its Main API version matches with the one that bee-js supports.
-   *
-   * This should be the main way how to check compatibility for your app and Bee node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async isSupportedApiVersion(requestOptions?: BeeRequestOptions): Promise<boolean> | never {
-    return debugStatus.isSupportedApiVersion(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Returns object with all versions specified by the connected Bee node (properties prefixed with `bee*`)
-   * and versions that bee-js supports (properties prefixed with `supported*`).
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getVersions(requestOptions?: BeeRequestOptions): Promise<BeeVersions> | never {
-    return debugStatus.getVersions(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Get reserve state.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getReserveState(requestOptions?: BeeRequestOptions): Promise<ReserveState> {
-    return states.getReserveState(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets chain state.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getChainState(requestOptions?: BeeRequestOptions): Promise<ChainState> {
-    return states.getChainState(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets DAI and BZZ balances of the Bee node wallet.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getWalletBalance(requestOptions?: BeeRequestOptions): Promise<WalletBalance> {
-    return states.getWalletBalance(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
    * Creates a new postage batch, spending BZZ tokens from the node wallet.
    *
    * Use {@link buyStorage} for a more convenient way to create postage batch.
@@ -2009,7 +1768,7 @@ export class Bee {
       throw new BeeArgumentError(`Depth has to be between ${STAMPS_DEPTH_MIN}..${STAMPS_DEPTH_MAX}`, depth)
     }
 
-    const chainState = await this.getChainState()
+    const chainState = await this.status.getChainState()
     const minimumAmount = BigInt(chainState.currentPrice) * 17280n + 1n
 
     if (BigInt(amountString) < minimumAmount) {
@@ -2059,7 +1818,7 @@ export class Bee {
     encryption?: boolean,
     erasureCodeLevel?: RedundancyLevel,
   ): Promise<BatchId> {
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
 
@@ -2091,7 +1850,7 @@ export class Bee {
     encryption?: boolean,
     erasureCodeLevel?: RedundancyLevel,
   ): Promise<BZZ> {
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
 
@@ -2135,7 +1894,7 @@ export class Bee {
   ) {
     const batch = await this.getPostageBatch(postageBatchId, requestOptions)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const depthDelta = depth - batch.depth
     const multiplier = depthDelta <= 0 ? 1n : 2n ** BigInt(depthDelta)
     const blockTime = this.network === 'gnosis' ? 5 : 15
@@ -2184,7 +1943,7 @@ export class Bee {
     encryption?: boolean,
     erasureCodeLevel?: RedundancyLevel,
   ) {
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const batch = await this.getPostageBatch(postageBatchId, requestOptions)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
     const delta = depth - batch.depth
@@ -2220,7 +1979,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ) {
     const batch = await this.getPostageBatch(postageBatchId, requestOptions)
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
 
     return this.topUpBatch(batch.batchID, amount, requestOptions)
@@ -2250,7 +2009,7 @@ export class Bee {
     erasureCodeLevel?: RedundancyLevel,
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, requestOptions)
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const blockTime = this.network === 'gnosis' ? 5 : 15
     const amount = duration.isZero() ? 0n : getAmountForDuration(duration, chainState.currentPrice, blockTime)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
@@ -2288,7 +2047,7 @@ export class Bee {
     erasureCodeLevel?: RedundancyLevel,
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, requestOptions)
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const depth = getDepthForSize(size, encryption, erasureCodeLevel)
     const delta = depth - batch.depth
 
@@ -2330,7 +2089,7 @@ export class Bee {
     requestOptions?: BeeRequestOptions,
   ): Promise<BZZ> {
     const batch = await this.getPostageBatch(postageBatchId, requestOptions)
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const amount = getAmountForDuration(duration, chainState.currentPrice, this.network === 'gnosis' ? 5 : 15)
 
     return getStampCost(batch.depth, amount)
@@ -2381,7 +2140,7 @@ export class Bee {
     bzz: BZZ,
     requestOptions?: BeeRequestOptions,
   ): Promise<{ amount: bigint; duration: Duration }> {
-    const chainState = await this.getChainState(requestOptions)
+    const chainState = await this.status.getChainState(requestOptions)
     const blockTime = this.network === 'gnosis' ? 5 : 15
     const amount = bzz.toPLURBigInt() / 2n ** BigInt(depth)
     const duration = getStampDuration(amount, chainState.currentPrice, blockTime)
@@ -2562,149 +2321,6 @@ export class Bee {
    */
   async getGlobalPostageBatches(requestOptions?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
     return stamps.getGlobalPostageBatches(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Fetches the list of all current pending transactions for the Bee node.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getAllPendingTransactions(requestOptions?: BeeRequestOptions): Promise<TransactionInfo[]> {
-    return transactions.getAllTransactions(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Fetches the transaction information for a specific transaction.
-   *
-   * @param transactionHash
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getPendingTransaction(
-    transactionHash: TransactionId | Uint8Array | string,
-    requestOptions?: BeeRequestOptions,
-  ): Promise<TransactionInfo> {
-    transactionHash = new TransactionId(transactionHash)
-
-    return transactions.getTransaction(this.getRequestOptionsForCall(requestOptions), transactionHash)
-  }
-
-  /**
-   * Rebroadcasts already created transaction.
-   *
-   * This is mainly needed when the transaction falls off mempool or is not incorporated into any block.
-   *
-   * @param transactionHash
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async rebroadcastPendingTransaction(
-    transactionHash: TransactionId | Uint8Array | string,
-    requestOptions?: BeeRequestOptions,
-  ): Promise<TransactionId> {
-    transactionHash = new TransactionId(transactionHash)
-
-    return transactions.rebroadcastTransaction(this.getRequestOptionsForCall(requestOptions), transactionHash)
-  }
-
-  /**
-   * Cancels a currently pending transaction.
-   *
-   * @param transactionHash
-   * @param gasPrice
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async cancelPendingTransaction(
-    transactionHash: TransactionId | Uint8Array | string,
-    gasPrice?: NumberString | string | bigint,
-    requestOptions?: BeeRequestOptions,
-  ): Promise<TransactionId> {
-    transactionHash = new TransactionId(transactionHash)
-
-    let gasPriceString
-
-    if (gasPrice) {
-      gasPriceString = asNumberString(gasPrice, { min: 0n, name: 'gasPrice' })
-    }
-
-    return transactions.cancelTransaction(
-      this.getRequestOptionsForCall(requestOptions),
-      transactionHash,
-      gasPriceString,
-    )
-  }
-
-  /**
-   * Gets the amount of staked BZZ.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getStake(requestOptions?: BeeRequestOptions): Promise<BZZ> {
-    return stake.getStake(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets the amount of withdrawable staked BZZ.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getWithdrawableStake(requestOptions?: BeeRequestOptions): Promise<BZZ> {
-    return stake.getWithdrawableStake(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Withdraws all surplus staked BZZ to the node wallet.
-   *
-   * Use the {@link getWithdrawableStake} method to check how much surplus stake is available.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async withdrawSurplusStake(requestOptions?: BeeRequestOptions): Promise<TransactionId> {
-    return stake.withdrawSurplusStake(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Withdraws all staked BZZ to the node wallet.
-   *
-   * **Only available when the staking contract is paused and is in the process of being migrated to a new contract!**
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async migrateStake(requestOptions?: BeeRequestOptions): Promise<TransactionId> {
-    return stake.migrateStake(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Stakes the given amount of BZZ. Initial deposit must be at least 10 BZZ.
-   *
-   * Be aware that staked BZZ tokens can **not** be withdrawn.
-   *
-   * @param amount Amount of BZZ tokens to be staked. If not providing a `BZZ` instance, the amount is denoted in PLUR.
-   * @param options
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async depositStake(
-    amount: BZZ | NumberString | string | bigint,
-    options?: TransactionOptions,
-    requestOptions?: BeeRequestOptions,
-  ): Promise<TransactionId> {
-    const amountString =
-      amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
-
-    if (options) {
-      options = TransactionOptionsSchema.parse(options)
-    }
-
-    return stake.stake(this.getRequestOptionsForCall(requestOptions), amountString, options)
-  }
-
-  /**
-   * Gets current status of node in redistribution game.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   *
-   * @see [Bee API reference - `GET /redistributionstate`](https://docs.ethswarm.org/api/#tag/RedistributionState/paths/~1redistributionstate/get)
-   */
-  async getRedistributionState(requestOptions?: BeeRequestOptions): Promise<RedistributionState> {
-    return stake.getRedistributionState(this.getRequestOptionsForCall(requestOptions))
   }
 
   private async waitForUsablePostageStamp(id: BatchId, timeout = 240_000): Promise<void> {

@@ -4,7 +4,7 @@ import { batch, makeBee } from '../utils'
 test('GSOC - end to end test', async () => {
   const bee = makeBee()
   const identifier = NULL_IDENTIFIER
-  const { overlay } = await bee.getNodeAddresses()
+  const { overlay } = await bee.connectivity.getNodeAddresses()
 
   const signer = bee.gsocMine(overlay, identifier)
 

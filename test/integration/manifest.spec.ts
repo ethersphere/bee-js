@@ -156,7 +156,7 @@ test('Manifest save/load with ACT stores history address in fork metadata', asyn
 
 test('Manifest save/load with ACT preserves structure', async () => {
   const bee = makeBee()
-  const { publicKey } = await bee.getNodeAddresses()
+  const { publicKey } = await bee.connectivity.getNodeAddresses()
 
   const fileData = 'test file content for ACT preservation'
   const fileUpload = await bee.uploadData(batch(), fileData)
@@ -185,7 +185,7 @@ test('Manifest save/load with ACT preserves structure', async () => {
 
 test('Manifest save/load with ACT nested folders', async () => {
   const bee = makeBee()
-  const { publicKey } = await bee.getNodeAddresses()
+  const { publicKey } = await bee.connectivity.getNodeAddresses()
 
   const file1 = await bee.uploadData(batch(), 'content-1')
   const file2 = await bee.uploadData(batch(), 'content-2')
@@ -215,7 +215,7 @@ test('Manifest save/load with ACT nested folders', async () => {
 
 test('Manifest save/load with ACT can download and verify content', async () => {
   const bee = makeBee()
-  const { publicKey } = await bee.getNodeAddresses()
+  const { publicKey } = await bee.connectivity.getNodeAddresses()
 
   const originalContent = 'This is the secret content that should be encrypted and decrypted correctly!'
   const fileUpload = await bee.uploadData(batch(), originalContent)
@@ -246,7 +246,7 @@ test('Manifest save/load with ACT can download and verify content', async () => 
 
 test('Manifest save/load with ACT single file at root', async () => {
   const bee = makeBee()
-  const { publicKey } = await bee.getNodeAddresses()
+  const { publicKey } = await bee.connectivity.getNodeAddresses()
 
   const content = 'root-level-file-content'
   const fileUpload = await bee.uploadData(batch(), content)
@@ -271,7 +271,7 @@ test('Manifest save/load with ACT single file at root', async () => {
 
 test('Manifest save/load with ACT preserves existing metadata', async () => {
   const bee = makeBee()
-  const { publicKey } = await bee.getNodeAddresses()
+  const { publicKey } = await bee.connectivity.getNodeAddresses()
 
   const fileUpload = await bee.uploadData(batch(), 'test-content')
 
