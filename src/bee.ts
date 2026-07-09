@@ -15,7 +15,8 @@ import { areAllSequentialFeedsUpdateRetrievable } from './feed/retrievable'
 import * as bytes from './modules/bytes'
 import * as bzz from './modules/bzz'
 import * as chunk from './modules/chunk'
-import * as balance from './modules/debug/balance'
+import { Balance } from './modules/balance'
+import type { BeeContext } from './modules/context'
 import * as chequebook from './modules/debug/chequebook'
 import * as connectivity from './modules/debug/connectivity'
 import * as settlements from './modules/debug/settlements'
@@ -36,7 +37,6 @@ import * as stewardship from './modules/stewardship'
 import * as tag from './modules/tag'
 import type {
   AllSettlements,
-  BalanceResponse,
   BeeOptions,
   BeeRequestOptions,
   BeeVersions,
@@ -64,7 +64,6 @@ import type {
   NodeInfo,
   NumberString,
   Peer,
-  PeerBalance,
   Pin,
   PingResponse,
   PostageBatch,
@@ -208,7 +207,23 @@ export class Bee {
       httpAgent: options?.httpAgent,
       httpsAgent: options?.httpsAgent,
     }
+
+    // Facade handed to each module (namespace) class, exposing only the shared
+    // state and helpers they need — without widening the public `bee.` surface.
+    const context: BeeContext = {
+      getRequestOptionsForCall: requestOptions => this.getRequestOptionsForCall(requestOptions),
+      url: this.url,
+      signer: this.signer,
+      network: this.network,
+    }
+
+    this.balance = new Balance(context)
   }
+
+  /**
+   * SWAP balance operations. Related to the bandwidth incentives and the chequebook.
+   */
+  public readonly balance: Balance
 
   /**
    * Uploads raw data to the network (as opposed to uploading chunks or files).
@@ -1631,57 +1646,6 @@ export class Bee {
   }
 
   /**
-   * Gets the SWAP balances with all known peers including prepaid services.
-   *
-   * This is related to the bandwidth incentives and the chequebook.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getAllBalances(requestOptions?: BeeRequestOptions): Promise<BalanceResponse> {
-    return balance.getAllBalances(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets the SWAP balances for a specific peer including prepaid services.
-   *
-   * @param address Swarm address of peer
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getPeerBalance(address: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<PeerBalance> {
-    address = new PeerAddress(address)
-
-    return balance.getPeerBalance(this.getRequestOptionsForCall(requestOptions), address)
-  }
-
-  /**
-   * Gets the past due consumption balances for all known peers.
-   *
-   * This is related to the bandwidth incentives and the chequebook.
-   *
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getPastDueConsumptionBalances(requestOptions?: BeeRequestOptions): Promise<BalanceResponse> {
-    return balance.getPastDueConsumptionBalances(this.getRequestOptionsForCall(requestOptions))
-  }
-
-  /**
-   * Gets the past due consumption balance for a specific peer.
-   *
-   * This is related to the bandwidth incentives and the chequebook.
-   *
-   * @param address Swarm address of peer
-   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
-   */
-  async getPastDueConsumptionPeerBalance(
-    address: PeerAddress | string,
-    requestOptions?: BeeRequestOptions,
-  ): Promise<PeerBalance> {
-    address = new PeerAddress(address)
-
-    return balance.getPastDueConsumptionPeerBalance(this.getRequestOptionsForCall(requestOptions), address)
-  }
-
-  /**
    * Gets the address of the deloyed chequebook.
    *
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
@@ -2762,6 +2726,12 @@ export class Bee {
     throw new BeeError('Timeout on waiting for postage stamp to become usable')
   }
 
+  /**
+   * Merges per-call request options with the instance defaults.
+   *
+   * Stays `protected`; module namespaces reach it only through the {@link BeeContext}
+   * facade they are constructed with, so it never widens the public `bee.` surface.
+   */
   protected getRequestOptionsForCall(requestOptions?: BeeRequestOptions): BeeRequestOptions {
     if (requestOptions) {
       requestOptions = BeeRequestOptionsSchema.parse(requestOptions)
