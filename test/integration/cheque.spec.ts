@@ -7,37 +7,37 @@ const issuer = new Bee('http://localhost:1635')
 const receiver = new Bee('http://localhost:1637')
 
 test('GET chequebook status', async () => {
-  const chequebookBalance = await bee.getChequebookBalance()
-  const chequebookAddress = await bee.getChequebookAddress()
+  const chequebookBalance = await bee.chequebook.getBalance()
+  const chequebookAddress = await bee.chequebook.getAddress()
   expect(chequebookBalance.availableBalance.toPLURBigInt()).toBeGreaterThan(0n)
   expect(chequebookBalance.totalBalance.toPLURBigInt()).toBeGreaterThan(0n)
   expect(chequebookAddress.chequebookAddress.toString()).toHaveLength(40)
 })
 
 test('GET chequebook/cheque (issuer)', async () => {
-  const { lastcheques } = await issuer.getLastCheques()
+  const { lastcheques } = await issuer.cheque.getAllLatest()
 
   const sentCheques = lastcheques.filter(cheque => cheque.lastsent !== null)
   expect(sentCheques.length).toBeGreaterThan(0)
 
   const cheque = sentCheques[0]
-  const peerCheque = await issuer.getLastChequesForPeer(cheque.peer)
+  const peerCheque = await issuer.cheque.getAllLatestForPeer(cheque.peer)
 
   expect(peerCheque.lastsent).toStrictEqual(cheque.lastsent)
 })
 
 test('GET chequebook/cheque (receiver)', async () => {
-  const { lastcheques } = await receiver.getLastCheques()
+  const { lastcheques } = await receiver.cheque.getAllLatest()
 
   const receivedCheques = lastcheques.filter(cheque => cheque.lastreceived !== null)
   expect(receivedCheques.length).toBeGreaterThan(0)
 
   const cheque = receivedCheques[0]
-  const peerCheque = await receiver.getLastChequesForPeer(cheque.peer)
+  const peerCheque = await receiver.cheque.getAllLatestForPeer(cheque.peer)
 
   expect(peerCheque.lastreceived).toStrictEqual(cheque.lastreceived)
 
-  await receiver.cashoutLastCheque(cheque.peer)
+  await receiver.cheque.cashoutLast(cheque.peer)
 
   await System.waitFor(
     async () => {
@@ -48,13 +48,13 @@ test('GET chequebook/cheque (receiver)', async () => {
     { attempts: 30, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
-  const cashout = await receiver.getLastCashoutAction(cheque.peer)
+  const cashout = await receiver.cheque.getLastCashoutAction(cheque.peer)
   expect(cashout.peer).toBe(cheque.peer)
   expect(cashout.result?.bounced).toBe(false)
 })
 
 test('deposit/withdraw from chequebook', async () => {
-  await bee.depositTokens(1n)
+  await bee.chequebook.deposit(1n)
   const transactions = await bee.transaction.getAll()
   expect(transactions.length).toBe(1)
   const transaction = await bee.transaction.get(transactions[0].transactionHash)
@@ -69,7 +69,7 @@ test('deposit/withdraw from chequebook', async () => {
     { attempts: 30, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
-  await bee.withdrawTokens('1')
+  await bee.chequebook.withdraw('1')
   await System.waitFor(
     async () => {
       const pendingTransactions = await bee.transaction.getAll()

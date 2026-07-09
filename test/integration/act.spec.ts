@@ -20,12 +20,12 @@ const patchGrantees = {
 
 test('CRUD grantee', async () => {
   // create
-  const createResponse = await bee.createGrantees(batch(), grantees)
+  const createResponse = await bee.grantee.create(batch(), grantees)
   expect(createResponse.ref.length).toBe(64)
   expect(createResponse.historyref.length).toBe(32)
 
   // get
-  const list = await bee.getGrantees(createResponse.ref)
+  const list = await bee.grantee.get(createResponse.ref)
   expect(list.grantees).toHaveLength(grantees.length)
   list.grantees.forEach((grantee: PublicKey) => {
     expect(grantees.some(x => x === grantee.toCompressedHex())).toBeTruthy()
@@ -39,14 +39,14 @@ test('CRUD grantee', async () => {
 
   await System.sleepMillis(Dates.seconds(5))
 
-  const patchResponse = await bee.patchGrantees(
+  const patchResponse = await bee.grantee.patch(
     batch(),
     createResponse.ref,
     uploadResult.historyAddress.getOrThrow(),
     patchGrantees,
   )
 
-  const listAfterPatch = await bee.getGrantees(patchResponse.ref)
+  const listAfterPatch = await bee.grantee.get(patchResponse.ref)
   expect(listAfterPatch.grantees).toHaveLength(1)
   expect(listAfterPatch.grantees[0].toCompressedHex()).toBe(patchGrantees.add[0])
 

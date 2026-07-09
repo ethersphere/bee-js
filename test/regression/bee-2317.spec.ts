@@ -21,11 +21,11 @@ test('bee/2317 - Tag not updated when uploaded files using stream', async () => 
   expect(isReadable(stream)).toBe(true)
 
   const bee = makeBee()
-  const { uid } = await bee.createTag()
+  const { uid } = await bee.tag.create()
   const result = await bee.uploadFile(batch(), stream, 'data.bin', { tag: uid })
 
   expect(result.tagUid).toBe(uid)
-  const tag = await bee.retrieveTag(uid)
+  const tag = await bee.tag.get(uid)
   expect(result.reference.toHex()).toBe(tag.address)
   expect(tag.split).toBe(24)
 })
