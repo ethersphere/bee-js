@@ -94,5 +94,5 @@ test('POST envelope', async () => {
   expect(response.timestamp).toHaveLength(8)
 
   // TODO: envelope for SOC?
-  await bee.uploadChunk(response, cac)
+  await bee.upload.chunk(response, cac)
 })

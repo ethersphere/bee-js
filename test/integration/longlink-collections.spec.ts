@@ -9,11 +9,11 @@ interface TestFile {
 
 async function uploadAndVerifyCollection(files: TestFile[]): Promise<void> {
   const fileObjects = files.map(f => new File([f.content], f.name, { type: 'text/plain' }))
-  const result = await bee.uploadFiles(batch(), fileObjects)
+  const result = await bee.upload.files(batch(), fileObjects)
   expect(result.reference).toBeTruthy()
 
   for (const { name, content } of files) {
-    const downloaded = await bee.downloadFile(result.reference, name)
+    const downloaded = await bee.download.file(result.reference, name)
     expect(downloaded.data.toUtf8()).toBe(content)
   }
 }

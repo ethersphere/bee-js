@@ -18,17 +18,17 @@ test('streamFiles rejects immediately when signal is already aborted', async () 
 
   const file = new File(['content'], 'test.txt', { type: 'text/plain' })
   const batchId = new BatchId(new Uint8Array(32))
-  const mockBee = { uploadChunk: jest.fn() } as unknown as Bee
+  const mockBee = { upload: { chunk: jest.fn() } } as unknown as Bee
 
   await expect(streamFiles(mockBee, [file], batchId, undefined, {}, { signal: controller.signal })).rejects.toThrow(
     'Request aborted',
   )
-  expect(mockBee.uploadChunk).not.toHaveBeenCalled()
+  expect(mockBee.upload.chunk).not.toHaveBeenCalled()
 })
 
 test('streamFiles reads File content via FileReader', async () => {
   const mockBee = {
-    uploadChunk: jest.fn().mockResolvedValue(undefined),
+    upload: { chunk: jest.fn().mockResolvedValue(undefined) },
   } as unknown as Bee
 
   const content = new Uint8Array(100).fill(42)
@@ -42,5 +42,5 @@ test('streamFiles reads File content via FileReader', async () => {
     // FileReader ran and uploadChunk was invoked with the file's chunk data.
   }
 
-  expect(mockBee.uploadChunk).toHaveBeenCalled()
+  expect(mockBee.upload.chunk).toHaveBeenCalled()
 })

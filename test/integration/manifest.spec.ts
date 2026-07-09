@@ -43,7 +43,7 @@ test('Manifest save/load/collect', async () => {
 test('Manifest default indexDocument', async () => {
   const bee = makeBee()
 
-  const uploadResult = await bee.uploadFile(batch(), 'Greetings, Earthlings!', 'greetings.txt')
+  const uploadResult = await bee.upload.file(batch(), 'Greetings, Earthlings!', 'greetings.txt')
 
   const node = await MantarayNode.unmarshal(bee, uploadResult.reference)
   await node.loadRecursively(bee)
@@ -57,7 +57,7 @@ test('Manifest default indexDocument', async () => {
 test('Manifest explicit indexDocument & errorDocument', async () => {
   const bee = makeBee()
 
-  const uploadResult = await bee.uploadFiles(batch(), [new File(['Greetings, Bees!'], 'hi.txt')], {
+  const uploadResult = await bee.upload.files(batch(), [new File(['Greetings, Bees!'], 'hi.txt')], {
     indexDocument: 'hi.txt',
     errorDocument: 'error.html',
   })
@@ -74,16 +74,16 @@ test('Manifest explicit indexDocument & errorDocument', async () => {
 test('Manifest feed resolver', async () => {
   const bee = makeBee()
 
-  const fileResult = await bee.uploadFile(batch(), 'This is the first update in the feed', 'update.txt')
+  const fileResult = await bee.upload.file(batch(), 'This is the first update in the feed', 'update.txt')
 
   const privateKey = new PrivateKey(arbitraryPrivateKey())
   const owner = privateKey.publicKey().address()
   const topic = Topic.fromString('Manifest test')
 
-  const feedWriter = bee.makeFeedWriter(topic, privateKey)
+  const feedWriter = bee.feed.makeWriter(topic, privateKey)
   await feedWriter.upload(batch(), fileResult.reference)
 
-  const feedManifest = await bee.createFeedManifest(batch(), topic, owner)
+  const feedManifest = await bee.feed.createManifest(batch(), topic, owner)
 
   const node = await MantarayNode.unmarshal(bee, feedManifest)
   await node.loadRecursively(bee)
@@ -111,7 +111,7 @@ test('Manifest feed resolver', async () => {
 test('Manifest no feed to resolve', async () => {
   const bee = makeBee()
 
-  const uploadResult = await bee.uploadFile(batch(), 'This is not a feed', 'feed.txt')
+  const uploadResult = await bee.upload.file(batch(), 'This is not a feed', 'feed.txt')
 
   const node = await MantarayNode.unmarshal(bee, uploadResult.reference)
   await node.loadRecursively(bee)
@@ -159,7 +159,7 @@ test('Manifest save/load with ACT preserves structure', async () => {
   const { publicKey } = await bee.connectivity.getNodeAddresses()
 
   const fileData = 'test file content for ACT preservation'
-  const fileUpload = await bee.uploadData(batch(), fileData)
+  const fileUpload = await bee.upload.data(batch(), fileData)
 
   const node = new MantarayNode()
   node.addFork('deep/nested/file.txt', fileUpload.reference, {
@@ -187,9 +187,9 @@ test('Manifest save/load with ACT nested folders', async () => {
   const bee = makeBee()
   const { publicKey } = await bee.connectivity.getNodeAddresses()
 
-  const file1 = await bee.uploadData(batch(), 'content-1')
-  const file2 = await bee.uploadData(batch(), 'content-2')
-  const file3 = await bee.uploadData(batch(), 'content-3')
+  const file1 = await bee.upload.data(batch(), 'content-1')
+  const file2 = await bee.upload.data(batch(), 'content-2')
+  const file3 = await bee.upload.data(batch(), 'content-3')
 
   const node = new MantarayNode()
   node.addFork('a/b/c/file1.txt', file1.reference)
@@ -218,7 +218,7 @@ test('Manifest save/load with ACT can download and verify content', async () => 
   const { publicKey } = await bee.connectivity.getNodeAddresses()
 
   const originalContent = 'This is the secret content that should be encrypted and decrypted correctly!'
-  const fileUpload = await bee.uploadData(batch(), originalContent)
+  const fileUpload = await bee.upload.data(batch(), originalContent)
 
   const node = new MantarayNode()
   node.addFork('secret/data.txt', fileUpload.reference, {
@@ -240,7 +240,7 @@ test('Manifest save/load with ACT can download and verify content', async () => 
 
   expect(fileReference).toBeDefined()
 
-  const downloadedData = await bee.downloadData(fileReference)
+  const downloadedData = await bee.download.data(fileReference)
   expect(downloadedData.toUtf8()).toBe(originalContent)
 })
 
@@ -249,7 +249,7 @@ test('Manifest save/load with ACT single file at root', async () => {
   const { publicKey } = await bee.connectivity.getNodeAddresses()
 
   const content = 'root-level-file-content'
-  const fileUpload = await bee.uploadData(batch(), content)
+  const fileUpload = await bee.upload.data(batch(), content)
 
   const node = new MantarayNode()
   node.addFork('readme.txt', fileUpload.reference)
@@ -273,7 +273,7 @@ test('Manifest save/load with ACT preserves existing metadata', async () => {
   const bee = makeBee()
   const { publicKey } = await bee.connectivity.getNodeAddresses()
 
-  const fileUpload = await bee.uploadData(batch(), 'test-content')
+  const fileUpload = await bee.upload.data(batch(), 'test-content')
 
   const node = new MantarayNode()
   node.addFork('file.txt', fileUpload.reference, {
@@ -297,5 +297,5 @@ test('Manifest save/load with ACT preserves existing metadata', async () => {
   expect(fileNode).toBeDefined()
   expect(fileNode?.metadata?.['Content-Type']).toBe('text/plain')
   expect(fileNode?.metadata?.['Custom-Header']).toBe('custom-value')
-  expect(fileNode?.metadata?.['Filename']).toBe('file.txt')
+  expect(fileNode?.metadata?.Filename).toBe('file.txt')
 })

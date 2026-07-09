@@ -4,14 +4,14 @@ import { batch } from '../utils'
 
 test('bee-js/986 - Headers not merging properly', async () => {
   const calls = await mocked(async bee => {
-    await bee.uploadFile(
+    await bee.upload.file(
       batch(),
       'Does not matter',
       'filename.txt',
       { act: true, tag: 1337, encrypt: true },
       { headers: {} },
     )
-    await bee.uploadFile(
+    await bee.upload.file(
       batch(),
       'Does not matter',
       'filename.txt',
