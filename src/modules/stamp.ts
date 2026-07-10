@@ -17,7 +17,8 @@ import { getStampDuration } from '../utils/stamps'
 import { BZZ } from '../utils/tokens'
 import { asNumberString } from '../utils/type'
 import { BatchId } from '../utils/typed-bytes'
-import * as api from '../api/stamp'
+import * as stampApi from '../api/stamp'
+import * as batchesApi from '../api/batches'
 import type { BeeContext } from './context'
 
 /**
@@ -64,7 +65,7 @@ export class Stamp {
       )
     }
 
-    const batchId = await api.createPostageBatch(
+    const batchId = await stampApi.createPostageBatch(
       this.context.getRequestOptionsForCall(requestOptions),
       amountString,
       depth,
@@ -94,7 +95,7 @@ export class Stamp {
   ): Promise<void> {
     const id = new BatchId(postageBatchId)
 
-    await api.updateLabel(this.context.getRequestOptionsForCall(requestOptions), id, label)
+    await stampApi.updateLabel(this.context.getRequestOptionsForCall(requestOptions), id, label)
   }
 
   /**
@@ -132,7 +133,7 @@ export class Stamp {
     const id = new BatchId(postageBatchId)
     const amountString = asNumberString(amount, { min: 1n, name: 'amount' })
 
-    return api.topUpBatch(this.context.getRequestOptionsForCall(requestOptions), id, amountString)
+    return stampApi.topUpBatch(this.context.getRequestOptionsForCall(requestOptions), id, amountString)
   }
 
   /**
@@ -150,7 +151,7 @@ export class Stamp {
     const id = new BatchId(postageBatchId)
     const depthNumber = z.number().int().min(18).max(255).parse(depth)
 
-    return api.diluteBatch(this.context.getRequestOptionsForCall(requestOptions), id, depthNumber)
+    return stampApi.diluteBatch(this.context.getRequestOptionsForCall(requestOptions), id, depthNumber)
   }
 
   /**
@@ -169,7 +170,12 @@ export class Stamp {
   ): Promise<PostageBatch> {
     const id = new BatchId(postageBatchId)
 
-    return api.getPostageBatch(this.context.getRequestOptionsForCall(requestOptions), id, encryption, erasureCodeLevel)
+    return stampApi.getPostageBatch(
+      this.context.getRequestOptionsForCall(requestOptions),
+      id,
+      encryption,
+      erasureCodeLevel,
+    )
   }
 
   /**
@@ -184,7 +190,7 @@ export class Stamp {
   ): Promise<GlobalPostageBatch> {
     const id = new BatchId(postageBatchId)
 
-    return api.getGlobalPostageBatch(this.context.getRequestOptionsForCall(requestOptions), id)
+    return batchesApi.getGlobalPostageBatch(this.context.getRequestOptionsForCall(requestOptions), id)
   }
 
   /**
@@ -199,7 +205,7 @@ export class Stamp {
   ): Promise<PostageBatchBuckets> {
     const id = new BatchId(postageBatchId)
 
-    return api.getPostageBatchBuckets(this.context.getRequestOptionsForCall(requestOptions), id)
+    return stampApi.getPostageBatchBuckets(this.context.getRequestOptionsForCall(requestOptions), id)
   }
 
   /**
@@ -208,7 +214,7 @@ export class Stamp {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAll(requestOptions?: BeeRequestOptions): Promise<PostageBatch[]> {
-    return api.getAllPostageBatches(this.context.getRequestOptionsForCall(requestOptions))
+    return stampApi.getAllPostageBatches(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -217,7 +223,7 @@ export class Stamp {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAllGlobal(requestOptions?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
-    return api.getAllGlobalPostageBatches(this.context.getRequestOptionsForCall(requestOptions))
+    return batchesApi.getAllGlobalPostageBatches(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   private async waitForUsable(id: BatchId, timeout = 240_000): Promise<void> {

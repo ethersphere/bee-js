@@ -17,12 +17,7 @@ export async function reupload(requestOptions: BeeRequestOptions, stamp: BatchId
   })
 }
 
-export async function isRetrievable(
-  requestOptions: BeeRequestOptions,
-  reference: Reference | Uint8Array | string,
-): Promise<boolean> {
-  reference = new Reference(reference)
-
+export async function isRetrievable(requestOptions: BeeRequestOptions, reference: Reference): Promise<boolean> {
   const response = await http<unknown>(requestOptions, {
     method: 'get',
     responseType: 'json',

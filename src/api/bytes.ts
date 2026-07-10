@@ -44,12 +44,7 @@ export async function upload(
   }
 }
 
-export async function head(
-  requestOptions: BeeRequestOptions,
-  reference: Reference | Uint8Array | string,
-): Promise<ReferenceInformation> {
-  reference = new Reference(reference)
-
+export async function head(requestOptions: BeeRequestOptions, reference: Reference): Promise<ReferenceInformation> {
   const response = await http<void>(requestOptions, {
     url: `${endpoint}/${reference}`,
     method: 'head',

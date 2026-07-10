@@ -3,7 +3,8 @@ import { TransactionOptionsSchema } from '../utils/schema'
 import { BZZ } from '../utils/tokens'
 import { asNumberString } from '../utils/type'
 import { TransactionId } from '../utils/typed-bytes'
-import * as api from '../api/stake'
+import * as stakeApi from '../api/stake'
+import * as redistributionApi from '../api/redistributionstate'
 import type { BeeContext } from './context'
 
 /**
@@ -20,7 +21,7 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async get(requestOptions?: BeeRequestOptions): Promise<BZZ> {
-    return api.getStake(this.context.getRequestOptionsForCall(requestOptions))
+    return stakeApi.getStake(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -29,7 +30,7 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getWithdrawable(requestOptions?: BeeRequestOptions): Promise<BZZ> {
-    return api.getWithdrawableStake(this.context.getRequestOptionsForCall(requestOptions))
+    return stakeApi.getWithdrawableStake(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -53,7 +54,7 @@ export class Stake {
       options = TransactionOptionsSchema.parse(options)
     }
 
-    return api.depositStake(this.context.getRequestOptionsForCall(requestOptions), amountString, options)
+    return stakeApi.depositStake(this.context.getRequestOptionsForCall(requestOptions), amountString, options)
   }
 
   /**
@@ -62,7 +63,7 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async withdrawSurplus(requestOptions?: BeeRequestOptions): Promise<TransactionId> {
-    return api.withdrawSurplusStake(this.context.getRequestOptionsForCall(requestOptions))
+    return stakeApi.withdrawSurplusStake(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -73,7 +74,7 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async migrate(requestOptions?: BeeRequestOptions): Promise<TransactionId> {
-    return api.migrateStake(this.context.getRequestOptionsForCall(requestOptions))
+    return stakeApi.migrateStake(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -82,6 +83,6 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getRedistributionState(requestOptions?: BeeRequestOptions): Promise<RedistributionState> {
-    return api.getRedistributionState(this.context.getRequestOptionsForCall(requestOptions))
+    return redistributionApi.getRedistributionState(this.context.getRequestOptionsForCall(requestOptions))
   }
 }

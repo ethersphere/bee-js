@@ -1,4 +1,5 @@
-import * as api from '../api/balance'
+import * as balanceApi from '../api/balance'
+import * as consumedApi from '../api/consumed'
 import type { BalanceResponse, BeeRequestOptions, PeerBalance } from '../types'
 import { PeerAddress } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
@@ -17,7 +18,7 @@ export class Balance {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAll(requestOptions?: BeeRequestOptions): Promise<BalanceResponse> {
-    return api.getBalances(this.context.getRequestOptionsForCall(requestOptions))
+    return balanceApi.getBalances(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -29,7 +30,7 @@ export class Balance {
   async getPeer(address: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<PeerBalance> {
     const peer = new PeerAddress(address)
 
-    return api.getPeerBalance(this.context.getRequestOptionsForCall(requestOptions), peer)
+    return balanceApi.getPeerBalance(this.context.getRequestOptionsForCall(requestOptions), peer)
   }
 
   /**
@@ -38,7 +39,7 @@ export class Balance {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAllPastDueConsumption(requestOptions?: BeeRequestOptions): Promise<BalanceResponse> {
-    return api.getPastDueConsumptionBalances(this.context.getRequestOptionsForCall(requestOptions))
+    return consumedApi.getPastDueConsumptionBalances(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -53,6 +54,6 @@ export class Balance {
   ): Promise<PeerBalance> {
     const peer = new PeerAddress(address)
 
-    return api.getPastDueConsumptionPeerBalance(this.context.getRequestOptionsForCall(requestOptions), peer)
+    return consumedApi.getPastDueConsumptionPeerBalance(this.context.getRequestOptionsForCall(requestOptions), peer)
   }
 }

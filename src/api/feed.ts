@@ -54,7 +54,7 @@ export async function createFeedManifest(
   requestOptions: BeeRequestOptions,
   owner: EthAddress,
   topic: Topic,
-  stamp: BatchId | Uint8Array | string,
+  stamp: BatchId,
   options?: UploadOptions,
 ): Promise<Reference> {
   const response = await http<unknown>(requestOptions, {

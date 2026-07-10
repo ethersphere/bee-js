@@ -1,20 +1,14 @@
-import type { BeeRequestOptions, RedistributionState, TransactionOptions } from '../types'
-import {
-  GetRedistributionStateResponse,
-  GetStakeResponse,
-  GetWithdrawableStakeResponse,
-  TxHashResponse,
-} from '../types/schema/stake'
+import type { BeeRequestOptions, TransactionOptions } from '../types'
+import { GetStakeResponse, GetWithdrawableStakeResponse, TxHashResponse } from '../types/schema/stake'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { BZZ } from '../utils/tokens'
 import { TransactionId } from '../utils/typed-bytes'
 
 const STAKE_ENDPOINT = 'stake'
-const REDISTRIBUTION_ENDPOINT = 'redistributionstate'
 
 /**
- * Raw HTTP calls for the `/stake` and `/redistributionstate` endpoints.
+ * Raw HTTP calls for the `/stake` endpoint.
  */
 
 export async function getStake(requestOptions: BeeRequestOptions): Promise<BZZ> {
@@ -70,14 +64,4 @@ export async function migrateStake(requestOptions: BeeRequestOptions): Promise<T
   })
 
   return TxHashResponse.parse(response.data).txHash
-}
-
-export async function getRedistributionState(requestOptions: BeeRequestOptions): Promise<RedistributionState> {
-  const response = await http<unknown>(requestOptions, {
-    method: 'get',
-    responseType: 'json',
-    url: REDISTRIBUTION_ENDPOINT,
-  })
-
-  return GetRedistributionStateResponse.parse(response.data)
 }

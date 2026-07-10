@@ -1,16 +1,7 @@
-import type {
-  BeeRequestOptions,
-  GlobalPostageBatch,
-  NumberString,
-  PostageBatch,
-  PostageBatchBuckets,
-  RedundancyLevel,
-} from '../types'
+import type { BeeRequestOptions, NumberString, PostageBatch, PostageBatchBuckets, RedundancyLevel } from '../types'
 import {
   BatchIdResponse,
   GetAllPostageBatchesResponse,
-  GetGlobalPostageBatchesResponse,
-  GetGlobalPostageBatchResponse,
   GetPostageBatchBucketsResponse,
   GetPostageBatchResponse,
 } from '../types/schema/stamps'
@@ -19,10 +10,9 @@ import { mapPostageBatch } from '../utils/stamps'
 import { BatchId } from '../utils/typed-bytes'
 
 const STAMPS_ENDPOINT = 'stamps'
-const BATCHES_ENDPOINT = 'batches'
 
 /**
- * Raw HTTP calls for the `/stamps` and `/batches` endpoints.
+ * Raw HTTP calls for the `/stamps` endpoint.
  */
 
 export async function createPostageBatch(
@@ -102,19 +92,6 @@ export async function getPostageBatch(
   return mapPostageBatch(GetPostageBatchResponse.parse(response.data), encryption, erasureCodeLevel)
 }
 
-export async function getGlobalPostageBatch(
-  requestOptions: BeeRequestOptions,
-  id: BatchId,
-): Promise<GlobalPostageBatch> {
-  const response = await http<unknown>(requestOptions, {
-    method: 'get',
-    url: `${BATCHES_ENDPOINT}/${id}`,
-    responseType: 'json',
-  })
-
-  return GetGlobalPostageBatchResponse.parse(response.data)
-}
-
 export async function getPostageBatchBuckets(
   requestOptions: BeeRequestOptions,
   id: BatchId,
@@ -136,14 +113,4 @@ export async function getAllPostageBatches(requestOptions: BeeRequestOptions): P
   })
 
   return GetAllPostageBatchesResponse.parse(response.data).stamps.map(x => mapPostageBatch(x))
-}
-
-export async function getAllGlobalPostageBatches(requestOptions: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
-  const response = await http<unknown>(requestOptions, {
-    method: 'get',
-    url: BATCHES_ENDPOINT,
-    responseType: 'json',
-  })
-
-  return GetGlobalPostageBatchesResponse.parse(response.data).batches
 }
