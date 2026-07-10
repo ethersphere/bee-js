@@ -53,7 +53,9 @@
   ],
   "scripts": {
     "prepublishOnly": "NODE_ENV=production npm run build",
-    "build": "rimraf dist && npm run build:node && npm run build:types && npm run build:browser",
+    "prepare": "node scripts/generate-version.cjs",
+    "generate:version": "node scripts/generate-version.cjs",
+    "build": "npm run generate:version && rimraf dist && npm run build:node && npm run build:types && npm run build:browser",
     "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup && babel --plugins \"babel-plugin-add-import-extension\" --out-dir dist/mjs/ dist/mjs/",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
     "build:browser": "webpack --progress",
@@ -61,7 +63,8 @@
     "test:browser": "TS_NODE_PROJECT=tsconfig.test.json jest --config jest.browser.config.js --runInBand --verbose --forceExit",
     "check": "tsc --project tsconfig.test.json",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-    "depcheck": "depcheck ."
+    "depcheck": "depcheck .",
+    "codemod": "ts-node --project codemod/tsconfig.json codemod/index.ts"
   },
   "dependencies": {
     "cafe-utility": "^34.0.0",

@@ -7,7 +7,7 @@ test('abort upload should reject with ERR_CANCELED', async () => {
   const controller = new AbortController()
   const largeData = 'x'.repeat(1024 * 1024) // 1MB to ensure request takes time
 
-  const uploadPromise = bee.upload.data(batch(), largeData, {}, { signal: controller.signal })
+  const uploadPromise = bee.data.upload(batch(), largeData, {}, { signal: controller.signal })
 
   controller.abort()
 
@@ -19,7 +19,7 @@ test('AbortController signal works with uploadFile', async () => {
   const controller = new AbortController()
   const file = new File(['x'.repeat(1024 * 1024)], 'large.bin')
 
-  const uploadPromise = bee.upload.file(batch(), file, 'large.bin', {}, { signal: controller.signal })
+  const uploadPromise = bee.file.upload(batch(), file, 'large.bin', {}, { signal: controller.signal })
 
   controller.abort()
 
@@ -31,7 +31,7 @@ test('non-aborted upload completes successfully', async () => {
   const controller = new AbortController()
   const data = 'Hello, Swarm!'
 
-  const result = await bee.upload.data(batch(), data, {}, { signal: controller.signal })
+  const result = await bee.data.upload(batch(), data, {}, { signal: controller.signal })
 
   expect(result.reference).toBeTruthy()
   expect(result.reference.length).toBeGreaterThan(0)

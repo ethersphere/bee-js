@@ -25,7 +25,7 @@ test('Feed read/write as reference', async () => {
   const bee = makeBee()
   const privateKey = new PrivateKey(Strings.randomHex(64))
 
-  const uploadResult = await bee.upload.data(batch(), 'Some payload')
+  const uploadResult = await bee.data.upload(batch(), 'Some payload')
 
   const writer = bee.feed.makeWriter(NULL_TOPIC, privateKey)
   await writer.uploadReference(batch(), uploadResult.reference)

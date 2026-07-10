@@ -35,7 +35,7 @@ test('CRUD grantee', async () => {
   const { publicKey } = await bee.connectivity.getNodeAddresses()
   const filename = 'act-4.txt'
   const data = 'hello act grantees!'
-  const uploadResult = await bee.upload.file(batch(), data, filename, { act: true })
+  const uploadResult = await bee.file.upload(batch(), data, filename, { act: true })
 
   await System.sleepMillis(Dates.seconds(5))
 
@@ -50,7 +50,7 @@ test('CRUD grantee', async () => {
   expect(listAfterPatch.grantees).toHaveLength(1)
   expect(listAfterPatch.grantees[0].toCompressedHex()).toBe(patchGrantees.add[0])
 
-  const file = await bee.download.file(uploadResult.reference, filename, {
+  const file = await bee.file.download(uploadResult.reference, filename, {
     actPublisher: publicKey,
     actHistoryAddress: uploadResult.historyAddress.getOrThrow(),
     actTimestamp: 1,
@@ -62,16 +62,16 @@ test('ACT upload history address', async () => {
   const bee = makeBee()
   const data = Strings.randomHex(2000)
 
-  const upload = await bee.upload.file(batch(), data, 'README.md')
+  const upload = await bee.file.upload(batch(), data, 'README.md')
 
-  const actUpload1 = await bee.upload.file(batch(), data, 'README.md', { act: true })
-  const actUploadAgain1 = await bee.upload.file(batch(), data, 'README.md', {
+  const actUpload1 = await bee.file.upload(batch(), data, 'README.md', { act: true })
+  const actUploadAgain1 = await bee.file.upload(batch(), data, 'README.md', {
     act: true,
     actHistoryAddress: actUpload1.historyAddress.getOrThrow(),
   })
 
-  const actUpload2 = await bee.upload.file(batch(), data, 'README.md', { act: true })
-  const actUploadAgain2 = await bee.upload.file(batch(), data, 'README.md', {
+  const actUpload2 = await bee.file.upload(batch(), data, 'README.md', { act: true })
+  const actUploadAgain2 = await bee.file.upload(batch(), data, 'README.md', {
     act: true,
     actHistoryAddress: actUpload2.historyAddress.getOrThrow(),
   })

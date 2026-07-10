@@ -1,20 +1,10 @@
 import type { BeeRequestOptions, NumberString, RedistributionState, TransactionOptions } from '../types'
-import {
-  GetRedistributionStateResponse,
-  GetStakeResponse,
-  GetWithdrawableStakeResponse,
-  TxHashResponse,
-} from '../types/schema/stake'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
 import { TransactionOptionsSchema } from '../utils/schema'
 import { BZZ } from '../utils/tokens'
 import { asNumberString } from '../utils/type'
 import { TransactionId } from '../utils/typed-bytes'
+import * as api from '../api/stake'
 import type { BeeContext } from './context'
-
-const STAKE_ENDPOINT = 'stake'
-const REDISTRIBUTION_ENDPOINT = 'redistributionstate'
 
 /**
  * Staking operations.
@@ -30,13 +20,7 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async get(requestOptions?: BeeRequestOptions): Promise<BZZ> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      responseType: 'json',
-      url: STAKE_ENDPOINT,
-    })
-
-    return GetStakeResponse.parse(response.data).stakedAmount
+    return api.getStake(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -45,13 +29,7 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getWithdrawable(requestOptions?: BeeRequestOptions): Promise<BZZ> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      responseType: 'json',
-      url: `${STAKE_ENDPOINT}/withdrawable`,
-    })
-
-    return GetWithdrawableStakeResponse.parse(response.data).withdrawableAmount
+    return api.getWithdrawableStake(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -75,14 +53,7 @@ export class Stake {
       options = TransactionOptionsSchema.parse(options)
     }
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      responseType: 'json',
-      url: `${STAKE_ENDPOINT}/${amountString}`,
-      headers: prepareRequestHeaders(null, options),
-    })
-
-    return TxHashResponse.parse(response.data).txHash
+    return api.depositStake(this.context.getRequestOptionsForCall(requestOptions), amountString, options)
   }
 
   /**
@@ -91,13 +62,7 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async withdrawSurplus(requestOptions?: BeeRequestOptions): Promise<TransactionId> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'delete',
-      responseType: 'json',
-      url: `${STAKE_ENDPOINT}/withdrawable`,
-    })
-
-    return TxHashResponse.parse(response.data).txHash
+    return api.withdrawSurplusStake(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -108,13 +73,7 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async migrate(requestOptions?: BeeRequestOptions): Promise<TransactionId> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'delete',
-      responseType: 'json',
-      url: STAKE_ENDPOINT,
-    })
-
-    return TxHashResponse.parse(response.data).txHash
+    return api.migrateStake(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -123,12 +82,6 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getRedistributionState(requestOptions?: BeeRequestOptions): Promise<RedistributionState> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      responseType: 'json',
-      url: REDISTRIBUTION_ENDPOINT,
-    })
-
-    return GetRedistributionStateResponse.parse(response.data)
+    return api.getRedistributionState(this.context.getRequestOptionsForCall(requestOptions))
   }
 }

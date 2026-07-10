@@ -1,8 +1,6 @@
 import { Objects } from 'cafe-utility'
 import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from './chunk/cac'
 import { SingleOwnerChunk, makeSOCAddress, makeSingleOwnerChunk, unmarshalSingleOwnerChunk } from './chunk/soc'
-import * as bytes from './modules/bytes'
-import * as chunk from './modules/chunk'
 import { Balance } from './modules/balance'
 import type { BeeContext } from './modules/context'
 import { Cheque } from './modules/cheque'
@@ -15,15 +13,17 @@ import { Storage } from './modules/storage'
 import { Status } from './modules/status'
 import { Wallet } from './modules/wallet'
 import { Transaction } from './modules/transaction'
-import { postEnvelope } from './modules/envelope'
-import { Download } from './modules/download'
+import { postEnvelope } from './api/envelope'
+import { Chunk as ChunkNamespace } from './modules/chunk'
+import { Collection } from './modules/collection'
+import { Data } from './modules/data'
+import { File as FileNamespace } from './modules/file'
 import { Feed } from './modules/feed'
 import { Soc } from './modules/soc'
-import { Upload } from './modules/upload'
 import { Grantee } from './modules/grantee'
 import { Messaging } from './modules/messaging'
 import { Pin } from './modules/pin'
-import { rchash } from './modules/rchash'
+import { rchash } from './api/rchash'
 import { Tag } from './modules/tag'
 import type { BeeOptions, BeeRequestOptions, EnvelopeWithBatchId } from './types'
 import { Bytes } from './utils/bytes'
@@ -127,8 +127,10 @@ export class Bee {
     this.messaging = new Messaging(context)
     this.feed = new Feed(context)
     this.soc = new Soc(context)
-    this.upload = new Upload(context)
-    this.download = new Download(context)
+    this.data = new Data(context)
+    this.chunk = new ChunkNamespace(context)
+    this.file = new FileNamespace(context)
+    this.collection = new Collection(context)
   }
 
   /**
@@ -217,14 +219,24 @@ export class Bee {
   public readonly soc: Soc
 
   /**
-   * Upload operations for data, chunks, files and collections.
+   * Raw data operations backed by the `/bytes` endpoint.
    */
-  public readonly upload: Upload
+  public readonly data: Data
 
   /**
-   * Download operations for data, chunks and files.
+   * Chunk operations backed by the `/chunks` endpoint.
    */
-  public readonly download: Download
+  public readonly chunk: ChunkNamespace
+
+  /**
+   * Single-file operations backed by the `/bzz` endpoint.
+   */
+  public readonly file: FileNamespace
+
+  /**
+   * Collection (multi-file) operations backed by the `/bzz` endpoint.
+   */
+  public readonly collection: Collection
 
   /**
    * Creates a Content Addressed Chunk.
@@ -310,7 +322,7 @@ export class Bee {
    *
    * @example
    * const envelope = await bee.createEnvelope(batchId, chunk.address)
-   * await bee.upload.chunk(envelope, chunk)
+   * await bee.chunk.upload(envelope, chunk)
    *
    * @returns
    */

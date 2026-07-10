@@ -9,17 +9,9 @@ import { BatchId, Reference } from '../utils/typed-bytes'
 const endpoint = 'chunks'
 
 /**
- * Upload chunk to a Bee node
- *
- * The chunk data consists of 8 byte span and up to 4096 bytes of payload data.
- * The span stores the length of the payload in uint64 little endian encoding.
- * Upload expects the chuck data to be set accordingly.
- *
- * @param requestOptions Options for making requests
- * @param data Chunk data to be uploaded
- * @param stamp BatchId or marshaled stamp to be used for the upload
- * @param options Additional options like tag, encryption, pinning
+ * Raw HTTP calls for the `/chunks` endpoint.
  */
+
 export async function upload(
   requestOptions: BeeRequestOptions,
   data: Uint8Array,
@@ -48,13 +40,6 @@ export async function upload(
   }
 }
 
-/**
- * Download chunk data as a byte array
- *
- * @param requestOptions Options for making requests
- * @param hash Bee content reference
- *
- */
 export async function download(
   requestOptions: BeeRequestOptions,
   reference: Reference | string | Uint8Array,

@@ -16,7 +16,7 @@ test('Stamper utilization state', async () => {
   )
 
   const tree = new MerkleTree(async chunk => {
-    await bee.upload.chunk(stamper.stamp(chunk), chunk.build())
+    await bee.chunk.upload(stamper.stamp(chunk), chunk.build())
   })
 
   await tree.append(payload.toUint8Array())
@@ -36,6 +36,6 @@ test('Stamper utilization state', async () => {
   nextStamper.stamp(rootChunk)
   expect(() => nextStamper.stamp(rootChunk)).toThrow('Bucket is full')
 
-  const data = await bee.download.data(rootChunk.hash())
+  const data = await bee.data.download(rootChunk.hash())
   expect(data.toUtf8()).toEqual(payload.toUtf8())
 })

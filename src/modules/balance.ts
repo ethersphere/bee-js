@@ -1,11 +1,7 @@
+import * as api from '../api/balance'
 import type { BalanceResponse, BeeRequestOptions, PeerBalance } from '../types'
-import { GetAllBalancesResponse, GetPeerBalanceResponse } from '../types/schema/balance'
-import { http } from '../utils/http'
 import { PeerAddress } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
-
-const balancesEndpoint = 'balances'
-const consumedEndpoint = 'consumed'
 
 /**
  * SWAP balance operations. Related to the bandwidth incentives and the chequebook.
@@ -21,12 +17,7 @@ export class Balance {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAll(requestOptions?: BeeRequestOptions): Promise<BalanceResponse> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: balancesEndpoint,
-      responseType: 'json',
-    })
-
-    return GetAllBalancesResponse.parse(response.data)
+    return api.getBalances(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -38,12 +29,7 @@ export class Balance {
   async getPeer(address: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<PeerBalance> {
     const peer = new PeerAddress(address)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${balancesEndpoint}/${peer}`,
-      responseType: 'json',
-    })
-
-    return GetPeerBalanceResponse.parse(response.data)
+    return api.getPeerBalance(this.context.getRequestOptionsForCall(requestOptions), peer)
   }
 
   /**
@@ -52,12 +38,7 @@ export class Balance {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAllPastDueConsumption(requestOptions?: BeeRequestOptions): Promise<BalanceResponse> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: consumedEndpoint,
-      responseType: 'json',
-    })
-
-    return GetAllBalancesResponse.parse(response.data)
+    return api.getPastDueConsumptionBalances(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -72,11 +53,6 @@ export class Balance {
   ): Promise<PeerBalance> {
     const peer = new PeerAddress(address)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${consumedEndpoint}/${peer}`,
-      responseType: 'json',
-    })
-
-    return GetPeerBalanceResponse.parse(response.data)
+    return api.getPastDueConsumptionPeerBalance(this.context.getRequestOptionsForCall(requestOptions), peer)
   }
 }

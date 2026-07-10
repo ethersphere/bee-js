@@ -13,13 +13,9 @@ import { BatchId, Reference } from '../utils/typed-bytes'
 const endpoint = 'bytes'
 
 /**
- * Upload data to a Bee node
- *
- * @param requestOptions Options for making requests
- * @param data            Data to be uploaded
- * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
- * @param options         Additional options like tag, encryption, pinning
+ * Raw HTTP calls for the `/bytes` endpoint.
  */
+
 export async function upload(
   requestOptions: BeeRequestOptions,
   data: string | Uint8Array,
@@ -48,12 +44,6 @@ export async function upload(
   }
 }
 
-/**
- * Requests content length for a reference
- *
- * @param requestOptions Options for making requests
- * @param hash Bee content reference
- */
 export async function head(
   requestOptions: BeeRequestOptions,
   reference: Reference | Uint8Array | string,
@@ -71,12 +61,6 @@ export async function head(
   }
 }
 
-/**
- * Download data as a byte array
- *
- * @param requestOptions Options for making requests
- * @param hash Bee content reference
- */
 export async function download(
   requestOptions: BeeRequestOptions,
   resource: ResourceLocator,
@@ -95,12 +79,6 @@ export async function download(
   return new Bytes(response.data as ArrayBuffer)
 }
 
-/**
- * Download data as a readable stream
- *
- * @param requestOptions Options for making requests
- * @param hash Bee content reference
- */
 export async function downloadReadable(
   requestOptions: BeeRequestOptions,
   resource: ResourceLocator,

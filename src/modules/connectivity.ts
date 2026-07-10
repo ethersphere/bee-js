@@ -1,14 +1,7 @@
 import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../types'
 import { NodeAddresses } from '../types/debug'
-import {
-  GetBlocklistResponse,
-  GetNodeAddressesResponse,
-  GetPeersResponse,
-  GetTopologyResponse,
-} from '../types/schema/connectivity'
-import { IsGatewayResponse } from '../types/schema/status'
-import { http } from '../utils/http'
 import { PeerAddress } from '../utils/typed-bytes'
+import * as api from '../api/connectivity'
 import type { BeeContext } from './context'
 
 /**
@@ -26,10 +19,7 @@ export class Connectivity {
    * @throws If connection was not successful throw error
    */
   async checkConnection(requestOptions?: BeeRequestOptions): Promise<void> {
-    await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: '',
-      responseType: 'text',
-    })
+    return api.checkConnection(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -58,11 +48,7 @@ export class Connectivity {
    */
   async isGateway(requestOptions?: BeeRequestOptions): Promise<boolean> {
     try {
-      const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-        url: '/gateway',
-      })
-
-      return IsGatewayResponse.parse(response.data).gateway
+      return await api.isGateway(this.context.getRequestOptionsForCall(requestOptions))
     } catch {
       return false
     }
@@ -74,12 +60,7 @@ export class Connectivity {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getNodeAddresses(requestOptions?: BeeRequestOptions): Promise<NodeAddresses> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: 'addresses',
-      responseType: 'json',
-    })
-
-    return GetNodeAddressesResponse.parse(response.data)
+    return api.getNodeAddresses(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -88,12 +69,7 @@ export class Connectivity {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getBlocklist(requestOptions?: BeeRequestOptions): Promise<Peer[]> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: 'blocklist',
-      responseType: 'json',
-    })
-
-    return GetBlocklistResponse.parse(response.data).peers
+    return api.getBlocklist(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -102,12 +78,7 @@ export class Connectivity {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getPeers(requestOptions?: BeeRequestOptions): Promise<Peer[]> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: 'peers',
-      responseType: 'json',
-    })
-
-    return GetPeersResponse.parse(response.data).peers
+    return api.getPeers(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -119,13 +90,7 @@ export class Connectivity {
   async removePeer(peer: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<RemovePeerResponse> {
     const address = new PeerAddress(peer)
 
-    const response = await http<RemovePeerResponse>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `peers/${address}`,
-      responseType: 'json',
-      method: 'DELETE',
-    })
-
-    return response.data
+    return api.removePeer(this.context.getRequestOptionsForCall(requestOptions), address)
   }
 
   /**
@@ -134,12 +99,7 @@ export class Connectivity {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getTopology(requestOptions?: BeeRequestOptions): Promise<Topology> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: 'topology',
-      responseType: 'json',
-    })
-
-    return GetTopologyResponse.parse(response.data) as Topology
+    return api.getTopology(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -151,12 +111,6 @@ export class Connectivity {
   async ping(peer: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<PingResponse> {
     const address = new PeerAddress(peer)
 
-    const response = await http<PingResponse>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `pingpong/${address}`,
-      responseType: 'json',
-      method: 'POST',
-    })
-
-    return response.data
+    return api.ping(this.context.getRequestOptionsForCall(requestOptions), address)
   }
 }

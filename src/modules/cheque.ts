@@ -5,19 +5,10 @@ import type {
   LastChequesResponse,
   TransactionOptions,
 } from '../types'
-import {
-  GetLastCashoutActionResponse,
-  GetLastChequesForPeerResponse,
-  GetLastChequesResponse,
-  TransactionHashResponse,
-} from '../types/schema/chequebook'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
 import { TransactionOptionsSchema } from '../utils/schema'
 import { PeerAddress, TransactionId } from '../utils/typed-bytes'
+import * as api from '../api/chequebook'
 import type { BeeContext } from './context'
-
-const chequebookEndpoint = 'chequebook'
 
 /**
  * Cheque operations (last cheques and cashouts).
@@ -33,12 +24,7 @@ export class Cheque {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAllLatest(requestOptions?: BeeRequestOptions): Promise<LastChequesResponse> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${chequebookEndpoint}/cheque`,
-      responseType: 'json',
-    })
-
-    return GetLastChequesResponse.parse(response.data)
+    return api.getLastCheques(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -53,12 +39,7 @@ export class Cheque {
   ): Promise<LastChequesForPeerResponse> {
     const peer = new PeerAddress(address)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${chequebookEndpoint}/cheque/${peer}`,
-      responseType: 'json',
-    })
-
-    return GetLastChequesForPeerResponse.parse(response.data)
+    return api.getLastChequesForPeer(this.context.getRequestOptionsForCall(requestOptions), peer)
   }
 
   /**
@@ -73,12 +54,7 @@ export class Cheque {
   ): Promise<LastCashoutActionResponse> {
     const peer = new PeerAddress(address)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${chequebookEndpoint}/cashout/${peer}`,
-      responseType: 'json',
-    })
-
-    return GetLastCashoutActionResponse.parse(response.data)
+    return api.getLastCashoutAction(this.context.getRequestOptionsForCall(requestOptions), peer)
   }
 
   /**
@@ -99,13 +75,6 @@ export class Cheque {
       options = TransactionOptionsSchema.parse(options)
     }
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: `${chequebookEndpoint}/cashout/${peer}`,
-      responseType: 'json',
-      headers: prepareRequestHeaders(null, options),
-    })
-
-    return TransactionHashResponse.parse(response.data).transactionHash
+    return api.cashoutLastCheque(this.context.getRequestOptionsForCall(requestOptions), peer, options)
   }
 }

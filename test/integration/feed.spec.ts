@@ -9,8 +9,8 @@ test('POST feed (reader)', async () => {
   const privateKey = new PrivateKey(Strings.randomHex(64))
   const owner = privateKey.publicKey().address()
 
-  const response1 = await bee.upload.data(batch(), 'First update')
-  const response2 = await bee.upload.data(batch(), 'Second update')
+  const response1 = await bee.data.upload(batch(), 'First update')
+  const response2 = await bee.data.upload(batch(), 'Second update')
 
   const feedWriter = bee.feed.makeWriter(NULL_TOPIC, privateKey)
   const feedReader = bee.feed.makeReader(NULL_TOPIC, owner)
@@ -39,10 +39,10 @@ test('POST feed (reader)', async () => {
 
   // TODO: this is a reference... should it be auto-resolved?
   const reference1 = new Reference((await feedReader.download({ index: 0 })).payload)
-  expect((await bee.download.data(reference1)).toUtf8()).toBe('First update')
+  expect((await bee.data.download(reference1)).toUtf8()).toBe('First update')
 
   const reference2 = new Reference((await feedReader.download({ index: 1 })).payload)
-  expect((await bee.download.data(reference2)).toUtf8()).toBe('Second update')
+  expect((await bee.data.download(reference2)).toUtf8()).toBe('Second update')
 
   expect(await bee.feed.isRetrievable(owner, NULL_TOPIC)).toBe(true)
   expect(await bee.feed.isRetrievable(owner, NULL_TOPIC, FeedIndex.fromBigInt(1n))).toBe(true)
@@ -54,8 +54,8 @@ test('POST feed (manifest)', async () => {
 
   const manifest = await bee.feed.createManifest(batch(), NULL_TOPIC, owner)
 
-  const response1 = await bee.upload.file(batch(), 'First update')
-  const response2 = await bee.upload.file(batch(), 'Second update')
+  const response1 = await bee.file.upload(batch(), 'First update')
+  const response2 = await bee.file.upload(batch(), 'Second update')
 
   const feedWriter = bee.feed.makeWriter(NULL_TOPIC, privateKey)
 
@@ -63,7 +63,7 @@ test('POST feed (manifest)', async () => {
 
   await System.waitFor(
     async () => {
-      const payload = (await bee.download.file(manifest)).data.toUtf8()
+      const payload = (await bee.file.download(manifest)).data.toUtf8()
 
       return payload === 'First update'
     },
@@ -74,7 +74,7 @@ test('POST feed (manifest)', async () => {
 
   await System.waitFor(
     async () => {
-      const payload = (await bee.download.file(manifest)).data.toUtf8()
+      const payload = (await bee.file.download(manifest)).data.toUtf8()
 
       return payload === 'Second update'
     },

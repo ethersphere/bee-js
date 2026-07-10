@@ -1,12 +1,9 @@
+import * as api from '../api/tag'
 import type { AllTagsOptions, BeeRequestOptions, Tag as TagData } from '../types'
-import { GetAllTagsResponse, TagSchema } from '../types/schema/tag'
-import { http } from '../utils/http'
 import { AllTagsOptionsSchema } from '../utils/schema'
 import { makeTagUid } from '../utils/type'
 import { Reference } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
-
-const endpoint = 'tags'
 
 /**
  * Tag operations for tracking upload and synchronization progress.
@@ -22,13 +19,7 @@ export class Tag {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async create(requestOptions?: BeeRequestOptions): Promise<TagData> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: endpoint,
-      responseType: 'json',
-    })
-
-    return TagSchema.parse(response.data)
+    return api.createTag(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -42,13 +33,7 @@ export class Tag {
       options = AllTagsOptionsSchema.parse(options)
     }
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: endpoint,
-      params: { offset: options?.offset, limit: options?.limit },
-      responseType: 'json',
-    })
-
-    return GetAllTagsResponse.parse(response.data).tags
+    return api.getAllTags(this.context.getRequestOptionsForCall(requestOptions), options)
   }
 
   /**
@@ -60,12 +45,7 @@ export class Tag {
   async get(tagUid: number | TagData, requestOptions?: BeeRequestOptions): Promise<TagData> {
     const uid = makeTagUid(tagUid)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${endpoint}/${uid}`,
-      responseType: 'json',
-    })
-
-    return TagSchema.parse(response.data)
+    return api.getTag(this.context.getRequestOptionsForCall(requestOptions), uid)
   }
 
   /**
@@ -77,10 +57,7 @@ export class Tag {
   async delete(tagUid: number | TagData, requestOptions?: BeeRequestOptions): Promise<void> {
     const uid = makeTagUid(tagUid)
 
-    await http<void>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'delete',
-      url: `${endpoint}/${uid}`,
-    })
+    await api.deleteTag(this.context.getRequestOptionsForCall(requestOptions), uid)
   }
 
   /**
@@ -98,10 +75,6 @@ export class Tag {
     const ref = new Reference(reference)
     const uid = makeTagUid(tagUid)
 
-    await http<void>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'patch',
-      url: `${endpoint}/${uid}`,
-      data: { reference: ref },
-    })
+    await api.updateTag(this.context.getRequestOptionsForCall(requestOptions), uid, ref)
   }
 }

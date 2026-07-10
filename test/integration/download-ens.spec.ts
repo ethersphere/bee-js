@@ -6,7 +6,7 @@ import { makeBee } from '../utils'
 test.skip('GET bzz (ENS)', async () => {
   const bee = makeBee()
 
-  const data = await bee.download.file('deadcafe.eth')
+  const data = await bee.file.download('deadcafe.eth')
 
   expect(data.name).toBe('jiawei-zhao-BsXeYX3efOI-unsplash.jpg')
   expect(data.contentType).toBe('image/jpeg')
@@ -16,7 +16,7 @@ test.skip('GET bzz (ENS)', async () => {
 test.skip('GET bytes (ENS)', async () => {
   const bee = makeBee()
 
-  const data = await bee.download.data('deadcafe.eth')
+  const data = await bee.data.download('deadcafe.eth')
 
   const manifest = MantarayNode.unmarshalFromData(data.toUint8Array(), NULL_ADDRESS)
   await manifest.loadRecursively(bee)
@@ -29,7 +29,7 @@ test.skip('GET bytes (ENS)', async () => {
 test.skip('GET readable bytes (ENS)', async () => {
   const bee = makeBee()
 
-  const readable = await bee.download.readableData('deadcafe.eth')
+  const readable = await bee.data.downloadReadable('deadcafe.eth')
 
   const parts: Uint8Array[] = []
   for await (const part of readable as unknown as ReadStream) {

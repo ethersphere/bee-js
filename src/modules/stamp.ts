@@ -10,26 +10,15 @@ import type {
   RedundancyLevel,
 } from '../types'
 import { STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from '../types'
-import {
-  BatchIdResponse,
-  GetAllPostageBatchesResponse,
-  GetGlobalPostageBatchesResponse,
-  GetGlobalPostageBatchResponse,
-  GetPostageBatchBucketsResponse,
-  GetPostageBatchResponse,
-} from '../types/schema/stamps'
 import type { Duration } from '../utils/duration'
 import { BeeArgumentError, BeeError } from '../utils/error'
-import { http } from '../utils/http'
 import { PostageBatchOptionsSchema } from '../utils/schema'
-import { getStampDuration, mapPostageBatch } from '../utils/stamps'
+import { getStampDuration } from '../utils/stamps'
 import { BZZ } from '../utils/tokens'
 import { asNumberString } from '../utils/type'
 import { BatchId } from '../utils/typed-bytes'
+import * as api from '../api/stamp'
 import type { BeeContext } from './context'
-
-const STAMPS_ENDPOINT = 'stamps'
-const BATCHES_ENDPOINT = 'batches'
 
 /**
  * Low-level postage batch (stamp) operations.
@@ -75,25 +64,14 @@ export class Stamp {
       )
     }
 
-    const headers: Record<string, string> = {}
-
-    if (options?.gasPrice) {
-      headers['gas-price'] = options.gasPrice.toString()
-    }
-
-    if (options?.immutableFlag !== undefined) {
-      headers.immutable = String(options.immutableFlag)
-    }
-
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: `${STAMPS_ENDPOINT}/${amountString}/${depth}`,
-      responseType: 'json',
-      params: { label: options?.label },
-      headers,
-    })
-
-    const batchId = BatchIdResponse.parse(response.data).batchID
+    const batchId = await api.createPostageBatch(
+      this.context.getRequestOptionsForCall(requestOptions),
+      amountString,
+      depth,
+      options?.label,
+      options?.gasPrice?.toString(),
+      options?.immutableFlag,
+    )
 
     if (options?.waitForUsable !== false) {
       await this.waitForUsable(batchId, options?.waitForUsableTimeout)
@@ -116,12 +94,7 @@ export class Stamp {
   ): Promise<void> {
     const id = new BatchId(postageBatchId)
 
-    await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'patch',
-      url: `${STAMPS_ENDPOINT}/${id}`,
-      responseType: 'json',
-      data: { label },
-    })
+    await api.updateLabel(this.context.getRequestOptionsForCall(requestOptions), id, label)
   }
 
   /**
@@ -159,13 +132,7 @@ export class Stamp {
     const id = new BatchId(postageBatchId)
     const amountString = asNumberString(amount, { min: 1n, name: 'amount' })
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'patch',
-      url: `${STAMPS_ENDPOINT}/topup/${id}/${amountString}`,
-      responseType: 'json',
-    })
-
-    return BatchIdResponse.parse(response.data).batchID
+    return api.topUpBatch(this.context.getRequestOptionsForCall(requestOptions), id, amountString)
   }
 
   /**
@@ -183,13 +150,7 @@ export class Stamp {
     const id = new BatchId(postageBatchId)
     const depthNumber = z.number().int().min(18).max(255).parse(depth)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'patch',
-      url: `${STAMPS_ENDPOINT}/dilute/${id}/${depthNumber}`,
-      responseType: 'json',
-    })
-
-    return BatchIdResponse.parse(response.data).batchID
+    return api.diluteBatch(this.context.getRequestOptionsForCall(requestOptions), id, depthNumber)
   }
 
   /**
@@ -208,13 +169,7 @@ export class Stamp {
   ): Promise<PostageBatch> {
     const id = new BatchId(postageBatchId)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: `${STAMPS_ENDPOINT}/${id}`,
-      responseType: 'json',
-    })
-
-    return mapPostageBatch(GetPostageBatchResponse.parse(response.data), encryption, erasureCodeLevel)
+    return api.getPostageBatch(this.context.getRequestOptionsForCall(requestOptions), id, encryption, erasureCodeLevel)
   }
 
   /**
@@ -229,13 +184,7 @@ export class Stamp {
   ): Promise<GlobalPostageBatch> {
     const id = new BatchId(postageBatchId)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: `${BATCHES_ENDPOINT}/${id}`,
-      responseType: 'json',
-    })
-
-    return GetGlobalPostageBatchResponse.parse(response.data)
+    return api.getGlobalPostageBatch(this.context.getRequestOptionsForCall(requestOptions), id)
   }
 
   /**
@@ -250,13 +199,7 @@ export class Stamp {
   ): Promise<PostageBatchBuckets> {
     const id = new BatchId(postageBatchId)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: `${STAMPS_ENDPOINT}/${id}/buckets`,
-      responseType: 'json',
-    })
-
-    return GetPostageBatchBucketsResponse.parse(response.data)
+    return api.getPostageBatchBuckets(this.context.getRequestOptionsForCall(requestOptions), id)
   }
 
   /**
@@ -265,13 +208,7 @@ export class Stamp {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAll(requestOptions?: BeeRequestOptions): Promise<PostageBatch[]> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: STAMPS_ENDPOINT,
-      responseType: 'json',
-    })
-
-    return GetAllPostageBatchesResponse.parse(response.data).stamps.map(x => mapPostageBatch(x))
+    return api.getAllPostageBatches(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -280,13 +217,7 @@ export class Stamp {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAllGlobal(requestOptions?: BeeRequestOptions): Promise<GlobalPostageBatch[]> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: BATCHES_ENDPOINT,
-      responseType: 'json',
-    })
-
-    return GetGlobalPostageBatchesResponse.parse(response.data).batches
+    return api.getAllGlobalPostageBatches(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   private async waitForUsable(id: BatchId, timeout = 240_000): Promise<void> {

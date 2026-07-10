@@ -1,26 +1,9 @@
 import getMajorSemver from 'semver/functions/major.js'
 import type { BeeRequestOptions, ChainState, ReserveState } from '../types'
 import type { BeeVersions, DebugStatus, Health, NodeInfo, Readiness } from '../types/debug'
-import {
-  GetDebugStatusResponse,
-  GetHealthResponse,
-  GetNodeInfoResponse,
-  GetReadinessResponse,
-} from '../types/schema/status'
-import { GetChainStateResponse, GetReserveStateResponse } from '../types/schema/states'
-import { http } from '../utils/http'
+import { SUPPORTED_API_VERSION, SUPPORTED_BEE_VERSION_EXACT } from '../version'
+import * as api from '../api/status'
 import type { BeeContext } from './context'
-
-export const SUPPORTED_BEE_VERSION_EXACT = '2.8.1-7cf53193'
-export const SUPPORTED_BEE_VERSION = SUPPORTED_BEE_VERSION_EXACT.split('-')[0]
-export const SUPPORTED_API_VERSION = '8.1.0'
-
-const NODE_INFO_URL = 'node'
-const STATUS_URL = 'status'
-const HEALTH_URL = 'health'
-const READINESS_URL = 'readiness'
-const RESERVE_STATE_ENDPOINT = 'reservestate'
-const CHAIN_STATE_ENDPOINT = 'chainstate'
 
 /**
  * Node status, health, version and chain/reserve state operations.
@@ -36,13 +19,7 @@ export class Status {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async get(requestOptions?: BeeRequestOptions): Promise<DebugStatus> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: STATUS_URL,
-      responseType: 'json',
-    })
-
-    return GetDebugStatusResponse.parse(response.data)
+    return api.getDebugStatus(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -51,13 +28,7 @@ export class Status {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getHealth(requestOptions?: BeeRequestOptions): Promise<Health> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: HEALTH_URL,
-      responseType: 'json',
-    })
-
-    return GetHealthResponse.parse(response.data)
+    return api.getHealth(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -66,12 +37,7 @@ export class Status {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getReadiness(requestOptions?: BeeRequestOptions): Promise<Readiness> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: READINESS_URL,
-    })
-
-    return GetReadinessResponse.parse(response.data)
+    return api.getReadiness(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -80,13 +46,7 @@ export class Status {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getNodeInfo(requestOptions?: BeeRequestOptions): Promise<NodeInfo> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: NODE_INFO_URL,
-      responseType: 'json',
-    })
-
-    return GetNodeInfoResponse.parse(response.data)
+    return api.getNodeInfo(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -136,13 +96,7 @@ export class Status {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getReserveState(requestOptions?: BeeRequestOptions): Promise<ReserveState> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: RESERVE_STATE_ENDPOINT,
-      responseType: 'json',
-    })
-
-    return GetReserveStateResponse.parse(response.data)
+    return api.getReserveState(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -151,12 +105,6 @@ export class Status {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getChainState(requestOptions?: BeeRequestOptions): Promise<ChainState> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: CHAIN_STATE_ENDPOINT,
-      responseType: 'json',
-    })
-
-    return GetChainStateResponse.parse(response.data)
+    return api.getChainState(this.context.getRequestOptionsForCall(requestOptions))
   }
 }

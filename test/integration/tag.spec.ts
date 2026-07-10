@@ -4,7 +4,7 @@ const bee = makeBee()
 
 test('CRUD tags', async () => {
   const tag = await bee.tag.create()
-  await bee.upload.data(batch(), 'Tagged hello.', { tag: tag.uid })
+  await bee.data.upload(batch(), 'Tagged hello.', { tag: tag.uid })
 
   let offset = 0
   let tags = await bee.tag.getAll({ offset })

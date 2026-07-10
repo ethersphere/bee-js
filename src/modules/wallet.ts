@@ -1,11 +1,8 @@
 import type { BeeRequestOptions, NumberString, WalletBalance } from '../types'
-import { GetWalletBalanceResponse, WithdrawResponse } from '../types/schema/states'
-import { http } from '../utils/http'
 import { BZZ, DAI } from '../utils/tokens'
 import { EthAddress, TransactionId } from '../utils/typed-bytes'
+import * as api from '../api/wallet'
 import type { BeeContext } from './context'
-
-const WALLET_ENDPOINT = 'wallet'
 
 /**
  * Node wallet operations (balances and external withdrawals).
@@ -21,13 +18,7 @@ export class Wallet {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getBalance(requestOptions?: BeeRequestOptions): Promise<WalletBalance> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: WALLET_ENDPOINT,
-      responseType: 'json',
-    })
-
-    return GetWalletBalanceResponse.parse(response.data)
+    return api.getWalletBalance(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -45,14 +36,7 @@ export class Wallet {
     const bzz = amount instanceof BZZ ? amount : BZZ.fromPLUR(amount)
     const ethAddress = new EthAddress(address)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: `${WALLET_ENDPOINT}/withdraw/bzz`,
-      responseType: 'json',
-      params: { amount: bzz.toPLURString(), address: ethAddress.toHex() },
-    })
-
-    return WithdrawResponse.parse(response.data).transactionHash
+    return api.withdrawBZZ(this.context.getRequestOptionsForCall(requestOptions), bzz, ethAddress)
   }
 
   /**
@@ -70,13 +54,6 @@ export class Wallet {
     const dai = amount instanceof DAI ? amount : DAI.fromWei(amount)
     const ethAddress = new EthAddress(address)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: `${WALLET_ENDPOINT}/withdraw/nativetoken`,
-      responseType: 'json',
-      params: { amount: dai.toWeiString(), address: ethAddress.toHex() },
-    })
-
-    return WithdrawResponse.parse(response.data).transactionHash
+    return api.withdrawDAI(this.context.getRequestOptionsForCall(requestOptions), dai, ethAddress)
   }
 }

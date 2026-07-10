@@ -1,11 +1,7 @@
+import * as api from '../api/grantee'
 import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
-import { GetGranteesBodyResponse, GranteesResultBodyResponse } from '../types/schema/grantee'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
 import { BatchId, PublicKey, Reference } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
-
-const granteeEndpoint = 'grantee'
 
 /**
  * Grantee (access control) operations.
@@ -30,22 +26,7 @@ export class Grantee {
     const batchId = new BatchId(postageBatchId)
     const publicKeys = grantees.map(x => new PublicKey(x))
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: granteeEndpoint,
-      data: { grantees: publicKeys.map(x => x.toCompressedHex()) },
-      headers: prepareRequestHeaders(batchId),
-      responseType: 'json',
-    })
-
-    const body = GranteesResultBodyResponse.parse(response.data)
-
-    return {
-      status: response.status,
-      statusText: response.statusText,
-      ref: body.ref,
-      historyref: body.historyref,
-    }
+    return api.createGrantees(this.context.getRequestOptionsForCall(requestOptions), batchId, publicKeys)
   }
 
   /**
@@ -60,17 +41,7 @@ export class Grantee {
   ): Promise<GetGranteesResult> {
     const ref = new Reference(reference)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      url: `${granteeEndpoint}/${ref}`,
-      responseType: 'json',
-    })
-
-    return {
-      status: response.status,
-      statusText: response.statusText,
-      grantees: GetGranteesBodyResponse.parse(response.data),
-    }
+    return api.getGrantees(this.context.getRequestOptionsForCall(requestOptions), ref)
   }
 
   /**
@@ -97,27 +68,12 @@ export class Grantee {
       revoke: grantees.revoke?.map(x => new PublicKey(x)) ?? [],
     }
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'patch',
-      url: `${granteeEndpoint}/${ref}`,
-      data: {
-        add: publicKeys.add.map(x => x.toCompressedHex()),
-        revoke: publicKeys.revoke.map(x => x.toCompressedHex()),
-      },
-      headers: {
-        ...prepareRequestHeaders(batchId),
-        'swarm-act-history-address': historyRef.toHex(),
-      },
-      responseType: 'json',
-    })
-
-    const body = GranteesResultBodyResponse.parse(response.data)
-
-    return {
-      status: response.status,
-      statusText: response.statusText,
-      ref: body.ref,
-      historyref: body.historyref,
-    }
+    return api.patchGrantees(
+      this.context.getRequestOptionsForCall(requestOptions),
+      batchId,
+      ref,
+      historyRef,
+      publicKeys,
+    )
   }
 }

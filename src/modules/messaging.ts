@@ -10,11 +10,10 @@ import type {
   PssSubscription,
   UploadOptions,
 } from '../types'
+import * as pssApi from '../api/pss'
 import { Bytes } from '../utils/bytes'
 import { prepareWebsocketData } from '../utils/data'
 import { BeeError } from '../utils/error'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
 import { GsocMessageHandlerSchema, PssMessageHandlerSchema } from '../utils/schema'
 import { assertData } from '../utils/type'
 import { BatchId, EthAddress, Identifier, PeerAddress, PrivateKey, PublicKey, Topic } from '../utils/typed-bytes'
@@ -57,14 +56,7 @@ export class Messaging {
 
     const recipientKey = recipient ? new PublicKey(recipient) : undefined
 
-    await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: `${PSS_ENDPOINT}/send/${topic}/${target}`,
-      data,
-      responseType: 'json',
-      params: { recipient: recipientKey },
-      headers: prepareRequestHeaders(batchId),
-    })
+    await pssApi.send(this.context.getRequestOptionsForCall(requestOptions), batchId, topic, target, data, recipientKey)
   }
 
   /**

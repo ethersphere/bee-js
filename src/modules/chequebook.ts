@@ -1,16 +1,9 @@
 import type { BeeRequestOptions, ChequebookAddressResponse, ChequebookBalanceResponse, NumberString } from '../types'
-import {
-  GetChequebookAddressResponse,
-  GetChequebookBalanceResponse,
-  TransactionHashResponse,
-} from '../types/schema/chequebook'
-import { http } from '../utils/http'
 import { BZZ } from '../utils/tokens'
 import { asNumberString } from '../utils/type'
 import { TransactionId } from '../utils/typed-bytes'
+import * as api from '../api/chequebook'
 import type { BeeContext } from './context'
-
-const chequebookEndpoint = 'chequebook'
 
 /**
  * Chequebook contract operations (address, balance, deposit, withdraw).
@@ -26,12 +19,7 @@ export class Chequebook {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAddress(requestOptions?: BeeRequestOptions): Promise<ChequebookAddressResponse> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${chequebookEndpoint}/address`,
-      responseType: 'json',
-    })
-
-    return GetChequebookAddressResponse.parse(response.data)
+    return api.getChequebookAddress(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -40,12 +28,7 @@ export class Chequebook {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getBalance(requestOptions?: BeeRequestOptions): Promise<ChequebookBalanceResponse> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${chequebookEndpoint}/balance`,
-      responseType: 'json',
-    })
-
-    return GetChequebookBalanceResponse.parse(response.data)
+    return api.getChequebookBalance(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -63,21 +46,9 @@ export class Chequebook {
     const amountString =
       amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
 
-    const headers: Record<string, string> = {}
+    const gasPriceString = gasPrice ? asNumberString(amount, { min: 0n, name: 'gasPrice' }) : undefined
 
-    if (gasPrice) {
-      headers['gas-price'] = asNumberString(amount, { min: 0n, name: 'gasPrice' })
-    }
-
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: `${chequebookEndpoint}/deposit`,
-      responseType: 'json',
-      params: { amount: amountString },
-      headers,
-    })
-
-    return TransactionHashResponse.parse(response.data).transactionHash
+    return api.depositTokens(this.context.getRequestOptionsForCall(requestOptions), amountString, gasPriceString)
   }
 
   /**
@@ -95,20 +66,8 @@ export class Chequebook {
     const amountString =
       amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
 
-    const headers: Record<string, string> = {}
+    const gasPriceString = gasPrice ? asNumberString(amount, { min: 0n, name: 'gasPrice' }) : undefined
 
-    if (gasPrice) {
-      headers['gas-price'] = asNumberString(amount, { min: 0n, name: 'gasPrice' })
-    }
-
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      url: `${chequebookEndpoint}/withdraw`,
-      responseType: 'json',
-      params: { amount: amountString },
-      headers,
-    })
-
-    return TransactionHashResponse.parse(response.data).transactionHash
+    return api.withdrawTokens(this.context.getRequestOptionsForCall(requestOptions), amountString, gasPriceString)
   }
 }

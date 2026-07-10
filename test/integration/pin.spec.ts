@@ -3,7 +3,7 @@ import { batch, makeBee } from '../utils'
 const bee = makeBee()
 
 test('CRUD pins', async () => {
-  const response = await bee.upload.data(batch(), 'Pinned hello.', { pin: true })
+  const response = await bee.data.upload(batch(), 'Pinned hello.', { pin: true })
   const pins = await bee.pin.getAll()
   expect(pins.some(x => x.toHex() === response.reference.toHex())).toBe(true)
 
@@ -11,7 +11,7 @@ test('CRUD pins', async () => {
   expect(pin.reference.toHex()).toBe(response.reference.toHex())
 
   await bee.pin.reuploadData(batch(), response.reference) // push to network
-  expect(await bee.download.isRetrievable(response.reference)).toBe(true)
+  expect(await bee.data.isRetrievable(response.reference)).toBe(true)
 
   await bee.pin.remove(response.reference)
   const pinsAfterUnpin = await bee.pin.getAll()

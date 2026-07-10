@@ -1,10 +1,7 @@
 import type { AllSettlements, BeeRequestOptions, Settlements } from '../types'
-import { GetAllSettlementsResponse, GetSettlementsResponse } from '../types/schema/settlements'
-import { http } from '../utils/http'
 import { PeerAddress } from '../utils/typed-bytes'
+import * as api from '../api/settlement'
 import type { BeeContext } from './context'
-
-const settlementsEndpoint = 'settlements'
 
 /**
  * Settlement operations. Related to the bandwidth incentives and the chequebook.
@@ -23,12 +20,7 @@ export class Settlement {
   async get(address: PeerAddress | string, requestOptions?: BeeRequestOptions): Promise<Settlements> {
     const peer = new PeerAddress(address)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: `${settlementsEndpoint}/${peer}`,
-      responseType: 'json',
-    })
-
-    return GetSettlementsResponse.parse(response.data)
+    return api.getSettlements(this.context.getRequestOptionsForCall(requestOptions), peer)
   }
 
   /**
@@ -37,11 +29,6 @@ export class Settlement {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAll(requestOptions?: BeeRequestOptions): Promise<AllSettlements> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      url: settlementsEndpoint,
-      responseType: 'json',
-    })
-
-    return GetAllSettlementsResponse.parse(response.data)
+    return api.getAllSettlements(this.context.getRequestOptionsForCall(requestOptions))
   }
 }

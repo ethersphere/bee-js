@@ -19,7 +19,7 @@ async function isChunkRetrievable(
   requestOptions: BeeRequestOptions,
 ): Promise<boolean> {
   try {
-    await bee.download.chunk(reference, options, requestOptions)
+    await bee.chunk.download(reference, options, requestOptions)
 
     return true
   } catch (e: unknown) {

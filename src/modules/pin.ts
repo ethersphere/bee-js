@@ -1,12 +1,8 @@
+import * as pinApi from '../api/pin'
+import * as stewardshipApi from '../api/stewardship'
 import type { BeeRequestOptions, Pin as PinData } from '../types'
-import { GetAllPinsResponse } from '../types/schema/pinning'
-import { UploadResultBody } from '../types/schema/upload'
-import { http } from '../utils/http'
 import { BatchId, Reference } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
-
-const PINNING_ENDPOINT = 'pins'
-const STEWARDSHIP_ENDPOINT = 'stewardship'
 
 /**
  * Local pinning operations.
@@ -25,11 +21,7 @@ export class Pin {
   async add(reference: Reference | Uint8Array | string, requestOptions?: BeeRequestOptions): Promise<void> {
     const ref = new Reference(reference)
 
-    await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'post',
-      responseType: 'json',
-      url: `${PINNING_ENDPOINT}/${ref}`,
-    })
+    await pinApi.pin(this.context.getRequestOptionsForCall(requestOptions), ref)
   }
 
   /**
@@ -41,11 +33,7 @@ export class Pin {
   async remove(reference: Reference | Uint8Array | string, requestOptions?: BeeRequestOptions): Promise<void> {
     const ref = new Reference(reference)
 
-    await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'delete',
-      responseType: 'json',
-      url: `${PINNING_ENDPOINT}/${ref}`,
-    })
+    await pinApi.unpin(this.context.getRequestOptionsForCall(requestOptions), ref)
   }
 
   /**
@@ -54,15 +42,7 @@ export class Pin {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async getAll(requestOptions?: BeeRequestOptions): Promise<Reference[]> {
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      responseType: 'json',
-      url: PINNING_ENDPOINT,
-    })
-
-    const { references } = GetAllPinsResponse.parse(response.data)
-
-    return (references ?? []).map(x => new Reference(x))
+    return pinApi.getAllPins(this.context.getRequestOptionsForCall(requestOptions))
   }
 
   /**
@@ -74,13 +54,7 @@ export class Pin {
   async get(reference: Reference | Uint8Array | string, requestOptions?: BeeRequestOptions): Promise<PinData> {
     const ref = new Reference(reference)
 
-    const response = await http<unknown>(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'get',
-      responseType: 'json',
-      url: `${PINNING_ENDPOINT}/${ref}`,
-    })
-
-    return UploadResultBody.parse(response.data)
+    return pinApi.getPin(this.context.getRequestOptionsForCall(requestOptions), ref)
   }
 
   /**
@@ -98,10 +72,6 @@ export class Pin {
     const batchId = new BatchId(postageBatchId)
     const ref = new Reference(reference)
 
-    await http(this.context.getRequestOptionsForCall(requestOptions), {
-      method: 'put',
-      url: `${STEWARDSHIP_ENDPOINT}/${ref}`,
-      headers: { 'swarm-postage-batch-id': batchId.toHex() },
-    })
+    await stewardshipApi.reupload(this.context.getRequestOptionsForCall(requestOptions), batchId, ref)
   }
 }
