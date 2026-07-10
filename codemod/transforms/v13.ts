@@ -162,13 +162,70 @@ const METHOD_MAP: Record<string, Mapping> = {
 export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): string | null {
   const source = sourceFile.text
 
-  // A receiver is a Bee if the type checker resolves its type to the `Bee` class declared
-  // by bee-js. This covers locals, imported/shared instances, `this.<field>`, constructor-
-  // injected fields and factory calls like `getBee()` — without the false positives a
-  // name-only match would cause on generic methods (`get`, `upload`, `download`, …).
+  const isNewBee = (node?: ts.Node): boolean =>
+    !!node && ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'Bee'
+
+  // Does the type annotation mention `Bee` (`Bee`, `Bee | null`, `Bee | undefined`, …)?
+  const typeMentionsBee = (type?: ts.TypeNode): boolean => {
+    if (!type) return false
+    if (ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName) && type.typeName.text === 'Bee') return true
+    if (ts.isUnionTypeNode(type)) return type.types.some(typeMentionsBee)
+
+    return false
+  }
+
+  // Syntactic pass — identify Bee bindings from annotations and `new Bee(...)` alone, so
+  // annotated/local code migrates even when the project's deps aren't installed (types
+  // unresolved). `beeNames` = bare identifiers; `beeFields` = `this.<field>`.
+  const beeNames = new Set<string>()
+  const beeFields = new Set<string>()
+
+  const collect = (node: ts.Node): void => {
+    // `const bee = new Bee(...)` | `const bee: Bee = ...` | `let bee: Bee`
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && (typeMentionsBee(node.type) || isNewBee(node.initializer))) {
+      beeNames.add(node.name.text)
+    }
+
+    // `bee = new Bee(...)` | `this.bee = new Bee(...)`
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && isNewBee(node.right)) {
+      if (ts.isIdentifier(node.left)) {
+        beeNames.add(node.left.text)
+      } else if (ts.isPropertyAccessExpression(node.left) && node.left.expression.kind === ts.SyntaxKind.ThisKeyword) {
+        beeFields.add(node.left.name.text)
+      }
+    }
+
+    // function/method/ctor parameter: `(bee: Bee)`, `(beeApi: Bee | null)`; a ctor
+    // parameter-property (has modifiers) is also reachable as `this.<name>`.
+    if (ts.isParameter(node) && ts.isIdentifier(node.name) && typeMentionsBee(node.type)) {
+      beeNames.add(node.name.text)
+      if (node.modifiers?.length) beeFields.add(node.name.text)
+    }
+
+    // class field: `bee = new Bee(...)` | `bee: Bee`
+    if (ts.isPropertyDeclaration(node) && ts.isIdentifier(node.name) && (typeMentionsBee(node.type) || isNewBee(node.initializer))) {
+      beeFields.add(node.name.text)
+    }
+
+    ts.forEachChild(node, collect)
+  }
+  collect(sourceFile)
+
+  // A receiver is a Bee if identified syntactically (above) OR resolved by the type checker
+  // to the `Bee` class declared by bee-js — the latter additionally catches imported/shared
+  // instances and factory calls (`getBee()`) when the project's types resolve.
   const isBeeReceiver = (expr: ts.Expression): boolean => {
-    const type = checker.getTypeAtLocation(expr)
-    const symbol = type.getSymbol() ?? type.aliasSymbol
+    if (ts.isIdentifier(expr) && beeNames.has(expr.text)) return true
+
+    if (
+      ts.isPropertyAccessExpression(expr) &&
+      expr.expression.kind === ts.SyntaxKind.ThisKeyword &&
+      beeFields.has(expr.name.text)
+    ) {
+      return true
+    }
+
+    const symbol = checker.getTypeAtLocation(expr).getSymbol()
 
     if (!symbol || symbol.getName() !== 'Bee') {
       return false
@@ -193,10 +250,13 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
       const mapping = METHOD_MAP[node.name.text]
 
       if (mapping && isBeeReceiver(node.expression)) {
+        // Preserve optional chaining on the receiver: `bee?.uploadData` → `bee?.data.upload`.
+        const separator = node.questionDotToken ? '?.' : '.'
+
         replacements.push({
           start: node.getStart(sourceFile),
           end: node.getEnd(),
-          text: `${node.expression.getText(sourceFile)}.${mapping.namespace}.${mapping.newName}`,
+          text: `${node.expression.getText(sourceFile)}${separator}${mapping.namespace}.${mapping.newName}`,
         })
       }
     }
