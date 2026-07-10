@@ -1,8 +1,4 @@
-import * as parser from '@babel/parser'
-import _traverse from '@babel/traverse'
-import * as t from '@babel/types'
-
-const traverse = ((_traverse as unknown as { default: typeof _traverse }).default ?? _traverse) as typeof _traverse
+import * as ts from 'typescript'
 
 interface Mapping {
   namespace: string
@@ -163,60 +159,55 @@ const METHOD_MAP: Record<string, Mapping> = {
   withdrawDAIToExternalWallet: { namespace: 'wallet', newName: 'withdrawDAI' },
 }
 
-function getPlugins(filename: string): parser.ParserPlugin[] {
-  if (filename.endsWith('.tsx')) return ['typescript', 'jsx']
-  if (filename.endsWith('.ts')) return ['typescript']
-  if (filename.endsWith('.jsx')) return ['jsx']
-  return []
-}
+export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): string | null {
+  const source = sourceFile.text
 
-export function transform(source: string, filename: string): string {
-  const ast = parser.parse(source, {
-    sourceType: 'module',
-    plugins: getPlugins(filename),
-    strictMode: false,
-  })
+  // A receiver is a Bee if the type checker resolves its type to the `Bee` class declared
+  // by bee-js. This covers locals, imported/shared instances, `this.<field>`, constructor-
+  // injected fields and factory calls like `getBee()` — without the false positives a
+  // name-only match would cause on generic methods (`get`, `upload`, `download`, …).
+  const isBeeReceiver = (expr: ts.Expression): boolean => {
+    const type = checker.getTypeAtLocation(expr)
+    const symbol = type.getSymbol() ?? type.aliasSymbol
 
-  const beeInstances = new Set<string>()
+    if (!symbol || symbol.getName() !== 'Bee') {
+      return false
+    }
 
-  traverse(ast, {
-    NewExpression(path) {
-      if (!t.isIdentifier(path.node.callee, { name: 'Bee' })) return
-
-      const parent = path.parent
-
-      if (t.isVariableDeclarator(parent) && t.isIdentifier(parent.id)) {
-        beeInstances.add(parent.id.name)
-      } else if (t.isAssignmentExpression(parent) && t.isIdentifier(parent.left)) {
-        beeInstances.add(parent.left.name)
+    return (symbol.getDeclarations() ?? []).some(decl => {
+      if (!ts.isClassDeclaration(decl)) {
+        return false
       }
-    },
-  })
 
-  if (beeInstances.size === 0) return source
+      const file = decl.getSourceFile().fileName
+
+      return /[/\\]bee-js[/\\]/.test(file) || /[/\\]bee\.(d\.)?ts$/.test(file)
+    })
+  }
 
   const replacements: Array<{ start: number; end: number; text: string }> = []
 
-  traverse(ast, {
-    CallExpression(path) {
-      const { callee } = path.node
-      if (!t.isMemberExpression(callee)) return
-      if (!t.isIdentifier(callee.object)) return
-      if (!beeInstances.has(callee.object.name)) return
-      if (!t.isIdentifier(callee.property)) return
+  const visit = (node: ts.Node): void => {
+    // Any `<bee>.<method>` access — called or not — so bare method references migrate too.
+    if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.name)) {
+      const mapping = METHOD_MAP[node.name.text]
 
-      const mapping = METHOD_MAP[callee.property.name]
-      if (!mapping) return
+      if (mapping && isBeeReceiver(node.expression)) {
+        replacements.push({
+          start: node.getStart(sourceFile),
+          end: node.getEnd(),
+          text: `${node.expression.getText(sourceFile)}.${mapping.namespace}.${mapping.newName}`,
+        })
+      }
+    }
 
-      replacements.push({
-        start: callee.start!,
-        end: callee.end!,
-        text: `${callee.object.name}.${mapping.namespace}.${mapping.newName}`,
-      })
-    },
-  })
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile)
 
-  if (replacements.length === 0) return source
+  if (replacements.length === 0) {
+    return null
+  }
 
   // Apply from end to start to preserve positions
   replacements.sort((a, b) => b.start - a.start)

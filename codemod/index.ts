@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as ts from 'typescript'
 
 const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx']
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.git'])
@@ -36,7 +37,8 @@ if (!target) {
 
 const transformsDir = path.join(__dirname, 'transforms')
 
-const transformFiles = fs.readdirSync(transformsDir)
+const transformFiles = fs
+  .readdirSync(transformsDir)
   .filter(f => f.endsWith('.ts') && !f.endsWith('.d.ts'))
   .sort()
   .filter(f => parseVersion(f) > fromVersion)
@@ -48,7 +50,9 @@ if (transformFiles.length === 0) {
 
 console.log(`Applying: ${transformFiles.join(', ')}\n`)
 
-type TransformFn = (source: string, filename: string) => string
+// Type-aware transform: receives a parsed source file plus the program's type checker so it
+// can resolve receiver types (locals, imported instances, `this.<field>`, factory calls).
+type TransformFn = (sourceFile: ts.SourceFile, checker: ts.TypeChecker) => string | null
 
 const transforms: TransformFn[] = transformFiles.map(f => {
   const modulePath = path.join(transformsDir, f.replace(/\.ts$/, ''))
@@ -57,27 +61,51 @@ const transforms: TransformFn[] = transformFiles.map(f => {
 
 const resolved = path.resolve(target)
 const stat = fs.statSync(resolved)
-const files = stat.isDirectory() ? walkFiles(resolved) : [resolved]
+const files = (stat.isDirectory() ? walkFiles(resolved) : [resolved]).map(f => path.resolve(f))
+const targetSet = new Set(files)
 
-let changed = 0
+// Load the target project's compiler options so imports and the bee-js types resolve; fall
+// back to permissive defaults when no tsconfig is found nearby.
+function loadCompilerOptions(from: string): ts.CompilerOptions {
+  const configPath = ts.findConfigFile(from, ts.sys.fileExists, 'tsconfig.json')
 
-for (const file of files) {
-  let source = fs.readFileSync(file, 'utf8')
-  let fileChanged = false
+  if (configPath) {
+    const read = ts.readConfigFile(configPath, ts.sys.readFile)
+    const parsed = ts.parseJsonConfigFileContent(read.config ?? {}, ts.sys, path.dirname(configPath))
 
-  for (const transform of transforms) {
-    const result = transform(source, file)
-    if (result !== source) {
-      source = result
-      fileChanged = true
-    }
+    return { ...parsed.options, noEmit: true, allowJs: true, checkJs: false }
   }
 
-  if (fileChanged) {
-    fs.writeFileSync(file, source, 'utf8')
-    console.log(`updated: ${file}`)
-    changed++
+  return {
+    allowJs: true,
+    checkJs: false,
+    noEmit: true,
+    target: ts.ScriptTarget.ESNext,
+    module: ts.ModuleKind.NodeNext,
+    moduleResolution: ts.ModuleResolutionKind.NodeNext,
   }
 }
 
-console.log(`\n${changed} file(s) updated, ${files.length - changed} unchanged.`)
+const options = loadCompilerOptions(stat.isDirectory() ? resolved : path.dirname(resolved))
+const changedFiles = new Set<string>()
+
+// Each transform version gets a freshly built program so it sees edits from the previous one.
+for (const transform of transforms) {
+  const program = ts.createProgram(files, options)
+  const checker = program.getTypeChecker()
+
+  for (const sourceFile of program.getSourceFiles()) {
+    const filePath = path.resolve(sourceFile.fileName)
+    if (!targetSet.has(filePath)) continue
+
+    const result = transform(sourceFile, checker)
+
+    if (result !== null && result !== sourceFile.text) {
+      fs.writeFileSync(filePath, result, 'utf8')
+      console.log(`updated: ${filePath}`)
+      changedFiles.add(filePath)
+    }
+  }
+}
+
+console.log(`\n${changedFiles.size} file(s) updated, ${files.length - changedFiles.size} unchanged.`)
