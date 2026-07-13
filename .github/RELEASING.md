@@ -27,10 +27,18 @@ bee-js is published on two npm dist-tags, mirroring Bee's own RC/stable cadence:
 So "merging `upcoming` → `master` at release" is realised as an automatic fast-forward of
 `master` to the released commit — no manual merge, no back-merge, no conflicts.
 
-## Bee RC vs stable
+## Bee versions (`engines`)
 
-`upcoming` carries `engines.bee` = the Bee **RC**; the release PR bumps it to the Bee **stable**
-as part of graduating (via `update_bee.yaml`). `master` inherits it through the fast-forward.
+The supported Bee / Bee API versions live in `package.json` `engines`, and `src/version.ts`
+(the `SUPPORTED_BEE_VERSION*` exports) is generated from them by `scripts/generate-version.cjs`.
+They are updated by the **separate `update_bee.yaml` workflow** — run manually or dispatched from
+the Bee repo when a new Bee ships — which bumps `engines`, regenerates `version.ts`, updates the
+README, and opens its own PR against the default branch (`upcoming`). release-please's release PR
+does **not** touch `engines`.
+
+Tracking Bee **RC** on `upcoming` and Bee **stable** on `master` is therefore a maintainer
+convention (which Bee version you feed to `update_bee.yaml`), not something these release
+workflows enforce automatically. `master` receives whatever value is current via the fast-forward.
 
 ## One-time GitHub settings (not expressible in workflow files)
 
