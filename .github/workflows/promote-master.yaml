@@ -1,0 +1,28 @@
+name: Promote stable release to master
+
+# When a stable release is published (cut from `upcoming` by release-please), fast-forward
+# `master` to that exact release commit so `master` always reflects the latest stable.
+# `master` is never committed to directly, which keeps this a conflict-free fast-forward
+# (a non-fast-forward push is rejected rather than forced).
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    # skip prereleases / any tag containing a `-` suffix (e.g. -upcoming, -rc)
+    if: ${{ github.event.release.prerelease == false && !contains(github.event.release.tag_name, '-') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
+          token: ${{ secrets.REPO_GHA_PAT }}
+
+      - name: Fast-forward master to ${{ github.event.release.tag_name }}
+        run: git push origin HEAD:refs/heads/master
