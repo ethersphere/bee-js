@@ -1,9 +1,11 @@
 name: Publish upcoming snapshot to npm
 
 # Every merge to `upcoming` publishes an ephemeral prerelease under the `upcoming` dist-tag,
-# so previews are installable with `npm install @ethersphere/bee-js@upcoming`. The version
-# (next patch + `-upcoming.<run_number>`) is computed at build time and never committed, so
-# `upcoming` carries no version/changelog churn and stays conflict-free.
+# so previews are installable with `npm install @ethersphere/bee-js@upcoming`. Publishing is
+# gated on the required CI workflows passing for this commit via native job dependencies:
+# each CI workflow is invoked here as a reusable (`workflow_call`) job, and `publish` waits on
+# all of them through `needs`. The version (next patch + `-upcoming.<run_number>`) is computed
+# at build time and never committed.
 on:
   push:
     branches:
@@ -12,12 +14,29 @@ on:
 permissions:
   id-token: write
   contents: read
+  actions: read
 
 jobs:
-  snapshot:
+  tests-stable:
+    uses: ./.github/workflows/tests.yaml
+    secrets: inherit
+
+  tests-rc:
+    uses: ./.github/workflows/tests-rc.yaml
+    secrets: inherit
+
+  check:
+    uses: ./.github/workflows/check.yaml
+    secrets: inherit
+
+  entrypoint:
+    uses: ./.github/workflows/entrypoint.yaml
+    secrets: inherit
+
+  publish:
+    needs: [tests-stable, tests-rc, check, entrypoint]
     runs-on: ubuntu-latest
     environment: publish
-
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v4

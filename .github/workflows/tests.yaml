@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - 'master'
-      - 'upcoming'
   pull_request:
     branches:
       - '**'
+  # Called by the "Publish upcoming snapshot to npm" orchestrator on push to `upcoming`.
+  workflow_call:
 
 jobs:
   tests-bee-stable:
