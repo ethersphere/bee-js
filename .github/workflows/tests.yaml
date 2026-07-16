@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - 'master'
+      - 'upcoming'
   pull_request:
     branches:
       - '**'
+  # Called by the "Publish upcoming snapshot to npm" orchestrator on push to `upcoming`.
+  workflow_call:
 
 jobs:
   tests-bee-stable:
@@ -51,39 +54,40 @@ jobs:
           echo "exit_code=$?" >> $GITHUB_OUTPUT
           set -e
 
-      - name: Upload coverage
-        if: github.ref == 'refs/heads/master'
+      # Baseline coverage comes from `upcoming` (the integration trunk that PRs merge into).
+      - name: Upload coverage baseline
+        if: github.event_name == 'push' && github.ref == 'refs/heads/upcoming'
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-master
+          name: coverage-upcoming
           path: test/coverage/coverage-summary.json
 
-      - name: Get master run ID
-        if: github.ref != 'refs/heads/master'
+      - name: Get upcoming run ID
+        if: github.event_name == 'pull_request'
         id: get-run-id
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          RUN_ID=$(gh run list --branch master --workflow tests.yaml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          RUN_ID=$(gh run list --branch upcoming --workflow tests.yaml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
           if [ -z "$RUN_ID" ]; then exit 0; fi
           echo "run-id=$RUN_ID" >> $GITHUB_OUTPUT
 
-      - name: Download master coverage
-        if: github.ref != 'refs/heads/master'
+      - name: Download upcoming coverage
+        if: github.event_name == 'pull_request'
         id: download-coverage
         continue-on-error: true
         uses: actions/download-artifact@v8
         with:
-          name: coverage-master
+          name: coverage-upcoming
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ steps.get-run-id.outputs.run-id }}
-          path: coverage-master
+          path: coverage-upcoming
 
       - name: Compare coverage
-        if: github.ref != 'refs/heads/master' && steps.download-coverage.outcome == 'success'
+        if: github.event_name == 'pull_request' && steps.download-coverage.outcome == 'success'
         run: |
-          npxie coverage-comparison "${{ github.repository }}" "./coverage-master/coverage-summary.json" "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
+          npxie coverage-comparison "${{ github.repository }}" "./coverage-upcoming/coverage-summary.json" "test/coverage/coverage-summary.json" "${{ github.event.pull_request.number }}" "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Fail if tests failed
         if: steps.tests.outputs.exit_code != '0'

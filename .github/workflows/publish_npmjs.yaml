@@ -1,24 +1,102 @@
 name: Publish on npm
+
+# Single entry point for publishing @ethersphere/bee-js, so npm Trusted Publishing only needs
+# this one workflow file registered on the package. Two flows share it:
+#   - release published  -> stable publish (the release is cut from `upcoming` by release-please)
+#   - push to `upcoming` -> ephemeral `<next-stable>-upcoming.g<short-sha>` prerelease under the
+#                           `upcoming` dist-tag (installable via `@ethersphere/bee-js@upcoming`),
+#                           gated on the required CI workflows passing for the commit.
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - upcoming
 
 permissions:
   id-token: write
   contents: read
+  actions: read
 
 jobs:
+  # CI gate — only for the upcoming snapshot path. Skipped on release: the released commit
+  # already passed these on `upcoming`. Each is invoked as a reusable (`workflow_call`) job so
+  # `publish` can depend on them natively via `needs`.
+  tests-stable:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/tests.yaml
+    secrets: inherit
+
+  tests-rc:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/tests-rc.yaml
+    secrets: inherit
+
+  check:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/check.yaml
+    secrets: inherit
+
+  entrypoint:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/entrypoint.yaml
+    secrets: inherit
+
   publish:
+    needs: [tests-stable, tests-rc, check, entrypoint]
+    # Publish on a release (CI jobs are skipped there), or on an `upcoming` push only when every
+    # CI job succeeded. `!cancelled()` lets the job evaluate even though the needed jobs are
+    # skipped on the release path.
+    if: >-
+      !cancelled() &&
+      (github.event_name == 'release' ||
+       (needs.tests-stable.result == 'success' &&
+        needs.tests-rc.result == 'success' &&
+        needs.check.result == 'success' &&
+        needs.entrypoint.result == 'success'))
     runs-on: ubuntu-latest
     environment: publish
-
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
-          
+
       - run: npm ci
+
+      # Snapshot version (`<next-stable>-upcoming.g<short-sha>`), computed at build time and
+      # never committed. Upcoming push only. `<next-stable>` is the version release-please has
+      # already computed from conventional commits (so a `feat`/breaking change is reflected as
+      # a minor/major bump, not just a patch); we read it from the release PR branch's
+      # package.json. Fallback: patch-bump the current version when no release PR exists yet.
+      # Note: on the same push, release-please (release_github.yaml) runs concurrently, so a
+      # commit that changes the bump level may reflect one run late; it self-corrects next push.
+      - name: Compute snapshot version
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          RP_BRANCH="release-please--branches--upcoming--components--bee-js"
+          NEXT=""
+          if git fetch --depth 1 origin "$RP_BRANCH" 2>/dev/null; then
+            NEXT=$(git show FETCH_HEAD:package.json | jq -r '.version')
+          fi
+          if [ -z "$NEXT" ] || [ "$NEXT" = "null" ]; then
+            BASE=$(node -p "require('./package.json').version.replace(/-.*$/, '')")
+            NEXT=$(node -p "require('semver').inc('$BASE', 'patch')")
+          fi
+          echo "SNAPSHOT_VERSION=${NEXT}-upcoming.g${GITHUB_SHA:0:7}" >> "$GITHUB_ENV"
+
+      - name: Set snapshot version (not committed)
+        if: github.event_name == 'push'
+        run: npm version "$SNAPSHOT_VERSION" --no-git-tag-version
+
       - run: npm run build --if-present
-      - run: npm publish --provenance --access public
+
+      - name: Publish stable release
+        if: github.event_name == 'release'
+        run: npm publish --provenance --access public
+
+      - name: Publish upcoming snapshot
+        if: github.event_name == 'push'
+        run: npm publish --provenance --access public --tag upcoming
