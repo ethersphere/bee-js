@@ -3,7 +3,7 @@ name: Publish on npm
 # Single entry point for publishing @ethersphere/bee-js, so npm Trusted Publishing only needs
 # this one workflow file registered on the package. Two flows share it:
 #   - release published  -> stable publish (the release is cut from `upcoming` by release-please)
-#   - push to `upcoming` -> ephemeral `<next-patch>-upcoming.<run_number>` prerelease under the
+#   - push to `upcoming` -> ephemeral `<next-stable>-upcoming.g<short-sha>` prerelease under the
 #                           `upcoming` dist-tag (installable via `@ethersphere/bee-js@upcoming`),
 #                           gated on the required CI workflows passing for the commit.
 on:
@@ -65,14 +65,27 @@ jobs:
 
       - run: npm ci
 
-      # Snapshot version (next patch + `-upcoming.<run_number>`), computed at build time and
-      # never committed. Upcoming push only.
+      # Snapshot version (`<next-stable>-upcoming.g<short-sha>`), computed at build time and
+      # never committed. Upcoming push only. `<next-stable>` is the version release-please has
+      # already computed from conventional commits (so a `feat`/breaking change is reflected as
+      # a minor/major bump, not just a patch); we read it from the release PR branch's
+      # package.json. Fallback: patch-bump the current version when no release PR exists yet.
+      # Note: on the same push, release-please (release_github.yaml) runs concurrently, so a
+      # commit that changes the bump level may reflect one run late; it self-corrects next push.
       - name: Compute snapshot version
         if: github.event_name == 'push'
         run: |
-          BASE=$(node -p "require('./package.json').version.replace(/-.*$/, '')")
-          NEXT=$(node -p "require('semver').inc('$BASE', 'patch')")
-          echo "SNAPSHOT_VERSION=${NEXT}-upcoming.${{ github.run_number }}" >> "$GITHUB_ENV"
+          set -euo pipefail
+          RP_BRANCH="release-please--branches--upcoming--components--bee-js"
+          NEXT=""
+          if git fetch --depth 1 origin "$RP_BRANCH" 2>/dev/null; then
+            NEXT=$(git show FETCH_HEAD:package.json | jq -r '.version')
+          fi
+          if [ -z "$NEXT" ] || [ "$NEXT" = "null" ]; then
+            BASE=$(node -p "require('./package.json').version.replace(/-.*$/, '')")
+            NEXT=$(node -p "require('semver').inc('$BASE', 'patch')")
+          fi
+          echo "SNAPSHOT_VERSION=${NEXT}-upcoming.g${GITHUB_SHA:0:7}" >> "$GITHUB_ENV"
 
       - name: Set snapshot version (not committed)
         if: github.event_name == 'push'
