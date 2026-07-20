@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [12.3.2](https://github.com/ethersphere/bee-js/compare/v12.3.1...v12.3.2) (2026-07-08)
+
+
+### Bug Fixes
+
+* mantaray marshal and unmarshal logic ([#1202](https://github.com/ethersphere/bee-js/issues/1202)) ([85f767f](https://github.com/ethersphere/bee-js/commit/85f767f5d59cfa2245aab92da457d0f0953d4a04))
+
 ## [12.3.1](https://github.com/ethersphere/bee-js/compare/v12.3.0...v12.3.1) (2026-07-07)
 
 
