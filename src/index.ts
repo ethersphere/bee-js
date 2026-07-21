@@ -1,7 +1,7 @@
 import { Bee } from './bee'
-import { Stamper } from './stamper/stamper'
 
-export { MerkleTree } from 'cafe-utility'
+export { ChunkBuilder, ChunkSplitter } from 'swarm-core/chunk'
+export { Stamper } from 'swarm-core/stamper'
 export type { Chunk } from './chunk/cac'
 export type { SingleOwnerChunk } from './chunk/soc'
 export { MantarayNode } from './manifest/manifest'
@@ -16,7 +16,7 @@ export { Size } from './utils/size'
 export * from './utils/tokens'
 export * from './utils/typed-bytes'
 export type { UploadProgress } from './utils/upload-progress'
-export { Bee, Stamper }
+export { Bee }
 
 // for require-like imports
 declare global {
@@ -24,7 +24,7 @@ declare global {
     // binded as 'BeeJs' via Webpack
     BeeJs: {
       Bee: typeof import('./bee').Bee
-      Stamper: typeof import('./stamper/stamper').Stamper
+      Stamper: typeof import('swarm-core/stamper').Stamper
       Utils: typeof import('./utils/expose')
       Duration: typeof import('./utils/duration').Duration
       Size: typeof import('./utils/size').Size
@@ -32,7 +32,7 @@ declare global {
       BeeArgumentError: typeof import('./utils/error').BeeArgumentError
       BeeResponseError: typeof import('./utils/error').BeeResponseError
       MantarayNode: typeof import('./manifest/manifest').MantarayNode
-      MerkleTree: typeof import('cafe-utility').MerkleTree
+      ChunkSplitter: typeof import('swarm-core/chunk').ChunkSplitter
       PrivateKey: typeof import('./utils/typed-bytes').PrivateKey
       PublicKey: typeof import('./utils/typed-bytes').PublicKey
       EthAddress: typeof import('./utils/typed-bytes').EthAddress

@@ -1,4 +1,4 @@
-import { AsyncQueue, Chunk, MerkleTree, Strings } from 'cafe-utility'
+import { AsyncQueue, Strings } from 'cafe-utility'
 import { createReadStream } from 'fs'
 import { Bee, BeeRequestOptions, CollectionUploadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { MantarayNode } from '../manifest/manifest'
@@ -7,12 +7,13 @@ import { makeCollectionFromFS } from './collection.node'
 import { mimes } from './mime'
 import { BatchId } from './typed-bytes'
 import { UploadProgress } from './upload-progress'
+import { ChunkEntry, ChunkSplitter } from 'swarm-core/chunk'
 
 export async function hashDirectory(dir: string) {
   const files = await makeCollectionFromFS(dir)
   const mantaray = new MantarayNode()
   for (const file of files) {
-    const tree = new MerkleTree(MerkleTree.NOOP)
+    const tree = new ChunkSplitter(ChunkSplitter.NOOP)
 
     if (!file.fsPath) {
       throw Error('File does not have fsPath, which should never happen in node. Please report this issue.')
@@ -51,11 +52,17 @@ export async function streamDirectory(
 
   let hasIndexHtml = false
 
-  async function onChunk(chunk: Chunk) {
-    await queue.enqueue(async () => {
-      await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
-      onUploadProgress?.({ total, processed: ++processed })
-    })
+  async function uploadAndTrack(chunk: { build: () => Uint8Array }) {
+    await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
+    onUploadProgress?.({ total, processed: ++processed })
+  }
+
+  async function onBatch(batch: ChunkEntry[]): Promise<ChunkEntry[]> {
+    for (const { chunk } of batch) {
+      await queue.enqueue(async () => uploadAndTrack(chunk))
+    }
+
+    return []
   }
   const mantaray = new MantarayNode()
   for (const file of files) {
@@ -64,11 +71,15 @@ export async function streamDirectory(
     }
     const readStream = createReadStream(file.fsPath)
 
-    const tree = new MerkleTree(onChunk)
+    const tree = new ChunkSplitter(onBatch)
     for await (const data of readStream) {
       await tree.append(data)
     }
+    // ChunkSplitter's onBatch only sees chunks once they're referenced by a
+    // parent - the root chunk returned by finalize() is never passed to it,
+    // so it has to be uploaded here explicitly.
     const rootChunk = await tree.finalize()
+    await queue.enqueue(async () => uploadAndTrack(rootChunk))
     await queue.drain()
     const { filename, extension } = Strings.parseFilename(file.path)
     mantaray.addFork(file.path, rootChunk.hash(), {

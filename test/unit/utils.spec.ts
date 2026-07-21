@@ -13,11 +13,15 @@ test('Utils.getFolderSize', async () => {
 })
 
 test('Utils.approximateOverheadForRedundancyLevel', () => {
+  // Values now come from swarm-core's canonical Reed-Solomon parity tables
+  // (ported directly from Bee's pkg/file/redundancy/level.go) instead of bee-js's
+  // own second, independent approximation table, which was off by one threshold
+  // per level.
   expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.OFF, false)).toBe(0)
-  expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.MEDIUM, false)).toEqual(0.09574468085106383)
-  expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.STRONG, false)).toBe(0.21052631578947367)
-  expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.INSANE, false)).toBe(0.33695652173913043)
-  expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.PARANOID, false)).toBe(2.4324324324324325)
+  expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.MEDIUM, false)).toEqual(0.09)
+  expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.STRONG, false)).toBe(0.2)
+  expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.INSANE, false)).toBe(0.31)
+  expect(Utils.approximateOverheadForRedundancyLevel(100, RedundancyLevel.PARANOID, false)).toBe(0.89)
 })
 
 test('Utils.getRedundancyStat', () => {

@@ -1,4 +1,4 @@
-import { AsyncQueue, Chunk, MerkleTree, Strings } from 'cafe-utility'
+import { AsyncQueue, Strings } from 'cafe-utility'
 import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { MantarayNode } from '../manifest/manifest'
 import { totalChunks } from './chunk-size'
@@ -6,6 +6,7 @@ import { makeFilePath } from './collection'
 import { mimes } from './mime'
 import { BatchId, Reference } from './typed-bytes'
 import { UploadProgress } from './upload-progress'
+import { ChunkBuilder, ChunkEntry, ChunkSplitter } from 'swarm-core/chunk'
 
 export async function hashDirectory(_dir: string) {
   throw new Error('Hashing directories is not supported in browsers!')
@@ -44,21 +45,27 @@ export async function streamFiles(
   }
   postageBatchId = new BatchId(postageBatchId)
 
-  async function onChunk(chunk: Chunk) {
-    await queue.enqueue(async () => {
+  async function uploadAndTrack(chunk: { build: () => Uint8Array }) {
+    if (signal?.aborted) {
+      return
+    }
+    try {
+      await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
+      onUploadProgress?.({ total, processed: ++processed })
+    } catch (err) {
       if (signal?.aborted) {
         return
       }
-      try {
-        await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
-        onUploadProgress?.({ total, processed: ++processed })
-      } catch (err) {
-        if (signal?.aborted) {
-          return
-        }
-        throw err
-      }
-    })
+      throw err
+    }
+  }
+
+  async function onBatch(batch: ChunkEntry[]): Promise<ChunkEntry[]> {
+    for (const { chunk } of batch) {
+      await queue.enqueue(async () => uploadAndTrack(chunk))
+    }
+
+    return []
   }
   const mantaray = new MantarayNode()
   for (const file of files) {
@@ -66,8 +73,8 @@ export async function streamFiles(
       throw new Error('Request aborted')
     }
 
-    const rootChunk = await new Promise<Chunk>((resolve, reject) => {
-      const tree = new MerkleTree(onChunk)
+    const rootChunk = await new Promise<ChunkBuilder>((resolve, reject) => {
+      const tree = new ChunkSplitter(onBatch)
 
       let offset = 0
 
@@ -85,7 +92,11 @@ export async function streamFiles(
         }
 
         if (offset >= file.size) {
+          // ChunkSplitter's onBatch only sees chunks once they're referenced
+          // by a parent - the root chunk returned by finalize() is never
+          // passed to it, so it has to be uploaded here explicitly.
           const rootChunk = await tree.finalize()
+          await queue.enqueue(async () => uploadAndTrack(rootChunk))
           resolve(rootChunk)
 
           return

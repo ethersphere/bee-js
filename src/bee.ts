@@ -1,6 +1,7 @@
 import { Binary, Objects, System } from 'cafe-utility'
 import { Readable } from 'stream'
 import { z } from 'zod'
+import { numberToUint256 } from 'swarm-core/bytes'
 import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from './chunk/cac'
 import {
   SingleOwnerChunk,
@@ -1151,7 +1152,7 @@ export class Bee {
     identifier = new Identifier(identifier)
     const start = 0xb33n
     for (let i = 0n; i < 0xffffn; i++) {
-      const signer = new PrivateKey(Binary.numberToUint256(start + i, 'BE'))
+      const signer = new PrivateKey(numberToUint256(start + i, 'BE'))
       const socAddress = makeSOCAddress(identifier, signer.publicKey().address())
       // TODO: test the significance of the hardcoded 256
       const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), targetOverlay.toUint8Array())
