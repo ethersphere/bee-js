@@ -1,7 +1,6 @@
 import { Bee } from './bee'
 
-export { ChunkBuilder, ChunkSplitter } from 'swarm-core/chunk'
-export { Stamper } from 'swarm-core/stamper'
+export { ChunkBuilder, ChunkSplitter, Stamper } from 'swarm-core'
 export type { Chunk } from './chunk/cac'
 export type { SingleOwnerChunk } from './chunk/soc'
 export { MantarayNode } from './manifest/manifest'
@@ -24,7 +23,7 @@ declare global {
     // binded as 'BeeJs' via Webpack
     BeeJs: {
       Bee: typeof import('./bee').Bee
-      Stamper: typeof import('swarm-core/stamper').Stamper
+      Stamper: typeof import('swarm-core').Stamper
       Utils: typeof import('./utils/expose')
       Duration: typeof import('./utils/duration').Duration
       Size: typeof import('./utils/size').Size
@@ -32,7 +31,7 @@ declare global {
       BeeArgumentError: typeof import('./utils/error').BeeArgumentError
       BeeResponseError: typeof import('./utils/error').BeeResponseError
       MantarayNode: typeof import('./manifest/manifest').MantarayNode
-      ChunkSplitter: typeof import('swarm-core/chunk').ChunkSplitter
+      ChunkSplitter: typeof import('swarm-core').ChunkSplitter
       PrivateKey: typeof import('./utils/typed-bytes').PrivateKey
       PublicKey: typeof import('./utils/typed-bytes').PublicKey
       EthAddress: typeof import('./utils/typed-bytes').EthAddress

@@ -11,4 +11,4 @@ export {
   Span,
   Topic,
   TransactionId,
-} from 'swarm-core/bytes'
+} from 'swarm-core'

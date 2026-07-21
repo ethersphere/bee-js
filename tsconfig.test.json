@@ -1,13 +1,8 @@
 {
   "extends": "./tsconfig-base.json",
-  "include": [
-    "src",
-    "test"
-  ],
+  "include": ["src", "test"],
   "compilerOptions": {
-    "module": "node16",
-    "noEmit": true,
-    "moduleResolution": "node16",
-    "isolatedModules": true
+    "module": "commonjs",
+    "noEmit": true
   }
 }

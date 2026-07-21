@@ -1,4 +1,4 @@
-export { Bytes } from 'swarm-core/bytes'
+export { Bytes } from 'swarm-core'
 
 export function parseSizeToBytes(sizeStr: string): number {
   const units = {

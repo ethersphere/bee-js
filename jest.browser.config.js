@@ -7,7 +7,7 @@ export default {
       resolver: '<rootDir>/test/browser-resolver.cjs',
       setupFiles: ['<rootDir>/test/setup-browser.cjs'],
       transform: {
-        '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.test.json', diagnostics: { ignoreCodes: [151002] } }],
+        '^.+\\.tsx?$': ['ts-jest', { diagnostics: { ignoreCodes: [151002] } }],
       },
     },
   ],

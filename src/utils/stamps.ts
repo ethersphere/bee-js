@@ -14,7 +14,7 @@ import {
   getStampTheoreticalBytes,
   getStampUsage,
   marshalStamp as coreMarshalStamp,
-} from 'swarm-core/stamper'
+} from 'swarm-core'
 
 export { getStampEffectiveBytes, getStampEffectiveBytesBreakpoints, getStampTheoreticalBytes, getStampUsage }
 

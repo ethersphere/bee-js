@@ -6,11 +6,12 @@ import { BeeError } from '../utils/error'
 import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Signature, Span } from '../utils/typed-bytes'
 import { Chunk, makeContentAddressedChunk } from './cac'
 import {
+  concatBytes,
   makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
   makeSOCAddress,
+  uint256ToNumber,
   unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
-} from 'swarm-core/chunk'
-import { concatBytes, uint256ToNumber } from 'swarm-core/bytes'
+} from 'swarm-core'
 
 export { makeSOCAddress }
 

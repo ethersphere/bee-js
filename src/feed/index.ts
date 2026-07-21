@@ -1,7 +1,6 @@
 import { Optional } from 'cafe-utility'
 import { z } from 'zod'
-import { concatBytes, numberToUint64, uint64ToNumber } from 'swarm-core/bytes'
-import { keccak256 } from 'swarm-core/crypto'
+import { concatBytes, keccak256, numberToUint64, uint64ToNumber } from 'swarm-core'
 import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from '../chunk/cac'
 import {
   unmarshalSingleOwnerChunk,

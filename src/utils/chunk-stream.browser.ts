@@ -6,7 +6,7 @@ import { makeFilePath } from './collection'
 import { mimes } from './mime'
 import { BatchId, Reference } from './typed-bytes'
 import { UploadProgress } from './upload-progress'
-import { ChunkBuilder, ChunkEntry, ChunkSplitter } from 'swarm-core/chunk'
+import { ChunkBuilder, ChunkEntry, ChunkSplitter } from 'swarm-core'
 
 export async function hashDirectory(_dir: string) {
   throw new Error('Hashing directories is not supported in browsers!')

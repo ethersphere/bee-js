@@ -4,8 +4,8 @@ import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions, U
 import { FeedPayloadResult } from '../modules/feed'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
-import { ChunkSplitter, Uint8ArrayReader } from 'swarm-core/chunk'
 import {
+  ChunkSplitter,
   commonPrefix,
   concatBytes,
   equals,
@@ -16,8 +16,9 @@ import {
   uint16ToNumber,
   uint8ArrayToHex,
   uint8ToNumber,
-} from 'swarm-core/bytes'
-import { xorCypher } from 'swarm-core/encryption'
+  Uint8ArrayReader,
+  xorCypher,
+} from 'swarm-core'
 
 const debug = _debug('bee-js:manifest')
 

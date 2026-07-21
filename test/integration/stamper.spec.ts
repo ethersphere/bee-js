@@ -1,6 +1,6 @@
 import { Strings, Types } from 'cafe-utility'
 import { Bytes, ChunkSplitter, Stamper } from '../../src'
-import { ChunkEntry } from 'swarm-core/chunk'
+import { ChunkEntry } from 'swarm-core'
 import { makeBee } from '../utils'
 
 test('Stamper utilization state', async () => {

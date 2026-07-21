@@ -1,7 +1,7 @@
 import { Binary, Objects, System } from 'cafe-utility'
 import { Readable } from 'stream'
 import { z } from 'zod'
-import { numberToUint256 } from 'swarm-core/bytes'
+import { numberToUint256 } from 'swarm-core'
 import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from './chunk/cac'
 import {
   SingleOwnerChunk,

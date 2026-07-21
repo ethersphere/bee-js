@@ -2,7 +2,6 @@
   "extends": "./tsconfig-base.json",
   "compilerOptions": {
     "module": "es2020",
-    "outDir": "dist/mjs",
-    "moduleResolution": "bundler"
+    "outDir": "dist/mjs"
   }
 }
