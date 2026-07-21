@@ -28,10 +28,12 @@ export default async () => {
     moduleDirectories: ['node_modules'],
     projects: [
       {
-        preset: 'ts-jest',
         displayName: 'node',
         testEnvironment: 'node',
         testRegex: 'test/.*(?<!\\.browser)\\.spec\\.ts',
+        transform: {
+          '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
+        },
       },
     ],
     rootDir: 'test',
