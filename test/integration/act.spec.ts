@@ -20,37 +20,37 @@ const patchGrantees = {
 
 test('CRUD grantee', async () => {
   // create
-  const createResponse = await bee.createGrantees(batch(), grantees)
+  const createResponse = await bee.grantee.create(batch(), grantees)
   expect(createResponse.ref.length).toBe(64)
   expect(createResponse.historyref.length).toBe(32)
 
   // get
-  const list = await bee.getGrantees(createResponse.ref)
+  const list = await bee.grantee.get(createResponse.ref)
   expect(list.grantees).toHaveLength(grantees.length)
   list.grantees.forEach((grantee: PublicKey) => {
     expect(grantees.some(x => x === grantee.toCompressedHex())).toBeTruthy()
   })
 
   // patch and upload
-  const { publicKey } = await bee.getNodeAddresses()
+  const { publicKey } = await bee.connectivity.getNodeAddresses()
   const filename = 'act-4.txt'
   const data = 'hello act grantees!'
-  const uploadResult = await bee.uploadFile(batch(), data, filename, { act: true })
+  const uploadResult = await bee.file.upload(batch(), data, filename, { act: true })
 
   await System.sleepMillis(Dates.seconds(5))
 
-  const patchResponse = await bee.patchGrantees(
+  const patchResponse = await bee.grantee.patch(
     batch(),
     createResponse.ref,
     uploadResult.historyAddress.getOrThrow(),
     patchGrantees,
   )
 
-  const listAfterPatch = await bee.getGrantees(patchResponse.ref)
+  const listAfterPatch = await bee.grantee.get(patchResponse.ref)
   expect(listAfterPatch.grantees).toHaveLength(1)
   expect(listAfterPatch.grantees[0].toCompressedHex()).toBe(patchGrantees.add[0])
 
-  const file = await bee.downloadFile(uploadResult.reference, filename, {
+  const file = await bee.file.download(uploadResult.reference, filename, {
     actPublisher: publicKey,
     actHistoryAddress: uploadResult.historyAddress.getOrThrow(),
     actTimestamp: 1,
@@ -62,16 +62,16 @@ test('ACT upload history address', async () => {
   const bee = makeBee()
   const data = Strings.randomHex(2000)
 
-  const upload = await bee.uploadFile(batch(), data, 'README.md')
+  const upload = await bee.file.upload(batch(), data, 'README.md')
 
-  const actUpload1 = await bee.uploadFile(batch(), data, 'README.md', { act: true })
-  const actUploadAgain1 = await bee.uploadFile(batch(), data, 'README.md', {
+  const actUpload1 = await bee.file.upload(batch(), data, 'README.md', { act: true })
+  const actUploadAgain1 = await bee.file.upload(batch(), data, 'README.md', {
     act: true,
     actHistoryAddress: actUpload1.historyAddress.getOrThrow(),
   })
 
-  const actUpload2 = await bee.uploadFile(batch(), data, 'README.md', { act: true })
-  const actUploadAgain2 = await bee.uploadFile(batch(), data, 'README.md', {
+  const actUpload2 = await bee.file.upload(batch(), data, 'README.md', { act: true })
+  const actUploadAgain2 = await bee.file.upload(batch(), data, 'README.md', {
     act: true,
     actHistoryAddress: actUpload2.historyAddress.getOrThrow(),
   })

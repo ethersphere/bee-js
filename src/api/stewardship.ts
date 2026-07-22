@@ -6,11 +6,9 @@ import { BatchId, Reference } from '../utils/typed-bytes'
 const stewardshipEndpoint = 'stewardship'
 
 /**
- * Reupload locally pinned data
- * @param requestOptions Options for making requests
- * @param reference
- * @throws BeeResponseError if not locally pinned or invalid data
+ * Raw HTTP calls for the `/stewardship` endpoint.
  */
+
 export async function reupload(requestOptions: BeeRequestOptions, stamp: BatchId, reference: Reference): Promise<void> {
   await http(requestOptions, {
     method: 'put',
@@ -19,12 +17,7 @@ export async function reupload(requestOptions: BeeRequestOptions, stamp: BatchId
   })
 }
 
-export async function isRetrievable(
-  requestOptions: BeeRequestOptions,
-  reference: Reference | Uint8Array | string,
-): Promise<boolean> {
-  reference = new Reference(reference)
-
+export async function isRetrievable(requestOptions: BeeRequestOptions, reference: Reference): Promise<boolean> {
   const response = await http<unknown>(requestOptions, {
     method: 'get',
     responseType: 'json',

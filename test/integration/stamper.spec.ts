@@ -20,7 +20,7 @@ test('Stamper utilization state', async () => {
   // parent - the root chunk returned by finalize() is uploaded separately below.
   const onBatch = async (batch: ChunkEntry[]): Promise<ChunkEntry[]> => {
     for (const { chunk } of batch) {
-      await bee.uploadChunk(stamper.stamp(chunk.hash().toUint8Array()), chunk.build())
+      await bee.chunk.upload(stamper.stamp(chunk.hash().toUint8Array()), chunk.build())
     }
 
     return []
@@ -29,7 +29,7 @@ test('Stamper utilization state', async () => {
   const tree = new ChunkSplitter(onBatch)
   await tree.append(payload.toUint8Array())
   const rootChunk = await tree.finalize()
-  await bee.uploadChunk(stamper.stamp(rootChunk.hash().toUint8Array()), rootChunk.build())
+  await bee.chunk.upload(stamper.stamp(rootChunk.hash().toUint8Array()), rootChunk.build())
 
   const state = stamper.getState()
   expect(state).toHaveLength(65536)
@@ -45,6 +45,6 @@ test('Stamper utilization state', async () => {
   nextStamper.stamp(rootChunk.hash().toUint8Array())
   expect(() => nextStamper.stamp(rootChunk.hash().toUint8Array())).toThrow('Stamper#stamp bucket is full')
 
-  const data = await bee.downloadData(rootChunk.hash().toUint8Array())
+  const data = await bee.data.download(rootChunk.hash())
   expect(data.toUtf8()).toEqual(payload.toUtf8())
 })

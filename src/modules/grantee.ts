@@ -1,75 +1,79 @@
-import { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
-import { GetGranteesBodyResponse, GranteesResultBodyResponse } from '../types/schema/grantee'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
+import * as api from '../api/grantee'
+import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
 import { BatchId, PublicKey, Reference } from '../utils/typed-bytes'
+import type { BeeContext } from './context'
 
-const granteeEndpoint = 'grantee'
+/**
+ * Grantee (access control) operations.
+ *
+ * Accessed as `bee.grantee`.
+ */
+export class Grantee {
+  constructor(private readonly context: BeeContext) {}
 
-export async function getGrantees(reference: Reference, requestOptions: BeeRequestOptions): Promise<GetGranteesResult> {
-  const response = await http<unknown>(requestOptions, {
-    method: 'get',
-    url: `${granteeEndpoint}/${reference}`,
-    responseType: 'json',
-  })
+  /**
+   * Creates grantees for a postage batch.
+   *
+   * @param postageBatchId
+   * @param grantees Public keys of the grantees.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async create(
+    postageBatchId: BatchId | Uint8Array | string,
+    grantees: PublicKey[] | Uint8Array[] | string[],
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    const batchId = new BatchId(postageBatchId)
+    const publicKeys = grantees.map(x => new PublicKey(x))
 
-  return {
-    status: response.status,
-    statusText: response.statusText,
-    grantees: GetGranteesBodyResponse.parse(response.data),
+    return api.createGrantees(this.context.getRequestOptionsForCall(requestOptions), batchId, publicKeys)
   }
-}
 
-export async function createGrantees(
-  requestOptions: BeeRequestOptions,
-  postageBatchId: BatchId,
-  grantees: PublicKey[],
-): Promise<GranteesResult> {
-  const response = await http<unknown>(requestOptions, {
-    method: 'post',
-    url: granteeEndpoint,
-    data: { grantees: grantees.map(x => x.toCompressedHex()) },
-    headers: prepareRequestHeaders(postageBatchId),
-    responseType: 'json',
-  })
+  /**
+   * Retrieves the grantees for a given reference.
+   *
+   * @param reference The reference.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async get(
+    reference: Reference | Uint8Array | string,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GetGranteesResult> {
+    const ref = new Reference(reference)
 
-  const body = GranteesResultBodyResponse.parse(response.data)
-
-  return {
-    status: response.status,
-    statusText: response.statusText,
-    ref: body.ref,
-    historyref: body.historyref,
+    return api.getGrantees(this.context.getRequestOptionsForCall(requestOptions), ref)
   }
-}
 
-export async function patchGrantees(
-  postageBatchId: BatchId,
-  reference: Reference,
-  historyRef: Reference,
-  grantees: { add?: PublicKey[]; revoke?: PublicKey[] },
-  requestOptions: BeeRequestOptions,
-): Promise<GranteesResult> {
-  const response = await http<unknown>(requestOptions, {
-    method: 'patch',
-    url: `${granteeEndpoint}/${reference}`,
-    data: {
-      add: grantees.add?.map(x => x.toCompressedHex()),
-      revoke: grantees.revoke?.map(x => x.toCompressedHex()),
-    },
-    headers: {
-      ...prepareRequestHeaders(postageBatchId),
-      'swarm-act-history-address': historyRef.toHex(),
-    },
-    responseType: 'json',
-  })
+  /**
+   * Updates the grantees of a specific reference and history.
+   *
+   * @param postageBatchId The ID of the postage batch.
+   * @param reference The reference.
+   * @param history The history.
+   * @param grantees The grantees to add and/or revoke.
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async patch(
+    postageBatchId: BatchId | Uint8Array | string,
+    reference: Reference | Uint8Array | string,
+    history: Reference | Uint8Array | string,
+    grantees: { add?: PublicKey[] | Uint8Array[] | string[]; revoke?: PublicKey[] | Uint8Array[] | string[] },
+    requestOptions?: BeeRequestOptions,
+  ): Promise<GranteesResult> {
+    const batchId = new BatchId(postageBatchId)
+    const ref = new Reference(reference)
+    const historyRef = new Reference(history)
+    const publicKeys = {
+      add: grantees.add?.map(x => new PublicKey(x)) ?? [],
+      revoke: grantees.revoke?.map(x => new PublicKey(x)) ?? [],
+    }
 
-  const body = GranteesResultBodyResponse.parse(response.data)
-
-  return {
-    status: response.status,
-    statusText: response.statusText,
-    ref: body.ref,
-    historyref: body.historyref,
+    return api.patchGrantees(
+      this.context.getRequestOptionsForCall(requestOptions),
+      batchId,
+      ref,
+      historyRef,
+      publicKeys,
+    )
   }
 }

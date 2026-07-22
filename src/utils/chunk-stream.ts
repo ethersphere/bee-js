@@ -53,7 +53,7 @@ export async function streamDirectory(
   let hasIndexHtml = false
 
   async function uploadAndTrack(chunk: { build: () => Uint8Array }) {
-    await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
+    await bee.chunk.upload(postageBatchId, chunk.build(), options, requestOptions)
     onUploadProgress?.({ total, processed: ++processed })
   }
 

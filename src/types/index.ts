@@ -1,7 +1,7 @@
 import { Optional } from 'cafe-utility'
 import type { SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
-import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../modules/feed'
+import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../api/feed'
 import { Bytes } from '../utils/bytes'
 import { Duration } from '../utils/duration'
 import type { BeeError } from '../utils/error'

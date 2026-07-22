@@ -7,15 +7,15 @@ import {
   uploadSingleOwnerChunkData,
   uploadSingleOwnerChunkWithWrappedChunk,
 } from '../chunk/soc'
-import * as bytes from '../modules/bytes'
-import * as chunkAPI from '../modules/chunk'
+import * as bytes from '../api/bytes'
+import * as chunkAPI from '../api/chunk'
 import {
   FeedPayloadResult,
   FeedReferenceResult,
   FeedUpdateOptions,
   fetchLatestFeedUpdate,
   probeFeed,
-} from '../modules/feed'
+} from '../api/feed'
 import { BeeRequestOptions, FeedReader, FeedWriter, UploadOptions, UploadResult } from '../types'
 import { Bytes } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'

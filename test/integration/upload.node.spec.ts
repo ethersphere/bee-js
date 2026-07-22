@@ -8,7 +8,7 @@ test('upload files from directory', async () => {
   const expectedStreamHash = '237865537469cc454a0d2d8ae913b1402f360af045d956caccf1f1724f597118'
 
   // use bzz api with streaming tar
-  const response = await bee.uploadFilesFromDirectory(batch(), 'test/data')
+  const response = await bee.collection.uploadFromDirectory(batch(), 'test/data')
   expect(response.reference.toHex()).toBe(expectedHash)
 
   // reconstruct the data with unmarshal
@@ -17,21 +17,21 @@ test('upload files from directory', async () => {
   expect((await unmarshalled.calculateSelfAddress()).toHex()).toBe(expectedHash)
 
   // check directory hash locally
-  const hash = await bee.hashDirectory('test/data')
+  const hash = await bee.collection.hashDirectory('test/data')
   expect(hash.toHex()).toBe(expectedStreamHash)
 
   // stream chunks to upload
-  const streamResponse = await bee.streamDirectory(batch(), 'test/data')
+  const streamResponse = await bee.collection.streamFromDirectory(batch(), 'test/data')
   expect(streamResponse.reference.toHex()).toBe(expectedStreamHash)
 
   // download the data and compare
-  const stylesCss = await bee.downloadFile(expectedHash, 'static/styles.css')
+  const stylesCss = await bee.file.download(expectedHash, 'static/styles.css')
   expect(stylesCss.data.toUtf8()).toBe(`body {
   text-align: center;
 }
 `)
 
-  const streamedstylesCss = await bee.downloadFile(expectedStreamHash, 'static/styles.css')
+  const streamedstylesCss = await bee.file.download(expectedStreamHash, 'static/styles.css')
   expect(streamedstylesCss.data.toUtf8()).toBe(`body {
   text-align: center;
 }
@@ -39,7 +39,7 @@ test('upload files from directory', async () => {
 })
 
 test('stream directory and document metadata', async () => {
-  const response = await bee.streamDirectory(
+  const response = await bee.collection.streamFromDirectory(
     batch(),
     'test/data',
     () => {

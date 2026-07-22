@@ -50,7 +50,7 @@ export async function streamFiles(
       return
     }
     try {
-      await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
+      await bee.chunk.upload(postageBatchId, chunk.build(), options, requestOptions)
       onUploadProgress?.({ total, processed: ++processed })
     } catch (err) {
       if (signal?.aborted) {
