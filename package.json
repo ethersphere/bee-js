@@ -63,7 +63,8 @@
     "test:browser": "TS_NODE_PROJECT=tsconfig.test.json jest --config jest.browser.config.js --runInBand --verbose --forceExit",
     "check": "tsc --project tsconfig.test.json",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-    "depcheck": "depcheck ."
+    "depcheck": "depcheck .",
+    "codemod": "ts-node --project codemod/tsconfig.json codemod/index.ts"
   },
   "dependencies": {
     "cafe-utility": "^34.0.0",

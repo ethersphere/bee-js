@@ -22,14 +22,9 @@ import { BatchId, Reference } from '../utils/typed-bytes'
 const bzzEndpoint = 'bzz'
 
 /**
- * Upload single file
- *
- * @param requestOptions Options for making requests
- * @param data Files data
- * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
- * @param name Name that will be attached to the uploaded file. Wraps the data into manifest with set index document.
- * @param options
+ * Raw HTTP calls for the `/bzz` endpoint.
  */
+
 export async function uploadFile(
   requestOptions: BeeRequestOptions,
   data: string | Uint8Array | Readable | ArrayBuffer,
@@ -64,13 +59,6 @@ export async function uploadFile(
   }
 }
 
-/**
- * Download single file as a buffer
- *
- * @param requestOptions Options for making requests
- * @param hash Bee file or collection hash
- * @param path If hash is collection then this defines path to a single file in the collection
- */
 export async function downloadFile(
   requestOptions: BeeRequestOptions,
   resource: ResourceLocator,
@@ -91,13 +79,6 @@ export async function downloadFile(
   return file
 }
 
-/**
- * Download single file as a readable stream
- *
- * @param requestOptions Options for making requests
- * @param hash Bee file or collection hash
- * @param path If hash is collection then this defines path to a single file in the collection
- */
 export async function downloadFileReadable(
   requestOptions: BeeRequestOptions,
   reference: Reference,
@@ -124,13 +105,6 @@ export async function downloadFileReadable(
 
 // Collections
 
-/**
- * Upload collection
- * @param requestOptions Options for making requests
- * @param collection Collection of Uint8Array buffers to upload
- * @param postageBatchId  Postage BatchId that will be assigned to uploaded data
- * @param options
- */
 export async function uploadCollection(
   requestOptions: BeeRequestOptions,
   collection: Collection,

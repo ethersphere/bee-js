@@ -5,14 +5,14 @@ import { makeBee } from '../utils'
 const bee = makeBee()
 
 test('GET/POST stake', async () => {
-  const stakePreviously = await bee.getStake()
+  const stakePreviously = await bee.stake.get()
 
-  const transactionId = await bee.depositStake(BZZ.fromFloat(10))
+  const transactionId = await bee.stake.deposit(BZZ.fromFloat(10))
   expect(transactionId.toHex()).toHaveLength(64)
 
   await System.waitFor(
     async () => {
-      const stake = await bee.getStake()
+      const stake = await bee.stake.get()
 
       return stake.eq(stakePreviously.plus(BZZ.fromFloat(10)))
     },

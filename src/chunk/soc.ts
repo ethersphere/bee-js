@@ -1,6 +1,6 @@
 import { Binary } from 'cafe-utility'
-import * as chunkAPI from '../modules/chunk'
-import * as socAPI from '../modules/soc'
+import * as chunkAPI from '../api/chunk'
+import * as socAPI from '../api/soc'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
 import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'

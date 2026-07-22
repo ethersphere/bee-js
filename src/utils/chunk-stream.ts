@@ -53,7 +53,7 @@ export async function streamDirectory(
 
   async function onChunk(chunk: Chunk) {
     await queue.enqueue(async () => {
-      await bee.uploadChunk(postageBatchId, chunk.build(), options, requestOptions)
+      await bee.chunk.upload(postageBatchId, chunk.build(), options, requestOptions)
       onUploadProgress?.({ total, processed: ++processed })
     })
   }

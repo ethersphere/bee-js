@@ -1,0 +1,120 @@
+import type { BeeRequestOptions, UploadOptions } from '../types'
+import { UploadResultBody } from '../types/schema/upload'
+import { Bytes } from '../utils/bytes'
+import { BeeError } from '../utils/error'
+import { prepareRequestHeaders } from '../utils/headers'
+import { http } from '../utils/http'
+import { BatchId, EthAddress, FeedIndex, Reference, Topic } from '../utils/typed-bytes'
+
+const feedEndpoint = 'feeds'
+
+/**
+ * Raw HTTP calls for the `/feeds` endpoint.
+ */
+
+export interface FeedUpdateOptions {
+  /**
+   * Specifies the start date as unix time stamp
+   */
+  at?: number
+
+  /**
+   * Fetch specific previous Feed's update (default fetches latest update)
+   */
+  index?: FeedIndex | number
+
+  /**
+   * Whether the first 8 bytes of the payload are a timestamp
+   */
+  hasTimestamp?: boolean
+}
+
+interface FeedUpdateHeaders {
+  /**
+   * The current feed's index
+   */
+  feedIndex: FeedIndex
+
+  /**
+   * The feed's index for next update.
+   * Only set for the latest update. If update is fetched using previous index, then this is an empty string.
+   */
+  feedIndexNext?: FeedIndex
+}
+
+export interface FeedPayloadResult extends FeedUpdateHeaders {
+  payload: Bytes
+}
+
+export interface FeedReferenceResult extends FeedUpdateHeaders {
+  reference: Reference
+}
+
+export async function createFeedManifest(
+  requestOptions: BeeRequestOptions,
+  owner: EthAddress,
+  topic: Topic,
+  stamp: BatchId,
+  options?: UploadOptions,
+): Promise<Reference> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'post',
+    responseType: 'json',
+    url: `${feedEndpoint}/${owner}/${topic}`,
+    headers: prepareRequestHeaders(stamp, options),
+  })
+
+  return UploadResultBody.parse(response.data).reference
+}
+
+function readFeedUpdateHeaders(headers: Record<string, string>): FeedUpdateHeaders {
+  const feedIndex = headers['swarm-feed-index']
+  const feedIndexNext = headers['swarm-feed-index-next']
+
+  if (!feedIndex) {
+    throw new BeeError('Response did not contain expected swarm-feed-index!')
+  }
+
+  if (!feedIndexNext) {
+    throw new BeeError('Response did not contain expected swarm-feed-index-next!')
+  }
+
+  return {
+    feedIndex: new FeedIndex(feedIndex),
+    feedIndexNext: new FeedIndex(feedIndexNext),
+  }
+}
+
+export async function fetchLatestFeedUpdate(
+  requestOptions: BeeRequestOptions,
+  owner: EthAddress,
+  topic: Topic,
+  options?: FeedUpdateOptions,
+): Promise<FeedPayloadResult> {
+  const response = await http<ArrayBuffer>(requestOptions, {
+    responseType: 'arraybuffer',
+    url: `${feedEndpoint}/${owner}/${topic}`,
+    params: { ...options },
+  })
+
+  return {
+    payload: new Bytes(response.data),
+    ...readFeedUpdateHeaders(response.headers as Record<string, string>),
+  }
+}
+
+export async function probeFeed(
+  requestOptions: BeeRequestOptions,
+  owner: EthAddress,
+  topic: Topic,
+): Promise<FeedUpdateHeaders> {
+  const response = await http<ArrayBuffer>(requestOptions, {
+    responseType: 'arraybuffer',
+    url: `${feedEndpoint}/${owner}/${topic}`,
+    params: {
+      'Swarm-Only-Root-Chunk': true,
+    },
+  })
+
+  return readFeedUpdateHeaders(response.headers as Record<string, string>)
+}

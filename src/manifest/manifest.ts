@@ -1,7 +1,7 @@
 import { Binary, MerkleTree, Optional, Uint8ArrayReader } from 'cafe-utility'
 import _debug from 'debug'
 import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
-import { FeedPayloadResult } from '../modules/feed'
+import { FeedPayloadResult } from '../api/feed'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
 
@@ -238,7 +238,7 @@ export class MantarayNode {
       return Optional.empty()
     }
 
-    return Optional.of(await bee.fetchLatestFeedUpdate(topic, owner, requestOptions))
+    return Optional.of(await bee.feed.fetchLatestUpdate(topic, owner, requestOptions))
   }
 
   /**
@@ -294,7 +294,7 @@ export class MantarayNode {
     requestOptions?: BeeRequestOptions,
   ): Promise<MantarayNode> {
     reference = new Reference(reference)
-    const data = (await bee.downloadData(reference, options, requestOptions)).toUint8Array()
+    const data = (await bee.data.download(reference, options, requestOptions)).toUint8Array()
 
     return this.unmarshalFromData(data, reference.toUint8Array())
   }
@@ -451,7 +451,7 @@ export class MantarayNode {
         }
       }
     }
-    const result = await bee.uploadData(postageBatchId, await this.marshal(), options, requestOptions)
+    const result = await bee.data.upload(postageBatchId, await this.marshal(), options, requestOptions)
     this.selfAddress = result.reference.toUint8Array()
 
     return result

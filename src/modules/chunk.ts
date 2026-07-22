@@ -1,72 +1,81 @@
-import { Optional } from 'cafe-utility'
-import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions, UploadResult } from '../types'
-import { UploadResultBody } from '../types/schema/upload'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
-import { makeTagUid } from '../utils/type'
-import { BatchId, Reference } from '../utils/typed-bytes'
-
-const endpoint = 'chunks'
+import { Chunk as ContentAddressedChunk } from '../chunk/cac'
+import { SingleOwnerChunk } from '../chunk/soc'
+import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions } from '../types'
+import { CHUNK_SIZE, UploadResult } from '../types'
+import { BeeArgumentError } from '../utils/error'
+import { DownloadOptionsSchema, UploadOptionsSchema } from '../utils/schema'
+import { BatchId, Identifier, Reference, Signature, Span } from '../utils/typed-bytes'
+import * as api from '../api/chunk'
+import type { BeeContext } from './context'
 
 /**
- * Upload chunk to a Bee node
+ * Chunk operations backed by the `/chunks` endpoint.
  *
- * The chunk data consists of 8 byte span and up to 4096 bytes of payload data.
- * The span stores the length of the payload in uint64 little endian encoding.
- * Upload expects the chuck data to be set accordingly.
- *
- * @param requestOptions Options for making requests
- * @param data Chunk data to be uploaded
- * @param stamp BatchId or marshaled stamp to be used for the upload
- * @param options Additional options like tag, encryption, pinning
+ * Accessed as `bee.chunk`.
  */
-export async function upload(
-  requestOptions: BeeRequestOptions,
-  data: Uint8Array,
-  stamp: EnvelopeWithBatchId | BatchId | Uint8Array | string,
-  options?: UploadOptions,
-): Promise<UploadResult> {
-  const response = await http<unknown>(requestOptions, {
-    method: 'post',
-    url: `${endpoint}`,
-    data,
-    headers: {
-      'content-type': 'application/octet-stream',
-      ...prepareRequestHeaders(stamp, options),
-    },
-    responseType: 'json',
-  })
+export class Chunk {
+  constructor(private readonly context: BeeContext) {}
 
-  const body = UploadResultBody.parse(response.data)
+  /**
+   * Uploads a chunk to the network.
+   *
+   * Chunks uploaded with this method should be retrieved with {@link download}.
+   *
+   * @param stamp Postage Batch ID or an Envelope created with the `bee.createEnvelope` method.
+   * @param data    Raw chunk to be uploaded (Content Addressed Chunk or Single Owner Chunk)
+   * @param options Additional options like tag, encryption, pinning, content-type and request options
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async upload(
+    stamp: EnvelopeWithBatchId | BatchId | Uint8Array | string,
+    data: Uint8Array | ContentAddressedChunk | SingleOwnerChunk,
+    options?: UploadOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<UploadResult> {
+    const isSOC = 'identifier' in data && 'signature' in data && 'owner' in data
 
-  return {
-    reference: body.reference,
-    tagUid: response.headers['swarm-tag'] ? makeTagUid(response.headers['swarm-tag']) : undefined,
-    historyAddress: response.headers['swarm-act-history-address']
-      ? Optional.of(new Reference(response.headers['swarm-act-history-address']))
-      : Optional.empty(),
+    data = data instanceof Uint8Array ? data : data.data
+
+    if (options) {
+      options = UploadOptionsSchema.parse(options)
+    }
+
+    if (data.length < Span.LENGTH) {
+      throw new BeeArgumentError(`Chunk has to have size of at least ${Span.LENGTH}.`, data)
+    }
+
+    if (!isSOC && data.length > CHUNK_SIZE + Span.LENGTH) {
+      throw new BeeArgumentError(`Content Addressed Chunk must not exceed ${CHUNK_SIZE + Span.LENGTH} bytes.`, data)
+    }
+
+    if (isSOC && data.length > CHUNK_SIZE + Span.LENGTH + Signature.LENGTH + Identifier.LENGTH) {
+      throw new BeeArgumentError(
+        `Single Owner Chunk must not exceed ${CHUNK_SIZE + Span.LENGTH + Signature.LENGTH + Identifier.LENGTH} bytes.`,
+        data,
+      )
+    }
+
+    return api.upload(this.context.getRequestOptionsForCall(requestOptions), data, stamp, options)
   }
-}
 
-/**
- * Download chunk data as a byte array
- *
- * @param requestOptions Options for making requests
- * @param hash Bee content reference
- *
- */
-export async function download(
-  requestOptions: BeeRequestOptions,
-  reference: Reference | string | Uint8Array,
-  options?: DownloadOptions,
-): Promise<Uint8Array> {
-  reference = new Reference(reference)
+  /**
+   * Downloads a chunk as a `Uint8Array`.
+   *
+   * @param reference Bee chunk reference in hex string (either 64 or 128 chars long) or ENS domain.
+   * @param options Options that affects the request behavior
+   * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
+   */
+  async download(
+    reference: Reference | Uint8Array | string,
+    options?: DownloadOptions,
+    requestOptions?: BeeRequestOptions,
+  ): Promise<Uint8Array> {
+    const ref = new Reference(reference)
 
-  const response = await http<ArrayBuffer>(requestOptions, {
-    responseType: 'arraybuffer',
-    url: `${endpoint}/${reference}`,
-    headers: prepareRequestHeaders(null, options),
-  })
+    if (options) {
+      options = DownloadOptionsSchema.parse(options)
+    }
 
-  return new Uint8Array(response.data)
+    return api.download(this.context.getRequestOptionsForCall(requestOptions), ref, options)
+  }
 }
