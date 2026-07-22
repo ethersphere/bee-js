@@ -1,14 +1,56 @@
-import { Binary, MerkleTree, Optional, Uint8ArrayReader } from 'cafe-utility'
+import { Optional } from 'cafe-utility'
 import _debug from 'debug'
 import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
 import { FeedPayloadResult } from '../api/feed'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
+import {
+  ChunkSplitter,
+  commonPrefix,
+  concatBytes,
+  equals,
+  hexToUint8Array,
+  indexOf,
+  numberToUint8,
+  numberToUint16,
+  uint16ToNumber,
+  uint8ArrayToHex,
+  uint8ToNumber,
+  Uint8ArrayReader,
+  xorCypher,
+} from 'swarm-core'
 
 const debug = _debug('bee-js:manifest')
 
 const ENCODER = new TextEncoder()
 const DECODER = new TextDecoder()
+
+// Mantaray's per-node fork bitmap is always bit-indexed little-endian - not
+// exposed by swarm-core's own (private) equivalents, so kept local here.
+function setBit(bytes: Uint8Array, index: number): void {
+  const byteIndex = Math.floor(index / 8)
+  const bitIndex = index % 8
+  bytes[byteIndex] |= 1 << bitIndex
+}
+
+function getBit(bytes: Uint8Array, index: number): boolean {
+  const byteIndex = Math.floor(index / 8)
+  const bitIndex = index % 8
+
+  return ((bytes[byteIndex] >> bitIndex) & 0x01) === 1
+}
+
+function padEndToMultiple(bytes: Uint8Array, multiple: number, paddingByte: number): Uint8Array {
+  const remainder = bytes.length % multiple
+
+  if (remainder === 0) {
+    return bytes
+  }
+  const result = new Uint8Array(bytes.length + multiple - remainder).fill(paddingByte)
+  result.set(bytes, 0)
+
+  return result
+}
 
 const TYPE_VALUE = 2
 const TYPE_EDGE = 4
@@ -16,7 +58,7 @@ const TYPE_WITH_PATH_SEPARATOR = 8
 const TYPE_WITH_METADATA = 16
 const PATH_SEPARATOR = new Uint8Array([47])
 const VERSION_02_HASH_HEX = '5768b3b6a7db56d21d1abff40d41cebfc83448fed8d7e9b06ec0d3b073f28f7b'
-const VERSION_02_HASH = Binary.hexToUint8Array(VERSION_02_HASH_HEX)
+const VERSION_02_HASH = hexToUint8Array(VERSION_02_HASH_HEX)
 
 export class Fork {
   prefix: Uint8Array
@@ -28,7 +70,7 @@ export class Fork {
   }
 
   static split(a: Fork, b: Fork): Fork {
-    const commonPart = Binary.commonPrefix(a.prefix, b.prefix)
+    const commonPart = commonPrefix(a.prefix, b.prefix)
 
     if (commonPart.length === a.prefix.length) {
       const remainingB = b.prefix.slice(commonPart.length)
@@ -78,7 +120,7 @@ export class Fork {
     // unmarshal → marshal round-trip is byte-identical. determineType() can only
     // recompute it correctly once the node's children are loaded/built in memory.
     data.push(new Uint8Array([this.node.type ?? this.node.determineType()]))
-    data.push(Binary.numberToUint8(this.prefix.length))
+    data.push(numberToUint8(this.prefix.length))
     data.push(this.prefix)
 
     if (this.prefix.length < 30) {
@@ -89,26 +131,26 @@ export class Fork {
     debug('marshalling fork', {
       prefixLength: this.prefix.length,
       prefix: DECODER.decode(this.prefix),
-      address: Binary.uint8ArrayToHex(this.node.selfAddress),
+      address: uint8ArrayToHex(this.node.selfAddress),
     })
 
     if (this.node.metadata) {
-      const metadataBytes = Binary.padEndToMultiple(
+      const metadataBytes = padEndToMultiple(
         new Uint8Array([0x00, 0x00, ...ENCODER.encode(JSON.stringify(this.node.metadata))]),
         32,
         0x0a,
       )
-      const metadataLengthBytes = Binary.numberToUint16(metadataBytes.length - 2, 'BE')
+      const metadataLengthBytes = numberToUint16(metadataBytes.length - 2, 'BE')
       metadataBytes.set(metadataLengthBytes, 0)
       data.push(metadataBytes)
     }
 
-    return Binary.concatBytes(...data)
+    return concatBytes(...data)
   }
 
   static unmarshal(reader: Uint8ArrayReader, addressLength: number): Fork {
-    const type = Binary.uint8ToNumber(reader.read(1))
-    const prefixLength = Binary.uint8ToNumber(reader.read(1))
+    const type = uint8ToNumber(reader.read(1))
+    const prefixLength = uint8ToNumber(reader.read(1))
     const prefix = reader.read(prefixLength)
 
     if (prefixLength < 30) {
@@ -120,12 +162,12 @@ export class Fork {
       prefixLength,
       prefix: DECODER.decode(prefix),
       addressLength,
-      address: Binary.uint8ArrayToHex(selfAddress),
+      address: uint8ArrayToHex(selfAddress),
     })
     let metadata: Record<string, string> | undefined = undefined
 
     if (isType(type, TYPE_WITH_METADATA)) {
-      const metadataLength = Binary.uint16ToNumber(reader.read(2), 'BE')
+      const metadataLength = uint16ToNumber(reader.read(2), 'BE')
       metadata = JSON.parse(DECODER.decode(reader.read(metadataLength)))
     }
 
@@ -182,7 +224,7 @@ export class MantarayNode {
   }
 
   get fullPath(): Uint8Array {
-    return Binary.concatBytes(this.parent?.fullPath ?? new Uint8Array(0), this.path)
+    return concatBytes(this.parent?.fullPath ?? new Uint8Array(0), this.path)
   }
 
   get fullPathString(): string {
@@ -250,7 +292,7 @@ export class MantarayNode {
         fork.node.selfAddress = (await fork.node.calculateSelfAddress()).toUint8Array()
       }
     }
-    const hasEntry = !Binary.equals(this.targetAddress, NULL_ADDRESS)
+    const hasEntry = !equals(this.targetAddress, NULL_ADDRESS)
     let refBytesSize = 0
 
     if (hasEntry) {
@@ -265,21 +307,21 @@ export class MantarayNode {
     }
     const header = new Uint8Array(32)
     header.set(VERSION_02_HASH, 0)
-    header.set(Binary.numberToUint8(refBytesSize), 31)
+    header.set(numberToUint8(refBytesSize), 31)
     const entry = hasEntry ? this.targetAddress : new Uint8Array(refBytesSize)
     const forkBitmap = new Uint8Array(32)
     for (const fork of this.forks.keys()) {
-      Binary.setBit(forkBitmap, fork, 1, 'LE')
+      setBit(forkBitmap, fork)
     }
     const forks: Uint8Array[] = []
     for (let i = 0; i < 256; i++) {
-      if (Binary.getBit(forkBitmap, i, 'LE')) {
+      if (getBit(forkBitmap, i)) {
         forks.push(this.forks.get(i)!.marshal())
       }
     }
-    const data = Binary.xorCypher(Binary.concatBytes(header, entry, forkBitmap, ...forks), this.obfuscationKey)
+    const data = xorCypher(concatBytes(header, entry, forkBitmap, ...forks), this.obfuscationKey)
 
-    return Binary.concatBytes(this.obfuscationKey, data)
+    return concatBytes(this.obfuscationKey, data)
   }
 
   /**
@@ -306,21 +348,21 @@ export class MantarayNode {
    */
   static unmarshalFromData(data: Uint8Array, selfAddress: Uint8Array): MantarayNode {
     const obfuscationKey = data.subarray(0, 32)
-    const decrypted = Binary.xorCypher(data.subarray(32), obfuscationKey)
+    const decrypted = xorCypher(data.subarray(32), obfuscationKey)
     const reader = new Uint8ArrayReader(decrypted)
     const versionHash = reader.read(31)
 
-    if (!Binary.equals(versionHash, VERSION_02_HASH.slice(0, 31))) {
+    if (!equals(versionHash, VERSION_02_HASH.slice(0, 31))) {
       throw new Error('MantarayNode#unmarshal invalid version hash')
     }
-    const targetAddressLength = Binary.uint8ToNumber(reader.read(1))
+    const targetAddressLength = uint8ToNumber(reader.read(1))
     const targetAddress = targetAddressLength ? reader.read(targetAddressLength) : NULL_ADDRESS
     const node = new MantarayNode({ selfAddress, targetAddress, obfuscationKey })
     const forkBitmap = reader.read(32)
 
     if (targetAddressLength > 0) {
       for (let i = 0; i < 256; i++) {
-        if (Binary.getBit(forkBitmap, i, 'LE')) {
+        if (getBit(forkBitmap, i)) {
           const newFork = Fork.unmarshal(reader, selfAddress.length)
           node.forks.set(i, newFork)
           newFork.node.parent = node
@@ -412,7 +454,7 @@ export class MantarayNode {
 
     parent.forks.delete(path.slice(matchedPath.length)[0])
     for (const fork of match.forks.values()) {
-      parent.addFork(Binary.concatBytes(match.path, fork.prefix), fork.node.targetAddress, fork.node.metadata)
+      parent.addFork(concatBytes(match.path, fork.prefix), fork.node.targetAddress, fork.node.metadata)
     }
   }
 
@@ -424,7 +466,7 @@ export class MantarayNode {
       return new Reference(this.selfAddress)
     }
 
-    return new Reference((await MerkleTree.root(await this.marshal())).hash())
+    return (await ChunkSplitter.root(await this.marshal())).hash()
   }
 
   /**
@@ -505,8 +547,8 @@ export class MantarayNode {
 
     const fork = this.forks.get(path[0])
 
-    if (fork && Binary.commonPrefix(fork.prefix, path).length === fork.prefix.length) {
-      return fork.node.findClosest(path.slice(fork.prefix.length), Binary.concatBytes(current, fork.prefix))
+    if (fork && commonPrefix(fork.prefix, path).length === fork.prefix.length) {
+      return fork.node.findClosest(path.slice(fork.prefix.length), concatBytes(current, fork.prefix))
     }
 
     return [this, current]
@@ -519,7 +561,7 @@ export class MantarayNode {
    */
   collect(nodes: MantarayNode[] = []): MantarayNode[] {
     for (const fork of this.forks.values()) {
-      if (!Binary.equals(fork.node.targetAddress, NULL_ADDRESS)) {
+      if (!equals(fork.node.targetAddress, NULL_ADDRESS)) {
         nodes.push(fork.node)
       }
       fork.node.collect(nodes)
@@ -554,7 +596,7 @@ export class MantarayNode {
     // carries an entry. The path-separator flag is set only when a separator occurs
     // past the first byte (IndexRune > 0), so a prefix that merely starts with '/'
     // does not qualify.
-    if (!Binary.equals(this.targetAddress, NULL_ADDRESS) || this.forks.size === 0) {
+    if (!equals(this.targetAddress, NULL_ADDRESS) || this.forks.size === 0) {
       type |= TYPE_VALUE
     }
 
@@ -562,7 +604,7 @@ export class MantarayNode {
       type |= TYPE_EDGE
     }
 
-    if (Binary.indexOf(this.path, PATH_SEPARATOR) > 0) {
+    if (indexOf(this.path, PATH_SEPARATOR) > 0) {
       type |= TYPE_WITH_PATH_SEPARATOR
     }
 

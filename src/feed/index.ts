@@ -1,5 +1,6 @@
-import { Binary, Optional } from 'cafe-utility'
+import { Optional } from 'cafe-utility'
 import { z } from 'zod'
+import { concatBytes, keccak256, numberToUint64, uint64ToNumber } from 'swarm-core'
 import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from '../chunk/cac'
 import {
   unmarshalSingleOwnerChunk,
@@ -72,8 +73,8 @@ export async function updateFeedWithReference(
 
   const identifier = makeFeedIdentifier(topic, nextIndex)
   const at = options?.at ?? Date.now() / 1000.0
-  const timestamp = Binary.numberToUint64(BigInt(Math.floor(at)), 'BE')
-  const payloadBytes = Binary.concatBytes(timestamp, reference.toUint8Array())
+  const timestamp = numberToUint64(BigInt(Math.floor(at)), 'BE')
+  const payloadBytes = concatBytes(timestamp, reference.toUint8Array())
 
   return uploadSingleOwnerChunkData(requestOptions, signer, postageBatchId, identifier, payloadBytes, options)
 }
@@ -119,7 +120,7 @@ export async function updateFeedWithPayload(
 export function getFeedUpdateChunkReference(owner: EthAddress, topic: Topic, index: FeedIndex): Reference {
   const identifier = makeFeedIdentifier(topic, index)
 
-  return new Reference(Binary.keccak256(Binary.concatBytes(identifier.toUint8Array(), owner.toUint8Array())))
+  return new Reference(keccak256(concatBytes(identifier.toUint8Array(), owner.toUint8Array())))
 }
 
 export async function downloadFeedUpdate(
@@ -137,7 +138,7 @@ export async function downloadFeedUpdate(
 
   if (hasTimestamp) {
     const timestampBytes = Bytes.fromSlice(soc.payload.toUint8Array(), TIMESTAMP_PAYLOAD_OFFSET, TIMESTAMP_PAYLOAD_SIZE)
-    timestamp = Optional.of(Number(Binary.uint64ToNumber(timestampBytes.toUint8Array(), 'BE')))
+    timestamp = Optional.of(Number(uint64ToNumber(timestampBytes.toUint8Array(), 'BE')))
   }
 
   return {

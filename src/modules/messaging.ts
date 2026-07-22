@@ -1,5 +1,6 @@
 import { Binary, System } from 'cafe-utility'
 import WebSocket from 'isomorphic-ws'
+import { numberToUint256 } from 'swarm-core'
 import { makeContentAddressedChunk } from '../chunk/cac'
 import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
 import type {
@@ -151,7 +152,7 @@ export class Messaging {
     const start = 0xb33n
 
     for (let i = 0n; i < 0xffffn; i++) {
-      const signer = new PrivateKey(Binary.numberToUint256(start + i, 'BE'))
+      const signer = new PrivateKey(numberToUint256(start + i, 'BE'))
       const socAddress = makeSOCAddress(id, signer.publicKey().address())
       // TODO: test the significance of the hardcoded 256
       const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), overlay.toUint8Array())

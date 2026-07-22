@@ -1,12 +1,7 @@
-import { Binary } from 'cafe-utility'
-import { z } from 'zod'
 import { Bytes } from '../utils/bytes'
 import { Identifier, PrivateKey, Reference, Span } from '../utils/typed-bytes'
-import { calculateChunkAddress } from './bmt'
 import { makeSingleOwnerChunk, SingleOwnerChunk } from './soc'
-
-export const MIN_PAYLOAD_SIZE = 1
-export const MAX_PAYLOAD_SIZE = 4096
+import { makeContentAddressedChunk as coreMake, unmarshalContentAddressedChunk as coreUnmarshal } from 'swarm-core'
 
 /**
  * Content Addressed Chunk (CAC) is the immutable building block of Swarm,
@@ -45,39 +40,21 @@ export interface Chunk {
   ) => SingleOwnerChunk
 }
 
-export function unmarshalContentAddressedChunk(data: Bytes | Uint8Array): Chunk {
-  data = new Bytes(data)
+function withToSingleOwnerChunk(core: { data: Uint8Array; span: Span; payload: Bytes; address: Reference }): Chunk {
+  return {
+    data: core.data,
+    span: core.span,
+    payload: core.payload,
+    address: core.address,
+    toSingleOwnerChunk: (identifier, signer) =>
+      makeSingleOwnerChunk(core.address, core.span, core.payload, identifier, signer),
+  }
+}
 
-  return makeContentAddressedChunk(data.toUint8Array().slice(Span.LENGTH), Span.fromSlice(data.toUint8Array(), 0))
+export function unmarshalContentAddressedChunk(data: Bytes | Uint8Array): Chunk {
+  return withToSingleOwnerChunk(coreUnmarshal(data instanceof Bytes ? data.toUint8Array() : data))
 }
 
 export function makeContentAddressedChunk(rawPayload: Bytes | Uint8Array | string, span?: Span | bigint): Chunk {
-  const asString = z.string().safeParse(rawPayload)
-
-  if (asString.success) {
-    rawPayload = Bytes.fromUtf8(asString.data)
-  }
-
-  if (rawPayload.length < MIN_PAYLOAD_SIZE || rawPayload.length > MAX_PAYLOAD_SIZE) {
-    throw new RangeError(`payload size ${rawPayload.length} exceeds limits [${MIN_PAYLOAD_SIZE}, ${MAX_PAYLOAD_SIZE}]`)
-  }
-
-  const typedSpan: Span = span
-    ? typeof span === 'bigint'
-      ? Span.fromBigInt(span)
-      : span
-    : Span.fromBigInt(BigInt(rawPayload.length))
-  const payload = new Bytes(rawPayload)
-  const data = Binary.concatBytes(typedSpan.toUint8Array(), payload.toUint8Array())
-  const address = calculateChunkAddress(data)
-
-  return {
-    data,
-    span: typedSpan,
-    payload,
-    address,
-    toSingleOwnerChunk: (identifier: Identifier | Uint8Array | string, signer: PrivateKey | Uint8Array | string) => {
-      return makeSingleOwnerChunk(address, typedSpan, payload, identifier, signer)
-    },
-  }
+  return withToSingleOwnerChunk(coreMake(rawPayload, span))
 }

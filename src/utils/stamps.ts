@@ -1,114 +1,22 @@
-import { Binary } from 'cafe-utility'
-import { capacityBreakpoints, EnvelopeWithBatchId, NumberString, PostageBatch, RedundancyLevel } from '../types'
-import { Bytes, parseSizeToBytes } from './bytes'
+import { EnvelopeWithBatchId, NumberString, PostageBatch, RedundancyLevel } from '../types'
+import { Bytes } from './bytes'
 import { Duration } from './duration'
 import { Size } from './size'
 import { BZZ } from './tokens'
 import { asNumberString } from './type'
 import { BatchId } from './typed-bytes'
 import { normalizeBatchTTL } from './workaround'
+import {
+  convertEnvelopeToMarshaledStamp as coreConvertEnvelopeToMarshaledStamp,
+  getDepthForSize as coreGetDepthForSize,
+  getStampEffectiveBytes,
+  getStampEffectiveBytesBreakpoints,
+  getStampTheoreticalBytes,
+  getStampUsage,
+  marshalStamp as coreMarshalStamp,
+} from 'swarm-core'
 
-const MAX_UTILIZATION = 0.9
-
-/**
- * Utility function that calculates usage of postage batch based on its utilization, depth and bucket depth.
- *
- * For smaller depths (up to 20), this may provide less accurate results.
- *
- * @returns {number} A number between 0 and 1 representing the usage of the postage batch.
- */
-export function getStampUsage(utilization: number, depth: number, bucketDepth: number): number {
-  return utilization / Math.pow(2, depth - bucketDepth)
-}
-
-/**
- * Utility function that calculates the theoritical maximum size of a postage batch based on its depth.
- *
- * For smaller depths (up to 22), this may provide less accurate results.
- *
- * @returns {number} The maximum theoretical size of the postage batch in bytes.
- */
-export function getStampTheoreticalBytes(depth: number): number {
-  return 4096 * 2 ** depth
-}
-
-/**
- * Based on https://docs.ethswarm.org/docs/learn/technology/contracts/postage-stamp/#effective-utilisation-table
- * Optimised for encrypted, medium erasure coding
- */
-const effectiveSizeBreakpoints = [
-  [17, 0.00004089],
-  [18, 0.00609],
-  [19, 0.10249],
-  [20, 0.62891],
-  [21, 2.38],
-  [22, 7.07],
-  [23, 18.24],
-  [24, 43.04],
-  [25, 96.5],
-  [26, 208.52],
-  [27, 435.98],
-  [28, 908.81],
-  [29, 1870],
-  [30, 3810],
-  [31, 7730],
-  [32, 15610],
-  [33, 31430],
-  [34, 63150],
-]
-
-/**
- * Utility function that calculates the effective size of a postage batch based on its depth.
- *
- * Below 22 depth the effective size is 0
- * Above 34 it's always > 99%
- *
- * @returns {number} The effective size of the postage batch in bytes.
- */
-export function getStampEffectiveBytes(
-  depth: number,
-  encryption?: boolean,
-  erasureCodeLevel?: RedundancyLevel,
-): number {
-  if (depth < 17) {
-    return 0
-  }
-
-  if (encryption !== undefined && erasureCodeLevel !== undefined) {
-    const encryptionKey = encryption ? 'ENCRYPTION_ON' : 'ENCRYPTION_OFF'
-    const breakpoints = capacityBreakpoints[encryptionKey][erasureCodeLevel]
-    const entry = breakpoints.find(item => item.batchDepth === depth)
-
-    if (entry?.effectiveVolume) {
-      return parseSizeToBytes(entry.effectiveVolume)
-    }
-  } else {
-    const breakpoint = effectiveSizeBreakpoints.find(([d, size]) => {
-      if (depth === d) {
-        return size
-      }
-    })
-
-    if (breakpoint) {
-      return breakpoint[1] * 1000 * 1000 * 1000
-    }
-  }
-
-  return Math.ceil(getStampTheoreticalBytes(depth) * MAX_UTILIZATION)
-}
-
-export function getStampEffectiveBytesBreakpoints(
-  encryption: boolean,
-  erasureCodeLevel?: RedundancyLevel,
-): Map<number, number> {
-  const map = new Map<number, number>()
-
-  for (let i = 17; i < 35; i++) {
-    map.set(i, getStampEffectiveBytes(i, encryption, erasureCodeLevel))
-  }
-
-  return map
-}
+export { getStampEffectiveBytes, getStampEffectiveBytesBreakpoints, getStampTheoreticalBytes, getStampUsage }
 
 /**
  * Utility function that calculates the cost of a postage batch based on its depth and amount.
@@ -152,30 +60,11 @@ export function getAmountForDuration(duration: Duration, pricePerBlock: number, 
  * @returns
  */
 export function getDepthForSize(size: Size, encryption?: boolean, erasureCodeLevel?: RedundancyLevel): number {
-  if (encryption !== undefined && erasureCodeLevel !== undefined) {
-    const encryptionKey = encryption ? 'ENCRYPTION_ON' : 'ENCRYPTION_OFF'
-    const breakpoints = capacityBreakpoints[encryptionKey][erasureCodeLevel]
-
-    const entry = breakpoints.find(item => {
-      return size.toBytes() <= parseSizeToBytes(item.effectiveVolume)
-    })
-
-    if (entry?.effectiveVolume) {
-      return entry.batchDepth
-    }
-  } else {
-    for (const [depth, sizeBreakpoint] of effectiveSizeBreakpoints) {
-      if (size.toBytes() <= sizeBreakpoint * 1000 * 1000 * 1000) {
-        return depth
-      }
-    }
-  }
-
-  return 35
+  return coreGetDepthForSize(size.toBytes(), encryption, erasureCodeLevel)
 }
 
 export function convertEnvelopeToMarshaledStamp(envelope: EnvelopeWithBatchId): Bytes {
-  return marshalStamp(envelope.signature, envelope.batchId.toUint8Array(), envelope.timestamp, envelope.index)
+  return coreConvertEnvelopeToMarshaledStamp(envelope)
 }
 
 export function marshalStamp(
@@ -184,23 +73,7 @@ export function marshalStamp(
   timestamp: Uint8Array,
   index: Uint8Array,
 ): Bytes {
-  if (signature.length !== 65) {
-    throw Error('invalid signature length')
-  }
-
-  if (batchId.length !== 32) {
-    throw Error('invalid batch ID length')
-  }
-
-  if (timestamp.length !== 8) {
-    throw Error('invalid timestamp length')
-  }
-
-  if (index.length !== 8) {
-    throw Error('invalid index length')
-  }
-
-  return new Bytes(Binary.concatBytes(batchId, index, timestamp, signature))
+  return coreMarshalStamp(signature, batchId, timestamp, index)
 }
 
 export interface RawPostageBatch {
