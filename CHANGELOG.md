@@ -1,6 +1,23 @@
 # Changelog
 
 
+## [13.0.0](https://github.com/ethersphere/bee-js/compare/v12.3.1...v13.0.0) (2026-07-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* split methods to separated namespaces ([#1219](https://github.com/ethersphere/bee-js/issues/1219))
+
+### Bug Fixes
+
+* mantaray marshal and unmarshal logic ([#1202](https://github.com/ethersphere/bee-js/issues/1202)) ([85f767f](https://github.com/ethersphere/bee-js/commit/85f767f5d59cfa2245aab92da457d0f0953d4a04))
+* upcoming publish ([#1233](https://github.com/ethersphere/bee-js/issues/1233)) ([1efc6b9](https://github.com/ethersphere/bee-js/commit/1efc6b969c2abd7e19a66ab6aba93992c96f18f8))
+
+
+### Code Refactoring
+
+* split methods to separated namespaces ([#1219](https://github.com/ethersphere/bee-js/issues/1219)) ([cfb9756](https://github.com/ethersphere/bee-js/commit/cfb975603e2e1af92ed6e117714a85de53169968))
+
 ## [12.3.1](https://github.com/ethersphere/bee-js/compare/v12.3.0...v12.3.1) (2026-07-07)
 
 
