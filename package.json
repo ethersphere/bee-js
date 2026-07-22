@@ -87,7 +87,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^26.0.0",
     "@types/semver": "^7.3.9",
-    "@types/ws": "^8.5.3",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^5.46.0",
     "@typescript-eslint/parser": "^5.46.0",
     "babel-loader": "^9.1.0",
