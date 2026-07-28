@@ -39,7 +39,13 @@ export interface BeeRequestConfig extends RequestInit {
  * @param config Internal settings and/or Bee settings
  */
 export async function http<T>(options: BeeRequestOptions, config: BeeRequestConfig): Promise<BeeResponse<T>> {
-  const requestConfig: BeeRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+  const rawData = config.data
+  const requestConfig: BeeRequestConfig = Objects.deepMerge3(
+    DEFAULT_HTTP_CONFIG,
+    { ...config, data: undefined },
+    options,
+  )
+  requestConfig.data = rawData
 
   if (options.signal) {
     requestConfig.signal = options.signal

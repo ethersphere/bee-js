@@ -1,3 +1,4 @@
+import { Readable } from 'stream'
 import type {
   BeeRequestOptions,
   DownloadOptions,
@@ -34,7 +35,7 @@ export class Data {
    */
   async upload(
     postageBatchId: BatchId | Uint8Array | string,
-    data: string | Uint8Array,
+    data: string | Uint8Array | Blob | Readable,
     options?: RedundantUploadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {

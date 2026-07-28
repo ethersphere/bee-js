@@ -1,4 +1,5 @@
 import { Optional } from 'cafe-utility'
+import { Readable } from 'stream'
 import type { BeeRequestOptions, DownloadOptions, RedundantUploadOptions, ReferenceInformation } from '../types'
 import { UploadResult } from '../types'
 import { UploadResultBody } from '../types/schema/upload'
@@ -18,7 +19,7 @@ const endpoint = 'bytes'
 
 export async function upload(
   requestOptions: BeeRequestOptions,
-  data: string | Uint8Array,
+  data: string | Uint8Array | Blob | Readable,
   postageBatchId: BatchId,
   options?: RedundantUploadOptions,
 ): Promise<UploadResult> {
