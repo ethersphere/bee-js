@@ -1,4 +1,7 @@
 import { BatchId, Bytes, Reference } from '@ethersphere/core-sdk'
+import { Readable } from 'stream'
+import * as bytes from '../api/bytes'
+import * as stewardship from '../api/stewardship'
 import type {
   BeeRequestOptions,
   DownloadOptions,
@@ -9,8 +12,6 @@ import type {
 import { ResourceLocator } from '../utils/resource-locator'
 import { DownloadOptionsSchema, RedundantUploadOptionsSchema } from '../utils/schema'
 import { assertData } from '../utils/type'
-import * as bytes from '../api/bytes'
-import * as stewardship from '../api/stewardship'
 import type { BeeContext } from './context'
 
 /**
@@ -33,7 +34,7 @@ export class Data {
    */
   async upload(
     postageBatchId: BatchId | Uint8Array | string,
-    data: string | Uint8Array,
+    data: string | Uint8Array | Blob | Readable,
     options?: RedundantUploadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
