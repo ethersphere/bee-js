@@ -619,16 +619,7 @@ export interface PostageBatchOptions {
   waitForUsableTimeout?: number
 }
 
-export interface Envelope {
-  issuer: Uint8Array
-  index: Uint8Array
-  timestamp: Uint8Array
-  signature: Uint8Array
-}
-
-export interface EnvelopeWithBatchId extends Envelope {
-  batchId: BatchId
-}
+export type { Envelope, EnvelopeWithBatchId } from 'swarm-core'
 
 /**
  * With this type a number should be represented in a string

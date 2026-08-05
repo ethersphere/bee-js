@@ -3,41 +3,19 @@ import * as socAPI from '../api/soc'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
 import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
-import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Signature, Span } from '../utils/typed-bytes'
+import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Span } from '../utils/typed-bytes'
 import { Chunk, makeContentAddressedChunk } from './cac'
 import {
   concatBytes,
   makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
   makeSOCAddress,
+  SingleOwnerChunk,
   uint256ToNumber,
   unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
 } from 'swarm-core'
 
 export { makeSOCAddress }
-
-/**
- * Single Owner Chunk (SOC) is a chunk type where the address is determined by the owner and an arbitrary identifier.
- * Its integrity is attested by the owner's digital signature.
- *
- * Similar to Content Addressed Chunks (CAC), SOCs have a maximum payload size of 4096 bytes.
- *
- * - `span` indicates the size of the `payload` in bytes.
- * - `payload` contains the actual data or the body of the chunk.
- * - `data` contains the full chunk data - `span` and `payload`.
- * - `address` is the Swarm hash (or reference) of the chunk.
- * - `identifier` is an arbitrary identifier selected by the uploader.
- * - `signature` is the digital signature of the owner over the identifier and the underlying CAC address.
- * - `owner` is the Ethereum address of the chunk owner.
- */
-export interface SingleOwnerChunk {
-  readonly data: Uint8Array
-  span: Span
-  payload: Bytes
-  address: Reference
-  identifier: Identifier
-  signature: Signature
-  owner: EthAddress
-}
+export type { SingleOwnerChunk }
 
 function privateKeyToBigInt(signer: PrivateKey): bigint {
   return uint256ToNumber(signer.toUint8Array(), 'BE')
@@ -57,17 +35,7 @@ export function unmarshalSingleOwnerChunk(
   address: Reference | Uint8Array | string,
 ): SingleOwnerChunk {
   try {
-    const core = coreUnmarshalSingleOwnerChunk(data instanceof Bytes ? data.toUint8Array() : data, address)
-
-    return {
-      data: core.data,
-      identifier: core.identifier,
-      signature: new Signature(core.signature),
-      span: core.span,
-      payload: core.payload,
-      address: core.address,
-      owner: core.owner,
-    }
+    return coreUnmarshalSingleOwnerChunk(data instanceof Bytes ? data.toUint8Array() : data, address)
   } catch (e) {
     throw new BeeError((e as Error).message)
   }
@@ -90,17 +58,8 @@ export function makeSingleOwnerChunk(
   identifier = new Identifier(identifier)
   signer = new PrivateKey(signer)
   const wrappedChunk = { data: concatBytes(span.toUint8Array(), payload.toUint8Array()), span, payload, address }
-  const core = coreMakeSingleOwnerChunk(wrappedChunk, identifier, privateKeyToBigInt(signer))
 
-  return {
-    data: core.data,
-    identifier: core.identifier,
-    signature: new Signature(core.signature),
-    span: core.span,
-    payload: core.payload,
-    address: core.address,
-    owner: core.owner,
-  }
+  return coreMakeSingleOwnerChunk(wrappedChunk, identifier, privateKeyToBigInt(signer))
 }
 
 /**
