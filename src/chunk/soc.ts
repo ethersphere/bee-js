@@ -1,3 +1,10 @@
+import {
+  concatBytes,
+  makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
+  unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
+  makeSOCAddress,
+  SingleOwnerChunk,
+} from 'swarm-core'
 import * as chunkAPI from '../api/chunk'
 import * as socAPI from '../api/soc'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
@@ -5,21 +12,9 @@ import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Span } from '../utils/typed-bytes'
 import { Chunk, makeContentAddressedChunk } from './cac'
-import {
-  concatBytes,
-  makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
-  makeSOCAddress,
-  SingleOwnerChunk,
-  uint256ToNumber,
-  unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
-} from 'swarm-core'
 
 export { makeSOCAddress }
 export type { SingleOwnerChunk }
-
-function privateKeyToBigInt(signer: PrivateKey): bigint {
-  return uint256ToNumber(signer.toUint8Array(), 'BE')
-}
 
 /**
  * Unmarshals arbitrary data into a Single Owner Chunk.
@@ -59,7 +54,7 @@ export function makeSingleOwnerChunk(
   signer = new PrivateKey(signer)
   const wrappedChunk = { data: concatBytes(span.toUint8Array(), payload.toUint8Array()), span, payload, address }
 
-  return coreMakeSingleOwnerChunk(wrappedChunk, identifier, privateKeyToBigInt(signer))
+  return coreMakeSingleOwnerChunk(wrappedChunk, identifier, signer.toBigInt())
 }
 
 /**
