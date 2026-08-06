@@ -1,241 +1,135 @@
 import { Optional } from 'cafe-utility'
-import _debug from 'debug'
-import { Bee, BeeRequestOptions, DownloadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
+import { Bee, BeeRequestOptions, DownloadOptions, UploadOptions, UploadResult } from '..'
 import { FeedPayloadResult } from '../api/feed'
 import { Bytes } from '../utils/bytes'
 import { BatchId, Reference } from '../utils/typed-bytes'
-import {
-  ChunkSplitter,
-  commonPrefix,
-  concatBytes,
-  equals,
-  hexToUint8Array,
-  indexOf,
-  numberToUint8,
-  numberToUint16,
-  uint16ToNumber,
-  uint8ArrayToHex,
-  uint8ToNumber,
-  Uint8ArrayReader,
-  xorCypher,
-} from 'swarm-core'
+import { MantarayNode as CoreMantarayNode } from 'swarm-core'
 
-const debug = _debug('bee-js:manifest')
+/**
+ * Uploads `node` and every node beneath it, updating each `selfAddress` in
+ * place. Only the network/ACT-history side is bee-js specific - the trie
+ * structure and marshaling live entirely in swarm-core's MantarayNode.
+ */
+async function saveRecursively(
+  node: CoreMantarayNode,
+  bee: Bee,
+  postageBatchId: string | BatchId,
+  options?: UploadOptions,
+  requestOptions?: BeeRequestOptions,
+): Promise<UploadResult> {
+  for (const fork of node.forks.values()) {
+    const uploadResult = await saveRecursively(fork.node, bee, postageBatchId, options, requestOptions)
 
-const ENCODER = new TextEncoder()
-const DECODER = new TextDecoder()
+    if (options?.act) {
+      let historyAddress: Reference | undefined
+      uploadResult.historyAddress.ifPresent(ref => (historyAddress = ref))
 
-// Mantaray's per-node fork bitmap is always bit-indexed little-endian - not
-// exposed by swarm-core's own (private) equivalents, so kept local here.
-function setBit(bytes: Uint8Array, index: number): void {
-  const byteIndex = Math.floor(index / 8)
-  const bitIndex = index % 8
-  bytes[byteIndex] |= 1 << bitIndex
-}
-
-function getBit(bytes: Uint8Array, index: number): boolean {
-  const byteIndex = Math.floor(index / 8)
-  const bitIndex = index % 8
-
-  return ((bytes[byteIndex] >> bitIndex) & 0x01) === 1
-}
-
-function padEndToMultiple(bytes: Uint8Array, multiple: number, paddingByte: number): Uint8Array {
-  const remainder = bytes.length % multiple
-
-  if (remainder === 0) {
-    return bytes
+      if (historyAddress) {
+        if (!fork.node.metadata) {
+          fork.node.metadata = {}
+        }
+        fork.node.metadata['swarm-act-history-address'] = historyAddress.toHex()
+      }
+    }
   }
-  const result = new Uint8Array(bytes.length + multiple - remainder).fill(paddingByte)
-  result.set(bytes, 0)
+  const result = await bee.data.upload(postageBatchId, await node.marshal(), options, requestOptions)
+  node.selfAddress = result.reference.toUint8Array()
 
   return result
 }
 
-const TYPE_VALUE = 2
-const TYPE_EDGE = 4
-const TYPE_WITH_PATH_SEPARATOR = 8
-const TYPE_WITH_METADATA = 16
-const PATH_SEPARATOR = new Uint8Array([47])
-const VERSION_02_HASH_HEX = '5768b3b6a7db56d21d1abff40d41cebfc83448fed8d7e9b06ec0d3b073f28f7b'
-const VERSION_02_HASH = hexToUint8Array(VERSION_02_HASH_HEX)
-
-export class Fork {
-  prefix: Uint8Array
-  node: MantarayNode
-
-  constructor(prefix: Uint8Array, node: MantarayNode) {
-    this.prefix = prefix
-    this.node = node
-  }
-
-  static split(a: Fork, b: Fork): Fork {
-    const commonPart = commonPrefix(a.prefix, b.prefix)
-
-    if (commonPart.length === a.prefix.length) {
-      const remainingB = b.prefix.slice(commonPart.length)
-      b.node.path = b.prefix.slice(commonPart.length)
-      b.prefix = b.prefix.slice(commonPart.length)
-      b.node.parent = a.node
-      a.node.forks.set(remainingB[0], b)
-
-      return a
+/**
+ * Downloads and unmarshals every node beneath `node`, following ACT history
+ * metadata left by {@link saveRecursively} where present.
+ */
+async function loadRecursively(
+  node: CoreMantarayNode,
+  bee: Bee,
+  options?: DownloadOptions,
+  requestOptions?: BeeRequestOptions,
+): Promise<void> {
+  for (const fork of node.forks.values()) {
+    if (!fork.node.selfAddress) {
+      throw Error('MantarayNode#loadRecursively fork.node.selfAddress is not set')
     }
 
-    if (commonPart.length === b.prefix.length) {
-      const remainingA = a.prefix.slice(commonPart.length)
-      a.node.path = a.prefix.slice(commonPart.length)
-      a.prefix = a.prefix.slice(commonPart.length)
-      a.node.parent = b.node
-      b.node.forks.set(remainingA[0], a)
+    let downloadOptions = options
 
-      return b
+    if (fork.node.metadata && fork.node.metadata['swarm-act-history-address']) {
+      downloadOptions = {
+        ...options,
+        actHistoryAddress: fork.node.metadata['swarm-act-history-address'],
+      }
     }
 
-    const node = new MantarayNode({ path: commonPart })
-
-    const newAFork = new Fork(a.prefix.slice(commonPart.length), a.node)
-    const newBFork = new Fork(b.prefix.slice(commonPart.length), b.node)
-
-    a.node.path = a.prefix.slice(commonPart.length)
-    b.node.path = b.prefix.slice(commonPart.length)
-    a.prefix = a.prefix.slice(commonPart.length)
-    b.prefix = b.prefix.slice(commonPart.length)
-
-    node.forks.set(newAFork.prefix[0], newAFork)
-    node.forks.set(newBFork.prefix[0], newBFork)
-
-    newAFork.node.parent = node
-    newBFork.node.parent = node
-
-    return new Fork(commonPart, node)
-  }
-
-  marshal(): Uint8Array {
-    if (!this.node.selfAddress) {
-      throw Error('Fork#marshal node.selfAddress is not set')
-    }
-    const data: Uint8Array[] = []
-    // Re-emit the type byte read from the chunk when the node is untouched, so an
-    // unmarshal → marshal round-trip is byte-identical. determineType() can only
-    // recompute it correctly once the node's children are loaded/built in memory.
-    data.push(new Uint8Array([this.node.type ?? this.node.determineType()]))
-    data.push(numberToUint8(this.prefix.length))
-    data.push(this.prefix)
-
-    if (this.prefix.length < 30) {
-      data.push(new Uint8Array(30 - this.prefix.length))
-    }
-    data.push(this.node.selfAddress)
-
-    debug('marshalling fork', {
-      prefixLength: this.prefix.length,
-      prefix: DECODER.decode(this.prefix),
-      address: uint8ArrayToHex(this.node.selfAddress),
-    })
-
-    if (this.node.metadata) {
-      const metadataBytes = padEndToMultiple(
-        new Uint8Array([0x00, 0x00, ...ENCODER.encode(JSON.stringify(this.node.metadata))]),
-        32,
-        0x0a,
-      )
-      const metadataLengthBytes = numberToUint16(metadataBytes.length - 2, 'BE')
-      metadataBytes.set(metadataLengthBytes, 0)
-      data.push(metadataBytes)
-    }
-
-    return concatBytes(...data)
-  }
-
-  static unmarshal(reader: Uint8ArrayReader, addressLength: number): Fork {
-    const type = uint8ToNumber(reader.read(1))
-    const prefixLength = uint8ToNumber(reader.read(1))
-    const prefix = reader.read(prefixLength)
-
-    if (prefixLength < 30) {
-      reader.read(30 - prefixLength)
-    }
-    const selfAddress = reader.read(addressLength)
-    debug('unmarshalling fork', {
-      type,
-      prefixLength,
-      prefix: DECODER.decode(prefix),
-      addressLength,
-      address: uint8ArrayToHex(selfAddress),
-    })
-    let metadata: Record<string, string> | undefined = undefined
-
-    if (isType(type, TYPE_WITH_METADATA)) {
-      const metadataLength = uint16ToNumber(reader.read(2), 'BE')
-      metadata = JSON.parse(DECODER.decode(reader.read(metadataLength)))
-    }
-
-    return new Fork(prefix, new MantarayNode({ selfAddress, metadata, path: prefix, type }))
+    const data = (await bee.data.download(fork.node.selfAddress, downloadOptions, requestOptions)).toUint8Array()
+    const loaded = CoreMantarayNode.unmarshalFromData(data, fork.node.selfAddress)
+    fork.node.targetAddress = loaded.targetAddress
+    fork.node.forks = loaded.forks
+    fork.node.path = fork.prefix
+    fork.node.parent = node
+    await loadRecursively(fork.node, bee, options, requestOptions)
   }
 }
 
-interface MantarayNodeOptions {
-  selfAddress?: Uint8Array
-  targetAddress?: Uint8Array
-  obfuscationKey?: Uint8Array
-  metadata?: Record<string, string> | null
-  path?: Uint8Array | null
-  parent?: MantarayNode | null
-  type?: number | null
-}
-
+/**
+ * bee-js's Bee-client-coupled view of a Mantaray node: the trie structure,
+ * marshaling, and byte-level operations all delegate to swarm-core's
+ * `MantarayNode`; this class only adds what needs a live `Bee` instance
+ * (uploading/downloading, ACT history, feed resolution).
+ */
 export class MantarayNode {
-  public obfuscationKey: Uint8Array = new Uint8Array(32)
-  public selfAddress: Uint8Array | null = null
-  public targetAddress: Uint8Array = new Uint8Array(32)
-  public metadata: Record<string, string> | undefined | null = null
-  public path: Uint8Array = new Uint8Array(0)
-  public forks: Map<number, Fork> = new Map()
-  public parent: MantarayNode | null = null
-  public type: number | null = null
+  readonly core: CoreMantarayNode
 
-  constructor(options?: MantarayNodeOptions) {
-    if (options?.targetAddress) {
-      this.targetAddress = options.targetAddress
-    }
+  constructor(core: CoreMantarayNode = new CoreMantarayNode()) {
+    this.core = core
+  }
 
-    if (options?.selfAddress) {
-      this.selfAddress = options.selfAddress
-    }
+  get obfuscationKey(): Uint8Array {
+    return this.core.obfuscationKey
+  }
 
-    if (options?.metadata) {
-      this.metadata = options.metadata
-    }
+  get selfAddress(): Uint8Array | null {
+    return this.core.selfAddress
+  }
 
-    if (options?.obfuscationKey) {
-      this.obfuscationKey = options.obfuscationKey
-    }
+  get targetAddress(): Uint8Array {
+    return this.core.targetAddress
+  }
 
-    if (options?.path) {
-      this.path = options.path
-    }
+  get metadata(): Record<string, string> | undefined | null {
+    return this.core.metadata
+  }
 
-    if (options?.parent) {
-      this.parent = options.parent
-    }
+  get path(): Uint8Array {
+    return this.core.path
+  }
 
-    this.type = options?.type ?? null
+  get forks(): Map<number, { prefix: Uint8Array; node: CoreMantarayNode }> {
+    return this.core.forks
+  }
+
+  get parent(): CoreMantarayNode | null {
+    return this.core.parent
+  }
+
+  get type(): number | null {
+    return this.core.type
   }
 
   get fullPath(): Uint8Array {
-    return concatBytes(this.parent?.fullPath ?? new Uint8Array(0), this.path)
+    return this.core.fullPath
   }
 
   get fullPathString(): string {
-    return DECODER.decode(this.fullPath)
+    return this.core.fullPathString
   }
 
   /**
    * Returns the metadata at the `/` path to access idiomatic properties.
    */
   getRootMetadata(): Optional<Record<string, string>> {
-    const node = this.find('/')
+    const node = this.core.find('/')
 
     if (node && node.metadata) {
       return Optional.of(node.metadata)
@@ -251,7 +145,7 @@ export class MantarayNode {
     indexDocument: string | null
     errorDocument: string | null
   } {
-    const node = this.find('/')
+    const node = this.core.find('/')
 
     if (!node || !node.metadata) {
       return { indexDocument: null, errorDocument: null }
@@ -267,7 +161,7 @@ export class MantarayNode {
    * Attempts to resolve the manifest as a feed, returning the latest update.
    */
   async resolveFeed(bee: Bee, requestOptions?: BeeRequestOptions): Promise<Optional<FeedPayloadResult>> {
-    const node = this.find('/')
+    const node = this.core.find('/')
 
     if (!node || !node.metadata) {
       return Optional.empty()
@@ -287,41 +181,7 @@ export class MantarayNode {
    * Gets the binary representation of the node.
    */
   async marshal(): Promise<Uint8Array> {
-    for (const fork of this.forks.values()) {
-      if (!fork.node.selfAddress) {
-        fork.node.selfAddress = (await fork.node.calculateSelfAddress()).toUint8Array()
-      }
-    }
-    const hasEntry = !equals(this.targetAddress, NULL_ADDRESS)
-    let refBytesSize = 0
-
-    if (hasEntry) {
-      refBytesSize = this.targetAddress.length
-    } else {
-      for (const fork of this.forks.values()) {
-        if (fork.node.selfAddress) {
-          refBytesSize = fork.node.selfAddress.length
-          break
-        }
-      }
-    }
-    const header = new Uint8Array(32)
-    header.set(VERSION_02_HASH, 0)
-    header.set(numberToUint8(refBytesSize), 31)
-    const entry = hasEntry ? this.targetAddress : new Uint8Array(refBytesSize)
-    const forkBitmap = new Uint8Array(32)
-    for (const fork of this.forks.keys()) {
-      setBit(forkBitmap, fork)
-    }
-    const forks: Uint8Array[] = []
-    for (let i = 0; i < 256; i++) {
-      if (getBit(forkBitmap, i)) {
-        forks.push(this.forks.get(i)!.marshal())
-      }
-    }
-    const data = xorCypher(concatBytes(header, entry, forkBitmap, ...forks), this.obfuscationKey)
-
-    return concatBytes(this.obfuscationKey, data)
+    return this.core.marshal()
   }
 
   /**
@@ -347,30 +207,7 @@ export class MantarayNode {
    * Do not forget calling `loadRecursively` on the returned node to load the entire tree.
    */
   static unmarshalFromData(data: Uint8Array, selfAddress: Uint8Array): MantarayNode {
-    const obfuscationKey = data.subarray(0, 32)
-    const decrypted = xorCypher(data.subarray(32), obfuscationKey)
-    const reader = new Uint8ArrayReader(decrypted)
-    const versionHash = reader.read(31)
-
-    if (!equals(versionHash, VERSION_02_HASH.slice(0, 31))) {
-      throw new Error('MantarayNode#unmarshal invalid version hash')
-    }
-    const targetAddressLength = uint8ToNumber(reader.read(1))
-    const targetAddress = targetAddressLength ? reader.read(targetAddressLength) : NULL_ADDRESS
-    const node = new MantarayNode({ selfAddress, targetAddress, obfuscationKey })
-    const forkBitmap = reader.read(32)
-
-    if (targetAddressLength > 0) {
-      for (let i = 0; i < 256; i++) {
-        if (getBit(forkBitmap, i)) {
-          const newFork = Fork.unmarshal(reader, selfAddress.length)
-          node.forks.set(i, newFork)
-          newFork.node.parent = node
-        }
-      }
-    }
-
-    return node
+    return new MantarayNode(CoreMantarayNode.unmarshalFromData(data, selfAddress))
   }
 
   /**
@@ -380,93 +217,22 @@ export class MantarayNode {
     path: string | Uint8Array,
     reference: string | Uint8Array | Bytes | Reference,
     metadata?: Record<string, string> | null,
-  ) {
-    this.selfAddress = null
-    this.type = null
-    path = path instanceof Uint8Array ? path : ENCODER.encode(path)
-    debug('adding fork', { path: DECODER.decode(path), reference: new Reference(reference).represent() })
-    // TODO: this should not be ignored
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let tip: MantarayNode = this
-    while (path.length) {
-      const prefix = path.slice(0, 30)
-      path = path.slice(30)
-      const isLast = path.length === 0
-
-      const [bestMatch, matchedPath] = tip.findClosest(prefix)
-      const remainingPath = prefix.slice(matchedPath.length)
-
-      if (matchedPath.length) {
-        tip = bestMatch
-      }
-
-      if (!remainingPath.length) {
-        continue
-      }
-
-      const newFork = new Fork(
-        remainingPath,
-        new MantarayNode({
-          targetAddress: isLast ? new Reference(reference).toUint8Array() : undefined,
-          metadata: isLast ? metadata : undefined,
-          path: remainingPath,
-        }),
-      )
-
-      const existing = bestMatch.forks.get(remainingPath[0])
-
-      if (existing) {
-        const fork = Fork.split(newFork, existing)
-        tip.forks.set(remainingPath[0], fork)
-        fork.node.parent = tip
-        tip.selfAddress = null
-        tip.type = null
-        tip = newFork.node
-      } else {
-        tip.forks.set(remainingPath[0], newFork)
-        newFork.node.parent = tip
-        tip.selfAddress = null
-        tip.type = null
-        tip = newFork.node
-      }
-    }
+  ): void {
+    this.core.addFork(path, reference instanceof Bytes ? reference.toUint8Array() : reference, metadata)
   }
 
   /**
    * Removes a fork from the node.
    */
-  removeFork(path: string | Uint8Array) {
-    this.selfAddress = null
-    this.type = null
-    path = path instanceof Uint8Array ? path : ENCODER.encode(path)
-
-    if (path.length === 0) {
-      throw Error('MantarayNode#removeFork [path] parameter cannot be empty')
-    }
-
-    const match = this.find(path)
-
-    if (!match) {
-      throw Error('MantarayNode#removeFork fork not found')
-    }
-
-    const [parent, matchedPath] = this.findClosest(path.slice(0, path.length - 1))
-
-    parent.forks.delete(path.slice(matchedPath.length)[0])
-    for (const fork of match.forks.values()) {
-      parent.addFork(concatBytes(match.path, fork.prefix), fork.node.targetAddress, fork.node.metadata)
-    }
+  removeFork(path: string | Uint8Array): void {
+    this.core.removeFork(path)
   }
 
   /**
    * Calculates the self address of the node.
    */
   async calculateSelfAddress(): Promise<Reference> {
-    if (this.selfAddress) {
-      return new Reference(this.selfAddress)
-    }
-
-    return (await ChunkSplitter.root(await this.marshal())).hash()
+    return this.core.calculateSelfAddress()
   }
 
   /**
@@ -478,80 +244,28 @@ export class MantarayNode {
     options?: UploadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
-    for (const fork of this.forks.values()) {
-      const uploadResult = await fork.node.saveRecursively(bee, postageBatchId, options, requestOptions)
-
-      if (options?.act) {
-        let historyAddress: Reference | undefined
-        uploadResult.historyAddress.ifPresent(ref => (historyAddress = ref))
-
-        if (historyAddress) {
-          if (!fork.node.metadata) {
-            fork.node.metadata = {}
-          }
-          fork.node.metadata['swarm-act-history-address'] = historyAddress.toHex()
-        }
-      }
-    }
-    const result = await bee.data.upload(postageBatchId, await this.marshal(), options, requestOptions)
-    this.selfAddress = result.reference.toUint8Array()
-
-    return result
+    return saveRecursively(this.core, bee, postageBatchId, options, requestOptions)
   }
 
   /**
    * Loads the node and its children recursively.
    */
   async loadRecursively(bee: Bee, options?: DownloadOptions, requestOptions?: BeeRequestOptions): Promise<void> {
-    for (const fork of this.forks.values()) {
-      if (!fork.node.selfAddress) {
-        throw Error('MantarayNode#loadRecursively fork.node.selfAddress is not set')
-      }
-
-      let downloadOptions = options
-
-      if (fork.node.metadata && fork.node.metadata['swarm-act-history-address']) {
-        downloadOptions = {
-          ...options,
-          actHistoryAddress: fork.node.metadata['swarm-act-history-address'],
-        }
-      }
-
-      const node = await MantarayNode.unmarshal(bee, fork.node.selfAddress, downloadOptions, requestOptions)
-      fork.node.targetAddress = node.targetAddress
-      fork.node.forks = node.forks
-      fork.node.path = fork.prefix
-      fork.node.parent = this
-      await fork.node.loadRecursively(bee, options, requestOptions)
-    }
+    return loadRecursively(this.core, bee, options, requestOptions)
   }
 
   /**
    * Finds a node in the tree by its path.
    */
-  find(path: string | Uint8Array): MantarayNode | null {
-    const [closest, match] = this.findClosest(path)
-
-    return match.length === path.length ? closest : null
+  find(path: string | Uint8Array): CoreMantarayNode | null {
+    return this.core.find(path)
   }
 
   /**
    * Finds the closest node in the tree to the given path.
    */
-  findClosest(path: string | Uint8Array, current: Uint8Array = new Uint8Array()): [MantarayNode, Uint8Array] {
-    path = path instanceof Uint8Array ? path : ENCODER.encode(path)
-
-    if (path.length === 0) {
-      return [this, current]
-    }
-
-    const fork = this.forks.get(path[0])
-
-    if (fork && commonPrefix(fork.prefix, path).length === fork.prefix.length) {
-      return fork.node.findClosest(path.slice(fork.prefix.length), concatBytes(current, fork.prefix))
-    }
-
-    return [this, current]
+  findClosest(path: string | Uint8Array, current?: Uint8Array): [CoreMantarayNode, Uint8Array] {
+    return this.core.findClosest(path, current)
   }
 
   /**
@@ -559,15 +273,8 @@ export class MantarayNode {
    *
    * Must be called after `loadRecursively`.
    */
-  collect(nodes: MantarayNode[] = []): MantarayNode[] {
-    for (const fork of this.forks.values()) {
-      if (!equals(fork.node.targetAddress, NULL_ADDRESS)) {
-        nodes.push(fork.node)
-      }
-      fork.node.collect(nodes)
-    }
-
-    return nodes
+  collect(nodes: CoreMantarayNode[] = []): CoreMantarayNode[] {
+    return this.core.collect(nodes)
   }
 
   /**
@@ -576,46 +283,10 @@ export class MantarayNode {
    * Must be called after `loadRecursively`.
    */
   collectAndMap(): Record<string, string> {
-    const nodes = this.collect()
-    const result: Record<string, string> = {}
-
-    for (const node of nodes) {
-      result[node.fullPathString] = new Reference(node.targetAddress).toHex()
-    }
-
-    return result
+    return this.core.collectAndMap()
   }
 
-  determineType() {
-    let type = 0
-
-    // Mirror Bee (pkg/manifest/mantaray/node.go): Add() marks every explicitly
-    // added leaf as a value (makeValue), even one with a null entry such as a
-    // metadata-only "/" node. In final-state terms a leaf (no forks) is always an
-    // added entry, so it is a value; a node with forks is a value only when it also
-    // carries an entry. The path-separator flag is set only when a separator occurs
-    // past the first byte (IndexRune > 0), so a prefix that merely starts with '/'
-    // does not qualify.
-    if (!equals(this.targetAddress, NULL_ADDRESS) || this.forks.size === 0) {
-      type |= TYPE_VALUE
-    }
-
-    if (this.forks.size > 0) {
-      type |= TYPE_EDGE
-    }
-
-    if (indexOf(this.path, PATH_SEPARATOR) > 0) {
-      type |= TYPE_WITH_PATH_SEPARATOR
-    }
-
-    if (this.metadata) {
-      type |= TYPE_WITH_METADATA
-    }
-
-    return type
+  determineType(): number {
+    return this.core.determineType()
   }
-}
-
-function isType(value: number, type: number): boolean {
-  return (value & type) === type
 }
