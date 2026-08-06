@@ -35,7 +35,7 @@ export function unmarshalSingleOwnerChunk(
   address: Reference | Uint8Array | string,
 ): SingleOwnerChunk {
   try {
-    return coreUnmarshalSingleOwnerChunk(data instanceof Bytes ? data.toUint8Array() : data, address)
+    return coreUnmarshalSingleOwnerChunk(data, address)
   } catch (e) {
     throw new BeeError((e as Error).message)
   }
