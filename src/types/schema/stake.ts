@@ -1,7 +1,7 @@
+import { TransactionId } from 'swarm-core'
 import { z } from 'zod'
 import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
-import { TransactionId } from '../../utils/typed-bytes'
 
 export const GetStakeResponse = z.object({
   stakedAmount: z.string().transform(s => BZZ.fromPLUR(asNumberString(s, { name: 'stakedAmount' }))),

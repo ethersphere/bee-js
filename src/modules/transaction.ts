@@ -1,6 +1,6 @@
+import { TransactionId } from 'swarm-core'
 import type { BeeRequestOptions, NumberString, TransactionInfo } from '../types'
 import { asNumberString } from '../utils/type'
-import { TransactionId } from '../utils/typed-bytes'
 import * as api from '../api/transaction'
 import type { BeeContext } from './context'
 

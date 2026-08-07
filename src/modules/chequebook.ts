@@ -1,7 +1,7 @@
+import { TransactionId } from 'swarm-core'
 import type { BeeRequestOptions, ChequebookAddressResponse, ChequebookBalanceResponse, NumberString } from '../types'
 import { BZZ } from '../utils/tokens'
 import { asNumberString } from '../utils/type'
-import { TransactionId } from '../utils/typed-bytes'
 import * as api from '../api/chequebook'
 import type { BeeContext } from './context'
 

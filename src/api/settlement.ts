@@ -1,7 +1,7 @@
+import { PeerAddress } from 'swarm-core'
 import type { AllSettlements, BeeRequestOptions, Settlements } from '../types'
 import { GetAllSettlementsResponse, GetSettlementsResponse } from '../types/schema/settlements'
 import { http } from '../utils/http'
-import { PeerAddress } from '../utils/typed-bytes'
 
 const settlementsEndpoint = 'settlements'
 

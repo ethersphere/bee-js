@@ -1,9 +1,8 @@
 import { Binary, MerkleTree, Types } from 'cafe-utility'
 import { ReadStream } from 'fs'
-import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'
+import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS, PrivateKey, Span } from '../../src'
 import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import { makeCollectionFromFileList } from '../../src/utils/collection'
-import { PrivateKey, Span } from '../../src/utils/typed-bytes'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()

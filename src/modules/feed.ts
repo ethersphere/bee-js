@@ -1,3 +1,4 @@
+import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from 'swarm-core'
 import { Objects } from 'cafe-utility'
 import { createFeedManifest, fetchLatestFeedUpdate } from '../api/feed'
 import type { FeedPayloadResult } from '../api/feed'
@@ -6,7 +7,6 @@ import { areAllSequentialFeedsUpdateRetrievable } from '../feed/retrievable'
 import type { BeeRequestOptions, DownloadOptions, FeedReader, FeedWriter } from '../types'
 import { UploadOptions } from '../types'
 import { DownloadOptionsSchema, UploadOptionsSchema } from '../utils/schema'
-import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
 
 /**

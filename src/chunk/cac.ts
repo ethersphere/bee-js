@@ -1,7 +1,13 @@
-import { Bytes } from '../utils/bytes'
-import { Identifier, PrivateKey, Reference, Span } from '../utils/typed-bytes'
 import { makeSingleOwnerChunk, SingleOwnerChunk } from './soc'
-import { makeContentAddressedChunk as coreMake, unmarshalContentAddressedChunk as coreUnmarshal } from 'swarm-core'
+import {
+  Bytes,
+  Identifier,
+  PrivateKey,
+  Reference,
+  Span,
+  makeContentAddressedChunk as coreMake,
+  unmarshalContentAddressedChunk as coreUnmarshal,
+} from 'swarm-core'
 
 /**
  * Content Addressed Chunk (CAC) is the immutable building block of Swarm,

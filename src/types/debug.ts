@@ -1,5 +1,5 @@
+import { EthAddress, PeerAddress, PublicKey, TransactionId } from 'swarm-core'
 import { BZZ, DAI } from '../utils/tokens'
-import { EthAddress, PeerAddress, PublicKey, TransactionId } from '../utils/typed-bytes'
 import { NumberString } from './index'
 
 export interface Settlements {

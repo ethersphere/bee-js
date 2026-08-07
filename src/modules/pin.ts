@@ -1,7 +1,7 @@
+import { BatchId, Reference } from 'swarm-core'
 import * as pinApi from '../api/pin'
 import * as stewardshipApi from '../api/stewardship'
 import type { BeeRequestOptions, Pin as PinData } from '../types'
-import { BatchId, Reference } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
 
 /**

@@ -1,6 +1,6 @@
+import { TransactionId } from 'swarm-core'
 import { z } from 'zod'
 import { asNumberString } from '../../utils/type'
-import { TransactionId } from '../../utils/typed-bytes'
 
 const TransactionInfoSchema = z.object({
   transactionHash: z.string().transform(s => new TransactionId(s)),

@@ -1,6 +1,6 @@
+import { BatchId, PublicKey, Reference } from 'swarm-core'
 import * as api from '../api/grantee'
 import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
-import { BatchId, PublicKey, Reference } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
 
 /**

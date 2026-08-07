@@ -1,11 +1,10 @@
+import { BatchId, Bytes, Reference } from 'swarm-core'
 import { Readable } from 'stream'
 import type { BeeRequestOptions, DownloadOptions, FileData, FileUploadOptions, UploadResult } from '../types'
-import { Bytes } from '../utils/bytes'
 import { fileArrayBuffer, isFile } from '../utils/file'
 import { ResourceLocator } from '../utils/resource-locator'
 import { DownloadOptionsSchema, FileUploadOptionsSchema } from '../utils/schema'
 import { assertFileData } from '../utils/type'
-import { BatchId, Reference } from '../utils/typed-bytes'
 import * as api from '../api/bzz'
 import type { BeeContext } from './context'
 

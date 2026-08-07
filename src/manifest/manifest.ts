@@ -1,9 +1,7 @@
 import { Optional } from 'cafe-utility'
 import { Bee, BeeRequestOptions, DownloadOptions, UploadOptions, UploadResult } from '..'
 import { FeedPayloadResult } from '../api/feed'
-import { Bytes } from '../utils/bytes'
-import { BatchId, Reference } from '../utils/typed-bytes'
-import { MantarayNode as CoreMantarayNode } from 'swarm-core'
+import { BatchId, Bytes, MantarayNode as CoreMantarayNode, Reference } from 'swarm-core'
 
 /**
  * Uploads `node` and every node beneath it, updating each `selfAddress` in

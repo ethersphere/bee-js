@@ -1,3 +1,4 @@
+import { BatchId, Bytes, Reference } from 'swarm-core'
 import type {
   BeeRequestOptions,
   DownloadOptions,
@@ -5,11 +6,9 @@ import type {
   ReferenceInformation,
   UploadResult,
 } from '../types'
-import { Bytes } from '../utils/bytes'
 import { ResourceLocator } from '../utils/resource-locator'
 import { DownloadOptionsSchema, RedundantUploadOptionsSchema } from '../utils/schema'
 import { assertData } from '../utils/type'
-import { BatchId, Reference } from '../utils/typed-bytes'
 import * as bytes from '../api/bytes'
 import * as stewardship from '../api/stewardship'
 import type { BeeContext } from './context'

@@ -1,13 +1,6 @@
-import { Optional } from 'cafe-utility'
-import type { SingleOwnerChunk } from '../chunk/soc'
-import type { FeedUploadOptions } from '../feed'
-import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../api/feed'
-import { Bytes } from '../utils/bytes'
-import { Duration } from '../utils/duration'
-import type { BeeError } from '../utils/error'
-import { Size } from '../utils/size'
 import {
   BatchId,
+  Bytes,
   EthAddress,
   Identifier,
   PrivateKey,
@@ -15,7 +8,14 @@ import {
   Reference,
   Topic,
   TransactionId,
-} from '../utils/typed-bytes'
+} from 'swarm-core'
+import { Optional } from 'cafe-utility'
+import type { SingleOwnerChunk } from '../chunk/soc'
+import type { FeedUploadOptions } from '../feed'
+import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../api/feed'
+import { Duration } from '../utils/duration'
+import type { BeeError } from '../utils/error'
+import { Size } from '../utils/size'
 
 export * from './debug'
 

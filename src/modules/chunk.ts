@@ -1,10 +1,10 @@
+import { BatchId, Identifier, Reference, Signature, Span } from 'swarm-core'
 import { Chunk as ContentAddressedChunk } from '../chunk/cac'
 import { SingleOwnerChunk } from '../chunk/soc'
 import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions } from '../types'
 import { CHUNK_SIZE, UploadResult } from '../types'
 import { BeeArgumentError } from '../utils/error'
 import { DownloadOptionsSchema, UploadOptionsSchema } from '../utils/schema'
-import { BatchId, Identifier, Reference, Signature, Span } from '../utils/typed-bytes'
 import * as api from '../api/chunk'
 import type { BeeContext } from './context'
 

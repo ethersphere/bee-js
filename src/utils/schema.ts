@@ -1,6 +1,6 @@
+import { PublicKey, Reference } from 'swarm-core'
 import { z } from 'zod'
 import { TAGS_LIMIT_MAX, TAGS_LIMIT_MIN, type NumberString } from '../types'
-import { PublicKey, Reference } from './typed-bytes'
 
 export { HexStringSchema } from './hex-schema'
 

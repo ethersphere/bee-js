@@ -1,16 +1,21 @@
 import {
+  BatchId,
+  Bytes,
+  EthAddress,
+  Identifier,
+  PrivateKey,
+  Reference,
+  SingleOwnerChunk,
+  Span,
   concatBytes,
+  makeSOCAddress,
   makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
   unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
-  makeSOCAddress,
-  SingleOwnerChunk,
 } from 'swarm-core'
 import * as chunkAPI from '../api/chunk'
 import * as socAPI from '../api/soc'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
-import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
-import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Span } from '../utils/typed-bytes'
 import { Chunk, makeContentAddressedChunk } from './cac'
 
 export { makeSOCAddress }

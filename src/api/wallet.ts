@@ -1,8 +1,8 @@
+import { EthAddress, TransactionId } from 'swarm-core'
 import type { BeeRequestOptions, WalletBalance } from '../types'
 import { GetWalletBalanceResponse, WithdrawResponse } from '../types/schema/states'
 import { http } from '../utils/http'
 import { BZZ, DAI } from '../utils/tokens'
-import { EthAddress, TransactionId } from '../utils/typed-bytes'
 
 const WALLET_ENDPOINT = 'wallet'
 

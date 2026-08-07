@@ -1,7 +1,7 @@
+import { BatchId } from 'swarm-core'
 import type { BeeRequestOptions, GlobalPostageBatch } from '../types'
 import { GetGlobalPostageBatchResponse, GetGlobalPostageBatchesResponse } from '../types/schema/stamps'
 import { http } from '../utils/http'
-import { BatchId } from '../utils/typed-bytes'
 
 const batchesEndpoint = 'batches'
 

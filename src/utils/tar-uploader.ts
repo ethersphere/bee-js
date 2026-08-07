@@ -1,9 +1,9 @@
+import { BatchId } from 'swarm-core'
 import { BeeRequestOptions, Collection, CollectionUploadOptions } from '..'
 import { prepareRequestHeaders } from './headers'
 import { http } from './http'
 import { TarStream } from './tar'
 import { writeTar } from './tar-writer'
-import { BatchId } from './typed-bytes'
 
 const bzzEndpoint = 'bzz'
 

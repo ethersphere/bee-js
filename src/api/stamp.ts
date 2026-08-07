@@ -1,3 +1,4 @@
+import { BatchId } from 'swarm-core'
 import type { BeeRequestOptions, NumberString, PostageBatch, PostageBatchBuckets, RedundancyLevel } from '../types'
 import {
   BatchIdResponse,
@@ -7,7 +8,6 @@ import {
 } from '../types/schema/stamps'
 import { http } from '../utils/http'
 import { mapPostageBatch } from '../utils/stamps'
-import { BatchId } from '../utils/typed-bytes'
 
 const STAMPS_ENDPOINT = 'stamps'
 

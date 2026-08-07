@@ -1,6 +1,17 @@
 import { Binary, System } from 'cafe-utility'
 import WebSocket from 'isomorphic-ws'
-import { numberToUint256 } from 'swarm-core'
+import {
+  BatchId,
+  Bytes,
+  EthAddress,
+  Identifier,
+  numberToUint256,
+  PeerAddress,
+  PrivateKey,
+  PublicKey,
+  Topic,
+} from 'swarm-core'
+import * as pssApi from '../api/pss'
 import { makeContentAddressedChunk } from '../chunk/cac'
 import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
 import type {
@@ -11,13 +22,10 @@ import type {
   PssSubscription,
   UploadOptions,
 } from '../types'
-import * as pssApi from '../api/pss'
-import { Bytes } from '../utils/bytes'
 import { prepareWebsocketData } from '../utils/data'
 import { BeeError } from '../utils/error'
 import { GsocMessageHandlerSchema, PssMessageHandlerSchema } from '../utils/schema'
 import { assertData } from '../utils/type'
-import { BatchId, EthAddress, Identifier, PeerAddress, PrivateKey, PublicKey, Topic } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
 
 const PSS_ENDPOINT = 'pss'

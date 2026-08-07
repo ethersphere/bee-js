@@ -1,5 +1,4 @@
-import { FeedIndex, Identifier, Topic } from '../utils/typed-bytes'
-import { concatBytes, keccak256 } from 'swarm-core'
+import { FeedIndex, Identifier, Topic, concatBytes, keccak256 } from 'swarm-core'
 
 export function makeFeedIdentifier(topic: Topic, index: FeedIndex | number): Identifier {
   index = typeof index === 'number' ? FeedIndex.fromBigInt(BigInt(index)) : index

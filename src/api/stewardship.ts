@@ -1,7 +1,7 @@
+import { BatchId, Reference } from 'swarm-core'
 import type { BeeRequestOptions } from '../types'
 import { IsRetrievableResponse } from '../types/schema/stewardship'
 import { http } from '../utils/http'
-import { BatchId, Reference } from '../utils/typed-bytes'
 
 const stewardshipEndpoint = 'stewardship'
 

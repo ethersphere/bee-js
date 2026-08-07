@@ -1,6 +1,5 @@
-import { Bee } from '../../src'
+import { BatchId, Bee } from '../../src'
 import { hashDirectory, streamDirectory, streamFiles } from '../../src/utils/chunk-stream.browser'
-import { BatchId } from '../../src/utils/typed-bytes'
 
 test('hashDirectory throws in browsers', async () => {
   await expect(hashDirectory('/some/dir')).rejects.toThrow('Hashing directories is not supported in browsers!')

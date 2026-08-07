@@ -1,6 +1,18 @@
 import { Optional } from 'cafe-utility'
 import { z } from 'zod'
-import { concatBytes, keccak256, numberToUint64, uint64ToNumber } from 'swarm-core'
+import {
+  BatchId,
+  Bytes,
+  EthAddress,
+  FeedIndex,
+  PrivateKey,
+  Reference,
+  Topic,
+  concatBytes,
+  keccak256,
+  numberToUint64,
+  uint64ToNumber,
+} from 'swarm-core'
 import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from '../chunk/cac'
 import {
   unmarshalSingleOwnerChunk,
@@ -17,10 +29,8 @@ import {
   probeFeed,
 } from '../api/feed'
 import { BeeRequestOptions, FeedReader, FeedWriter, UploadOptions, UploadResult } from '../types'
-import { Bytes } from '../utils/bytes'
 import { BeeResponseError } from '../utils/error'
 import { ResourceLocator } from '../utils/resource-locator'
-import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from '../utils/typed-bytes'
 import { makeFeedIdentifier } from './identifier'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0

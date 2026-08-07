@@ -1,6 +1,5 @@
 import { Dates, Strings } from 'cafe-utility'
-import { Utils } from '../../src'
-import { Topic } from '../../src/utils/typed-bytes'
+import { Topic, Utils } from '../../src'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()

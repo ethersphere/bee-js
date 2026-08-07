@@ -1,3 +1,4 @@
+import { BatchId } from 'swarm-core'
 import type { BeeRequestOptions, CollectionUploadOptions, UploadOptions, UploadResult } from '../types'
 import { Collection as CollectionData } from '../types'
 import {
@@ -8,7 +9,6 @@ import {
 import { assertCollection, makeCollectionFromFileList } from '../utils/collection'
 import { makeCollectionFromFS } from '../utils/collection.node'
 import { CollectionUploadOptionsSchema } from '../utils/schema'
-import { BatchId } from '../utils/typed-bytes'
 import { UploadProgress } from '../utils/upload-progress'
 import * as api from '../api/bzz'
 import type { BeeContext } from './context'

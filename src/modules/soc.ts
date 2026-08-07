@@ -1,6 +1,6 @@
+import { EthAddress, PrivateKey } from 'swarm-core'
 import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from '../chunk/soc'
 import type { BeeRequestOptions, SOCReader, SOCWriter } from '../types'
-import { EthAddress, PrivateKey } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
 
 /**

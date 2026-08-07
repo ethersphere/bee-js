@@ -1,8 +1,8 @@
+import { BatchId, PublicKey, Reference } from 'swarm-core'
 import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
 import { GetGranteesBodyResponse, GranteesResultBodyResponse } from '../types/schema/grantee'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { BatchId, PublicKey, Reference } from '../utils/typed-bytes'
 
 const granteeEndpoint = 'grantee'
 

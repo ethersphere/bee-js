@@ -1,6 +1,6 @@
+import { EthAddress, TransactionId } from 'swarm-core'
 import type { BeeRequestOptions, NumberString, WalletBalance } from '../types'
 import { BZZ, DAI } from '../utils/tokens'
-import { EthAddress, TransactionId } from '../utils/typed-bytes'
 import * as api from '../api/wallet'
 import type { BeeContext } from './context'
 

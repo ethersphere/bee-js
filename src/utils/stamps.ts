@@ -1,12 +1,12 @@
 import { EnvelopeWithBatchId, NumberString, PostageBatch, RedundancyLevel } from '../types'
-import { Bytes } from './bytes'
 import { Duration } from './duration'
 import { Size } from './size'
 import { BZZ } from './tokens'
 import { asNumberString } from './type'
-import { BatchId } from './typed-bytes'
 import { normalizeBatchTTL } from './workaround'
 import {
+  BatchId,
+  Bytes,
   convertEnvelopeToMarshaledStamp as coreConvertEnvelopeToMarshaledStamp,
   getDepthForSize as coreGetDepthForSize,
   getStampEffectiveBytes,

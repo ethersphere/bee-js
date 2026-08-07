@@ -1,7 +1,7 @@
+import { EthAddress, FeedIndex, Reference, Topic } from 'swarm-core'
 import { Objects } from 'cafe-utility'
 import { Bee } from '../bee'
 import { BeeRequestOptions, DownloadOptions } from '../types'
-import { EthAddress, FeedIndex, Reference, Topic } from '../utils/typed-bytes'
 import { getFeedUpdateChunkReference } from './index'
 
 /**
