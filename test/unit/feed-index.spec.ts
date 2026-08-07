@@ -1,4 +1,4 @@
-import { FeedIndex } from '../../src'
+import { FeedIndex } from 'swarm-core'
 
 test('FeedIndex.next', () => {
   expect(FeedIndex.fromBigInt(0n).next().toBigInt()).toBe(1n)

@@ -1,4 +1,4 @@
-import { Bytes } from '../../src'
+import { Bytes } from 'swarm-core'
 import { ResourceLocator } from '../../src/utils/resource-locator'
 
 test('Bytes ctor when class information is lost but toHex exists', () => {

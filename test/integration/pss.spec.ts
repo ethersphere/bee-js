@@ -1,5 +1,6 @@
 import { Dates, Strings } from 'cafe-utility'
-import { Topic, Utils } from '../../src'
+import { Topic } from 'swarm-core'
+import { Utils } from '../../src'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()

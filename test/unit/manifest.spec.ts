@@ -1,4 +1,4 @@
-import { Binary } from 'cafe-utility'
+import { hexToUint8Array } from 'swarm-core'
 import { MantarayNode } from '../../src'
 import { arbitraryReference } from '../utils'
 
@@ -66,7 +66,7 @@ test('reads a Bee-produced v0.2 directory node (real reference vector)', async (
   // directory node, which is exactly what marshal() must reproduce.
   const vector =
     '00000000000000000000000000000000000000000000000000000000000000005768b3b6a7db56d21d1abff40d41cebfc83448fed8d7e9b06ec0d3b073f28f2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000202000000000000000000000000000000000000020a61626f75742e68746d6c0000000000000000000000000000000000000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa020a696e6465782e68746d6c0000000000000000000000000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-  const data = Binary.hexToUint8Array(vector)
+  const data = hexToUint8Array(vector)
 
   expect(data[63]).toBe(32) // Bee's reference-size byte for this directory node
 

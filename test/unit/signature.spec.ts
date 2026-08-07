@@ -1,5 +1,5 @@
 import { Strings } from 'cafe-utility'
-import { PrivateKey } from '../../src'
+import { PrivateKey } from 'swarm-core'
 
 test('Signature.isValid', () => {
   const privateKey = new PrivateKey(Strings.randomHex(64))

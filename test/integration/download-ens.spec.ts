@@ -1,5 +1,5 @@
-import { Binary } from 'cafe-utility'
 import { ReadStream } from 'fs'
+import { concatBytes } from 'swarm-core'
 import { MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeBee } from '../utils'
 
@@ -36,7 +36,7 @@ test.skip('GET readable bytes (ENS)', async () => {
     parts.push(part)
   }
 
-  const data = Binary.concatBytes(...parts)
+  const data = concatBytes(...parts)
 
   const manifest = MantarayNode.unmarshalFromData(data, NULL_ADDRESS)
   await manifest.loadRecursively(bee)

@@ -1,4 +1,5 @@
 import {
+  Bytes,
   ChunkEntry,
   ChunkJoiner,
   ChunkSplitter,
@@ -13,7 +14,6 @@ import {
 } from 'swarm-core'
 import {
   Bee,
-  Bytes,
   BZZ,
   DAI,
   MantarayNode,

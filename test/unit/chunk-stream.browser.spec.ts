@@ -1,4 +1,5 @@
-import { BatchId, Bee } from '../../src'
+import { BatchId } from 'swarm-core'
+import { Bee } from '../../src'
 import { hashDirectory, streamDirectory, streamFiles } from '../../src/utils/chunk-stream.browser'
 
 test('hashDirectory throws in browsers', async () => {

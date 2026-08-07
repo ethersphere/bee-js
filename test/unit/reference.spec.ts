@@ -1,5 +1,5 @@
 import { Strings } from 'cafe-utility'
-import { Reference } from '../../src'
+import { Reference } from 'swarm-core'
 
 test('Reference.isValid', () => {
   expect(Reference.isValid(Strings.randomHex(64))).toBeTruthy()

@@ -1,4 +1,5 @@
-import { Bytes, GsocSubscription, NULL_IDENTIFIER } from '../../src'
+import { Bytes } from 'swarm-core'
+import { GsocSubscription, NULL_IDENTIFIER } from '../../src'
 import { batch, makeBee } from '../utils'
 
 test('GSOC - end to end test', async () => {

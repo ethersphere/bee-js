@@ -1,5 +1,5 @@
-import { Binary } from 'cafe-utility'
 import { Readable } from 'stream'
+import { numberToUint64 } from 'swarm-core'
 import { isReadable } from '../../src/utils/type'
 import { batch, makeBee } from '../utils'
 
@@ -12,7 +12,7 @@ test('bee/2317 - Tag not updated when uploaded files using stream', async () => 
   const stream = new Readable({
     read() {
       for (const item of data) {
-        this.push(Binary.numberToUint64(item, 'BE'))
+        this.push(numberToUint64(item, 'BE'))
       }
       this.push(null)
     },
