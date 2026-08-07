@@ -1,26 +1,30 @@
 import {
-  Bee,
-  Bytes,
-  BZZ,
-  DAI,
+  ChunkEntry,
+  ChunkJoiner,
+  ChunkSplitter,
   EthAddress,
   FeedIndex,
   Identifier,
-  MantarayNode,
-  MerkleTree,
-  NULL_IDENTIFIER,
   PrivateKey,
   PublicKey,
   Reference,
   Span,
   Topic,
-  Utils,
+} from 'swarm-core'
+import {
+  Bee,
+  Bytes,
+  BZZ,
+  DAI,
+  MantarayNode,
+  NULL_IDENTIFIER,
+  Utils
 } from './src'
 
 main()
 
 async function main() {
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                    TOKENS
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -36,7 +40,7 @@ async function main() {
     // 14.349652349855834010
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                    ELLIPTIC
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -64,7 +68,7 @@ async function main() {
     // 0xFCAd0B19bB29D4674531d6f115237E16AfCE377c
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     BYTES
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -89,7 +93,7 @@ async function main() {
     // 648198b984056286aef8399dfa219578a6e04eb16030c278e783320606ce2404
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     MANTARAY
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -117,7 +121,7 @@ async function main() {
     // 0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef (dummy)
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                  CAC / SOC
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -129,7 +133,7 @@ async function main() {
     const span = Span.fromBigInt(BigInt(data.length))
 
     // TODO: this is clumsy
-    const result = await bee.uploadChunk(stamp, new Uint8Array([...span.toUint8Array(), ...data.toUint8Array()]))
+    const result = await bee.chunk.upload(stamp, new Uint8Array([...span.toUint8Array(), ...data.toUint8Array()]))
 
     console.log(result.reference.toHex())
     // 0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef (dummy)
@@ -142,35 +146,56 @@ async function main() {
     const signer = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
     const identifier = NULL_IDENTIFIER
 
-    const socWriter = bee.makeSOCWriter(signer)
+    const socWriter = bee.soc.makeWriter(signer)
 
     const result = await socWriter.upload(stamp, identifier, Bytes.fromUtf8('soc payload').toUint8Array())
     console.log(result.reference.toHex())
     // 0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef (dummy)
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-                 MERKLE TREE
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 CHUNK TREE
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
   {
-    const tree = new MerkleTree(async chunk => {
-      console.log('span:', chunk.span)
-      console.log('reference:', new Bytes(chunk.hash()).toHex())
-    })
+    // In-memory stand-in for a real chunk store (e.g. bee.chunk.upload per entry).
+    const store = new Map<string, Uint8Array>()
 
-    tree.append(Bytes.fromUtf8('hello').toUint8Array())
-    tree.append(Bytes.fromUtf8('world').toUint8Array())
+    async function onBatch(batch: ChunkEntry[]): Promise<ChunkEntry[]> {
+      for (const { chunk } of batch) {
+        store.set(chunk.hash().toHex(), chunk.build())
+      }
+
+      return []
+    }
+
+    const tree = new ChunkSplitter(onBatch)
+    await tree.append(Bytes.fromUtf8('hello').toUint8Array())
+    await tree.append(Bytes.fromUtf8('world').toUint8Array())
 
     const rootChunk = await tree.finalize()
+    store.set(rootChunk.hash().toHex(), rootChunk.build())
 
-    console.log('root:', new Bytes(rootChunk.hash()).toHex())
+    console.log('span:', rootChunk.span)
+    console.log('root:', rootChunk.hash().toHex())
     // span: 10n
-    // reference: c3d78c959eb23a464619e893358a1d90e467f37c72742985ccc89159350098b4
     // root: c3d78c959eb23a464619e893358a1d90e467f37c72742985ccc89159350098b4
+
+    const joined = await ChunkJoiner.collect(rootChunk.hash().toUint8Array(), async address => {
+      const bytes = store.get(new Reference(address).toHex())
+
+      if (!bytes) {
+        throw new Error(`not found: ${new Reference(address).toHex()}`)
+      }
+
+      return bytes
+    })
+
+    console.log('joined:', new Bytes(joined).toUtf8())
+    // joined: helloworld
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                      PSS
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -178,7 +203,7 @@ async function main() {
   {
     const bee = new Bee('http://localhost:1633')
 
-    bee.pssSubscribe(Topic.fromString('Alice <> Bob private chat'), {
+    bee.messaging.pssSubscribe(Topic.fromString('Alice <> Bob private chat'), {
       onMessage: message => {
         console.log(message.toUtf8())
       },
@@ -200,10 +225,10 @@ async function main() {
 
     const target = Utils.makeMaxTarget(overlay)
 
-    await bee.pssSend(stamp, topic, target, Bytes.fromUtf8('Hello, Bob!').toUint8Array())
+    await bee.messaging.pssSend(stamp, topic, target, Bytes.fromUtf8('Hello, Bob!').toUint8Array())
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                      GSOC
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -212,7 +237,7 @@ async function main() {
     const overlay = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
     const identifier = NULL_IDENTIFIER
 
-    const signer = bee.gsocMine(overlay, identifier)
+    const signer = bee.messaging.gsocMine(overlay, identifier)
     console.log(signer.toHex())
     // 000000000000000000000000000000000000000000000000000000000000bd72
   }
@@ -223,7 +248,7 @@ async function main() {
     const signer = new PrivateKey('000000000000000000000000000000000000000000000000000000000000bd72')
     const identifier = NULL_IDENTIFIER
 
-    bee.gsocSubscribe(signer.publicKey().address(), identifier, {
+    bee.messaging.gsocSubscribe(signer.publicKey().address(), identifier, {
       onMessage: message => {
         console.log(message.toUtf8())
       },
@@ -243,20 +268,20 @@ async function main() {
     const identifier = NULL_IDENTIFIER
     const stamp = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
 
-    await bee.gsocSend(stamp, signer, identifier, 'GSOC!')
+    await bee.messaging.gsocSend(stamp, signer, identifier, 'GSOC!')
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                  API / SEMVER
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
   if (0) {
     const bee = new Bee('http://localhost:1633')
-    console.log(await bee.isSupportedExactVersion())
+    console.log(await bee.status.isSupportedExactVersion())
     // true
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                   FEED
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -266,9 +291,9 @@ async function main() {
     const topic = Topic.fromString('Alice <> Bob private chat')
     const signer = new PrivateKey('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
-    const feedWriter = bee.makeFeedWriter(topic, signer)
-    const { reference } = await bee.uploadData(stamp, 'First update')
-    feedWriter.upload(stamp, reference)
+    const feedWriter = bee.feed.makeWriter(topic, signer)
+    const { reference } = await bee.data.upload(stamp, 'First update')
+    feedWriter.uploadReference(stamp, reference)
   }
 
   if (0) {
@@ -277,6 +302,6 @@ async function main() {
     const topic = Topic.fromString('Alice <> Bob private chat')
     const signer = new PrivateKey('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
-    bee.createFeedManifest(stamp, topic, signer.publicKey().address())
+    bee.feed.createManifest(stamp, topic, signer.publicKey().address())
   }
 }
