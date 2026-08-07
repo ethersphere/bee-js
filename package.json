@@ -71,7 +71,7 @@
     "debug": "^4.4.3",
     "isomorphic-ws": "^5.0.0",
     "semver": "^7.3.5",
-    "swarm-core": "npm:@upcoming/swarm-core@0.0.7",
+    "swarm-core": "npm:@upcoming/swarm-core@0.0.8",
     "ws": "^8.21.0",
     "zod": "^4.4.3"
   },

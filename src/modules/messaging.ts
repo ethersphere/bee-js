@@ -5,6 +5,7 @@ import {
   Bytes,
   EthAddress,
   Identifier,
+  makeContentAddressedChunk,
   numberToUint256,
   PeerAddress,
   PrivateKey,
@@ -12,7 +13,6 @@ import {
   Topic,
 } from 'swarm-core'
 import * as pssApi from '../api/pss'
-import { makeContentAddressedChunk } from '../chunk/cac'
 import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
 import type {
   BeeRequestOptions,

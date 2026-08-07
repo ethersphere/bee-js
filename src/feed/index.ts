@@ -3,6 +3,7 @@ import { z } from 'zod'
 import {
   BatchId,
   Bytes,
+  Chunk,
   EthAddress,
   FeedIndex,
   PrivateKey,
@@ -10,10 +11,11 @@ import {
   Topic,
   concatBytes,
   keccak256,
+  makeContentAddressedChunk,
   numberToUint64,
   uint64ToNumber,
+  unmarshalContentAddressedChunk,
 } from 'swarm-core'
-import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from '../chunk/cac'
 import {
   unmarshalSingleOwnerChunk,
   uploadSingleOwnerChunkData,

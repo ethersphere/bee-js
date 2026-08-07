@@ -1,8 +1,18 @@
 import { Objects } from 'cafe-utility'
-import { BatchId, Bytes, EthAddress, Identifier, PrivateKey, Reference, Span } from 'swarm-core'
+import {
+  BatchId,
+  Bytes,
+  Chunk,
+  EthAddress,
+  Identifier,
+  PrivateKey,
+  Reference,
+  Span,
+  makeContentAddressedChunk,
+  unmarshalContentAddressedChunk,
+} from 'swarm-core'
 import { postEnvelope } from './api/envelope'
 import { rchash } from './api/rchash'
-import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from './chunk/cac'
 import { SingleOwnerChunk, makeSOCAddress, makeSingleOwnerChunk, unmarshalSingleOwnerChunk } from './chunk/soc'
 import { Balance } from './modules/balance'
 import { Cheque } from './modules/cheque'

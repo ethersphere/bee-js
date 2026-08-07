@@ -18,7 +18,7 @@ export {
   Topic,
   TransactionId,
 } from 'swarm-core'
-export type { Chunk } from './chunk/cac'
+export type { Chunk } from 'swarm-core'
 export type { SingleOwnerChunk } from './chunk/soc'
 export { MantarayNode } from './manifest/manifest'
 export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './version'

@@ -1,6 +1,7 @@
 import {
   BatchId,
   Bytes,
+  Chunk,
   EthAddress,
   Identifier,
   PrivateKey,
@@ -8,6 +9,7 @@ import {
   SingleOwnerChunk,
   Span,
   concatBytes,
+  makeContentAddressedChunk,
   makeSOCAddress,
   makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
   unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
@@ -16,7 +18,6 @@ import * as chunkAPI from '../api/chunk'
 import * as socAPI from '../api/soc'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
 import { BeeError } from '../utils/error'
-import { Chunk, makeContentAddressedChunk } from './cac'
 
 export { makeSOCAddress }
 export type { SingleOwnerChunk }

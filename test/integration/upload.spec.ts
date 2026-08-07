@@ -1,8 +1,7 @@
 import { Types } from 'cafe-utility'
 import { ReadStream } from 'fs'
-import { ChunkSplitter, PrivateKey, Span, concatBytes } from 'swarm-core'
+import { ChunkSplitter, PrivateKey, Span, concatBytes, makeContentAddressedChunk } from 'swarm-core'
 import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'
-import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import { makeCollectionFromFileList } from '../../src/utils/collection'
 import { batch, makeBee } from '../utils'
 

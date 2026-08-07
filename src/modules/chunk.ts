@@ -1,5 +1,4 @@
-import { BatchId, Identifier, Reference, Signature, Span } from 'swarm-core'
-import { Chunk as ContentAddressedChunk } from '../chunk/cac'
+import { BatchId, Chunk as ContentAddressedChunk, Identifier, Reference, Signature, Span } from 'swarm-core'
 import { SingleOwnerChunk } from '../chunk/soc'
 import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions } from '../types'
 import { CHUNK_SIZE, UploadResult } from '../types'
