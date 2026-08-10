@@ -1,5 +1,5 @@
+import { PublicKey, Reference } from 'swarm-core'
 import { z } from 'zod'
-import { PublicKey, Reference } from '../../utils/typed-bytes'
 
 export const GetGranteesBodyResponse = z.array(z.string().transform(s => new PublicKey(s)))
 

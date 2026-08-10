@@ -1,8 +1,8 @@
+import { BatchId, PublicKey, Reference } from 'swarm-core'
 import { z } from 'zod'
 import { EnvelopeWithBatchId, FileHeaders } from '../types'
 import { BeeError } from './error'
 import { convertEnvelopeToMarshaledStamp } from './stamps'
-import { BatchId, PublicKey, Reference } from './typed-bytes'
 
 export function readFileHeaders(headers: Record<string, string>): FileHeaders {
   const name = readContentDispositionFilename(headers['content-disposition'])

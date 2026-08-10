@@ -1,7 +1,7 @@
+import { EthAddress, TransactionId } from 'swarm-core'
 import { z } from 'zod'
 import { BZZ } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
-import { EthAddress, TransactionId } from '../../utils/typed-bytes'
 
 const ChequeSchema = z.object({
   beneficiary: z.string().transform(s => new EthAddress(s)),

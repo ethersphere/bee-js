@@ -1,10 +1,10 @@
+import { BatchId, Reference } from 'swarm-core'
 import { Optional } from 'cafe-utility'
 import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions, UploadResult } from '../types'
 import { UploadResultBody } from '../types/schema/upload'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { makeTagUid } from '../utils/type'
-import { BatchId, Reference } from '../utils/typed-bytes'
 
 const endpoint = 'chunks'
 

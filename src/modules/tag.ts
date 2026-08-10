@@ -1,8 +1,8 @@
+import { Reference } from 'swarm-core'
 import * as api from '../api/tag'
 import type { AllTagsOptions, BeeRequestOptions, Tag as TagData } from '../types'
 import { AllTagsOptionsSchema } from '../utils/schema'
 import { makeTagUid } from '../utils/type'
-import { Reference } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
 
 /**

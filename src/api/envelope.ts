@@ -1,7 +1,7 @@
+import { BatchId, EthAddress, Reference, Signature } from 'swarm-core'
 import type { BeeRequestOptions, EnvelopeWithBatchId } from '../types'
 import { PostEnvelopeBodyResponse } from '../types/schema/envelope'
 import { http } from '../utils/http'
-import { BatchId, Reference } from '../utils/typed-bytes'
 
 const ENVELOPE_ENDPOINT = 'envelope'
 
@@ -22,10 +22,10 @@ export async function postEnvelope(
   const body = PostEnvelopeBodyResponse.parse(response.data)
 
   return {
-    issuer: body.issuer,
+    issuer: new EthAddress(body.issuer),
     index: body.index,
     timestamp: body.timestamp,
-    signature: body.signature,
+    signature: new Signature(body.signature),
     batchId: postageBatchId,
   }
 }

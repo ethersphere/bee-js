@@ -1,10 +1,9 @@
+import { BatchId, Bytes, EthAddress, FeedIndex, Reference, Topic } from 'swarm-core'
 import type { BeeRequestOptions, UploadOptions } from '../types'
 import { UploadResultBody } from '../types/schema/upload'
-import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { BatchId, EthAddress, FeedIndex, Reference, Topic } from '../utils/typed-bytes'
 
 const feedEndpoint = 'feeds'
 

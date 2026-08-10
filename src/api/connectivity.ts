@@ -1,3 +1,4 @@
+import { PeerAddress } from 'swarm-core'
 import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../types'
 import { NodeAddresses } from '../types/debug'
 import {
@@ -8,7 +9,6 @@ import {
 } from '../types/schema/connectivity'
 import { IsGatewayResponse } from '../types/schema/status'
 import { http } from '../utils/http'
-import { PeerAddress } from '../utils/typed-bytes'
 
 const addressesEndpoint = 'addresses'
 const blocklistEndpoint = 'blocklist'

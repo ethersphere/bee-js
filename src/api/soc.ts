@@ -1,10 +1,10 @@
+import { BatchId, EthAddress, Identifier, Reference, Signature } from 'swarm-core'
 import { Optional } from 'cafe-utility'
 import type { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
 import { UploadResultBody } from '../types/schema/upload'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { makeTagUid } from '../utils/type'
-import { BatchId, EthAddress, Identifier, Reference, Signature } from '../utils/typed-bytes'
 
 const socEndpoint = 'soc'
 

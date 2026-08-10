@@ -1,9 +1,8 @@
-import { Binary, MerkleTree, Types } from 'cafe-utility'
+import { Types } from 'cafe-utility'
 import { ReadStream } from 'fs'
+import { ChunkSplitter, PrivateKey, Span, concatBytes, makeContentAddressedChunk } from 'swarm-core'
 import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'
-import { makeContentAddressedChunk } from '../../src/chunk/cac'
 import { makeCollectionFromFileList } from '../../src/utils/collection'
-import { PrivateKey, Span } from '../../src/utils/typed-bytes'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()
@@ -22,7 +21,7 @@ test('POST encrypted data', async () => {
   for await (const chunk of stream) {
     chunks.push(chunk)
   }
-  const concatenated = Binary.concatBytes(...chunks)
+  const concatenated = concatBytes(...chunks)
   expect(decoder.decode(concatenated)).toBe(data)
 })
 
@@ -38,7 +37,7 @@ test('POST encrypted file', async () => {
   for await (const chunk of stream) {
     chunks.push(chunk)
   }
-  const concatenated = Binary.concatBytes(...chunks)
+  const concatenated = concatBytes(...chunks)
   expect(decoder.decode(concatenated)).toBe(await file.text())
 })
 
@@ -74,9 +73,9 @@ test('POST bytes', async () => {
   const cac = makeContentAddressedChunk(data)
   expect(cac.address.toHex()).toBe(expectedHash)
 
-  // reconstruct the data with MerkleTree
-  const root = await MerkleTree.root(cac.payload.toUint8Array())
-  expect(Binary.uint8ArrayToHex(root.hash())).toBe(expectedHash)
+  // reconstruct the data with ChunkSplitter
+  const root = await ChunkSplitter.root(cac.payload.toUint8Array())
+  expect(root.hash().toHex()).toBe(expectedHash)
 })
 
 test('POST bzz', async () => {

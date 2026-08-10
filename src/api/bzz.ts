@@ -1,3 +1,4 @@
+import { BatchId, Bytes, Reference } from 'swarm-core'
 import { Optional } from 'cafe-utility'
 import { Readable } from 'stream'
 import {
@@ -10,14 +11,12 @@ import {
   UploadResult,
 } from '../types'
 import { UploadResultBody } from '../types/schema/upload'
-import { Bytes } from '../utils/bytes'
 import { assertCollection } from '../utils/collection'
 import { prepareRequestHeaders, readFileHeaders } from '../utils/headers'
 import { http } from '../utils/http'
 import { ResourceLocator } from '../utils/resource-locator'
 import { uploadTar } from '../utils/tar-uploader'
 import { isReadable, makeTagUid } from '../utils/type'
-import { BatchId, Reference } from '../utils/typed-bytes'
 
 const bzzEndpoint = 'bzz'
 

@@ -1,5 +1,5 @@
+import { EthAddress, PeerAddress, PublicKey } from 'swarm-core'
 import { z } from 'zod'
-import { EthAddress, PeerAddress, PublicKey } from '../../utils/typed-bytes'
 
 const PeerSchema = z.object({
   address: z.string(),

@@ -1,6 +1,6 @@
+import { PeerAddress } from 'swarm-core'
 import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../types'
 import { NodeAddresses } from '../types/debug'
-import { PeerAddress } from '../utils/typed-bytes'
 import * as api from '../api/connectivity'
 import type { BeeContext } from './context'
 

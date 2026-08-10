@@ -1,3 +1,4 @@
+import { BatchId } from 'swarm-core'
 import { System } from 'cafe-utility'
 import { z } from 'zod'
 import type {
@@ -16,7 +17,6 @@ import { PostageBatchOptionsSchema } from '../utils/schema'
 import { getStampDuration } from '../utils/stamps'
 import { BZZ } from '../utils/tokens'
 import { asNumberString } from '../utils/type'
-import { BatchId } from '../utils/typed-bytes'
 import * as stampApi from '../api/stamp'
 import * as batchesApi from '../api/batches'
 import type { BeeContext } from './context'

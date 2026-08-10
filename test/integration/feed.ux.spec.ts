@@ -1,5 +1,6 @@
 import { Dates, Strings, System } from 'cafe-utility'
-import { FeedIndex, NULL_TOPIC, PrivateKey } from '../../src'
+import { FeedIndex, PrivateKey } from 'swarm-core'
+import { NULL_TOPIC } from '../../src'
 import { batch, makeBee } from '../utils'
 
 test('Feed read/write as payload', async () => {

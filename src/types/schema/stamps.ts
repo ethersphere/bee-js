@@ -1,6 +1,6 @@
+import { BatchId, EthAddress } from 'swarm-core'
 import { z } from 'zod'
 import { asNumberString } from '../../utils/type'
-import { BatchId, EthAddress } from '../../utils/typed-bytes'
 
 export const RawPostageBatchSchema = z.object({
   batchID: z.string(),

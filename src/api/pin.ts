@@ -1,8 +1,8 @@
+import { Reference } from 'swarm-core'
 import type { BeeRequestOptions, Pin as PinData } from '../types'
 import { GetAllPinsResponse } from '../types/schema/pinning'
 import { UploadResultBody } from '../types/schema/upload'
 import { http } from '../utils/http'
-import { Reference } from '../utils/typed-bytes'
 
 const PINNING_ENDPOINT = 'pins'
 

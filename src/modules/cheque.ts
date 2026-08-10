@@ -1,3 +1,4 @@
+import { PeerAddress, TransactionId } from 'swarm-core'
 import type {
   BeeRequestOptions,
   LastCashoutActionResponse,
@@ -6,7 +7,6 @@ import type {
   TransactionOptions,
 } from '../types'
 import { TransactionOptionsSchema } from '../utils/schema'
-import { PeerAddress, TransactionId } from '../utils/typed-bytes'
 import * as api from '../api/chequebook'
 import type { BeeContext } from './context'
 

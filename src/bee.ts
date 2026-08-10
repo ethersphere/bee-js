@@ -1,34 +1,43 @@
 import { Objects } from 'cafe-utility'
-import { Chunk, makeContentAddressedChunk, unmarshalContentAddressedChunk } from './chunk/cac'
+import {
+  BatchId,
+  Bytes,
+  Chunk,
+  EthAddress,
+  Identifier,
+  PrivateKey,
+  Reference,
+  Span,
+  makeContentAddressedChunk,
+  unmarshalContentAddressedChunk,
+} from 'swarm-core'
+import { postEnvelope } from './api/envelope'
+import { rchash } from './api/rchash'
 import { SingleOwnerChunk, makeSOCAddress, makeSingleOwnerChunk, unmarshalSingleOwnerChunk } from './chunk/soc'
 import { Balance } from './modules/balance'
-import type { BeeContext } from './modules/context'
 import { Cheque } from './modules/cheque'
 import { Chequebook } from './modules/chequebook'
-import { Connectivity } from './modules/connectivity'
-import { Settlement } from './modules/settlement'
-import { Stake } from './modules/stake'
-import { Stamp } from './modules/stamp'
-import { Storage } from './modules/storage'
-import { Status } from './modules/status'
-import { Wallet } from './modules/wallet'
-import { Transaction } from './modules/transaction'
-import { postEnvelope } from './api/envelope'
 import { Chunk as ChunkNamespace } from './modules/chunk'
 import { Collection } from './modules/collection'
+import { Connectivity } from './modules/connectivity'
+import type { BeeContext } from './modules/context'
 import { Data } from './modules/data'
-import { File as FileNamespace } from './modules/file'
 import { Feed } from './modules/feed'
-import { Soc } from './modules/soc'
+import { File as FileNamespace } from './modules/file'
 import { Grantee } from './modules/grantee'
 import { Messaging } from './modules/messaging'
 import { Pin } from './modules/pin'
-import { rchash } from './api/rchash'
+import { Settlement } from './modules/settlement'
+import { Soc } from './modules/soc'
+import { Stake } from './modules/stake'
+import { Stamp } from './modules/stamp'
+import { Status } from './modules/status'
+import { Storage } from './modules/storage'
 import { Tag } from './modules/tag'
+import { Transaction } from './modules/transaction'
+import { Wallet } from './modules/wallet'
 import type { BeeOptions, BeeRequestOptions, EnvelopeWithBatchId } from './types'
-import { Bytes } from './utils/bytes'
 import { BeeRequestOptionsSchema } from './utils/schema'
-import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Span } from './utils/typed-bytes'
 import { assertBeeUrl, stripLastSlash } from './utils/url'
 
 /**

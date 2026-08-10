@@ -1,7 +1,7 @@
+import { Reference } from 'swarm-core'
 import type { AllTagsOptions, BeeRequestOptions, Tag as TagData } from '../types'
 import { GetAllTagsResponse, TagSchema } from '../types/schema/tag'
 import { http } from '../utils/http'
-import { Reference } from '../utils/typed-bytes'
 
 const endpoint = 'tags'
 

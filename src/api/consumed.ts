@@ -1,7 +1,7 @@
+import { PeerAddress } from 'swarm-core'
 import type { BalanceResponse, BeeRequestOptions, PeerBalance } from '../types'
 import { GetAllBalancesResponse, GetPeerBalanceResponse } from '../types/schema/balance'
 import { http } from '../utils/http'
-import { PeerAddress } from '../utils/typed-bytes'
 
 const consumedEndpoint = 'consumed'
 

@@ -1,72 +1,26 @@
-import { Binary } from 'cafe-utility'
+import {
+  BatchId,
+  Bytes,
+  Chunk,
+  EthAddress,
+  Identifier,
+  PrivateKey,
+  Reference,
+  SingleOwnerChunk,
+  Span,
+  concatBytes,
+  makeContentAddressedChunk,
+  makeSOCAddress,
+  makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
+  unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
+} from 'swarm-core'
 import * as chunkAPI from '../api/chunk'
 import * as socAPI from '../api/soc'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
-import { Bytes } from '../utils/bytes'
 import { BeeError } from '../utils/error'
-import { BatchId, EthAddress, Identifier, PrivateKey, Reference, Signature, Span } from '../utils/typed-bytes'
-import { calculateChunkAddress } from './bmt'
-import { Chunk, makeContentAddressedChunk } from './cac'
 
-const SOC_SIGNATURE_OFFSET = Identifier.LENGTH
-const SOC_SPAN_OFFSET = Identifier.LENGTH + Signature.LENGTH
-const SOC_PAYLOAD_OFFSET = Identifier.LENGTH + Signature.LENGTH + Span.LENGTH
-
-/**
- * Single Owner Chunk (SOC) is a chunk type where the address is determined by the owner and an arbitrary identifier.
- * Its integrity is attested by the owner's digital signature.
- *
- * Similar to Content Addressed Chunks (CAC), SOCs have a maximum payload size of 4096 bytes.
- *
- * - `span` indicates the size of the `payload` in bytes.
- * - `payload` contains the actual data or the body of the chunk.
- * - `data` contains the full chunk data - `span` and `payload`.
- * - `address` is the Swarm hash (or reference) of the chunk.
- * - `identifier` is an arbitrary identifier selected by the uploader.
- * - `signature` is the digital signature of the owner over the identifier and the underlying CAC address.
- * - `owner` is the Ethereum address of the chunk owner.
- */
-export interface SingleOwnerChunk {
-  /**
-   * Contains the full chunk data - `span` + `payload`.
-   */
-  readonly data: Uint8Array
-  /**
-   * Indicates the size of the `payload` in bytes.
-   */
-  span: Span
-  /**
-   * Contains the actual data or the body of the chunk.
-   */
-  payload: Bytes
-  /**
-   * The Swarm hash (or reference) of the chunk.
-   */
-  address: Reference
-  /**
-   * An arbitrary identifier selected by the uploader.
-   */
-  identifier: Identifier
-  /**
-   * The digital signature of the owner over the identifier and the underlying CAC address.
-   */
-  signature: Signature
-  /**
-   * The Ethereum address of the chunk owner.
-   */
-  owner: EthAddress
-}
-
-function recoverChunkOwner(data: Uint8Array): EthAddress {
-  const cacData = data.slice(SOC_SPAN_OFFSET)
-  const chunkAddress = calculateChunkAddress(cacData)
-  const signature = Signature.fromSlice(data, SOC_SIGNATURE_OFFSET)
-  const identifier = Bytes.fromSlice(data, 0, Identifier.LENGTH)
-  const digest = Binary.concatBytes(identifier.toUint8Array(), chunkAddress.toUint8Array())
-  const ownerAddress = signature.recoverPublicKey(digest).address()
-
-  return ownerAddress
-}
+export { makeSOCAddress }
+export type { SingleOwnerChunk }
 
 /**
  * Unmarshals arbitrary data into a Single Owner Chunk.
@@ -81,35 +35,11 @@ export function unmarshalSingleOwnerChunk(
   data: Bytes | Uint8Array,
   address: Reference | Uint8Array | string,
 ): SingleOwnerChunk {
-  data = data instanceof Bytes ? data.toUint8Array() : data
-  address = new Reference(address)
-  const ownerAddress = recoverChunkOwner(data)
-  const identifier = Bytes.fromSlice(data, 0, Identifier.LENGTH)
-  const socAddress = new Reference(
-    Binary.keccak256(Binary.concatBytes(identifier.toUint8Array(), ownerAddress.toUint8Array())),
-  )
-
-  if (!Binary.equals(address.toUint8Array(), socAddress.toUint8Array())) {
-    throw new BeeError('SOC data does not match given address!')
+  try {
+    return coreUnmarshalSingleOwnerChunk(data, address)
+  } catch (e) {
+    throw new BeeError((e as Error).message)
   }
-
-  const signature = Signature.fromSlice(data, SOC_SIGNATURE_OFFSET)
-  const span = Span.fromSlice(data, SOC_SPAN_OFFSET)
-  const payload = Bytes.fromSlice(data, SOC_PAYLOAD_OFFSET)
-
-  return {
-    data,
-    identifier,
-    signature,
-    span,
-    payload,
-    address: socAddress,
-    owner: ownerAddress,
-  }
-}
-
-export function makeSOCAddress(identifier: Identifier, address: EthAddress): Reference {
-  return new Reference(Binary.keccak256(Binary.concatBytes(identifier.toUint8Array(), address.toUint8Array())))
 }
 
 /**
@@ -128,24 +58,9 @@ export function makeSingleOwnerChunk(
 ): SingleOwnerChunk {
   identifier = new Identifier(identifier)
   signer = new PrivateKey(signer)
-  const socAddress = makeSOCAddress(identifier, signer.publicKey().address())
-  const signature = signer.sign(Binary.concatBytes(identifier.toUint8Array(), address.toUint8Array()))
-  const data = Binary.concatBytes(
-    identifier.toUint8Array(),
-    signature.toUint8Array(),
-    span.toUint8Array(),
-    payload.toUint8Array(),
-  )
+  const wrappedChunk = { data: concatBytes(span.toUint8Array(), payload.toUint8Array()), span, payload, address }
 
-  return {
-    data,
-    identifier,
-    signature,
-    span,
-    payload,
-    address: socAddress,
-    owner: signer.publicKey().address(),
-  }
+  return coreMakeSingleOwnerChunk(wrappedChunk, identifier, signer.toBigInt())
 }
 
 /**
@@ -164,7 +79,7 @@ export async function uploadSingleOwnerChunk(
   stamp: BatchId | Uint8Array | string,
   options?: UploadOptions,
 ): Promise<UploadResult> {
-  const data = Binary.concatBytes(chunk.span.toUint8Array(), chunk.payload.toUint8Array())
+  const data = concatBytes(chunk.span.toUint8Array(), chunk.payload.toUint8Array())
 
   return socAPI.upload(requestOptions, chunk.owner, chunk.identifier, chunk.signature, data, stamp, options)
 }

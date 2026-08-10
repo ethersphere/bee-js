@@ -1,6 +1,6 @@
+import { PrivateKey } from 'swarm-core'
 import type { Bee } from '../bee'
 import type { BeeRequestOptions } from '../types'
-import type { PrivateKey } from '../utils/typed-bytes'
 
 /**
  * Facade a Bee instance hands to each module (namespace) class.

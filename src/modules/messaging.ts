@@ -1,6 +1,18 @@
 import { Binary, System } from 'cafe-utility'
 import WebSocket from 'isomorphic-ws'
-import { makeContentAddressedChunk } from '../chunk/cac'
+import {
+  BatchId,
+  Bytes,
+  EthAddress,
+  Identifier,
+  makeContentAddressedChunk,
+  numberToUint256,
+  PeerAddress,
+  PrivateKey,
+  PublicKey,
+  Topic,
+} from 'swarm-core'
+import * as pssApi from '../api/pss'
 import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
 import type {
   BeeRequestOptions,
@@ -10,13 +22,10 @@ import type {
   PssSubscription,
   UploadOptions,
 } from '../types'
-import * as pssApi from '../api/pss'
-import { Bytes } from '../utils/bytes'
 import { prepareWebsocketData } from '../utils/data'
 import { BeeError } from '../utils/error'
 import { GsocMessageHandlerSchema, PssMessageHandlerSchema } from '../utils/schema'
 import { assertData } from '../utils/type'
-import { BatchId, EthAddress, Identifier, PeerAddress, PrivateKey, PublicKey, Topic } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
 
 const PSS_ENDPOINT = 'pss'
@@ -151,7 +160,7 @@ export class Messaging {
     const start = 0xb33n
 
     for (let i = 0n; i < 0xffffn; i++) {
-      const signer = new PrivateKey(Binary.numberToUint256(start + i, 'BE'))
+      const signer = new PrivateKey(numberToUint256(start + i, 'BE'))
       const socAddress = makeSOCAddress(id, signer.publicKey().address())
       // TODO: test the significance of the hardcoded 256
       const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), overlay.toUint8Array())

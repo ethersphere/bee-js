@@ -1,3 +1,4 @@
+import { PeerAddress, TransactionId } from 'swarm-core'
 import type {
   BeeRequestOptions,
   ChequebookAddressResponse,
@@ -17,7 +18,6 @@ import {
 } from '../types/schema/chequebook'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { PeerAddress, TransactionId } from '../utils/typed-bytes'
 
 const chequebookEndpoint = 'chequebook'
 

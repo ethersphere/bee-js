@@ -1,5 +1,5 @@
+import { PeerAddress } from 'swarm-core'
 import type { AllSettlements, BeeRequestOptions, Settlements } from '../types'
-import { PeerAddress } from '../utils/typed-bytes'
 import * as api from '../api/settlement'
 import type { BeeContext } from './context'
 

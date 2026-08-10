@@ -1,3 +1,4 @@
+import { BatchId, TransactionId } from 'swarm-core'
 import type { BeeRequestOptions, PostageBatchOptions, RedundancyLevel } from '../types'
 import type { Duration } from '../utils/duration'
 import { BeeArgumentError } from '../utils/error'
@@ -5,7 +6,6 @@ import { PostageBatchOptionsSchema } from '../utils/schema'
 import type { Size } from '../utils/size'
 import { getAmountForDuration, getDepthForSize, getStampCost } from '../utils/stamps'
 import type { BZZ } from '../utils/tokens'
-import type { BatchId, TransactionId } from '../utils/typed-bytes'
 import type { BeeContext } from './context'
 
 /**

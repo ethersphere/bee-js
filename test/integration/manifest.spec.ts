@@ -1,5 +1,6 @@
 import { Dates, System } from 'cafe-utility'
-import { MantarayNode, NULL_ADDRESS, PrivateKey, Topic } from '../../src'
+import { PrivateKey, Topic } from 'swarm-core'
+import { MantarayNode, NULL_ADDRESS } from '../../src'
 import { arbitraryPrivateKey, arbitraryReference, batch, makeBee } from '../utils'
 
 test('Manifest save/load/collect', async () => {

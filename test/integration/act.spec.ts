@@ -1,5 +1,5 @@
 import { Dates, Strings, System } from 'cafe-utility'
-import { PublicKey } from '../../src'
+import { PublicKey } from 'swarm-core'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()

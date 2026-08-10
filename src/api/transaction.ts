@@ -1,3 +1,4 @@
+import { TransactionId } from 'swarm-core'
 import type { BeeRequestOptions, NumberString, TransactionInfo } from '../types'
 import {
   GetAllTransactionsResponse,
@@ -5,7 +6,6 @@ import {
   TransactionHashResponse,
 } from '../types/schema/transactions'
 import { http } from '../utils/http'
-import { TransactionId } from '../utils/typed-bytes'
 
 const transactionsEndpoint = 'transactions'
 

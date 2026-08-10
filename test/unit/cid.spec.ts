@@ -1,4 +1,4 @@
-import { Reference } from '../../src'
+import { Reference } from 'swarm-core'
 
 test('cid manifest', () => {
   const pairs = [

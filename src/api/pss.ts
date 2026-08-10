@@ -1,7 +1,7 @@
+import { BatchId, PublicKey, Topic } from 'swarm-core'
 import type { BeeRequestOptions } from '../types'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
-import { BatchId, PublicKey, Topic } from '../utils/typed-bytes'
 
 const pssEndpoint = 'pss'
 
