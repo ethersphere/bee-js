@@ -1,6 +1,6 @@
 import { Types } from 'cafe-utility'
 import { ReadStream } from 'fs'
-import { ChunkSplitter, PrivateKey, Span, concatBytes, makeContentAddressedChunk } from 'swarm-core'
+import { Bytes, ChunkSplitter, PrivateKey, Span, makeContentAddressedChunk } from 'swarm-core'
 import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeCollectionFromFileList } from '../../src/utils/collection'
 import { batch, makeBee } from '../utils'
@@ -21,7 +21,7 @@ test('POST encrypted data', async () => {
   for await (const chunk of stream) {
     chunks.push(chunk)
   }
-  const concatenated = concatBytes(...chunks)
+  const concatenated = Bytes.concat(...chunks)
   expect(decoder.decode(concatenated)).toBe(data)
 })
 
@@ -37,7 +37,7 @@ test('POST encrypted file', async () => {
   for await (const chunk of stream) {
     chunks.push(chunk)
   }
-  const concatenated = concatBytes(...chunks)
+  const concatenated = Bytes.concat(...chunks)
   expect(decoder.decode(concatenated)).toBe(await file.text())
 })
 
