@@ -9,7 +9,6 @@ import {
   PrivateKey,
   Reference,
   Topic,
-  concatBytes,
   keccak256,
   makeContentAddressedChunk,
   numberToUint64,
@@ -86,7 +85,7 @@ export async function updateFeedWithReference(
   const identifier = makeFeedIdentifier(topic, nextIndex)
   const at = options?.at ?? Date.now() / 1000.0
   const timestamp = numberToUint64(BigInt(Math.floor(at)), 'BE')
-  const payloadBytes = concatBytes(timestamp, reference.toUint8Array())
+  const payloadBytes = Bytes.concat(timestamp, reference.toUint8Array())
 
   return uploadSingleOwnerChunkData(requestOptions, signer, postageBatchId, identifier, payloadBytes, options)
 }
@@ -132,7 +131,7 @@ export async function updateFeedWithPayload(
 export function getFeedUpdateChunkReference(owner: EthAddress, topic: Topic, index: FeedIndex): Reference {
   const identifier = makeFeedIdentifier(topic, index)
 
-  return new Reference(keccak256(concatBytes(identifier.toUint8Array(), owner.toUint8Array())))
+  return new Reference(keccak256(Bytes.concat(identifier.toUint8Array(), owner.toUint8Array())))
 }
 
 export async function downloadFeedUpdate(

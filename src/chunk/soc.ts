@@ -8,7 +8,6 @@ import {
   Reference,
   SingleOwnerChunk,
   Span,
-  concatBytes,
   makeContentAddressedChunk,
   makeSOCAddress,
   makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
@@ -58,7 +57,7 @@ export function makeSingleOwnerChunk(
 ): SingleOwnerChunk {
   identifier = new Identifier(identifier)
   signer = new PrivateKey(signer)
-  const wrappedChunk = { data: concatBytes(span.toUint8Array(), payload.toUint8Array()), span, payload, address }
+  const wrappedChunk = { data: Bytes.concat(span.toUint8Array(), payload.toUint8Array()), span, payload, address }
 
   return coreMakeSingleOwnerChunk(wrappedChunk, identifier, signer.toBigInt())
 }
@@ -79,7 +78,7 @@ export async function uploadSingleOwnerChunk(
   stamp: BatchId | Uint8Array | string,
   options?: UploadOptions,
 ): Promise<UploadResult> {
-  const data = concatBytes(chunk.span.toUint8Array(), chunk.payload.toUint8Array())
+  const data = Bytes.concat(chunk.span.toUint8Array(), chunk.payload.toUint8Array())
 
   return socAPI.upload(requestOptions, chunk.owner, chunk.identifier, chunk.signature, data, stamp, options)
 }
