@@ -1,4 +1,4 @@
-import { TransactionId } from 'swarm-core'
+import { TransactionId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, NumberString, TransactionInfo } from '../types'
 import {
   GetAllTransactionsResponse,

@@ -1,5 +1,5 @@
 import { ReadStream } from 'fs'
-import { Bytes } from 'swarm-core'
+import { Bytes } from '@ethersphere/core-sdk'
 import { MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeBee } from '../utils'
 

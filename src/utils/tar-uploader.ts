@@ -1,4 +1,4 @@
-import { BatchId } from 'swarm-core'
+import { BatchId } from '@ethersphere/core-sdk'
 import { BeeRequestOptions, Collection, CollectionUploadOptions } from '..'
 import { prepareRequestHeaders } from './headers'
 import { http } from './http'

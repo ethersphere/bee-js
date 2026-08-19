@@ -1,4 +1,4 @@
-import { BatchId, PublicKey, Topic } from 'swarm-core'
+import { BatchId, PublicKey, Topic } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions } from '../types'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'

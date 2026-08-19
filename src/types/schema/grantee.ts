@@ -1,4 +1,4 @@
-import { PublicKey, Reference } from 'swarm-core'
+import { PublicKey, Reference } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 
 export const GetGranteesBodyResponse = z.array(z.string().transform(s => new PublicKey(s)))

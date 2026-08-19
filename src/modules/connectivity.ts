@@ -1,4 +1,4 @@
-import { PeerAddress } from 'swarm-core'
+import { PeerAddress } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../types'
 import { NodeAddresses } from '../types/debug'
 import * as api from '../api/connectivity'

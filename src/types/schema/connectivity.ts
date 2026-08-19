@@ -1,4 +1,4 @@
-import { EthAddress, PeerAddress, PublicKey } from 'swarm-core'
+import { EthAddress, PeerAddress, PublicKey } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 
 const PeerSchema = z.object({

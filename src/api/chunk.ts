@@ -1,4 +1,4 @@
-import { BatchId, Reference } from 'swarm-core'
+import { BatchId, Reference } from '@ethersphere/core-sdk'
 import { Optional } from 'cafe-utility'
 import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions, UploadResult } from '../types'
 import { UploadResultBody } from '../types/schema/upload'

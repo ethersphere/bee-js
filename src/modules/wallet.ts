@@ -1,4 +1,4 @@
-import { EthAddress, TransactionId } from 'swarm-core'
+import { EthAddress, TransactionId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, NumberString, WalletBalance } from '../types'
 import { BZZ, DAI } from '../utils/tokens'
 import * as api from '../api/wallet'

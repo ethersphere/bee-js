@@ -1,4 +1,4 @@
-import { PeerAddress, TransactionId } from 'swarm-core'
+import { PeerAddress, TransactionId } from '@ethersphere/core-sdk'
 import type {
   BeeRequestOptions,
   LastCashoutActionResponse,

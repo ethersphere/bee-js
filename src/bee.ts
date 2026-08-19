@@ -10,7 +10,7 @@ import {
   Span,
   makeContentAddressedChunk,
   unmarshalContentAddressedChunk,
-} from 'swarm-core'
+} from '@ethersphere/core-sdk'
 import { postEnvelope } from './api/envelope'
 import { rchash } from './api/rchash'
 import { SingleOwnerChunk, makeSOCAddress, makeSingleOwnerChunk, unmarshalSingleOwnerChunk } from './chunk/soc'

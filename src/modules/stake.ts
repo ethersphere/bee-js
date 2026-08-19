@@ -1,4 +1,4 @@
-import { TransactionId } from 'swarm-core'
+import { TransactionId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, NumberString, RedistributionState, TransactionOptions } from '../types'
 import { TransactionOptionsSchema } from '../utils/schema'
 import { BZZ } from '../utils/tokens'

@@ -1,4 +1,4 @@
-import { BatchId, Bytes, Reference } from 'swarm-core'
+import { BatchId, Bytes, Reference } from '@ethersphere/core-sdk'
 import { Readable } from 'stream'
 import type { BeeRequestOptions, DownloadOptions, FileData, FileUploadOptions, UploadResult } from '../types'
 import { fileArrayBuffer, isFile } from '../utils/file'

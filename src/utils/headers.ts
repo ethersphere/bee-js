@@ -1,4 +1,4 @@
-import { BatchId, PublicKey, Reference } from 'swarm-core'
+import { BatchId, PublicKey, Reference } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { EnvelopeWithBatchId, FileHeaders } from '../types'
 import { BeeError } from './error'

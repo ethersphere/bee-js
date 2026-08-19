@@ -1,4 +1,4 @@
-import { hexToUint8Array } from 'swarm-core'
+import { hexToUint8Array } from '@ethersphere/core-sdk'
 import { MantarayNode } from '../../src'
 import { arbitraryReference } from '../utils'
 

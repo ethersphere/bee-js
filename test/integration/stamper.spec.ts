@@ -1,5 +1,5 @@
 import { Strings, Types } from 'cafe-utility'
-import { Bytes, ChunkEntry, ChunkSplitter, Stamper } from 'swarm-core'
+import { Bytes, ChunkEntry, ChunkSplitter, Stamper } from '@ethersphere/core-sdk'
 import { makeBee } from '../utils'
 
 test('Stamper utilization state', async () => {

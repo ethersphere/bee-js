@@ -1,4 +1,4 @@
-import { BatchId } from 'swarm-core'
+import { BatchId } from '@ethersphere/core-sdk'
 import { System } from 'cafe-utility'
 import { z } from 'zod'
 import type {
