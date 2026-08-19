@@ -12,7 +12,7 @@ import {
   makeSOCAddress,
   makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
   unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
-} from 'swarm-core'
+} from '@ethersphere/core-sdk'
 import * as chunkAPI from '../api/chunk'
 import * as socAPI from '../api/soc'
 import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'

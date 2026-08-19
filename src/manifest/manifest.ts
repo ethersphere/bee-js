@@ -1,12 +1,12 @@
 import { Optional } from 'cafe-utility'
 import { Bee, BeeRequestOptions, DownloadOptions, UploadOptions, UploadResult } from '..'
 import { FeedPayloadResult } from '../api/feed'
-import { BatchId, Bytes, MantarayNode as CoreMantarayNode, Reference } from 'swarm-core'
+import { BatchId, Bytes, MantarayNode as CoreMantarayNode, Reference } from '@ethersphere/core-sdk'
 
 /**
  * Uploads `node` and every node beneath it, updating each `selfAddress` in
  * place. Only the network/ACT-history side is bee-js specific - the trie
- * structure and marshaling live entirely in swarm-core's MantarayNode.
+ * structure and marshaling live entirely in core-sdk's MantarayNode.
  */
 async function saveRecursively(
   node: CoreMantarayNode,
@@ -72,7 +72,7 @@ async function loadRecursively(
 
 /**
  * bee-js's Bee-client-coupled view of a Mantaray node: the trie structure,
- * marshaling, and byte-level operations all delegate to swarm-core's
+ * marshaling, and byte-level operations all delegate to core-sdk's
  * `MantarayNode`; this class only adds what needs a live `Bee` instance
  * (uploading/downloading, ACT history, feed resolution).
  */

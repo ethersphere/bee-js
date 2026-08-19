@@ -17,8 +17,8 @@ export {
   Stamper,
   Topic,
   TransactionId,
-} from 'swarm-core'
-export type { Chunk } from 'swarm-core'
+} from '@ethersphere/core-sdk'
+export type { Chunk } from '@ethersphere/core-sdk'
 export type { SingleOwnerChunk } from './chunk/soc'
 export { MantarayNode } from './manifest/manifest'
 export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './version'
@@ -38,7 +38,7 @@ declare global {
     // binded as 'BeeJs' via Webpack
     BeeJs: {
       Bee: typeof import('./bee').Bee
-      Stamper: typeof import('swarm-core').Stamper
+      Stamper: typeof import('@ethersphere/core-sdk').Stamper
       Utils: typeof import('./utils/expose')
       Duration: typeof import('./utils/duration').Duration
       Size: typeof import('./utils/size').Size
@@ -46,19 +46,19 @@ declare global {
       BeeArgumentError: typeof import('./utils/error').BeeArgumentError
       BeeResponseError: typeof import('./utils/error').BeeResponseError
       MantarayNode: typeof import('./manifest/manifest').MantarayNode
-      ChunkSplitter: typeof import('swarm-core').ChunkSplitter
-      PrivateKey: typeof import('swarm-core').PrivateKey
-      PublicKey: typeof import('swarm-core').PublicKey
-      EthAddress: typeof import('swarm-core').EthAddress
-      Identifier: typeof import('swarm-core').Identifier
-      Reference: typeof import('swarm-core').Reference
-      TransactionId: typeof import('swarm-core').TransactionId
-      Span: typeof import('swarm-core').Span
-      PeerAddress: typeof import('swarm-core').PeerAddress
-      BatchId: typeof import('swarm-core').BatchId
-      Signature: typeof import('swarm-core').Signature
-      Topic: typeof import('swarm-core').Topic
-      FeedIndex: typeof import('swarm-core').FeedIndex
+      ChunkSplitter: typeof import('@ethersphere/core-sdk').ChunkSplitter
+      PrivateKey: typeof import('@ethersphere/core-sdk').PrivateKey
+      PublicKey: typeof import('@ethersphere/core-sdk').PublicKey
+      EthAddress: typeof import('@ethersphere/core-sdk').EthAddress
+      Identifier: typeof import('@ethersphere/core-sdk').Identifier
+      Reference: typeof import('@ethersphere/core-sdk').Reference
+      TransactionId: typeof import('@ethersphere/core-sdk').TransactionId
+      Span: typeof import('@ethersphere/core-sdk').Span
+      PeerAddress: typeof import('@ethersphere/core-sdk').PeerAddress
+      BatchId: typeof import('@ethersphere/core-sdk').BatchId
+      Signature: typeof import('@ethersphere/core-sdk').Signature
+      Topic: typeof import('@ethersphere/core-sdk').Topic
+      FeedIndex: typeof import('@ethersphere/core-sdk').FeedIndex
     }
   }
 }

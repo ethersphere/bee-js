@@ -1,4 +1,4 @@
-import { TransactionId } from 'swarm-core'
+import { TransactionId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, TransactionOptions } from '../types'
 import { GetStakeResponse, GetWithdrawableStakeResponse, TxHashResponse } from '../types/schema/stake'
 import { prepareRequestHeaders } from '../utils/headers'

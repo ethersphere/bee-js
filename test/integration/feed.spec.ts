@@ -1,5 +1,5 @@
 import { Dates, Strings, System } from 'cafe-utility'
-import { FeedIndex, PrivateKey, Reference } from 'swarm-core'
+import { FeedIndex, PrivateKey, Reference } from '@ethersphere/core-sdk'
 import { NULL_TOPIC } from '../../src'
 import { batch, makeBee } from '../utils'
 

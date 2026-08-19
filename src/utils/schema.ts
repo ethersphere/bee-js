@@ -1,4 +1,4 @@
-import { PublicKey, Reference } from 'swarm-core'
+import { PublicKey, Reference } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { TAGS_LIMIT_MAX, TAGS_LIMIT_MIN, type NumberString } from '../types'
 

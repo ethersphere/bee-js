@@ -1,5 +1,5 @@
 import { Random, Strings } from 'cafe-utility'
-import { makeContentAddressedChunk } from 'swarm-core'
+import { makeContentAddressedChunk } from '@ethersphere/core-sdk'
 import { arbitraryPrivateKey, batch, makeBee } from '../utils'
 
 const bee = makeBee()

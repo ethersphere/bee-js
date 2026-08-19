@@ -1,4 +1,4 @@
-import { Reference } from 'swarm-core'
+import { Reference } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, Pin as PinData } from '../types'
 import { GetAllPinsResponse } from '../types/schema/pinning'
 import { UploadResultBody } from '../types/schema/upload'

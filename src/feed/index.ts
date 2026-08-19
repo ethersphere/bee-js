@@ -14,7 +14,7 @@ import {
   numberToUint64,
   uint64ToNumber,
   unmarshalContentAddressedChunk,
-} from 'swarm-core'
+} from '@ethersphere/core-sdk'
 import {
   unmarshalSingleOwnerChunk,
   uploadSingleOwnerChunkData,

@@ -8,7 +8,7 @@ import {
   Reference,
   Topic,
   TransactionId,
-} from 'swarm-core'
+} from '@ethersphere/core-sdk'
 import { Optional } from 'cafe-utility'
 import type { SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
@@ -619,7 +619,7 @@ export interface PostageBatchOptions {
   waitForUsableTimeout?: number
 }
 
-export type { Envelope, EnvelopeWithBatchId } from 'swarm-core'
+export type { Envelope, EnvelopeWithBatchId } from '@ethersphere/core-sdk'
 
 /**
  * With this type a number should be represented in a string

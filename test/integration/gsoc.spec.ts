@@ -1,4 +1,4 @@
-import { Bytes } from 'swarm-core'
+import { Bytes } from '@ethersphere/core-sdk'
 import { GsocSubscription, NULL_IDENTIFIER } from '../../src'
 import { batch, makeBee } from '../utils'
 

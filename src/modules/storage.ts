@@ -1,4 +1,4 @@
-import { BatchId, TransactionId } from 'swarm-core'
+import { BatchId, TransactionId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, PostageBatchOptions, RedundancyLevel } from '../types'
 import type { Duration } from '../utils/duration'
 import { BeeArgumentError } from '../utils/error'

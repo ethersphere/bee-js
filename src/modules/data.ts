@@ -1,4 +1,4 @@
-import { BatchId, Bytes, Reference } from 'swarm-core'
+import { BatchId, Bytes, Reference } from '@ethersphere/core-sdk'
 import type {
   BeeRequestOptions,
   DownloadOptions,
