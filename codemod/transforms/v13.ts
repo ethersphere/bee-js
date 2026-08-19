@@ -242,9 +242,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
     })
   }
 
-  // core-sdk's ChunkBuilder.hash() returns a Reference wrapper, where the old cafe-utility
-  // Chunk.hash() (via MerkleTree) returned a raw Uint8Array directly - resolved the same
-  // way as isBeeReceiver, by the type checker.
+  // ChunkBuilder.hash() now returns a Reference, not a raw Uint8Array.
   const isChunkBuilderReceiver = (expr: ts.Expression): boolean => {
     const symbol = checker.getTypeAtLocation(expr).getSymbol()
 
@@ -265,10 +263,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
 
   const replacements: Array<{ start: number; end: number; text: string }> = []
 
-  // MerkleTree was removed from bee-js's exports in v13 - ChunkSplitter.root() is an
-  // exact drop-in replacement (same signature, same .hash() return). Track the local
-  // binding name (handles `import { MerkleTree as X }`) and the import specifier's own
-  // name node, so every *usage* renames too without double-replacing the import itself.
+  // MerkleTree was removed in v13; ChunkSplitter is the replacement.
   let merkleTreeLocalName: string | null = null
   let merkleTreeImportNameNode: ts.Identifier | null = null
 
@@ -284,8 +279,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
         const importedNameNode = element.propertyName ?? element.name
 
         if (importedNameNode.text === 'MerkleTree') {
-          // Only the imported name changes; if aliased (`MerkleTree as X`), the local
-          // binding `X` is untouched and its usages don't need renaming.
+          // Aliased imports keep their local name unchanged.
           replacements.push({
             start: importedNameNode.getStart(sourceFile),
             end: importedNameNode.getEnd(),
@@ -300,8 +294,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
       }
     }
 
-    // `@upcoming/swarm-core` was the prerelease name for what's now officially
-    // published as `@ethersphere/core-sdk` - rewrite the module specifier.
+    // @upcoming/swarm-core is now @ethersphere/core-sdk.
     if (
       (ts.isImportDeclaration(stmt) || ts.isExportDeclaration(stmt)) &&
       stmt.moduleSpecifier &&
@@ -317,12 +310,8 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
     }
   }
 
-  // Syntactic tracking for the `.hash()` → `.toUint8Array()` fix below: at this point
-  // `MerkleTree` no longer exists in bee-js's own types (that's the very error being
-  // migrated), so the type checker can't resolve `MerkleTree.root(...)`'s return type -
-  // isChunkBuilderReceiver alone would never match. Mirrors beeNames/beeFields above:
-  // strip await/parens and match a direct `<local>.root(...)`/`.finalize(...)` call, or a
-  // variable initialized from one.
+  // Syntactic fallback: MerkleTree no longer type-checks, so isChunkBuilderReceiver alone
+  // won't find it.
   const unwrap = (expr: ts.Expression): ts.Expression => {
     while (ts.isParenthesizedExpression(expr) || ts.isAwaitExpression(expr)) {
       expr = expr.expression
@@ -363,6 +352,149 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
     collectChunkBuilderVars(sourceFile)
   }
 
+  // bee-js's MantarayNode.collect()/.find()/.findClosest() return core-sdk's MantarayNode,
+  // not its own.
+  const isMantarayNodeType = (type: ts.Type, fileTest: RegExp): boolean => {
+    const symbol = type.getSymbol()
+
+    if (!symbol || symbol.getName() !== 'MantarayNode') {
+      return false
+    }
+
+    return (symbol.getDeclarations() ?? []).some(
+      decl => ts.isClassDeclaration(decl) && fileTest.test(decl.getSourceFile().fileName),
+    )
+  }
+  const isBeeMantarayNodeType = (type: ts.Type): boolean => isMantarayNodeType(type, /[/\\]bee-js[/\\]/)
+  const isCoreMantarayNodeType = (type: ts.Type): boolean => isMantarayNodeType(type, /[/\\]core-sdk[/\\]/)
+
+  // Tracks for-of loop vars whose element type is core-sdk's MantarayNode.
+  const coreFlavoredNames = new Set<string>()
+
+  const collectCoreFlavoredBindings = (node: ts.Node): void => {
+    if (ts.isForOfStatement(node) && ts.isVariableDeclarationList(node.initializer)) {
+      const decl = node.initializer.declarations[0]
+
+      if (decl && ts.isIdentifier(decl.name) && isCoreMantarayNodeType(checker.getTypeAtLocation(decl.name))) {
+        coreFlavoredNames.add(decl.name.text)
+      }
+    }
+
+    ts.forEachChild(node, collectCoreFlavoredBindings)
+  }
+  collectCoreFlavoredBindings(sourceFile)
+
+  let needsCoreMantarayNodeImport = false
+
+  // Rewrites a parameter's type when called with a core-flavored argument.
+  const rewriteMantarayNodeParameters = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)) {
+      node.arguments.forEach((arg, index) => {
+        if (!ts.isIdentifier(arg) || !coreFlavoredNames.has(arg.text)) {
+          return
+        }
+
+        const signature = checker.getResolvedSignature(node)
+        const decl = signature?.getDeclaration()
+        const param = decl && 'parameters' in decl ? decl.parameters[index] : undefined
+
+        if (
+          param?.type &&
+          ts.isTypeReferenceNode(param.type) &&
+          isBeeMantarayNodeType(checker.getTypeFromTypeNode(param.type))
+        ) {
+          replacements.push({
+            start: param.type.getStart(sourceFile),
+            end: param.type.getEnd(),
+            text: 'CoreMantarayNode',
+          })
+          needsCoreMantarayNodeImport = true
+        }
+      })
+    }
+
+    ts.forEachChild(node, rewriteMantarayNodeParameters)
+  }
+
+  // Rewrites a Map/Array/Set's value type when a core-flavored value is inserted.
+  const rewriteMantarayNodeContainers = (node: ts.Node): void => {
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      ['set', 'push', 'add'].includes(node.expression.name.text)
+    ) {
+      const valueArg = node.expression.name.text === 'set' ? node.arguments[1] : node.arguments[0]
+
+      if (valueArg && ts.isIdentifier(valueArg) && coreFlavoredNames.has(valueArg.text)) {
+        const receiverSymbol = checker.getSymbolAtLocation(node.expression.expression)
+        const receiverDecl = receiverSymbol?.declarations?.find(ts.isVariableDeclaration)
+
+        // Type args may be on the declaration or the constructor call.
+        const typeArguments =
+          receiverDecl?.type && ts.isTypeReferenceNode(receiverDecl.type)
+            ? receiverDecl.type.typeArguments
+            : receiverDecl?.initializer && ts.isNewExpression(receiverDecl.initializer)
+              ? receiverDecl.initializer.typeArguments
+              : undefined
+
+        if (typeArguments) {
+          for (const typeArg of typeArguments) {
+            if (ts.isTypeReferenceNode(typeArg) && isBeeMantarayNodeType(checker.getTypeFromTypeNode(typeArg))) {
+              replacements.push({
+                start: typeArg.getStart(sourceFile),
+                end: typeArg.getEnd(),
+                text: 'CoreMantarayNode',
+              })
+              needsCoreMantarayNodeImport = true
+            }
+          }
+        }
+      }
+    }
+
+    ts.forEachChild(node, rewriteMantarayNodeContainers)
+  }
+
+  if (coreFlavoredNames.size > 0) {
+    rewriteMantarayNodeParameters(sourceFile)
+    rewriteMantarayNodeContainers(sourceFile)
+  }
+
+  if (needsCoreMantarayNodeImport) {
+    const coreSdkImport = sourceFile.statements.find(
+      (stmt): stmt is ts.ImportDeclaration =>
+        ts.isImportDeclaration(stmt) &&
+        ts.isStringLiteral(stmt.moduleSpecifier) &&
+        stmt.moduleSpecifier.text === '@ethersphere/core-sdk',
+    )
+
+    if (coreSdkImport?.importClause?.namedBindings && ts.isNamedImports(coreSdkImport.importClause.namedBindings)) {
+      const elements = coreSdkImport.importClause.namedBindings.elements
+      const lastSpecifier = elements[elements.length - 1]
+
+      if (lastSpecifier) {
+        replacements.push({
+          start: lastSpecifier.getEnd(),
+          end: lastSpecifier.getEnd(),
+          text: ', MantarayNode as CoreMantarayNode',
+        })
+      }
+    } else {
+      const beeJsImport = sourceFile.statements.find(
+        (stmt): stmt is ts.ImportDeclaration =>
+          ts.isImportDeclaration(stmt) &&
+          ts.isStringLiteral(stmt.moduleSpecifier) &&
+          stmt.moduleSpecifier.text === '@ethersphere/bee-js',
+      )
+      const insertAt = beeJsImport ? beeJsImport.getEnd() : 0
+      replacements.push({
+        start: insertAt,
+        end: insertAt,
+        text: `\nimport { MantarayNode as CoreMantarayNode } from '@ethersphere/core-sdk'`,
+      })
+    }
+  }
+
   const visit = (node: ts.Node): void => {
     // Any `<bee>.<method>` access — called or not — so bare method references migrate too.
     if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.name)) {
@@ -380,9 +512,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
       }
     }
 
-    // `jest.spyOn(bee, 'oldMethodName')` → `jest.spyOn(bee.namespace, 'newMethodName')` -
-    // the receiver here is a string literal, so the property-access rewrite above never
-    // sees it.
+    // jest.spyOn uses a string literal, so the rewrite above doesn't catch it.
     if (
       ts.isCallExpression(node) &&
       ts.isPropertyAccessExpression(node.expression) &&
@@ -410,11 +540,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
       }
     }
 
-    // `.hash()` on a ChunkBuilder (e.g. `(await ChunkSplitter.root(data)).hash()`) now
-    // returns a Reference, not a raw Uint8Array - append the conversion so code written
-    // against the old MerkleTree contract keeps working unchanged. Scoped to files where
-    // MerkleTree was actually renamed above, so v13-native code expecting a Reference
-    // isn't touched.
+    // ChunkBuilder.hash() now returns a Reference; append the conversion back.
     if (
       merkleTreeLocalName &&
       ts.isCallExpression(node) &&
@@ -432,8 +558,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
       })
     }
 
-    // Bare `MerkleTree` usages (e.g. `MerkleTree.root(...)`) - skips the import specifier
-    // itself, already renamed above.
+    // Renames remaining MerkleTree usages (import itself already handled above).
     if (
       merkleTreeLocalName &&
       ts.isIdentifier(node) &&
