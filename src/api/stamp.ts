@@ -1,4 +1,4 @@
-import { BatchId } from 'swarm-core'
+import { BatchId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, NumberString, PostageBatch, PostageBatchBuckets, RedundancyLevel } from '../types'
 import {
   BatchIdResponse,

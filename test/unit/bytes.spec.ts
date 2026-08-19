@@ -1,4 +1,4 @@
-import { Bytes } from 'swarm-core'
+import { Bytes } from '@ethersphere/core-sdk'
 
 test('Bytes.keccak256', () => {
   expect(Bytes.keccak256(Bytes.fromUtf8('')).toHex()).toBe(

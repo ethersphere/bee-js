@@ -1,4 +1,4 @@
-import { EthAddress, FeedIndex, Reference, Topic } from 'swarm-core'
+import { EthAddress, FeedIndex, Reference, Topic } from '@ethersphere/core-sdk'
 import { Objects } from 'cafe-utility'
 import { Bee } from '../bee'
 import { BeeRequestOptions, DownloadOptions } from '../types'

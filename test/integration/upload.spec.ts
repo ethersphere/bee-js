@@ -1,6 +1,6 @@
 import { Types } from 'cafe-utility'
 import { ReadStream } from 'fs'
-import { Bytes, ChunkSplitter, PrivateKey, Span, makeContentAddressedChunk } from 'swarm-core'
+import { Bytes, ChunkSplitter, PrivateKey, Span, makeContentAddressedChunk } from '@ethersphere/core-sdk'
 import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeCollectionFromFileList } from '../../src/utils/collection'
 import { batch, makeBee } from '../utils'

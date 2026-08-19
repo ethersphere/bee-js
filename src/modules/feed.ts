@@ -1,4 +1,4 @@
-import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from 'swarm-core'
+import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from '@ethersphere/core-sdk'
 import { Objects } from 'cafe-utility'
 import { createFeedManifest, fetchLatestFeedUpdate } from '../api/feed'
 import type { FeedPayloadResult } from '../api/feed'

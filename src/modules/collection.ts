@@ -1,4 +1,4 @@
-import { BatchId } from 'swarm-core'
+import { BatchId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, CollectionUploadOptions, UploadOptions, UploadResult } from '../types'
 import { Collection as CollectionData } from '../types'
 import {

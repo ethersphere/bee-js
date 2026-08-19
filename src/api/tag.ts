@@ -1,4 +1,4 @@
-import { Reference } from 'swarm-core'
+import { Reference } from '@ethersphere/core-sdk'
 import type { AllTagsOptions, BeeRequestOptions, Tag as TagData } from '../types'
 import { GetAllTagsResponse, TagSchema } from '../types/schema/tag'
 import { http } from '../utils/http'

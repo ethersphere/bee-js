@@ -14,7 +14,7 @@ import {
   getStampTheoreticalBytes,
   getStampUsage,
   marshalStamp as coreMarshalStamp,
-} from 'swarm-core'
+} from '@ethersphere/core-sdk'
 
 export { getStampEffectiveBytes, getStampEffectiveBytesBreakpoints, getStampTheoreticalBytes, getStampUsage }
 

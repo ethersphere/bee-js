@@ -1,4 +1,4 @@
-import { Identifier, Topic, hexToUint8Array } from 'swarm-core'
+import { Identifier, Topic, hexToUint8Array } from '@ethersphere/core-sdk'
 
 test('construct Topic', () => {
   const expected = '7e15a90abbff6ee821a98dfd278e2967c16a1f8d3fa62534bce0c231169befce'

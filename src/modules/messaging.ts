@@ -11,7 +11,7 @@ import {
   PrivateKey,
   PublicKey,
   Topic,
-} from 'swarm-core'
+} from '@ethersphere/core-sdk'
 import * as pssApi from '../api/pss'
 import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
 import type {
