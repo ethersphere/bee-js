@@ -1,6 +1,18 @@
+#!/usr/bin/env node
 import * as fs from 'fs'
 import * as path from 'path'
-import * as ts from 'typescript'
+import type * as TS from 'typescript'
+
+let ts: typeof TS
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  ts = require('typescript')
+} catch {
+  console.error("This tool requires 'typescript' to be installed in your project.")
+  console.error('Run: npm install --save-dev typescript')
+  process.exit(1)
+}
 
 const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx']
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.git'])
@@ -30,8 +42,8 @@ const fromVersion = fromIdx !== -1 ? parseVersion(args[fromIdx + 1]) : 0
 const target = args.find((a, i) => !a.startsWith('--') && (fromIdx === -1 || i !== fromIdx + 1))
 
 if (!target) {
-  console.error('Usage: ts-node --project codemod/tsconfig.json codemod/index.ts <path> [--from <version>]')
-  console.error('Example: npm run codemod -- ./src --from v12')
+  console.error('Usage: npx bee-js-codemod <path> [--from <version>]')
+  console.error('Example: npx bee-js-codemod ./src --from v12')
   process.exit(1)
 }
 
@@ -39,7 +51,7 @@ const transformsDir = path.join(__dirname, 'transforms')
 
 const transformFiles = fs
   .readdirSync(transformsDir)
-  .filter(f => f.endsWith('.ts') && !f.endsWith('.d.ts'))
+  .filter(f => (f.endsWith('.ts') || f.endsWith('.js')) && !f.endsWith('.d.ts'))
   .sort()
   .filter(f => parseVersion(f) > fromVersion)
 
@@ -52,10 +64,10 @@ console.log(`Applying: ${transformFiles.join(', ')}\n`)
 
 // Type-aware transform: receives a parsed source file plus the program's type checker so it
 // can resolve receiver types (locals, imported instances, `this.<field>`, factory calls).
-type TransformFn = (sourceFile: ts.SourceFile, checker: ts.TypeChecker) => string | null
+type TransformFn = (sourceFile: TS.SourceFile, checker: TS.TypeChecker) => string | null
 
 const transforms: TransformFn[] = transformFiles.map(f => {
-  const modulePath = path.join(transformsDir, f.replace(/\.ts$/, ''))
+  const modulePath = path.join(transformsDir, f.replace(/\.(ts|js)$/, ''))
   return (require(modulePath) as { transform: TransformFn }).transform
 })
 
@@ -66,7 +78,7 @@ const targetSet = new Set(files)
 
 // Load the target project's compiler options so imports and the bee-js types resolve; fall
 // back to permissive defaults when no tsconfig is found nearby.
-function loadCompilerOptions(from: string): ts.CompilerOptions {
+function loadCompilerOptions(from: string): TS.CompilerOptions {
   const configPath = ts.findConfigFile(from, ts.sys.fileExists, 'tsconfig.json')
 
   if (configPath) {
