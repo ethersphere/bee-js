@@ -242,7 +242,126 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
     })
   }
 
+  // core-sdk's ChunkBuilder.hash() returns a Reference wrapper, where the old cafe-utility
+  // Chunk.hash() (via MerkleTree) returned a raw Uint8Array directly - resolved the same
+  // way as isBeeReceiver, by the type checker.
+  const isChunkBuilderReceiver = (expr: ts.Expression): boolean => {
+    const symbol = checker.getTypeAtLocation(expr).getSymbol()
+
+    if (!symbol || symbol.getName() !== 'ChunkBuilder') {
+      return false
+    }
+
+    return (symbol.getDeclarations() ?? []).some(decl => {
+      if (!ts.isClassDeclaration(decl)) {
+        return false
+      }
+
+      const file = decl.getSourceFile().fileName
+
+      return /[/\\]core-sdk[/\\]/.test(file) || /[/\\]splitter\.(d\.)?ts$/.test(file)
+    })
+  }
+
   const replacements: Array<{ start: number; end: number; text: string }> = []
+
+  // MerkleTree was removed from bee-js's exports in v13 - ChunkSplitter.root() is an
+  // exact drop-in replacement (same signature, same .hash() return). Track the local
+  // binding name (handles `import { MerkleTree as X }`) and the import specifier's own
+  // name node, so every *usage* renames too without double-replacing the import itself.
+  let merkleTreeLocalName: string | null = null
+  let merkleTreeImportNameNode: ts.Identifier | null = null
+
+  for (const stmt of sourceFile.statements) {
+    if (
+      ts.isImportDeclaration(stmt) &&
+      ts.isStringLiteral(stmt.moduleSpecifier) &&
+      stmt.moduleSpecifier.text === '@ethersphere/bee-js' &&
+      stmt.importClause?.namedBindings &&
+      ts.isNamedImports(stmt.importClause.namedBindings)
+    ) {
+      for (const element of stmt.importClause.namedBindings.elements) {
+        const importedNameNode = element.propertyName ?? element.name
+
+        if (importedNameNode.text === 'MerkleTree') {
+          // Only the imported name changes; if aliased (`MerkleTree as X`), the local
+          // binding `X` is untouched and its usages don't need renaming.
+          replacements.push({
+            start: importedNameNode.getStart(sourceFile),
+            end: importedNameNode.getEnd(),
+            text: 'ChunkSplitter',
+          })
+
+          if (!element.propertyName) {
+            merkleTreeLocalName = element.name.text
+            merkleTreeImportNameNode = element.name
+          }
+        }
+      }
+    }
+
+    // `@upcoming/swarm-core` was the prerelease name for what's now officially
+    // published as `@ethersphere/core-sdk` - rewrite the module specifier.
+    if (
+      (ts.isImportDeclaration(stmt) || ts.isExportDeclaration(stmt)) &&
+      stmt.moduleSpecifier &&
+      ts.isStringLiteral(stmt.moduleSpecifier) &&
+      stmt.moduleSpecifier.text === '@upcoming/swarm-core'
+    ) {
+      const quote = stmt.moduleSpecifier.getText(sourceFile)[0]!
+      replacements.push({
+        start: stmt.moduleSpecifier.getStart(sourceFile),
+        end: stmt.moduleSpecifier.getEnd(),
+        text: `${quote}@ethersphere/core-sdk${quote}`,
+      })
+    }
+  }
+
+  // Syntactic tracking for the `.hash()` → `.toUint8Array()` fix below: at this point
+  // `MerkleTree` no longer exists in bee-js's own types (that's the very error being
+  // migrated), so the type checker can't resolve `MerkleTree.root(...)`'s return type -
+  // isChunkBuilderReceiver alone would never match. Mirrors beeNames/beeFields above:
+  // strip await/parens and match a direct `<local>.root(...)`/`.finalize(...)` call, or a
+  // variable initialized from one.
+  const unwrap = (expr: ts.Expression): ts.Expression => {
+    while (ts.isParenthesizedExpression(expr) || ts.isAwaitExpression(expr)) {
+      expr = expr.expression
+    }
+
+    return expr
+  }
+
+  const isChunkSplitterRootCall = (expr: ts.Expression): boolean => {
+    const inner = unwrap(expr)
+
+    return (
+      merkleTreeLocalName !== null &&
+      ts.isCallExpression(inner) &&
+      ts.isPropertyAccessExpression(inner.expression) &&
+      ts.isIdentifier(inner.expression.expression) &&
+      inner.expression.expression.text === merkleTreeLocalName &&
+      (inner.expression.name.text === 'root' || inner.expression.name.text === 'finalize')
+    )
+  }
+
+  const chunkBuilderVarNames = new Set<string>()
+
+  const collectChunkBuilderVars = (node: ts.Node): void => {
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      node.initializer &&
+      isChunkSplitterRootCall(node.initializer)
+    ) {
+      chunkBuilderVarNames.add(node.name.text)
+    }
+
+    ts.forEachChild(node, collectChunkBuilderVars)
+  }
+
+  if (merkleTreeLocalName) {
+    collectChunkBuilderVars(sourceFile)
+  }
 
   const visit = (node: ts.Node): void => {
     // Any `<bee>.<method>` access — called or not — so bare method references migrate too.
@@ -259,6 +378,73 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
           text: `${node.expression.getText(sourceFile)}${separator}${mapping.namespace}.${mapping.newName}`,
         })
       }
+    }
+
+    // `jest.spyOn(bee, 'oldMethodName')` → `jest.spyOn(bee.namespace, 'newMethodName')` -
+    // the receiver here is a string literal, so the property-access rewrite above never
+    // sees it.
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === 'spyOn' &&
+      node.arguments.length >= 2
+    ) {
+      const [receiverArg, methodArg] = node.arguments
+
+      if (receiverArg && methodArg && ts.isStringLiteralLike(methodArg)) {
+        const mapping = METHOD_MAP[methodArg.text]
+
+        if (mapping && isBeeReceiver(receiverArg)) {
+          const quote = methodArg.getText(sourceFile)[0]!
+          replacements.push({
+            start: receiverArg.getStart(sourceFile),
+            end: receiverArg.getEnd(),
+            text: `${receiverArg.getText(sourceFile)}.${mapping.namespace}`,
+          })
+          replacements.push({
+            start: methodArg.getStart(sourceFile),
+            end: methodArg.getEnd(),
+            text: `${quote}${mapping.newName}${quote}`,
+          })
+        }
+      }
+    }
+
+    // `.hash()` on a ChunkBuilder (e.g. `(await ChunkSplitter.root(data)).hash()`) now
+    // returns a Reference, not a raw Uint8Array - append the conversion so code written
+    // against the old MerkleTree contract keeps working unchanged. Scoped to files where
+    // MerkleTree was actually renamed above, so v13-native code expecting a Reference
+    // isn't touched.
+    if (
+      merkleTreeLocalName &&
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === 'hash' &&
+      node.arguments.length === 0 &&
+      (isChunkSplitterRootCall(node.expression.expression) ||
+        (ts.isIdentifier(node.expression.expression) && chunkBuilderVarNames.has(node.expression.expression.text)) ||
+        isChunkBuilderReceiver(node.expression.expression))
+    ) {
+      replacements.push({
+        start: node.getEnd(),
+        end: node.getEnd(),
+        text: '.toUint8Array()',
+      })
+    }
+
+    // Bare `MerkleTree` usages (e.g. `MerkleTree.root(...)`) - skips the import specifier
+    // itself, already renamed above.
+    if (
+      merkleTreeLocalName &&
+      ts.isIdentifier(node) &&
+      node.text === merkleTreeLocalName &&
+      node !== merkleTreeImportNameNode
+    ) {
+      replacements.push({
+        start: node.getStart(sourceFile),
+        end: node.getEnd(),
+        text: 'ChunkSplitter',
+      })
     }
 
     ts.forEachChild(node, visit)
