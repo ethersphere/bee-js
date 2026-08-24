@@ -31,6 +31,9 @@
       "types": "./dist/types/index.d.ts"
     }
   },
+  "bin": {
+    "bee-js-codemod": "dist/codemod/index.js"
+  },
   "engines": {
     "bee": "2.8.1-7cf53193",
     "beeApiVersion": "8.1.0"
@@ -55,10 +58,11 @@
     "prepublishOnly": "NODE_ENV=production npm run build",
     "prepare": "node scripts/generate-version.cjs",
     "generate:version": "node scripts/generate-version.cjs",
-    "build": "npm run generate:version && rimraf dist && npm run build:node && npm run build:types && npm run build:browser",
+    "build": "npm run generate:version && rimraf dist && npm run build:node && npm run build:types && npm run build:browser && npm run build:codemod",
     "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-mjs.json && ./build-fixup && babel --plugins \"babel-plugin-add-import-extension\" --out-dir dist/mjs/ dist/mjs/",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
     "build:browser": "webpack --progress",
+    "build:codemod": "tsc -p codemod/tsconfig.build.json && chmod +x dist/codemod/index.js",
     "test": "TS_NODE_PROJECT=tsconfig.test.json jest --runInBand --verbose --forceExit",
     "test:browser": "TS_NODE_PROJECT=tsconfig.test.json jest --config jest.browser.config.js --runInBand --verbose --forceExit",
     "check": "tsc --project tsconfig.test.json",
