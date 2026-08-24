@@ -523,9 +523,23 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
 
       if (receiverArg && methodArg && ts.isStringLiteralLike(methodArg)) {
         const mapping = METHOD_MAP[methodArg.text]
+        const quote = methodArg.getText(sourceFile)[0]!
 
-        if (mapping && isBeeReceiver(receiverArg)) {
-          const quote = methodArg.getText(sourceFile)[0]!
+        // Namespaces are per-instance properties, not on Bee.prototype, so spying there
+        // needs a throwaway instance to reach the namespace's own (shared) prototype.
+        if (mapping && ts.isPropertyAccessExpression(receiverArg) && receiverArg.name.text === 'prototype' && isBeeReceiver(receiverArg.expression)) {
+          const className = receiverArg.expression.getText(sourceFile)
+          replacements.push({
+            start: receiverArg.getStart(sourceFile),
+            end: receiverArg.getEnd(),
+            text: `Object.getPrototypeOf(new ${className}('http://localhost:1633').${mapping.namespace})`,
+          })
+          replacements.push({
+            start: methodArg.getStart(sourceFile),
+            end: methodArg.getEnd(),
+            text: `${quote}${mapping.newName}${quote}`,
+          })
+        } else if (mapping && isBeeReceiver(receiverArg)) {
           replacements.push({
             start: receiverArg.getStart(sourceFile),
             end: receiverArg.getEnd(),

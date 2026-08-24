@@ -14,6 +14,15 @@ try {
   process.exit(1)
 }
 
+// TypeScript 7 replaced the classic Compiler API (ts.createProgram, ts.sys, etc.) this tool
+// is built on with a new, explicitly "unstable" native AST API with a different shape -
+// there's no ts.createProgram to fall back to, so fail clearly instead of crashing on it.
+if (typeof ts.createProgram !== 'function') {
+  console.error(`This tool needs TypeScript's classic Compiler API, removed in TypeScript 7.0 (found ${ts.version}).`)
+  console.error('Install a supported version: npm install --save-dev typescript@^5.9.0')
+  process.exit(1)
+}
+
 const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx']
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.git'])
 
