@@ -13,7 +13,7 @@
 
 > Write your code in CJS, MJS or TypeScript.
 
-> Intended to be used with Bee version 2.5.0.
+> Intended to be used with Bee version 2.8.1.
 
 ## Quick start
 
@@ -68,7 +68,7 @@ types. Where `NumberString` is present, `number` is disallowed in order to avoid
 
 ### Byte primitives
 
-All the classes below extend `Bytes`, therefor the following methods are available on all of them: `toUint8Array`,
+All the classes below extend `Bytes`, therefore the following methods are available on all of them: `toUint8Array`,
 `toHex`, `toBase64`, `toBase32`, `toUtf8`, `toJSON`, `static keccak256`, `static fromUtf8`.
 
 The `toString` method uses `toHex`.
@@ -108,24 +108,25 @@ The `toString` method uses `toHex`.
 
 | Name             | Description                                                                                     | Creation                    |
 | ---------------- | ----------------------------------------------------------------------------------------------- | --------------------------- |
-| Chunk            | Span, max. 4096 bytes payload; address dervied from content                                     | `makeContentAddressedChunk` |
+| Chunk            | Span, max. 4096 bytes payload; address derived from content                                     | `makeContentAddressedChunk` |
 | SingleOwnerChunk | Identifier, signature, span, max. 4096 bytes payload; address derived from identifier and owner | `makeSingleOwnerChunk`      |
 
 ### Swarm primitives
 
-| Name         | Description                                          | Methods                                                                                                                                         |
-| ------------ | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| MantarayNode | Compact trie with reference values and JSON metadata | `addFork`, `removeFork`, `calculateSelfAddress`, `find`, `findClosest`, `collect`, `marshal`, `unmarshal`, `saveRecursively`, `loadRecursively` |
-| MerkleTree   | Streaming BMT of chunks                              | `append`, `finalize`, `static root`                                                                                                             |
+| Name          | Description                                          | Methods                                                                                                                                         |
+| ------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| MantarayNode  | Compact trie with reference values and JSON metadata | `addFork`, `removeFork`, `calculateSelfAddress`, `find`, `findClosest`, `collect`, `marshal`, `unmarshal`, `saveRecursively`, `loadRecursively` |
+| ChunkSplitter | Streaming BMT chunk-tree builder                     | `append`, `finalize`, `static root`                                                                                                             |
+| ChunkJoiner   | Reconstructs data from a chunk tree                  | `join`, `static collect`                                                                                                                        |
 
 ### Swarm objects
 
 | Name       | Description             | Creation             |
 | ---------- | ----------------------- | -------------------- |
-| SOCWriter  | SingleOwnerChunk writer | `bee.makeSOCWriter`  |
-| SOCReader  | SingleOwnerChunk reader | `bee.makeSOCReader`  |
-| FeedWriter | Feed writer             | `bee.makeFeedWriter` |
-| FeedReader | Feed reader             | `bee.makeFeedReader` |
+| SOCWriter  | SingleOwnerChunk writer | `bee.soc.makeWriter`  |
+| SOCReader  | SingleOwnerChunk reader | `bee.soc.makeReader`  |
+| FeedWriter | Feed writer             | `bee.feed.makeWriter` |
+| FeedReader | Feed reader             | `bee.feed.makeReader` |
 
 ### Bee API
 
@@ -133,83 +134,83 @@ The `toString` method uses `toHex`.
 - ❌✅✅ - Light node and full node
 - ✅✅✅ - Ultra-light node, light node and full node
 
-| JS Call                              | Bee Endpoint                                                                                                                                             | Bee Mode |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| `uploadFile`                         | `POST /bzz` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)                                                                                | ❌✅✅   |
-| `uploadFilesFromDirectory` _Node.js_ | `POST /bzz` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)                                                                                | ❌✅✅   |
-| `uploadFiles`                        | `POST /bzz` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)                                                                                | ❌✅✅   |
-| `uploadCollection`                   | `POST /bzz` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)                                                                                | ❌✅✅   |
-| `uploadData`                         | `POST /bytes` [🔗](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes/post)                                                                          | ❌✅✅   |
-| `uploadChunk`                        | `POST /chunks` [🔗](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)                                                                        | ❌✅✅   |
-| `streamDirectory` _Node.js_          | `POST /chunks` [🔗](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)                                                                        | ❌✅✅   |
-| `streamFiles` _Browser_              | `POST /chunks` [🔗](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)                                                                        | ❌✅✅   |
-| `SOCWriter.upload`                   | `POST /soc/:owner/:identifier` [🔗](https://docs.ethswarm.org/api/#tag/Single-owner-chunk/paths/~1soc~1%7Bowner%7D~1%7Bid%7D/post)                       | ❌✅✅   |
-| `FeedReader.download`                | `GET /feeds/:owner/:topic` [🔗](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1%7Bowner%7D~1%7Btopic%7D/get)                                     | ✅✅✅   |
-| `FeedWriter.updateFeed`              | `POST /soc/:owner/:identifier` [🔗](https://docs.ethswarm.org/api/#tag/Single-owner-chunk/paths/~1soc~1%7Bowner%7D~1%7Bid%7D/post)                       | ❌✅✅   |
-| `downloadFile`                       | `GET /bzz/:reference` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D/get)                                                      | ✅✅✅   |
-| `downloadFile`                       | `GET /bzz/:reference/:path` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)                                    | ✅✅✅   |
-| `downloadReadableFile`               | `GET /bzz/:reference` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D/get)                                                      | ✅✅✅   |
-| `downloadData`                       | `GET /bytes/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1%7Breference%7D/get)                                                | ✅✅✅   |
-| `downloadReadableData`               | `GET /bytes/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1%7Breference%7D/get)                                                | ✅✅✅   |
-| `downloadChunk`                      | `GET /chunks/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1%7Baddress%7D/get)                                                | ✅✅✅   |
-| `createFeedManifest`                 | `POST /feeds/:owner/:topic` [🔗](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1%7Bowner%7D~1%7Btopic%7D/post)                                   | ❌✅✅   |
-| `isConnected`                        | `GET /`                                                                                                                                                  | ✅✅✅   |
-| `getHealth`                          | `GET /health` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1health/get)                                                                         | ✅✅✅   |
-| `getReadiness`                       | `GET /readiness` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1readiness/get)                                                                   | ✅✅✅   |
-| `getNodeInfo`                        | `GET /node` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1node/get)                                                                             | ✅✅✅   |
-| `getChainState`                      | `GET /chainstate` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1chainstate/get)                                                                 | ❌✅✅   |
-| `getRedistributionState`             | `GET /redistributionstate` [🔗](https://docs.ethswarm.org/api/#tag/RedistributionState/paths/~1redistributionstate/get)                                  | ❌❌✅   |
-| `getReserveState`                    | `GET /reservestate` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1reservestate/get)                                                             | ❌❌✅   |
-| `getStatus`                          | `GET /status` [🔗](https://docs.ethswarm.org/api/#tag/Node-Status/paths/~1status/get)                                                                    | ✅✅✅   |
-| `getWallet`                          | `GET /wallet` [🔗](https://docs.ethswarm.org/api/#tag/Wallet/paths/~1wallet/get)                                                                         | ❌✅✅   |
-| `getTopology`                        | `GET /topology` [🔗](https://docs.ethswarm.org/api/#tag/Connectivity/paths/~1topology/get)                                                               | ✅✅✅   |
-| `getAddresses`                       | `GET /addresses` [🔗](https://docs.ethswarm.org/api/#tag/Connectivity/paths/~1addresses/get)                                                             | ✅✅✅   |
-| `getPeers`                           | `GET /peers` [🔗](https://docs.ethswarm.org/api/#tag/Connectivity/paths/~1peers/get)                                                                     | ✅✅✅   |
-| `getAllBalances`                     | `GET /balances` [🔗](https://docs.ethswarm.org/api/#tag/Balance/paths/~1balances/get)                                                                    | ❌✅✅   |
-| `getPeerBalance`                     | `GET /balances/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Balance/paths/~1balances~1%7Baddress%7D/get)                                               | ❌✅✅   |
-| `getPastDueConsumptionBalances`      | `GET /consumed` [🔗](https://docs.ethswarm.org/api/#tag/Balance/paths/~1consumed/get)                                                                    | ❌✅✅   |
-| `getPastDueConsumptionPeerBalance`   | `GET /consumed/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Balance/paths/~1consumed~1%7Baddress%7D/get)                                               | ❌✅✅   |
-| `getAllSettlements`                  | `GET /settlements` [🔗](https://docs.ethswarm.org/api/#tag/Settlements/paths/~1settlements/get)                                                          | ❌✅✅   |
-| `getSettlements`                     | `GET /settlements/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Settlements/paths/~1settlements~1%7Baddress%7D/get)                                     | ❌✅✅   |
-| `getChequebookAddress`               | `GET /chequebook/address` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1address/get)                                            | ❌✅✅   |
-| `getChequebookBalance`               | `GET /chequebook/balance` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1balance/get)                                            | ❌✅✅   |
-| `getLastCheques`                     | `GET /chequebook/cheque` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1cheque/get)                                              | ❌✅✅   |
-| `getLastChequesForPeer`              | `GET /chequebook/cheque/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1cheque~1%7Bpeer-id%7D/get)                         | ❌✅✅   |
-| `getLastCashoutAction`               | `GET /chequebook/cashout/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1cashout~1%7Bpeer-id%7D/get)                       | ❌✅✅   |
-| `cashoutLastCheque`                  | `POST /chequebook/cashout/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1cashout~1%7Bpeer-id%7D/post)                     | ❌✅✅   |
-| `depositTokens`                      | `POST /chequebook/deposit` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1deposit/post)                                          | ❌✅✅   |
-| `withdrawTokens`                     | `POST /chequebook/withdraw` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1withdraw/post)                                        | ❌✅✅   |
-| `getAllPendingTransactions`          | `GET /transactions` [🔗](https://docs.ethswarm.org/api/#tag/Transaction/paths/~1transactions/get)                                                        | ❌✅✅   |
-| `getPendingTransaction`              | `GET /transactions/:id` [🔗](https://docs.ethswarm.org/api/#tag/Transaction/paths/~1transactions~1%7BtxHash%7D/get)                                      | ❌✅✅   |
-| `rebroadcastTransaction`             | `POST /transactions/:id` [🔗](https://docs.ethswarm.org/api/#tag/Transaction/paths/~1transactions~1%7BtxHash%7D/post)                                    | ❌✅✅   |
-| `cancelTransaction`                  | `DELETE /transactions/:id` [🔗](https://docs.ethswarm.org/api/#tag/Transaction/paths/~1transactions~1%7BtxHash%7D/delete)                                | ❌✅✅   |
-| `createTag`                          | `POST /tags` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)                                                                              | ❌✅✅   |
-| `retrieveTag`                        | `GET /tags/:id` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1%7Buid%7D/get)                                                                 | ❌✅✅   |
-| `getAllTags`                         | `GET /tags` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)                                                                                | ❌✅✅   |
-| `deleteTag`                          | `DELETE /tags/:id` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1%7Buid%7D/delete)                                                           | ❌✅✅   |
-| `updateTag`                          | `PATCH /tags/:id` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1%7Buid%7D/patch)                                                             | ❌✅✅   |
-| `pin`                                | `POST /pins/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Pinning/paths/~1pins~1%7Breference%7D/post)                                              | ✅✅✅   |
-| `getAllPins`                         | `GET /pins` [🔗](https://docs.ethswarm.org/api/#tag/Pinning/paths/~1pins/get)                                                                            | ✅✅✅   |
-| `getPin`                             | `GET /pins/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Pinning/paths/~1pins~1%7Breference%7D/get)                                                | ✅✅✅   |
-| `isReferenceRetrievable`             | `GET /stewardship/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1%7Breference%7D/get)                              | ✅✅✅   |
-| `reuploadPinnedData`                 | `PUT /stewardship/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1%7Breference%7D/put)                              | ❌✅✅   |
-| `unpin`                              | `DELETE /pins/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Pinning/paths/~1pins~1%7Breference%7D/delete)                                          | ✅✅✅   |
-| `getGrantees`                        | `GET /grantee/:reference` [🔗](https://docs.ethswarm.org/api/#tag/ACT/paths/~1grantee~1%7Breference%7D/get)                                              | ❌✅✅   |
-| `createGrantees`                     | `POST /grantee` [🔗](https://docs.ethswarm.org/api/#tag/ACT/paths/~1grantee/post)                                                                        | ❌✅✅   |
-| `patchGrantees`                      | `PATCH /grantee/:reference` [🔗](https://docs.ethswarm.org/api/#tag/ACT/paths/~1grantee~1%7Breference%7D/patch)                                          | ❌✅✅   |
-| `pssSend`                            | `POST /pss/send/:topic/:target` [🔗](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1send~1%7Btopic%7D~1%7Btargets%7D/post)     | ❌✅✅   |
-| `pssSubscribe` _Websocket_           | `GET /pss/subscribe/:topic` [🔗](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1%7Btopic%7D/get)                    | ❌❌✅   |
-| `pssReceive`                         | `GET /pss/subscribe/:topic` [🔗](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1%7Btopic%7D/get)                    | ❌❌✅   |
-| `getPostageBatches`                  | `GET /stamps` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)                                                                 | ❌✅✅   |
-| `getGlobalPostageBatches`            | `GET /batches` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1batches/get)                                                               | ❌✅✅   |
-| `getPostageBatch`                    | `GET /stamps/:batchId` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bbatch_id%7D/get)                                        | ❌✅✅   |
-| `getPostageBatchBuckets`             | `GET /stamps/:batchId/buckets` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bbatch_id%7D~1buckets/get)                       | ❌✅✅   |
-| `createPostageBatch`                 | `POST /stamps/:amount/:depth` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bamount%7D~1%7Bdepth%7D/post)                     | ❌✅✅   |
-| `topUpBatch`                         | `PATCH /stamps/topup/:batchId/:amount` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1topup~1%7Bbatch_id%7D~1%7Bamount%7D/patch) | ❌✅✅   |
-| `diluteBatch`                        | `PATCH /stamps/dilute/:batchId/:depth` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1dilute~1%7Bbatch_id%7D~1%7Bdepth%7D/patch) | ❌✅✅   |
-| `createEnvelope`                     | `POST /envelope/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Envelope/paths/~1envelope~1%7Baddress%7D/post)                                       | ❌✅✅   |
-| `getStake`                           | `GET /stake` [🔗](https://docs.ethswarm.org/api/#tag/Staking/paths/~1stake/get)                                                                          | ❌❌✅   |
-| `depositStake`                       | `POST /stake` [🔗](https://docs.ethswarm.org/api/#tag/Staking/paths/~1stake~1%7Bamount%7D/post)                                                          | ❌❌✅   |
+| JS Call                                     | Bee Endpoint                                                                                                                                             | Bee Mode |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `file.upload`                                | `POST /bzz` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)                                                                                | ❌✅✅   |
+| `collection.uploadFromDirectory` _Node.js_   | `POST /bzz` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)                                                                                | ❌✅✅   |
+| `collection.uploadFromFileList`              | `POST /bzz` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)                                                                                | ❌✅✅   |
+| `collection.upload`                          | `POST /bzz` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz/post)                                                                                | ❌✅✅   |
+| `data.upload`                                | `POST /bytes` [🔗](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes/post)                                                                          | ❌✅✅   |
+| `chunk.upload`                               | `POST /chunks` [🔗](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)                                                                        | ❌✅✅   |
+| `collection.streamFromDirectory` _Node.js_   | `POST /chunks` [🔗](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)                                                                        | ❌✅✅   |
+| `collection.stream` _Browser_                | `POST /chunks` [🔗](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks/post)                                                                        | ❌✅✅   |
+| `SOCWriter.upload`                           | `POST /soc/:owner/:identifier` [🔗](https://docs.ethswarm.org/api/#tag/Single-owner-chunk/paths/~1soc~1%7Bowner%7D~1%7Bid%7D/post)                       | ❌✅✅   |
+| `FeedReader.download`                        | `GET /feeds/:owner/:topic` [🔗](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1%7Bowner%7D~1%7Btopic%7D/get)                                     | ✅✅✅   |
+| `FeedWriter.uploadReference`                 | `POST /soc/:owner/:identifier` [🔗](https://docs.ethswarm.org/api/#tag/Single-owner-chunk/paths/~1soc~1%7Bowner%7D~1%7Bid%7D/post)                       | ❌✅✅   |
+| `file.download`                              | `GET /bzz/:reference` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D/get)                                                      | ✅✅✅   |
+| `file.download`                              | `GET /bzz/:reference/:path` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D~1%7Bpath%7D/get)                                    | ✅✅✅   |
+| `file.downloadReadable`                      | `GET /bzz/:reference` [🔗](https://docs.ethswarm.org/api/#tag/BZZ/paths/~1bzz~1%7Breference%7D/get)                                                      | ✅✅✅   |
+| `data.download`                              | `GET /bytes/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1%7Breference%7D/get)                                                | ✅✅✅   |
+| `data.downloadReadable`                      | `GET /bytes/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Bytes/paths/~1bytes~1%7Breference%7D/get)                                                | ✅✅✅   |
+| `chunk.download`                             | `GET /chunks/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Chunk/paths/~1chunks~1%7Baddress%7D/get)                                                | ✅✅✅   |
+| `feed.createManifest`                        | `POST /feeds/:owner/:topic` [🔗](https://docs.ethswarm.org/api/#tag/Feed/paths/~1feeds~1%7Bowner%7D~1%7Btopic%7D/post)                                   | ❌✅✅   |
+| `connectivity.isConnected`                   | `GET /`                                                                                                                                                  | ✅✅✅   |
+| `status.getHealth`                           | `GET /health` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1health/get)                                                                         | ✅✅✅   |
+| `status.getReadiness`                        | `GET /readiness` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1readiness/get)                                                                   | ✅✅✅   |
+| `status.getNodeInfo`                         | `GET /node` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1node/get)                                                                             | ✅✅✅   |
+| `status.getChainState`                       | `GET /chainstate` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1chainstate/get)                                                                 | ❌✅✅   |
+| `stake.getRedistributionState`               | `GET /redistributionstate` [🔗](https://docs.ethswarm.org/api/#tag/RedistributionState/paths/~1redistributionstate/get)                                  | ❌❌✅   |
+| `status.getReserveState`                     | `GET /reservestate` [🔗](https://docs.ethswarm.org/api/#tag/Status/paths/~1reservestate/get)                                                             | ❌❌✅   |
+| `status.get`                                 | `GET /status` [🔗](https://docs.ethswarm.org/api/#tag/Node-Status/paths/~1status/get)                                                                    | ✅✅✅   |
+| `wallet.getBalance`                          | `GET /wallet` [🔗](https://docs.ethswarm.org/api/#tag/Wallet/paths/~1wallet/get)                                                                         | ❌✅✅   |
+| `connectivity.getTopology`                   | `GET /topology` [🔗](https://docs.ethswarm.org/api/#tag/Connectivity/paths/~1topology/get)                                                               | ✅✅✅   |
+| `connectivity.getNodeAddresses`              | `GET /addresses` [🔗](https://docs.ethswarm.org/api/#tag/Connectivity/paths/~1addresses/get)                                                             | ✅✅✅   |
+| `connectivity.getPeers`                      | `GET /peers` [🔗](https://docs.ethswarm.org/api/#tag/Connectivity/paths/~1peers/get)                                                                     | ✅✅✅   |
+| `balance.getAll`                             | `GET /balances` [🔗](https://docs.ethswarm.org/api/#tag/Balance/paths/~1balances/get)                                                                    | ❌✅✅   |
+| `balance.getPeer`                            | `GET /balances/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Balance/paths/~1balances~1%7Baddress%7D/get)                                               | ❌✅✅   |
+| `balance.getAllPastDueConsumption`           | `GET /consumed` [🔗](https://docs.ethswarm.org/api/#tag/Balance/paths/~1consumed/get)                                                                    | ❌✅✅   |
+| `balance.getAllPastDueConsumptionForPeer`    | `GET /consumed/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Balance/paths/~1consumed~1%7Baddress%7D/get)                                               | ❌✅✅   |
+| `settlement.getAll`                          | `GET /settlements` [🔗](https://docs.ethswarm.org/api/#tag/Settlements/paths/~1settlements/get)                                                          | ❌✅✅   |
+| `settlement.get`                             | `GET /settlements/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Settlements/paths/~1settlements~1%7Baddress%7D/get)                                     | ❌✅✅   |
+| `chequebook.getAddress`                      | `GET /chequebook/address` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1address/get)                                            | ❌✅✅   |
+| `chequebook.getBalance`                      | `GET /chequebook/balance` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1balance/get)                                            | ❌✅✅   |
+| `cheque.getAllLatest`                        | `GET /chequebook/cheque` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1cheque/get)                                              | ❌✅✅   |
+| `cheque.getAllLatestForPeer`                 | `GET /chequebook/cheque/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1cheque~1%7Bpeer-id%7D/get)                         | ❌✅✅   |
+| `cheque.getLastCashoutAction`                | `GET /chequebook/cashout/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1cashout~1%7Bpeer-id%7D/get)                       | ❌✅✅   |
+| `cheque.cashoutLast`                         | `POST /chequebook/cashout/:peer` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1cashout~1%7Bpeer-id%7D/post)                     | ❌✅✅   |
+| `chequebook.deposit`                         | `POST /chequebook/deposit` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1deposit/post)                                          | ❌✅✅   |
+| `chequebook.withdraw`                        | `POST /chequebook/withdraw` [🔗](https://docs.ethswarm.org/api/#tag/Chequebook/paths/~1chequebook~1withdraw/post)                                        | ❌✅✅   |
+| `transaction.getAll`                         | `GET /transactions` [🔗](https://docs.ethswarm.org/api/#tag/Transaction/paths/~1transactions/get)                                                        | ❌✅✅   |
+| `transaction.get`                            | `GET /transactions/:id` [🔗](https://docs.ethswarm.org/api/#tag/Transaction/paths/~1transactions~1%7BtxHash%7D/get)                                      | ❌✅✅   |
+| `transaction.rebroadcast`                    | `POST /transactions/:id` [🔗](https://docs.ethswarm.org/api/#tag/Transaction/paths/~1transactions~1%7BtxHash%7D/post)                                    | ❌✅✅   |
+| `transaction.cancel`                         | `DELETE /transactions/:id` [🔗](https://docs.ethswarm.org/api/#tag/Transaction/paths/~1transactions~1%7BtxHash%7D/delete)                                | ❌✅✅   |
+| `tag.create`                                 | `POST /tags` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/post)                                                                              | ❌✅✅   |
+| `tag.get`                                    | `GET /tags/:id` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1%7Buid%7D/get)                                                                 | ❌✅✅   |
+| `tag.getAll`                                 | `GET /tags` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags/get)                                                                                | ❌✅✅   |
+| `tag.delete`                                 | `DELETE /tags/:id` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1%7Buid%7D/delete)                                                           | ❌✅✅   |
+| `tag.update`                                 | `PATCH /tags/:id` [🔗](https://docs.ethswarm.org/api/#tag/Tag/paths/~1tags~1%7Buid%7D/patch)                                                             | ❌✅✅   |
+| `pin.add`                                    | `POST /pins/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Pinning/paths/~1pins~1%7Breference%7D/post)                                              | ✅✅✅   |
+| `pin.getAll`                                 | `GET /pins` [🔗](https://docs.ethswarm.org/api/#tag/Pinning/paths/~1pins/get)                                                                            | ✅✅✅   |
+| `pin.get`                                    | `GET /pins/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Pinning/paths/~1pins~1%7Breference%7D/get)                                                | ✅✅✅   |
+| `data.isRetrievable`                         | `GET /stewardship/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1%7Breference%7D/get)                              | ✅✅✅   |
+| `pin.reuploadData`                           | `PUT /stewardship/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Stewardship/paths/~1stewardship~1%7Breference%7D/put)                              | ❌✅✅   |
+| `pin.remove`                                 | `DELETE /pins/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Pinning/paths/~1pins~1%7Breference%7D/delete)                                          | ✅✅✅   |
+| `grantee.get`                                | `GET /grantee/:reference` [🔗](https://docs.ethswarm.org/api/#tag/ACT/paths/~1grantee~1%7Breference%7D/get)                                              | ❌✅✅   |
+| `grantee.create`                             | `POST /grantee` [🔗](https://docs.ethswarm.org/api/#tag/ACT/paths/~1grantee/post)                                                                        | ❌✅✅   |
+| `grantee.patch`                              | `PATCH /grantee/:reference` [🔗](https://docs.ethswarm.org/api/#tag/ACT/paths/~1grantee~1%7Breference%7D/patch)                                          | ❌✅✅   |
+| `messaging.pssSend`                          | `POST /pss/send/:topic/:target` [🔗](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1send~1%7Btopic%7D~1%7Btargets%7D/post)     | ❌✅✅   |
+| `messaging.pssSubscribe` _Websocket_         | `GET /pss/subscribe/:topic` [🔗](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1%7Btopic%7D/get)                    | ❌❌✅   |
+| `messaging.pssReceive`                       | `GET /pss/subscribe/:topic` [🔗](https://docs.ethswarm.org/api/#tag/Postal-Service-for-Swarm/paths/~1pss~1subscribe~1%7Btopic%7D/get)                    | ❌❌✅   |
+| `stamp.getAll`                               | `GET /stamps` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps/get)                                                                 | ❌✅✅   |
+| `stamp.getAllGlobal`                         | `GET /batches` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1batches/get)                                                               | ❌✅✅   |
+| `stamp.get`                                  | `GET /stamps/:batchId` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bbatch_id%7D/get)                                        | ❌✅✅   |
+| `stamp.getBuckets`                           | `GET /stamps/:batchId/buckets` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bbatch_id%7D~1buckets/get)                       | ❌✅✅   |
+| `stamp.create`                               | `POST /stamps/:amount/:depth` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1%7Bamount%7D~1%7Bdepth%7D/post)                     | ❌✅✅   |
+| `stamp.topUp`                                | `PATCH /stamps/topup/:batchId/:amount` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1topup~1%7Bbatch_id%7D~1%7Bamount%7D/patch) | ❌✅✅   |
+| `stamp.dilute`                               | `PATCH /stamps/dilute/:batchId/:depth` [🔗](https://docs.ethswarm.org/api/#tag/Postage-Stamps/paths/~1stamps~1dilute~1%7Bbatch_id%7D~1%7Bdepth%7D/patch) | ❌✅✅   |
+| `createEnvelope`                             | `POST /envelope/:reference` [🔗](https://docs.ethswarm.org/api/#tag/Envelope/paths/~1envelope~1%7Baddress%7D/post)                                       | ❌✅✅   |
+| `stake.get`                                  | `GET /stake` [🔗](https://docs.ethswarm.org/api/#tag/Staking/paths/~1stake/get)                                                                          | ❌❌✅   |
+| `stake.deposit`                              | `POST /stake` [🔗](https://docs.ethswarm.org/api/#tag/Staking/paths/~1stake~1%7Bamount%7D/post)                                                          | ❌❌✅   |
 
 ### Utils
 
@@ -230,12 +231,12 @@ The `toString` method uses `toHex`.
 
 #### Stamps
 
-- `getAmountForTtl`
-- `getDepthForCapacity`
+- `getAmountForDuration`
+- `getDepthForSize`
 - `getStampCost`
 - `getStampEffectiveBytes`
-- `getStampMaximumCapacityBytes`
-- `getStampTtlSeconds`
+- `getStampTheoreticalBytes`
+- `getStampDuration`
 - `getStampUsage`
 
 ## Usage
@@ -249,14 +250,14 @@ main()
 
 async function main() {
   const bee = new Bee(SWARM_GATEWAY_URL)
-  const { reference } = await bee.uploadData(NULL_STAMP, 'Hello, World!')
+  const { reference } = await bee.data.upload(NULL_STAMP, 'Hello, World!')
   console.log(reference.toHex())
 }
 ```
 
 ### Create or select an existing postage batch
 
-Swarm incentivizes nodes in the network to store content, therefor all uploads require a paid
+Swarm incentivizes nodes in the network to store content, therefore all uploads require a paid
 [postage batch](https://docs.ethswarm.org/docs/learn/technology/contracts/postage-stamp).
 
 ```js
@@ -266,13 +267,13 @@ async function getOrCreatePostageBatch() {
   const bee = new Bee('http://localhost:1633')
   let batchId
 
-  const batches = await bee.getPostageBatches()
+  const batches = await bee.stamp.getAll()
   const usable = batches.find(x => x.usable)
 
   if (usable) {
     batchId = usable.batchID
   } else {
-    batchId = await bee.buyStorage(Size.fromGigabytes(1), Duration.fromDays(7))
+    batchId = await bee.storage.buy(Size.fromGigabytes(1), Duration.fromDays(7))
   }
 }
 ```
@@ -286,8 +287,8 @@ import { Bee } from '@ethersphere/bee-js'
 
 const bee = new Bee('http://localhost:1633')
 
-const uploadResult = await bee.uploadData(batchId, 'Bee is awesome!')
-const data = await bee.downloadData(uploadResult.reference)
+const uploadResult = await bee.data.upload(batchId, 'Bee is awesome!')
+const data = await bee.data.download(uploadResult.reference)
 
 console.log(data.toUtf8()) // prints 'Bee is awesome!'
 ```
@@ -298,7 +299,7 @@ console.log(data.toUtf8()) // prints 'Bee is awesome!'
 import { Bee } from '@ethersphere/bee-js'
 
 const bee = new Bee('http://localhost:1633')
-const result = await bee.uploadFile(batchId, file)
+const result = await bee.file.upload(batchId, file)
 ```
 
 ### Upload multiple files or a directory (React)
@@ -307,7 +308,7 @@ const result = await bee.uploadFile(batchId, file)
 import { Bee } from '@ethersphere/bee-js'
 
 const bee = new Bee('http://localhost:1633')
-const result = await bee.uploadFiles(batchId, fileList)
+const result = await bee.collection.uploadFromFileList(batchId, fileList)
 ```
 
 ### Upload arbitrary large file (Node.js)
@@ -318,7 +319,7 @@ import { createReadStream } from 'fs'
 
 const bee = new Bee('http://localhost:1633')
 const readable = createReadStream('./path/to/large.bin')
-const uploadResult = await bee.uploadFile(batchId, readable)
+const uploadResult = await bee.file.upload(batchId, readable)
 ```
 
 ### Upload arbitrary large directories (Node.js)
@@ -328,7 +329,7 @@ import { Bee } from '@ethersphere/bee-js'
 import { createReadStream } from 'fs'
 
 const bee = new Bee('http://localhost:1633')
-const uploadResult = await bee.uploadFilesFromDirectory(batchId, './path/to/gallery/')
+const uploadResult = await bee.collection.uploadFromDirectory(batchId, './path/to/gallery/')
 ```
 
 ### Customize http/https agent and headers
@@ -379,7 +380,7 @@ After making changes, link the package to your project by running `npm link` in 
 
 [Code coverage](https://bah5acgza26tlmya36bdiu5cdfs3hh22hqthkhfv6cvq2ugxqrv5aw267ydlq.bzz.limo/)
 
-Tests are currently run against a mainnet Bee nodes. This is temporary and this section will be revised in the future.
+Tests are currently run against a mainnet Bee node. This is temporary and this section will be revised in the future.
 
 ## License
 

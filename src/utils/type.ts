@@ -36,9 +36,9 @@ export function isTag(value: unknown): value is Tag {
  * @param value
  * @throws TypeError if not valid
  */
-export function assertData(value: unknown): asserts value is string | Uint8Array {
-  if (typeof value !== 'string' && !(value instanceof Uint8Array)) {
-    throw new TypeError('Data must be either string or Uint8Array!')
+export function assertData(value: unknown): asserts value is string | Uint8Array | Blob | stream.Readable {
+  if (typeof value !== 'string' && !(value instanceof Uint8Array) && !(value instanceof Blob) && !isReadable(value)) {
+    throw new TypeError('Data must be either string, Uint8Array, Blob or Readable!')
   }
 }
 
