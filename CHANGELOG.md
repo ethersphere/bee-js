@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [13.0.1](https://github.com/ethersphere/bee-js/compare/v13.0.0...v13.0.1) (2026-08-26)
+
+
+### Bug Fixes
+
+* publish workflow ([#1251](https://github.com/ethersphere/bee-js/issues/1251)) ([d3bc2f5](https://github.com/ethersphere/bee-js/commit/d3bc2f50be2025c5597800e65190e4818a985d45))
+
 ## [13.0.0](https://github.com/ethersphere/bee-js/compare/v12.3.1...v13.0.0) (2026-08-25)
 
 
