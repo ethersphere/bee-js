@@ -1,4 +1,4 @@
-import { Strings } from 'cafe-utility'
+import { Dates, Strings, System } from 'cafe-utility'
 import { PrivateKey, Topic } from '@ethersphere/core-sdk'
 import { batch, makeBee } from '../utils'
 
@@ -21,6 +21,12 @@ function setPeriod(period: number): void {
   dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(period * PERIOD_LENGTH * 1000)
 }
 
+// A write's HTTP response returning is not a guarantee it's already retrievable elsewhere on
+// the node (this varies by Bee build/environment) - wait for it rather than assume it.
+async function waitUntil(predicate: () => Promise<boolean>): Promise<void> {
+  await System.waitFor(predicate, { attempts: 30, waitMillis: Dates.seconds(1) })
+}
+
 function makeWriterAndReader() {
   const privateKey = new PrivateKey(Strings.randomHex(64))
   const owner = privateKey.publicKey().address()
@@ -38,8 +44,7 @@ test('uploadPayload / downloadPayload roundtrip', async () => {
 
   await writer.uploadPayload(batch(), 'Hello rolling feed', { deferred: false })
 
-  const result = await reader.downloadPayload()
-  expect(result.payload.toUtf8()).toBe('Hello rolling feed')
+  await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Hello rolling feed')
 })
 
 test('uploadPayload mirrors into the next period', async () => {
@@ -49,8 +54,7 @@ test('uploadPayload mirrors into the next period', async () => {
   await writer.uploadPayload(batch(), 'Mirrored payload', { deferred: false })
 
   setPeriod(1001)
-  const result = await reader.downloadPayload()
-  expect(result.payload.toUtf8()).toBe('Mirrored payload')
+  await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Mirrored payload')
 })
 
 test('downloadPayload falls back to the previous period when the current one is empty', async () => {
@@ -61,8 +65,7 @@ test('downloadPayload falls back to the previous period when the current one is 
 
   // period 1001 got mirrored, period 1002 was never written at all
   setPeriod(1002)
-  const result = await reader.downloadPayload()
-  expect(result.payload.toUtf8()).toBe('Last known payload')
+  await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Last known payload')
 })
 
 test('uploadReference / downloadReference roundtrip', async () => {
@@ -72,8 +75,7 @@ test('uploadReference / downloadReference roundtrip', async () => {
   const uploaded = await bee.data.upload(batch(), 'Referenced content')
   await writer.uploadReference(batch(), uploaded.reference, { deferred: false })
 
-  const result = await reader.downloadReference()
-  expect(result.reference.toHex()).toBe(uploaded.reference.toHex())
+  await waitUntil(async () => (await reader.downloadReference()).reference.toHex() === uploaded.reference.toHex())
 })
 
 test('isCaughtUp is true for a written/mirrored period and false past a gap', async () => {
@@ -82,7 +84,7 @@ test('isCaughtUp is true for a written/mirrored period and false past a gap', as
 
   await writer.uploadPayload(batch(), 'Still going', { deferred: false })
 
-  expect(await writer.isCaughtUp(1000)).toBe(true)
+  await waitUntil(async () => writer.isCaughtUp(1000))
   expect(await writer.isCaughtUp(1001)).toBe(true)
   expect(await writer.isCaughtUp(1005)).toBe(false)
 })
@@ -92,14 +94,14 @@ test('catchUp backfills a gap so the reader resolves it again', async () => {
 
   setPeriod(1000)
   await writer.uploadPayload(batch(), 'Backfilled payload', { deferred: false })
+  await waitUntil(async () => writer.isCaughtUp(1000))
 
   expect(await writer.isCaughtUp(1003)).toBe(false)
   await writer.catchUp(batch(), 1003)
-  expect(await writer.isCaughtUp(1003)).toBe(true)
+  await waitUntil(async () => writer.isCaughtUp(1003))
 
   setPeriod(1003)
-  const result = await reader.downloadPayload()
-  expect(result.payload.toUtf8()).toBe('Backfilled payload')
+  await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Backfilled payload')
 })
 
 test('catchUp is not fooled by an older buried gap', async () => {
@@ -107,20 +109,21 @@ test('catchUp is not fooled by an older buried gap', async () => {
 
   setPeriod(0)
   await writer.uploadPayload(batch(), 'Old payload', { deferred: false })
+  await waitUntil(async () => writer.isCaughtUp(0))
   // period 2 is a deliberate buried gap: never written, never mirrored into
 
   setPeriod(3)
   await writer.uploadPayload(batch(), 'Recent payload', { deferred: false })
+  await waitUntil(async () => writer.isCaughtUp(3))
   // populated so far: 0, 1, 3, 4 -- with a hole at 2
 
   expect(await writer.isCaughtUp(6)).toBe(false)
   await writer.catchUp(batch(), 6)
-  expect(await writer.isCaughtUp(6)).toBe(true)
+  await waitUntil(async () => writer.isCaughtUp(6))
 
   setPeriod(6)
-  const result = await reader.downloadPayload()
   // must resume from the recent (period 4) content, not the one from before the buried gap
-  expect(result.payload.toUtf8()).toBe('Recent payload')
+  await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Recent payload')
 })
 
 test('catchUp fails cleanly, without scanning past period 0, when nothing was ever written', async () => {
