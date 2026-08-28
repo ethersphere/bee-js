@@ -101,3 +101,37 @@ test('catchUp backfills a gap so the reader resolves it again', async () => {
   const result = await reader.downloadPayload()
   expect(result.payload.toUtf8()).toBe('Backfilled payload')
 })
+
+test('catchUp is not fooled by an older buried gap', async () => {
+  const { writer, reader } = makeWriterAndReader()
+
+  setPeriod(0)
+  await writer.uploadPayload(batch(), 'Old payload', { deferred: false })
+  // period 2 is a deliberate buried gap: never written, never mirrored into
+
+  setPeriod(3)
+  await writer.uploadPayload(batch(), 'Recent payload', { deferred: false })
+  // populated so far: 0, 1, 3, 4 -- with a hole at 2
+
+  expect(await writer.isCaughtUp(6)).toBe(false)
+  await writer.catchUp(batch(), 6)
+  expect(await writer.isCaughtUp(6)).toBe(true)
+
+  setPeriod(6)
+  const result = await reader.downloadPayload()
+  // must resume from the recent (period 4) content, not the one from before the buried gap
+  expect(result.payload.toUtf8()).toBe('Recent payload')
+})
+
+test('catchUp fails cleanly, without scanning past period 0, when nothing was ever written', async () => {
+  const { writer } = makeWriterAndReader()
+
+  await expect(writer.catchUp(batch(), 5)).rejects.toThrow('No populated period found')
+})
+
+test('a non-positive periodLength is rejected', async () => {
+  const privateKey = new PrivateKey(Strings.randomHex(64))
+  const writer = bee.rollingFeed.makeWriter(new Topic(Strings.randomHex(64)), privateKey, 0)
+
+  await expect(writer.isCaughtUp()).rejects.toThrow('Period length must be greater than zero')
+})

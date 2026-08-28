@@ -142,16 +142,19 @@ export class RollingFeedWriter {
     const owner = this.signer.publicKey().address()
     const targetPeriod = periodIdx ?? periodIndex(Date.now() / 1000, this.periodLength)
 
+    // periods before 0 can't exist (period index is derived from Unix time), so the scan
+    // must not probe them even when the lookback window would otherwise reach that far
+    const lookbackFloor = Math.max(0, targetPeriod - MAX_CATCH_UP_LOOKBACK)
     let lastGoodPeriod = targetPeriod - 1
 
-    while (lastGoodPeriod >= targetPeriod - MAX_CATCH_UP_LOOKBACK) {
+    while (lastGoodPeriod >= lookbackFloor) {
       if (await isPeriodPopulated(requestOptions, owner, topicFor(this.baseTopic, lastGoodPeriod))) {
         break
       }
       lastGoodPeriod--
     }
 
-    if (lastGoodPeriod < targetPeriod - MAX_CATCH_UP_LOOKBACK) {
+    if (lastGoodPeriod < lookbackFloor) {
       throw new BeeError(`No populated period found within ${MAX_CATCH_UP_LOOKBACK} periods to catch up from!`)
     }
 

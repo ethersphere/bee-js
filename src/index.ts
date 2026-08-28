@@ -21,6 +21,7 @@ export {
 export type { Chunk } from '@ethersphere/core-sdk'
 export type { SingleOwnerChunk } from './chunk/soc'
 export { MantarayNode } from './manifest/manifest'
+export { RollingFeedReader, RollingFeedWriter } from './modules/rollingFeed'
 export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './version'
 export * from './types'
 export * from './utils/constants'
