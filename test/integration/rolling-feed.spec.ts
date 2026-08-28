@@ -1,19 +1,24 @@
-import { Strings, System } from 'cafe-utility'
+import { Strings } from 'cafe-utility'
 import { PrivateKey, Topic } from '@ethersphere/core-sdk'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()
 
-const PERIOD_LENGTH = 3 // seconds
+const PERIOD_LENGTH = 5 // seconds
 
-function currentPeriod(): number {
-  return Math.floor(Date.now() / 1000 / PERIOD_LENGTH)
-}
+let dateNowSpy: jest.SpiedFunction<typeof Date.now> | undefined
 
-async function waitForPeriod(target: number): Promise<void> {
-  while (currentPeriod() < target) {
-    await System.sleepMillis(150)
-  }
+afterEach(() => {
+  dateNowSpy?.mockRestore()
+  dateNowSpy = undefined
+})
+
+// Topics are a pure function of the period index, which the SDK derives from Date.now() alone
+// (no server-side clock involved) - freezing it lets tests jump between periods instantly
+// instead of waiting on the real wall clock.
+function setPeriod(period: number): void {
+  dateNowSpy?.mockRestore()
+  dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(period * PERIOD_LENGTH * 1000)
 }
 
 function makeWriterAndReader() {
@@ -29,6 +34,7 @@ function makeWriterAndReader() {
 
 test('uploadPayload / downloadPayload roundtrip', async () => {
   const { writer, reader } = makeWriterAndReader()
+  setPeriod(1000)
 
   await writer.uploadPayload(batch(), 'Hello rolling feed', { deferred: false })
 
@@ -38,11 +44,11 @@ test('uploadPayload / downloadPayload roundtrip', async () => {
 
 test('uploadPayload mirrors into the next period', async () => {
   const { writer, reader } = makeWriterAndReader()
-  const startPeriod = currentPeriod()
 
+  setPeriod(1000)
   await writer.uploadPayload(batch(), 'Mirrored payload', { deferred: false })
-  await waitForPeriod(startPeriod + 1)
 
+  setPeriod(1001)
   const result = await reader.downloadPayload()
   expect(result.payload.toUtf8()).toBe('Mirrored payload')
 })
@@ -50,32 +56,18 @@ test('uploadPayload mirrors into the next period', async () => {
 test('downloadPayload falls back to the previous period when the current one is empty', async () => {
   const { writer, reader } = makeWriterAndReader()
 
+  setPeriod(1000)
   await writer.uploadPayload(batch(), 'Last known payload', { deferred: false })
 
-  // wait for the one-period-empty gap (current unpopulated, previous populated); if a slow
-  // call overshoots past it, re-seed from wherever we land instead of racing a fixed wait
-  for (;;) {
-    const period = currentPeriod()
-    const previousPopulated = await writer.isCaughtUp(period - 1)
-    const currentPopulated = await writer.isCaughtUp(period)
-
-    if (previousPopulated && !currentPopulated) {
-      break
-    }
-
-    if (!previousPopulated) {
-      await writer.uploadPayload(batch(), 'Last known payload', { deferred: false })
-    }
-
-    await System.sleepMillis(150)
-  }
-
+  // period 1001 got mirrored, period 1002 was never written at all
+  setPeriod(1002)
   const result = await reader.downloadPayload()
   expect(result.payload.toUtf8()).toBe('Last known payload')
 })
 
 test('uploadReference / downloadReference roundtrip', async () => {
   const { writer, reader } = makeWriterAndReader()
+  setPeriod(1000)
 
   const uploaded = await bee.data.upload(batch(), 'Referenced content')
   await writer.uploadReference(batch(), uploaded.reference, { deferred: false })
@@ -86,32 +78,26 @@ test('uploadReference / downloadReference roundtrip', async () => {
 
 test('isCaughtUp is true for a written/mirrored period and false past a gap', async () => {
   const { writer } = makeWriterAndReader()
-  const startPeriod = currentPeriod()
+  setPeriod(1000)
 
   await writer.uploadPayload(batch(), 'Still going', { deferred: false })
 
-  expect(await writer.isCaughtUp(startPeriod)).toBe(true)
-  expect(await writer.isCaughtUp(startPeriod + 1)).toBe(true)
-  expect(await writer.isCaughtUp(startPeriod + 5)).toBe(false)
+  expect(await writer.isCaughtUp(1000)).toBe(true)
+  expect(await writer.isCaughtUp(1001)).toBe(true)
+  expect(await writer.isCaughtUp(1005)).toBe(false)
 })
 
 test('catchUp backfills a gap so the reader resolves it again', async () => {
   const { writer, reader } = makeWriterAndReader()
-  const startPeriod = currentPeriod()
-  const gapPeriod = startPeriod + 2
 
+  setPeriod(1000)
   await writer.uploadPayload(batch(), 'Backfilled payload', { deferred: false })
-  expect(await writer.isCaughtUp(gapPeriod)).toBe(false)
 
-  await writer.catchUp(batch(), gapPeriod)
-  expect(await writer.isCaughtUp(gapPeriod)).toBe(true)
+  expect(await writer.isCaughtUp(1003)).toBe(false)
+  await writer.catchUp(batch(), 1003)
+  expect(await writer.isCaughtUp(1003)).toBe(true)
 
-  // the calls above take real time; keep the backfill current with whatever period
-  // we actually land on before reading it back
-  for (let period = currentPeriod(); !(await writer.isCaughtUp(period)); period = currentPeriod()) {
-    await writer.catchUp(batch(), period)
-  }
-
+  setPeriod(1003)
   const result = await reader.downloadPayload()
   expect(result.payload.toUtf8()).toBe('Backfilled payload')
 })
