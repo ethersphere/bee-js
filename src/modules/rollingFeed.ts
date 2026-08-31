@@ -133,9 +133,10 @@ export class RollingFeedWriter {
   }
 
   /**
-   * Backfills every period strictly between the last populated one and `periodIdx`
-   * (default: current) with that period's last known payload/reference. Never writes
-   * `periodIdx` itself - that period is the caller's to write with fresh data.
+   * Backfills every period from the last populated one (exclusive) up to `periodIdx`
+   * (default: current) with that period's last known payload/reference. Skips `periodIdx`
+   * itself if it's already populated, so it never clobbers fresh data the caller may have
+   * already written there via `uploadPayload`/`uploadReference`.
    */
   async catchUp(postageBatchId: string | BatchId, periodIdx?: number): Promise<void> {
     const requestOptions = this.context.getRequestOptionsForCall()
@@ -163,7 +164,10 @@ export class RollingFeedWriter {
     const { feedIndex: sourceIndex } = await probeFeed(requestOptions, owner, sourceTopic)
     const sourceChunk = await downloadFeedUpdateAsCAC(requestOptions, owner, sourceTopic, sourceIndex)
 
-    for (let period = lastGoodPeriod + 1; period < targetPeriod; period++) {
+    const targetAlreadyWritten = await isPeriodPopulated(requestOptions, owner, topicFor(this.baseTopic, targetPeriod))
+    const backfillEnd = targetAlreadyWritten ? targetPeriod : targetPeriod + 1
+
+    for (let period = lastGoodPeriod + 1; period < backfillEnd; period++) {
       const identifier = makeFeedIdentifier(topicFor(this.baseTopic, period), 0)
       await uploadSingleOwnerChunkWithWrappedChunk(requestOptions, this.signer, stamp, identifier, sourceChunk)
     }
