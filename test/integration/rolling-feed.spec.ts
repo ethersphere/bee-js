@@ -98,10 +98,32 @@ test('catchUp backfills a gap so the reader resolves it again', async () => {
 
   expect(await writer.isCaughtUp(1003)).toBe(false)
   await writer.catchUp(batch(), 1003)
-  await waitUntil(async () => writer.isCaughtUp(1003))
+  // catchUp never writes its target period itself (1003) - only the gap strictly before it
+  await waitUntil(async () => writer.isCaughtUp(1002))
+  expect(await writer.isCaughtUp(1003)).toBe(false)
 
   setPeriod(1003)
+  // reader falls back one period, from the still-empty 1003 to the now-backfilled 1002
   await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Backfilled payload')
+})
+
+test('catchUp does not clobber fresh data already written to its target period', async () => {
+  const { writer, reader } = makeWriterAndReader()
+
+  setPeriod(0)
+  await writer.uploadPayload(batch(), 'Old payload', { deferred: false })
+  await waitUntil(async () => writer.isCaughtUp(0))
+  // period 1 is mirrored from period 0; periods 2 are a gap; the writer resumes at 3
+
+  setPeriod(3)
+  await writer.uploadPayload(batch(), 'Fresh payload', { deferred: false })
+  await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Fresh payload')
+
+  // catching up to the very period that was just written with fresh data must not overwrite it
+  await writer.catchUp(batch(), 3)
+
+  const result = await reader.downloadPayload()
+  expect(result.payload.toUtf8()).toBe('Fresh payload')
 })
 
 test('catchUp is not fooled by an older buried gap', async () => {
@@ -119,10 +141,13 @@ test('catchUp is not fooled by an older buried gap', async () => {
 
   expect(await writer.isCaughtUp(6)).toBe(false)
   await writer.catchUp(batch(), 6)
-  await waitUntil(async () => writer.isCaughtUp(6))
+  // catchUp never writes period 6 itself - only fills the gap up to period 5
+  await waitUntil(async () => writer.isCaughtUp(5))
+  expect(await writer.isCaughtUp(6)).toBe(false)
 
   setPeriod(6)
-  // must resume from the recent (period 4) content, not the one from before the buried gap
+  // reader falls back from the still-empty 6 to the now-backfilled 5; must be the recent
+  // (period 4) content, not the one from before the buried gap
   await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Recent payload')
 })
 
