@@ -133,10 +133,12 @@ export class RollingFeedWriter {
   }
 
   /**
-   * Backfills every period from the last populated one (exclusive) up to `periodIdx`
-   * (default: current) with that period's last known payload/reference. Skips `periodIdx`
-   * itself if it's already populated, so it never clobbers fresh data the caller may have
-   * already written there via `uploadPayload`/`uploadReference`.
+   * Backfills every period strictly between the last populated one and `periodIdx`
+   * (default: current) with that period's last known payload/reference. Never writes
+   * `periodIdx` itself - keeping it populated during silence is the caller's job (a
+   * periodic `uploadPayload`/`uploadReference` heartbeat), not catchUp's. A conditional
+   * "write it if empty" would race that heartbeat: there's no compare-and-swap on a SOC
+   * address, so a stale write can still land after a concurrent fresh one and shadow it.
    */
   async catchUp(postageBatchId: string | BatchId, periodIdx?: number): Promise<void> {
     const requestOptions = this.context.getRequestOptionsForCall()
@@ -160,14 +162,15 @@ export class RollingFeedWriter {
       throw new BeeError(`No populated period found within ${MAX_CATCH_UP_LOOKBACK} periods to catch up from!`)
     }
 
+    if (lastGoodPeriod === targetPeriod - 1) {
+      return // no gap - nothing to backfill
+    }
+
     const sourceTopic = topicFor(this.baseTopic, lastGoodPeriod)
     const { feedIndex: sourceIndex } = await probeFeed(requestOptions, owner, sourceTopic)
     const sourceChunk = await downloadFeedUpdateAsCAC(requestOptions, owner, sourceTopic, sourceIndex)
 
-    const targetAlreadyWritten = await isPeriodPopulated(requestOptions, owner, topicFor(this.baseTopic, targetPeriod))
-    const backfillEnd = targetAlreadyWritten ? targetPeriod : targetPeriod + 1
-
-    for (let period = lastGoodPeriod + 1; period < backfillEnd; period++) {
+    for (let period = lastGoodPeriod + 1; period < targetPeriod; period++) {
       const identifier = makeFeedIdentifier(topicFor(this.baseTopic, period), 0)
       await uploadSingleOwnerChunkWithWrappedChunk(requestOptions, this.signer, stamp, identifier, sourceChunk)
     }
