@@ -20,9 +20,9 @@ import { BeeRequestOptions, UploadResult } from '../types'
 import { BeeResponseError } from '../utils/error'
 import { BeeContext } from './context'
 
-// Not yet finalized (see ROLLING_FEED.md "Open parameters"): bounds how far catchUp/isCaughtUp
-// will scan/backfill so a long-dead writer can't trigger an unbounded loop.
-const MAX_CATCH_UP_LOOKBACK = 1000
+// RollingFeedReader.downloadPayload/downloadReference only ever fall back one period, so
+// backfilling deeper than that serves no reader by default - see catchUp's maxBackfill param.
+const DEFAULT_MAX_BACKFILL = 1
 
 function periodIndex(t: number, periodLength: number): number {
   if (periodLength <= 0) {
@@ -133,14 +133,23 @@ export class RollingFeedWriter {
   }
 
   /**
-   * Backfills every period strictly between the last populated one and `periodIdx`
-   * (default: current) with that period's last known payload/reference. Never writes
-   * `periodIdx` itself - keeping it populated during silence is the caller's job (a
+   * Backfills up to `maxBackfill` periods strictly between the last populated one and
+   * `periodIdx` (default: current) with that period's last known payload/reference. Never
+   * writes `periodIdx` itself - keeping it populated during silence is the caller's job (a
    * periodic `uploadPayload`/`uploadReference` heartbeat), not catchUp's. A conditional
    * "write it if empty" would race that heartbeat: there's no compare-and-swap on a SOC
    * address, so a stale write can still land after a concurrent fresh one and shadow it.
+   *
+   * `maxBackfill` bounds both the backward scan and the backfill itself, since scanning
+   * further back than you're willing to backfill only wastes round trips. Defaults to 1,
+   * matching the reader's one-period fallback - nothing deeper is ever read anyway. Throws
+   * if no populated period is found within that bound.
    */
-  async catchUp(postageBatchId: string | BatchId, periodIdx?: number): Promise<void> {
+  async catchUp(
+    postageBatchId: string | BatchId,
+    periodIdx?: number,
+    maxBackfill = DEFAULT_MAX_BACKFILL,
+  ): Promise<void> {
     const requestOptions = this.context.getRequestOptionsForCall()
     const stamp = new BatchId(postageBatchId)
     const owner = this.signer.publicKey().address()
@@ -148,18 +157,18 @@ export class RollingFeedWriter {
 
     // periods before 0 can't exist (period index is derived from Unix time), so the scan
     // must not probe them even when the lookback window would otherwise reach that far
-    const lookbackFloor = Math.max(0, targetPeriod - MAX_CATCH_UP_LOOKBACK)
+    const scanFloor = Math.max(0, targetPeriod - 1 - maxBackfill)
     let lastGoodPeriod = targetPeriod - 1
 
-    while (lastGoodPeriod >= lookbackFloor) {
+    while (lastGoodPeriod >= scanFloor) {
       if (await isPeriodPopulated(requestOptions, owner, topicFor(this.baseTopic, lastGoodPeriod))) {
         break
       }
       lastGoodPeriod--
     }
 
-    if (lastGoodPeriod < lookbackFloor) {
-      throw new BeeError(`No populated period found within ${MAX_CATCH_UP_LOOKBACK} periods to catch up from!`)
+    if (lastGoodPeriod < scanFloor) {
+      throw new BeeError(`No populated period found within ${maxBackfill} periods to catch up from!`)
     }
 
     if (lastGoodPeriod === targetPeriod - 1) {
@@ -170,10 +179,18 @@ export class RollingFeedWriter {
     const { feedIndex: sourceIndex } = await probeFeed(requestOptions, owner, sourceTopic)
     const sourceChunk = await downloadFeedUpdateAsCAC(requestOptions, owner, sourceTopic, sourceIndex)
 
-    for (let period = lastGoodPeriod + 1; period < targetPeriod; period++) {
-      const identifier = makeFeedIdentifier(topicFor(this.baseTopic, period), 0)
-      await uploadSingleOwnerChunkWithWrappedChunk(requestOptions, this.signer, stamp, identifier, sourceChunk)
-    }
+    const periodsToBackfill = Array.from(
+      { length: targetPeriod - 1 - lastGoodPeriod },
+      (_, i) => lastGoodPeriod + 1 + i,
+    )
+
+    await Promise.all(
+      periodsToBackfill.map(async period => {
+        const identifier = makeFeedIdentifier(topicFor(this.baseTopic, period), 0)
+
+        return uploadSingleOwnerChunkWithWrappedChunk(requestOptions, this.signer, stamp, identifier, sourceChunk)
+      }),
+    )
   }
 
   private currentAndNextTopics(options?: FeedUploadOptions): {

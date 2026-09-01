@@ -180,6 +180,33 @@ test('catchUp fails cleanly, without scanning past period 0, when nothing was ev
   await expect(writer.catchUp(batch(), 5)).rejects.toThrow('No populated period found')
 })
 
+test('catchUp respects the default maxBackfill: a 2-period gap is out of range', async () => {
+  const { writer } = makeWriterAndReader()
+
+  setPeriod(1000)
+  await writer.uploadPayload(batch(), 'Old payload', { deferred: false })
+  await waitUntil(async () => writer.isCaughtUp(1000))
+  // populated: 1000, 1001 (mirror). Resuming at 1004 needs a 2-period backfill (1002, 1003),
+  // which is past the default maxBackfill of 1
+
+  await expect(writer.catchUp(batch(), 1004)).rejects.toThrow('No populated period found')
+})
+
+test('catchUp with an explicit maxBackfill bridges a deeper gap', async () => {
+  const { writer, reader } = makeWriterAndReader()
+
+  setPeriod(1000)
+  await writer.uploadPayload(batch(), 'Old payload', { deferred: false })
+  await waitUntil(async () => writer.isCaughtUp(1000))
+
+  await writer.catchUp(batch(), 1004, 2)
+  await waitUntil(async () => writer.isCaughtUp(1003))
+
+  setPeriod(1004)
+  // reader falls back from the still-empty 1004 to the now-backfilled 1003
+  await waitUntil(async () => (await reader.downloadPayload()).payload.toUtf8() === 'Old payload')
+})
+
 test('a non-positive periodLength is rejected', async () => {
   const privateKey = new PrivateKey(Strings.randomHex(64))
   const writer = bee.rollingFeed.makeWriter(new Topic(Strings.randomHex(64)), privateKey, 0)
