@@ -1,4 +1,3 @@
-import { Objects } from 'cafe-utility'
 import {
   BatchId,
   Bytes,
@@ -11,6 +10,7 @@ import {
   makeContentAddressedChunk,
   unmarshalContentAddressedChunk,
 } from '@ethersphere/core-sdk'
+import { Objects } from 'cafe-utility'
 import { postEnvelope } from './api/envelope'
 import { rchash } from './api/rchash'
 import { SingleOwnerChunk, makeSOCAddress, makeSingleOwnerChunk, unmarshalSingleOwnerChunk } from './chunk/soc'
@@ -27,6 +27,7 @@ import { File as FileNamespace } from './modules/file'
 import { Grantee } from './modules/grantee'
 import { Messaging } from './modules/messaging'
 import { Pin } from './modules/pin'
+import { RollingFeed } from './modules/rollingFeed'
 import { Settlement } from './modules/settlement'
 import { Soc } from './modules/soc'
 import { Stake } from './modules/stake'
@@ -140,6 +141,7 @@ export class Bee {
     this.chunk = new ChunkNamespace(context)
     this.file = new FileNamespace(context)
     this.collection = new Collection(context)
+    this.rollingFeed = new RollingFeed(context)
   }
 
   /**
@@ -246,6 +248,11 @@ export class Bee {
    * Collection (multi-file) operations backed by the `/bzz` endpoint.
    */
   public readonly collection: Collection
+
+  /**
+   * Rolling feed operations.
+   */
+  public readonly rollingFeed: RollingFeed
 
   /**
    * Creates a Content Addressed Chunk.

@@ -127,6 +127,8 @@ The `toString` method uses `toHex`.
 | SOCReader  | SingleOwnerChunk reader | `bee.soc.makeReader`  |
 | FeedWriter | Feed writer             | `bee.feed.makeWriter` |
 | FeedReader | Feed reader             | `bee.feed.makeReader` |
+| RollingFeedWriter | Rolling feed writer | `bee.rollingFeed.makeWriter` |
+| RollingFeedReader | Rolling feed reader | `bee.rollingFeed.makeReader` |
 
 ### Bee API
 
@@ -330,6 +332,28 @@ import { createReadStream } from 'fs'
 
 const bee = new Bee('http://localhost:1633')
 const uploadResult = await bee.collection.uploadFromDirectory(batchId, './path/to/gallery/')
+```
+
+### Rolling feed (periodically-restarting sequential feed)
+
+A rolling feed avoids the unbounded growth of a plain sequential feed by restarting it every
+`periodLength` seconds, so old postage-batch eviction never breaks the latest update. See
+[ROLLING_FEED.md](./ROLLING_FEED.md) for the full design.
+
+```js
+import { Bee, PrivateKey, Topic } from '@ethersphere/bee-js'
+
+const bee = new Bee('http://localhost:1633')
+const topic = Topic.fromString('my-feed')
+const signer = new PrivateKey('...')
+const periodLength = 600 // 10 minutes
+
+const writer = bee.rollingFeed.makeWriter(topic, signer, periodLength)
+await writer.uploadPayload(batchId, 'Hello, World!')
+
+const reader = bee.rollingFeed.makeReader(topic, signer.publicKey().address(), periodLength)
+const result = await reader.downloadPayload()
+console.log(result.payload.toUtf8()) // prints 'Hello, World!'
 ```
 
 ### Customize http/https agent and headers
