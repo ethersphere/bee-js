@@ -340,6 +340,12 @@ A rolling feed avoids the unbounded growth of a plain sequential feed by restart
 `periodLength` seconds, so old postage-batch eviction never breaks the latest update. See
 [ROLLING_FEED.md](./ROLLING_FEED.md) for the full design.
 
+A rolling feed only stays readable while the writer keeps publishing. Keeping it alive is the
+application's job, not the SDK's, so a writer belongs on a timer — republish on every tick, even
+when the data has not changed.
+
+#### Writer
+
 ```js
 import { Bee, PrivateKey, Topic } from '@ethersphere/bee-js'
 
@@ -349,9 +355,37 @@ const signer = new PrivateKey('...')
 const periodLength = 600 // 10 minutes
 
 const writer = bee.rollingFeed.makeWriter(topic, signer, periodLength)
-await writer.uploadPayload(batchId, 'Hello, World!')
 
-const reader = bee.rollingFeed.makeReader(topic, signer.publicKey().address(), periodLength)
+let latest = 'Hello, World!'
+await writer.uploadPayload(batchId, latest)
+
+// tick twice per period so a slow or delayed write still lands inside its own period
+const handle = setInterval(async () => {
+  try {
+    await writer.uploadPayload(batchId, latest)
+  } catch (error) {
+    console.error('rolling feed heartbeat failed', error)
+  }
+}, (periodLength / 2) * 1000)
+
+process.on('SIGTERM', () => clearInterval(handle))
+```
+
+If the writer was down long enough to leave gaps behind, call `writer.catchUp(batchId)` before
+resuming the timer to backfill the missed periods. It throws when no populated period is found
+within `maxBackfill`, so it is for restarts, not for the very first run.
+
+#### Reader
+
+```js
+import { Bee, EthAddress, Topic } from '@ethersphere/bee-js'
+
+const bee = new Bee('http://localhost:1633')
+const topic = Topic.fromString('my-feed')
+const owner = new EthAddress('...')
+const periodLength = 600 // must match the writer
+
+const reader = bee.rollingFeed.makeReader(topic, owner, periodLength)
 const result = await reader.downloadPayload()
 console.log(result.payload.toUtf8()) // prints 'Hello, World!'
 ```
