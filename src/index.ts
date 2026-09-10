@@ -21,7 +21,7 @@ export {
 export type { Chunk } from '@ethersphere/core-sdk'
 export type { SingleOwnerChunk } from './chunk/soc'
 export { MantarayNode } from './manifest/manifest'
-export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './version'
+export { RollingFeedReader, RollingFeedWriter } from './modules/rolling-feed'
 export * from './types'
 export * from './utils/constants'
 export { Duration } from './utils/duration'
@@ -30,6 +30,7 @@ export * as Utils from './utils/expose'
 export { Size } from './utils/size'
 export * from './utils/tokens'
 export type { UploadProgress } from './utils/upload-progress'
+export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './version'
 export { Bee }
 
 // for require-like imports

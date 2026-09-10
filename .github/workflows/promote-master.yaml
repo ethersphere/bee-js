@@ -1,9 +1,7 @@
 name: Promote stable release to master
 
-# When a stable release is published (cut from `upcoming` by release-please), fast-forward
-# `master` to that exact release commit so `master` always reflects the latest stable.
-# `master` is never committed to directly, which keeps this a conflict-free fast-forward
-# (a non-fast-forward push is rejected rather than forced).
+# Moves `master` to the released commit. --force-with-lease covers master drifting
+# from upcoming (master has no independent history worth protecting by design).
 on:
   release:
     types: [published]
@@ -24,5 +22,5 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
           token: ${{ secrets.REPO_GHA_PAT }}
 
-      - name: Fast-forward master to ${{ github.event.release.tag_name }}
-        run: git push origin HEAD:refs/heads/master
+      - name: Move master to ${{ github.event.release.tag_name }}
+        run: git push origin HEAD:refs/heads/master --force-with-lease
