@@ -337,8 +337,7 @@ const uploadResult = await bee.collection.uploadFromDirectory(batchId, './path/t
 ### Rolling feed (periodically-restarting sequential feed)
 
 A rolling feed avoids the unbounded growth of a plain sequential feed by restarting it every
-`periodLength` seconds, so old postage-batch eviction never breaks the latest update. See
-[ROLLING_FEED.md](./ROLLING_FEED.md) for the full design.
+`periodLength` seconds, so old postage-batch eviction never breaks the latest update.
 
 A rolling feed only stays readable while the writer keeps publishing. Keeping it alive is the
 application's job, not the SDK's, so a writer belongs on a timer — republish on every tick, even
