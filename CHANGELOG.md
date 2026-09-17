@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [13.1.1](https://github.com/ethersphere/bee-js/compare/v13.1.0...v13.1.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* v13 codemod script ([#1261](https://github.com/ethersphere/bee-js/issues/1261)) ([80d8b1e](https://github.com/ethersphere/bee-js/commit/80d8b1ed6a77b616209f33149fc69572122dc90f))
+
 ## [13.1.0](https://github.com/ethersphere/bee-js/compare/v13.0.0...v13.1.0) (2026-09-10)
 
 
