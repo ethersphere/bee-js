@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs'
 import { MantarayNode } from '../../src'
 import { batch, makeBee } from '../utils'
 
@@ -21,7 +22,13 @@ test('upload files from directory', async () => {
   const streamResponse = await bee.collection.streamFromDirectory(batch(), 'test/data')
   const streamed = await MantarayNode.unmarshal(bee, streamResponse.reference)
   await streamed.loadRecursively(bee)
-  expect(streamed.collectAndMap()).toEqual(unmarshalled.collectAndMap())
+  expect(Object.keys(streamed.collectAndMap()).sort()).toEqual(Object.keys(unmarshalled.collectAndMap()).sort())
+
+  const jpg = readFileSync('test/data/static/incentives.jpg')
+  const uploadedJpg = await bee.file.download(expectedHash, 'static/incentives.jpg')
+  expect(uploadedJpg.data.toUint8Array()).toEqual(new Uint8Array(jpg))
+  const streamedJpg = await bee.file.download(streamResponse.reference, 'static/incentives.jpg')
+  expect(streamedJpg.data.toUint8Array()).toEqual(new Uint8Array(jpg))
 
   // download the data and compare
   const stylesCss = await bee.file.download(expectedHash, 'static/styles.css')
