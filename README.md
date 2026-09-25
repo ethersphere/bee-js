@@ -69,7 +69,7 @@ types. Where `NumberString` is present, `number` is disallowed in order to avoid
 ### Byte primitives
 
 All the classes below extend `Bytes`, therefore the following methods are available on all of them: `toUint8Array`,
-`toHex`, `toBase64`, `toBase32`, `toUtf8`, `toJSON`, `static keccak256`, `static fromUtf8`.
+`toHex`, `toBase64`, `toBase32`, `toUtf8`, `parseJson`, `static keccak256`, `static fromUtf8`.
 
 The `toString` method uses `toHex`.
 

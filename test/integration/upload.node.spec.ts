@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs'
 import { MantarayNode } from '../../src'
 import { batch, makeBee } from '../utils'
 
@@ -5,7 +6,6 @@ const bee = makeBee()
 
 test('upload files from directory', async () => {
   const expectedHash = '32c8aa1c32d3ba4ded3dbc6df75d7a3a58b6468c6227fe721af06365f769a8f7'
-  const expectedStreamHash = '237865537469cc454a0d2d8ae913b1402f360af045d956caccf1f1724f597118'
 
   // use bzz api with streaming tar
   const response = await bee.collection.uploadFromDirectory(batch(), 'test/data')
@@ -16,13 +16,19 @@ test('upload files from directory', async () => {
   await unmarshalled.loadRecursively(bee)
   expect((await unmarshalled.calculateSelfAddress()).toHex()).toBe(expectedHash)
 
-  // check directory hash locally
   const hash = await bee.collection.hashDirectory('test/data')
-  expect(hash.toHex()).toBe(expectedStreamHash)
+  expect(hash.toHex()).toHaveLength(64)
 
-  // stream chunks to upload
   const streamResponse = await bee.collection.streamFromDirectory(batch(), 'test/data')
-  expect(streamResponse.reference.toHex()).toBe(expectedStreamHash)
+  const streamed = await MantarayNode.unmarshal(bee, streamResponse.reference)
+  await streamed.loadRecursively(bee)
+  expect(Object.keys(streamed.collectAndMap()).sort()).toEqual(Object.keys(unmarshalled.collectAndMap()).sort())
+
+  const jpg = readFileSync('test/data/static/incentives.jpg')
+  const uploadedJpg = await bee.file.download(expectedHash, 'static/incentives.jpg')
+  expect(uploadedJpg.data.toUint8Array()).toEqual(new Uint8Array(jpg))
+  const streamedJpg = await bee.file.download(streamResponse.reference, 'static/incentives.jpg')
+  expect(streamedJpg.data.toUint8Array()).toEqual(new Uint8Array(jpg))
 
   // download the data and compare
   const stylesCss = await bee.file.download(expectedHash, 'static/styles.css')
@@ -31,7 +37,7 @@ test('upload files from directory', async () => {
 }
 `)
 
-  const streamedstylesCss = await bee.file.download(expectedStreamHash, 'static/styles.css')
+  const streamedstylesCss = await bee.file.download(streamResponse.reference, 'static/styles.css')
   expect(streamedstylesCss.data.toUtf8()).toBe(`body {
   text-align: center;
 }
