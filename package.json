@@ -75,7 +75,7 @@
     "debug": "^4.4.3",
     "isomorphic-ws": "^5.0.0",
     "semver": "^7.3.5",
-    "@ethersphere/core-sdk": "^0.1.1",
+    "@ethersphere/core-sdk": "^0.2.0",
     "ws": "^8.21.0",
     "zod": "^4.4.3"
   },
