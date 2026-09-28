@@ -64,6 +64,7 @@ async function loadRecursively(
     const loaded = CoreMantarayNode.unmarshalFromData(data, fork.node.selfAddress)
     fork.node.targetAddress = loaded.targetAddress
     fork.node.forks = loaded.forks
+    fork.node.obfuscationKey = loaded.obfuscationKey
     fork.node.path = fork.prefix
     fork.node.parent = node
     await loadRecursively(fork.node, bee, options, requestOptions)
