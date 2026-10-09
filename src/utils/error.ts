@@ -1,6 +1,7 @@
 export class BeeError extends Error {
   public constructor(message: string) {
     super(message)
+    this.name = 'BeeError'
   }
 }
 
@@ -10,6 +11,7 @@ export class BeeArgumentError extends BeeError {
     readonly value: unknown,
   ) {
     super(message)
+    this.name = 'BeeArgumentError'
   }
 }
 
@@ -25,6 +27,7 @@ export class BeeResponseError extends BeeError {
     public statusText?: string,
   ) {
     super(message)
+    this.name = 'BeeResponseError'
     this.response = { status, data: responseBody, statusText }
   }
 }
