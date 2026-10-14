@@ -1,4 +1,5 @@
 import { TransactionId } from '@ethersphere/core-sdk'
+import { z } from 'zod'
 import type { BeeRequestOptions, NumberString, RedistributionState, TransactionOptions } from '../types'
 import { TransactionOptionsSchema } from '../utils/schema'
 import { BZZ } from '../utils/tokens'
@@ -93,5 +94,13 @@ export class Stake {
    */
   async getRedistributionState(requestOptions?: BeeRequestOptions): Promise<RedistributionState> {
     return redistributionApi.getRedistributionState(this.context.getRequestOptionsForCall(requestOptions))
+  }
+
+  /** Enables or disables participation in new redistribution rounds; resets to enabled when the node restarts. */
+  async setRedistributionEnabled(enabled: boolean, requestOptions?: BeeRequestOptions): Promise<boolean> {
+    return redistributionApi.setRedistributionEnabled(
+      this.context.getRequestOptionsForCall(requestOptions),
+      z.boolean().parse(enabled),
+    )
   }
 }

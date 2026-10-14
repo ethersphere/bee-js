@@ -35,4 +35,11 @@ export const GetRedistributionStateResponse = z.object({
   reward: z.string().transform(s => BZZ.fromPLUR(asNumberString(s, { name: 'reward' }))),
   fees: z.string().transform(s => DAI.fromWei(asNumberString(s, { name: 'fees' }))),
   isHealthy: z.boolean(),
+  enabled: z.boolean(),
+  hasCommittedThisRound: z.boolean(),
+  hasRevealedThisRound: z.boolean(),
+})
+
+export const RedistributionToggleResponse = z.object({
+  enabled: z.boolean(),
 })
