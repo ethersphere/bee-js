@@ -1,5 +1,5 @@
 import type { BeeRequestOptions, RedistributionState } from '../types'
-import { GetRedistributionStateResponse } from '../types/schema/stake'
+import { GetRedistributionStateResponse, RedistributionToggleResponse } from '../types/schema/stake'
 import { http } from '../utils/http'
 
 const redistributionStateEndpoint = 'redistributionstate'
@@ -16,4 +16,15 @@ export async function getRedistributionState(requestOptions: BeeRequestOptions):
   })
 
   return GetRedistributionStateResponse.parse(response.data)
+}
+
+export async function setRedistributionEnabled(requestOptions: BeeRequestOptions, enabled: boolean): Promise<boolean> {
+  const response = await http<unknown>(requestOptions, {
+    method: 'patch',
+    responseType: 'json',
+    url: redistributionStateEndpoint,
+    data: { enabled },
+  })
+
+  return RedistributionToggleResponse.parse(response.data).enabled
 }
