@@ -16,11 +16,11 @@ import * as pssApi from '../api/pss'
 import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
 import type {
   BeeRequestOptions,
+  ChunkUploadOptions,
   GsocMessageHandler,
   GsocSubscription,
   PssMessageHandler,
   PssSubscription,
-  UploadOptions,
 } from '../types'
 import { prepareWebsocketData } from '../utils/data'
 import { BeeError } from '../utils/error'
@@ -190,7 +190,7 @@ export class Messaging {
     signer: PrivateKey | Uint8Array | string,
     identifier: Identifier | Uint8Array | string,
     data: string | Uint8Array,
-    options?: UploadOptions,
+    options?: ChunkUploadOptions,
     requestOptions?: BeeRequestOptions,
   ) {
     const batchId = new BatchId(postageBatchId)
