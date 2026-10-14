@@ -389,6 +389,17 @@ export interface GsocMessageHandler {
   onClose: (subscription: GsocSubscription) => void
 }
 
+export type GsocField =
+  'address' | 'recoveredPubKey' | 'identifier' | 'signature' | 'wrappedAddress' | 'span' | 'payload'
+
+export interface GsocSubscribeOptions {
+  /** SOC fields concatenated into each message in this order; `payload` is variable length, so put it last. */
+  fields?: GsocField[]
+
+  /** Caches each message's wrapped chunk on the node so it can be read through the bytes endpoint. */
+  cacheWrappedChunk?: boolean
+}
+
 export interface ReferenceResponse {
   reference: Reference
 }
