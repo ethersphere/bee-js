@@ -5,6 +5,10 @@ import { asNumberString } from '../../utils/type'
 
 export const GetStakeResponse = z.object({
   stakedAmount: z.string().transform(s => BZZ.fromPLUR(asNumberString(s, { name: 'stakedAmount' }))),
+  minimumDeposit: z
+    .string()
+    .nullish()
+    .transform(s => (s ? BZZ.fromPLUR(asNumberString(s, { name: 'minimumDeposit' })) : null)),
 })
 
 export const GetWithdrawableStakeResponse = z.object({
