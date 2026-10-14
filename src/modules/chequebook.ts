@@ -46,7 +46,7 @@ export class Chequebook {
     const amountString =
       amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
 
-    const gasPriceString = gasPrice ? asNumberString(amount, { min: 0n, name: 'gasPrice' }) : undefined
+    const gasPriceString = gasPrice ? asNumberString(gasPrice, { min: 0n, name: 'gasPrice' }) : undefined
 
     return api.depositTokens(this.context.getRequestOptionsForCall(requestOptions), amountString, gasPriceString)
   }
@@ -66,7 +66,7 @@ export class Chequebook {
     const amountString =
       amount instanceof BZZ ? amount.toPLURString() : asNumberString(amount, { min: 1n, name: 'amount' })
 
-    const gasPriceString = gasPrice ? asNumberString(amount, { min: 0n, name: 'gasPrice' }) : undefined
+    const gasPriceString = gasPrice ? asNumberString(gasPrice, { min: 0n, name: 'gasPrice' }) : undefined
 
     return api.withdrawTokens(this.context.getRequestOptionsForCall(requestOptions), amountString, gasPriceString)
   }
