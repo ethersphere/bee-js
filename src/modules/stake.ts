@@ -22,7 +22,16 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async get(requestOptions?: BeeRequestOptions): Promise<BZZ> {
-    return stakeApi.getStake(this.context.getRequestOptionsForCall(requestOptions))
+    const { stakedAmount } = await stakeApi.getStake(this.context.getRequestOptionsForCall(requestOptions))
+
+    return stakedAmount
+  }
+
+  /** Gets the minimum next deposit, or `null` when Bee cannot determine it (e.g. the price oracle is unavailable). */
+  async getMinimumDeposit(requestOptions?: BeeRequestOptions): Promise<BZZ | null> {
+    const { minimumDeposit } = await stakeApi.getStake(this.context.getRequestOptionsForCall(requestOptions))
+
+    return minimumDeposit
   }
 
   /**
@@ -35,7 +44,7 @@ export class Stake {
   }
 
   /**
-   * Stakes the given amount of BZZ. Initial deposit must be at least 10 BZZ.
+   * Stakes the given amount of BZZ. Must be at least {@link getMinimumDeposit}, otherwise Bee rejects it with 400.
    *
    * Be aware that staked BZZ tokens can **not** be withdrawn.
    *
