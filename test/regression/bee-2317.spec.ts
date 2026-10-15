@@ -1,5 +1,5 @@
-import { Binary } from 'cafe-utility'
 import { Readable } from 'stream'
+import { numberToUint64 } from '@ethersphere/core-sdk'
 import { isReadable } from '../../src/utils/type'
 import { batch, makeBee } from '../utils'
 
@@ -12,7 +12,7 @@ test('bee/2317 - Tag not updated when uploaded files using stream', async () => 
   const stream = new Readable({
     read() {
       for (const item of data) {
-        this.push(Binary.numberToUint64(item, 'BE'))
+        this.push(numberToUint64(item, 'BE'))
       }
       this.push(null)
     },
@@ -21,11 +21,11 @@ test('bee/2317 - Tag not updated when uploaded files using stream', async () => 
   expect(isReadable(stream)).toBe(true)
 
   const bee = makeBee()
-  const { uid } = await bee.createTag()
-  const result = await bee.uploadFile(batch(), stream, 'data.bin', { tag: uid })
+  const { uid } = await bee.tag.create()
+  const result = await bee.file.upload(batch(), stream, 'data.bin', { tag: uid })
 
   expect(result.tagUid).toBe(uid)
-  const tag = await bee.retrieveTag(uid)
+  const tag = await bee.tag.get(uid)
   expect(result.reference.toHex()).toBe(tag.address)
   expect(tag.split).toBe(24)
 })

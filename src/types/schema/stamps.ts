@@ -1,6 +1,6 @@
+import { BatchId, EthAddress } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { asNumberString } from '../../utils/type'
-import { BatchId, EthAddress } from '../../utils/typed-bytes'
 
 export const RawPostageBatchSchema = z.object({
   batchID: z.string(),

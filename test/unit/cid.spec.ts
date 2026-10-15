@@ -1,4 +1,4 @@
-import { Reference } from '../../src'
+import { Reference } from '@ethersphere/core-sdk'
 
 test('cid manifest', () => {
   const pairs = [

@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - 'master'
+      - 'upcoming'
   pull_request:
     branches:
       - '**'
+  # Called by the "Publish upcoming snapshot to npm" orchestrator on push to `upcoming`.
+  workflow_call:
 
 jobs:
   entrypoint:
@@ -14,7 +17,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20.x
 

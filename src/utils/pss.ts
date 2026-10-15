@@ -1,5 +1,5 @@
+import { PeerAddress } from '@ethersphere/core-sdk'
 import { PSS_TARGET_HEX_LENGTH_MAX } from '../types'
-import { PeerAddress } from './typed-bytes'
 
 /**
  * Utility function that for given strings/reference takes the most specific

@@ -1,15 +1,16 @@
 import { Dates, Strings, System } from 'cafe-utility'
-import { FeedIndex, NULL_TOPIC, PrivateKey } from '../../src'
+import { FeedIndex, PrivateKey } from '@ethersphere/core-sdk'
+import { NULL_TOPIC } from '../../src'
 import { batch, makeBee } from '../utils'
 
 test('Feed read/write as payload', async () => {
   const bee = makeBee()
   const privateKey = new PrivateKey(Strings.randomHex(64))
 
-  const writer = bee.makeFeedWriter(NULL_TOPIC, privateKey)
+  const writer = bee.feed.makeWriter(NULL_TOPIC, privateKey)
   writer.uploadPayload(batch(), 'Feed payload', { deferred: false })
 
-  await System.waitFor(async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
+  await System.waitFor(async () => bee.feed.isRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
     attempts: 60,
     waitMillis: Dates.seconds(1),
   })
@@ -25,12 +26,12 @@ test('Feed read/write as reference', async () => {
   const bee = makeBee()
   const privateKey = new PrivateKey(Strings.randomHex(64))
 
-  const uploadResult = await bee.uploadData(batch(), 'Some payload')
+  const uploadResult = await bee.data.upload(batch(), 'Some payload')
 
-  const writer = bee.makeFeedWriter(NULL_TOPIC, privateKey)
+  const writer = bee.feed.makeWriter(NULL_TOPIC, privateKey)
   await writer.uploadReference(batch(), uploadResult.reference)
 
-  await System.waitFor(async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
+  await System.waitFor(async () => bee.feed.isRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
     attempts: 60,
     waitMillis: Dates.seconds(1),
   })
@@ -46,10 +47,10 @@ test('Feed read/write 40 bytes payload', async () => {
   const bee = makeBee()
   const privateKey = new PrivateKey(Strings.randomHex(64))
 
-  const writer = bee.makeFeedWriter(NULL_TOPIC, privateKey)
+  const writer = bee.feed.makeWriter(NULL_TOPIC, privateKey)
   writer.uploadPayload(batch(), 'This string is exactly 40 bytes in utf-8', { deferred: false })
 
-  await System.waitFor(async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
+  await System.waitFor(async () => bee.feed.isRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
     attempts: 60,
     waitMillis: Dates.seconds(1),
   })
@@ -68,10 +69,10 @@ test('Feed read/write as payload when data does not fit into one chunk', async (
   const bee = makeBee()
   const privateKey = new PrivateKey(Strings.randomHex(64))
 
-  const writer = bee.makeFeedWriter(NULL_TOPIC, privateKey)
+  const writer = bee.feed.makeWriter(NULL_TOPIC, privateKey)
   writer.uploadPayload(batch(), text, { deferred: false })
 
-  await System.waitFor(async () => bee.isFeedRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
+  await System.waitFor(async () => bee.feed.isRetrievable(writer.owner, writer.topic, FeedIndex.fromBigInt(0n)), {
     attempts: 60,
     waitMillis: Dates.seconds(1),
   })

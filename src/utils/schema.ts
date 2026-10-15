@@ -1,6 +1,6 @@
+import { PublicKey, Reference } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { TAGS_LIMIT_MAX, TAGS_LIMIT_MIN, type NumberString } from '../types'
-import { PublicKey, Reference } from './typed-bytes'
 
 export { HexStringSchema } from './hex-schema'
 
@@ -80,6 +80,14 @@ export const GsocMessageHandlerSchema = z.object({
   onMessage: fnField,
   onError: fnField,
   onClose: fnField,
+})
+
+export const GsocSubscribeOptionsSchema = z.object({
+  fields: z
+    .array(z.enum(['address', 'recoveredPubKey', 'identifier', 'signature', 'wrappedAddress', 'span', 'payload']))
+    .nonempty()
+    .optional(),
+  cacheWrappedChunk: z.boolean().optional(),
 })
 
 export const PostageBatchOptionsSchema = z.object({

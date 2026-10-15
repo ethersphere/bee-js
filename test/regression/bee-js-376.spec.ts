@@ -16,7 +16,7 @@ test('bee-js/376 - Hooks: explicit undefined values in params', async () => {
     },
   }
 
-  await bee.uploadFile(batch(), 'EOF', undefined, undefined, requestOptions)
+  await bee.file.upload(batch(), 'EOF', undefined, undefined, requestOptions)
 
   expect(runs).toBe(1)
 })

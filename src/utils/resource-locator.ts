@@ -1,5 +1,5 @@
+import { Reference } from '@ethersphere/core-sdk'
 import { z } from 'zod'
-import { Reference } from './typed-bytes'
 
 export class ResourceLocator {
   constructor(private raw: Reference | Uint8Array | string) {}

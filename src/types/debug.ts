@@ -1,5 +1,5 @@
+import { EthAddress, PeerAddress, PublicKey, TransactionId } from '@ethersphere/core-sdk'
 import { BZZ, DAI } from '../utils/tokens'
-import { EthAddress, PeerAddress, PublicKey, TransactionId } from '../utils/typed-bytes'
 import { NumberString } from './index'
 
 export interface Settlements {
@@ -165,6 +165,9 @@ export interface RedistributionState {
   reward: BZZ
   fees: DAI
   isHealthy: boolean
+  enabled: boolean
+  hasCommittedThisRound: boolean
+  hasRevealedThisRound: boolean
 }
 
 /**

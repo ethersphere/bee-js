@@ -28,7 +28,7 @@ test('pss onClose handler', async () => {
 
   httpServer.listen(8081)
 
-  bee.pssSubscribe(NULL_TOPIC, {
+  bee.messaging.pssSubscribe(NULL_TOPIC, {
     onMessage: event => {
       events.message.push(event)
     },
@@ -77,7 +77,7 @@ test('gsoc onClose handler', async () => {
 
   httpServer.listen(8082)
 
-  bee.gsocSubscribe('0x0123401234012340123401234012340123401234', NULL_IDENTIFIER, {
+  bee.messaging.gsocSubscribe('0x0123401234012340123401234012340123401234', NULL_IDENTIFIER, {
     onMessage: event => {
       events.message.push(event)
     },

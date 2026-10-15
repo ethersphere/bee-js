@@ -6,7 +6,7 @@ test('WebSocket undefined headers', async () => {
     headers: undefined,
   })
 
-  const subscription = bee.gsocSubscribe(NULL_OWNER, NULL_IDENTIFIER, {
+  const subscription = bee.messaging.gsocSubscribe(NULL_OWNER, NULL_IDENTIFIER, {
     onMessage: () => {
       void 0
     },

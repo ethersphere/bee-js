@@ -4,10 +4,10 @@ const bee = makeBee()
 
 async function roundTrip(filename: string, content: string): Promise<void> {
   const file = new File([content], filename, { type: 'text/plain' })
-  const result = await bee.uploadFiles(batch(), [file])
+  const result = await bee.collection.uploadFromFileList(batch(), [file])
   expect(result.reference).toBeTruthy()
 
-  const downloaded = await bee.downloadFile(result.reference, filename)
+  const downloaded = await bee.file.download(result.reference, filename)
   expect(downloaded.data.toUtf8()).toBe(content)
 }
 
@@ -69,16 +69,16 @@ test('mixed upload: short filename + USTAR path + longlink filename', async () =
   const ustar = new File(['ustar content'], 'images/' + 'a'.repeat(94), { type: 'text/plain' })
   const longlink = new File(['longlink content'], 'a'.repeat(150), { type: 'text/plain' })
 
-  const result = await bee.uploadFiles(batch(), [short, ustar, longlink])
+  const result = await bee.collection.uploadFromFileList(batch(), [short, ustar, longlink])
   expect(result.reference).toBeTruthy()
 
-  const d1 = await bee.downloadFile(result.reference, 'index.html')
+  const d1 = await bee.file.download(result.reference, 'index.html')
   expect(d1.data.toUtf8()).toBe('short content')
 
-  const d2 = await bee.downloadFile(result.reference, 'images/' + 'a'.repeat(94))
+  const d2 = await bee.file.download(result.reference, 'images/' + 'a'.repeat(94))
   expect(d2.data.toUtf8()).toBe('ustar content')
 
-  const d3 = await bee.downloadFile(result.reference, 'a'.repeat(150))
+  const d3 = await bee.file.download(result.reference, 'a'.repeat(150))
   expect(d3.data.toUtf8()).toBe('longlink content')
 })
 
@@ -86,13 +86,13 @@ test('two longlink files uploaded together', async () => {
   const file1 = new File(['first file content'], 'a'.repeat(150), { type: 'text/plain' })
   const file2 = new File(['second file content'], 'b'.repeat(150), { type: 'text/plain' })
 
-  const result = await bee.uploadFiles(batch(), [file1, file2])
+  const result = await bee.collection.uploadFromFileList(batch(), [file1, file2])
   expect(result.reference).toBeTruthy()
 
-  const d1 = await bee.downloadFile(result.reference, 'a'.repeat(150))
+  const d1 = await bee.file.download(result.reference, 'a'.repeat(150))
   expect(d1.data.toUtf8()).toBe('first file content')
 
-  const d2 = await bee.downloadFile(result.reference, 'b'.repeat(150))
+  const d2 = await bee.file.download(result.reference, 'b'.repeat(150))
   expect(d2.data.toUtf8()).toBe('second file content')
 })
 
@@ -103,11 +103,11 @@ test('many longlink files uploaded together', async () => {
   }))
 
   const fileObjects = files.map(f => new File([f.content], f.name, { type: 'text/plain' }))
-  const result = await bee.uploadFiles(batch(), fileObjects)
+  const result = await bee.collection.uploadFromFileList(batch(), fileObjects)
   expect(result.reference).toBeTruthy()
 
   for (const { name, content } of files) {
-    const downloaded = await bee.downloadFile(result.reference, name)
+    const downloaded = await bee.file.download(result.reference, name)
     expect(downloaded.data.toUtf8()).toBe(content)
   }
 })

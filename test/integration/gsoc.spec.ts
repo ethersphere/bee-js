@@ -1,15 +1,16 @@
-import { Bytes, GsocSubscription, NULL_IDENTIFIER } from '../../src'
+import { Bytes } from '@ethersphere/core-sdk'
+import { GsocSubscription, NULL_IDENTIFIER } from '../../src'
 import { batch, makeBee } from '../utils'
 
 test('GSOC - end to end test', async () => {
   const bee = makeBee()
   const identifier = NULL_IDENTIFIER
-  const { overlay } = await bee.getNodeAddresses()
+  const { overlay } = await bee.connectivity.getNodeAddresses()
 
-  const signer = bee.gsocMine(overlay, identifier)
+  const signer = bee.messaging.gsocMine(overlay, identifier)
 
   const promise = new Promise<{ subscription: GsocSubscription; message: Bytes }>((resolve, reject) => {
-    const subscription = bee.gsocSubscribe(signer.publicKey().address(), identifier, {
+    const subscription = bee.messaging.gsocSubscribe(signer.publicKey().address(), identifier, {
       onMessage(message) {
         resolve({ subscription, message })
       },
@@ -22,7 +23,7 @@ test('GSOC - end to end test', async () => {
     })
   })
 
-  await bee.gsocSend(batch(), signer, identifier, 'GSOC!')
+  await bee.messaging.gsocSend(batch(), signer, identifier, 'GSOC!')
   const { subscription, message } = await promise
   expect(message.toUtf8()).toBe('GSOC!')
   subscription.cancel()

@@ -1,11 +1,13 @@
-# On each new commit to master, create/update a PR with release
-# automatically bumps version and creates changelog as per conventional commits
+# On each new commit to `upcoming` (the integration trunk), create/update a release PR that
+# bumps the version and updates the changelog from conventional commits. Merging that PR
+# publishes the stable release (@latest, via publish_npmjs) and promotes `master` to it
+# (via promote-master). `master` therefore always reflects the latest stable release.
 name: Release Github
 
 on:
   push:
     branches:
-      - master
+      - upcoming
 
 jobs:
   release-please:

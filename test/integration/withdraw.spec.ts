@@ -6,7 +6,7 @@ const bee = makeBee()
 
 test('withdraw to unauthorized address', async () => {
   try {
-    await bee.withdrawBZZToExternalWallet('1', Strings.randomHex(40))
+    await bee.wallet.withdrawBZZ('1', Strings.randomHex(40))
     throw Error('Expected an error to be thrown')
   } catch (error: any) {
     expect(error.message).toContain('400')
@@ -16,33 +16,33 @@ test('withdraw to unauthorized address', async () => {
 })
 
 test('withdraw to external wallet', async () => {
-  const walletBefore = await bee.getWalletBalance()
+  const walletBefore = await bee.wallet.getBalance()
 
-  const bzzTransaction = await bee.withdrawBZZToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
+  const bzzTransaction = await bee.wallet.withdrawBZZ('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
   expect(bzzTransaction.toHex()).toHaveLength(64)
 
   await System.waitFor(
     async () => {
-      const pendingTransactions = await bee.getAllPendingTransactions()
+      const pendingTransactions = await bee.transaction.getAll()
 
       return pendingTransactions.length === 0
     },
     { attempts: 60, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
-  const daiTransaction = await bee.withdrawDAIToExternalWallet('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
+  const daiTransaction = await bee.wallet.withdrawDAI('1', Types.asString(process.env.JEST_WITHDRAW_ADDRESS))
   expect(daiTransaction.toHex()).toHaveLength(64)
 
   await System.waitFor(
     async () => {
-      const pendingTransactions = await bee.getAllPendingTransactions()
+      const pendingTransactions = await bee.transaction.getAll()
 
       return pendingTransactions.length === 0
     },
     { attempts: 60, waitMillis: Dates.seconds(1), requiredConsecutivePasses: 3 },
   )
 
-  const walletAfter = await bee.getWalletBalance()
+  const walletAfter = await bee.wallet.getBalance()
 
   expect(walletAfter.bzzBalance.toPLURBigInt()).toBeLessThan(walletBefore.bzzBalance.toPLURBigInt())
   expect(walletAfter.nativeTokenBalance.toWeiBigInt()).toBeLessThan(walletBefore.nativeTokenBalance.toWeiBigInt())

@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24.x
 
@@ -30,7 +30,7 @@ jobs:
 
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.BEE_RUNNER_APP_ID }}
           private-key: ${{ secrets.BEE_RUNNER_KEY }}
@@ -74,7 +74,7 @@ jobs:
         run: npm run test:probe
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 17
@@ -92,10 +92,15 @@ jobs:
         run: npm install --global @ethersphere/bee-factory @ethersphere/swarm-cli npxie
 
       - name: Start bee-factory
-        run: bee-factory start --tag v2.8.0
+        run: bee-factory start --tag v2.8.3
 
       - name: Create postage batch
-        run: echo "STAMP=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet)" >> $GITHUB_ENV
+        run: |
+          for i in 1 2 3; do
+            BATCH_ID=$(swarm-cli stamp buy --depth 20 --amount 1b --quiet) && break
+            echo "Postage stamp purchase timed out, retrying ($i/3)..."
+          done
+          echo "STAMP=$BATCH_ID" >> $GITHUB_ENV
 
       - name: Build APK
         working-directory: rn-test
