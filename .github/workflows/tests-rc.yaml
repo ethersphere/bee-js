@@ -34,7 +34,7 @@ jobs:
         run: bee-dev --port 16337 &
 
       - name: Start bee-factory
-        run: bee-factory start --tag v2.8.3-rc3
+        run: bee-factory start --tag v2.8.3
 
       - name: Create managed postage batch
         run: |
