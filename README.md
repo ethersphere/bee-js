@@ -59,6 +59,18 @@ Loading this module through a script tag will make the `BeeJs` object available 
 <script src="https://unpkg.com/@ethersphere/bee-js/dist/index.browser.min.js"></script>
 ```
 
+### Browser apps and CORS
+
+From Bee 2.8.3, a node rejects `POST`, `PUT`, `PATCH` and `DELETE` requests from a browser page on another origin with
+`403 Forbidden`, unless that origin is listed in the node's `cors-allowed-origins` option. Uploads, stamp purchases and
+other write calls from a web app therefore need the app's origin in that list:
+
+```sh
+bee start --cors-allowed-origins="https://my-app.example"
+```
+
+Node.js scripts are not affected, because they send no `Origin` header.
+
 ## Overview
 
 ### Type interfaces
