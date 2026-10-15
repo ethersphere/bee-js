@@ -35,8 +35,8 @@
     "bee-js-codemod": "dist/codemod/index.js"
   },
   "engines": {
-    "bee": "2.8.1-7cf53193",
-    "beeApiVersion": "8.1.0"
+    "bee": "2.8.3",
+    "beeApiVersion": "8.2.0"
   },
   "types": "dist/types/index.d.ts",
   "browser": {
