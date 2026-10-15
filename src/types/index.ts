@@ -8,7 +8,7 @@ import {
   Reference,
   Topic,
   TransactionId,
-} from 'swarm-core'
+} from '@ethersphere/core-sdk'
 import { Optional } from 'cafe-utility'
 import type { SingleOwnerChunk } from '../chunk/soc'
 import type { FeedUploadOptions } from '../feed'
@@ -167,6 +167,14 @@ export interface UploadOptions {
    * @default true
    */
   deferred?: boolean
+}
+
+export interface ChunkUploadOptions extends Omit<UploadOptions, 'act' | 'actHistoryAddress'> {
+  /** @deprecated Bee ignores ACT on `/chunks` and `/soc`; this option will be removed. */
+  act?: boolean
+
+  /** @deprecated Bee ignores ACT on `/chunks` and `/soc`; this option will be removed. */
+  actHistoryAddress?: Reference | Uint8Array | string
 }
 
 /**
@@ -381,6 +389,17 @@ export interface GsocMessageHandler {
   onClose: (subscription: GsocSubscription) => void
 }
 
+export type GsocField =
+  'address' | 'recoveredPubKey' | 'identifier' | 'signature' | 'wrappedAddress' | 'span' | 'payload'
+
+export interface GsocSubscribeOptions {
+  /** SOC fields concatenated into each message in this order; `payload` is variable length, so put it last. */
+  fields?: GsocField[]
+
+  /** Caches each message's wrapped chunk on the node so it can be read through the bytes endpoint. */
+  cacheWrappedChunk?: boolean
+}
+
 export interface ReferenceResponse {
   reference: Reference
 }
@@ -488,7 +507,7 @@ export interface SOCWriter extends SOCReader {
     stamp: BatchId | Uint8Array | string,
     identifier: Identifier | Uint8Array | string,
     data: Uint8Array,
-    options?: UploadOptions,
+    options?: ChunkUploadOptions,
   ) => Promise<UploadResult>
 }
 
@@ -619,7 +638,7 @@ export interface PostageBatchOptions {
   waitForUsableTimeout?: number
 }
 
-export type { Envelope, EnvelopeWithBatchId } from 'swarm-core'
+export type { Envelope, EnvelopeWithBatchId } from '@ethersphere/core-sdk'
 
 /**
  * With this type a number should be represented in a string

@@ -1,4 +1,4 @@
-import { PublicKey, Reference } from 'swarm-core'
+import { PublicKey, Reference } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { TAGS_LIMIT_MAX, TAGS_LIMIT_MIN, type NumberString } from '../types'
 
@@ -80,6 +80,14 @@ export const GsocMessageHandlerSchema = z.object({
   onMessage: fnField,
   onError: fnField,
   onClose: fnField,
+})
+
+export const GsocSubscribeOptionsSchema = z.object({
+  fields: z
+    .array(z.enum(['address', 'recoveredPubKey', 'identifier', 'signature', 'wrappedAddress', 'span', 'payload']))
+    .nonempty()
+    .optional(),
+  cacheWrappedChunk: z.boolean().optional(),
 })
 
 export const PostageBatchOptionsSchema = z.object({

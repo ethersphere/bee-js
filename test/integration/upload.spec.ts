@@ -1,6 +1,6 @@
 import { Types } from 'cafe-utility'
 import { ReadStream } from 'fs'
-import { Bytes, ChunkSplitter, PrivateKey, Span, makeContentAddressedChunk } from 'swarm-core'
+import { Bytes, ChunkSplitter, PrivateKey, Span, makeContentAddressedChunk } from '@ethersphere/core-sdk'
 import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'
 import { makeCollectionFromFileList } from '../../src/utils/collection'
 import { batch, makeBee } from '../utils'
@@ -99,7 +99,7 @@ test('POST bzz', async () => {
     'Content-Type': 'text/html',
     Filename: 'index.html',
   })
-  expect((await mantaray.calculateSelfAddress()).toHex()).toBe(expectedHash)
+  expect(mantaray.collectAndMap()).toEqual(unmarshalled.collectAndMap())
 })
 
 test('POST soc', async () => {

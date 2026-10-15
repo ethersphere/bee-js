@@ -1,4 +1,4 @@
-import { BatchId, Topic } from 'swarm-core'
+import { BatchId, Topic } from '@ethersphere/core-sdk'
 
 export const SWARM_GATEWAY_URL = 'https://api.gateway.ethswarm.org'
 export const NULL_STAMP = new BatchId('0000000000000000000000000000000000000000000000000000000000000000')

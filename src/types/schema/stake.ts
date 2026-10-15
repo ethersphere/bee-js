@@ -1,10 +1,14 @@
-import { TransactionId } from 'swarm-core'
+import { TransactionId } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { BZZ, DAI } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
 
 export const GetStakeResponse = z.object({
   stakedAmount: z.string().transform(s => BZZ.fromPLUR(asNumberString(s, { name: 'stakedAmount' }))),
+  minimumDeposit: z
+    .string()
+    .nullish()
+    .transform(s => (s ? BZZ.fromPLUR(asNumberString(s, { name: 'minimumDeposit' })) : null)),
 })
 
 export const GetWithdrawableStakeResponse = z.object({
@@ -31,4 +35,11 @@ export const GetRedistributionStateResponse = z.object({
   reward: z.string().transform(s => BZZ.fromPLUR(asNumberString(s, { name: 'reward' }))),
   fees: z.string().transform(s => DAI.fromWei(asNumberString(s, { name: 'fees' }))),
   isHealthy: z.boolean(),
+  enabled: z.boolean(),
+  hasCommittedThisRound: z.boolean(),
+  hasRevealedThisRound: z.boolean(),
+})
+
+export const RedistributionToggleResponse = z.object({
+  enabled: z.boolean(),
 })

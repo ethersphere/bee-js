@@ -1,4 +1,4 @@
-import { BatchId, Bytes, EthAddress, FeedIndex, Reference, Topic } from 'swarm-core'
+import { BatchId, Bytes, EthAddress, FeedIndex, Reference, Topic } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, UploadOptions } from '../types'
 import { UploadResultBody } from '../types/schema/upload'
 import { BeeError } from '../utils/error'

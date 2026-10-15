@@ -1,5 +1,5 @@
 import { Dates, Objects, Strings, System } from 'cafe-utility'
-import { makeContentAddressedChunk } from 'swarm-core'
+import { makeContentAddressedChunk } from '@ethersphere/core-sdk'
 import { batch, makeBee } from '../utils'
 
 const bee = makeBee()

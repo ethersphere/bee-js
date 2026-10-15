@@ -1,4 +1,4 @@
-import { EthAddress, PeerAddress, PublicKey, TransactionId } from 'swarm-core'
+import { EthAddress, PeerAddress, PublicKey, TransactionId } from '@ethersphere/core-sdk'
 import { BZZ, DAI } from '../utils/tokens'
 import { NumberString } from './index'
 
@@ -165,6 +165,9 @@ export interface RedistributionState {
   reward: BZZ
   fees: DAI
   isHealthy: boolean
+  enabled: boolean
+  hasCommittedThisRound: boolean
+  hasRevealedThisRound: boolean
 }
 
 /**
