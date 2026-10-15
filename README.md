@@ -59,6 +59,18 @@ Loading this module through a script tag will make the `BeeJs` object available 
 <script src="https://unpkg.com/@ethersphere/bee-js/dist/index.browser.min.js"></script>
 ```
 
+### Browser apps and CORS
+
+From Bee 2.8.3, a node rejects `POST`, `PUT`, `PATCH` and `DELETE` requests from a browser page on another origin with
+`403 Forbidden`, unless that origin is listed in the node's `cors-allowed-origins` option. Uploads, stamp purchases and
+other write calls from a web app therefore need the app's origin in that list:
+
+```sh
+bee start --cors-allowed-origins="https://my-app.example"
+```
+
+Node.js scripts are not affected, because they send no `Origin` header.
+
 ## Overview
 
 ### Type interfaces
@@ -69,7 +81,7 @@ types. Where `NumberString` is present, `number` is disallowed in order to avoid
 ### Byte primitives
 
 All the classes below extend `Bytes`, therefore the following methods are available on all of them: `toUint8Array`,
-`toHex`, `toBase64`, `toBase32`, `toUtf8`, `toJSON`, `static keccak256`, `static fromUtf8`.
+`toHex`, `toBase64`, `toBase32`, `toUtf8`, `parsePayloadAsJson`, `static keccak256`, `static fromUtf8`.
 
 The `toString` method uses `toHex`.
 
@@ -127,6 +139,8 @@ The `toString` method uses `toHex`.
 | SOCReader  | SingleOwnerChunk reader | `bee.soc.makeReader`  |
 | FeedWriter | Feed writer             | `bee.feed.makeWriter` |
 | FeedReader | Feed reader             | `bee.feed.makeReader` |
+| RollingFeedWriter | Rolling feed writer | `bee.rollingFeed.makeWriter` |
+| RollingFeedReader | Rolling feed reader | `bee.rollingFeed.makeReader` |
 
 ### Bee API
 
@@ -330,6 +344,61 @@ import { createReadStream } from 'fs'
 
 const bee = new Bee('http://localhost:1633')
 const uploadResult = await bee.collection.uploadFromDirectory(batchId, './path/to/gallery/')
+```
+
+### Rolling feed (periodically-restarting sequential feed)
+
+A rolling feed avoids the unbounded growth of a plain sequential feed by restarting it every
+`periodLength` seconds, so old postage-batch eviction never breaks the latest update.
+
+A rolling feed only stays readable while the writer keeps publishing. Keeping it alive is the
+application's job, not the SDK's, so a writer belongs on a timer — republish on every tick, even
+when the data has not changed.
+
+#### Writer
+
+```js
+import { Bee, PrivateKey, Topic } from '@ethersphere/bee-js'
+
+const bee = new Bee('http://localhost:1633')
+const topic = Topic.fromString('my-feed')
+const signer = new PrivateKey('...')
+const periodLength = 600 // 10 minutes
+
+const writer = bee.rollingFeed.makeWriter(topic, signer, periodLength)
+
+let latest = 'Hello, World!'
+await writer.uploadPayload(batchId, latest)
+
+// tick twice per period so a slow or delayed write still lands inside its own period
+const handle = setInterval(async () => {
+  try {
+    await writer.uploadPayload(batchId, latest)
+  } catch (error) {
+    console.error('rolling feed heartbeat failed', error)
+  }
+}, (periodLength / 2) * 1000)
+
+process.on('SIGTERM', () => clearInterval(handle))
+```
+
+If the writer was down long enough to leave gaps behind, call `writer.catchUp(batchId)` before
+resuming the timer to backfill the missed periods. It throws when no populated period is found
+within `maxBackfill`, so it is for restarts, not for the very first run.
+
+#### Reader
+
+```js
+import { Bee, EthAddress, Topic } from '@ethersphere/bee-js'
+
+const bee = new Bee('http://localhost:1633')
+const topic = Topic.fromString('my-feed')
+const owner = new EthAddress('...')
+const periodLength = 600 // must match the writer
+
+const reader = bee.rollingFeed.makeReader(topic, owner, periodLength)
+const result = await reader.downloadPayload()
+console.log(result.payload.toUtf8()) // prints 'Hello, World!'
 ```
 
 ### Customize http/https agent and headers

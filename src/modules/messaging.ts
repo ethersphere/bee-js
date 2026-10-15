@@ -16,15 +16,16 @@ import * as pssApi from '../api/pss'
 import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
 import type {
   BeeRequestOptions,
+  ChunkUploadOptions,
   GsocMessageHandler,
+  GsocSubscribeOptions,
   GsocSubscription,
   PssMessageHandler,
   PssSubscription,
-  UploadOptions,
 } from '../types'
 import { prepareWebsocketData } from '../utils/data'
 import { BeeError } from '../utils/error'
-import { GsocMessageHandlerSchema, PssMessageHandlerSchema } from '../utils/schema'
+import { GsocMessageHandlerSchema, GsocSubscribeOptionsSchema, PssMessageHandlerSchema } from '../utils/schema'
 import { assertData } from '../utils/type'
 import type { BeeContext } from './context'
 
@@ -190,7 +191,7 @@ export class Messaging {
     signer: PrivateKey | Uint8Array | string,
     identifier: Identifier | Uint8Array | string,
     data: string | Uint8Array,
-    options?: UploadOptions,
+    options?: ChunkUploadOptions,
     requestOptions?: BeeRequestOptions,
   ) {
     const batchId = new BatchId(postageBatchId)
@@ -211,18 +212,32 @@ export class Messaging {
    * @param address
    * @param identifier
    * @param handler
+   * @param options SOC fields to receive and whether to cache the wrapped chunk; requires Bee 2.8.3 or later
    */
   gsocSubscribe(
     address: EthAddress | Uint8Array | string,
     identifier: Identifier | Uint8Array | string,
     handler: GsocMessageHandler,
+    options?: GsocSubscribeOptions,
   ): GsocSubscription {
     const ethAddress = new EthAddress(address)
     const id = new Identifier(identifier)
     handler = GsocMessageHandlerSchema.parse(handler)
+    const { fields, cacheWrappedChunk } = GsocSubscribeOptionsSchema.parse(options ?? {})
+
+    const params = new URLSearchParams()
+
+    if (fields) {
+      params.set('swarm-soc-fields', fields.join(','))
+    }
+
+    if (cacheWrappedChunk !== undefined) {
+      params.set('swarm-cache-wrapped-chunk', String(cacheWrappedChunk))
+    }
 
     const socAddress = makeSOCAddress(id, ethAddress)
-    const ws = this.openWebSocket(`${GSOC_ENDPOINT}/subscribe/${socAddress.toHex()}`)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    const ws = this.openWebSocket(`${GSOC_ENDPOINT}/subscribe/${socAddress.toHex()}${query}`)
     const cancel = this.makeCancel(ws)
     const subscription: GsocSubscription = { address: ethAddress, cancel }
 
