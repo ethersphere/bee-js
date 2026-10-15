@@ -165,6 +165,9 @@ export interface RedistributionState {
   reward: BZZ
   fees: DAI
   isHealthy: boolean
+  enabled: boolean
+  hasCommittedThisRound: boolean
+  hasRevealedThisRound: boolean
 }
 
 /**
