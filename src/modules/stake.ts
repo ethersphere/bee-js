@@ -1,4 +1,5 @@
 import { TransactionId } from '@ethersphere/core-sdk'
+import { z } from 'zod'
 import type { BeeRequestOptions, NumberString, RedistributionState, TransactionOptions } from '../types'
 import { TransactionOptionsSchema } from '../utils/schema'
 import { BZZ } from '../utils/tokens'
@@ -21,7 +22,16 @@ export class Stake {
    * @param requestOptions Options for making requests, such as timeouts, custom HTTP agents, headers, etc.
    */
   async get(requestOptions?: BeeRequestOptions): Promise<BZZ> {
-    return stakeApi.getStake(this.context.getRequestOptionsForCall(requestOptions))
+    const { stakedAmount } = await stakeApi.getStake(this.context.getRequestOptionsForCall(requestOptions))
+
+    return stakedAmount
+  }
+
+  /** Gets the minimum next deposit, or `null` when Bee cannot determine it (e.g. the price oracle is unavailable). */
+  async getMinimumDeposit(requestOptions?: BeeRequestOptions): Promise<BZZ | null> {
+    const { minimumDeposit } = await stakeApi.getStake(this.context.getRequestOptionsForCall(requestOptions))
+
+    return minimumDeposit
   }
 
   /**
@@ -34,7 +44,7 @@ export class Stake {
   }
 
   /**
-   * Stakes the given amount of BZZ. Initial deposit must be at least 10 BZZ.
+   * Stakes the given amount of BZZ. Must be at least {@link getMinimumDeposit}, otherwise Bee rejects it with 400.
    *
    * Be aware that staked BZZ tokens can **not** be withdrawn.
    *
@@ -84,5 +94,13 @@ export class Stake {
    */
   async getRedistributionState(requestOptions?: BeeRequestOptions): Promise<RedistributionState> {
     return redistributionApi.getRedistributionState(this.context.getRequestOptionsForCall(requestOptions))
+  }
+
+  /** Enables or disables participation in new redistribution rounds; resets to enabled when the node restarts. */
+  async setRedistributionEnabled(enabled: boolean, requestOptions?: BeeRequestOptions): Promise<boolean> {
+    return redistributionApi.setRedistributionEnabled(
+      this.context.getRequestOptionsForCall(requestOptions),
+      z.boolean().parse(enabled),
+    )
   }
 }

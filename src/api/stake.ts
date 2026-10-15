@@ -11,14 +11,16 @@ const STAKE_ENDPOINT = 'stake'
  * Raw HTTP calls for the `/stake` endpoint.
  */
 
-export async function getStake(requestOptions: BeeRequestOptions): Promise<BZZ> {
+export async function getStake(
+  requestOptions: BeeRequestOptions,
+): Promise<{ stakedAmount: BZZ; minimumDeposit: BZZ | null }> {
   const response = await http<unknown>(requestOptions, {
     method: 'get',
     responseType: 'json',
     url: STAKE_ENDPOINT,
   })
 
-  return GetStakeResponse.parse(response.data).stakedAmount
+  return GetStakeResponse.parse(response.data)
 }
 
 export async function getWithdrawableStake(requestOptions: BeeRequestOptions): Promise<BZZ> {

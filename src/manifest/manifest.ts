@@ -61,10 +61,7 @@ async function loadRecursively(
     }
 
     const data = (await bee.data.download(fork.node.selfAddress, downloadOptions, requestOptions)).toUint8Array()
-    const loaded = CoreMantarayNode.unmarshalFromData(data, fork.node.selfAddress)
-    fork.node.targetAddress = loaded.targetAddress
-    fork.node.forks = loaded.forks
-    fork.node.obfuscationKey = loaded.obfuscationKey
+    fork.node.hydrate(data)
     fork.node.path = fork.prefix
     fork.node.parent = node
     await loadRecursively(fork.node, bee, options, requestOptions)
