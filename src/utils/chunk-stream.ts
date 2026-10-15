@@ -6,7 +6,7 @@ import { totalChunks } from './chunk-size'
 import { makeCollectionFromFS } from './collection.node'
 import { mimes } from './mime'
 import { UploadProgress } from './upload-progress'
-import { BatchId, ChunkEntry, ChunkSplitter } from 'swarm-core'
+import { BatchId, ChunkEntry, ChunkSplitter } from '@ethersphere/core-sdk'
 
 export async function hashDirectory(dir: string) {
   const files = await makeCollectionFromFS(dir)

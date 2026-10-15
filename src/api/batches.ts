@@ -1,4 +1,4 @@
-import { BatchId } from 'swarm-core'
+import { BatchId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, GlobalPostageBatch } from '../types'
 import { GetGlobalPostageBatchResponse, GetGlobalPostageBatchesResponse } from '../types/schema/stamps'
 import { http } from '../utils/http'

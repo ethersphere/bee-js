@@ -1,4 +1,4 @@
-import { BatchId } from 'swarm-core'
+import { BatchId } from '@ethersphere/core-sdk'
 import { Bee } from '../../src'
 import { hashDirectory, streamDirectory, streamFiles } from '../../src/utils/chunk-stream.browser'
 

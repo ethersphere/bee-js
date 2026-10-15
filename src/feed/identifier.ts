@@ -1,4 +1,4 @@
-import { Bytes, FeedIndex, Identifier, Topic, keccak256 } from 'swarm-core'
+import { Bytes, FeedIndex, Identifier, Topic, keccak256 } from '@ethersphere/core-sdk'
 
 export function makeFeedIdentifier(topic: Topic, index: FeedIndex | number): Identifier {
   index = typeof index === 'number' ? FeedIndex.fromBigInt(BigInt(index)) : index

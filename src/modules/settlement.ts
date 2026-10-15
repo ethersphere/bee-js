@@ -1,4 +1,4 @@
-import { PeerAddress } from 'swarm-core'
+import { PeerAddress } from '@ethersphere/core-sdk'
 import type { AllSettlements, BeeRequestOptions, Settlements } from '../types'
 import * as api from '../api/settlement'
 import type { BeeContext } from './context'

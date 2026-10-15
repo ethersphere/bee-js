@@ -1,5 +1,5 @@
 import { Dates, System } from 'cafe-utility'
-import { PrivateKey, Topic } from 'swarm-core'
+import { PrivateKey, Topic } from '@ethersphere/core-sdk'
 import { MantarayNode, NULL_ADDRESS } from '../../src'
 import { arbitraryPrivateKey, arbitraryReference, batch, makeBee } from '../utils'
 
@@ -120,6 +120,24 @@ test('Manifest no feed to resolve', async () => {
   const feedUpdate = await node.resolveFeed(bee)
 
   expect(feedUpdate.value).toBeNull()
+})
+
+test('Manifest resave after load keeps the same reference', async () => {
+  const bee = makeBee()
+
+  const node = new MantarayNode()
+  node.addFork('images/swarm.png', arbitraryReference())
+  node.addFork('index.html', arbitraryReference())
+  node.addFork('swarm.bzz', arbitraryReference())
+
+  const first = await node.saveRecursively(bee, batch())
+
+  const loaded = await MantarayNode.unmarshal(bee, first.reference)
+  await loaded.loadRecursively(bee)
+
+  const second = await loaded.saveRecursively(bee, batch())
+
+  expect(second.reference.toHex()).toBe(first.reference.toHex())
 })
 
 test('Manifest add fork with foreign path', async () => {

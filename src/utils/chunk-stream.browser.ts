@@ -5,7 +5,7 @@ import { totalChunks } from './chunk-size'
 import { makeFilePath } from './collection'
 import { mimes } from './mime'
 import { UploadProgress } from './upload-progress'
-import { BatchId, ChunkBuilder, ChunkEntry, ChunkSplitter, Reference } from 'swarm-core'
+import { BatchId, ChunkBuilder, ChunkEntry, ChunkSplitter, Reference } from '@ethersphere/core-sdk'
 
 export async function hashDirectory(_dir: string) {
   throw new Error('Hashing directories is not supported in browsers!')

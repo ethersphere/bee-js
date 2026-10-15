@@ -1,4 +1,4 @@
-import { BatchId, EthAddress } from 'swarm-core'
+import { BatchId, EthAddress } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { asNumberString } from '../../utils/type'
 

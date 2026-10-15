@@ -39,7 +39,13 @@ export interface BeeRequestConfig extends RequestInit {
  * @param config Internal settings and/or Bee settings
  */
 export async function http<T>(options: BeeRequestOptions, config: BeeRequestConfig): Promise<BeeResponse<T>> {
-  const requestConfig: BeeRequestConfig = Objects.deepMerge3(DEFAULT_HTTP_CONFIG, config, options)
+  const rawData = config.data
+  const requestConfig: BeeRequestConfig = Objects.deepMerge3(
+    DEFAULT_HTTP_CONFIG,
+    { ...config, data: undefined },
+    options,
+  )
+  requestConfig.data = rawData
 
   if (options.signal) {
     requestConfig.signal = options.signal
@@ -69,7 +75,7 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
       debug(`${method} ${url}`, { headers: requestConfig.headers, params: requestConfig.params })
       const res = await fetch(url, requestConfig)
 
-      if (!res.ok) await throwHttpError(method, url, res, requestConfig.responseType)
+      if (!res.ok) await throwHttpError(method, url, res)
 
       return toBeeResponse<T>(res, requestConfig.responseType)
     } catch (e) {
@@ -106,16 +112,25 @@ function attachBody(config: BeeRequestConfig): void {
   }
 }
 
-async function throwHttpError(
-  method: string,
-  url: string,
-  res: Response,
-  responseType?: BeeResponseType,
-): Promise<never> {
-  const errBody = await toBeeResponse(res, responseType).catch(() => ({ data: undefined }))
-  const bodyMsg = typeof errBody.data === 'string' ? errBody.data : JSON.stringify(errBody.data)
-  const message = bodyMsg && bodyMsg !== 'undefined' ? `${res.statusText}: ${bodyMsg}` : res.statusText
-  throw new BeeResponseError(method, url, message, errBody.data, res.status, res.statusText)
+async function throwHttpError(method: string, url: string, res: Response): Promise<never> {
+  const data = await readErrorBody(res)
+  const bodyMsg = typeof data === 'string' ? data : JSON.stringify(data)
+  const message = bodyMsg ? `${res.statusText}: ${bodyMsg}` : res.statusText
+  throw new BeeResponseError(method, url, message, data, res.status, res.statusText)
+}
+
+async function readErrorBody(res: Response): Promise<unknown> {
+  const raw = await res.text().catch(() => '')
+
+  if (!raw) {
+    return undefined
+  }
+
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return raw
+  }
 }
 
 function toBeeError(err: Error, method: string, url: string): BeeResponseError {

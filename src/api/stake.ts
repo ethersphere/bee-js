@@ -1,4 +1,4 @@
-import { TransactionId } from 'swarm-core'
+import { TransactionId } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, TransactionOptions } from '../types'
 import { GetStakeResponse, GetWithdrawableStakeResponse, TxHashResponse } from '../types/schema/stake'
 import { prepareRequestHeaders } from '../utils/headers'
@@ -11,14 +11,16 @@ const STAKE_ENDPOINT = 'stake'
  * Raw HTTP calls for the `/stake` endpoint.
  */
 
-export async function getStake(requestOptions: BeeRequestOptions): Promise<BZZ> {
+export async function getStake(
+  requestOptions: BeeRequestOptions,
+): Promise<{ stakedAmount: BZZ; minimumDeposit: BZZ | null }> {
   const response = await http<unknown>(requestOptions, {
     method: 'get',
     responseType: 'json',
     url: STAKE_ENDPOINT,
   })
 
-  return GetStakeResponse.parse(response.data).stakedAmount
+  return GetStakeResponse.parse(response.data)
 }
 
 export async function getWithdrawableStake(requestOptions: BeeRequestOptions): Promise<BZZ> {
