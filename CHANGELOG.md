@@ -1,6 +1,22 @@
 # Changelog
 
 
+## [13.2.0](https://github.com/ethersphere/bee-js/compare/v13.1.0...v13.2.0) (2026-10-15)
+
+
+### Features
+
+* add getMinimumDeposit for stake ([#1274](https://github.com/ethersphere/bee-js/issues/1274)) ([65e5d19](https://github.com/ethersphere/bee-js/commit/65e5d199aafa2745899590c54e432f29fde57234))
+* add gsoc subscribe options ([#1275](https://github.com/ethersphere/bee-js/issues/1275)) ([9a08883](https://github.com/ethersphere/bee-js/commit/9a08883e90e3ee7304390d5978513a5d682ad683))
+* redistribution toggle ([#1273](https://github.com/ethersphere/bee-js/issues/1273)) ([459c05b](https://github.com/ethersphere/bee-js/commit/459c05b08950c53d022df3f12879d76fec4a18e0))
+
+
+### Bug Fixes
+
+* error bodies ([#1266](https://github.com/ethersphere/bee-js/issues/1266)) ([29c89d7](https://github.com/ethersphere/bee-js/commit/29c89d7b68fd688f107ae615dd1ca03c6c90febf))
+* send correct gas price value ([#1272](https://github.com/ethersphere/bee-js/issues/1272)) ([157b172](https://github.com/ethersphere/bee-js/commit/157b17258e575290b0aa99bf500a3434348473ad))
+* v13 codemod script ([#1261](https://github.com/ethersphere/bee-js/issues/1261)) ([80d8b1e](https://github.com/ethersphere/bee-js/commit/80d8b1ed6a77b616209f33149fc69572122dc90f))
+
 ## [13.1.0](https://github.com/ethersphere/bee-js/compare/v13.0.0...v13.1.0) (2026-09-10)
 
 
