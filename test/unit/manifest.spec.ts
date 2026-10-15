@@ -1,5 +1,5 @@
-import { hexToUint8Array } from 'swarm-core'
-import { MantarayNode } from '../../src'
+import { Bytes, ChunkBuilder, hexToUint8Array, Reference } from '@ethersphere/core-sdk'
+import { Bee, MantarayNode } from '../../src'
 import { arbitraryReference } from '../utils'
 
 const ENCODER = new TextEncoder()
@@ -105,4 +105,28 @@ test('MantarayNode long', () => {
   expect(node.find(jsPath)).toHaveProperty('fullPathString', jsPath)
   expect(node.find(dsStorePath)).toBeNull()
   expect(node.collect()).toHaveLength(2)
+})
+
+test('MantarayNode loadRecursively makes nested forks removable', async () => {
+  const store = new Map<string, Uint8Array>()
+  const bee = {
+    data: {
+      download: async (reference: Reference | Uint8Array) => new Bytes(store.get(new Reference(reference).toHex())!),
+    },
+  } as unknown as Bee
+
+  const original = new MantarayNode()
+  original.addFork('README.md', arbitraryReference())
+  original.addFork('utils/a.ts', arbitraryReference())
+  original.addFork('utils/b.ts', arbitraryReference())
+  const { reference } = await original.core.saveRecursively(async (chunk: ChunkBuilder) => {
+    store.set(chunk.hash().toHex(), chunk.build().slice(8))
+  })
+
+  const node = await MantarayNode.unmarshal(bee, reference)
+  await node.loadRecursively(bee)
+  node.removeFork('utils/a.ts')
+  node.removeFork('README.md')
+
+  expect(node.collect().map(n => n.fullPathString)).toEqual(['utils/b.ts'])
 })

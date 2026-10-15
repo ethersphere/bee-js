@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { hexToUint8Array } from 'swarm-core'
+import { hexToUint8Array } from '@ethersphere/core-sdk'
 
 export const PostEnvelopeBodyResponse = z.object({
   issuer: z.string().transform(s => hexToUint8Array(s)),

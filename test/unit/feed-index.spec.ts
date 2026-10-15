@@ -1,4 +1,4 @@
-import { FeedIndex } from 'swarm-core'
+import { FeedIndex } from '@ethersphere/core-sdk'
 
 test('FeedIndex.next', () => {
   expect(FeedIndex.fromBigInt(0n).next().toBigInt()).toBe(1n)

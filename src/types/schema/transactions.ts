@@ -1,4 +1,4 @@
-import { TransactionId } from 'swarm-core'
+import { TransactionId } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { asNumberString } from '../../utils/type'
 

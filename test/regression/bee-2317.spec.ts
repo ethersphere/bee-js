@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import { numberToUint64 } from 'swarm-core'
+import { numberToUint64 } from '@ethersphere/core-sdk'
 import { isReadable } from '../../src/utils/type'
 import { batch, makeBee } from '../utils'
 
