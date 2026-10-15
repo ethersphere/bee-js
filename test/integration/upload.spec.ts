@@ -99,7 +99,7 @@ test('POST bzz', async () => {
     'Content-Type': 'text/html',
     Filename: 'index.html',
   })
-  expect((await mantaray.calculateSelfAddress()).toHex()).toBe(expectedHash)
+  expect(mantaray.collectAndMap()).toEqual(unmarshalled.collectAndMap())
 })
 
 test('POST soc', async () => {

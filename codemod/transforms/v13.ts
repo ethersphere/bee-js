@@ -165,11 +165,20 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
   const isNewBee = (node?: ts.Node): boolean =>
     !!node && ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'Bee'
 
-  // Does the type annotation mention `Bee` (`Bee`, `Bee | null`, `Bee | undefined`, …)?
+  const typeNameText = (name: ts.EntityName): string => (ts.isIdentifier(name) ? name.text : name.right.text)
+
+  // Does the type annotation mention `Bee`, plain or wrapped (`Bee | null`, `Mocked<Bee>`,
+  // `jest.Mocked<Bee> & Extra`, …)? Arrays and tuples are left out — they don't expose Bee's members.
   const typeMentionsBee = (type?: ts.TypeNode): boolean => {
     if (!type) return false
-    if (ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName) && type.typeName.text === 'Bee') return true
-    if (ts.isUnionTypeNode(type)) return type.types.some(typeMentionsBee)
+
+    if (ts.isParenthesizedTypeNode(type)) return typeMentionsBee(type.type)
+
+    if (ts.isUnionTypeNode(type) || ts.isIntersectionTypeNode(type)) return type.types.some(typeMentionsBee)
+
+    if (ts.isTypeReferenceNode(type)) {
+      return typeNameText(type.typeName) === 'Bee' || (type.typeArguments ?? []).some(typeMentionsBee)
+    }
 
     return false
   }
@@ -211,10 +220,23 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
   }
   collect(sourceFile)
 
+  const isBeeJsFile = (file: string): boolean => /[/\\]bee-js[/\\]/.test(file) || /[/\\]bee\.(d\.)?ts$/.test(file)
+
+  // A wrapper type (`Mocked<Bee>`, `Partial<Bee>`, …) has no Bee symbol of its own, but the
+  // members it maps over still point back at the Bee class they came from.
+  const hasBeeMember = (type: ts.Type, memberName: string): boolean =>
+    (type.getProperty(memberName)?.getDeclarations() ?? []).some(decl => {
+      const parent = decl.parent
+
+      return (
+        ts.isClassDeclaration(parent) && parent.name?.text === 'Bee' && isBeeJsFile(parent.getSourceFile().fileName)
+      )
+    })
+
   // A receiver is a Bee if identified syntactically (above) OR resolved by the type checker
   // to the `Bee` class declared by bee-js — the latter additionally catches imported/shared
-  // instances and factory calls (`getBee()`) when the project's types resolve.
-  const isBeeReceiver = (expr: ts.Expression): boolean => {
+  // instances, factory calls (`getBee()`) and mock wrappers when the project's types resolve.
+  const isBeeReceiver = (expr: ts.Expression, memberName?: string): boolean => {
     if (ts.isIdentifier(expr) && beeNames.has(expr.text)) return true
 
     if (
@@ -225,21 +247,19 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
       return true
     }
 
-    const symbol = checker.getTypeAtLocation(expr).getSymbol()
+    const type = checker.getTypeAtLocation(expr)
+
+    if (memberName && hasBeeMember(type, memberName)) return true
+
+    const symbol = type.getSymbol()
 
     if (!symbol || symbol.getName() !== 'Bee') {
       return false
     }
 
-    return (symbol.getDeclarations() ?? []).some(decl => {
-      if (!ts.isClassDeclaration(decl)) {
-        return false
-      }
-
-      const file = decl.getSourceFile().fileName
-
-      return /[/\\]bee-js[/\\]/.test(file) || /[/\\]bee\.(d\.)?ts$/.test(file)
-    })
+    return (symbol.getDeclarations() ?? []).some(
+      decl => ts.isClassDeclaration(decl) && isBeeJsFile(decl.getSourceFile().fileName),
+    )
   }
 
   // ChunkBuilder.hash() now returns a Reference, not a raw Uint8Array.
@@ -500,7 +520,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
     if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.name)) {
       const mapping = METHOD_MAP[node.name.text]
 
-      if (mapping && isBeeReceiver(node.expression)) {
+      if (mapping && isBeeReceiver(node.expression, node.name.text)) {
         // Preserve optional chaining on the receiver: `bee?.uploadData` → `bee?.data.upload`.
         const separator = node.questionDotToken ? '?.' : '.'
 
@@ -539,7 +559,7 @@ export function transform(sourceFile: ts.SourceFile, checker: ts.TypeChecker): s
             end: methodArg.getEnd(),
             text: `${quote}${mapping.newName}${quote}`,
           })
-        } else if (mapping && isBeeReceiver(receiverArg)) {
+        } else if (mapping && isBeeReceiver(receiverArg, methodArg.text)) {
           replacements.push({
             start: receiverArg.getStart(sourceFile),
             end: receiverArg.getEnd(),

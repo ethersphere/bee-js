@@ -82,6 +82,14 @@ export const GsocMessageHandlerSchema = z.object({
   onClose: fnField,
 })
 
+export const GsocSubscribeOptionsSchema = z.object({
+  fields: z
+    .array(z.enum(['address', 'recoveredPubKey', 'identifier', 'signature', 'wrappedAddress', 'span', 'payload']))
+    .nonempty()
+    .optional(),
+  cacheWrappedChunk: z.boolean().optional(),
+})
+
 export const PostageBatchOptionsSchema = z.object({
   gasPrice: integerStringField.optional(),
   immutableFlag: z.boolean().optional(),

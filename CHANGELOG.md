@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [13.1.0](https://github.com/ethersphere/bee-js/compare/v13.0.0...v13.1.0) (2026-09-10)
+
+
+### Features
+
+* rolling feed ([#1254](https://github.com/ethersphere/bee-js/issues/1254)) ([8bf0b39](https://github.com/ethersphere/bee-js/commit/8bf0b392c381f267ce59434fd19ff60e4de5b02f))
+
+
+### Bug Fixes
+
+* publish workflow ([#1251](https://github.com/ethersphere/bee-js/issues/1251)) ([d3bc2f5](https://github.com/ethersphere/bee-js/commit/d3bc2f50be2025c5597800e65190e4818a985d45))
+
 ## [13.0.0](https://github.com/ethersphere/bee-js/compare/v12.3.1...v13.0.0) (2026-08-25)
 
 
