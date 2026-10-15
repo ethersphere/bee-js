@@ -1,4 +1,4 @@
-import { BatchId, EthAddress, Reference, Signature } from 'swarm-core'
+import { BatchId, EthAddress, Reference, Signature } from '@ethersphere/core-sdk'
 import type { BeeRequestOptions, EnvelopeWithBatchId } from '../types'
 import { PostEnvelopeBodyResponse } from '../types/schema/envelope'
 import { http } from '../utils/http'

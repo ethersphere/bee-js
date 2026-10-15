@@ -1,6 +1,6 @@
-import { BatchId, Chunk as ContentAddressedChunk, Identifier, Reference, Signature, Span } from 'swarm-core'
+import { BatchId, Chunk as ContentAddressedChunk, Identifier, Reference, Signature, Span } from '@ethersphere/core-sdk'
 import { SingleOwnerChunk } from '../chunk/soc'
-import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions } from '../types'
+import type { BeeRequestOptions, ChunkUploadOptions, DownloadOptions, EnvelopeWithBatchId } from '../types'
 import { CHUNK_SIZE, UploadResult } from '../types'
 import { BeeArgumentError } from '../utils/error'
 import { DownloadOptionsSchema, UploadOptionsSchema } from '../utils/schema'
@@ -28,7 +28,7 @@ export class Chunk {
   async upload(
     stamp: EnvelopeWithBatchId | BatchId | Uint8Array | string,
     data: Uint8Array | ContentAddressedChunk | SingleOwnerChunk,
-    options?: UploadOptions,
+    options?: ChunkUploadOptions,
     requestOptions?: BeeRequestOptions,
   ): Promise<UploadResult> {
     const isSOC = 'identifier' in data && 'signature' in data && 'owner' in data

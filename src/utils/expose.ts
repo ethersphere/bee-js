@@ -1,7 +1,7 @@
 export { getCollectionSize, makeCollectionFromFileList } from './collection'
 export { getFolderSize } from './collection.node'
 export { makeMaxTarget } from './pss'
-export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from 'swarm-core'
+export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from '@ethersphere/core-sdk'
 export {
   convertEnvelopeToMarshaledStamp,
   getAmountForDuration,

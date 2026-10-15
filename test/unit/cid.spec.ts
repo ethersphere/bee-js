@@ -1,4 +1,4 @@
-import { Reference } from 'swarm-core'
+import { Reference } from '@ethersphere/core-sdk'
 
 test('cid manifest', () => {
   const pairs = [

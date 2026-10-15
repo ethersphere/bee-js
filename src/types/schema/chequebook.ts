@@ -1,4 +1,4 @@
-import { EthAddress, TransactionId } from 'swarm-core'
+import { EthAddress, TransactionId } from '@ethersphere/core-sdk'
 import { z } from 'zod'
 import { BZZ } from '../../utils/tokens'
 import { asNumberString } from '../../utils/type'
