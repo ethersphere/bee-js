@@ -15,7 +15,7 @@ import {
 } from '@ethersphere/core-sdk'
 import * as chunkAPI from '../api/chunk'
 import * as socAPI from '../api/soc'
-import { BeeRequestOptions, UploadOptions, UploadResult } from '../types'
+import { BeeRequestOptions, ChunkUploadOptions, UploadResult } from '../types'
 import { BeeError } from '../utils/error'
 
 export { makeSOCAddress }
@@ -76,7 +76,7 @@ export async function uploadSingleOwnerChunk(
   requestOptions: BeeRequestOptions,
   chunk: SingleOwnerChunk,
   stamp: BatchId | Uint8Array | string,
-  options?: UploadOptions,
+  options?: ChunkUploadOptions,
 ): Promise<UploadResult> {
   const data = Bytes.concat(chunk.span.toUint8Array(), chunk.payload.toUint8Array())
 
@@ -99,7 +99,7 @@ export async function uploadSingleOwnerChunkData(
   stamp: BatchId | Uint8Array | string,
   identifier: Identifier | Uint8Array | string,
   data: Uint8Array,
-  options?: UploadOptions,
+  options?: ChunkUploadOptions,
 ): Promise<UploadResult> {
   signer = new PrivateKey(signer)
   identifier = new Identifier(identifier)
@@ -115,7 +115,7 @@ export async function uploadSingleOwnerChunkWithWrappedChunk(
   stamp: BatchId | Uint8Array | string,
   identifier: Identifier | Uint8Array | string,
   wrappedChunk: Chunk,
-  options?: UploadOptions,
+  options?: ChunkUploadOptions,
 ): Promise<UploadResult> {
   signer = new PrivateKey(signer)
   identifier = new Identifier(identifier)

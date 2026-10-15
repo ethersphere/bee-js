@@ -92,7 +92,7 @@ jobs:
         run: npm install --global @ethersphere/bee-factory @ethersphere/swarm-cli npxie
 
       - name: Start bee-factory
-        run: bee-factory start --tag v2.8.0
+        run: bee-factory start --tag v2.8.3
 
       - name: Create postage batch
         run: |
