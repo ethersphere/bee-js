@@ -1,6 +1,41 @@
 # Changelog
 
 
+## [13.1.0](https://github.com/ethersphere/bee-js/compare/v13.0.0...v13.1.0) (2026-09-10)
+
+
+### Features
+
+* rolling feed ([#1254](https://github.com/ethersphere/bee-js/issues/1254)) ([8bf0b39](https://github.com/ethersphere/bee-js/commit/8bf0b392c381f267ce59434fd19ff60e4de5b02f))
+
+
+### Bug Fixes
+
+* publish workflow ([#1251](https://github.com/ethersphere/bee-js/issues/1251)) ([d3bc2f5](https://github.com/ethersphere/bee-js/commit/d3bc2f50be2025c5597800e65190e4818a985d45))
+
+## [13.0.0](https://github.com/ethersphere/bee-js/compare/v12.3.1...v13.0.0) (2026-08-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* use swarm core ([#1236](https://github.com/ethersphere/bee-js/issues/1236))
+* split methods to separated namespaces ([#1219](https://github.com/ethersphere/bee-js/issues/1219))
+
+### Bug Fixes
+
+* codemod gaps ([#1246](https://github.com/ethersphere/bee-js/issues/1246)) ([f9d33e6](https://github.com/ethersphere/bee-js/commit/f9d33e603543d599d2342761c1a70adcbe3bcf27))
+* codemod, protype spy pattern ([#1248](https://github.com/ethersphere/bee-js/issues/1248)) ([a89553d](https://github.com/ethersphere/bee-js/commit/a89553dccc245a3aa692f4f99a6a8cc106c2315b))
+* mantaray marshal and unmarshal logic ([#1202](https://github.com/ethersphere/bee-js/issues/1202)) ([85f767f](https://github.com/ethersphere/bee-js/commit/85f767f5d59cfa2245aab92da457d0f0953d4a04))
+* publish codemods ([#1245](https://github.com/ethersphere/bee-js/issues/1245)) ([c78f60a](https://github.com/ethersphere/bee-js/commit/c78f60a541b82f7da69356fb3ac66308cb7900ab))
+* streamable data upload and preserve http request data ([#1249](https://github.com/ethersphere/bee-js/issues/1249)) ([bab2b2e](https://github.com/ethersphere/bee-js/commit/bab2b2e5a3874187d29a1c1e6c70f2f645ed53c2))
+* upcoming publish ([#1233](https://github.com/ethersphere/bee-js/issues/1233)) ([1efc6b9](https://github.com/ethersphere/bee-js/commit/1efc6b969c2abd7e19a66ab6aba93992c96f18f8))
+
+
+### Code Refactoring
+
+* split methods to separated namespaces ([#1219](https://github.com/ethersphere/bee-js/issues/1219)) ([cfb9756](https://github.com/ethersphere/bee-js/commit/cfb975603e2e1af92ed6e117714a85de53169968))
+* use swarm core ([#1236](https://github.com/ethersphere/bee-js/issues/1236)) ([c013bdf](https://github.com/ethersphere/bee-js/commit/c013bdf77af9238e1e512029dbbd187f062601a6))
+
 ## [12.3.1](https://github.com/ethersphere/bee-js/compare/v12.3.0...v12.3.1) (2026-07-07)
 
 

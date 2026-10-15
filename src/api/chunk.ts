@@ -1,6 +1,12 @@
-import { BatchId, Reference } from 'swarm-core'
+import { BatchId, Reference } from '@ethersphere/core-sdk'
 import { Optional } from 'cafe-utility'
-import type { BeeRequestOptions, DownloadOptions, EnvelopeWithBatchId, UploadOptions, UploadResult } from '../types'
+import type {
+  BeeRequestOptions,
+  ChunkUploadOptions,
+  DownloadOptions,
+  EnvelopeWithBatchId,
+  UploadResult,
+} from '../types'
 import { UploadResultBody } from '../types/schema/upload'
 import { prepareRequestHeaders } from '../utils/headers'
 import { http } from '../utils/http'
@@ -16,7 +22,7 @@ export async function upload(
   requestOptions: BeeRequestOptions,
   data: Uint8Array,
   stamp: EnvelopeWithBatchId | BatchId | Uint8Array | string,
-  options?: UploadOptions,
+  options?: ChunkUploadOptions,
 ): Promise<UploadResult> {
   const response = await http<unknown>(requestOptions, {
     method: 'post',

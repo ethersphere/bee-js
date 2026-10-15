@@ -1,4 +1,4 @@
-import { BatchId, PublicKey, Reference } from 'swarm-core'
+import { BatchId, PublicKey, Reference } from '@ethersphere/core-sdk'
 import * as api from '../api/grantee'
 import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
 import type { BeeContext } from './context'

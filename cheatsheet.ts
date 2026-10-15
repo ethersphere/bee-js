@@ -11,7 +11,7 @@ import {
   Reference,
   Span,
   Topic,
-} from 'swarm-core'
+} from '@ethersphere/core-sdk'
 import {
   Bee,
   BZZ,

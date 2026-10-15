@@ -13,7 +13,7 @@ test('Utils.getFolderSize', async () => {
 })
 
 test('Utils.approximateOverheadForRedundancyLevel', () => {
-  // Values now come from swarm-core's canonical Reed-Solomon parity tables
+  // Values now come from core-sdk's canonical Reed-Solomon parity tables
   // (ported directly from Bee's pkg/file/redundancy/level.go) instead of bee-js's
   // own second, independent approximation table, which was off by one threshold
   // per level.

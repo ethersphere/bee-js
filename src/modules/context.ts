@@ -1,4 +1,4 @@
-import { PrivateKey } from 'swarm-core'
+import { PrivateKey } from '@ethersphere/core-sdk'
 import type { Bee } from '../bee'
 import type { BeeRequestOptions } from '../types'
 

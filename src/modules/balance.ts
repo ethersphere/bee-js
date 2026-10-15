@@ -1,4 +1,4 @@
-import { PeerAddress } from 'swarm-core'
+import { PeerAddress } from '@ethersphere/core-sdk'
 import * as balanceApi from '../api/balance'
 import * as consumedApi from '../api/consumed'
 import type { BalanceResponse, BeeRequestOptions, PeerBalance } from '../types'
