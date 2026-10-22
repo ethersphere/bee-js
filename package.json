@@ -90,7 +90,7 @@
     "@commitlint/config-conventional": "^20.5.3",
     "@types/debug": "^4.1.13",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.6.5",
     "@types/semver": "^7.3.9",
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^5.46.0",
