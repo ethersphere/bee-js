@@ -71,7 +71,7 @@
     "codemod": "ts-node --project codemod/tsconfig.json codemod/index.ts"
   },
   "dependencies": {
-    "@ethersphere/core-sdk": "npm:@upcoming/swarm-core@^0.2.3",
+    "@ethersphere/core-sdk": "^0.3.0",
     "cafe-utility": "^34.0.0",
     "debug": "^4.4.3",
     "isomorphic-ws": "^5.0.0",
