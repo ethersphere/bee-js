@@ -77,7 +77,7 @@
     "isomorphic-ws": "^5.0.0",
     "semver": "^7.3.5",
     "ws": "^8.21.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",
