@@ -2,6 +2,7 @@ import { Binary, System } from 'cafe-utility'
 import WebSocket from 'isomorphic-ws'
 import {
   BatchId,
+  BpsPosition,
   Bytes,
   EthAddress,
   Identifier,
@@ -13,9 +14,16 @@ import {
   Topic,
 } from '@ethersphere/core-sdk'
 import * as pssApi from '../api/pss'
+import * as bps from '../bps'
+import type { BpsSocket } from '../bps'
 import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
 import type {
   BeeRequestOptions,
+  BpsMessageHandler,
+  BpsPublisher,
+  BpsPublishOptions,
+  BpsSubscribeOptions,
+  BpsSubscription,
   ChunkUploadOptions,
   GsocMessageHandler,
   GsocSubscribeOptions,
@@ -24,13 +32,19 @@ import type {
   PssSubscription,
 } from '../types'
 import { prepareWebsocketData } from '../utils/data'
-import { BeeError } from '../utils/error'
-import { GsocMessageHandlerSchema, GsocSubscribeOptionsSchema, PssMessageHandlerSchema } from '../utils/schema'
+import { BeeArgumentError, BeeError } from '../utils/error'
+import {
+  BpsMessageHandlerSchema,
+  GsocMessageHandlerSchema,
+  GsocSubscribeOptionsSchema,
+  PssMessageHandlerSchema,
+} from '../utils/schema'
 import { assertData } from '../utils/type'
 import type { BeeContext } from './context'
 
 const PSS_ENDPOINT = 'pss'
 const GSOC_ENDPOINT = 'gsoc'
+const BPS_ENDPOINT = 'bps'
 
 /**
  * Messaging protocols — PSS (Postal Service for Swarm) and GSOC. Method names keep
@@ -258,6 +272,100 @@ export class Messaging {
     }
 
     return subscription
+  }
+
+  /** Subscribes to a BPS live channel; pass a previous subscription's `position` to resume without duplicates. */
+  bpsSubscribe(
+    owner: EthAddress | Uint8Array | string,
+    topic: Topic | Uint8Array | string,
+    handler: BpsMessageHandler,
+    options: BpsSubscribeOptions,
+  ): BpsSubscription {
+    const ownerAddress = new EthAddress(owner)
+    const bpsTopic = new Topic(topic)
+    handler = BpsMessageHandlerSchema.parse(handler)
+    const identity = new EthAddress(options.identity ?? globalThis.crypto.getRandomValues(new Uint8Array(20)))
+
+    if (identity.equals(ownerAddress)) {
+      throw new BeeArgumentError('bps subscriber identity cannot be the owner, use bpsPublish', options.identity)
+    }
+
+    const position = options.position ?? new BpsPosition(ownerAddress)
+
+    if (position.ended) {
+      throw new BeeError('bps channel has ended')
+    }
+
+    const params = new URLSearchParams({
+      broker: new PeerAddress(options.broker).toHex(),
+      identity: identity.toHex(),
+      ...position.toQuery(),
+    })
+    const socket = this.openBpsSocket('subscribe', ownerAddress, bpsTopic, params)
+
+    return bps.subscribe(socket, {
+      owner: ownerAddress,
+      topic: bpsTopic,
+      position,
+      verify: options.verify ?? false,
+      handler,
+    })
+  }
+
+  /** Opens a BPS publisher stream as the signer (the owner or a rostered seat); resolves once authenticated. */
+  async bpsPublish(
+    owner: EthAddress | Uint8Array | string,
+    topic: Topic | Uint8Array | string,
+    options: BpsPublishOptions,
+    handler?: BpsMessageHandler<BpsPublisher>,
+  ): Promise<BpsPublisher> {
+    const ownerAddress = new EthAddress(owner)
+    const bpsTopic = new Topic(topic)
+    const signer = options.signer ? new PrivateKey(options.signer) : this.context.signer
+
+    if (!signer) {
+      throw new BeeArgumentError('bpsPublish requires a signer', options.signer)
+    }
+
+    if (handler) {
+      handler = BpsMessageHandlerSchema.parse(handler)
+    }
+
+    const params = new URLSearchParams({
+      broker: new PeerAddress(options.broker).toHex(),
+      identity: signer.publicKey().address().toHex(),
+    })
+    const socket = this.openBpsSocket('publish', ownerAddress, bpsTopic, params)
+
+    return bps.publish(
+      socket,
+      {
+        owner: ownerAddress,
+        topic: bpsTopic,
+        position: options.position ?? new BpsPosition(ownerAddress),
+        verify: options.verify ?? false,
+        handler,
+      },
+      signer,
+      {
+        index: options.index ?? 0n,
+        rosterIndex: options.rosterIndex ?? 0n,
+        roster: options.roster,
+        heartbeat: options.heartbeat,
+      },
+      options.signal,
+    )
+  }
+
+  private openBpsSocket(
+    mode: 'subscribe' | 'publish',
+    owner: EthAddress,
+    topic: Topic,
+    params: URLSearchParams,
+  ): BpsSocket {
+    const ws = this.openWebSocket(`${BPS_ENDPOINT}/${mode}/${owner.toHex()}/${topic.toHex()}?${params.toString()}`)
+
+    return { ws, cancel: this.makeCancel(ws), isCancelled: () => this.isCancelled(ws) }
   }
 
   private openWebSocket(path: string): WebSocket {

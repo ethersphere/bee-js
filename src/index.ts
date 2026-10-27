@@ -2,6 +2,7 @@ import { Bee } from './bee'
 
 export {
   BatchId,
+  BpsPosition,
   Bytes,
   ChunkBuilder,
   ChunkSplitter,

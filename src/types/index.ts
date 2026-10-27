@@ -1,8 +1,10 @@
 import {
   BatchId,
+  BpsPosition,
   Bytes,
   EthAddress,
   Identifier,
+  PeerAddress,
   PrivateKey,
   PublicKey,
   Reference,
@@ -398,6 +400,73 @@ export interface GsocSubscribeOptions {
 
   /** Caches each message's wrapped chunk on the node so it can be read through the bytes endpoint. */
   cacheWrappedChunk?: boolean
+}
+
+export interface BpsMessage {
+  readonly publisher: EthAddress
+  readonly index: bigint
+  readonly payload: Bytes
+}
+
+export interface BpsCloseEvent {
+  readonly code: number
+  readonly reason: string
+  /** True when the owner ended the channel (close code 4004); do not resubscribe. */
+  readonly ended: boolean
+}
+
+export interface BpsSubscription {
+  readonly owner: EthAddress
+  readonly topic: Topic
+  /** Pass as `position` to a later subscription to resume where this one stopped. */
+  readonly position: BpsPosition
+  cancel: () => void
+}
+
+export interface BpsPublisher {
+  readonly owner: EthAddress
+  readonly topic: Topic
+  readonly identity: EthAddress
+  readonly challenge: Bytes
+  readonly position: BpsPosition
+  /** Persist and pass back as `index` when reconnecting: indexes must never be reused. */
+  readonly nextIndex: bigint
+  readonly nextRosterIndex: bigint
+  send: (data: string | Uint8Array | Bytes) => bigint
+  setRoster: (publishers: (EthAddress | Uint8Array | string)[]) => bigint
+  end: () => void
+  cancel: () => void
+}
+
+export interface BpsMessageHandler<S = BpsSubscription> {
+  onMessage: (message: BpsMessage, subscription: S) => void
+  onRoster?: (roster: EthAddress[], subscription: S) => void
+  onError: (error: BeeError, subscription: S) => void
+  onClose: (subscription: S, event: BpsCloseEvent) => void
+}
+
+export interface BpsSubscribeOptions {
+  broker: PeerAddress | Uint8Array | string
+  /** Defaults to a random address; must not be the owner. */
+  identity?: EthAddress | Uint8Array | string
+  position?: BpsPosition
+  /** Re-verify every chunk's signature locally instead of trusting the node. */
+  verify?: boolean
+}
+
+export interface BpsPublishOptions {
+  broker: PeerAddress | Uint8Array | string
+  /** Defaults to the Bee instance signer; its address is the publishing identity. */
+  signer?: PrivateKey | Uint8Array | string
+  index?: bigint
+  rosterIndex?: bigint
+  /** Owner only: the current roster, re-published right after authenticating. */
+  roster?: (EthAddress | Uint8Array | string)[]
+  /** Resends the AUTH at this interval (ms) so the broker keeps an idle channel alive. */
+  heartbeat?: number
+  position?: BpsPosition
+  verify?: boolean
+  signal?: AbortSignal
 }
 
 export interface ReferenceResponse {

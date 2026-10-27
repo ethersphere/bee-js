@@ -82,6 +82,13 @@ export const GsocMessageHandlerSchema = z.object({
   onClose: fnField,
 })
 
+export const BpsMessageHandlerSchema = z.object({
+  onMessage: fnField,
+  onRoster: fnField.optional(),
+  onError: fnField,
+  onClose: fnField,
+})
+
 export const GsocSubscribeOptionsSchema = z.object({
   fields: z
     .array(z.enum(['address', 'recoveredPubKey', 'identifier', 'signature', 'wrappedAddress', 'span', 'payload']))
