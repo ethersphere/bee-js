@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [13.3.0](https://github.com/ethersphere/bee-js/compare/v13.2.0...v13.3.0) (2026-10-27)
+
+
+### Features
+
+* pubsub ([#1285](https://github.com/ethersphere/bee-js/issues/1285)) ([db70706](https://github.com/ethersphere/bee-js/commit/db70706798760d5eac0a56387c918899fc952808))
+
 ## [13.2.0](https://github.com/ethersphere/bee-js/compare/v13.1.0...v13.2.0) (2026-10-15)
 
 
