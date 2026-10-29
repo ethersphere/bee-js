@@ -93,7 +93,7 @@
     "@types/node": "^26.6.5",
     "@types/semver": "^7.3.9",
     "@types/ws": "^8.18.1",
-    "@typescript-eslint/eslint-plugin": "^5.46.0",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^5.46.0",
     "babel-loader": "^9.1.0",
     "babel-plugin-add-import-extension": "^1.6.0",
