@@ -108,7 +108,7 @@
     "prettier": "^3.9.4",
     "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^5.6.1",
-    "ts-jest": "^29.4.11",
+    "ts-jest": "^29.4.15",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "webpack": "^5.75.0",
