@@ -1,4 +1,4 @@
-import { Bee } from './bee'
+import { Bee } from './bee.js'
 
 export {
   BatchId,
@@ -20,34 +20,33 @@ export {
   TransactionId,
 } from '@ethersphere/core-sdk'
 export type { Chunk } from '@ethersphere/core-sdk'
-export type { SingleOwnerChunk } from './chunk/soc'
-export { MantarayNode } from './manifest/manifest'
-export { RollingFeedReader, RollingFeedWriter } from './modules/rolling-feed'
-export * from './types'
-export * from './utils/constants'
-export { Duration } from './utils/duration'
-export * from './utils/error'
-export * as Utils from './utils/expose'
-export { Size } from './utils/size'
-export * from './utils/tokens'
-export type { UploadProgress } from './utils/upload-progress'
-export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './version'
+export type { SingleOwnerChunk } from './chunk/soc.js'
+export { MantarayNode } from './manifest/manifest.js'
+export { RollingFeedReader, RollingFeedWriter } from './modules/rolling-feed.js'
+export * from './types/index.js'
+export * from './utils/constants.js'
+export { Duration } from './utils/duration.js'
+export * from './utils/error.js'
+export * as Utils from './utils/expose.js'
+export { Size } from './utils/size.js'
+export * from './utils/tokens.js'
+export type { UploadProgress } from './utils/upload-progress.js'
+export { SUPPORTED_BEE_VERSION, SUPPORTED_BEE_VERSION_EXACT } from './version.js'
 export { Bee }
 
 // for require-like imports
 declare global {
   interface Window {
-    // binded as 'BeeJs' via Webpack
     BeeJs: {
-      Bee: typeof import('./bee').Bee
+      Bee: typeof import('./bee.js').Bee
       Stamper: typeof import('@ethersphere/core-sdk').Stamper
-      Utils: typeof import('./utils/expose')
-      Duration: typeof import('./utils/duration').Duration
-      Size: typeof import('./utils/size').Size
-      BeeError: typeof import('./utils/error').BeeError
-      BeeArgumentError: typeof import('./utils/error').BeeArgumentError
-      BeeResponseError: typeof import('./utils/error').BeeResponseError
-      MantarayNode: typeof import('./manifest/manifest').MantarayNode
+      Utils: typeof import('./utils/expose.js')
+      Duration: typeof import('./utils/duration.js').Duration
+      Size: typeof import('./utils/size.js').Size
+      BeeError: typeof import('./utils/error.js').BeeError
+      BeeArgumentError: typeof import('./utils/error.js').BeeArgumentError
+      BeeResponseError: typeof import('./utils/error.js').BeeResponseError
+      MantarayNode: typeof import('./manifest/manifest.js').MantarayNode
       ChunkSplitter: typeof import('@ethersphere/core-sdk').ChunkSplitter
       PrivateKey: typeof import('@ethersphere/core-sdk').PrivateKey
       PublicKey: typeof import('@ethersphere/core-sdk').PublicKey

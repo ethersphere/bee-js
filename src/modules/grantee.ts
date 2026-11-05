@@ -1,7 +1,7 @@
 import { BatchId, PublicKey, Reference } from '@ethersphere/core-sdk'
-import * as api from '../api/grantee'
-import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
-import type { BeeContext } from './context'
+import * as api from '../api/grantee.js'
+import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types/index.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Grantee (access control) operations.

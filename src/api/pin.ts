@@ -1,8 +1,8 @@
 import { Reference } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, Pin as PinData } from '../types'
-import { GetAllPinsResponse } from '../types/schema/pinning'
-import { UploadResultBody } from '../types/schema/upload'
-import { http } from '../utils/http'
+import type { BeeRequestOptions, Pin as PinData } from '../types/index.js'
+import { GetAllPinsResponse } from '../types/schema/pinning.js'
+import { UploadResultBody } from '../types/schema/upload.js'
+import { http } from '../utils/http.js'
 
 const PINNING_ENDPOINT = 'pins'
 

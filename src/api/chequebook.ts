@@ -7,7 +7,7 @@ import type {
   LastChequesForPeerResponse,
   LastChequesResponse,
   TransactionOptions,
-} from '../types'
+} from '../types/index.js'
 import {
   GetChequebookAddressResponse,
   GetChequebookBalanceResponse,
@@ -15,9 +15,9 @@ import {
   GetLastChequesForPeerResponse,
   GetLastChequesResponse,
   TransactionHashResponse,
-} from '../types/schema/chequebook'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
+} from '../types/schema/chequebook.js'
+import { prepareRequestHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
 
 const chequebookEndpoint = 'chequebook'
 

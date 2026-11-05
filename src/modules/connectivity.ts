@@ -1,8 +1,8 @@
 import { PeerAddress } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../types'
-import { NodeAddresses } from '../types/debug'
-import * as api from '../api/connectivity'
-import type { BeeContext } from './context'
+import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../types/index.js'
+import { NodeAddresses } from '../types/debug.js'
+import * as api from '../api/connectivity.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Peer, topology and network connectivity operations.

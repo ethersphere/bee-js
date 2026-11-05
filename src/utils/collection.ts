@@ -1,5 +1,5 @@
-import { Collection } from '../types'
-import { BeeArgumentError } from './error'
+import { Collection } from '../types/index.js'
+import { BeeArgumentError } from './error.js'
 
 export function isCollection(data: unknown): data is Collection {
   if (!Array.isArray(data)) {

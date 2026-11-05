@@ -1,7 +1,7 @@
 import { BatchId, EthAddress, Reference, Signature } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, EnvelopeWithBatchId } from '../types'
-import { PostEnvelopeBodyResponse } from '../types/schema/envelope'
-import { http } from '../utils/http'
+import type { BeeRequestOptions, EnvelopeWithBatchId } from '../types/index.js'
+import { PostEnvelopeBodyResponse } from '../types/schema/envelope.js'
+import { http } from '../utils/http.js'
 
 const ENVELOPE_ENDPOINT = 'envelope'
 

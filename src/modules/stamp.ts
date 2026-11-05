@@ -9,17 +9,17 @@ import type {
   PostageBatchBuckets,
   PostageBatchOptions,
   RedundancyLevel,
-} from '../types'
-import { STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from '../types'
-import type { Duration } from '../utils/duration'
-import { BeeArgumentError, BeeError } from '../utils/error'
-import { PostageBatchOptionsSchema } from '../utils/schema'
-import { getStampDuration } from '../utils/stamps'
-import { BZZ } from '../utils/tokens'
-import { asNumberString } from '../utils/type'
-import * as stampApi from '../api/stamp'
-import * as batchesApi from '../api/batches'
-import type { BeeContext } from './context'
+} from '../types/index.js'
+import { STAMPS_DEPTH_MAX, STAMPS_DEPTH_MIN } from '../types/index.js'
+import type { Duration } from '../utils/duration.js'
+import { BeeArgumentError, BeeError } from '../utils/error.js'
+import { PostageBatchOptionsSchema } from '../utils/schema.js'
+import { getStampDuration } from '../utils/stamps.js'
+import { BZZ } from '../utils/tokens.js'
+import { asNumberString } from '../utils/type.js'
+import * as stampApi from '../api/stamp.js'
+import * as batchesApi from '../api/batches.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Low-level postage batch (stamp) operations.

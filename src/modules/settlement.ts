@@ -1,7 +1,7 @@
 import { PeerAddress } from '@ethersphere/core-sdk'
-import type { AllSettlements, BeeRequestOptions, Settlements } from '../types'
-import * as api from '../api/settlement'
-import type { BeeContext } from './context'
+import type { AllSettlements, BeeRequestOptions, Settlements } from '../types/index.js'
+import * as api from '../api/settlement.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Settlement operations. Related to the bandwidth incentives and the chequebook.

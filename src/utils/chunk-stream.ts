@@ -1,11 +1,11 @@
 import { AsyncQueue, Strings } from 'cafe-utility'
 import { createReadStream } from 'fs'
-import { Bee, BeeRequestOptions, CollectionUploadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
-import { MantarayNode } from '../manifest/manifest'
-import { totalChunks } from './chunk-size'
-import { makeCollectionFromFS } from './collection.node'
-import { mimes } from './mime'
-import { UploadProgress } from './upload-progress'
+import { Bee, BeeRequestOptions, CollectionUploadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '../index.js'
+import { MantarayNode } from '../manifest/manifest.js'
+import { totalChunks } from './chunk-size.js'
+import { makeCollectionFromFS } from './collection.node.js'
+import { mimes } from './mime.js'
+import { UploadProgress } from './upload-progress.js'
 import { BatchId, ChunkEntry, ChunkSplitter } from '@ethersphere/core-sdk'
 
 export async function hashDirectory(dir: string) {

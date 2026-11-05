@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { BZZ } from '../../utils/tokens'
-import { asNumberString } from '../../utils/type'
+import { BZZ } from '../../utils/tokens.js'
+import { asNumberString } from '../../utils/type.js'
 
 const PeerBalanceSchema = z.object({
   peer: z.string(),

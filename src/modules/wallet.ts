@@ -1,8 +1,8 @@
 import { EthAddress, TransactionId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, NumberString, WalletBalance } from '../types'
-import { BZZ, DAI } from '../utils/tokens'
-import * as api from '../api/wallet'
-import type { BeeContext } from './context'
+import type { BeeRequestOptions, NumberString, WalletBalance } from '../types/index.js'
+import { BZZ, DAI } from '../utils/tokens.js'
+import * as api from '../api/wallet.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Node wallet operations (balances and external withdrawals).
