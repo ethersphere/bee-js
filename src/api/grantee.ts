@@ -1,8 +1,8 @@
 import { BatchId, PublicKey, Reference } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types'
-import { GetGranteesBodyResponse, GranteesResultBodyResponse } from '../types/schema/grantee'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
+import type { BeeRequestOptions, GetGranteesResult, GranteesResult } from '../types/index.js'
+import { GetGranteesBodyResponse, GranteesResultBodyResponse } from '../types/schema/grantee.js'
+import { prepareRequestHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
 
 const granteeEndpoint = 'grantee'
 

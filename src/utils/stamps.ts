@@ -1,9 +1,9 @@
-import { EnvelopeWithBatchId, NumberString, PostageBatch, RedundancyLevel } from '../types'
-import { Duration } from './duration'
-import { Size } from './size'
-import { BZZ } from './tokens'
-import { asNumberString } from './type'
-import { normalizeBatchTTL } from './workaround'
+import { EnvelopeWithBatchId, NumberString, PostageBatch, RedundancyLevel } from '../types/index.js'
+import { Duration } from './duration.js'
+import { Size } from './size.js'
+import { BZZ } from './tokens.js'
+import { asNumberString } from './type.js'
+import { normalizeBatchTTL } from './workaround.js'
 import {
   BatchId,
   Bytes,

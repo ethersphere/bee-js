@@ -1,6 +1,6 @@
 import { PrivateKey } from '@ethersphere/core-sdk'
-import type { Bee } from '../bee'
-import type { BeeRequestOptions } from '../types'
+import type { Bee } from '../bee.js'
+import type { BeeRequestOptions } from '../types/index.js'
 
 /**
  * Facade a Bee instance hands to each module (namespace) class.

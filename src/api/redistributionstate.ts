@@ -1,6 +1,6 @@
-import type { BeeRequestOptions, RedistributionState } from '../types'
-import { GetRedistributionStateResponse, RedistributionToggleResponse } from '../types/schema/stake'
-import { http } from '../utils/http'
+import type { BeeRequestOptions, RedistributionState } from '../types/index.js'
+import { GetRedistributionStateResponse, RedistributionToggleResponse } from '../types/schema/stake.js'
+import { http } from '../utils/http.js'
 
 const redistributionStateEndpoint = 'redistributionstate'
 

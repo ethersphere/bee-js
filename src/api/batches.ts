@@ -1,7 +1,7 @@
 import { BatchId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, GlobalPostageBatch } from '../types'
-import { GetGlobalPostageBatchResponse, GetGlobalPostageBatchesResponse } from '../types/schema/stamps'
-import { http } from '../utils/http'
+import type { BeeRequestOptions, GlobalPostageBatch } from '../types/index.js'
+import { GetGlobalPostageBatchResponse, GetGlobalPostageBatchesResponse } from '../types/schema/stamps.js'
+import { http } from '../utils/http.js'
 
 const batchesEndpoint = 'batches'
 

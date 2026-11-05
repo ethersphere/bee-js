@@ -1,6 +1,6 @@
-import type { BeeRequestOptions } from '../types'
-import { RchashResponse } from '../types/schema/rchash'
-import { http } from '../utils/http'
+import type { BeeRequestOptions } from '../types/index.js'
+import { RchashResponse } from '../types/schema/rchash.js'
+import { http } from '../utils/http.js'
 
 const RCHASH_ENDPOINT = 'rchash'
 

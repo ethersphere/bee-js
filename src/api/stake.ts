@@ -1,9 +1,9 @@
 import { TransactionId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, TransactionOptions } from '../types'
-import { GetStakeResponse, GetWithdrawableStakeResponse, TxHashResponse } from '../types/schema/stake'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
-import { BZZ } from '../utils/tokens'
+import type { BeeRequestOptions, TransactionOptions } from '../types/index.js'
+import { GetStakeResponse, GetWithdrawableStakeResponse, TxHashResponse } from '../types/schema/stake.js'
+import { prepareRequestHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
+import { BZZ } from '../utils/tokens.js'
 
 const STAKE_ENDPOINT = 'stake'
 

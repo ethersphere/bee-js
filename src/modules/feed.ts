@@ -1,13 +1,13 @@
 import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from '@ethersphere/core-sdk'
 import { Objects } from 'cafe-utility'
-import { createFeedManifest, fetchLatestFeedUpdate } from '../api/feed'
-import type { FeedPayloadResult } from '../api/feed'
-import { makeFeedReader, makeFeedWriter } from '../feed'
-import { areAllSequentialFeedsUpdateRetrievable } from '../feed/retrievable'
-import type { BeeRequestOptions, DownloadOptions, FeedReader, FeedWriter } from '../types'
-import { UploadOptions } from '../types'
-import { DownloadOptionsSchema, UploadOptionsSchema } from '../utils/schema'
-import type { BeeContext } from './context'
+import { createFeedManifest, fetchLatestFeedUpdate } from '../api/feed.js'
+import type { FeedPayloadResult } from '../api/feed.js'
+import { makeFeedReader, makeFeedWriter } from '../feed/index.js'
+import { areAllSequentialFeedsUpdateRetrievable } from '../feed/retrievable.js'
+import type { BeeRequestOptions, DownloadOptions, FeedReader, FeedWriter } from '../types/index.js'
+import { UploadOptions } from '../types/index.js'
+import { DownloadOptionsSchema, UploadOptionsSchema } from '../utils/schema.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Feed operations.

@@ -1,7 +1,7 @@
 import * as stream from 'stream'
-import { NumberString, Tag } from '../types'
-import { isFile } from './file'
-import { TagInputSchema, TagUidSchema } from './schema'
+import { NumberString, Tag } from '../types/index.js'
+import { isFile } from './file.js'
+import { TagInputSchema, TagUidSchema } from './schema.js'
 
 export function isReadable(value: unknown): value is stream.Readable {
   return typeof stream.Readable !== 'undefined' && value instanceof stream.Readable

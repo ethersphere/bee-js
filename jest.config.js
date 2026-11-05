@@ -32,6 +32,7 @@ export default async () => {
         displayName: 'node',
         testEnvironment: 'node',
         testRegex: 'test/.*(?<!\\.browser)\\.spec\\.ts',
+        moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
       },
     ],
     rootDir: 'test',
