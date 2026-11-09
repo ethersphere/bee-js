@@ -96,8 +96,8 @@ jobs:
 
       - name: Publish stable release
         if: github.event_name == 'release'
-        run: npm publish --provenance --access public
+        run: npm install -g npm@latest && npm stage publish --provenance --access public
 
       - name: Publish upcoming snapshot
         if: github.event_name == 'push'
-        run: npm publish --provenance --access public --tag upcoming
+        run: npm install -g npm@latest && npm stage publish --provenance --access public --tag upcoming
