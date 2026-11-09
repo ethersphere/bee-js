@@ -58,6 +58,21 @@ jobs:
     # Stable releases need @devops approval and a v* tag (env 'publish'); upcoming snapshots use env 'upcoming' (branch 'upcoming' only).
     environment: ${{ github.event_name == 'release' && 'publish' || 'upcoming' }}
     steps:
+      - name: Verify release commit is on a protected branch
+        if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          BRANCHES: "upcoming master"
+        run: |
+          set -euo pipefail
+          for b in $BRANCHES; do
+            st=$(gh api "repos/$REPO/compare/$b...$SHA" --jq .status 2>/dev/null || echo error)
+            if [ "$st" = identical ] || [ "$st" = behind ]; then echo "OK: $SHA is on $b"; exit 0; fi
+          done
+          echo "::error::$SHA is not on any of: $BRANCHES. Refusing to publish."; exit 1
+
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
