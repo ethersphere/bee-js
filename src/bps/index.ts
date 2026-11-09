@@ -13,8 +13,8 @@ import {
   verifyBpsChunk,
 } from '@ethersphere/core-sdk'
 import WebSocket from 'isomorphic-ws'
-import type { BpsCloseEvent, BpsMessageHandler, BpsPublisher, BpsSubscription } from '../types'
-import { BeeError } from '../utils/error'
+import type { BpsCloseEvent, BpsMessageHandler, BpsPublisher, BpsSubscription } from '../types/index.js'
+import { BeeError } from '../utils/error.js'
 
 const CLOSE_END_OF_STREAM = 4004
 

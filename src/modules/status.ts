@@ -1,9 +1,9 @@
 import getMajorSemver from 'semver/functions/major.js'
-import type { BeeRequestOptions, ChainState, ReserveState } from '../types'
-import type { BeeVersions, DebugStatus, Health, NodeInfo, Readiness } from '../types/debug'
-import { SUPPORTED_API_VERSION, SUPPORTED_BEE_VERSION_EXACT } from '../version'
-import * as api from '../api/status'
-import type { BeeContext } from './context'
+import type { BeeRequestOptions, ChainState, ReserveState } from '../types/index.js'
+import type { BeeVersions, DebugStatus, Health, NodeInfo, Readiness } from '../types/debug.js'
+import { SUPPORTED_API_VERSION, SUPPORTED_BEE_VERSION_EXACT } from '../version.js'
+import * as api from '../api/status.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Node status, health, version and chain/reserve state operations.

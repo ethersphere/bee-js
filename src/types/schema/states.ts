@@ -1,8 +1,8 @@
 import { TransactionId } from '@ethersphere/core-sdk'
 import { z } from 'zod'
-import { BZZ, DAI } from '../../utils/tokens'
-import { asNumberString } from '../../utils/type'
-import { normalizeCurrentPrice } from '../../utils/workaround'
+import { BZZ, DAI } from '../../utils/tokens.js'
+import { asNumberString } from '../../utils/type.js'
+import { normalizeCurrentPrice } from '../../utils/workaround.js'
 
 export const GetReserveStateResponse = z.object({
   commitment: z.number(),

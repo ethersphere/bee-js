@@ -1,12 +1,12 @@
 import { BatchId, Bytes, Reference } from '@ethersphere/core-sdk'
 import { Readable } from 'stream'
-import type { BeeRequestOptions, DownloadOptions, FileData, FileUploadOptions, UploadResult } from '../types'
-import { fileArrayBuffer, isFile } from '../utils/file'
-import { ResourceLocator } from '../utils/resource-locator'
-import { DownloadOptionsSchema, FileUploadOptionsSchema } from '../utils/schema'
-import { assertFileData } from '../utils/type'
-import * as api from '../api/bzz'
-import type { BeeContext } from './context'
+import type { BeeRequestOptions, DownloadOptions, FileData, FileUploadOptions, UploadResult } from '../types/index.js'
+import { fileArrayBuffer, isFile } from '../utils/file.js'
+import { ResourceLocator } from '../utils/resource-locator.js'
+import { DownloadOptionsSchema, FileUploadOptionsSchema } from '../utils/schema.js'
+import { assertFileData } from '../utils/type.js'
+import * as api from '../api/bzz.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Single-file operations backed by the `/bzz` endpoint.

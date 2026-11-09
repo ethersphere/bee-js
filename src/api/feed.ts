@@ -1,9 +1,9 @@
 import { BatchId, Bytes, EthAddress, FeedIndex, Reference, Topic } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, UploadOptions } from '../types'
-import { UploadResultBody } from '../types/schema/upload'
-import { BeeError } from '../utils/error'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
+import type { BeeRequestOptions, UploadOptions } from '../types/index.js'
+import { UploadResultBody } from '../types/schema/upload.js'
+import { BeeError } from '../utils/error.js'
+import { prepareRequestHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
 
 const feedEndpoint = 'feeds'
 

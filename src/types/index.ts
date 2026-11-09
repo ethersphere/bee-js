@@ -12,14 +12,14 @@ import {
   TransactionId,
 } from '@ethersphere/core-sdk'
 import { Optional } from 'cafe-utility'
-import type { SingleOwnerChunk } from '../chunk/soc'
-import type { FeedUploadOptions } from '../feed'
-import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../api/feed'
-import { Duration } from '../utils/duration'
-import type { BeeError } from '../utils/error'
-import { Size } from '../utils/size'
+import type { SingleOwnerChunk } from '../chunk/soc.js'
+import type { FeedUploadOptions } from '../feed/index.js'
+import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../api/feed.js'
+import { Duration } from '../utils/duration.js'
+import type { BeeError } from '../utils/error.js'
+import { Size } from '../utils/size.js'
 
-export * from './debug'
+export * from './debug.js'
 
 export const SECTION_SIZE = 32
 export const BRANCHES = 128

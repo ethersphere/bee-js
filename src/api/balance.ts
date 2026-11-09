@@ -1,7 +1,7 @@
 import { PeerAddress } from '@ethersphere/core-sdk'
-import type { BalanceResponse, BeeRequestOptions, PeerBalance } from '../types'
-import { GetAllBalancesResponse, GetPeerBalanceResponse } from '../types/schema/balance'
-import { http } from '../utils/http'
+import type { BalanceResponse, BeeRequestOptions, PeerBalance } from '../types/index.js'
+import { GetAllBalancesResponse, GetPeerBalanceResponse } from '../types/schema/balance.js'
+import { http } from '../utils/http.js'
 
 const balancesEndpoint = 'balances'
 

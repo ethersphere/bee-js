@@ -1,7 +1,7 @@
 import { PeerAddress } from '@ethersphere/core-sdk'
-import type { AllSettlements, BeeRequestOptions, Settlements } from '../types'
-import { GetAllSettlementsResponse, GetSettlementsResponse } from '../types/schema/settlements'
-import { http } from '../utils/http'
+import type { AllSettlements, BeeRequestOptions, Settlements } from '../types/index.js'
+import { GetAllSettlementsResponse, GetSettlementsResponse } from '../types/schema/settlements.js'
+import { http } from '../utils/http.js'
 
 const settlementsEndpoint = 'settlements'
 

@@ -1,24 +1,24 @@
 import { BatchId, EthAddress, keccak256, numberToUint64, PrivateKey, Reference, Topic } from '@ethersphere/core-sdk'
-import { BeeError, Bytes } from '..'
+import { BeeError, Bytes } from '../index.js'
 import {
   FeedPayloadResult,
   FeedReferenceResult,
   FeedUpdateOptions,
   fetchLatestFeedUpdate,
   probeFeed,
-} from '../api/feed'
-import { uploadSingleOwnerChunkWithWrappedChunk } from '../chunk/soc'
+} from '../api/feed.js'
+import { uploadSingleOwnerChunkWithWrappedChunk } from '../chunk/soc.js'
 import {
   downloadFeedUpdate,
   downloadFeedUpdateAsCAC,
   FeedUploadOptions,
   updateFeedWithPayload,
   updateFeedWithReference,
-} from '../feed'
-import { makeFeedIdentifier } from '../feed/identifier'
-import { BeeRequestOptions, UploadResult } from '../types'
-import { BeeResponseError } from '../utils/error'
-import { BeeContext } from './context'
+} from '../feed/index.js'
+import { makeFeedIdentifier } from '../feed/identifier.js'
+import { BeeRequestOptions, UploadResult } from '../types/index.js'
+import { BeeResponseError } from '../utils/error.js'
+import { BeeContext } from './context.js'
 
 // RollingFeedReader.downloadPayload/downloadReference only ever fall back one period, so
 // backfilling deeper than that serves no reader by default - see catchUp's maxBackfill param.

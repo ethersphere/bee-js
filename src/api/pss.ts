@@ -1,7 +1,7 @@
 import { BatchId, PublicKey, Topic } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions } from '../types'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
+import type { BeeRequestOptions } from '../types/index.js'
+import { prepareRequestHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
 
 const pssEndpoint = 'pss'
 

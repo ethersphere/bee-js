@@ -1,9 +1,14 @@
 import { TransactionId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, ChequebookAddressResponse, ChequebookBalanceResponse, NumberString } from '../types'
-import { BZZ } from '../utils/tokens'
-import { asNumberString } from '../utils/type'
-import * as api from '../api/chequebook'
-import type { BeeContext } from './context'
+import type {
+  BeeRequestOptions,
+  ChequebookAddressResponse,
+  ChequebookBalanceResponse,
+  NumberString,
+} from '../types/index.js'
+import { BZZ } from '../utils/tokens.js'
+import { asNumberString } from '../utils/type.js'
+import * as api from '../api/chequebook.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Chequebook contract operations (address, balance, deposit, withdraw).

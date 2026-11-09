@@ -1,9 +1,9 @@
 import { BatchId } from '@ethersphere/core-sdk'
-import { BeeRequestOptions, Collection, CollectionUploadOptions } from '..'
-import { prepareRequestHeaders } from './headers'
-import { http } from './http'
-import { TarStream } from './tar'
-import { writeTar } from './tar-writer'
+import { BeeRequestOptions, Collection, CollectionUploadOptions } from '../index.js'
+import { prepareRequestHeaders } from './headers.js'
+import { http } from './http.js'
+import { TarStream } from './tar.js'
+import { writeTar } from './tar-writer.js'
 
 const bzzEndpoint = 'bzz'
 
