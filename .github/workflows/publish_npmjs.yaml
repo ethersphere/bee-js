@@ -42,21 +42,13 @@ jobs:
     uses: ./.github/workflows/entrypoint.yaml
     secrets: inherit
 
-  publish:
-    needs: [tests-stable, tests-rc, check, entrypoint]
-    # Publish on a release (CI jobs are skipped there), or on an `upcoming` push only when every
-    # CI job succeeded. `!cancelled()` lets the job evaluate even though the needed jobs are
-    # skipped on the release path.
-    if: >-
-      !cancelled() &&
-      (github.event_name == 'release' ||
-       (needs.tests-stable.result == 'success' &&
-        needs.tests-rc.result == 'success' &&
-        needs.check.result == 'success' &&
-        needs.entrypoint.result == 'success'))
+  # Runs on both paths, before the job that waits on the publish approval and gets the OIDC
+  # token, so a release commit that is not on a protected branch is rejected up front.
+  # On the upcoming push path the check step is skipped and the job just succeeds.
+  verify:
     runs-on: ubuntu-latest
-    # Stable releases need @devops approval and a v* tag (env 'publish'); upcoming snapshots use env 'upcoming' (branch 'upcoming' only).
-    environment: ${{ github.event_name == 'release' && 'publish' || 'upcoming' }}
+    permissions:
+      contents: read
     steps:
       - name: Verify release commit is on a protected branch
         if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/')
@@ -73,6 +65,23 @@ jobs:
           done
           echo "::error::$SHA is not on any of: $BRANCHES. Refusing to publish."; exit 1
 
+  publish:
+    needs: [verify, tests-stable, tests-rc, check, entrypoint]
+    # Publish on a release (CI jobs are skipped there), or on an `upcoming` push only when every
+    # CI job succeeded. `!cancelled()` lets the job evaluate even though the needed jobs are
+    # skipped on the release path, so `verify` must be checked explicitly on BOTH paths.
+    if: >-
+      !cancelled() &&
+      needs.verify.result == 'success' &&
+      (github.event_name == 'release' ||
+       (needs.tests-stable.result == 'success' &&
+        needs.tests-rc.result == 'success' &&
+        needs.check.result == 'success' &&
+        needs.entrypoint.result == 'success'))
+    runs-on: ubuntu-latest
+    # Stable releases need @devops approval and a v* tag (env 'publish'); upcoming snapshots use env 'upcoming' (branch 'upcoming' only).
+    environment: ${{ github.event_name == 'release' && 'publish' || 'upcoming' }}
+    steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
