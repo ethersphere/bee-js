@@ -15,10 +15,10 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Checkout bee-js
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 24.x
 
@@ -30,14 +30,14 @@ jobs:
 
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@v3.3.0
         with:
           app-id: ${{ secrets.BEE_RUNNER_APP_ID }}
           private-key: ${{ secrets.BEE_RUNNER_KEY }}
           repositories: bee-js-react-native-test
 
       - name: Checkout bee-js-react-native-test
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           repository: ethersphere/bee-js-react-native-test
           path: rn-test
@@ -74,13 +74,13 @@ jobs:
         run: npm run test:probe
 
       - name: Set up Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
           java-version: 17
 
       - name: Cache Gradle
-        uses: actions/cache@v6
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ~/.gradle/caches
@@ -107,7 +107,7 @@ jobs:
         run: npm run test:build
 
       - name: Run tests on emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 34
           arch: x86_64

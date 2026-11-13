@@ -20,7 +20,7 @@ jobs:
   create-api-docs-pr:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -82,7 +82,7 @@ jobs:
           commit-message: 'chore: update to bee'
           author: 'bee-worker <bee-worker@ethswarm.org>'
 
-      - uses: joutvhu/get-release@v1
+      - uses: joutvhu/get-release@v1.0.4
         id: release-notes
         with:
           owner: ethersphere
@@ -93,7 +93,7 @@ jobs:
 
       - name: Find Release Notes comment
         if: steps.pr.outputs.pull-request-number && steps.release-notes.outputs.body
-        uses: peter-evans/find-comment@v4
+        uses: peter-evans/find-comment@v4.0.0
         id: comment
         with:
           token: ${{ secrets.REPO_GHA_PAT }}
@@ -102,7 +102,7 @@ jobs:
           body-includes: Release notes
 
       - name: Create or update preview comment
-        uses: peter-evans/create-or-update-comment@v5
+        uses: peter-evans/create-or-update-comment@v5.0.0
         if: steps.pr.outputs.pull-request-number && steps.release-notes.outputs.body
         with:
           token: ${{ secrets.REPO_GHA_PAT }}

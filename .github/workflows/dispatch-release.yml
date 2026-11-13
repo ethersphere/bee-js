@@ -16,14 +16,14 @@ jobs:
     steps:
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@v3.3.0
         with:
           app-id: ${{ secrets.BEE_RUNNER_APP_ID }}
           private-key: ${{ secrets.BEE_RUNNER_KEY }}
           repositories: create-swarm-app
 
       - name: Dispatch release event to create-swarm-app
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
