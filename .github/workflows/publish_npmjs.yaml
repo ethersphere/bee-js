@@ -42,13 +42,37 @@ jobs:
     uses: ./.github/workflows/entrypoint.yaml
     secrets: inherit
 
+  # Runs on both paths, before the job that waits on the publish approval and gets the OIDC
+  # token, so a release commit that is not on a protected branch is rejected up front.
+  # On the upcoming push path the check step is skipped and the job just succeeds.
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify release commit is on a protected branch
+        if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          BRANCHES: "upcoming master"
+        run: |
+          set -euo pipefail
+          for b in $BRANCHES; do
+            st=$(gh api "repos/$REPO/compare/$b...$SHA" --jq .status 2>/dev/null || echo error)
+            if [ "$st" = identical ] || [ "$st" = behind ]; then echo "OK: $SHA is on $b"; exit 0; fi
+          done
+          echo "::error::$SHA is not on any of: $BRANCHES. Refusing to publish."; exit 1
+
   publish:
-    needs: [tests-stable, tests-rc, check, entrypoint]
+    needs: [verify, tests-stable, tests-rc, check, entrypoint]
     # Publish on a release (CI jobs are skipped there), or on an `upcoming` push only when every
     # CI job succeeded. `!cancelled()` lets the job evaluate even though the needed jobs are
-    # skipped on the release path.
+    # skipped on the release path, so `verify` must be checked explicitly on BOTH paths.
     if: >-
       !cancelled() &&
+      needs.verify.result == 'success' &&
       (github.event_name == 'release' ||
        (needs.tests-stable.result == 'success' &&
         needs.tests-rc.result == 'success' &&
