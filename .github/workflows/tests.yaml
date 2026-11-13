@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 24.x
 
@@ -67,7 +67,7 @@ jobs:
       # Baseline coverage comes from `upcoming` (the integration trunk that PRs merge into).
       - name: Upload coverage baseline
         if: github.event_name == 'push' && github.ref == 'refs/heads/upcoming'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage-upcoming
           path: test/coverage/coverage-summary.json
@@ -87,7 +87,7 @@ jobs:
         if: github.event_name == 'pull_request'
         id: download-coverage
         continue-on-error: true
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v8.0.2
         with:
           name: coverage-upcoming
           github-token: ${{ secrets.GITHUB_TOKEN }}
