@@ -12,11 +12,18 @@ on:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.BEE_RUNNER_APP_ID }}
+          private-key: ${{ secrets.BEE_RUNNER_KEY }}
       - uses: GoogleCloudPlatform/release-please-action@v5
         id: release
         with:
-          token: ${{ secrets.REPO_GHA_PAT }}
+          token: ${{ steps.app-token.outputs.token }}
           release-type: node
           package-name: bee-js
           bump-minor-pre-major: true
