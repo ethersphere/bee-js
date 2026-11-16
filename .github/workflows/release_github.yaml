@@ -16,11 +16,15 @@ jobs:
     steps:
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ secrets.BEE_RUNNER_APP_ID }}
           private-key: ${{ secrets.BEE_RUNNER_KEY }}
-      - uses: GoogleCloudPlatform/release-please-action@v5
+          # Least privilege: release-please updates the release PR (and its labels) and creates the release + tag.
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: write
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
