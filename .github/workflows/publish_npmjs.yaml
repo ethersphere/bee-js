@@ -55,7 +55,8 @@ jobs:
         needs.check.result == 'success' &&
         needs.entrypoint.result == 'success'))
     runs-on: ubuntu-latest
-    environment: publish
+    # Stable releases need @devops approval and a v* tag (env 'publish'); upcoming snapshots use env 'upcoming' (branch 'upcoming' only).
+    environment: ${{ github.event_name == 'release' && 'publish' || 'upcoming' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
