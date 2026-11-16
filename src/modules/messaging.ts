@@ -1,5 +1,5 @@
 import { Binary, System } from 'cafe-utility'
-import WebSocket from 'isomorphic-ws'
+import WebSocket from '../utils/websocket.js'
 import {
   BatchId,
   BpsPosition,

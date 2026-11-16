@@ -12,7 +12,7 @@ import {
   makeBpsChunk,
   verifyBpsChunk,
 } from '@ethersphere/core-sdk'
-import WebSocket from 'isomorphic-ws'
+import WebSocket from '../utils/websocket.js'
 import type { BpsCloseEvent, BpsMessageHandler, BpsPublisher, BpsSubscription } from '../types/index.js'
 import { BeeError } from '../utils/error.js'
 
