@@ -80,8 +80,6 @@
     "zod": "^4.6.6"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.3",
-    "@commitlint/config-conventional": "^20.5.3",
     "@types/debug": "^4.1.13",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.5",
@@ -92,9 +90,7 @@
     "esbuild": "0.28.1",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-unused-imports": "^4.4.1",
-    "husky": "^8.0.1",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "prettier": "^3.9.4",

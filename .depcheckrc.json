@@ -1,10 +1,6 @@
 {
   "ignores": [
-    "@commitlint/cli",
-    "@commitlint/config-conventional",
-    "husky",
     "ts-node",
-    "playwright-test",
     "@types/jest",
     "ts-jest",
     "jest-environment-jsdom"
