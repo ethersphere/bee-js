@@ -12,14 +12,16 @@ on:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    # Only this environment (default branch only) holds RELEASE_APP_KEY.
+    environment: release-ci
     permissions: {}
     steps:
       - name: Generate GitHub App token
         id: app-token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          app-id: ${{ secrets.BEE_RUNNER_APP_ID }}
-          private-key: ${{ secrets.BEE_RUNNER_KEY }}
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_KEY }}
           # Least privilege: release-please updates the release PR (and its labels) and creates the release + tag.
           permission-contents: write
           permission-pull-requests: write
