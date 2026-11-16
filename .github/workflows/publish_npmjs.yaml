@@ -25,6 +25,11 @@ jobs:
   tests-stable:
     if: github.event_name == 'push'
     uses: ./.github/workflows/tests.yaml
+    # A called workflow can't get more than its caller grants; tests.yaml asks for these.
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
     secrets: inherit
 
   tests-rc:
