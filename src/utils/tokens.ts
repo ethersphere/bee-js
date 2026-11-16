@@ -1,5 +1,5 @@
 import { FixedPointNumber } from 'cafe-utility'
-import { NumberString } from '..'
+import { NumberString } from '../index.js'
 
 export class BZZ {
   public static readonly DIGITS = 16

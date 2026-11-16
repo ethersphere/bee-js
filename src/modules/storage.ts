@@ -1,12 +1,12 @@
 import { BatchId, TransactionId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, PostageBatchOptions, RedundancyLevel } from '../types'
-import type { Duration } from '../utils/duration'
-import { BeeArgumentError } from '../utils/error'
-import { PostageBatchOptionsSchema } from '../utils/schema'
-import type { Size } from '../utils/size'
-import { getAmountForDuration, getDepthForSize, getStampCost } from '../utils/stamps'
-import type { BZZ } from '../utils/tokens'
-import type { BeeContext } from './context'
+import type { BeeRequestOptions, PostageBatchOptions, RedundancyLevel } from '../types/index.js'
+import type { Duration } from '../utils/duration.js'
+import { BeeArgumentError } from '../utils/error.js'
+import { PostageBatchOptionsSchema } from '../utils/schema.js'
+import type { Size } from '../utils/size.js'
+import { getAmountForDuration, getDepthForSize, getStampCost } from '../utils/stamps.js'
+import type { BZZ } from '../utils/tokens.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Ergonomic storage operations expressed in terms of size and duration.

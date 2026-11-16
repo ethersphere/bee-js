@@ -1,13 +1,19 @@
 import { BatchId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, NumberString, PostageBatch, PostageBatchBuckets, RedundancyLevel } from '../types'
+import type {
+  BeeRequestOptions,
+  NumberString,
+  PostageBatch,
+  PostageBatchBuckets,
+  RedundancyLevel,
+} from '../types/index.js'
 import {
   BatchIdResponse,
   GetAllPostageBatchesResponse,
   GetPostageBatchBucketsResponse,
   GetPostageBatchResponse,
-} from '../types/schema/stamps'
-import { http } from '../utils/http'
-import { mapPostageBatch } from '../utils/stamps'
+} from '../types/schema/stamps.js'
+import { http } from '../utils/http.js'
+import { mapPostageBatch } from '../utils/stamps.js'
 
 const STAMPS_ENDPOINT = 'stamps'
 

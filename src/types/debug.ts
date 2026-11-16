@@ -1,6 +1,6 @@
 import { EthAddress, PeerAddress, PublicKey, TransactionId } from '@ethersphere/core-sdk'
-import { BZZ, DAI } from '../utils/tokens'
-import { NumberString } from './index'
+import { BZZ, DAI } from '../utils/tokens.js'
+import { NumberString } from './index.js'
 
 export interface Settlements {
   peer: string

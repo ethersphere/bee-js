@@ -1,7 +1,7 @@
 import { BatchId, Reference } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions } from '../types'
-import { IsRetrievableResponse } from '../types/schema/stewardship'
-import { http } from '../utils/http'
+import type { BeeRequestOptions } from '../types/index.js'
+import { IsRetrievableResponse } from '../types/schema/stewardship.js'
+import { http } from '../utils/http.js'
 
 const stewardshipEndpoint = 'stewardship'
 

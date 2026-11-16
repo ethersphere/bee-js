@@ -1,11 +1,11 @@
 import { TransactionId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, NumberString, TransactionInfo } from '../types'
+import type { BeeRequestOptions, NumberString, TransactionInfo } from '../types/index.js'
 import {
   GetAllTransactionsResponse,
   GetTransactionResponse,
   TransactionHashResponse,
-} from '../types/schema/transactions'
-import { http } from '../utils/http'
+} from '../types/schema/transactions.js'
+import { http } from '../utils/http.js'
 
 const transactionsEndpoint = 'transactions'
 

@@ -1,6 +1,6 @@
 import { Objects, Strings, System } from 'cafe-utility'
 import _debug from 'debug'
-import { BeeRequestOptions, BeeResponseError } from '../index'
+import { BeeRequestOptions, BeeResponseError } from '../index.js'
 
 const debug = _debug('bee-js:http')
 

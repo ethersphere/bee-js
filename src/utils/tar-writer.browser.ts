@@ -1,6 +1,6 @@
-import { Collection } from '..'
-import { fileArrayBuffer } from './file'
-import { TarStream } from './tar'
+import { Collection } from '../index.js'
+import { fileArrayBuffer } from './file.js'
+import { TarStream } from './tar.js'
 
 export async function writeTar(collection: Collection, tarStream: TarStream) {
   for (const item of collection) {

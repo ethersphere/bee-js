@@ -1,8 +1,8 @@
 import { EthAddress, TransactionId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, WalletBalance } from '../types'
-import { GetWalletBalanceResponse, WithdrawResponse } from '../types/schema/states'
-import { http } from '../utils/http'
-import { BZZ, DAI } from '../utils/tokens'
+import type { BeeRequestOptions, WalletBalance } from '../types/index.js'
+import { GetWalletBalanceResponse, WithdrawResponse } from '../types/schema/states.js'
+import { http } from '../utils/http.js'
+import { BZZ, DAI } from '../utils/tokens.js'
 
 const WALLET_ENDPOINT = 'wallet'
 

@@ -5,10 +5,10 @@ import type {
   LastChequesForPeerResponse,
   LastChequesResponse,
   TransactionOptions,
-} from '../types'
-import { TransactionOptionsSchema } from '../utils/schema'
-import * as api from '../api/chequebook'
-import type { BeeContext } from './context'
+} from '../types/index.js'
+import { TransactionOptionsSchema } from '../utils/schema.js'
+import * as api from '../api/chequebook.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Cheque operations (last cheques and cashouts).

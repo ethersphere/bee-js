@@ -1,17 +1,17 @@
 import { BatchId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, CollectionUploadOptions, UploadOptions, UploadResult } from '../types'
-import { Collection as CollectionData } from '../types'
+import type { BeeRequestOptions, CollectionUploadOptions, UploadOptions, UploadResult } from '../types/index.js'
+import { Collection as CollectionData } from '../types/index.js'
 import {
   hashDirectory as hashDirectoryImpl,
   streamDirectory as streamDirectoryImpl,
   streamFiles as streamFilesImpl,
-} from '../utils/chunk-stream'
-import { assertCollection, makeCollectionFromFileList } from '../utils/collection'
-import { makeCollectionFromFS } from '../utils/collection.node'
-import { CollectionUploadOptionsSchema } from '../utils/schema'
-import { UploadProgress } from '../utils/upload-progress'
-import * as api from '../api/bzz'
-import type { BeeContext } from './context'
+} from '../utils/chunk-stream.js'
+import { assertCollection, makeCollectionFromFileList } from '../utils/collection.js'
+import { makeCollectionFromFS } from '../utils/collection.node.js'
+import { CollectionUploadOptionsSchema } from '../utils/schema.js'
+import { UploadProgress } from '../utils/upload-progress.js'
+import * as api from '../api/bzz.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Collection (multi-file) operations backed by the `/bzz` endpoint.

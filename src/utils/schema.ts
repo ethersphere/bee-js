@@ -1,8 +1,8 @@
 import { PublicKey, Reference } from '@ethersphere/core-sdk'
 import { z } from 'zod'
-import { TAGS_LIMIT_MAX, TAGS_LIMIT_MIN, type NumberString } from '../types'
+import { TAGS_LIMIT_MAX, TAGS_LIMIT_MIN, type NumberString } from '../types/index.js'
 
-export { HexStringSchema } from './hex-schema'
+export { HexStringSchema } from './hex-schema.js'
 
 const fnField = z.any().refine(v => z.function().safeParse(v).success, 'expected a function')
 

@@ -1,14 +1,14 @@
 import { PeerAddress } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../types'
-import { NodeAddresses } from '../types/debug'
+import type { BeeRequestOptions, Peer, PingResponse, RemovePeerResponse, Topology } from '../types/index.js'
+import { NodeAddresses } from '../types/debug.js'
 import {
   GetBlocklistResponse,
   GetNodeAddressesResponse,
   GetPeersResponse,
   GetTopologyResponse,
-} from '../types/schema/connectivity'
-import { IsGatewayResponse } from '../types/schema/status'
-import { http } from '../utils/http'
+} from '../types/schema/connectivity.js'
+import { IsGatewayResponse } from '../types/schema/status.js'
+import { http } from '../utils/http.js'
 
 const addressesEndpoint = 'addresses'
 const blocklistEndpoint = 'blocklist'

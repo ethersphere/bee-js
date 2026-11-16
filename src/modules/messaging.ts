@@ -13,10 +13,10 @@ import {
   PublicKey,
   Topic,
 } from '@ethersphere/core-sdk'
-import * as pssApi from '../api/pss'
-import * as bps from '../bps'
-import type { BpsSocket } from '../bps'
-import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
+import * as pssApi from '../api/pss.js'
+import * as bps from '../bps/index.js'
+import type { BpsSocket } from '../bps/index.js'
+import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc.js'
 import type {
   BeeRequestOptions,
   BpsMessageHandler,
@@ -30,17 +30,17 @@ import type {
   GsocSubscription,
   PssMessageHandler,
   PssSubscription,
-} from '../types'
-import { prepareWebsocketData } from '../utils/data'
-import { BeeArgumentError, BeeError } from '../utils/error'
+} from '../types/index.js'
+import { prepareWebsocketData } from '../utils/data.js'
+import { BeeArgumentError, BeeError } from '../utils/error.js'
 import {
   BpsMessageHandlerSchema,
   GsocMessageHandlerSchema,
   GsocSubscribeOptionsSchema,
   PssMessageHandlerSchema,
-} from '../utils/schema'
-import { assertData } from '../utils/type'
-import type { BeeContext } from './context'
+} from '../utils/schema.js'
+import { assertData } from '../utils/type.js'
+import type { BeeContext } from './context.js'
 
 const PSS_ENDPOINT = 'pss'
 const GSOC_ENDPOINT = 'gsoc'
