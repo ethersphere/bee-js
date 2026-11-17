@@ -1,5 +1,5 @@
-import { BAD_PORTS } from './bad-ports'
-import { BeeArgumentError } from './error'
+import { BAD_PORTS } from './bad-ports.js'
+import { BeeArgumentError } from './error.js'
 
 /**
  * Validates that passed string is valid URL of Bee.

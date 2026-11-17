@@ -9,14 +9,14 @@ import {
   FileData,
   FileUploadOptions,
   UploadResult,
-} from '../types'
-import { UploadResultBody } from '../types/schema/upload'
-import { assertCollection } from '../utils/collection'
-import { prepareRequestHeaders, readFileHeaders } from '../utils/headers'
-import { http } from '../utils/http'
-import { ResourceLocator } from '../utils/resource-locator'
-import { uploadTar } from '../utils/tar-uploader'
-import { isReadable, makeTagUid } from '../utils/type'
+} from '../types/index.js'
+import { UploadResultBody } from '../types/schema/upload.js'
+import { assertCollection } from '../utils/collection.js'
+import { prepareRequestHeaders, readFileHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
+import { ResourceLocator } from '../utils/resource-locator.js'
+import { uploadTar } from '../utils/tar-uploader.js'
+import { isReadable, makeTagUid } from '../utils/type.js'
 
 const bzzEndpoint = 'bzz'
 

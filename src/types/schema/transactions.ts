@@ -1,6 +1,6 @@
 import { TransactionId } from '@ethersphere/core-sdk'
 import { z } from 'zod'
-import { asNumberString } from '../../utils/type'
+import { asNumberString } from '../../utils/type.js'
 
 const TransactionInfoSchema = z.object({
   transactionHash: z.string().transform(s => new TransactionId(s)),

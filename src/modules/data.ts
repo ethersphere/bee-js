@@ -1,18 +1,18 @@
 import { BatchId, Bytes, Reference } from '@ethersphere/core-sdk'
 import { Readable } from 'stream'
-import * as bytes from '../api/bytes'
-import * as stewardship from '../api/stewardship'
+import * as bytes from '../api/bytes.js'
+import * as stewardship from '../api/stewardship.js'
 import type {
   BeeRequestOptions,
   DownloadOptions,
   RedundantUploadOptions,
   ReferenceInformation,
   UploadResult,
-} from '../types'
-import { ResourceLocator } from '../utils/resource-locator'
-import { DownloadOptionsSchema, RedundantUploadOptionsSchema } from '../utils/schema'
-import { assertData } from '../utils/type'
-import type { BeeContext } from './context'
+} from '../types/index.js'
+import { ResourceLocator } from '../utils/resource-locator.js'
+import { DownloadOptionsSchema, RedundantUploadOptionsSchema } from '../utils/schema.js'
+import { assertData } from '../utils/type.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Raw data operations backed by the `/bytes` endpoint.

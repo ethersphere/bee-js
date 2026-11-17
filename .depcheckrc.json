@@ -1,18 +1,9 @@
 {
   "ignores": [
-    "@babel/core",
-    "@babel/plugin-proposal-class-properties",
-    "babel-plugin-add-import-extension",
-    "@babel/plugin-transform-runtime",
-    "@babel/preset-env",
-    "@babel/preset-typescript",
     "@commitlint/cli",
     "@commitlint/config-conventional",
-    "babel-jest",
-    "babel-loader",
     "husky",
     "ts-node",
-    "webpack-cli",
     "playwright-test",
     "@types/jest",
     "ts-jest",

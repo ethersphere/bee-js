@@ -1,13 +1,13 @@
-import type { BeeRequestOptions, ChainState, ReserveState } from '../types'
-import type { DebugStatus, Health, NodeInfo, Readiness } from '../types/debug'
+import type { BeeRequestOptions, ChainState, ReserveState } from '../types/index.js'
+import type { DebugStatus, Health, NodeInfo, Readiness } from '../types/debug.js'
 import {
   GetDebugStatusResponse,
   GetHealthResponse,
   GetNodeInfoResponse,
   GetReadinessResponse,
-} from '../types/schema/status'
-import { GetChainStateResponse, GetReserveStateResponse } from '../types/schema/states'
-import { http } from '../utils/http'
+} from '../types/schema/status.js'
+import { GetChainStateResponse, GetReserveStateResponse } from '../types/schema/states.js'
+import { http } from '../utils/http.js'
 
 const NODE_INFO_URL = 'node'
 const STATUS_URL = 'status'

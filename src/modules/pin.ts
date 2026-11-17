@@ -1,8 +1,8 @@
 import { BatchId, Reference } from '@ethersphere/core-sdk'
-import * as pinApi from '../api/pin'
-import * as stewardshipApi from '../api/stewardship'
-import type { BeeRequestOptions, Pin as PinData } from '../types'
-import type { BeeContext } from './context'
+import * as pinApi from '../api/pin.js'
+import * as stewardshipApi from '../api/stewardship.js'
+import type { BeeRequestOptions, Pin as PinData } from '../types/index.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Local pinning operations.

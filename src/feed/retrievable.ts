@@ -1,8 +1,8 @@
 import { EthAddress, FeedIndex, Reference, Topic } from '@ethersphere/core-sdk'
 import { Objects } from 'cafe-utility'
-import { Bee } from '../bee'
-import { BeeRequestOptions, DownloadOptions } from '../types'
-import { getFeedUpdateChunkReference } from './index'
+import { Bee } from '../bee.js'
+import { BeeRequestOptions, DownloadOptions } from '../types/index.js'
+import { getFeedUpdateChunkReference } from './index.js'
 
 /**
  * Function that checks if a chunk is retrievable by actually downloading it.

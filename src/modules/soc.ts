@@ -1,7 +1,7 @@
 import { EthAddress, PrivateKey } from '@ethersphere/core-sdk'
-import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from '../chunk/soc'
-import type { BeeRequestOptions, SOCReader, SOCWriter } from '../types'
-import type { BeeContext } from './context'
+import { downloadSingleOwnerChunk, uploadSingleOwnerChunkData } from '../chunk/soc.js'
+import type { BeeRequestOptions, SOCReader, SOCWriter } from '../types/index.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Single owner chunk (SOC) reader/writer operations.

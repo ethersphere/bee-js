@@ -19,20 +19,20 @@ import {
   unmarshalSingleOwnerChunk,
   uploadSingleOwnerChunkData,
   uploadSingleOwnerChunkWithWrappedChunk,
-} from '../chunk/soc'
-import * as bytes from '../api/bytes'
-import * as chunkAPI from '../api/chunk'
+} from '../chunk/soc.js'
+import * as bytes from '../api/bytes.js'
+import * as chunkAPI from '../api/chunk.js'
 import {
   FeedPayloadResult,
   FeedReferenceResult,
   FeedUpdateOptions,
   fetchLatestFeedUpdate,
   probeFeed,
-} from '../api/feed'
-import { BeeRequestOptions, FeedReader, FeedWriter, UploadOptions, UploadResult } from '../types'
-import { BeeResponseError } from '../utils/error'
-import { ResourceLocator } from '../utils/resource-locator'
-import { makeFeedIdentifier } from './identifier'
+} from '../api/feed.js'
+import { BeeRequestOptions, FeedReader, FeedWriter, UploadOptions, UploadResult } from '../types/index.js'
+import { BeeResponseError } from '../utils/error.js'
+import { ResourceLocator } from '../utils/resource-locator.js'
+import { makeFeedIdentifier } from './identifier.js'
 
 const TIMESTAMP_PAYLOAD_OFFSET = 0
 const TIMESTAMP_PAYLOAD_SIZE = 8

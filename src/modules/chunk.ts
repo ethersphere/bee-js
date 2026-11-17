@@ -1,11 +1,11 @@
 import { BatchId, Chunk as ContentAddressedChunk, Identifier, Reference, Signature, Span } from '@ethersphere/core-sdk'
-import { SingleOwnerChunk } from '../chunk/soc'
-import type { BeeRequestOptions, ChunkUploadOptions, DownloadOptions, EnvelopeWithBatchId } from '../types'
-import { CHUNK_SIZE, UploadResult } from '../types'
-import { BeeArgumentError } from '../utils/error'
-import { DownloadOptionsSchema, UploadOptionsSchema } from '../utils/schema'
-import * as api from '../api/chunk'
-import type { BeeContext } from './context'
+import { SingleOwnerChunk } from '../chunk/soc.js'
+import type { BeeRequestOptions, ChunkUploadOptions, DownloadOptions, EnvelopeWithBatchId } from '../types/index.js'
+import { CHUNK_SIZE, UploadResult } from '../types/index.js'
+import { BeeArgumentError } from '../utils/error.js'
+import { DownloadOptionsSchema, UploadOptionsSchema } from '../utils/schema.js'
+import * as api from '../api/chunk.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Chunk operations backed by the `/chunks` endpoint.

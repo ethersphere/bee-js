@@ -1,6 +1,6 @@
-export { getCollectionSize, makeCollectionFromFileList } from './collection'
-export { getFolderSize } from './collection.node'
-export { makeMaxTarget } from './pss'
+export { getCollectionSize, makeCollectionFromFileList } from './collection.js'
+export { getFolderSize } from './collection.node.js'
+export { makeMaxTarget } from './pss.js'
 export { approximateOverheadForRedundancyLevel, getRedundancyStat, getRedundancyStats } from '@ethersphere/core-sdk'
 export {
   convertEnvelopeToMarshaledStamp,
@@ -14,4 +14,4 @@ export {
   getStampUsage,
   mapPostageBatch,
   unmapPostageBatch,
-} from './stamps'
+} from './stamps.js'

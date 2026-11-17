@@ -1,7 +1,7 @@
 import { Reference } from '@ethersphere/core-sdk'
-import type { AllTagsOptions, BeeRequestOptions, Tag as TagData } from '../types'
-import { GetAllTagsResponse, TagSchema } from '../types/schema/tag'
-import { http } from '../utils/http'
+import type { AllTagsOptions, BeeRequestOptions, Tag as TagData } from '../types/index.js'
+import { GetAllTagsResponse, TagSchema } from '../types/schema/tag.js'
+import { http } from '../utils/http.js'
 
 const endpoint = 'tags'
 

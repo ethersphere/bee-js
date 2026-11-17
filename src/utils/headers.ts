@@ -1,8 +1,8 @@
 import { BatchId, PublicKey, Reference } from '@ethersphere/core-sdk'
 import { z } from 'zod'
-import { EnvelopeWithBatchId, FileHeaders } from '../types'
-import { BeeError } from './error'
-import { convertEnvelopeToMarshaledStamp } from './stamps'
+import { EnvelopeWithBatchId, FileHeaders } from '../types/index.js'
+import { BeeError } from './error.js'
+import { convertEnvelopeToMarshaledStamp } from './stamps.js'
 
 export function readFileHeaders(headers: Record<string, string>): FileHeaders {
   const name = readContentDispositionFilename(headers['content-disposition'])

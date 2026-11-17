@@ -1,6 +1,6 @@
 import { Optional } from 'cafe-utility'
-import { Bee, BeeRequestOptions, DownloadOptions, UploadOptions, UploadResult } from '..'
-import { FeedPayloadResult } from '../api/feed'
+import { Bee, BeeRequestOptions, DownloadOptions, UploadOptions, UploadResult } from '../index.js'
+import { FeedPayloadResult } from '../api/feed.js'
 import { BatchId, Bytes, MantarayNode as CoreMantarayNode, Reference } from '@ethersphere/core-sdk'
 
 /**

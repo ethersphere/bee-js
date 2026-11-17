@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { toBeeMode } from '../debug'
+import { toBeeMode } from '../debug.js'
 
 export const GetDebugStatusResponse = z.object({
   overlay: z.string(),

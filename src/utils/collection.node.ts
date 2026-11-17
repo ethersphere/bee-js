@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { Collection } from '../types'
+import { Collection } from '../types/index.js'
 
 /**
  * Creates array in the format of Collection with data loaded from directory on filesystem.
