@@ -1,4 +1,5 @@
-import { AsyncQueue, Strings } from 'cafe-utility'
+import { AsyncQueue } from './async-queue.js'
+import { parseFilename } from './file.js'
 import { createReadStream } from 'fs'
 import { Bee, BeeRequestOptions, CollectionUploadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '../index.js'
 import { MantarayNode } from '../manifest/manifest.js'
@@ -22,7 +23,7 @@ export async function hashDirectory(dir: string) {
       await tree.append(data)
     }
     const rootChunk = await tree.finalize()
-    const { filename, extension } = Strings.parseFilename(file.path)
+    const { filename, extension } = parseFilename(file.path)
     mantaray.addFork(file.path, rootChunk.hash(), {
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,
@@ -80,7 +81,7 @@ export async function streamDirectory(
     const rootChunk = await tree.finalize()
     await queue.enqueue(async () => uploadAndTrack(rootChunk))
     await queue.drain()
-    const { filename, extension } = Strings.parseFilename(file.path)
+    const { filename, extension } = parseFilename(file.path)
     mantaray.addFork(file.path, rootChunk.hash(), {
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,

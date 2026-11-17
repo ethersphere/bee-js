@@ -1,5 +1,5 @@
 import { BatchId } from '@ethersphere/core-sdk'
-import { System } from 'cafe-utility'
+import { sleepMillis } from '../utils/sleep.js'
 import { z } from 'zod'
 import type {
   BeeRequestOptions,
@@ -240,7 +240,7 @@ export class Stamp {
         // ignore error
       }
 
-      await System.sleepMillis(TIME_STEP)
+      await sleepMillis(TIME_STEP)
     }
 
     throw new BeeError('Timeout on waiting for postage stamp to become usable')

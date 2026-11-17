@@ -9,6 +9,7 @@ const REPLACEMENTS = new Map([
   ['tar-writer.ts', 'tar-writer.browser.ts'],
   ['tar-uploader.ts', 'tar-uploader.browser.ts'],
   ['collection.node.ts', 'collection.browser.ts'],
+  ['websocket.ts', 'websocket.browser.ts'],
 ])
 
 module.exports = (moduleName, options) => {

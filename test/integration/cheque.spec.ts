@@ -1,4 +1,4 @@
-import { Dates, System } from 'cafe-utility'
+import { Dates, System } from '../../vendor/cafe-utility'
 import { Bee } from '../../src'
 import { makeBee } from '../utils'
 

@@ -1,5 +1,5 @@
 import { BatchId, EthAddress, Identifier, Reference, Signature } from '@ethersphere/core-sdk'
-import { Optional } from 'cafe-utility'
+import { Optional } from '../utils/optional.js'
 import type { BeeRequestOptions, ChunkUploadOptions, UploadResult } from '../types/index.js'
 import { UploadResultBody } from '../types/schema/upload.js'
 import { prepareRequestHeaders } from '../utils/headers.js'

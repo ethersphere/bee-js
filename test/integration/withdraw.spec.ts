@@ -1,4 +1,4 @@
-import { Dates, Strings, System, Types } from 'cafe-utility'
+import { Dates, Strings, System, Types } from '../../vendor/cafe-utility'
 import { BeeResponseError } from '../../src'
 import { makeBee } from '../utils'
 

@@ -1,4 +1,4 @@
-import { Strings } from 'cafe-utility'
+import { Strings } from '../../vendor/cafe-utility'
 import { Reference } from '@ethersphere/core-sdk'
 
 test('Reference.isValid', () => {

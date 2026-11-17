@@ -1,5 +1,5 @@
 import { BatchId, EthAddress, FeedIndex, PrivateKey, Reference, Topic } from '@ethersphere/core-sdk'
-import { Objects } from 'cafe-utility'
+import { getDeep } from '../utils/object.js'
 import { createFeedManifest, fetchLatestFeedUpdate } from '../api/feed.js'
 import type { FeedPayloadResult } from '../api/feed.js'
 import { makeFeedReader, makeFeedWriter } from '../feed/index.js'
@@ -138,7 +138,7 @@ export class Feed {
 
         return true
       } catch (e: unknown) {
-        const status = Objects.getDeep(e, 'status')
+        const status = getDeep(e, 'status')
 
         if (status === 404 || status === 500) {
           return false

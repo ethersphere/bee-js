@@ -1,5 +1,5 @@
 import { BatchId, Bytes, Reference } from '@ethersphere/core-sdk'
-import { Optional } from 'cafe-utility'
+import { Optional } from '../utils/optional.js'
 import { Readable } from 'stream'
 import type {
   BeeRequestOptions,

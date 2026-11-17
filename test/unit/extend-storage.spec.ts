@@ -1,4 +1,4 @@
-import { Dates, System } from 'cafe-utility'
+import { Dates, System } from '../../vendor/cafe-utility'
 import { Bee, Duration, Size } from '../../src'
 
 const bee = new Bee('http://localhost:16337')

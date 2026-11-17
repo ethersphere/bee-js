@@ -74,3 +74,26 @@ export function stripLastSlash(url: string): string {
 
   return url
 }
+
+export function joinUrl(parts: string[]): string {
+  const nonEmpty = parts.filter(part => part)
+  let protocol = ''
+
+  if (nonEmpty[0]?.includes('://')) {
+    const separator = nonEmpty[0].indexOf('://')
+    protocol = nonEmpty[0].slice(0, separator)
+    nonEmpty[0] = nonEmpty[0].slice(separator + 3)
+  }
+
+  const segments: string[] = []
+
+  for (const segment of nonEmpty.flatMap(part => part.split('/')).filter(part => part !== '.')) {
+    if (segment !== '..') {
+      segments.push(segment)
+    } else if (!protocol || segments.length > 1) {
+      segments.pop()
+    }
+  }
+
+  return (protocol ? `${protocol}://` : '') + segments.join('/').replace(/\/{2,}/g, '/')
+}

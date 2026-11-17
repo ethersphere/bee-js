@@ -15,7 +15,8 @@ cat >dist/cjs/package.json <<!EOF
       "./utils/tar-uploader.js": "./utils/tar-uploader.browser.js",
       "./utils/chunk-stream.js": "./utils/chunk-stream.browser.js",
       "./utils/data.js": "./utils/data.browser.js",
-      "./utils/collection.node.js": "./utils/collection.browser.js"
+      "./utils/collection.node.js": "./utils/collection.browser.js",
+      "./utils/websocket.js": "./utils/websocket.browser.js"
     }
 }
 !EOF
@@ -31,7 +32,8 @@ cat >dist/mjs/package.json <<!EOF
      "./utils/tar-uploader.js": "./utils/tar-uploader.browser.js",
      "./utils/chunk-stream.js": "./utils/chunk-stream.browser.js",
      "./utils/data.js": "./utils/data.browser.js",
-     "./utils/collection.node.js": "./utils/collection.browser.js"
+     "./utils/collection.node.js": "./utils/collection.browser.js",
+     "./utils/websocket.js": "./utils/websocket.browser.js"
     }
 }
 !EOF
