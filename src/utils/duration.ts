@@ -1,4 +1,5 @@
-import { Dates } from 'cafe-utility'
+import { BeeError } from './error.js'
+import { parseNumberWithUnit } from './number-with-unit.js'
 
 export class Duration {
   private seconds: number
@@ -64,7 +65,7 @@ export class Duration {
    * @returns a `Duration` instance
    */
   static parseFromString(duration: string): Duration {
-    return Duration.fromSeconds(Dates.make(duration) / 1000)
+    return Duration.fromSeconds(parseDurationMillis(duration) / 1000)
   }
 
   toSeconds(): number {
@@ -92,10 +93,88 @@ export class Duration {
   }
 
   represent(): string {
-    return Dates.secondsToHumanTime(this.seconds)
+    return formatDuration(this.seconds)
   }
 
   isZero(): boolean {
     return this.seconds === 0
   }
+}
+
+const SECOND = 1000
+const MINUTE = 60 * SECOND
+const HOUR = 60 * MINUTE
+const DAY = 24 * HOUR
+const WEEK = 7 * DAY
+
+const DATE_UNITS: Record<string, number> = {
+  ms: 1,
+  milli: 1,
+  millis: 1,
+  millisecond: 1,
+  milliseconds: 1,
+  s: SECOND,
+  sec: SECOND,
+  second: SECOND,
+  seconds: SECOND,
+  m: MINUTE,
+  min: MINUTE,
+  minute: MINUTE,
+  minutes: MINUTE,
+  h: HOUR,
+  hour: HOUR,
+  hours: HOUR,
+  d: DAY,
+  day: DAY,
+  days: DAY,
+  w: WEEK,
+  week: WEEK,
+  weeks: WEEK,
+  month: 30 * DAY,
+  months: 30 * DAY,
+  y: 365 * DAY,
+  year: 365 * DAY,
+  years: 365 * DAY,
+}
+
+function parseDurationMillis(numberWithUnit: string): number {
+  const { amount, unit } = parseNumberWithUnit(numberWithUnit)
+
+  if (isNaN(amount)) {
+    throw new BeeError('makeDate got NaN for input')
+  }
+  const multiplier = unit === '' ? 1 : DATE_UNITS[unit]
+
+  if (!multiplier) {
+    throw new BeeError(`Unknown unit: "${unit}"`)
+  }
+
+  return Math.ceil(amount * multiplier)
+}
+
+function formatDuration(seconds: number): string {
+  if (seconds < 10) {
+    return 'A few seconds'
+  }
+
+  if (seconds < 120) {
+    return `${Math.floor(seconds)} seconds`
+  }
+  const minutes = seconds / 60
+
+  if (minutes < 120) {
+    return `${Math.floor(minutes)} minutes`
+  }
+  const hours = minutes / 60
+
+  if (hours < 48) {
+    return `${Math.floor(hours)} hours`
+  }
+  const days = hours / 24
+
+  if (days < 14) {
+    return `${Math.floor(days)} days`
+  }
+
+  return `${Math.floor(days / 7)} weeks`
 }

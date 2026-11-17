@@ -1,4 +1,4 @@
-import { Dates, Objects, Strings, System } from 'cafe-utility'
+import { Dates, Objects, Strings, System } from '../../vendor/cafe-utility'
 import { makeContentAddressedChunk } from '@ethersphere/core-sdk'
 import { batch, makeBee } from '../utils'
 

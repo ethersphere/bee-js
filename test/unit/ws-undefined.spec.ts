@@ -1,4 +1,4 @@
-import { Dates, System } from 'cafe-utility'
+import { Dates, System } from '../../vendor/cafe-utility'
 import { Bee, NULL_IDENTIFIER, NULL_OWNER } from '../../src'
 
 test('WebSocket undefined headers', async () => {

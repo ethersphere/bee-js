@@ -10,7 +10,7 @@ import {
   makeContentAddressedChunk,
   unmarshalContentAddressedChunk,
 } from '@ethersphere/core-sdk'
-import { Objects } from 'cafe-utility'
+import { deepMerge2 } from './utils/object.js'
 import { postEnvelope } from './api/envelope.js'
 import { rchash } from './api/rchash.js'
 import { SingleOwnerChunk, makeSOCAddress, makeSingleOwnerChunk, unmarshalSingleOwnerChunk } from './chunk/soc.js'
@@ -384,6 +384,6 @@ export class Bee {
       requestOptions = BeeRequestOptionsSchema.parse(requestOptions)
     }
 
-    return requestOptions ? Objects.deepMerge2(this.requestOptions, requestOptions) : this.requestOptions
+    return requestOptions ? deepMerge2(this.requestOptions, requestOptions) : this.requestOptions
   }
 }

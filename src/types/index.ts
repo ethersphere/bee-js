@@ -11,7 +11,7 @@ import {
   Topic,
   TransactionId,
 } from '@ethersphere/core-sdk'
-import { Optional } from 'cafe-utility'
+import { Optional } from '../utils/optional.js'
 import type { SingleOwnerChunk } from '../chunk/soc.js'
 import type { FeedUploadOptions } from '../feed/index.js'
 import type { FeedPayloadResult, FeedReferenceResult, FeedUpdateOptions } from '../api/feed.js'

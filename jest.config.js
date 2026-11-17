@@ -1,4 +1,4 @@
-import { Dates, Strings, System, Types } from 'cafe-utility'
+import { Dates, Strings, System, Types } from './vendor/cafe-utility/index.js'
 
 export default async () => {
   const url = Types.asString(process.env.JEST_BEE_URL, { name: 'JEST_BEE_URL' })

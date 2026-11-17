@@ -74,7 +74,6 @@
   },
   "dependencies": {
     "@ethersphere/core-sdk": "^0.3.0",
-    "cafe-utility": "^34.0.0",
     "debug": "^4.4.3",
     "ws": "^8.21.0",
     "zod": "^4.6.6"

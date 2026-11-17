@@ -1,5 +1,5 @@
 import { BatchId, Reference } from '@ethersphere/core-sdk'
-import { Optional } from 'cafe-utility'
+import { Optional } from '../utils/optional.js'
 import type {
   BeeRequestOptions,
   ChunkUploadOptions,

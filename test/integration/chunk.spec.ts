@@ -1,4 +1,4 @@
-import { Random, Strings } from 'cafe-utility'
+import { Random, Strings } from '../../vendor/cafe-utility'
 import { makeContentAddressedChunk } from '@ethersphere/core-sdk'
 import { arbitraryPrivateKey, batch, makeBee } from '../utils'
 

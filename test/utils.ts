@@ -1,4 +1,4 @@
-import { Strings, Types } from 'cafe-utility'
+import { Strings, Types } from '../vendor/cafe-utility'
 import { Bee } from '../src'
 
 export function makeBee() {

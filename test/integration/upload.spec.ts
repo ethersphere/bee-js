@@ -1,4 +1,4 @@
-import { Types } from 'cafe-utility'
+import { Types } from '../../vendor/cafe-utility'
 import { ReadStream } from 'fs'
 import { Bytes, ChunkSplitter, PrivateKey, Span, makeContentAddressedChunk } from '@ethersphere/core-sdk'
 import { BeeRequest, BeeRequestOptions, MantarayNode, NULL_ADDRESS } from '../../src'

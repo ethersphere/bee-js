@@ -1,4 +1,4 @@
-import { Strings } from 'cafe-utility'
+import { Strings } from '../../vendor/cafe-utility'
 import { PrivateKey } from '@ethersphere/core-sdk'
 
 test('Signature.isValid', () => {

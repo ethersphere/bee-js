@@ -1,4 +1,4 @@
-import { Dates, Strings, System } from 'cafe-utility'
+import { Dates, Strings, System } from '../../vendor/cafe-utility'
 import { FeedIndex, PrivateKey, Reference } from '@ethersphere/core-sdk'
 import { NULL_TOPIC } from '../../src'
 import { batch, makeBee } from '../utils'

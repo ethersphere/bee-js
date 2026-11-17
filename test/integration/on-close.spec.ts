@@ -1,4 +1,4 @@
-import { Dates, System } from 'cafe-utility'
+import { Dates, System } from '../../vendor/cafe-utility'
 import { createServer } from 'http'
 import { WebSocketServer } from 'ws'
 import { Bee, NULL_IDENTIFIER, NULL_TOPIC } from '../../src'

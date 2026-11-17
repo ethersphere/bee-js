@@ -1,5 +1,5 @@
 import { EthAddress, FeedIndex, Reference, Topic } from '@ethersphere/core-sdk'
-import { Objects } from 'cafe-utility'
+import { getDeep } from '../utils/object.js'
 import { Bee } from '../bee.js'
 import { BeeRequestOptions, DownloadOptions } from '../types/index.js'
 import { getFeedUpdateChunkReference } from './index.js'
@@ -23,7 +23,7 @@ async function isChunkRetrievable(
 
     return true
   } catch (e: unknown) {
-    const status = Objects.getDeep(e, 'status')
+    const status = getDeep(e, 'status')
 
     if (status === 404 || status === 500) {
       return false

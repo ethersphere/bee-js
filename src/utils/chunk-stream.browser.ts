@@ -1,4 +1,5 @@
-import { AsyncQueue, Strings } from 'cafe-utility'
+import { AsyncQueue } from './async-queue.js'
+import { parseFilename } from './file.js'
 import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '../index.js'
 import { MantarayNode } from '../manifest/manifest.js'
 import { totalChunks } from './chunk-size.js'
@@ -123,7 +124,7 @@ export async function streamFiles(
       readNextChunk()
     })
     await queue.drain()
-    const { filename, extension } = Strings.parseFilename(file.name)
+    const { filename, extension } = parseFilename(file.name)
     mantaray.addFork(makeFilePath(file), rootChunk.hash(), {
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,

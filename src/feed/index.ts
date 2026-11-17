@@ -1,4 +1,4 @@
-import { Optional } from 'cafe-utility'
+import { Optional } from '../utils/optional.js'
 import { z } from 'zod'
 import {
   BatchId,

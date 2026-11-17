@@ -1,4 +1,4 @@
-import { Dates, System } from 'cafe-utility'
+import { Dates, System } from '../../vendor/cafe-utility'
 import { PrivateKey, Topic } from '@ethersphere/core-sdk'
 import { MantarayNode, NULL_ADDRESS } from '../../src'
 import { arbitraryPrivateKey, arbitraryReference, batch, makeBee } from '../utils'

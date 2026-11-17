@@ -15,3 +15,25 @@ test('Duration.parseFromString', () => {
   expect(Duration.parseFromString('2weeks').toSeconds()).toEqual(Duration.fromWeeks(2).toSeconds())
   expect(Duration.parseFromString('1.5h').toSeconds()).toEqual(Duration.fromHours(1.5).toSeconds())
 })
+
+test('Duration.parseFromString converts units', () => {
+  expect(Duration.parseFromString('1.5h').toSeconds()).toBe(5400)
+  expect(Duration.parseFromString('2 weeks').toSeconds()).toBe(1_209_600)
+  expect(Duration.parseFromString('3000').toSeconds()).toBe(3)
+})
+
+test('Duration.parseFromString rejects unknown units and non-numbers', () => {
+  expect(() => Duration.parseFromString('3 eons')).toThrow('Unknown unit: "eons"')
+  expect(() => Duration.parseFromString('soon')).toThrow('makeDate got NaN for input')
+})
+
+test.each([
+  [9, 'A few seconds'],
+  [119, '119 seconds'],
+  [7199, '119 minutes'],
+  [172799, '47 hours'],
+  [1209599, '13 days'],
+  [1209600, '2 weeks'],
+])('Duration.fromSeconds(%d).represent()', (seconds, expected) => {
+  expect(Duration.fromSeconds(seconds).represent()).toBe(expected)
+})

@@ -1,4 +1,4 @@
-import { FixedPointNumber } from 'cafe-utility'
+import { FixedPointNumber } from './fixed-point-number.js'
 import { NumberString } from '../index.js'
 
 export class BZZ {

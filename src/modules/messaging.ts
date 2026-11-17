@@ -1,4 +1,4 @@
-import { Binary, System } from 'cafe-utility'
+import { whereAmI } from '../utils/environment.js'
 import WebSocket from '../utils/websocket.js'
 import {
   BatchId,
@@ -178,7 +178,7 @@ export class Messaging {
       const signer = new PrivateKey(numberToUint256(start + i, 'BE'))
       const socAddress = makeSOCAddress(id, signer.publicKey().address())
       // TODO: test the significance of the hardcoded 256
-      const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), overlay.toUint8Array())
+      const actualProximity = 256 - sharedPrefixBits(socAddress.toUint8Array(), overlay.toUint8Array())
 
       if (actualProximity <= 256 - proximity) {
         return signer
@@ -371,7 +371,7 @@ export class Messaging {
   private openWebSocket(path: string): WebSocket {
     const wsUrl = this.context.url.replace(/^http/i, 'ws')
 
-    if (System.whereAmI() === 'browser') {
+    if (whereAmI() === 'browser') {
       return new WebSocket(`${wsUrl}/${path}`)
     }
 
@@ -399,4 +399,20 @@ export class Messaging {
   private isCancelled(ws: WebSocket): boolean {
     return this.cancelled.has(ws)
   }
+}
+
+export function sharedPrefixBits(one: Uint8Array, other: Uint8Array): number {
+  const length = Math.min(one.length, other.length)
+
+  for (let i = 0; i < length; i++) {
+    const difference = one[i] ^ other[i]
+
+    for (let bit = 0; bit < 8; bit++) {
+      if ((difference >> (7 - bit)) & 1) {
+        return i * 8 + bit
+      }
+    }
+  }
+
+  return length * 8
 }
