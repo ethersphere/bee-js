@@ -10,7 +10,7 @@ import {
   verifyBpsChunk,
 } from '@ethersphere/core-sdk'
 import { WebSocket, WebSocketServer } from 'ws'
-import { Bee, BpsCloseEvent, BpsMessage, BpsPosition, BpsPublisher, BpsSubscription } from '../../src'
+import { Bee, BpsCloseCode, BpsCloseEvent, BpsMessage, BpsPosition, BpsPublisher, BpsSubscription } from '../../src'
 
 const TOPIC = '11'.repeat(32)
 const BROKER = 'ab'.repeat(32)
@@ -50,7 +50,7 @@ function delivery(kind: BpsKind, key: PrivateKey, index: bigint, payload?: Uint8
 }
 
 function challengeMessage(challenge: Bytes, dataTopic = bpsSessionTopic(BpsKind.Data, TOPIC, challenge)): string {
-  return JSON.stringify({ type: 'challenge', challenge: challenge.toHex(), dataTopic: dataTopic.toHex() })
+  return JSON.stringify({ challenge: challenge.toHex(), dataTopic: dataTopic.toHex() })
 }
 
 function parseFrame(data: Buffer) {
@@ -87,7 +87,7 @@ describe('bpsSubscribe', () => {
     return { messages, rosters, errors, closed, subscription }
   }
 
-  test('sends the broker, identity and position, and delivers updates', async () => {
+  test('sends the broker, owner and position, and delivers updates', async () => {
     let url!: URL
     onConnection = (socket, connectionUrl) => {
       url = connectionUrl
@@ -96,18 +96,18 @@ describe('bpsSubscribe', () => {
       socket.send(delivery(BpsKind.Roster, OWNER_KEY, 0n, encodeBpsRoster([SEAT])))
       socket.send(delivery(BpsKind.Data, SEAT_KEY, 0n, 'seat'))
       socket.send(delivery(BpsKind.Eos, OWNER_KEY, 0n))
-      socket.close(4004, 'end of stream')
+      socket.close(BpsCloseCode.EndOfStream, 'end of stream')
     }
 
     const { messages, rosters, closed, subscription } = subscribe({
-      identity: SEAT,
+      owner: SEAT,
       position: new BpsPosition(OWNER, { cursor: 3n }),
     })
     const event = await closed
 
-    expect(url.pathname).toBe(`/bps/subscribe/${OWNER.toHex()}/${TOPIC}`)
+    expect(url.pathname).toBe(`/bps/feeds/subscribe/${OWNER.toHex()}/${TOPIC}`)
     expect(url.searchParams.get('broker')).toBe(BROKER)
-    expect(url.searchParams.get('identity')).toBe(SEAT.toHex())
+    expect(url.searchParams.get('owner')).toBe(SEAT.toHex())
     expect(url.searchParams.get('cursor')).toBe('3')
     expect(url.searchParams.get('rosterCursor')).toBe('0')
     expect(messages.map(m => [m.publisher.toHex(), m.index, m.payload.toUtf8()])).toEqual([
@@ -115,7 +115,7 @@ describe('bpsSubscribe', () => {
       [SEAT.toHex(), 0n, 'seat'],
     ])
     expect(rosters).toEqual([[SEAT.toHex()]])
-    expect(event).toEqual({ code: 4004, reason: 'end of stream', ended: true })
+    expect(event).toEqual({ code: BpsCloseCode.EndOfStream, reason: 'end of stream', ended: true })
     expect(subscription.position.toQuery()).toEqual({ cursor: '6', rosterCursor: '1', roster: `${SEAT.toHex()}:1` })
     expect(subscription.position.ended).toBe(true)
   })
@@ -132,7 +132,7 @@ describe('bpsSubscribe', () => {
 
     expect(event.ended).toBe(false)
     expect(url.searchParams.get('roster')).toBe(`${SEAT.toHex()}:2`)
-    expect(url.searchParams.get('identity')).toHaveLength(40)
+    expect(url.searchParams.has('owner')).toBe(false)
   })
 
   test('reports a tampered chunk when verifying', async () => {
@@ -151,11 +151,11 @@ describe('bpsSubscribe', () => {
     expect(errors[0]).toMatch(/invalid bps delivery/)
   })
 
-  test('rejects the owner as identity and an ended position', () => {
+  test('rejects the principal as owner and an ended position', () => {
     const handler = { onMessage: () => undefined, onError: () => undefined, onClose: () => undefined }
 
-    expect(() => bee.messaging.bpsSubscribe(OWNER, TOPIC, handler, { broker: BROKER, identity: OWNER })).toThrow(
-      /cannot be the owner/,
+    expect(() => bee.messaging.bpsSubscribe(OWNER, TOPIC, handler, { broker: BROKER, owner: OWNER })).toThrow(
+      /cannot be the principal/,
     )
     expect(() =>
       bee.messaging.bpsSubscribe(OWNER, TOPIC, handler, {
@@ -167,7 +167,7 @@ describe('bpsSubscribe', () => {
 })
 
 describe('bpsPublish', () => {
-  test('owner authenticates, republishes its roster and publishes', async () => {
+  test('principal authenticates, republishes its roster and publishes', async () => {
     const challenge = new Bytes('44'.repeat(32))
     let url!: URL
     let frames!: Promise<ReturnType<typeof parseFrame>[]>
@@ -194,8 +194,9 @@ describe('bpsPublish', () => {
     publisher.cancel()
     const received = await frames
 
-    expect(url.pathname).toBe(`/bps/publish/${OWNER.toHex()}/${TOPIC}`)
-    expect(url.searchParams.get('identity')).toBe(OWNER.toHex())
+    expect(url.pathname).toBe(`/bps/feeds/subscribe/${OWNER.toHex()}/${TOPIC}`)
+    expect(url.searchParams.get('owner')).toBe(OWNER.toHex())
+    expect(url.searchParams.get('cursor')).toBe('0')
     expect(received.map(frame => [frame.kind, frame.index])).toEqual([
       [BpsKind.Auth, 0n],
       [BpsKind.Roster, 2n],
@@ -219,7 +220,7 @@ describe('bpsPublish', () => {
       frames = collect(socket)
       socket.send(challengeMessage(challenge))
       socket.send(delivery(BpsKind.Roster, OWNER_KEY, 0n, encodeBpsRoster([SEAT])))
-      grant = () => socket.send(JSON.stringify({ type: 'granted' }))
+      grant = () => socket.send('granted')
     }
 
     const rosters: string[][] = []
@@ -239,10 +240,11 @@ describe('bpsPublish', () => {
     const publisher = await pending
 
     expect(rosters).toEqual([[SEAT.toHex()]])
-    expect(publisher.identity.toHex()).toBe(SEAT.toHex())
+    expect(publisher.owner.toHex()).toBe(SEAT.toHex())
+    expect(publisher.principal.toHex()).toBe(OWNER.toHex())
     publisher.send('from seat')
-    expect(() => publisher.setRoster([])).toThrow(/only the owner/)
-    expect(() => publisher.end()).toThrow(/only the owner/)
+    expect(() => publisher.setRoster([])).toThrow(/only the principal/)
+    expect(() => publisher.end()).toThrow(/only the principal/)
     await new Promise(resolve => setTimeout(resolve, 50))
     publisher.cancel()
     const received = await frames
@@ -252,6 +254,16 @@ describe('bpsPublish', () => {
       [BpsKind.Data, 0n],
     ])
     expect(() => verifyBpsChunk({ ...received[1], owner: SEAT, challenge }, TOPIC)).not.toThrow()
+  })
+
+  test('rejects a roster naming the owner or an address twice', async () => {
+    onConnection = socket => socket.send(challengeMessage(new Bytes('99'.repeat(32))))
+    const publisher = await bee.messaging.bpsPublish(OWNER, TOPIC, { broker: BROKER })
+
+    expect(() => publisher.setRoster([OWNER])).toThrow(/cannot name the principal/)
+    expect(() => publisher.setRoster([SEAT, SEAT.toHex()])).toThrow(/twice/)
+    expect(publisher.nextRosterIndex).toBe(0n)
+    publisher.cancel()
   })
 
   test('rejects when the socket closes before authenticating', async () => {
