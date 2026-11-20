@@ -13,10 +13,9 @@ import {
   verifyBpsChunk,
 } from '@ethersphere/core-sdk'
 import WebSocket from '../utils/websocket.js'
+import { BpsCloseCode } from '../types/index.js'
 import type { BpsCloseEvent, BpsMessageHandler, BpsPublisher, BpsSubscription } from '../types/index.js'
-import { BeeError } from '../utils/error.js'
-
-const CLOSE_END_OF_STREAM = 4004
+import { BeeArgumentError, BeeError } from '../utils/error.js'
 
 export interface BpsSocket {
   ws: WebSocket
@@ -25,21 +24,18 @@ export interface BpsSocket {
 }
 
 interface Channel<S> {
-  owner: EthAddress
+  principal: EthAddress
   topic: Topic
   position: BpsPosition
   verify: boolean
   handler?: BpsMessageHandler<S>
 }
 
+const GRANTED = 'granted'
+
 interface ChallengeMessage {
-  type: 'challenge'
   challenge: string
   dataTopic: string
-}
-
-interface GrantedMessage {
-  type: 'granted'
 }
 
 function toBytes(data: unknown): Uint8Array {
@@ -54,8 +50,25 @@ function toBytes(data: unknown): Uint8Array {
   throw new BeeError('unexpected bps websocket data')
 }
 
+function assertValidRoster(principal: EthAddress, publishers: (EthAddress | Uint8Array | string)[]): void {
+  const seen = new Set<string>()
+
+  for (const publisher of publishers) {
+    const address = new EthAddress(publisher)
+
+    if (address.equals(principal)) {
+      throw new BeeArgumentError('bps roster cannot name the principal', publisher)
+    }
+
+    if (seen.has(address.toHex())) {
+      throw new BeeArgumentError('bps roster names an address twice', publisher)
+    }
+    seen.add(address.toHex())
+  }
+}
+
 function toCloseEvent(event: WebSocket.CloseEvent): BpsCloseEvent {
-  return { code: event.code, reason: event.reason, ended: event.code === CLOSE_END_OF_STREAM }
+  return { code: event.code, reason: event.reason, ended: event.code === BpsCloseCode.EndOfStream }
 }
 
 function receive<S>(channel: Channel<S>, data: unknown, subscription: S): void {
@@ -93,7 +106,7 @@ export function subscribe(
 ): BpsSubscription {
   const { ws } = socket
   const subscription: BpsSubscription = {
-    owner: channel.owner,
+    principal: channel.principal,
     topic: channel.topic,
     position: channel.position,
     cancel: socket.cancel,
@@ -125,8 +138,8 @@ export async function publish(
   signal?: AbortSignal,
 ): Promise<BpsPublisher> {
   const { ws } = socket
-  const identity = signer.publicKey().address()
-  const isOwner = identity.equals(channel.owner)
+  const owner = signer.publicKey().address()
+  const isPrincipal = owner.equals(channel.principal)
   let challenge: Bytes | undefined
   let ready = false
   let nextIndex = options.index
@@ -142,16 +155,16 @@ export async function publish(
     ws.send(encodeBpsPublishFrame(kind, index, soc))
   }
 
-  function assertOwner(action: string): void {
-    if (!isOwner) {
-      throw new BeeError(`only the owner can ${action}`)
+  function assertPrincipal(action: string): void {
+    if (!isPrincipal) {
+      throw new BeeError(`only the principal can ${action}`)
     }
   }
 
   const publisher: BpsPublisher = {
-    owner: channel.owner,
+    principal: channel.principal,
     topic: channel.topic,
-    identity,
+    owner,
     position: channel.position,
     get challenge() {
       if (!challenge) {
@@ -174,7 +187,8 @@ export async function publish(
       return index
     },
     setRoster(publishers) {
-      assertOwner('set the roster')
+      assertPrincipal('set the roster')
+      assertValidRoster(channel.principal, publishers)
       const index = nextRosterIndex
       sendChunk(BpsKind.Roster, index, encodeBpsRoster(publishers))
       nextRosterIndex = index + 1n
@@ -182,7 +196,7 @@ export async function publish(
       return index
     },
     end() {
-      assertOwner('end the channel')
+      assertPrincipal('end the channel')
       sendChunk(BpsKind.Eos, 0n)
     },
     cancel: socket.cancel,
@@ -199,7 +213,7 @@ export async function publish(
     function authenticate(): void {
       sendChunk(BpsKind.Auth, 0n)
 
-      if (isOwner && options.roster) {
+      if (isPrincipal && options.roster) {
         publisher.setRoster(options.roster)
       }
 
@@ -215,18 +229,23 @@ export async function publish(
       resolve(publisher)
     }
 
-    function control(message: ChallengeMessage | GrantedMessage): void {
-      if (message.type === 'challenge') {
-        challenge = new Bytes(message.challenge)
-
-        if (!bpsSessionTopic(BpsKind.Data, channel.topic, challenge).equals(message.dataTopic)) {
-          throw new BeeError('bps session topic mismatch between Bee and bee-js')
-        }
-
-        if (isOwner) {
+    function control(text: string): void {
+      if (text === GRANTED) {
+        if (!isPrincipal && !ready) {
           authenticate()
         }
-      } else if (message.type === 'granted' && !isOwner && !ready) {
+
+        return
+      }
+
+      const message: ChallengeMessage = JSON.parse(text)
+      challenge = new Bytes(message.challenge)
+
+      if (!bpsSessionTopic(BpsKind.Data, channel.topic, challenge).equals(message.dataTopic)) {
+        throw new BeeError('bps session topic mismatch between Bee and bee-js')
+      }
+
+      if (isPrincipal) {
         authenticate()
       }
     }
@@ -247,7 +266,7 @@ export async function publish(
       }
 
       try {
-        control(JSON.parse(event.data))
+        control(event.data)
       } catch (error) {
         const beeError = error instanceof BeeError ? error : new BeeError(`invalid bps message: ${error}`)
 
