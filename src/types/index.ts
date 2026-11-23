@@ -408,15 +408,25 @@ export interface BpsMessage {
   readonly payload: Bytes
 }
 
+export enum BpsCloseCode {
+  NodeShuttingDown = 1001,
+  FrameTooLarge = 1009,
+  InvalidSoc = 4001,
+  InvalidMessage = 4002,
+  BrokerGone = 4003,
+  EndOfStream = 4004,
+  AuthTimeout = 4005,
+}
+
 export interface BpsCloseEvent {
-  readonly code: number
+  readonly code: BpsCloseCode | number
   readonly reason: string
-  /** True when the owner ended the channel (close code 4004); do not resubscribe. */
+  /** True when the principal ended the channel (`BpsCloseCode.EndOfStream`); do not resubscribe. */
   readonly ended: boolean
 }
 
 export interface BpsSubscription {
-  readonly owner: EthAddress
+  readonly principal: EthAddress
   readonly topic: Topic
   /** Pass as `position` to a later subscription to resume where this one stopped. */
   readonly position: BpsPosition
@@ -424,9 +434,10 @@ export interface BpsSubscription {
 }
 
 export interface BpsPublisher {
-  readonly owner: EthAddress
+  readonly principal: EthAddress
   readonly topic: Topic
-  readonly identity: EthAddress
+  /** The signer's address: the principal, or a rostered seat. */
+  readonly owner: EthAddress
   readonly challenge: Bytes
   readonly position: BpsPosition
   /** Persist and pass back as `index` when reconnecting: indexes must never be reused. */
@@ -447,8 +458,8 @@ export interface BpsMessageHandler<S = BpsSubscription> {
 
 export interface BpsSubscribeOptions {
   broker: PeerAddress | Uint8Array | string
-  /** Defaults to a random address; must not be the owner. */
-  identity?: EthAddress | Uint8Array | string
+  /** Omit to only listen; must not be the principal. A rostered seat may later publish on the same stream. */
+  owner?: EthAddress | Uint8Array | string
   position?: BpsPosition
   /** Re-verify every chunk's signature locally instead of trusting the node. */
   verify?: boolean
@@ -456,11 +467,11 @@ export interface BpsSubscribeOptions {
 
 export interface BpsPublishOptions {
   broker: PeerAddress | Uint8Array | string
-  /** Defaults to the Bee instance signer; its address is the publishing identity. */
+  /** Defaults to the Bee instance signer; its address is the stream's owner. */
   signer?: PrivateKey | Uint8Array | string
   index?: bigint
   rosterIndex?: bigint
-  /** Owner only: the current roster, re-published right after authenticating. */
+  /** Principal only: the current roster, re-published right after authenticating. */
   roster?: (EthAddress | Uint8Array | string)[]
   /** Resends the AUTH at this interval (ms) so the broker keeps an idle channel alive. */
   heartbeat?: number
