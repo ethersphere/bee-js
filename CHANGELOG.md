@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [13.3.0](https://github.com/ethersphere/bee-js/compare/v13.2.0...v13.3.0) (2026-11-26)
+
+
+### Features
+
+* pubsub ([#1285](https://github.com/ethersphere/bee-js/issues/1285)) ([db70706](https://github.com/ethersphere/bee-js/commit/db70706798760d5eac0a56387c918899fc952808))
+* update pubsub implementation based on bee pr ([#1304](https://github.com/ethersphere/bee-js/issues/1304)) ([8b336cd](https://github.com/ethersphere/bee-js/commit/8b336cd10ceff7e82be7981809b9a2aee87ddfbb))
+
 ## [13.2.0](https://github.com/ethersphere/bee-js/compare/v13.1.0...v13.2.0) (2026-10-15)
 
 
