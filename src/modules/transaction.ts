@@ -1,8 +1,8 @@
 import { TransactionId } from '@ethersphere/core-sdk'
-import type { BeeRequestOptions, NumberString, TransactionInfo } from '../types'
-import { asNumberString } from '../utils/type'
-import * as api from '../api/transaction'
-import type { BeeContext } from './context'
+import type { BeeRequestOptions, NumberString, TransactionInfo } from '../types/index.js'
+import { asNumberString } from '../utils/type.js'
+import * as api from '../api/transaction.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Pending transaction operations for the Bee node's `/transactions` queue.

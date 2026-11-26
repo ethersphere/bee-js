@@ -1,4 +1,4 @@
-import { Strings, Types } from 'cafe-utility'
+import { Strings, Types } from '../../vendor/cafe-utility'
 import { Bytes, ChunkEntry, ChunkSplitter, Stamper } from '@ethersphere/core-sdk'
 import { makeBee } from '../utils'
 

@@ -1,8 +1,8 @@
 import { EthAddress, FeedIndex, Reference, Topic } from '@ethersphere/core-sdk'
-import { Objects } from 'cafe-utility'
-import { Bee } from '../bee'
-import { BeeRequestOptions, DownloadOptions } from '../types'
-import { getFeedUpdateChunkReference } from './index'
+import { getDeep } from '../utils/object.js'
+import { Bee } from '../bee.js'
+import { BeeRequestOptions, DownloadOptions } from '../types/index.js'
+import { getFeedUpdateChunkReference } from './index.js'
 
 /**
  * Function that checks if a chunk is retrievable by actually downloading it.
@@ -23,7 +23,7 @@ async function isChunkRetrievable(
 
     return true
   } catch (e: unknown) {
-    const status = Objects.getDeep(e, 'status')
+    const status = getDeep(e, 'status')
 
     if (status === 404 || status === 500) {
       return false

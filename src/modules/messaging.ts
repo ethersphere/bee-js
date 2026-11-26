@@ -1,5 +1,5 @@
-import { Binary, System } from 'cafe-utility'
-import WebSocket from 'isomorphic-ws'
+import { whereAmI } from '../utils/environment.js'
+import WebSocket from '../utils/websocket.js'
 import {
   BatchId,
   BpsPosition,
@@ -13,10 +13,10 @@ import {
   PublicKey,
   Topic,
 } from '@ethersphere/core-sdk'
-import * as pssApi from '../api/pss'
-import * as bps from '../bps'
-import type { BpsSocket } from '../bps'
-import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc'
+import * as pssApi from '../api/pss.js'
+import * as bps from '../bps/index.js'
+import type { BpsSocket } from '../bps/index.js'
+import { makeSOCAddress, uploadSingleOwnerChunk } from '../chunk/soc.js'
 import type {
   BeeRequestOptions,
   BpsMessageHandler,
@@ -30,21 +30,21 @@ import type {
   GsocSubscription,
   PssMessageHandler,
   PssSubscription,
-} from '../types'
-import { prepareWebsocketData } from '../utils/data'
-import { BeeArgumentError, BeeError } from '../utils/error'
+} from '../types/index.js'
+import { prepareWebsocketData } from '../utils/data.js'
+import { BeeArgumentError, BeeError } from '../utils/error.js'
 import {
   BpsMessageHandlerSchema,
   GsocMessageHandlerSchema,
   GsocSubscribeOptionsSchema,
   PssMessageHandlerSchema,
-} from '../utils/schema'
-import { assertData } from '../utils/type'
-import type { BeeContext } from './context'
+} from '../utils/schema.js'
+import { assertData } from '../utils/type.js'
+import type { BeeContext } from './context.js'
 
 const PSS_ENDPOINT = 'pss'
 const GSOC_ENDPOINT = 'gsoc'
-const BPS_ENDPOINT = 'bps'
+const BPS_ENDPOINT = 'bps/feeds/subscribe'
 
 /**
  * Messaging protocols — PSS (Postal Service for Swarm) and GSOC. Method names keep
@@ -178,7 +178,7 @@ export class Messaging {
       const signer = new PrivateKey(numberToUint256(start + i, 'BE'))
       const socAddress = makeSOCAddress(id, signer.publicKey().address())
       // TODO: test the significance of the hardcoded 256
-      const actualProximity = 256 - Binary.proximity(socAddress.toUint8Array(), overlay.toUint8Array())
+      const actualProximity = 256 - sharedPrefixBits(socAddress.toUint8Array(), overlay.toUint8Array())
 
       if (actualProximity <= 256 - proximity) {
         return signer
@@ -276,21 +276,21 @@ export class Messaging {
 
   /** Subscribes to a BPS live channel; pass a previous subscription's `position` to resume without duplicates. */
   bpsSubscribe(
-    owner: EthAddress | Uint8Array | string,
+    principal: EthAddress | Uint8Array | string,
     topic: Topic | Uint8Array | string,
     handler: BpsMessageHandler,
     options: BpsSubscribeOptions,
   ): BpsSubscription {
-    const ownerAddress = new EthAddress(owner)
+    const principalAddress = new EthAddress(principal)
     const bpsTopic = new Topic(topic)
     handler = BpsMessageHandlerSchema.parse(handler)
-    const identity = new EthAddress(options.identity ?? globalThis.crypto.getRandomValues(new Uint8Array(20)))
+    const owner = options.owner === undefined ? undefined : new EthAddress(options.owner)
 
-    if (identity.equals(ownerAddress)) {
-      throw new BeeArgumentError('bps subscriber identity cannot be the owner, use bpsPublish', options.identity)
+    if (owner?.equals(principalAddress)) {
+      throw new BeeArgumentError('bps subscriber owner cannot be the principal, use bpsPublish', options.owner)
     }
 
-    const position = options.position ?? new BpsPosition(ownerAddress)
+    const position = options.position ?? new BpsPosition(principalAddress)
 
     if (position.ended) {
       throw new BeeError('bps channel has ended')
@@ -298,13 +298,13 @@ export class Messaging {
 
     const params = new URLSearchParams({
       broker: new PeerAddress(options.broker).toHex(),
-      identity: identity.toHex(),
+      ...(owner && { owner: owner.toHex() }),
       ...position.toQuery(),
     })
-    const socket = this.openBpsSocket('subscribe', ownerAddress, bpsTopic, params)
+    const socket = this.openBpsSocket(principalAddress, bpsTopic, params)
 
     return bps.subscribe(socket, {
-      owner: ownerAddress,
+      principal: principalAddress,
       topic: bpsTopic,
       position,
       verify: options.verify ?? false,
@@ -312,14 +312,14 @@ export class Messaging {
     })
   }
 
-  /** Opens a BPS publisher stream as the signer (the owner or a rostered seat); resolves once authenticated. */
+  /** Opens a BPS publisher stream as the signer (the principal or a rostered seat); resolves once authenticated. */
   async bpsPublish(
-    owner: EthAddress | Uint8Array | string,
+    principal: EthAddress | Uint8Array | string,
     topic: Topic | Uint8Array | string,
     options: BpsPublishOptions,
     handler?: BpsMessageHandler<BpsPublisher>,
   ): Promise<BpsPublisher> {
-    const ownerAddress = new EthAddress(owner)
+    const principalAddress = new EthAddress(principal)
     const bpsTopic = new Topic(topic)
     const signer = options.signer ? new PrivateKey(options.signer) : this.context.signer
 
@@ -331,18 +331,20 @@ export class Messaging {
       handler = BpsMessageHandlerSchema.parse(handler)
     }
 
+    const position = options.position ?? new BpsPosition(principalAddress)
     const params = new URLSearchParams({
       broker: new PeerAddress(options.broker).toHex(),
-      identity: signer.publicKey().address().toHex(),
+      owner: signer.publicKey().address().toHex(),
+      ...position.toQuery(),
     })
-    const socket = this.openBpsSocket('publish', ownerAddress, bpsTopic, params)
+    const socket = this.openBpsSocket(principalAddress, bpsTopic, params)
 
     return bps.publish(
       socket,
       {
-        owner: ownerAddress,
+        principal: principalAddress,
         topic: bpsTopic,
-        position: options.position ?? new BpsPosition(ownerAddress),
+        position,
         verify: options.verify ?? false,
         handler,
       },
@@ -357,13 +359,8 @@ export class Messaging {
     )
   }
 
-  private openBpsSocket(
-    mode: 'subscribe' | 'publish',
-    owner: EthAddress,
-    topic: Topic,
-    params: URLSearchParams,
-  ): BpsSocket {
-    const ws = this.openWebSocket(`${BPS_ENDPOINT}/${mode}/${owner.toHex()}/${topic.toHex()}?${params.toString()}`)
+  private openBpsSocket(principal: EthAddress, topic: Topic, params: URLSearchParams): BpsSocket {
+    const ws = this.openWebSocket(`${BPS_ENDPOINT}/${principal.toHex()}/${topic.toHex()}?${params.toString()}`)
 
     return { ws, cancel: this.makeCancel(ws), isCancelled: () => this.isCancelled(ws) }
   }
@@ -371,7 +368,7 @@ export class Messaging {
   private openWebSocket(path: string): WebSocket {
     const wsUrl = this.context.url.replace(/^http/i, 'ws')
 
-    if (System.whereAmI() === 'browser') {
+    if (whereAmI() === 'browser') {
       return new WebSocket(`${wsUrl}/${path}`)
     }
 
@@ -399,4 +396,20 @@ export class Messaging {
   private isCancelled(ws: WebSocket): boolean {
     return this.cancelled.has(ws)
   }
+}
+
+export function sharedPrefixBits(one: Uint8Array, other: Uint8Array): number {
+  const length = Math.min(one.length, other.length)
+
+  for (let i = 0; i < length; i++) {
+    const difference = one[i] ^ other[i]
+
+    for (let bit = 0; bit < 8; bit++) {
+      if ((difference >> (7 - bit)) & 1) {
+        return i * 8 + bit
+      }
+    }
+  }
+
+  return length * 8
 }

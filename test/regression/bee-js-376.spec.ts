@@ -1,4 +1,4 @@
-import { Types } from 'cafe-utility'
+import { Types } from '../../vendor/cafe-utility'
 import { BeeRequest, BeeRequestOptions } from '../../src'
 import { batch, makeBee } from '../utils'
 

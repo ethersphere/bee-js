@@ -1,9 +1,9 @@
 import { Reference } from '@ethersphere/core-sdk'
-import * as api from '../api/tag'
-import type { AllTagsOptions, BeeRequestOptions, Tag as TagData } from '../types'
-import { AllTagsOptionsSchema } from '../utils/schema'
-import { makeTagUid } from '../utils/type'
-import type { BeeContext } from './context'
+import * as api from '../api/tag.js'
+import type { AllTagsOptions, BeeRequestOptions, Tag as TagData } from '../types/index.js'
+import { AllTagsOptionsSchema } from '../utils/schema.js'
+import { makeTagUid } from '../utils/type.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Tag operations for tracking upload and synchronization progress.

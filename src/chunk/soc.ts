@@ -13,10 +13,10 @@ import {
   makeSingleOwnerChunk as coreMakeSingleOwnerChunk,
   unmarshalSingleOwnerChunk as coreUnmarshalSingleOwnerChunk,
 } from '@ethersphere/core-sdk'
-import * as chunkAPI from '../api/chunk'
-import * as socAPI from '../api/soc'
-import { BeeRequestOptions, ChunkUploadOptions, UploadResult } from '../types'
-import { BeeError } from '../utils/error'
+import * as chunkAPI from '../api/chunk.js'
+import * as socAPI from '../api/soc.js'
+import { BeeRequestOptions, ChunkUploadOptions, UploadResult } from '../types/index.js'
+import { BeeError } from '../utils/error.js'
 
 export { makeSOCAddress }
 export type { SingleOwnerChunk }

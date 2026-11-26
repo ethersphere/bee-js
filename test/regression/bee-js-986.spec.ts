@@ -1,4 +1,4 @@
-import { Types } from 'cafe-utility'
+import { Types } from '../../vendor/cafe-utility'
 import { mocked } from '../mocks'
 import { batch } from '../utils'
 

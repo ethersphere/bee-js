@@ -1,10 +1,11 @@
-import { AsyncQueue, Strings } from 'cafe-utility'
-import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
-import { MantarayNode } from '../manifest/manifest'
-import { totalChunks } from './chunk-size'
-import { makeFilePath } from './collection'
-import { mimes } from './mime'
-import { UploadProgress } from './upload-progress'
+import { AsyncQueue } from './async-queue.js'
+import { parseFilename } from './file.js'
+import { Bee, BeeRequestOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '../index.js'
+import { MantarayNode } from '../manifest/manifest.js'
+import { totalChunks } from './chunk-size.js'
+import { makeFilePath } from './collection.js'
+import { mimes } from './mime.js'
+import { UploadProgress } from './upload-progress.js'
 import { BatchId, ChunkBuilder, ChunkEntry, ChunkSplitter, Reference } from '@ethersphere/core-sdk'
 
 export async function hashDirectory(_dir: string) {
@@ -123,7 +124,7 @@ export async function streamFiles(
       readNextChunk()
     })
     await queue.drain()
-    const { filename, extension } = Strings.parseFilename(file.name)
+    const { filename, extension } = parseFilename(file.name)
     mantaray.addFork(makeFilePath(file), rootChunk.hash(), {
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,

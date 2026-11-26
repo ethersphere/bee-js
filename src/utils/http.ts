@@ -1,6 +1,8 @@
-import { Objects, Strings, System } from 'cafe-utility'
+import { deepMerge3 } from './object.js'
+import { sleepMillis } from './sleep.js'
+import { joinUrl } from './url.js'
 import _debug from 'debug'
-import { BeeRequestOptions, BeeResponseError } from '../index'
+import { BeeRequestOptions, BeeResponseError } from '../index.js'
 
 const debug = _debug('bee-js:http')
 
@@ -40,11 +42,7 @@ export interface BeeRequestConfig extends RequestInit {
  */
 export async function http<T>(options: BeeRequestOptions, config: BeeRequestConfig): Promise<BeeResponse<T>> {
   const rawData = config.data
-  const requestConfig: BeeRequestConfig = Objects.deepMerge3(
-    DEFAULT_HTTP_CONFIG,
-    { ...config, data: undefined },
-    options,
-  )
+  const requestConfig: BeeRequestConfig = deepMerge3(DEFAULT_HTTP_CONFIG, { ...config, data: undefined }, options)
   requestConfig.data = rawData
 
   if (options.signal) {
@@ -64,7 +62,7 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
 
   options.onRequest?.({
     method,
-    url: Strings.joinUrl([requestConfig.baseURL ?? '', requestConfig.url ?? '']),
+    url: joinUrl([requestConfig.baseURL ?? '', requestConfig.url ?? '']),
     headers: { ...requestConfig.headers } as Record<string, string>,
     params: requestConfig.params,
   })
@@ -85,7 +83,7 @@ export async function http<T>(options: BeeRequestOptions, config: BeeRequestConf
 
       if (err.name === 'TimeoutError' && options.endlesslyRetry) {
         failedAttempts++
-        await System.sleepMillis(failedAttempts < FAST_RETRY_COUNT ? DELAY_FAST : DELAY_SLOW)
+        await sleepMillis(failedAttempts < FAST_RETRY_COUNT ? DELAY_FAST : DELAY_SLOW)
       } else {
         throw toBeeError(err, method, url)
       }
@@ -175,7 +173,7 @@ export async function toBeeResponse<T>(res: Response, responseType: BeeResponseT
 }
 
 function buildUrl(config: BeeRequestConfig): string {
-  let url = Strings.joinUrl([config.baseURL ?? '', config.url ?? ''])
+  let url = joinUrl([config.baseURL ?? '', config.url ?? ''])
 
   if (config.params) {
     const qs = new URLSearchParams(

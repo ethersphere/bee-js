@@ -37,3 +37,12 @@ export async function fileArrayBuffer(file: File): Promise<ArrayBuffer> {
     fr.readAsArrayBuffer(file)
   })
 }
+
+export function parseFilename(path: string): { basename: string; extension: string; filename: string } {
+  const name = path.split(/\\|\//g).pop() ?? ''
+  const dot = name.lastIndexOf('.')
+  const basename = dot <= 0 ? name : name.slice(0, dot)
+  const extension = dot <= 0 ? '' : name.slice(dot + 1)
+
+  return { basename, extension, filename: extension ? `${basename}.${extension}` : basename }
+}

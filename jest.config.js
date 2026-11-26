@@ -1,4 +1,4 @@
-import { Dates, Strings, System, Types } from 'cafe-utility'
+import { Dates, Strings, System, Types } from './vendor/cafe-utility/index.js'
 
 export default async () => {
   const url = Types.asString(process.env.JEST_BEE_URL, { name: 'JEST_BEE_URL' })
@@ -32,6 +32,7 @@ export default async () => {
         displayName: 'node',
         testEnvironment: 'node',
         testRegex: 'test/.*(?<!\\.browser)\\.spec\\.ts',
+        moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
       },
     ],
     rootDir: 'test',

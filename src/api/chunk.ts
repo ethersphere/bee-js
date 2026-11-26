@@ -1,16 +1,16 @@
 import { BatchId, Reference } from '@ethersphere/core-sdk'
-import { Optional } from 'cafe-utility'
+import { Optional } from '../utils/optional.js'
 import type {
   BeeRequestOptions,
   ChunkUploadOptions,
   DownloadOptions,
   EnvelopeWithBatchId,
   UploadResult,
-} from '../types'
-import { UploadResultBody } from '../types/schema/upload'
-import { prepareRequestHeaders } from '../utils/headers'
-import { http } from '../utils/http'
-import { makeTagUid } from '../utils/type'
+} from '../types/index.js'
+import { UploadResultBody } from '../types/schema/upload.js'
+import { prepareRequestHeaders } from '../utils/headers.js'
+import { http } from '../utils/http.js'
+import { makeTagUid } from '../utils/type.js'
 
 const endpoint = 'chunks'
 

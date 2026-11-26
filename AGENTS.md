@@ -23,6 +23,7 @@ bee-js (`@ethersphere/bee-js`) is the JavaScript/TypeScript client for the [Bee]
 | `src/utils/` | Shared helpers: `http.ts` transport, `error.ts` (`BeeError`, `BeeArgumentError`, `BeeResponseError`), tokens, sizes, durations, tar, collections |
 | `src/utils/*.browser.ts` | Browser variants, swapped in through the `browser` map in `package.json` |
 | `src/bps/`, `src/feed/`, `src/chunk/`, `src/manifest/` | Feature logic that is too large for a module file |
+| `vendor/cafe-utility/` | Plain-JS helpers for tests, `jest.config.js` and `linkcheck.js`. Not shipped; library code must not import it |
 | `codemod/` | Migration runner for users upgrading across breaking versions |
 | `test/unit/` | Tests without a Bee node, using mocks such as a local `ws` server. `*.browser.spec.ts` runs in jsdom |
 | `test/integration/` | Tests against a real Bee node |

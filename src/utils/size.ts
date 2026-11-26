@@ -1,4 +1,5 @@
-import { Numbers } from 'cafe-utility'
+import { BeeError } from './error.js'
+import { parseNumberWithUnit } from './number-with-unit.js'
 
 /**
  * Represents a size in bytes.
@@ -57,7 +58,7 @@ export class Size {
    * @returns a `Size` instance
    */
   static parseFromString(size: string): Size {
-    return Size.fromBytes(Numbers.makeStorage(size, 1000))
+    return Size.fromBytes(parseSize(size, 1000))
   }
 
   toBytes(): number {
@@ -69,10 +70,57 @@ export class Size {
   }
 
   toFormattedString(): string {
-    return Numbers.convertBytes(this.bytes, 1000)
+    return formatSize(this.bytes, 1000)
   }
 
   represent(): string {
     return this.toFormattedString()
   }
+}
+
+const STORAGE_UNIT_EXPONENTS: Record<string, number> = {
+  b: 0,
+  byte: 0,
+  bytes: 0,
+  kb: 1,
+  kilobyte: 1,
+  kilobytes: 1,
+  mb: 2,
+  megabyte: 2,
+  megabytes: 2,
+  gb: 3,
+  gigabyte: 3,
+  gigabytes: 3,
+  tb: 4,
+  terabyte: 4,
+  terabytes: 4,
+}
+
+function parseSize(numberWithUnit: string, multiplier = 1024): number {
+  const { amount, unit } = parseNumberWithUnit(numberWithUnit)
+
+  if (isNaN(amount)) {
+    throw new BeeError('makeStorage got NaN for input')
+  }
+  const exponent = unit === '' ? 0 : STORAGE_UNIT_EXPONENTS[unit]
+
+  if (exponent === undefined) {
+    throw new BeeError(`Unknown unit: "${unit}"`)
+  }
+
+  return Math.ceil(amount * multiplier ** exponent)
+}
+
+function formatSize(bytes: number, divisor = 1024): string {
+  const units = ['TB', 'GB', 'MB', 'KB']
+
+  for (const [index, unit] of units.entries()) {
+    const size = divisor ** (units.length - index)
+
+    if (bytes >= size) {
+      return `${(bytes / size).toFixed(3)} ${unit}`
+    }
+  }
+
+  return `${bytes} B`
 }

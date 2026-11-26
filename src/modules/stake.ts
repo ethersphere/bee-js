@@ -1,12 +1,12 @@
 import { TransactionId } from '@ethersphere/core-sdk'
 import { z } from 'zod'
-import type { BeeRequestOptions, NumberString, RedistributionState, TransactionOptions } from '../types'
-import { TransactionOptionsSchema } from '../utils/schema'
-import { BZZ } from '../utils/tokens'
-import { asNumberString } from '../utils/type'
-import * as stakeApi from '../api/stake'
-import * as redistributionApi from '../api/redistributionstate'
-import type { BeeContext } from './context'
+import type { BeeRequestOptions, NumberString, RedistributionState, TransactionOptions } from '../types/index.js'
+import { TransactionOptionsSchema } from '../utils/schema.js'
+import { BZZ } from '../utils/tokens.js'
+import { asNumberString } from '../utils/type.js'
+import * as stakeApi from '../api/stake.js'
+import * as redistributionApi from '../api/redistributionstate.js'
+import type { BeeContext } from './context.js'
 
 /**
  * Staking operations.

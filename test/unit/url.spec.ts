@@ -1,5 +1,5 @@
 import { Bee } from '../../src'
-import { assertBeeUrl } from '../../src/utils/url'
+import { assertBeeUrl, joinUrl } from '../../src/utils/url'
 
 describe('URL utils', () => {
   test('when URL contains bad port, assertBeeUrl throws', () => {
@@ -11,4 +11,14 @@ describe('URL utils', () => {
     expect(() => new Bee('http://localhost:25')).toThrow('Port in URL is considered bad port and cannot be used!')
     expect(() => new Bee('http://localhost:69')).toThrow('Port in URL is considered bad port and cannot be used!')
   })
+})
+
+test.each([
+  [['http://localhost:1633', 'bytes'], 'http://localhost:1633/bytes'],
+  [['http://localhost:1633/', '/bytes/'], 'http://localhost:1633/bytes/'],
+  [['https://host/api', '../chunks'], 'https://host/chunks'],
+  [['http://host', '..'], 'http://host'],
+  [['', 'status'], 'status'],
+])('joinUrl(%j)', (parts, expected) => {
+  expect(joinUrl(parts)).toBe(expected)
 })

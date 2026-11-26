@@ -1,4 +1,4 @@
-const { Strings } = require('cafe-utility')
+const { Strings } = require('./vendor/cafe-utility')
 const { readdirSync, statSync, readFileSync } = require('fs')
 const { join } = require('path')
 

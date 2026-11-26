@@ -1,11 +1,12 @@
-import { AsyncQueue, Strings } from 'cafe-utility'
+import { AsyncQueue } from './async-queue.js'
+import { parseFilename } from './file.js'
 import { createReadStream } from 'fs'
-import { Bee, BeeRequestOptions, CollectionUploadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '..'
-import { MantarayNode } from '../manifest/manifest'
-import { totalChunks } from './chunk-size'
-import { makeCollectionFromFS } from './collection.node'
-import { mimes } from './mime'
-import { UploadProgress } from './upload-progress'
+import { Bee, BeeRequestOptions, CollectionUploadOptions, NULL_ADDRESS, UploadOptions, UploadResult } from '../index.js'
+import { MantarayNode } from '../manifest/manifest.js'
+import { totalChunks } from './chunk-size.js'
+import { makeCollectionFromFS } from './collection.node.js'
+import { mimes } from './mime.js'
+import { UploadProgress } from './upload-progress.js'
 import { BatchId, ChunkEntry, ChunkSplitter } from '@ethersphere/core-sdk'
 
 export async function hashDirectory(dir: string) {
@@ -22,7 +23,7 @@ export async function hashDirectory(dir: string) {
       await tree.append(data)
     }
     const rootChunk = await tree.finalize()
-    const { filename, extension } = Strings.parseFilename(file.path)
+    const { filename, extension } = parseFilename(file.path)
     mantaray.addFork(file.path, rootChunk.hash(), {
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,
@@ -80,7 +81,7 @@ export async function streamDirectory(
     const rootChunk = await tree.finalize()
     await queue.enqueue(async () => uploadAndTrack(rootChunk))
     await queue.drain()
-    const { filename, extension } = Strings.parseFilename(file.path)
+    const { filename, extension } = parseFilename(file.path)
     mantaray.addFork(file.path, rootChunk.hash(), {
       'Content-Type': maybeEnrichMime(mimes[extension.toLowerCase()] || 'application/octet-stream'),
       Filename: filename,

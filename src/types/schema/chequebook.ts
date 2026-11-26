@@ -1,7 +1,7 @@
 import { EthAddress, TransactionId } from '@ethersphere/core-sdk'
 import { z } from 'zod'
-import { BZZ } from '../../utils/tokens'
-import { asNumberString } from '../../utils/type'
+import { BZZ } from '../../utils/tokens.js'
+import { asNumberString } from '../../utils/type.js'
 
 const ChequeSchema = z.object({
   beneficiary: z.string().transform(s => new EthAddress(s)),
