@@ -1,1 +1,5 @@
-* 
+* @ethersphere/js @darkobas2 @crtahlin
+
+# Workflows, release configuration and packaging
+/.github/   @ethersphere/release-reviewers
+/CODEOWNERS @ethersphere/release-reviewers
