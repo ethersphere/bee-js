@@ -10,7 +10,32 @@ permissions:
   contents: write
 
 jobs:
+  # Runs before the job that holds REPO_GHA_PAT and moves master,
+  # so a commit that is not on a protected branch is rejected up front.
+  verify:
+    # same skip as promote: no point checking a release that will not be promoted
+    if: ${{ github.event.release.prerelease == false && !contains(github.event.release.tag_name, '-') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify release commit is on a protected branch
+        if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          BRANCHES: "upcoming"
+        run: |
+          set -euo pipefail
+          for b in $BRANCHES; do
+            st=$(gh api "repos/$REPO/compare/$b...$SHA" --jq .status 2>/dev/null || echo error)
+            if [ "$st" = identical ] || [ "$st" = behind ]; then echo "OK: $SHA is on $b"; exit 0; fi
+          done
+          echo "::error::$SHA is not on any of: $BRANCHES. Refusing to publish."; exit 1
+
   promote:
+    needs: verify
     # skip prereleases / any tag containing a `-` suffix (e.g. -upcoming, -rc)
     if: ${{ github.event.release.prerelease == false && !contains(github.event.release.tag_name, '-') }}
     runs-on: ubuntu-latest
